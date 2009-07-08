@@ -1,0 +1,16 @@
+#summary Some initial thoughts.
+
+= Introduction =
+
+We could use this to brain-storm a bit on how to do it right...
+
+= Details =
+
+There are just few random ideas on linux track:
+  * It would be a library (not sure if dynamic would be better than static, so for the start I'd go for static one) against which you'd link your program - XPlane in our case, but FlightGear or any other game/program could use it then.
+  * XPlane SDK allows to create some GUI I guess, but for a start we would use that Python/GTK for rapid prototyping... If it wouldn't be sufficient for some reason (speed or anything else), then we'd go for something else...
+  * For the TIR driver I'd use C, so it can be incorporated to the library itself... Also the speed is a factor there as you said. If you check in sources of your driver, I'll help you to convert them to C.
+  * In the mean time, I'll be working on cleaning up/commenting of the sources needed for pose computation and the support stuff, so we can put together a prototype and try it out.
+  * Given the fact, that I don't have TIR myself, I'm going to use my webcam instead. But the main part will be the same for both of us, so hopefully this setup will work well.
+
+
