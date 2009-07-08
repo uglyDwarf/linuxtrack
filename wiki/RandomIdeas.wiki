@@ -33,18 +33,18 @@ There would be a seperate x-plane plug in that would connect to this socket.  It
 If the user clicked on the system tray icon, it would pop up a configuration window.
 
 The configuration window would allow the following user inputs:
-* A quit option.  I think this should also appear on the tray icon context menu.
-* A disable option.  I think this should also appear on the tray icon context menu.
-* select input device (webcam or tir4 or whatever)
-* Input device-webcam specific parameters: for example, a webcam would need resolution info, and threshold info.
-* reflector/led model points, or select a predefined model
-* scaling factors of some sort for each axis/rotation
+ * A quit option.  I think this should also appear on the tray icon context menu.
+ * A disable option.  I think this should also appear on the tray icon context menu.
+ * select input device (webcam or tir4 or whatever)
+ * Input device-webcam specific parameters: for example, a webcam would need resolution info, and threshold info.
+ * reflector/led model points, or select a predefined model
+ * scaling factors of some sort for each axis/rotation
 
 The configuration window would give the following diagnostic outputs:
-* A red/green light on whether its tracking.  I think this should also appear on the tray icon.  Question: what should it do if it disconnects?
-* A thresholded real-time video image that also identifies trackable blob centers.  This is so a user can tell things are working right, and identify problems (like a mirror or the sun in the background).
-* A set of six horizontal bar graphs showing the pitch, yaw, roll, x,y,z in realtime.  It should show both the raw input, and the scaled input.  For example, the user could turn his head left to right and see the yaw bar go from far left to yaw right.
-* A 3d output showing the raw head, and scaled head.
+ * A red/green light on whether its tracking.  I think this should also appear on the tray icon.  Question: what should it do if it disconnects?
+ * A thresholded real-time video image that also identifies trackable blob centers.  This is so a user can tell things are working right, and identify problems (like a mirror or the sun in the background).
+ * A set of six horizontal bar graphs showing the pitch, yaw, roll, x,y,z in realtime.  It should show both the raw input, and the scaled input.  For example, the user could turn his head left to right and see the yaw bar go from far left to yaw right.
+ * A 3d output showing the raw head, and scaled head.
 
 === Implementation notes so far  ===
 I have uploaded my python code to trunk/python_prototype.  The main driver file is tir4.py.  You can take a crack at c-ifying it if you like.  If not I will do so soon.
