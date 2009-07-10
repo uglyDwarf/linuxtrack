@@ -1,3 +1,6 @@
+#ifndef TIR4_DRIVER__H
+#define TIR4_DRIVER__H
+
 #include <usb.h>
 
 void init(void);
@@ -9,3 +12,5 @@ void release_tir4(void);
 void close_tir4(void);
 struct usb_device *find_device(uint16_t, uint16_t);
 void error_alert(char *);
+
+#endif
