@@ -2,24 +2,23 @@
 #include "tir4_driver.h"
 
 int main(int argc, char **argv) {
+  struct tir4_frame_type frame;
+
   tir4_init();
   /* after init, IR leds are on, but that is it */
-  while (true) {
-    if ('q' == getchar())
-      break;
-  }
+
   /* call below sets led green */
   tir4_set_good_indication(true);
+
+  /* loop forever reading and printing results */
   while (true) {
-    if ('q' == getchar())
-      break;
+    tir4_do_read();
+    while (tir4_frame_is_available()) {
+      tir4_get_frame(&frame);
+      tir4_frame_print(&frame);
+    }
   }
-  /* call below sets led RED */
-  tir4_set_good_indication(false);
-  while (true) {
-    if ('q' == getchar())
-      break;
-  }
+
   /* call disconnects, turns all LEDs off */
   tir4_shutdown();
   return 0;
