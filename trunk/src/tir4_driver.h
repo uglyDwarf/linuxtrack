@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <usb.h>
+#include "cal.h"
 
 /********************/
 /* public constants */
@@ -16,72 +17,57 @@
 /*********************/
 /* public data types */
 /*********************/
-struct tir4_blob_type {
-  /* coordinates of the blob on the screen */
-  float x,y; 
-  /* total # pixels area, used for sorting/scoring blobs */
-  unsigned int area; 
-};
-
-struct tir4_bloblist_type {
-  struct tir4_bloblist_iter *head;
-  struct tir4_bloblist_iter *tail;
-};
-
-struct tir4_bloblist_iter {
-  struct tir4_blob_type blob;
-  struct tir4_bloblist_iter *next;
-  struct tir4_bloblist_iter *prev;
-};
-
-struct tir4_frame_type {
-  struct tir4_bloblist_type  bloblist; 
-  unsigned int num_blobs;
-/*   char **bitmap; /\* FIXME: add bitmap support *\/ */
-};
+/* none */
 
 /******************************/
 /* public function prototypes */
 /******************************/
+/* returns true if the tir4 device can be located on 
+ * the usb bus */
+bool tir4_is_device_present(struct cal_device_type *cal_device);
+
 /* call to init an uninitialized tir4 device 
  * typically called once at setup
  * turns the IR leds on
- * this function may block for up to 1 second 
- */
-void tir4_init(void);
+ * this function may block for up to 3 seconds 
+ * a return value < 0 indicates error */
+int tir4_init(struct camera_control_block *ccb);
 
 /* call to shutdown the tir4 device 
  * typically called once at close
  * turns the IR leds off
  * can be used to deactivate the tir4;
- * must call init to restart */
-void tir4_shutdown(void);
+ * must call init to restart
+ * a return value < 0 indicates error */
+int tir4_shutdown(struct camera_control_block *ccb);
+
+/* turn off all the leds, and flush the queue 
+ * a return value < 0 indicates error */
+int tir4_suspend(struct camera_control_block *ccb);
+
+/* may only be called while suspended.  Used to change from 
+ * operational mode mode to diagnostic mode and vice versa */
+void tir4_change_operating_mode(struct camera_control_block *ccb,
+                                enum cal_operating_mode newmode);
+
+/* unsuspend the currently suspended (and inited) 
+ * camera device. 
+ * IR leds will reactivate, but that is all
+ * a return value < 0 indicates error */
+int tir4_wakeup(struct camera_control_block *ccb);
 
 /* this controls the tir4 red and green LED
  * typically called whenever the tracking is "good"
  * when called with true, the green led is lit
  * when called with false, the red led is lit
  * neither is lit immediatly after init!
- */
-void tir4_set_good_indication(bool arg);
+ * a return value < 0 indicates error */
+int tir4_set_good_indication(struct camera_control_block *ccb,
+                             bool arg);
 
-void tir4_do_read(void);
-
-bool tir4_frame_is_available(void);
-
-void tir4_get_frame(struct tir4_frame_type *f);
-
-void tir4_frame_print(struct tir4_frame_type *f);
-void tir4_blob_print(struct tir4_blob_type b);
-void tir4_bloblist_init(struct tir4_bloblist_type *t4bl);
-void tir4_bloblist_delete(struct tir4_bloblist_type *t4bl,
-                          struct tir4_bloblist_iter *t4bli);
-struct tir4_bloblist_iter *tir4_bloblist_get_iter(struct tir4_bloblist_type *t4bl);
-struct tir4_bloblist_iter *tir4_bloblist_iter_next(struct tir4_bloblist_iter *t4bli);
-bool tir4_bloblist_iter_complete(struct tir4_bloblist_iter *t4bli);
-void tir4_bloblist_free(struct tir4_bloblist_type *t4bl);
-void tir4_bloblist_add_tir4_blob(struct tir4_bloblist_type *t4bl,
-                                 struct tir4_blob_type b);
-void tir4_bloblist_print(struct tir4_bloblist_type *t4bl);
+/* read the usb, and process it into frames
+ * a return value < 0 indicates error */
+int tir4_get_frame(struct camera_control_block *ccb,
+                   struct frame_type *f);
 
 #endif

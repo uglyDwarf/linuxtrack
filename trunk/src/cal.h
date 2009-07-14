@@ -3,6 +3,7 @@
  *************************************************************/
 #ifndef CAL__H
 #define CAL__H
+#include <stdbool.h>
 
 struct blob_type {
   /* coordinates of the blob on the screen 
@@ -26,36 +27,48 @@ struct bloblist_type {
 };
 
 struct frame_type {
-  struct bloblist_type  bloblist; 
-  char **bitmap; /* 8bits per pixel, monochrome 0x00 or 0xff */
+  struct bloblist_type bloblist; 
+  char *bitmap; /* 8bits per pixel, monochrome 0x00 or 0xff */
 };
 
-enum cal_device_type {
+enum cal_device_category_type {
   tir4_camera,
-  webcam, /* assumes /dev/video0 */
+  webcam,
   wiimote
 };
 
+enum cal_device_state_type {
+  pre_init, /* before init called or after shutdown */
+  active, /* after init and not suspended */
+  suspended /* suspended, back to active on wakeup */
+};
+
+struct cal_device_type {
+  enum cal_device_category_type category;
+  char *device_id;
+};
+
 enum cal_operating_mode {
-  /* operational only reports frames with 3 or more blobs, and 
-   * only the first 3 blobs are populated.  The bitmap field 
+  /* operational_1dot reports frames with 1 or more blobs, and 
+   * only the first blob is populated.  The bitmap field 
    * in the frames are NOT populated. */
-  operational, 
+  operational_1dot, 
+  /* operational_3dot only reports frames with 3 or more blobs, 
+   * and only the first 3 blobs are populated.  The bitmap field 
+   * in the frames are NOT populated. */
+  operational_3dot, 
   /* diagnostic reports all frames with 1 or more blobs. The 
    * bitmap field in the frames ARE populated. */
   diagnostic
 };
 
 struct camera_control_block {
-  enum cal_device_type device;
+  struct cal_device_type device;
   unsigned int pixel_width;
   unsigned int pixel_height;
   enum cal_operating_mode mode;
+  enum cal_device_state_type state;
 };
-
-/* given a device type, the cal will search for the 
- * device and return true if present */
-bool cal_is_device_present(enum cal_device);
 
 /* call to init an uninitialized camera device 
  * typically called once at setup
@@ -75,27 +88,26 @@ int cal_init(struct camera_control_block *ccb);
  * turns all leds off
  * must call init to restart again after a shutdown 
  * a return value < 0 indicates error */
-int cal_shutdown(void);
+int cal_shutdown(struct camera_control_block *ccb);
 
 /* suspend the currently inited camera device. 
  * All leds on the camera will be deactivated
  * call cal_wakeup to un-suspend 
  * the frame queue will be flushed
  * a return value < 0 indicates error */
-int cal_suspend(void);
+int cal_suspend(struct camera_control_block *ccb);
 
 /* may only be called while suspended.  Used to change from 
  * operational mode mode to diagnostic mode based on the mode 
- * field in the control block argument 
+ * field in the control block argument (and vice versa)
  * ONLY the operating mode may change! */
-void cal_changeoperating_mode(struct camera_control_block ccb);
+void cal_change_operating_mode(struct camera_control_block *ccb,
+                               enum cal_operating_mode newmode);
 
 /* unsuspend the currently suspended (and inited) 
  * camera device. 
- * All leds on the camera will be deactivated
- * call cal_wakeup to un-suspend 
  * a return value < 0 indicates error */
-int cal_wakeup(void);
+int cal_wakeup(struct camera_control_block *ccb);
 
 /* arg=True to tell the device to indicate the 
  * tracking is good.
@@ -105,38 +117,34 @@ int cal_wakeup(void);
  * LED on the camera to either green (good) or 
  * red (bad). 
  * a return value < 0 indicates error */
-int cal_set_good_indication(bool arg);
+int cal_set_good_indication(struct camera_control_block *ccb,
+                            bool arg);
 
-/* read the camera port, and process it into frames
- * a return value < 0 indicates error */
-int cal_do_read_and_process(void);
 
-/* Will return true if there are any pending 
- * frames */
-bool cal_is_frame_available(void);
-
-/* this will pull a frame off the camera's internal 
+/* This will read the camera port, and process it into 
+ * frames and pull a frame off the camera's internal 
  * frame queue, and use it to populate the frame 
  * argument.
- * the to populate a frame, memory is allocated; be
+ * To populate a frame, memory is allocated; be
  * sure to call frame_free when done with the frame!
  * a return value < 0 indicates error */
-int cal_populate_frame(struct frame_type *f);
-
-/* directs the cal device to flush all but N frames in its
- * internal frame queue.  n=0 will competely flush the 
- * queue */
-void cal_flush_frames(unsigned int n);
-
-/* primarily for debug, will print a string 
- * represtentation of the given frame to stdout */ 
-void frame_print(struct frame_type f);
+int cal_get_frame(struct camera_control_block *ccb,
+                  struct frame_type *f);
 
 /* frees the memory allocated to the given frame.  
  * For every frame populated, with cal_populate_frame,
  * this must be called when finished with the frame to 
  * prevent memory leaks.
  * a return value < 0 indicates error */
-int frame_free(struct frame_type *f);
+void frame_free(struct camera_control_block *ccb,
+                struct frame_type *f);
+
+/* primarily for debug, will print a string 
+ * represtentation of the given frame to stdout */ 
+void frame_print(struct frame_type f);
+
+void bloblist_print(struct bloblist_type bl);
+
+void blob_print(struct blob_type b);
 
 #endif

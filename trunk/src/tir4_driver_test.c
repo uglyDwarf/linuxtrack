@@ -1,25 +1,27 @@
+#include <stdlib.h>
 #include <stdio.h>
-#include "tir4_driver.h"
+#include "cal.h"
 
 int main(int argc, char **argv) {
-  struct tir4_frame_type frame;
+  struct frame_type frame;
+  struct camera_control_block ccb;
 
-  tir4_init();
-  /* after init, IR leds are on, but that is it */
+  ccb.device.category = tir4_camera;
+  ccb.mode = diagnostic;
+
+  cal_init(&ccb);
 
   /* call below sets led green */
-  tir4_set_good_indication(true);
+  cal_set_good_indication(&ccb, true);
 
   /* loop forever reading and printing results */
   while (true) {
-    tir4_do_read();
-    while (tir4_frame_is_available()) {
-      tir4_get_frame(&frame);
-      tir4_frame_print(&frame);
-    }
+    cal_get_frame(&ccb, &frame);
+    frame_print(frame);
+    frame_free(&ccb, &frame);
   }
 
   /* call disconnects, turns all LEDs off */
-  tir4_shutdown();
+  cal_shutdown(&ccb);
   return 0;
 }
