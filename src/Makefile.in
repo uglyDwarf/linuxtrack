@@ -45,8 +45,8 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_tir4_driver_test_OBJECTS = tir4_driver.$(OBJEXT) \
-	tir4_driver_test.$(OBJEXT)
+am_tir4_driver_test_OBJECTS = cal.$(OBJEXT) tir4_driver.$(OBJEXT) \
+	tir4_driver_test.$(OBJEXT) math_utils.$(OBJEXT) pose.$(OBJEXT)
 tir4_driver_test_OBJECTS = $(am_tir4_driver_test_OBJECTS)
 tir4_driver_test_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -160,7 +160,9 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-tir4_driver_test_SOURCES = tir4_driver.c  tir4_driver.h  tir4_driver_test.c
+tir4_driver_test_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  tir4_driver_test.c \
+  math_utils.c math_utils.h pose.c pose.h
+
 dist_data_DATA = bulk_config_data.bin
 all: all-am
 
@@ -228,6 +230,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cal.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/math_utils.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir4_driver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir4_driver_test.Po@am__quote@
 
