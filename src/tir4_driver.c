@@ -1,6 +1,7 @@
 #include <stdio.h>
-#include <stdlib.h> /* for malloc */
+#include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include "tir4_driver.h"
 
 /*********************/
@@ -42,6 +43,7 @@
 #define TIR_ALL_LED_BIT_MASK (TIR_IR_LED_BIT_MASK | TIR_GREEN_LED_BIT_MASK | TIR_RED_LED_BIT_MASK | TIR_BLUE_LED_BIT_MASK)
 #define MAX_BULK_CONFIG_PACKETSIZE 64
 #define BULK_CONFIG_INTERPACKET_SLEEP_TIME 800 /* microseconds? */
+#define BITMAP_NUM_BYTES (TIR4_HORIZONTAL_RESOLUTION*TIR4_VERTICAL_RESOLUTION)
 
 
 /**********************/
@@ -87,7 +89,7 @@ struct framelist_type {
 };
 
 struct framelist_iter {
-  struct tir4_frame_type frame;
+  struct frame_type frame;
   struct framelist_iter *next;
   struct framelist_iter *prev;
 };
@@ -137,10 +139,12 @@ static uint8_t msgproc_substripe_index;
 static struct protobloblist_type msgproc_open_blobs;
 static struct protobloblist_type msgproc_closed_blobs;
 static struct framelist_type master_framelist;
+static bool usb_inited = false;
 
 /*******************************/
 /* private function prototypes */
 /*******************************/
+int tir4_fatal(void);
 void tir4_set_configuration(void);
 void tir4_set_altinterface(void);
 void tir4_claim(void);
@@ -160,12 +164,16 @@ bool is_green_led_on(void);
 bool is_red_led_on(void);
 bool is_blue_led_on(void);
 void msgproc_init(void);
-void msgproc_add_byte(uint8_t b);
+void msgproc_add_byte(uint8_t b, bool do_bitmap);
 struct stripe_type msgproc_convert_device_stripe(device_stripe_type ds);
 void msgproc_add_stripe(struct stripe_type s);
 void msgproc_close_all_open_blobs(void);
+uint16_t pixel_crop(uint16_t inpixel,
+                    uint16_t offset,
+                    uint16_t limitpixel);
 bool stripe_is_hcontact(struct stripe_type s0,
                         struct stripe_type s1);
+void stripe_draw(struct stripe_type s, char *bitmap);
 void stripe_print(struct stripe_type s);
 struct stripestack_type *stripestack_new(void);
 void stripestack_free(struct stripestack_type *s_stk);
@@ -184,8 +192,8 @@ void protoblob_merge(struct protoblob_type *pb0,
                      struct protoblob_type *pb1);
 bool protoblob_is_contact(struct protoblob_type pb,
                           struct stripe_type s);
-void protoblob_make_tir4_blob(struct protoblob_type *pb,
-                              struct tir4_blob_type *t4b);
+void protoblob_make_blob(struct protoblob_type *pb,
+                         struct blob_type *b);
 void protoblob_print(struct protoblob_type pbl);
 void protobloblist_init(struct protobloblist_type *pbl);
 void protobloblist_delete(struct protobloblist_type *pbl,
@@ -196,32 +204,67 @@ bool protobloblist_iter_complete(struct protobloblist_iter *pbli);
 void protobloblist_free(struct protobloblist_type *pbl);
 void protobloblist_add_protoblob(struct protobloblist_type *pbl,
                                  struct protoblob_type b);
-void protobloblist_get_tir4_frame(struct protobloblist_type *pbl,
-                                  struct tir4_frame_type *f);
+void protobloblist_populate_frame(struct protobloblist_type *pbl,
+                                  struct frame_type *f);
 void protobloblist_print(struct protobloblist_type pbl);
 /* FIXME: add bloblist sort!! */
 /* struct protobloblist_type *protobloblist_sort(struct protobloblist_type *pbl); */
 void framelist_init(struct framelist_type *fl);
-void framelist_delete(struct framelist_type *fl,
-                      struct framelist_iter *fli);
+void framelist_pop(struct framelist_type *fl,
+                   struct framelist_iter *fli,
+                   struct frame_type *f);
 struct framelist_iter *framelist_get_iter(struct framelist_type *fl);
 struct framelist_iter *framelist_iter_next(struct framelist_iter *fli);
 bool framelist_iter_complete(struct framelist_iter *fli);
-void framelist_free(struct framelist_type *fl);
-void framelist_add_tir4_frame(struct framelist_type *fl,
-                              struct tir4_frame_type t4f);
+void framelist_flush(struct camera_control_block *ccb,
+                     struct framelist_type *fl);
+void framelist_add_frame(struct framelist_type *fl,
+                         struct frame_type f);
 void framelist_print(struct framelist_type *fl);
+int tir4_do_read_and_process(struct camera_control_block *ccb);
+int tir4_populate_frame(struct frame_type *f);
+bool tir4_is_frame_available(void);
 
 
 /************************/
 /* function definitions */
 /************************/
-void tir4_init()
+bool tir4_is_device_present(struct cal_device_type *cal_device)
 {
   struct usb_device *tir4_device;
 
   /* required libusb initialization */
-  usb_init();
+  if (!usb_inited) {
+    usb_init();
+    usb_inited = true;
+  }
+  /* This tells libusb to go find all usb busses
+   * the output gets stored in the extern global usb_busses
+   * declared in usb.h */
+  usb_find_busses();
+  /* This tells libusb to go find all devices on the busses
+   * This will to further populate the usb.h extern global
+   * usb_busses structure */
+  usb_find_devices();
+
+  /* find the tir4 */
+  tir4_device = tir4_find_device(TIR_VENDOR_ID,TIR4_PRODUCT_ID);
+
+  return (tir4_device!=NULL);
+}
+
+int tir4_init(struct camera_control_block *ccb)
+{
+  struct usb_device *tir4_device;
+
+  ccb->pixel_width = TIR4_HORIZONTAL_RESOLUTION;
+  ccb->pixel_height = TIR4_VERTICAL_RESOLUTION;
+
+  /* required libusb initialization */
+  if (!usb_inited) {
+    usb_init();
+    usb_inited = true;
+  }
   /* This tells libusb to go find all usb busses
    * the output gets stored in the extern global usb_busses
    * declared in usb.h */
@@ -259,29 +302,112 @@ void tir4_init()
 
   msgproc_init();
   framelist_init(&master_framelist);
-  
-/*   int i; */
-/*   for(i=0; i<49; i++) { */
-/*     stripe_print(testblob[i]); */
-/*     msgproc_add_stripe(testblob[i]); */
-/*   } */
-/*   msgproc_close_all_open_blobs(); */
-/*   protobloblist_print(&msgproc_closed_blobs); */
-/*   protobloblist_free(&msgproc_closed_blobs); */
-/*   exit(1); */
+
+  ccb->state = active;
+
+  return 0;
+  /*   int i; */
+  /*   for(i=0; i<49; i++) { */
+  /*     stripe_print(testblob[i]); */
+  /*     msgproc_add_stripe(testblob[i]); */
+  /*   } */
+  /*   msgproc_close_all_open_blobs(); */
+  /*   protobloblist_print(&msgproc_closed_blobs); */
+  /*   protobloblist_free(&msgproc_closed_blobs); */
+  /*   exit(1); */
 }
 
-void tir4_shutdown(void)
+int tir4_fatal(void)
 {
   set_all_led_off();
   tir4_release();
   tir4_close();
+  return -1;
 }
 
-void tir4_set_good_indication(bool arg)
+int tir4_shutdown(struct camera_control_block *ccb)
+{
+  set_all_led_off();
+  tir4_release();
+  tir4_close();
+  ccb->state = pre_init;
+  return 0;
+}
+
+int tir4_suspend(struct camera_control_block *ccb)
+{
+  ccb->state = suspended;
+  set_all_led_off();
+  framelist_flush(ccb, &master_framelist);
+  return 0;
+}
+
+void tir4_change_operating_mode(struct camera_control_block *ccb,
+                                enum cal_operating_mode newmode)
+{
+  ccb->mode = newmode;
+  if (!(ccb->state == suspended)) {
+    tir4_error_alert("Attempted to change the operating mode of the TIR4 device while outside of suspended mode.\n");
+    tir4_fatal();
+    exit(1);
+  }
+}
+
+int tir4_wakeup(struct camera_control_block *ccb)
+{
+  set_ir_led_on(true);
+  ccb->state = active;
+  return 0;
+}
+
+int tir4_set_good_indication(struct camera_control_block *ccb,
+                             bool arg)
 {
   set_green_led_on(arg);
   set_red_led_on(!arg);
+  return 0;
+}
+
+int tir4_get_frame(struct camera_control_block *ccb,
+                   struct frame_type *f)
+{
+  /* FIXME: do a flush here if its too long */
+  while (!tir4_is_frame_available()) {
+    tir4_do_read_and_process(ccb);
+  }
+  tir4_populate_frame(f);
+  return 0;
+}
+
+int tir4_do_read_and_process(struct camera_control_block *ccb)
+{
+  int numread;
+  numread = usb_bulk_read(tir4_handle,
+                          TIR_BULK_IN_EP,
+                          usb_read_buf,
+                          BULK_READ_SIZE,
+                          BULK_READ_TIMEOUT);
+  if (numread < 0) {
+    tir4_error_alert("Error during TIR4 device USB BULK READ.\n");
+    printf("Errno: %s\n",usb_strerror());
+    /* FIXME: timeouts read as errors here!! */
+    tir4_fatal();
+    exit(1);
+  }
+  int i;
+
+  for (i=0; i<numread; i++) {
+    msgproc_add_byte((uint8_t) usb_read_buf[i],
+                     (ccb->mode==diagnostic));
+  }
+
+  return 0;
+}
+
+int tir4_populate_frame(struct frame_type *f)
+{
+  framelist_pop(&master_framelist,master_framelist.tail,f);
+  return 0;
 }
 
 void tir4_set_configuration(void)
@@ -290,7 +416,7 @@ void tir4_set_configuration(void)
   ret = usb_set_configuration(tir4_handle, TIR_CONFIGURATION);
   if (ret < 0) {
     tir4_error_alert("Unable to set the configuration of the TIR4 device.\n");
-    tir4_shutdown();
+    tir4_fatal();
     exit(1);
   }
 }
@@ -301,7 +427,7 @@ void tir4_set_altinterface(void)
   ret = usb_set_altinterface(tir4_handle, TIR_ALTINTERFACE);
   if (ret < 0) {
     tir4_error_alert("Unable to set the alt interface of the TIR4 device.\n");
-    tir4_shutdown();
+    tir4_fatal();
     exit(1);
   }
 }
@@ -378,7 +504,7 @@ void tir4_write_bulk_config_data(void)
   bulkfp = fopen(bulk_config_data_filename, "rb");
   if (bulkfp == NULL) {
     tir4_error_alert("Unable to open the tir4 bulk config datafile.\n");
-    tir4_shutdown();
+    tir4_fatal();
     exit(1);
   }
 
@@ -396,7 +522,7 @@ void tir4_write_bulk_config_data(void)
       break;
     default:
       tir4_error_alert("Invalid state while reading bulk config datafile.\n");
-      tir4_shutdown();
+      tir4_fatal();
       exit(1);
     }
   }
@@ -405,7 +531,7 @@ void tir4_write_bulk_config_data(void)
     printf("computedchecksum: 0x%08x\n",computedchecksum);
     printf("filechecksum: 0x%08x\n",filechecksum);
     tir4_error_alert("Bulk config datafile failed checksum.\n");
-    tir4_shutdown();
+    tir4_fatal();
     exit(1);
   }
   rewind(bulkfp);
@@ -443,7 +569,7 @@ void tir4_write_bulk_config_data(void)
       break;
     default:
       tir4_error_alert("Invalid state while reading bulk config datafile.\n");
-      tir4_shutdown();
+      tir4_fatal();
       exit(1);
     }
   }
@@ -544,11 +670,12 @@ void msgproc_init(void)
   protobloblist_init(&msgproc_closed_blobs);
 }
 
-void msgproc_add_byte(uint8_t b)
+void msgproc_add_byte(uint8_t b, bool do_bitmap)
 {
   int i;
   bool is_vsync;
-  struct tir4_frame_type t4f;
+  struct frame_type f;
+  char *working_bitmap;
 
   switch (msgproc_state) {
   case awaiting_header_byte0:
@@ -568,6 +695,10 @@ void msgproc_add_byte(uint8_t b)
              (msgproc_msgid == VALID_MSGID)) {
       msgproc_msgcnt = VALID_MIN_MSGLEN;
       msgproc_substripe_index = 0;
+      if (do_bitmap) {
+        working_bitmap = (char *) malloc(BITMAP_NUM_BYTES);
+        memset(working_bitmap, '\0', BITMAP_NUM_BYTES);
+      }
       msgproc_state = processing_msg;
     }
     /* if its a TBD message, we'll drop it */
@@ -613,15 +744,20 @@ void msgproc_add_byte(uint8_t b)
         struct stripe_type newstripe;
         msgproc_substripe_index = 0;
         newstripe = msgproc_convert_device_stripe(msgproc_pending_device_stripe);
-        msgproc_add_stripe(newstripe); 
+        msgproc_add_stripe(newstripe);
+        if (do_bitmap) {
+          stripe_draw(newstripe, working_bitmap);
+        }
       }
       else {
-        /* about done, just move any open to closed blobs */
+        /* about done, just move any open to closed blobs,
+         * and create the frame */
         msgproc_close_all_open_blobs();
-        protobloblist_get_tir4_frame(&msgproc_closed_blobs,
-                                     &t4f);
-        if (t4f.num_blobs > 0) {
-          framelist_add_tir4_frame(&master_framelist, t4f);
+        protobloblist_populate_frame(&msgproc_closed_blobs,
+                                     &f);
+        if (f.bloblist.num_blobs > 0) {
+          f.bitmap = working_bitmap;
+          framelist_add_frame(&master_framelist, f);
         }
         protobloblist_free(&msgproc_closed_blobs);
       }
@@ -755,6 +891,24 @@ void msgproc_close_all_open_blobs(void)
   }
 }
 
+uint16_t pixel_crop(uint16_t inpixel,
+                    uint16_t offset,
+                    uint16_t limitpixel)
+{
+  uint16_t outpixel;
+
+  if (inpixel<offset) {
+    outpixel = 0;
+  }
+  else {
+    outpixel = inpixel - offset;
+    if (outpixel > limitpixel) {
+      outpixel = limitpixel;
+    }
+  }
+  return outpixel;
+}
+
 /* tests if this stripe overlaps the argument  */
 /*   in the h-axis.  Vertical overlap not tested! */
 /* note: overlap is true if they share a single common  */
@@ -769,6 +923,31 @@ bool stripe_is_hcontact(struct stripe_type s0,
     return false;
   }
   return true;
+}
+
+/* 8bpp only!
+ * (resx,resy) = top right corner
+ * (0,0) = bottom left corner
+*/
+void stripe_draw(struct stripe_type s, char *bitmap)
+{
+  char *startpoint, *endpoint;
+  uint16_t vline, hstart, hstop;
+  /* have to crop, deinterlace and flip here */
+  vline = pixel_crop(s.vline,
+                     vline_offset,
+                     TIR4_VERTICAL_SQUASHED_RESOLUTION-1);
+  vline = TIR4_VERTICAL_RESOLUTION-2*vline-1;
+  hstart = pixel_crop(s.hstart,
+                     hpix_offset,
+                     TIR4_HORIZONTAL_RESOLUTION-1);
+  hstop = pixel_crop(s.hstop,
+                     hpix_offset,
+                     TIR4_HORIZONTAL_RESOLUTION-1);
+
+  startpoint = bitmap+vline*TIR4_HORIZONTAL_RESOLUTION + hstart;
+  endpoint = bitmap+vline*TIR4_HORIZONTAL_RESOLUTION + hstop;
+  memset(startpoint, '\255', endpoint-startpoint);
 }
 
 void stripe_print(struct stripe_type s)
@@ -814,7 +993,7 @@ struct stripestack_type *stripestack_next(struct stripestack_type *s_stk)
 {
   if (stripestack_is_empty(s_stk)) {
     tir4_error_alert("Attempt to advance stripestack to next on null.\n");
-    tir4_shutdown();
+    tir4_fatal();
     exit(1);
   }
   return s_stk->next;
@@ -947,15 +1126,15 @@ bool protoblob_is_contact(struct protoblob_type pb,
   return stripestack_is_contact(pb.stripes,s);
 }
 
-void protoblob_make_tir4_blob(struct protoblob_type *pb,
-                              struct tir4_blob_type *t4b)
+void protoblob_make_blob(struct protoblob_type *pb,
+                         struct blob_type *b)
 {
-  t4b->x = (((float)pb->cumulative_2x_hcenter_area_product) / 
-            (pb->cumulative_area * 2.0)) - hpix_offset;
-  t4b->y = 2.0 * 
+  b->x = (((float)pb->cumulative_2x_hcenter_area_product) /
+          (pb->cumulative_area * 2.0)) - hpix_offset;
+  b->y = 2.0 *
     (((float)pb->cumulative_linenum_area_product) / pb->cumulative_area) -
     vline_offset;
-  t4b->area = pb->cumulative_area;
+  b->score = pb->cumulative_area;
 }
 
 void protoblob_print(struct protoblob_type pb)
@@ -978,13 +1157,13 @@ void protobloblist_delete(struct protobloblist_type *pbl,
                           struct protobloblist_iter *pbli)
 {
   if (pbli->prev == NULL) {
-    pbl->head = pbli->next; 
+    pbl->head = pbli->next;
   }
   else {
     pbli->prev->next = pbli->next;
   }
   if (pbli->next == NULL) {
-    pbl->tail = pbli->prev; 
+    pbl->tail = pbli->prev;
   }
   else {
     pbli->next->prev = pbli->prev;
@@ -1018,7 +1197,7 @@ void protobloblist_free(struct protobloblist_type *pbl)
     pbli = nextpbli;
   }
 }
-  
+
 void protobloblist_add_protoblob(struct protobloblist_type *pbl,
                                  struct protoblob_type b)
 {
@@ -1037,23 +1216,29 @@ void protobloblist_add_protoblob(struct protobloblist_type *pbl,
   pbl->head = newhead;
 }
 
-void protobloblist_get_tir4_frame(struct protobloblist_type *pbl,
-                                  struct tir4_frame_type *f)
+void protobloblist_populate_frame(struct protobloblist_type *pbl,
+                                  struct frame_type *f)
 {
   struct protobloblist_iter *pbli;
-  struct tir4_blob_type t4b;
+  int i;
 
-  f->num_blobs=0;
-  tir4_bloblist_init(&(f->bloblist));
-
+  f->bloblist.num_blobs=0;
   pbli = protobloblist_get_iter(pbl);
   while (!protobloblist_iter_complete(pbli)) {
-    protoblob_make_tir4_blob(&(pbli->pblob),
-                             &t4b);
-    f->num_blobs++;
-    tir4_bloblist_add_tir4_blob(&(f->bloblist),
-                                t4b);
+    f->bloblist.num_blobs++;
     pbli = protobloblist_iter_next(pbli);
+  }
+
+  f->bloblist.blobs = (struct blob_type *)
+    malloc(f->bloblist.num_blobs*sizeof(struct blob_type));
+
+  i = 0;
+  pbli = protobloblist_get_iter(pbl);
+  while (!protobloblist_iter_complete(pbli)) {
+    protoblob_make_blob(&(pbli->pblob),
+                        &(f->bloblist.blobs[i]));
+    pbli = protobloblist_iter_next(pbli);
+    i++;
   }
 }
 
@@ -1070,114 +1255,29 @@ void protobloblist_print(struct protobloblist_type pbl)
   printf("-- end frame --\n");
 }
 
-void tir4_blob_print(struct tir4_blob_type b)
-{
-  printf("x: %f\ty: %f\tarea: %d\n", b.x,b.y,b.area);
-}
-
-void tir4_bloblist_init(struct tir4_bloblist_type *t4bl)
-{
-  t4bl->head = NULL;
-  t4bl->tail = NULL;
-}
-
-void tir4_bloblist_delete(struct tir4_bloblist_type *t4bl,
-                          struct tir4_bloblist_iter *t4bli)
-{
-  if (t4bli->prev == NULL) {
-    t4bl->head = t4bli->next; 
-  }
-  else {
-    t4bli->prev->next = t4bli->next;
-  }
-  if (t4bli->next == NULL) {
-    t4bl->tail = t4bli->prev; 
-  }
-  else {
-    t4bli->next->prev = t4bli->prev;
-  }
-  free(t4bli);
-}
-
-struct tir4_bloblist_iter *tir4_bloblist_get_iter(struct tir4_bloblist_type *t4bl)
-{
-  return t4bl->head;
-}
-
-struct tir4_bloblist_iter *tir4_bloblist_iter_next(struct tir4_bloblist_iter *t4bli)
-{
-  return t4bli->next;
-}
-
-bool tir4_bloblist_iter_complete(struct tir4_bloblist_iter *t4bli)
-{
-  return (t4bli == NULL);
-}
-
-void tir4_bloblist_free(struct tir4_bloblist_type *t4bl)
-{
-  struct tir4_bloblist_iter *t4bli, *nextt4bli;
-
-  t4bli = tir4_bloblist_get_iter(t4bl);
-  while (!tir4_bloblist_iter_complete(t4bli)) {
-    nextt4bli = tir4_bloblist_iter_next(t4bli);
-    tir4_bloblist_delete(t4bl, t4bli);
-    t4bli = nextt4bli;
-  }
-}
-  
-void tir4_bloblist_add_tir4_blob(struct tir4_bloblist_type *t4bl,
-                                 struct tir4_blob_type b)
-{
-  struct tir4_bloblist_iter *newhead;
-  newhead=(struct tir4_bloblist_iter *)malloc(sizeof(struct tir4_bloblist_iter));
-
-  newhead->blob = b;
-  newhead->prev = NULL;
-  newhead->next = t4bl->head;
-  if (t4bl->tail == NULL) {
-    t4bl->tail = newhead;
-  }
-  if (t4bl->head != NULL) {
-    t4bl->head->prev = newhead;
-  }
-  t4bl->head = newhead;
-}
-
-void tir4_bloblist_print(struct tir4_bloblist_type *t4bl)
-{
-  struct tir4_bloblist_iter *t4bli;
-
-  printf("-- start blob --\n");
-  t4bli = tir4_bloblist_get_iter(t4bl);
-  while (!tir4_bloblist_iter_complete(t4bli)) {
-    tir4_blob_print(t4bli->blob);
-    t4bli = tir4_bloblist_iter_next(t4bli);
-  }
-  printf("-- end blob --\n");
-}
-
 void framelist_init(struct framelist_type *fl)
 {
   fl->head = NULL;
   fl->tail = NULL;
 }
 
-void framelist_delete(struct framelist_type *fl,
-                      struct framelist_iter *fli)
+void framelist_pop(struct framelist_type *fl,
+                   struct framelist_iter *fli,
+                   struct frame_type *f)
 {
   if (fli->prev == NULL) {
-    fl->head = fli->next; 
+    fl->head = fli->next;
   }
   else {
     fli->prev->next = fli->next;
   }
   if (fli->next == NULL) {
-    fl->tail = fli->prev; 
+    fl->tail = fli->prev;
   }
   else {
     fli->next->prev = fli->prev;
   }
+  *f = fli->frame;
   free(fli);
 }
 
@@ -1196,25 +1296,27 @@ bool framelist_iter_complete(struct framelist_iter *fli)
   return (fli == NULL);
 }
 
-void framelist_free(struct framelist_type *fl)
+void framelist_flush(struct camera_control_block *ccb,
+                     struct framelist_type *fl)
 {
   struct framelist_iter *fli, *nextfli;
-
+  struct frame_type *f;
   fli = framelist_get_iter(fl);
   while (!framelist_iter_complete(fli)) {
     nextfli = framelist_iter_next(fli);
-    framelist_delete(fl, fli);
+    framelist_pop(fl, fli,f);
+    frame_free(ccb, f);
     fli = nextfli;
   }
 }
 
-void framelist_add_tir4_frame(struct framelist_type *fl,
-                              struct tir4_frame_type t4f)
+void framelist_add_frame(struct framelist_type *fl,
+                         struct frame_type f)
 {
   struct framelist_iter *newhead;
   newhead=(struct framelist_iter *)malloc(sizeof(struct framelist_iter));
 
-  newhead->frame = t4f;
+  newhead->frame = f;
   newhead->prev = NULL;
   newhead->next = fl->head;
   if (fl->tail == NULL) {
@@ -1225,7 +1327,7 @@ void framelist_add_tir4_frame(struct framelist_type *fl,
   }
   fl->head = newhead;
 }
-  
+
 void framelist_print(struct framelist_type *fl)
 {
   struct framelist_iter *fli;
@@ -1233,53 +1335,13 @@ void framelist_print(struct framelist_type *fl)
   printf("-- start frame --\n");
   fli = framelist_get_iter(fl);
   while (!framelist_iter_complete(fli)) {
-/*     tir4_frame_print(fli->flob); */
+    frame_print(fli->frame);
     fli = framelist_iter_next(fli);
   }
   printf("-- end frame --\n");
 }
 
-void tir4_do_read(void)
-{
-  int numread;
-  numread = usb_bulk_read(tir4_handle,
-                      TIR_BULK_IN_EP,
-                      usb_read_buf,
-                      BULK_READ_SIZE,
-                      BULK_READ_TIMEOUT);
-  if (numread < 0) {
-    tir4_error_alert("Error during TIR4 device USB BULK READ.\n");
-    printf("Errno: %s\n",usb_strerror());
-    /* FIXME: timeouts read as errors here!! */
-/*     if (numread == LIBUSB_SUCCESS) { */
-/*       printf("I think it was a timeout\n"); */
-/*     } */
-    tir4_shutdown();
-    exit(1);
-  }
-  int i;
-
-  for (i=0; i<numread; i++) {
-    msgproc_add_byte((uint8_t) usb_read_buf[i]);
-  }
-}
-
-bool tir4_frame_is_available(void)
+bool tir4_is_frame_available(void)
 {
   return !framelist_iter_complete(framelist_get_iter(&master_framelist));
-}
-
-void tir4_get_frame(struct tir4_frame_type *f)
-{
-  f->bloblist = (master_framelist.tail)->frame.bloblist;
-  f->num_blobs = master_framelist.tail->frame.num_blobs;
-  framelist_delete(&master_framelist,master_framelist.tail);
-}
-
-void tir4_frame_print(struct tir4_frame_type *f)
-{
-  printf("-- start frame --\n");
-  printf("num blobs: %d\n", f->num_blobs);
-  tir4_bloblist_print(&(f->bloblist));
-  printf("-- end frame --\n");
 }
