@@ -27,7 +27,7 @@ class GeneralException(Exception):
     def __init__(self, msg):
         self.msg = msg
 
-def handle_exception(self, errorinfo):
+def handle_exception(errorinfo):
     if errorinfo.args[0] == tir4.TIR4EXCEPTION_ENUM.USB_LIST_FAILED:
         self.msgbox_and_die("Unable to obtain a list the USB devices.\nApplication will close.")
     elif errorinfo.args[0] == tir4.TIR4EXCEPTION_ENUM.FIND_DEVICE_FAILED:
