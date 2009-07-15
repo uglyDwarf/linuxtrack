@@ -29,19 +29,26 @@ class GeneralException(Exception):
 
 def handle_exception(errorinfo):
     if errorinfo.args[0] == tir4.TIR4EXCEPTION_ENUM.USB_LIST_FAILED:
-        self.msgbox_and_die("Unable to obtain a list the USB devices.\nApplication will close.")
+        print "Unable to obtain a list the USB devices.\nApplication will close."
+        sys.exit(1)
     elif errorinfo.args[0] == tir4.TIR4EXCEPTION_ENUM.FIND_DEVICE_FAILED:
-        self.msgbox_and_die("Unable to find TIR4 device.\nApplication will close.")
+        print "Unable to find TIR4 device.\nApplication will close."
+        sys.exit(1)
     elif errorinfo.args[0] == tir4.TIR4EXCEPTION_ENUM.CREATE_HANDLE_FAILED:
-        self.msgbox_and_die("Unable to create a handle for the TIR4 device.\nApplication will close.")
+        print "Unable to create a handle for the TIR4 device.\nApplication will close."
+        sys.exit(1)
     elif errorinfo.args[0] == tir4.TIR4EXCEPTION_ENUM.CLAIM_FAILED:
-        self.msgbox_and_die("Unable to claim the TIR4 device.\nThis is most likely a USB permissions problem.\nRunning this app sudo may be a quick fix.")
+        print "Unable to claim the TIR4 device.\nThis is most likely a USB permissions problem.\nRunning this app sudo may be a quick fix."
+        sys.exit(1)
     elif errorinfo.args[0] == tir4.TIR4EXCEPTION_ENUM.DISCONNECT:
-        self.msgbox_and_die("TIR4 device disconnected.\nApplication will close.")
+        print "TIR4 device disconnected.\nApplication will close."
+        sys.exit(1)
     elif errorinfo.args[0] == tir4.TIR4EXCEPTION_ENUM.UNKNOWN_READ_ERROR:
-        self.msgbox_and_die("Unknown usb read error.\nApplication will close.")
+        print "Unknown usb read error.\nApplication will close."
+        sys.exit(1)
     elif errorinfo.args[0] == tir4.TIR4EXCEPTION_ENUM.UNKNOWN_PACKET:
-        self.msgbox("Unknown usb read error.\nApplication will close.")
+        print "Unknown usb read error.\nApplication will close."
+        sys.exit(1)
 
 def main(argv=None):
     usage = "usage: %prog [options] [filename]"
