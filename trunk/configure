@@ -2326,6 +2326,13 @@ am__tar='${AMTAR} chof - "$$tardir"'; am__untar='${AMTAR} xf -'
 ac_config_headers="$ac_config_headers config.h"
 
 
+if test "$debug" != "no"; then
+  CFLAGS="$FLAGS -g -O0"
+else
+  CFLAGS="$FLAGS -O3"
+fi
+
+
 # Checks for programs.
 for ac_prog in 'bison -y' byacc
 do
@@ -4004,6 +4011,10 @@ _ACEOF
 
   LIBS="-lusb $LIBS"
 
+else
+  { { $as_echo "$as_me:$LINENO: error: libusb not found" >&5
+$as_echo "$as_me: error: libusb not found" >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
 
@@ -4631,7 +4642,8 @@ done
 
 
 
-for ac_header in stdint.h
+
+for ac_header in stdint.h assert.h
 do
 as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
