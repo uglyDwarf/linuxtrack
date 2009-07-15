@@ -7,6 +7,10 @@ AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/tir4_driver.h])
 AC_CONFIG_HEADERS([config.h])
 
+AS_IF([test "$debug" != "no"],
+      [CFLAGS="$FLAGS -g -O0"],
+      [CFLAGS="$FLAGS -O3"])
+
 # Checks for programs.
 AC_PROG_YACC
 AC_PROG_CC
@@ -19,7 +23,7 @@ AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_LIB([usb], [usb_open])
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdint.h])
+AC_CHECK_HEADERS([stdint.h assert.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
