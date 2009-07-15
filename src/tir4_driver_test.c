@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "cal.h"
+#include "tir4_driver.h"
 
 int main(int argc, char **argv) {
   struct frame_type frame;
@@ -15,7 +16,14 @@ int main(int argc, char **argv) {
   cal_set_good_indication(&ccb, true);
 
   /* loop forever reading and printing results */
-  while (true) {
+/*   while (true) { */
+/*     cal_get_frame(&ccb, &frame); */
+/*     frame_print(frame); */
+/*     frame_free(&ccb, &frame); */
+/*   } */
+  
+  int i;
+  for(i=0; i<200; i++) {
     cal_get_frame(&ccb, &frame);
     frame_print(frame);
     frame_free(&ccb, &frame);
