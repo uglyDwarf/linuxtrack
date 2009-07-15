@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <assert.h>
 #include "tir4_driver.h"
 
 /*********************/
@@ -55,10 +56,15 @@ struct stripe_type {
   uint16_t hstop;
 };
 
-struct stripestack_type {
+struct stripelist_type {
+  struct stripelist_iter *head;
+  struct stripelist_iter *tail;
+};
+
+struct stripelist_iter {
   struct stripe_type stripe;
-  struct stripestack_type *next;
-  struct stripestack_type *prev;
+  struct stripelist_iter *next;
+  struct stripelist_iter *prev;
 };
 
 struct protoblob_type {
@@ -69,7 +75,7 @@ struct protoblob_type {
   /* used to calculate y */
   unsigned int cumulative_linenum_area_product;
   /* used to identify blobs */
-  struct stripestack_type *stripes;
+  struct stripelist_type stripes;
 };
 
 struct protobloblist_type {
@@ -123,7 +129,6 @@ static char *bulk_config_data_filename = "bulk_config_data.bin";
 */
 static uint16_t vline_offset = 12;
 static uint16_t hpix_offset = 80;
-/* static bool crop_frames = true; */
 static bool ir_led_on = false;
 static bool green_led_on = false;
 static bool red_led_on = false;
@@ -175,17 +180,10 @@ bool stripe_is_hcontact(struct stripe_type s0,
                         struct stripe_type s1);
 void stripe_draw(struct stripe_type s, char *bitmap);
 void stripe_print(struct stripe_type s);
-struct stripestack_type *stripestack_new(void);
-void stripestack_free(struct stripestack_type *s_stk);
-struct stripestack_type *stripestack_push(struct stripestack_type *s_stk,
-                                          struct stripe_type s);
-struct stripestack_type *stripestack_next(struct stripestack_type *s_stk);
-bool stripestack_is_empty(struct stripestack_type *s_stk);
-struct stripestack_type *stripestack_merge(struct stripestack_type *s_stk0,
-                                           struct stripestack_type *s_stk1);
-bool stripestack_is_contact(struct stripestack_type *s_stk,
-                            struct stripe_type s);
 void protoblob_init(struct protoblob_type *pb);
+float point_crop(float inpoint,
+                 float offset,
+                 float limitpoint);
 void protoblob_addstripe(struct protoblob_type *pb,
                          struct stripe_type s);
 void protoblob_merge(struct protoblob_type *pb0,
@@ -206,6 +204,8 @@ void protobloblist_add_protoblob(struct protobloblist_type *pbl,
                                  struct protoblob_type b);
 void protobloblist_populate_frame(struct protobloblist_type *pbl,
                                   struct frame_type *f);
+void protobloblist_draw(struct protobloblist_type *pbl,
+                        char *bmp);
 void protobloblist_print(struct protobloblist_type pbl);
 /* FIXME: add bloblist sort!! */
 /* struct protobloblist_type *protobloblist_sort(struct protobloblist_type *pbl); */
@@ -306,15 +306,6 @@ int tir4_init(struct camera_control_block *ccb)
   ccb->state = active;
 
   return 0;
-  /*   int i; */
-  /*   for(i=0; i<49; i++) { */
-  /*     stripe_print(testblob[i]); */
-  /*     msgproc_add_stripe(testblob[i]); */
-  /*   } */
-  /*   msgproc_close_all_open_blobs(); */
-  /*   protobloblist_print(&msgproc_closed_blobs); */
-  /*   protobloblist_free(&msgproc_closed_blobs); */
-  /*   exit(1); */
 }
 
 int tir4_fatal(void)
@@ -675,7 +666,7 @@ void msgproc_add_byte(uint8_t b, bool do_bitmap)
   int i;
   bool is_vsync;
   struct frame_type f;
-  char *working_bitmap;
+  f.bitmap = NULL;
 
   switch (msgproc_state) {
   case awaiting_header_byte0:
@@ -695,10 +686,6 @@ void msgproc_add_byte(uint8_t b, bool do_bitmap)
              (msgproc_msgid == VALID_MSGID)) {
       msgproc_msgcnt = VALID_MIN_MSGLEN;
       msgproc_substripe_index = 0;
-      if (do_bitmap) {
-        working_bitmap = (char *) malloc(BITMAP_NUM_BYTES);
-        memset(working_bitmap, '\0', BITMAP_NUM_BYTES);
-      }
       msgproc_state = processing_msg;
     }
     /* if its a TBD message, we'll drop it */
@@ -721,6 +708,7 @@ void msgproc_add_byte(uint8_t b, bool do_bitmap)
     if (msgproc_substripe_index < (DEVICE_STRIPE_LEN-1)) {
       msgproc_msgcnt++;
       if (msgproc_msgcnt >= msgproc_msglen) {
+        free(f.bitmap);
         fprintf(stderr,"Warning USB packet ended midstripe. Packet dropped.\n");
         msgproc_state = awaiting_header_byte0;
       }
@@ -745,9 +733,6 @@ void msgproc_add_byte(uint8_t b, bool do_bitmap)
         msgproc_substripe_index = 0;
         newstripe = msgproc_convert_device_stripe(msgproc_pending_device_stripe);
         msgproc_add_stripe(newstripe);
-        if (do_bitmap) {
-          stripe_draw(newstripe, working_bitmap);
-        }
       }
       else {
         /* about done, just move any open to closed blobs,
@@ -756,8 +741,18 @@ void msgproc_add_byte(uint8_t b, bool do_bitmap)
         protobloblist_populate_frame(&msgproc_closed_blobs,
                                      &f);
         if (f.bloblist.num_blobs > 0) {
-          f.bitmap = working_bitmap;
+          if (do_bitmap) {
+            f.bitmap = (char *) malloc(BITMAP_NUM_BYTES*sizeof(char));
+            assert(f.bitmap);
+            memset(f.bitmap, '\0', BITMAP_NUM_BYTES);
+            protobloblist_draw(&msgproc_closed_blobs,
+                               f.bitmap);
+
+          }
           framelist_add_frame(&master_framelist, f);
+        }
+        else {
+          free(f.bitmap);
         }
         protobloblist_free(&msgproc_closed_blobs);
       }
@@ -833,10 +828,9 @@ void msgproc_add_stripe(struct stripe_type s)
   bli = protobloblist_get_iter(&msgproc_open_blobs);
   while (!protobloblist_iter_complete(bli)) {
     nextbli = protobloblist_iter_next(bli);
-    wb = bli->pblob;
-    if (wb.stripes->stripe.vline < s.vline - 2) {
+    if (bli->pblob.stripes.head->stripe.vline < s.vline - 2) {
       protobloblist_add_protoblob(&msgproc_closed_blobs,
-                                  wb);
+                                  bli->pblob);
       protobloblist_delete(&msgproc_open_blobs,
                            bli);
     }
@@ -847,15 +841,14 @@ void msgproc_add_stripe(struct stripe_type s)
   bli = protobloblist_get_iter(&msgproc_open_blobs);
   while (!protobloblist_iter_complete(bli)) {
     nextbli = protobloblist_iter_next(bli);
-    wb = bli->pblob;
-    if (protoblob_is_contact(wb, s)) {
+    if (protoblob_is_contact(bli->pblob, s)) {
       if (stripe_match_found == false) {
         stripe_match_found = true;
         first_stripe_match_position = bli;
       }
       else {
         protoblob_merge(&(first_stripe_match_position->pblob),
-                        &(wb));
+                        &(bli->pblob));
         protobloblist_delete(&msgproc_open_blobs,
                              bli);
       }
@@ -928,26 +921,30 @@ bool stripe_is_hcontact(struct stripe_type s0,
 /* 8bpp only!
  * (resx,resy) = top right corner
  * (0,0) = bottom left corner
-*/
+ */
 void stripe_draw(struct stripe_type s, char *bitmap)
 {
-  char *startpoint, *endpoint;
-  uint16_t vline, hstart, hstop;
+  char *startpoint=NULL;
+  char *endpoint=NULL;
+  uint16_t vline=0, hstart=0, hstop=0;
   /* have to crop, deinterlace and flip here */
   vline = pixel_crop(s.vline,
                      vline_offset,
                      TIR4_VERTICAL_SQUASHED_RESOLUTION-1);
   vline = TIR4_VERTICAL_RESOLUTION-2*vline-1;
   hstart = pixel_crop(s.hstart,
-                     hpix_offset,
-                     TIR4_HORIZONTAL_RESOLUTION-1);
+                      hpix_offset,
+                      TIR4_HORIZONTAL_RESOLUTION-1);
   hstop = pixel_crop(s.hstop,
                      hpix_offset,
                      TIR4_HORIZONTAL_RESOLUTION-1);
 
-  startpoint = bitmap+vline*TIR4_HORIZONTAL_RESOLUTION + hstart;
-  endpoint = bitmap+vline*TIR4_HORIZONTAL_RESOLUTION + hstop;
-  memset(startpoint, '\255', endpoint-startpoint);
+  startpoint = bitmap+vline*(TIR4_HORIZONTAL_RESOLUTION) + hstart;
+  endpoint = bitmap+vline*(TIR4_HORIZONTAL_RESOLUTION) + hstop;
+
+  if (endpoint-startpoint >= 1) {
+    memset(startpoint, '\255', endpoint-startpoint);
+  }
 }
 
 void stripe_print(struct stripe_type s)
@@ -958,134 +955,235 @@ void stripe_print(struct stripe_type s)
          s.hstop);
 }
 
-struct stripestack_type *stripestack_new(void)
+float point_crop(float inpoint,
+                 float offset,
+                 float limitpoint)
 {
-  return NULL;
+  float outpoint;
+
+  if (inpoint<offset) {
+    outpoint = 0;
+  }
+  else {
+    outpoint = inpoint - offset;
+    if (outpoint > limitpoint) {
+      outpoint = limitpoint;
+    }
+  }
+  return outpoint;
 }
 
-void stripestack_free(struct stripestack_type *s_stk)
+void stripelist_init(struct stripelist_type *sl)
 {
-  struct stripestack_type *nodeptr, *nextnodeptr;
+  assert(sl);
+  sl->head = NULL;
+  sl->tail = NULL;
+}
 
-  nodeptr = s_stk;
-  while (!stripestack_is_empty(nodeptr)) {
-    nextnodeptr = stripestack_next(nodeptr);
-    free(nodeptr);
-    nodeptr = nextnodeptr;
+void stripelist_pop(struct stripelist_type *sl,
+                    struct stripelist_iter *sli,
+                    struct stripe_type *s)
+{
+  assert(sl);
+  assert(sli);
+  if (sli->prev == NULL) {
+    sl->head = sli->next;
+  }
+  else {
+    sli->prev->next = sli->next;
+  }
+  if (sli->next == NULL) {
+    sl->tail = sli->prev;
+  }
+  else {
+    sli->next->prev = sli->prev;
+  }
+  *s = sli->stripe;
+  free(sli);
+}
+
+void stripelist_delete(struct stripelist_type *sl,
+                       struct stripelist_iter *sli)
+{
+  assert(sl);
+  assert(sli);
+  if (sli->prev == NULL) {
+    sl->head = sli->next;
+  }
+  else {
+    sli->prev->next = sli->next;
+  }
+  if (sli->next == NULL) {
+    sl->tail = sli->prev;
+  }
+  else {
+    sli->next->prev = sli->prev;
+  }
+  free(sli);
+}
+
+struct stripelist_iter *stripelist_get_iter(struct stripelist_type *sl)
+{
+  assert(sl);
+  return sl->head;
+}
+
+struct stripelist_iter *stripelist_iter_next(struct stripelist_iter *sli)
+{
+  assert(sli);
+  return sli->next;
+}
+
+bool stripelist_iter_complete(struct stripelist_iter *sli)
+{
+  return (sli == NULL);
+}
+
+void stripelist_free(struct stripelist_type *sl)
+{
+  struct stripelist_iter *sli, *nextsli;
+
+  sli = stripelist_get_iter(sl);
+  while (!stripelist_iter_complete(sli)) {
+    nextsli = stripelist_iter_next(sli);
+    free(sli);
+    sli = nextsli;
   }
 }
 
-struct stripestack_type *stripestack_push(struct stripestack_type *s_stk,
-                                          struct stripe_type s)
+void stripelist_push_stripe(struct stripelist_type *sl,
+                           struct stripe_type s)
 {
-  struct stripestack_type *newhead;
-  newhead=(struct stripestack_type *)malloc(sizeof(struct stripestack_type));
+  struct stripelist_iter *newhead;
+  newhead=(struct stripelist_iter *)malloc(sizeof(struct stripelist_iter));
+  assert(newhead);
+
   newhead->stripe = s;
-  newhead->next = s_stk;
   newhead->prev = NULL;
-  if (!stripestack_is_empty(s_stk)) {
-    s_stk->prev = newhead;
+  newhead->next = sl->head;
+  if (sl->tail == NULL) {
+    sl->tail = newhead;
   }
-  return newhead;
+  if (sl->head != NULL) {
+    sl->head->prev = newhead;
+  }
+  sl->head = newhead;
 }
 
-struct stripestack_type *stripestack_next(struct stripestack_type *s_stk)
+void stripelist_append_stripe(struct stripelist_type *sl,
+                              struct stripe_type s)
 {
-  if (stripestack_is_empty(s_stk)) {
-    tir4_error_alert("Attempt to advance stripestack to next on null.\n");
-    tir4_fatal();
-    exit(1);
+  struct stripelist_iter *newtail;
+  newtail=(struct stripelist_iter *)malloc(sizeof(struct stripelist_iter));
+  assert(newtail);
+
+  newtail->stripe = s;
+  newtail->prev = sl->tail;
+  newtail->next = NULL;
+  if (sl->head == NULL) {
+    sl->head = newtail;
   }
-  return s_stk->next;
+  if (sl->tail != NULL) {
+    sl->tail->next = newtail;
+  }
+  sl->tail = newtail;
 }
 
-bool stripestack_is_empty(struct stripestack_type *s_stk)
+/* stripes must be added in vline sorted order! */
+bool stripelist_is_contact(struct stripelist_type *sl,
+                           struct stripe_type s)
 {
-  return (s_stk == NULL);
+  struct stripelist_iter *sli;
+
+  sli = stripelist_get_iter(sl);
+  while (!stripelist_iter_complete(sli)) {
+    if (sli->stripe.vline < s.vline-2) {
+      return false;
+    }
+    else if (stripe_is_hcontact(sli->stripe,s)) {
+      return true;
+    }
+    sli = stripelist_iter_next(sli);
+  }
+  return false;
+}
+
+bool stripelist_is_empty(struct stripelist_type *sl)
+{
+  return !stripelist_iter_complete(stripelist_get_iter(sl));
 }
 
 /* sorted merge.  arguments get freed!! */
-/* FIXME: this could be done all with pointers and no
- * reallocations! */
-/* FIXME: when a list becomes empty, I don't need to
- * keep iterating on it; i could just point result to the remainder
- */
-struct stripestack_type *stripestack_merge(struct stripestack_type *s_stk0,
-                                           struct stripestack_type *s_stk1)
+struct stripelist_type stripelist_merge(struct stripelist_type *sl0,
+                                        struct stripelist_type *sl1)
 {
   bool done;
-  struct stripestack_type *np0, *np1, *next_np0, *next_np1, *result;
+  struct stripelist_iter *sli0, *sli1, *next_sli0, *next_sli1;
+  struct stripelist_type result;
 
-  result = stripestack_new();
-  np0 = s_stk0;
-  np1 = s_stk1;
+  stripelist_init(&result);
+  sli0 = stripelist_get_iter(sl0);
+  sli1 = stripelist_get_iter(sl1);
 
   done = false;
   while (!done) {
-    if (stripestack_is_empty(np0) &&
-        stripestack_is_empty(np1)) {
+    if (stripelist_iter_complete(sli0) &&
+        stripelist_iter_complete(sli1)) {
       done = true;
     }
-    else if (stripestack_is_empty(np0)){
-      stripestack_push(result, np1->stripe);
-      next_np1 = stripestack_next(np1);
-      free(np1);
-      np1 = next_np1;
+    else if (stripelist_iter_complete(sli0)){
+      stripelist_append_stripe(&result, sli1->stripe);
+      next_sli1 = stripelist_iter_next(sli1);
+      stripelist_delete(sl1,sli1);
+      sli1 = next_sli1;
     }
-    else if (stripestack_is_empty(np1)){
-      stripestack_push(result, np0->stripe);
-      next_np0 = stripestack_next(np0);
-      free(np0);
-      np0 = next_np0;
+    else if (stripelist_iter_complete(sli1)){
+      stripelist_append_stripe(&result, sli0->stripe);
+      next_sli0 = stripelist_iter_next(sli0);
+      stripelist_delete(sl0,sli0);
+      sli0 = next_sli0;
     }
     else {
-      if (np0->stripe.vline < np1->stripe.vline) {
-        stripestack_push(result, np0->stripe);
-        next_np0 = stripestack_next(np0);
-        free(np0);
-        np0 = next_np0;
+      if (sli0->stripe.vline < sli1->stripe.vline) {
+        stripelist_append_stripe(&result, sli0->stripe);
+        next_sli0 = stripelist_iter_next(sli0);
+        stripelist_delete(sl0,sli0);
+        sli0 = next_sli0;
       }
       else {
-        stripestack_push(result, np1->stripe);
-        next_np1 = stripestack_next(np1);
-        free(np1);
-        np1 = next_np1;
+        stripelist_append_stripe(&result, sli1->stripe);
+        next_sli1 = stripelist_iter_next(sli1);
+        stripelist_delete(sl1,sli1);
+        sli1 = next_sli1;
       }
     }
   }
   return result;
 }
 
-/* stripes must be added in vline sorted order! */
-bool stripestack_is_contact(struct stripestack_type *s_stk,
-                            struct stripe_type s)
+bool stripelist_draw(struct stripelist_type *sl,
+                     char *bmp)
 {
-  struct stripestack_type *np;
+  struct stripelist_iter *sli;
 
-  for (np = s_stk;
-       !stripestack_is_empty(np);
-       np = stripestack_next(np)) {
-    if (np->stripe.vline < s.vline-2) {
-      return false;
-    }
-    else if (stripe_is_hcontact(np->stripe,s)) {
-      return true;
-    }
+  sli = stripelist_get_iter(sl);
+  while (!stripelist_iter_complete(sli)) {
+    stripe_draw(sli->stripe,bmp);
+    sli = stripelist_iter_next(sli);
   }
-  return false;
 }
 
-void stripestack_print(struct stripestack_type *s_stk)
+void stripelist_print(struct stripelist_type sl)
 {
-  struct stripestack_type *np;
+  struct stripelist_iter *sli;
 
-  printf("-- start stripestack --\n");
-  for (np = s_stk;
-       !stripestack_is_empty(np);
-       np = stripestack_next(np)) {
-    stripe_print(np->stripe);
+  printf("-- start stripelist --\n");
+  sli = stripelist_get_iter(&sl);
+  while (!stripelist_iter_complete(sli)) {
+    stripe_print(sli->stripe);
+    sli = stripelist_iter_next(sli);
   }
-  printf("-- end stripestack --\n");
+  printf("-- end stripelist --\n");
 }
 
 void protoblob_init(struct protoblob_type *pb)
@@ -1093,7 +1191,7 @@ void protoblob_init(struct protoblob_type *pb)
   pb->cumulative_area = 0;
   pb->cumulative_2x_hcenter_area_product = 0;
   pb->cumulative_linenum_area_product = 0;
-  pb->stripes = stripestack_new();
+  stripelist_init(&(pb->stripes));
 }
 
 void protoblob_addstripe(struct protoblob_type *pb,
@@ -1105,7 +1203,7 @@ void protoblob_addstripe(struct protoblob_type *pb,
   pb->cumulative_linenum_area_product += s.vline*(area);
   pb->cumulative_2x_hcenter_area_product += area *
     (s.hstop+s.hstart);
-  pb->stripes = stripestack_push(pb->stripes, s);
+  stripelist_push_stripe(&(pb->stripes), s);
 }
 
 void protoblob_merge(struct protoblob_type *pb0,
@@ -1116,24 +1214,42 @@ void protoblob_merge(struct protoblob_type *pb0,
     pb1->cumulative_linenum_area_product;
   pb0->cumulative_2x_hcenter_area_product +=
     pb1->cumulative_2x_hcenter_area_product;
-  pb0->stripes = stripestack_merge(pb0->stripes,
-                                   pb1->stripes);
+  pb0->stripes = stripelist_merge(&(pb0->stripes),
+                                  &(pb1->stripes));
 }
 
 bool protoblob_is_contact(struct protoblob_type pb,
                           struct stripe_type s)
 {
-  return stripestack_is_contact(pb.stripes,s);
+  return stripelist_is_contact(&(pb.stripes),s);
 }
 
 void protoblob_make_blob(struct protoblob_type *pb,
                          struct blob_type *b)
 {
-  b->x = (((float)pb->cumulative_2x_hcenter_area_product) /
-          (pb->cumulative_area * 2.0)) - hpix_offset;
-  b->y = 2.0 *
-    (((float)pb->cumulative_linenum_area_product) / pb->cumulative_area) -
-    vline_offset;
+  float  working_x, working_y;
+  /* calculate the raw values */
+  working_x =((float)pb->cumulative_2x_hcenter_area_product) /
+    (pb->cumulative_area * 2.0);
+  working_y = ((float)pb->cumulative_linenum_area_product) / 
+    pb->cumulative_area;
+  /* crop them to the squashed frame size) */
+  working_x = point_crop(working_x, 
+                         (float) hpix_offset, 
+                         TIR4_HORIZONTAL_RESOLUTION-1);
+  working_y = point_crop(working_y, 
+                         (float) vline_offset, 
+                         TIR4_VERTICAL_SQUASHED_RESOLUTION-1);
+  /* move them to 0,0 = center based coordinates */
+  working_x -= (float) (TIR4_HORIZONTAL_RESOLUTION-1) / 2.0;
+  working_y -= (float) (TIR4_VERTICAL_SQUASHED_RESOLUTION-1) / 2.0;
+  /* need to invert the x,y */
+  working_x = -working_x;
+  working_y = -working_y;
+  /* need to double the y */
+  working_y = 2*working_y;
+  b->x = working_x;
+  b->y = working_y;
   b->score = pb->cumulative_area;
 }
 
@@ -1143,7 +1259,7 @@ void protoblob_print(struct protoblob_type pb)
   printf("cumulative_area: %d\n", pb.cumulative_area);
   printf("cumulative_2x_hcenter_area_product: %d\n", pb.cumulative_2x_hcenter_area_product);
   printf("cumulative_linenum_area_product: %d\n", pb.cumulative_linenum_area_product);
-  stripestack_print(pb.stripes);
+  stripelist_print(pb.stripes);
   printf("-- end blob --\n");
 }
 
@@ -1193,6 +1309,7 @@ void protobloblist_free(struct protobloblist_type *pbl)
   pbli = protobloblist_get_iter(pbl);
   while (!protobloblist_iter_complete(pbli)) {
     nextpbli = protobloblist_iter_next(pbli);
+    stripelist_free(&(pbli->pblob.stripes));
     protobloblist_delete(pbl, pbli);
     pbli = nextpbli;
   }
@@ -1203,7 +1320,7 @@ void protobloblist_add_protoblob(struct protobloblist_type *pbl,
 {
   struct protobloblist_iter *newhead;
   newhead=(struct protobloblist_iter *)malloc(sizeof(struct protobloblist_iter));
-
+  assert(newhead);
   newhead->pblob = b;
   newhead->prev = NULL;
   newhead->next = pbl->head;
@@ -1231,7 +1348,7 @@ void protobloblist_populate_frame(struct protobloblist_type *pbl,
 
   f->bloblist.blobs = (struct blob_type *)
     malloc(f->bloblist.num_blobs*sizeof(struct blob_type));
-
+  assert(f->bloblist.blobs);
   i = 0;
   pbli = protobloblist_get_iter(pbl);
   while (!protobloblist_iter_complete(pbli)) {
@@ -1239,6 +1356,18 @@ void protobloblist_populate_frame(struct protobloblist_type *pbl,
                         &(f->bloblist.blobs[i]));
     pbli = protobloblist_iter_next(pbli);
     i++;
+  }
+}
+
+void protobloblist_draw(struct protobloblist_type *pbl,
+                        char *bmp)
+{
+  struct protobloblist_iter *pbli;
+
+  pbli = protobloblist_get_iter(pbl);
+  while (!protobloblist_iter_complete(pbli)) {
+    stripelist_draw(&(pbli->pblob.stripes), bmp);
+    pbli = protobloblist_iter_next(pbli);
   }
 }
 
@@ -1315,6 +1444,7 @@ void framelist_add_frame(struct framelist_type *fl,
 {
   struct framelist_iter *newhead;
   newhead=(struct framelist_iter *)malloc(sizeof(struct framelist_iter));
+  assert(newhead);
 
   newhead->frame = f;
   newhead->prev = NULL;
