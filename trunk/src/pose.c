@@ -1,5 +1,3 @@
-
-
 #include <stdio.h>
 #include "pose.h"
 #include "math_utils.h"
@@ -175,6 +173,21 @@ bool process_blobs(struct bloblist_type blobs, struct transform *trans)
   get_transform(new_base, trans->rot);
 //  print_matrix(trans->rot, "Rot");
   return true;
+}
+
+void print_transform(struct transform trans)
+{
+  printf("******************************\ntranslation:\n");
+  printf("translation:\n");
+  printf("x: %f\ty: %f\tz: %f\n", trans.tr[0], trans.tr[1], trans.tr[2]);
+  printf("rotation:\n");
+  printf("m00: %f\tm01: %f\tm02: %f\n", 
+         trans.rot[0][0], trans.rot[0][1], trans.rot[0][2]);
+  printf("m10: %f\tm11: %f\tm12: %f\n", 
+         trans.rot[1][0], trans.rot[1][1], trans.rot[1][2]);
+  printf("m20: 2f\tm21: %f\tm22: %f\n", 
+         trans.rot[2][0], trans.rot[2][1], trans.rot[2][2]);
+  printf("******************************\n");
 }
 
 /*
