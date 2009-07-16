@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -79,6 +80,7 @@ struct protoblob_type {
 };
 
 struct protobloblist_type {
+  unsigned int length;
   struct protobloblist_iter *head;
   struct protobloblist_iter *tail;
 };
@@ -169,7 +171,7 @@ bool is_green_led_on(void);
 bool is_red_led_on(void);
 bool is_blue_led_on(void);
 void msgproc_init(void);
-void msgproc_add_byte(uint8_t b, bool do_bitmap);
+void msgproc_add_byte(uint8_t b, enum cal_operating_mode opmode);
 struct stripe_type msgproc_convert_device_stripe(device_stripe_type ds);
 void msgproc_add_stripe(struct stripe_type s);
 void msgproc_close_all_open_blobs(void);
@@ -202,13 +204,14 @@ bool protobloblist_iter_complete(struct protobloblist_iter *pbli);
 void protobloblist_free(struct protobloblist_type *pbl);
 void protobloblist_add_protoblob(struct protobloblist_type *pbl,
                                  struct protoblob_type b);
-void protobloblist_populate_frame(struct protobloblist_type *pbl,
-                                  struct frame_type *f);
+void protobloblist_pop_biggest_protoblob(struct protobloblist_type *pbl,
+                                         struct protoblob_type *pb);
+bool protobloblist_populate_frame(struct protobloblist_type *pbl,
+                                  struct frame_type *f,
+                                  enum cal_operating_mode opmode);
 void protobloblist_draw(struct protobloblist_type *pbl,
                         char *bmp);
 void protobloblist_print(struct protobloblist_type pbl);
-/* FIXME: add bloblist sort!! */
-/* struct protobloblist_type *protobloblist_sort(struct protobloblist_type *pbl); */
 void framelist_init(struct framelist_type *fl);
 void framelist_pop(struct framelist_type *fl,
                    struct framelist_iter *fli,
@@ -318,6 +321,8 @@ int tir4_fatal(void)
 
 int tir4_shutdown(struct camera_control_block *ccb)
 {
+  framelist_flush(ccb,
+                  &master_framelist);
   set_all_led_off();
   tir4_release();
   tir4_close();
@@ -389,7 +394,7 @@ int tir4_do_read_and_process(struct camera_control_block *ccb)
 
   for (i=0; i<numread; i++) {
     msgproc_add_byte((uint8_t) usb_read_buf[i],
-                     (ccb->mode==diagnostic));
+                     ccb->mode);
   }
 
   return 0;
@@ -661,10 +666,10 @@ void msgproc_init(void)
   protobloblist_init(&msgproc_closed_blobs);
 }
 
-void msgproc_add_byte(uint8_t b, bool do_bitmap)
+void msgproc_add_byte(uint8_t b, enum cal_operating_mode opmode)
 {
   int i;
-  bool is_vsync;
+  bool is_vsync, frame_was_made;
   struct frame_type f;
   f.bitmap = NULL;
 
@@ -738,21 +743,11 @@ void msgproc_add_byte(uint8_t b, bool do_bitmap)
         /* about done, just move any open to closed blobs,
          * and create the frame */
         msgproc_close_all_open_blobs();
-        protobloblist_populate_frame(&msgproc_closed_blobs,
-                                     &f);
-        if (f.bloblist.num_blobs > 0) {
-          if (do_bitmap) {
-            f.bitmap = (char *) malloc(BITMAP_NUM_BYTES*sizeof(char));
-            assert(f.bitmap);
-            memset(f.bitmap, '\0', BITMAP_NUM_BYTES);
-            protobloblist_draw(&msgproc_closed_blobs,
-                               f.bitmap);
-
-          }
+        frame_was_made = protobloblist_populate_frame(&msgproc_closed_blobs,
+                                                      &f,
+                                                      opmode);
+        if (frame_was_made) {
           framelist_add_frame(&master_framelist, f);
-        }
-        else {
-          free(f.bitmap);
         }
         protobloblist_free(&msgproc_closed_blobs);
       }
@@ -1265,6 +1260,7 @@ void protoblob_print(struct protoblob_type pb)
 
 void protobloblist_init(struct protobloblist_type *pbl)
 {
+  pbl->length = 0;
   pbl->head = NULL;
   pbl->tail = NULL;
 }
@@ -1272,6 +1268,7 @@ void protobloblist_init(struct protobloblist_type *pbl)
 void protobloblist_delete(struct protobloblist_type *pbl,
                           struct protobloblist_iter *pbli)
 {
+  pbl->length--;
   if (pbli->prev == NULL) {
     pbl->head = pbli->next;
   }
@@ -1331,32 +1328,81 @@ void protobloblist_add_protoblob(struct protobloblist_type *pbl,
     pbl->head->prev = newhead;
   }
   pbl->head = newhead;
+  pbl->length++;
 }
 
-void protobloblist_populate_frame(struct protobloblist_type *pbl,
-                                  struct frame_type *f)
+void protobloblist_pop_biggest_protoblob(struct protobloblist_type *pbl,
+                                         struct protoblob_type *pb)
+{
+  struct protobloblist_iter *biggest_seen_blob_iter = NULL;
+  struct protobloblist_iter *pbli;
+
+  pbli = protobloblist_get_iter(pbl);
+  assert(pbli);
+  while (!protobloblist_iter_complete(pbli)) {
+    if (biggest_seen_blob_iter == NULL) {
+      biggest_seen_blob_iter = pbli;
+    }
+    else if (pbli->pblob.cumulative_area >
+             biggest_seen_blob_iter->pblob.cumulative_area) {
+      biggest_seen_blob_iter = pbli;
+    }
+    pbli = protobloblist_iter_next(pbli);
+  }
+    *pb = biggest_seen_blob_iter->pblob;
+    protobloblist_delete(pbl, biggest_seen_blob_iter);
+}
+
+bool protobloblist_populate_frame(struct protobloblist_type *pbl,
+                                  struct frame_type *f,
+                                  enum cal_operating_mode opmode)
 {
   struct protobloblist_iter *pbli;
   int i;
+  unsigned int required_blobnum = 0;
+  struct protoblob_type wb;
 
-  f->bloblist.num_blobs=0;
-  pbli = protobloblist_get_iter(pbl);
-  while (!protobloblist_iter_complete(pbli)) {
-    f->bloblist.num_blobs++;
-    pbli = protobloblist_iter_next(pbli);
+  if (pbl->length == 0) {
+    return false;
   }
 
+  switch (opmode) {
+  case diagnostic: /* report all blobs, if there are any */
+    required_blobnum = pbl->length;
+    f->bitmap = (char *) malloc(BITMAP_NUM_BYTES*sizeof(char));
+    assert(f->bitmap);
+    memset(f->bitmap, '\0', BITMAP_NUM_BYTES);
+    protobloblist_draw(pbl,
+                       f->bitmap);
+    break;
+  case operational_1dot:
+    required_blobnum = 1;
+    break;
+  case operational_3dot:
+    required_blobnum = 3;
+    break;
+  }
+  if (pbl->length < required_blobnum) {
+    return false;
+  }
+  if (pbl->length > required_blobnum) {
+    printf("Saw %d blobs, only kept %d.\n", 
+           pbl->length, required_blobnum);
+  }
+
+  f->bloblist.num_blobs = required_blobnum;
   f->bloblist.blobs = (struct blob_type *)
     malloc(f->bloblist.num_blobs*sizeof(struct blob_type));
   assert(f->bloblist.blobs);
-  i = 0;
-  pbli = protobloblist_get_iter(pbl);
-  while (!protobloblist_iter_complete(pbli)) {
-    protoblob_make_blob(&(pbli->pblob),
+
+  for(i=0; i<required_blobnum;i++) {
+    protobloblist_pop_biggest_protoblob(pbl, &wb);
+    protoblob_make_blob(&wb,
                         &(f->bloblist.blobs[i]));
-    pbli = protobloblist_iter_next(pbli);
-    i++;
+    stripelist_free(&(wb.stripes));
+    
   }
+  return true;
 }
 
 void protobloblist_draw(struct protobloblist_type *pbl,
