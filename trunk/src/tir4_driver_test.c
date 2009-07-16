@@ -9,6 +9,8 @@ int main(int argc, char **argv) {
 
   ccb.device.category = tir4_camera;
   ccb.mode = diagnostic;
+/*   ccb.mode = operational_1dot; */
+/*   ccb.mode = operational_3dot; */
 
   cal_init(&ccb);
 
