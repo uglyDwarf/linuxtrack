@@ -11,6 +11,7 @@ struct transform{
 
 void init_model();
 bool process_blobs(struct bloblist_type blobs, struct transform *trans);
+void center();
 void print_transform(struct transform trans);
 
 #endif

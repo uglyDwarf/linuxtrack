@@ -17,7 +17,7 @@ float model_base[3][3];
 float center_ref[3];
 float center_base[3][3];
 
-int center_flag = 0;
+volatile bool center_flag = false;
 
 void init_model()
 {
@@ -125,7 +125,7 @@ void alter_pose(struct bloblist_type blobs, float points[3][3])
 }
 
 void get_translation(float base[3][3], float ref[3], float origin[3], 
-                                                        float trans[3]){
+                     float trans[3], bool do_center){
   float tmp[3];
   float t_base[3][3];
   float new_ref[3];
@@ -136,6 +136,11 @@ void get_translation(float base[3][3], float ref[3], float origin[3],
   new_ref[2] += origin[2];
 //  print_vec(new_ref, "new_ref");
 //  print_vec(origin, "origin");
+  if(do_center == true){
+    center_ref[0] = new_ref[0];
+    center_ref[1] = new_ref[1];
+    center_ref[2] = new_ref[2];
+  }
   trans[0] = new_ref[0] - center_ref[0];
   trans[1] = new_ref[1] - center_ref[1];
   trans[2] = new_ref[2] - center_ref[2];
@@ -151,6 +156,7 @@ bool process_blobs(struct bloblist_type blobs, struct transform *trans)
 {
   
   float points[3][3];
+  bool centering = false;
 //  print_matrix(model_base, "Model_base");
 //  print_vec(model_ref, "Ref_point");
   alter_pose(blobs, points);
@@ -166,12 +172,23 @@ bool process_blobs(struct bloblist_type blobs, struct transform *trans)
 //  print_vec(vec1, "vec1");
 //  print_vec(vec2, "vec2");
   make_base(vec1, vec2, new_base);
+  if(center_flag == true){
+    center_flag = false;
+    centering = true;
+    int i,j;
+    for(i = 0; i < 3; ++i){
+      for(j = 0; j < 3; ++j){
+        center_base[i][j] = new_base[i][j];
+      }
+    }
+  }
 //  print_matrix(new_base, "New_base");
   float new_ref[3];
-  get_translation(new_base, model_ref, points[0], trans->tr);
+  get_translation(new_base, model_ref, points[0], trans->tr, centering);
 //  print_vec(trans->tr, "translation");
   get_transform(new_base, trans->rot);
 //  print_matrix(trans->rot, "Rot");
+  center_flag = false;
   return true;
 }
 
@@ -182,6 +199,13 @@ void print_transform(struct transform trans)
   print_matrix(trans.rot, "rotation");
   printf("******************************\n");
 }
+
+void center()
+{
+  center_flag = true;
+}
+
+
 
 /*
 int main(void)
