@@ -68,7 +68,7 @@ In image-space:
  * the top right corner of the image is (+pixel_width/2, +pixel_height/2).
 
 Image space X-Y must track camera space X-Y.
-In other words, moving a reflector to the right in space (increasing X), should see a corresponding increase in positve X of the blob center.
+In other words, moving a reflector to the right in space (increasing X), should see a corresponding increase in positive X of the blob center.
 This means that for most cameras, the blob centers must be mirrored horizontally before being passed to the pose estimation algorithm.
 
 == Input Reference Frame ==
