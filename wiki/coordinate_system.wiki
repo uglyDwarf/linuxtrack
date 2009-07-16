@@ -67,6 +67,10 @@ In image-space:
  * the bottom left corner of the image is (-pixel_width/2, -pixel_height/2).
  * the top right corner of the image is (+pixel_width/2, +pixel_height/2).
 
+Image space X-Y must track camera space X-Y.
+In other words, moving a reflector to the right in space (increasing X), should see a corresponding increase in positve X of the blob center.
+This means that for most cameras, the blob centers must be mirrored horizontally before being passed to the pose estimation algorithm.
+
 == Input Reference Frame ==
 TBD
 
@@ -85,7 +89,7 @@ This is represented as a 3x1 vector.
 The rotation matrix describes the user's nthframe head rotations relative to the reference frame.
 Internally, linux-track represents rotations as a 3x3 matrix. 
 
-= A word on Yaw, Pitch, Roll =
+= A word on Euler Angles (Yaw, Pitch, Roll) =
 
 To be defined.
 
