@@ -40,7 +40,7 @@ Points must be defined in the common X-Y-Z coordiates with respect to the camera
 
 Point Definitions:
  * Point 0: The topmost (greatest +Y) point shall be defined as the origin of the reflector model, and point 0
- * Point 1: The rightmost (greatest +X) point shall be defined as and point 1
+ * Point 1: The rightmost (greatest +X) point shall be defined as point 1
  * Point 2: The remaining reflector point shall be point 2
  * headpoint: the reasonable estiimate of the user's head center with respect to point 0
 
