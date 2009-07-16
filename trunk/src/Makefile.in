@@ -31,7 +31,9 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = tir4_driver_test$(EXEEXT)
+bin_PROGRAMS = tir4_driver_test$(EXEEXT) pose_test$(EXEEXT) \
+	$(am__EXEEXT_1)
+@XPLANE_PLUGIN_TRUE@am__append_1 = xlinuxtrack
 subdir = src
 DIST_COMMON = $(dist_data_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -42,13 +44,30 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
+@XPLANE_PLUGIN_TRUE@am__EXEEXT_1 = xlinuxtrack$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
+am_pose_test_OBJECTS = cal.$(OBJEXT) tir4_driver.$(OBJEXT) \
+	pose_test.$(OBJEXT) math_utils.$(OBJEXT) pose.$(OBJEXT)
+pose_test_OBJECTS = $(am_pose_test_OBJECTS)
+pose_test_LDADD = $(LDADD)
 am_tir4_driver_test_OBJECTS = cal.$(OBJEXT) tir4_driver.$(OBJEXT) \
 	tir4_driver_test.$(OBJEXT) math_utils.$(OBJEXT) pose.$(OBJEXT)
 tir4_driver_test_OBJECTS = $(am_tir4_driver_test_OBJECTS)
 tir4_driver_test_LDADD = $(LDADD)
+am__xlinuxtrack_SOURCES_DIST = xlinuxtrack.c cal.c cal.h tir4_driver.c \
+	tir4_driver.h math_utils.c math_utils.h pose.c pose.h
+@XPLANE_PLUGIN_TRUE@am_xlinuxtrack_OBJECTS =  \
+@XPLANE_PLUGIN_TRUE@	xlinuxtrack-xlinuxtrack.$(OBJEXT) \
+@XPLANE_PLUGIN_TRUE@	xlinuxtrack-cal.$(OBJEXT) \
+@XPLANE_PLUGIN_TRUE@	xlinuxtrack-tir4_driver.$(OBJEXT) \
+@XPLANE_PLUGIN_TRUE@	xlinuxtrack-math_utils.$(OBJEXT) \
+@XPLANE_PLUGIN_TRUE@	xlinuxtrack-pose.$(OBJEXT)
+xlinuxtrack_OBJECTS = $(am_xlinuxtrack_OBJECTS)
+xlinuxtrack_LDADD = $(LDADD)
+xlinuxtrack_LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(xlinuxtrack_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -56,8 +75,10 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(tir4_driver_test_SOURCES)
-DIST_SOURCES = $(tir4_driver_test_SOURCES)
+SOURCES = $(pose_test_SOURCES) $(tir4_driver_test_SOURCES) \
+	$(xlinuxtrack_SOURCES)
+DIST_SOURCES = $(pose_test_SOURCES) $(tir4_driver_test_SOURCES) \
+	$(am__xlinuxtrack_SOURCES_DIST)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -116,6 +137,7 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
+XPLANE_SDK = @XPLANE_SDK@
 YACC = @YACC@
 YFLAGS = @YFLAGS@
 abs_builddir = @abs_builddir@
@@ -163,7 +185,15 @@ top_srcdir = @top_srcdir@
 tir4_driver_test_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  tir4_driver_test.c \
   math_utils.c math_utils.h pose.c pose.h
 
+pose_test_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  pose_test.c \
+  math_utils.c math_utils.h pose.c pose.h
+
 dist_data_DATA = bulk_config_data.bin
+@XPLANE_PLUGIN_TRUE@xlinuxtrack_SOURCES = xlinuxtrack.c cal.c cal.h tir4_driver.c  tir4_driver.h \
+@XPLANE_PLUGIN_TRUE@  math_utils.c math_utils.h pose.c pose.h
+
+@XPLANE_PLUGIN_TRUE@xlinuxtrack_LDFLAGS = -shared -fPIC
+@XPLANE_PLUGIN_TRUE@xlinuxtrack_CPPFLAGS = -I ../$(XPLANE_SDK)/CHeaders/XPLM -DIBM=0 -DAPL=0 -DLIN=1 
 all: all-am
 
 .SUFFIXES:
@@ -220,9 +250,15 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+pose_test$(EXEEXT): $(pose_test_OBJECTS) $(pose_test_DEPENDENCIES) 
+	@rm -f pose_test$(EXEEXT)
+	$(LINK) $(pose_test_OBJECTS) $(pose_test_LDADD) $(LIBS)
 tir4_driver_test$(EXEEXT): $(tir4_driver_test_OBJECTS) $(tir4_driver_test_DEPENDENCIES) 
 	@rm -f tir4_driver_test$(EXEEXT)
 	$(LINK) $(tir4_driver_test_OBJECTS) $(tir4_driver_test_LDADD) $(LIBS)
+xlinuxtrack$(EXEEXT): $(xlinuxtrack_OBJECTS) $(xlinuxtrack_DEPENDENCIES) 
+	@rm -f xlinuxtrack$(EXEEXT)
+	$(xlinuxtrack_LINK) $(xlinuxtrack_OBJECTS) $(xlinuxtrack_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -233,8 +269,14 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cal.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/math_utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir4_driver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir4_driver_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack-cal.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack-math_utils.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack-pose.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack-tir4_driver.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack-xlinuxtrack.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -249,6 +291,76 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
+
+xlinuxtrack-xlinuxtrack.o: xlinuxtrack.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT xlinuxtrack-xlinuxtrack.o -MD -MP -MF $(DEPDIR)/xlinuxtrack-xlinuxtrack.Tpo -c -o xlinuxtrack-xlinuxtrack.o `test -f 'xlinuxtrack.c' || echo '$(srcdir)/'`xlinuxtrack.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack-xlinuxtrack.Tpo $(DEPDIR)/xlinuxtrack-xlinuxtrack.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='xlinuxtrack.c' object='xlinuxtrack-xlinuxtrack.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o xlinuxtrack-xlinuxtrack.o `test -f 'xlinuxtrack.c' || echo '$(srcdir)/'`xlinuxtrack.c
+
+xlinuxtrack-xlinuxtrack.obj: xlinuxtrack.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT xlinuxtrack-xlinuxtrack.obj -MD -MP -MF $(DEPDIR)/xlinuxtrack-xlinuxtrack.Tpo -c -o xlinuxtrack-xlinuxtrack.obj `if test -f 'xlinuxtrack.c'; then $(CYGPATH_W) 'xlinuxtrack.c'; else $(CYGPATH_W) '$(srcdir)/xlinuxtrack.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack-xlinuxtrack.Tpo $(DEPDIR)/xlinuxtrack-xlinuxtrack.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='xlinuxtrack.c' object='xlinuxtrack-xlinuxtrack.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o xlinuxtrack-xlinuxtrack.obj `if test -f 'xlinuxtrack.c'; then $(CYGPATH_W) 'xlinuxtrack.c'; else $(CYGPATH_W) '$(srcdir)/xlinuxtrack.c'; fi`
+
+xlinuxtrack-cal.o: cal.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT xlinuxtrack-cal.o -MD -MP -MF $(DEPDIR)/xlinuxtrack-cal.Tpo -c -o xlinuxtrack-cal.o `test -f 'cal.c' || echo '$(srcdir)/'`cal.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack-cal.Tpo $(DEPDIR)/xlinuxtrack-cal.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='cal.c' object='xlinuxtrack-cal.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o xlinuxtrack-cal.o `test -f 'cal.c' || echo '$(srcdir)/'`cal.c
+
+xlinuxtrack-cal.obj: cal.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT xlinuxtrack-cal.obj -MD -MP -MF $(DEPDIR)/xlinuxtrack-cal.Tpo -c -o xlinuxtrack-cal.obj `if test -f 'cal.c'; then $(CYGPATH_W) 'cal.c'; else $(CYGPATH_W) '$(srcdir)/cal.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack-cal.Tpo $(DEPDIR)/xlinuxtrack-cal.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='cal.c' object='xlinuxtrack-cal.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o xlinuxtrack-cal.obj `if test -f 'cal.c'; then $(CYGPATH_W) 'cal.c'; else $(CYGPATH_W) '$(srcdir)/cal.c'; fi`
+
+xlinuxtrack-tir4_driver.o: tir4_driver.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT xlinuxtrack-tir4_driver.o -MD -MP -MF $(DEPDIR)/xlinuxtrack-tir4_driver.Tpo -c -o xlinuxtrack-tir4_driver.o `test -f 'tir4_driver.c' || echo '$(srcdir)/'`tir4_driver.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack-tir4_driver.Tpo $(DEPDIR)/xlinuxtrack-tir4_driver.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tir4_driver.c' object='xlinuxtrack-tir4_driver.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o xlinuxtrack-tir4_driver.o `test -f 'tir4_driver.c' || echo '$(srcdir)/'`tir4_driver.c
+
+xlinuxtrack-tir4_driver.obj: tir4_driver.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT xlinuxtrack-tir4_driver.obj -MD -MP -MF $(DEPDIR)/xlinuxtrack-tir4_driver.Tpo -c -o xlinuxtrack-tir4_driver.obj `if test -f 'tir4_driver.c'; then $(CYGPATH_W) 'tir4_driver.c'; else $(CYGPATH_W) '$(srcdir)/tir4_driver.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack-tir4_driver.Tpo $(DEPDIR)/xlinuxtrack-tir4_driver.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tir4_driver.c' object='xlinuxtrack-tir4_driver.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o xlinuxtrack-tir4_driver.obj `if test -f 'tir4_driver.c'; then $(CYGPATH_W) 'tir4_driver.c'; else $(CYGPATH_W) '$(srcdir)/tir4_driver.c'; fi`
+
+xlinuxtrack-math_utils.o: math_utils.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT xlinuxtrack-math_utils.o -MD -MP -MF $(DEPDIR)/xlinuxtrack-math_utils.Tpo -c -o xlinuxtrack-math_utils.o `test -f 'math_utils.c' || echo '$(srcdir)/'`math_utils.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack-math_utils.Tpo $(DEPDIR)/xlinuxtrack-math_utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='math_utils.c' object='xlinuxtrack-math_utils.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o xlinuxtrack-math_utils.o `test -f 'math_utils.c' || echo '$(srcdir)/'`math_utils.c
+
+xlinuxtrack-math_utils.obj: math_utils.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT xlinuxtrack-math_utils.obj -MD -MP -MF $(DEPDIR)/xlinuxtrack-math_utils.Tpo -c -o xlinuxtrack-math_utils.obj `if test -f 'math_utils.c'; then $(CYGPATH_W) 'math_utils.c'; else $(CYGPATH_W) '$(srcdir)/math_utils.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack-math_utils.Tpo $(DEPDIR)/xlinuxtrack-math_utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='math_utils.c' object='xlinuxtrack-math_utils.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o xlinuxtrack-math_utils.obj `if test -f 'math_utils.c'; then $(CYGPATH_W) 'math_utils.c'; else $(CYGPATH_W) '$(srcdir)/math_utils.c'; fi`
+
+xlinuxtrack-pose.o: pose.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT xlinuxtrack-pose.o -MD -MP -MF $(DEPDIR)/xlinuxtrack-pose.Tpo -c -o xlinuxtrack-pose.o `test -f 'pose.c' || echo '$(srcdir)/'`pose.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack-pose.Tpo $(DEPDIR)/xlinuxtrack-pose.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pose.c' object='xlinuxtrack-pose.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o xlinuxtrack-pose.o `test -f 'pose.c' || echo '$(srcdir)/'`pose.c
+
+xlinuxtrack-pose.obj: pose.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT xlinuxtrack-pose.obj -MD -MP -MF $(DEPDIR)/xlinuxtrack-pose.Tpo -c -o xlinuxtrack-pose.obj `if test -f 'pose.c'; then $(CYGPATH_W) 'pose.c'; else $(CYGPATH_W) '$(srcdir)/pose.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack-pose.Tpo $(DEPDIR)/xlinuxtrack-pose.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pose.c' object='xlinuxtrack-pose.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xlinuxtrack_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o xlinuxtrack-pose.obj `if test -f 'pose.c'; then $(CYGPATH_W) 'pose.c'; else $(CYGPATH_W) '$(srcdir)/pose.c'; fi`
 install-dist_dataDATA: $(dist_data_DATA)
 	@$(NORMAL_INSTALL)
 	test -z "$(datadir)" || $(MKDIR_P) "$(DESTDIR)$(datadir)"

@@ -16,6 +16,7 @@ AC_PROG_YACC
 AC_PROG_CC
 AC_PROG_LEX
 AC_PROG_RANLIB
+AM_PROG_CC_C_O
 
 # Checks for libraries.
 AC_CHECK_LIB([m], [sqrt])
@@ -30,6 +31,34 @@ AC_HEADER_STDBOOL
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
+
+
+XPLANE_SDK=
+AC_ARG_WITH([xplane_sdk],
+            [AS_HELP_STRING([--with-xplane-sdk],
+              [specify path to XPlane SDK @<:@default=../SDK@:>@])], 
+            [XPLANE_SDK=${with_xplane_sdk}],
+            [XPLANE_SDK="../SDK"]
+)
+
+AC_ARG_ENABLE([xplane_plugin],
+            [AS_HELP_STRING([--enable-xplane-plugin],
+              [build XPlane plugin @<:@default=yes@:>@])], 
+            [],
+            [
+                AC_CHECK_FILE([${XPLANE_SDK}/CHeaders/XPLM/XPLMUtilities.h],
+                    [
+                      AC_SUBST([XPLANE_SDK])
+                      with_xplane_plugin=yes
+                    ],
+                    [AC_MSG_FAILURE([Invalid path of XPlane SDK specified])]
+                )
+            ]
+)
+
+AM_CONDITIONAL(XPLANE_PLUGIN, [test x$with_xplane_plugin = xyes])
+
+
 
 # Checks for library functions.
 
