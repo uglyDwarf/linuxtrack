@@ -28,7 +28,7 @@ The +Z vector fires out of the camera.
 
 The all X,Y,Z measurements use units of millimeters.
 
-_picture to be included_
+http://linux-track.googlecode.com/svn/wiki/XYZDiagram.png
 
 = Input Reflector Model =
 
