@@ -1385,10 +1385,6 @@ bool protobloblist_populate_frame(struct protobloblist_type *pbl,
   if (pbl->length < required_blobnum) {
     return false;
   }
-  if (pbl->length > required_blobnum) {
-    printf("Saw %d blobs, only kept %d.\n", 
-           pbl->length, required_blobnum);
-  }
 
   f->bloblist.num_blobs = required_blobnum;
   f->bloblist.blobs = (struct blob_type *)
