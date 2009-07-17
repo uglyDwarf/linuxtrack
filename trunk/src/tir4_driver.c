@@ -281,7 +281,7 @@ int tir4_init(struct camera_control_block *ccb)
   tir4_device = tir4_find_device(TIR_VENDOR_ID,TIR4_PRODUCT_ID);
   if(!tir4_device) {
     tir4_error_alert("Unable to locate TIR4 device\n");
-    exit(1);
+    return -1;
   }
 
   /* open the tir4 */

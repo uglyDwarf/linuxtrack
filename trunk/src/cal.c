@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include "cal.h"
 #include "tir4_driver.h"
-/* #include "webcam.h" */
+#include "wiimote_driver.h"
 
 /*********************/
 /* private Constants */
@@ -32,7 +32,7 @@ int cal_init(struct camera_control_block *ccb)
 /*     returnval = webcam_init(ccb); */
     break;
   case wiimote:
-/*     returnval = wiimote_init(ccb); */
+     returnval = wiimote_init(ccb); 
     break;
   }
   return returnval;
@@ -48,7 +48,7 @@ int cal_shutdown(struct camera_control_block *ccb)
 /*     return webcam_shutdown(ccb); */
     break;
   case wiimote:
-/*     return wiimote_shutdown(ccb); */
+     return wiimote_shutdown(ccb); 
     break;
   }
   return -1;
@@ -64,7 +64,7 @@ int cal_suspend(struct camera_control_block *ccb)
 /*     return webcam_suspend(ccb); */
     break;
   case wiimote:
-/*     return wiimote_suspend(ccb); */
+     return wiimote_suspend(ccb); 
     break;
   }
   return -1;
@@ -81,7 +81,7 @@ void cal_change_operating_mode(struct camera_control_block *ccb,
 /*     return webcam_change_operating_mode(ccb,newmode); */
     break;
   case wiimote:
-/*     return wiimote_change_operating_mode(ccb,newmode); */
+     return wiimote_change_operating_mode(ccb,newmode); 
     break;
   }
 }
@@ -96,7 +96,7 @@ int cal_wakeup(struct camera_control_block *ccb)
 /*     return webcam_wakeup(ccb); */
     break;
   case wiimote:
-/*     return wiimote_wakeup(ccb); */
+     return wiimote_wakeup(ccb); 
     break;
   }
   return -1;
@@ -130,7 +130,7 @@ int cal_get_frame(struct camera_control_block *ccb,
 /*     return webcam_populate_frame(ccb, f); */
     break;
   case wiimote:
-/*     return wiimote_populate_frame(ccb, f); */
+     return wiimote_get_frame(ccb, f); 
     break;
   }
   return -1;
