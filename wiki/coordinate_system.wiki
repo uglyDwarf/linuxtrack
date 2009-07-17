@@ -71,6 +71,8 @@ Image space X-Y must track camera space X-Y.
 In other words, moving a reflector to the right in space (increasing X), should see a corresponding increase in positive X of the blob center.
 This means that for most cameras, the blob centers must be mirrored horizontally before being passed to the pose estimation algorithm.
 
+Note that the blob input to the pose estimator are pixel-area sorted (biggest area is index0).  The pose estimator is responsible for resorting these as needed.
+
 == Input Reference Frame ==
 TBD
 
