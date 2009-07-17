@@ -4,7 +4,7 @@
 #include "cal.h"
 
 /* Focal length */
-float focal_length = 10;
+float internal_focal_depth;
 
 float model_point0[3];
 float model_point1[3];
@@ -19,36 +19,51 @@ float center_base[3][3];
 
 volatile bool center_flag = false;
 
-void init_model()
+void pose_init(struct reflector_model_type rm,
+               float focal_depth)
 {
+  internal_focal_depth = focal_depth;
   /* Physical dimensions */
   /* Camera looks in direction of Z axis */
-  /* X axis goes then to the left */
+  /* X axis goes then to the right */
   /* Y axis goes up */
-  float x = 168;
-  float y = 90;
-  float z = 100;
+/*   float x = 168; */
+/*   float y = 90; */
+/*   float z = 100; */
   
-  /* Point, around which model rotates (just dimensions)*/
-  float ref_y = 150;
-  float ref_z = 150;
-  float ref[3];
+/*   /\* Point, around which model rotates (just dimensions)*\/ */
+/*   float ref_y = 150; */
+/*   float ref_z = 150; */
   
-  model_point0[0] = 0.0; 
-  model_point0[1] = y; 
-  model_point0[2] = z;
+/*   model_point0[0] = 0.0;  */
+/*   model_point0[1] = y;  */
+/*   model_point0[2] = z; */
+  model_point0[0] = 0.0;
+  model_point0[1] = 0.0;
+  model_point0[2] = 0.0;
   
-  model_point1[0] = -x/2; 
-  model_point1[1] = 0.0; 
-  model_point1[2] = 0.0;
+/*   model_point1[0] = -x/2;  */
+/*   model_point1[1] = 0.0;  */
+/*   model_point1[2] = 0.0; */
+  model_point1[0] = rm.p1[0];
+  model_point1[1] = rm.p1[1];
+  model_point1[2] = rm.p1[2];
   
-  model_point2[0] = x/2; 
-  model_point2[1] = 0.0; 
-  model_point2[2] = 0.0;
+/*   model_point2[0] = x/2;  */
+/*   model_point2[1] = 0.0;  */
+/*   model_point2[2] = 0.0; */
+  model_point2[0] = rm.p2[0];
+  model_point2[1] = rm.p2[1];
+  model_point2[2] = rm.p2[2];
   
-  ref[0] = 0.0; 
-  ref[1] = -ref_y; 
-  ref[2] = ref_z;
+/*   ref[0] = 0.0;  */
+/*   ref[1] = -ref_y;  */
+/*   ref[2] = ref_z; */
+  float ref[3]; 
+  ref[0] = rm.hc[0];
+  ref[1] = rm.hc[1];
+  ref[2] = rm.hc[2];
+  
   
   /* Out of model points create orthonormal base */
   float vec1[3];
@@ -112,16 +127,18 @@ void alter_pose(struct bloblist_type blobs, float points[3][3])
   
   points[0][0] = blobs.blobs[0].x / s;
   points[1][0] = blobs.blobs[0].y / s;
-  points[2][0] = focal_length / s;
+  points[2][0] = internal_focal_depth / s;
   
   points[0][1] = blobs.blobs[1].x / s;
   points[1][1] = blobs.blobs[1].y / s;
-  points[2][1] = (focal_length + h1) / s;
+  points[2][1] = (internal_focal_depth + h1) / s;
   
   points[0][2] = blobs.blobs[2].x / s;
   points[1][2] = blobs.blobs[2].y / s;
-  points[2][2] = (focal_length + h2) / s;
+  points[2][2] = (internal_focal_depth + h2) / s;
   
+  print_matrix(points, "alter92_result");
+
 }
 
 void get_translation(float base[3][3], float ref[3], float origin[3], 
@@ -152,11 +169,14 @@ void get_transform(float new_base[3][3], float rot[3][3]){
   mul_matrix(center_base_t, new_base, rot);
 }
 
-bool process_blobs(struct bloblist_type blobs, struct transform *trans)
+bool pose_process_blobs(struct bloblist_type blobs, 
+                        struct transform *trans)
 {
   
   float points[3][3];
   bool centering = false;
+  /* FIXME: need to sort the input blobs before moving on */
+
 //  print_matrix(model_base, "Model_base");
 //  print_vec(model_ref, "Ref_point");
   alter_pose(blobs, points);
@@ -192,7 +212,7 @@ bool process_blobs(struct bloblist_type blobs, struct transform *trans)
   return true;
 }
 
-void print_transform(struct transform trans)
+void transform_print(struct transform trans)
 {
   printf("***** Transform **************\n");
   print_vec(trans.tr, "translation");
@@ -200,7 +220,7 @@ void print_transform(struct transform trans)
   printf("******************************\n");
 }
 
-void center()
+void pose_recenter(void)
 {
   center_flag = true;
 }
@@ -210,7 +230,7 @@ void center()
 /*
 int main(void)
 {
-  init_model();
+  pose_init();
   
   struct blob_type bl[3];
   struct bloblist_type blobs;
@@ -223,7 +243,7 @@ int main(void)
   blobs.blobs[1].y = 1.76471;
   blobs.blobs[2].x = 0.98824;
   blobs.blobs[2].y = 1.76471;
-  process_blobs(blobs ,&res);
+  pose_process_blobs(blobs ,&res);
   
   float pitch, roll, yaw;
   matrix_to_euler(res.rot, &pitch, &yaw, &roll);
