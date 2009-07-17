@@ -44,7 +44,7 @@ Point Definitions:
  * Point 2: The remaining reflector point shall be point 2
  * headpoint: the reasonable estiimate of the user's head center with respect to point 0
 
-_picture to be included_
+http://linux-track.googlecode.com/svn/wiki/XYZReflectorDiagram.png
 
 Because point 0 is by definition 0,0,0, it is not an explicit  part of the to the {{{struct reflector_model_type}}}.
 
