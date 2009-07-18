@@ -1,4 +1,5 @@
-bin_PROGRAMS = tir4_driver_test pose_test wiimote_driver_test xlinuxtrack_xpl
+bin_PROGRAMS = tir4_driver_test pose_test wiimote_driver_test pref_test xlinuxtrack_xpl 
+
 tir4_driver_test_SOURCES =  cal.c cal.h tir4_driver.c  tir4_driver.h  tir4_driver_test.c \
   math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h
 wiimote_driver_test_SOURCES =  cal.c cal.h wiimote_driver.c  wiimote_driver.h  wiimote_driver_test.c \
@@ -7,7 +8,7 @@ wiimote_driver_test_SOURCES =  cal.c cal.h wiimote_driver.c  wiimote_driver.h  w
 pose_test_SOURCES =  cal.c cal.h tir4_driver.c  tir4_driver.h  pose_test.c \
   math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h
 xlinuxtrack_xpl_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  pose_test.c math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h xlinuxtrack.c ltlib.c ltlib.h
-dist_data_DATA = bulk_config_data.bin
+dist_data_DATA = bulk_config_data.bin prefs.txt
 
 wiimote_driver_test_CFLAGS = -m32 -fPIC
 tir4_driver_test_CFLAGS = -m32 -fPIC
@@ -18,3 +19,8 @@ tir4_driver_test_LDFLAGS = -L/lib32 -L/usr/lib32 -lcwiid
 pose_test_LDFLAGS = -L/lib32 -L/usr/lib32 -lcwiid
 xlinuxtrack_xpl_LDFLAGS = -shared -fPIC -L/lib32 -L/usr/lib32 -lcwiid
 
+pref_test_SOURCES =  list.c  list.h  pref_bison.y  pref.c pref.h pref_int.h \
+  pref_flex.l  utils.c  utils.h
+AM_YFLAGS = -d
+AM_LFLAGS = -i
+BUILT_SOURCES = pref_flex.c pref_bison.c pref_bison.h

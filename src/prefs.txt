@@ -1,0 +1,11 @@
+#Global section should contain global settings (eg. Capture device type)
+[Global]
+Capture-device = TIR
+Model-type = CAP
+Cap-X = 168
+Cap-Y = 90
+Cap-Z = 100
+Head-Y = 100
+Head-Z = 100
+
+
