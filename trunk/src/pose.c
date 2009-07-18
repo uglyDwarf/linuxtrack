@@ -240,15 +240,15 @@ bool pose_process_blobs(struct bloblist_type blobs,
 
 void transform_print(struct transform trans)
 {
-  float pyr[3]; /* pitch, yaw, roll;*/
+  float ypr[3]; /* yaw, pitch, roll;*/
   printf("***** Transform **************\n");
   print_vec(trans.tr, "translation");
   print_matrix(trans.rot, "rotation");
-  matrix_to_euler(trans.rot, &(pyr[0]), &(pyr[1]), &(pyr[2]));
-  pyr[0] *= 180.0/M_PI;
-  pyr[1] *= 180.0/M_PI;
-  pyr[2] *= 180.0/M_PI;
-  print_vec(pyr, "angles");
+  matrix_to_euler(trans.rot, &(ypr[1]), &(ypr[0]), &(ypr[2]));
+  ypr[0] *= 180.0/M_PI;
+  ypr[1] *= 180.0/M_PI;
+  ypr[2] *= 180.0/M_PI;
+  print_vec(ypr, "angles");
   printf("******************************\n");
 }
 
