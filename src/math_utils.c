@@ -53,19 +53,23 @@ void matrix_times_vec(float m[3][3], float vec[3],float res[3])
 void print_matrix(float matrix[3][3], char *name)
 {
   int i,j;
-  printf("\n%s = {\n", name);
+/*   printf("\n%s = [\n", name); */
+  printf("%s=[", name);
   for(i = 0; i < 3; ++i){
     for(j = 0; j < 3; ++j){
-      printf("%15f,", matrix[i][j]);
+/*       printf("%15f,", matrix[i][j]); */
+      printf("%f,", matrix[i][j]);
     }
-    printf("\n");
+/*     printf("\n"); */
+    printf(";");
   }
-  printf("}\n");
+  printf("]\n");
 }
 
 void print_vec(float vec[3], char *name)
 {
-  printf("%s = {%15f; %15f; %15f}\n", name, vec[0], vec[1], vec[2]);
+/*   printf("%s = [%15f; %15f; %15f]\n", name, vec[0], vec[1], vec[2]); */
+  printf("%s=[%f;%f;%f]\n", name, vec[0], vec[1], vec[2]);
 }
 
 float sqr(float f)
