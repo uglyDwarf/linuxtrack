@@ -169,13 +169,39 @@ void get_transform(float new_base[3][3], float rot[3][3]){
   mul_matrix(center_base_t, new_base, rot);
 }
 
+void sort_blobs(struct bloblist_type blobs)
+{
+  struct blob_type tmp_blob;
+  char topmost_blob_index;
+  /* find the topmost blob
+   * so few its not worth iterating */
+  topmost_blob_index = 0;
+  if (blobs.blobs[1].y > blobs.blobs[0].y) {
+    topmost_blob_index = 1;
+  }
+  if (blobs.blobs[2].y > blobs.blobs[1].y) {
+    topmost_blob_index = 2;
+  }
+  /* swap the topmost to index 0 */
+  tmp_blob = blobs.blobs[0];
+  blobs.blobs[0] = blobs.blobs[topmost_blob_index];
+  blobs.blobs[topmost_blob_index] = tmp_blob;
+  /* make sure the blob[1] is the leftmost */
+  if (blobs.blobs[2].x < blobs.blobs[1].x) {
+    tmp_blob = blobs.blobs[1];
+    blobs.blobs[1] = blobs.blobs[2];
+    blobs.blobs[2] = tmp_blob;
+  }
+}
+
 bool pose_process_blobs(struct bloblist_type blobs, 
                         struct transform *trans)
 {
   
   float points[3][3];
   bool centering = false;
-  /* FIXME: need to sort the input blobs before moving on */
+
+  sort_blobs(blobs);
 
 //  print_matrix(model_base, "Model_base");
 //  print_vec(model_ref, "Ref_point");
@@ -214,9 +240,15 @@ bool pose_process_blobs(struct bloblist_type blobs,
 
 void transform_print(struct transform trans)
 {
+  float pyr[3]; /* pitch, yaw, roll;*/
   printf("***** Transform **************\n");
   print_vec(trans.tr, "translation");
   print_matrix(trans.rot, "rotation");
+  matrix_to_euler(trans.rot, &(pyr[0]), &(pyr[1]), &(pyr[2]));
+  pyr[0] *= 180.0/M_PI;
+  pyr[1] *= 180.0/M_PI;
+  pyr[2] *= 180.0/M_PI;
+  print_vec(pyr, "angles");
   printf("******************************\n");
 }
 
