@@ -1,4 +1,4 @@
-bin_PROGRAMS = tir4_driver_test pose_test wiimote_driver_test
+bin_PROGRAMS = tir4_driver_test pose_test wiimote_driver_test xlinuxtrack_xpl
 tir4_driver_test_SOURCES =  cal.c cal.h tir4_driver.c  tir4_driver.h  tir4_driver_test.c \
   math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h
 wiimote_driver_test_SOURCES =  cal.c cal.h wiimote_driver.c  wiimote_driver.h  wiimote_driver_test.c \
@@ -6,16 +6,15 @@ wiimote_driver_test_SOURCES =  cal.c cal.h wiimote_driver.c  wiimote_driver.h  w
 
 pose_test_SOURCES =  cal.c cal.h tir4_driver.c  tir4_driver.h  pose_test.c \
   math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h
+xlinuxtrack_xpl_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  pose_test.c math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h xlinuxtrack.c ltlib.c ltlib.h
 dist_data_DATA = bulk_config_data.bin
 
-wiimote_driver_test_LDFLAGS = -lcwiid
-tir4_driver_test_LDFLAGS = -lcwiid
-pose_test_LDFLAGS = -lcwiid
+wiimote_driver_test_CFLAGS = -m32 -fPIC
+tir4_driver_test_CFLAGS = -m32 -fPIC
+pose_test_CFLAGS = -m32 -fPIC
+xlinuxtrack_xpl_CFLAGS = -I../${XPLANE_SDK}/CHeaders/XPLM -I../${XPLANE_SDK}/CHeaders/Widgets -I../${XPLANE_SDK}/CHeaders/Wrappers -DIBM=0 -DAPL=0 -DLIN=1 -fPIC -m32
+wiimote_driver_test_LDFLAGS = -L/lib32 -L/usr/lib32 -lcwiid
+tir4_driver_test_LDFLAGS = -L/lib32 -L/usr/lib32 -lcwiid
+pose_test_LDFLAGS = -L/lib32 -L/usr/lib32 -lcwiid
+xlinuxtrack_xpl_LDFLAGS = -shared -fPIC -L/lib32 -L/usr/lib32 -lcwiid
 
-if XPLANE_PLUGIN
-bin_PROGRAMS += xlinuxtrack
-xlinuxtrack_SOURCES = xlinuxtrack.c cal.c cal.h tir4_driver.c  tir4_driver.h \
-  math_utils.c math_utils.h pose.c pose.h
-xlinuxtrack_LDFLAGS = -shared -fPIC
-xlinuxtrack_CPPFLAGS = -I ../$(XPLANE_SDK)/CHeaders/XPLM -DIBM=0 -DAPL=0 -DLIN=1 
-endif

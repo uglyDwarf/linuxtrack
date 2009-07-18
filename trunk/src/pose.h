@@ -48,6 +48,13 @@ void pose_init(struct reflector_model_type rm,
 bool pose_process_blobs(struct bloblist_type blobs, 
                         struct transform *trans);
 void pose_recenter(void);
+int pose_compute_camera_update(struct transform trans,
+                               float *yaw,
+                               float *pitch,
+                               float *roll,
+                               float *tx,
+                               float *ty,
+                               float *tz);
 void transform_print(struct transform trans);
 
 #endif

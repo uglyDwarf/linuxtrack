@@ -80,6 +80,6 @@ int main(int argc, char **argv) {
   }
 
   /* call disconnects, turns all LEDs off */
-/*   cal_shutdown(&ccb); */
+  cal_shutdown(&ccb);
   return 0;
 }
