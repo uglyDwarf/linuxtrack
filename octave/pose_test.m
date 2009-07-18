@@ -21,7 +21,7 @@ function pose_test
   #ty_range = [0.0,-50.0,+50.0]; # centered and +/- 5 cm 
 
   # 45 cm away and 45 +/- 5 cm 
-  tz_range = [10000.0]; 
+  tz_range = [300.0]; 
   #tz_range = [450.0,450.0-50.0,450.0+50.0]; 
 
   # centered and +/- 20 degrees 

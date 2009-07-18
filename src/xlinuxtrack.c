@@ -12,14 +12,14 @@ XPLMDataRef		head_the = NULL;
 void	MyHotKeyCallback(void *               inRefcon);    
 
 int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
-                            int                  inIsBefore,
-                            void *               inRefcon);
+                          int                  inIsBefore,
+                          void *               inRefcon);
 
 
 PLUGIN_API int XPluginStart(
-						char *		outName,
-						char *		outSig,
-						char *		outDesc)
+                            char *		outName,
+                            char *		outSig,
+                            char *		outDesc)
 {
 	strcpy(outName, "linuxTrack");
 	strcpy(outSig, "linuxtrack.camera");
@@ -27,24 +27,24 @@ PLUGIN_API int XPluginStart(
 
 	/* Register our hot key for the new view. */
 	gHotKey = XPLMRegisterHotKey(XPLM_VK_F8, xplm_DownFlag, 
-				"3D linuxTrack view",
-				MyHotKeyCallback,
-				NULL);
-        head_psi = XPLMFindDataRef("sim/graphics/view/pilots_head_psi");
-        head_the = XPLMFindDataRef("sim/graphics/view/pilots_head_the");
-        if((head_psi==NULL)||(head_the==NULL)){
-          return(0);
-        }
-//!!!        if(lt_InitCapture(NULL)!=0){
-//!!!          return(0);
-//!!!        }
+                               "3D linuxTrack view",
+                               MyHotKeyCallback,
+                               NULL);
+  head_psi = XPLMFindDataRef("sim/graphics/view/pilots_head_psi");
+  head_the = XPLMFindDataRef("sim/graphics/view/pilots_head_the");
+  if((head_psi==NULL)||(head_the==NULL)){
+    return(0);
+  }
+  if(lt_init(NULL)!=0){
+    return(0);
+  }
 	return(1);
 }
 
 PLUGIN_API void	XPluginStop(void)
 {
 	XPLMUnregisterHotKey(gHotKey);
-//!!!        lt_CloseCapture();
+  lt_shutdown();
 }
 
 PLUGIN_API void XPluginDisable(void)
@@ -57,9 +57,9 @@ PLUGIN_API int XPluginEnable(void)
 }
 
 PLUGIN_API void XPluginReceiveMessage(
-					XPLMPluginID	inFromWho,
-					long			inMessage,
-					void *			inParam)
+                                      XPLMPluginID	inFromWho,
+                                      long			inMessage,
+                                      void *			inParam)
 {
 }
 
@@ -73,34 +73,40 @@ void	MyHotKeyCallback(void *               inRefcon)
 	/* Now we control the camera until the view changes. */
 	if(active==0){
 	  active=1;
-//!!!          lt_Center();
-	XPLMRegisterDrawCallback(
-					AircraftDrawCallback,
-					xplm_Phase_LastCockpit,
-					0,
-					NULL);
+    lt_recenter();
+    XPLMRegisterDrawCallback(
+                             AircraftDrawCallback,
+                             xplm_Phase_LastCockpit,
+                             0,
+                             NULL);
 	}else{
 	  active=0;
 	  XPLMUnregisterDrawCallback(
-					AircraftDrawCallback,
-					xplm_Phase_LastCockpit,
-					0,
-					NULL);
+                               AircraftDrawCallback,
+                               xplm_Phase_LastCockpit,
+                               0,
+                               NULL);
 	  XPLMSetDataf(head_psi,0.0f);
 	  XPLMSetDataf(head_the,0.0f);
 	}
 }
 
 int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
-                            int                  inIsBefore,
-                            void *               inRefcon)
+                          int                  inIsBefore,
+                          void *               inRefcon)
 {
-		float heading, pitch;
-		float roll;
-		//!!!lt_GetPosition(&pitch,&roll,&heading);
-		
-		/* Fill out the camera position info. */
-		XPLMSetDataf(head_psi,heading);
-		XPLMSetDataf(head_the,pitch);
+  float heading, pitch, roll;
+  float tx, ty, tz;
+  lt_get_camera_update(&heading,&pitch,&roll,
+                       &tx, &ty, &tz);
+
+/*   printf("heading: %f\tpitch: %f\n", heading, pitch); */
+
+  /* Fill out the camera position info. */
+  /* FIXME: not doing translation */
+  /* FIXME: not roll, is this even possible? */
+  XPLMSetDataf(head_psi,heading);
+  XPLMSetDataf(head_the,pitch);
 	return 1;
 }                                   
+

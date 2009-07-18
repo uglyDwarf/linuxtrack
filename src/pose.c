@@ -137,8 +137,7 @@ void alter_pose(struct bloblist_type blobs, float points[3][3])
   points[1][2] = blobs.blobs[2].y / s;
   points[2][2] = (internal_focal_depth + h2) / s;
   
-  print_matrix(points, "alter92_result");
-
+/*   print_matrix(points, "alter92_result"); */
 }
 
 void get_translation(float base[3][3], float ref[3], float origin[3], 
@@ -202,6 +201,8 @@ bool pose_process_blobs(struct bloblist_type blobs,
   bool centering = false;
 
   sort_blobs(blobs);
+  printf("Sorted_blobs: \n");
+  bloblist_print(blobs);
 
 //  print_matrix(model_base, "Model_base");
 //  print_vec(model_ref, "Ref_point");
@@ -251,6 +252,25 @@ void transform_print(struct transform trans)
   print_vec(ypr, "angles");
   printf("******************************\n");
 }
+
+int pose_compute_camera_update(struct transform trans,
+                               float *yaw,
+                               float *pitch,
+                               float *roll,
+                               float *tx,
+                               float *ty,
+                               float *tz)
+{
+  *tx = trans.tr[0];
+  *ty = trans.tr[1];
+  *tz = trans.tr[2];
+  matrix_to_euler(trans.rot, pitch, yaw, roll);
+  /* convert to degrees */
+  (*pitch) *= 180.0/M_PI;
+  (*yaw)   *= 180.0/M_PI;
+  (*roll)  *= 180.0/M_PI;
+}
+
 
 void pose_recenter(void)
 {

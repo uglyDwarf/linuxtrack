@@ -121,10 +121,10 @@ void matrix_to_euler(float matrix[3][3], float *pitch, float *yaw, float *roll)
     tmp = -1.0f;
   if(tmp > 1.0f)
     tmp = 1.0f;
-  *yaw = -asinf(tmp);
+  *yaw = asinf(tmp);
   float yc = cosf(*yaw);
   if (fabs(yc) > 1e-5){
-    *pitch = atan2f(-matrix[1][2]/yc, matrix[2][2]/yc);
+    *pitch = atan2f(matrix[1][2]/yc, matrix[2][2]/yc);
     *roll = atan2f(-matrix[0][1]/yc, matrix[0][0]/yc);
   }else{
     *pitch = 0.0f;
