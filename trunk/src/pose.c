@@ -30,41 +30,41 @@ void pose_init(struct reflector_model_type rm,
 /*   float x = 168; */
 /*   float y = 90; */
 /*   float z = 100; */
-  
+
 /*   /\* Point, around which model rotates (just dimensions)*\/ */
 /*   float ref_y = 150; */
 /*   float ref_z = 150; */
-  
+
 /*   model_point0[0] = 0.0;  */
 /*   model_point0[1] = y;  */
 /*   model_point0[2] = z; */
   model_point0[0] = 0.0;
   model_point0[1] = 0.0;
   model_point0[2] = 0.0;
-  
+
 /*   model_point1[0] = -x/2;  */
 /*   model_point1[1] = 0.0;  */
 /*   model_point1[2] = 0.0; */
   model_point1[0] = rm.p1[0];
   model_point1[1] = rm.p1[1];
   model_point1[2] = rm.p1[2];
-  
+
 /*   model_point2[0] = x/2;  */
 /*   model_point2[1] = 0.0;  */
 /*   model_point2[2] = 0.0; */
   model_point2[0] = rm.p2[0];
   model_point2[1] = rm.p2[1];
   model_point2[2] = rm.p2[2];
-  
+
 /*   ref[0] = 0.0;  */
 /*   ref[1] = -ref_y;  */
 /*   ref[2] = ref_z; */
-  float ref[3]; 
+  float ref[3];
   ref[0] = rm.hc[0];
   ref[1] = rm.hc[1];
   ref[2] = rm.hc[2];
-  
-  
+
+
   /* Out of model points create orthonormal base */
   float vec1[3];
   float vec2[3];
@@ -74,7 +74,7 @@ void pose_init(struct reflector_model_type rm,
 
 //for testing purposes
   make_base(vec1, vec2, center_base);
-  
+
   /* Convert reference point to model base coordinates */
   float ref_pt[3];
   float vec3[3];
@@ -91,56 +91,56 @@ void alter_pose(struct bloblist_type blobs, float points[3][3])
 {
   float R01, R02, R12, d01, d02, d12, a, b, c, s, h1, h2, sigma;
   float tmp[3];
-  
+
   make_vec(model_point0, model_point1, tmp);
   R01 = vec_size(tmp);
   make_vec(model_point0, model_point2, tmp);
   R02 = vec_size(tmp);
   make_vec(model_point1, model_point2, tmp);
   R12 = vec_size(tmp);
-  
+
   d01 = blob_dist(blobs.blobs[0], blobs.blobs[1]);
   d02 = blob_dist(blobs.blobs[0], blobs.blobs[2]);
   d12 = blob_dist(blobs.blobs[1], blobs.blobs[2]);
 
   a = (R01 + R02+ R12) * (-R01 + R02 + R12)
     * (R01 - R02 + R12) * (R01 + R02 - R12);
-    
-  b = sqr(d01) * (-sqr(R01) + sqr(R02) + sqr(R12)) 
-    + sqr(d02) * (sqr(R01) - sqr(R02) + sqr(R12)) 
+
+  b = sqr(d01) * (-sqr(R01) + sqr(R02) + sqr(R12))
+    + sqr(d02) * (sqr(R01) - sqr(R02) + sqr(R12))
     + sqr(d12) * (sqr(R01) + sqr(R02) - sqr(R12));
-    
-  c = (d01 + d02+ d12) * (-d01 + d02 + d12) 
+
+  c = (d01 + d02+ d12) * (-d01 + d02 + d12)
     * (d01 - d02 + d12) * (d01 + d02 - d12);
-  
+
   s = sqrt((b + sqrt(sqr(b) - a * c)) / a);
-  
-  if((sqr(d01) + sqr(d02) - sqr(d12)) 
+
+  if((sqr(d01) + sqr(d02) - sqr(d12))
       <= (sqr(s) * (sqr(R01) + sqr(R02) - sqr(R12)))){
     sigma = 1;
   }else{
     sigma = -1;
-  } 
+  }
 
   h1 = -sqrt(sqr(s * R01) - sqr(d01));
   h2 = -sigma * sqrt(sqr(s * R02) - sqr(d02));
-  
+
   points[0][0] = blobs.blobs[0].x / s;
   points[1][0] = blobs.blobs[0].y / s;
   points[2][0] = internal_focal_depth / s;
-  
+
   points[0][1] = blobs.blobs[1].x / s;
   points[1][1] = blobs.blobs[1].y / s;
   points[2][1] = (internal_focal_depth + h1) / s;
-  
+
   points[0][2] = blobs.blobs[2].x / s;
   points[1][2] = blobs.blobs[2].y / s;
   points[2][2] = (internal_focal_depth + h2) / s;
-  
+
 /*   print_matrix(points, "alter92_result"); */
 }
 
-void get_translation(float base[3][3], float ref[3], float origin[3], 
+void get_translation(float base[3][3], float ref[3], float origin[3],
                      float trans[3], bool do_center){
   float tmp[3];
   float t_base[3][3];
@@ -164,41 +164,70 @@ void get_translation(float base[3][3], float ref[3], float origin[3],
 
 void get_transform(float new_base[3][3], float rot[3][3]){
   float center_base_t[3][3], new_base_t[3][3];
-  transpose(center_base, center_base_t);   
+  transpose(center_base, center_base_t);
   mul_matrix(center_base_t, new_base, rot);
 }
 
-void sort_blobs(struct bloblist_type blobs)
+void sort_blobs(struct bloblist_type bl)
 {
   struct blob_type tmp_blob;
   char topmost_blob_index;
   /* find the topmost blob
    * so few its not worth iterating */
   topmost_blob_index = 0;
-  if (blobs.blobs[1].y > blobs.blobs[0].y) {
+  if (bl.blobs[1].y > bl.blobs[0].y) {
     topmost_blob_index = 1;
+    if (bl.blobs[2].y > bl.blobs[1].y) {
+      topmost_blob_index = 2;
+    }
   }
-  if (blobs.blobs[2].y > blobs.blobs[1].y) {
+  else if (bl.blobs[2].y > bl.blobs[0].y) {
     topmost_blob_index = 2;
   }
   /* swap the topmost to index 0 */
-  tmp_blob = blobs.blobs[0];
-  blobs.blobs[0] = blobs.blobs[topmost_blob_index];
-  blobs.blobs[topmost_blob_index] = tmp_blob;
+  if (topmost_blob_index != 0) {
+    tmp_blob = bl.blobs[0];
+    bl.blobs[0] = bl.blobs[topmost_blob_index];
+    bl.blobs[topmost_blob_index] = tmp_blob;
+  }
   /* make sure the blob[1] is the leftmost */
-  if (blobs.blobs[2].x < blobs.blobs[1].x) {
-    tmp_blob = blobs.blobs[1];
-    blobs.blobs[1] = blobs.blobs[2];
-    blobs.blobs[2] = tmp_blob;
+  if (bl.blobs[2].x < bl.blobs[1].x) {
+    tmp_blob = bl.blobs[1];
+    bl.blobs[1] = bl.blobs[2];
+    bl.blobs[2] = tmp_blob;
   }
 }
 
-bool pose_process_blobs(struct bloblist_type blobs, 
+bool pose_process_blobs(struct bloblist_type blobs,
                         struct transform *trans)
 {
-  
+
   float points[3][3];
   bool centering = false;
+
+/*   /\* DELETEME TEST START *\/ */
+/*   printf("deleteme test start\n"); */
+/*   struct bloblist_type testbloblist; */
+/*   testbloblist.num_blobs = 3; */
+/*   struct blob_type test_b[3]; */
+/*   test_b[0].x= -32.370056; */
+/*   test_b[0].y= 42.453735; */
+/*   test_b[0].score= 227; */
+/*   test_b[1].x= -69.601227; */
+/*   test_b[1].y= -53.773010; */
+/*   test_b[1].score= 163; */
+/*   test_b[2].x= -149.311951; */
+/*   test_b[2].y= -45.789001; */
+/*   test_b[2].score = 109; */
+/*   testbloblist.blobs = test_b; */
+/*   printf("unsorted_blobs: \n"); */
+/*   bloblist_print(testbloblist); */
+/*   sort_blobs(testbloblist); */
+/*   printf("Sorted_blobs: \n"); */
+/*   bloblist_print(testbloblist); */
+/*   printf("deleteme test end\n"); */
+/*   exit(1); */
+/*   /\* DELETEME TEST END *\/ */
 
   sort_blobs(blobs);
   printf("Sorted_blobs: \n");
@@ -214,7 +243,7 @@ bool pose_process_blobs(struct bloblist_type blobs,
   float vec2[3];
   transpose_in_place(points);
 //  print_matrix(points, "Alter");
-  make_vec(points[1], points[0], vec1); 
+  make_vec(points[1], points[0], vec1);
   make_vec(points[2], points[0], vec2);
 //  print_vec(vec1, "vec1");
 //  print_vec(vec2, "vec2");
@@ -283,7 +312,7 @@ void pose_recenter(void)
 int main(void)
 {
   pose_init();
-  
+
   struct blob_type bl[3];
   struct bloblist_type blobs;
   struct transform res;
@@ -296,11 +325,11 @@ int main(void)
   blobs.blobs[2].x = 0.98824;
   blobs.blobs[2].y = 1.76471;
   pose_process_blobs(blobs ,&res);
-  
+
   float pitch, roll, yaw;
   matrix_to_euler(res.rot, &pitch, &yaw, &roll);
   printf("Pitch: %f  Yaw: %f  Roll: %f\n", pitch, yaw, roll);
-  
+
   return 0;
 }
 */
