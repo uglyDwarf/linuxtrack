@@ -22,6 +22,7 @@ AM_PROG_CC_C_O
 AC_CHECK_LIB([m], [sqrt])
 AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_LIB([usb], [usb_open], , AC_MSG_ERROR([libusb not found]))
+AC_CHECK_LIB([cwiid], [cwiid_open], , AC_MSG_ERROR([libcwiid not found]))
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdint.h assert.h])
