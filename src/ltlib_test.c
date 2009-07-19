@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include "ltlib.h"
 
 int main(int argc, char **argv) {
@@ -16,6 +17,7 @@ int main(int argc, char **argv) {
                          &tx, &ty, &tz);
 
     printf("heading: %f\tpitch: %f\n", heading, pitch);
+    usleep(20000);
   }
   return 0;
 }
