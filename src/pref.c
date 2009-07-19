@@ -15,6 +15,7 @@ int line_num;
 plist prefs;
 
 bool read_already = false;
+char *pref_file = ".linuxtrack";
 
 bool read_prefs(char *fname, char *section)
 {
@@ -41,13 +42,31 @@ void yyerror(char const *s)
   		 s, parsed_file, line_num, yytext);
 }
 
+char *get_pref_file_name()
+{
+  char *home = getenv("HOME");
+  if(home == NULL){
+    log_message("Please set HOME variable!'n");
+    return NULL;
+  }
+  char *pref_path = (char *)my_malloc(strlen(home) 
+                    + strlen(pref_file) + 2);
+  sprintf(pref_path, "%s/%s", home, pref_file);
+  return pref_path;
+}
+
 bool read_prefs_on_init()
 {
   static bool read_already = false;
   static bool prefs_ok = false;
   if(read_already == false){
+    char *pfile = get_pref_file_name();
+    if(pfile == NULL){
+      return false;
+    }
+    prefs_ok = read_prefs(pfile, "");
+    free(pfile);
     read_already = true;
-    prefs_ok = read_prefs("prefs.txt", "");
   }
   return prefs_ok;
 }
