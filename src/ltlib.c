@@ -7,7 +7,9 @@ int lt_init(struct lt_configuration_type config)
   struct reflector_model_type rm;
   ccb.device.category = tir4_camera;
   ccb.mode = operational_3dot;
-  cal_init(&ccb);
+  if(cal_init(&ccb)!= 0){
+    return -1;
+  }
   cal_set_good_indication(&ccb, true);
 
   rm.p1[0] = -35.0;
