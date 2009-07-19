@@ -85,6 +85,12 @@ int main(int argc, char **argv) {
 
 /*   int i; */
 /*   for(i=0; i<2000; i++) { */
+  cal_get_frame(&ccb, &frame);
+  frame_print(frame);
+  pose_recenter();
+  pose_process_blobs(frame.bloblist, &t);
+  transform_print(t);
+  frame_free(&ccb, &frame);
   while (true) {
     cal_get_frame(&ccb, &frame);
     frame_print(frame);
