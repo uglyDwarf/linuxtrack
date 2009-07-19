@@ -11,7 +11,7 @@
 
 KEY			[a-zA-Z0-9-]+
 %%
-=			{BEGIN(VALUE); return(TOKEN_EQ);}
+=[[:blank:]]*		{BEGIN(VALUE); return(TOKEN_EQ);}
 \[                      { return(TOKEN_LEFT_BRACKET);}  
 \]                      { return(TOKEN_RIGHT_BRACKET);}  
 

@@ -1,11 +1,12 @@
 #Global section should contain global settings (eg. Capture device type)
 [Global]
-Capture-device = TIR
-Model-type = CAP
-Cap-X = 168
-Cap-Y = 90
-Cap-Z = 100
+Capture-device = Tir4
+Capture-device-id = Track IR 4
+Model-type = Cap
+Cap-X = 70
+Cap-Y = 50
+Cap-Z = 92.5
 Head-Y = 100
-Head-Z = 100
+Head-Z = 90
 
 

@@ -14,6 +14,8 @@ int line_num;
 
 plist prefs;
 
+bool read_already = false;
+
 bool read_prefs(char *fname, char *section)
 {
   prefs = create_list();
@@ -25,20 +27,36 @@ bool read_prefs(char *fname, char *section)
     free(parsed_file);
     parsed_file = NULL;
     if(res == 0){
+      log_message("Preferences read OK!\n");
       return(true);
     }
   }
+  log_message("Error encountered while reading preferences!\n");
   return(false);
 }
 
 void yyerror(char const *s)
 {
-  printf("%s in file %s, line %d near '%s'\n",
+  log_message("%s in file %s, line %d near '%s'\n",
   		 s, parsed_file, line_num, yytext);
+}
+
+bool read_prefs_on_init()
+{
+  static bool read_already = false;
+  static bool prefs_ok = false;
+  if(read_already == false){
+    read_already = true;
+    prefs_ok = read_prefs("prefs.txt", "");
+  }
+  return prefs_ok;
 }
 
 section_struct *find_section(char *section_name)
 {
+  if(read_prefs_on_init() == false){
+    return NULL;
+  }
   iterator i;
   init_iterator(prefs, &i);
   
@@ -56,6 +74,9 @@ section_struct *find_section(char *section_name)
 
 key_val_struct *find_key(char *section_name, char *key_name)
 {
+  if(read_prefs_on_init() == false){
+    return NULL;
+  }
   section_struct *sec = find_section(section_name);
   if(sec == NULL){
     return NULL;
@@ -77,6 +98,9 @@ key_val_struct *find_key(char *section_name, char *key_name)
 
 bool section_exists(char *section_name)
 {
+  if(read_prefs_on_init() == false){
+    return false;
+  }
   if(find_section(section_name) != NULL){
     return true;
   }else{
@@ -86,6 +110,9 @@ bool section_exists(char *section_name)
 
 bool key_exists(char *section_name, char *key_name)
 {
+  if(read_prefs_on_init() == false){
+    return false;
+  }
   if(find_key(section_name, key_name) != NULL){
     return true;
   }else{
@@ -95,6 +122,9 @@ bool key_exists(char *section_name, char *key_name)
 
 char *get_key(char *section_name, char *key_name)
 {
+  if(read_prefs_on_init() == false){
+    return NULL;
+  }
   key_val_struct *kv = find_key(section_name, key_name);
   if(kv == NULL){
     return NULL;
@@ -102,14 +132,12 @@ char *get_key(char *section_name, char *key_name)
   return kv->value;
 }
 
-
+/*
 int main(int argc, char *argv[])
 {
-  read_prefs("prefs.txt", "");
-  
   printf("Device type: %s\n", get_key("Global", "Capture-device"));
   printf("Head ref [0, %s, %s]\n", get_key("Global", "Head-Y"), 
   	get_key("Global", "Head-Z"));
   return 0;
 }
-
+*/
