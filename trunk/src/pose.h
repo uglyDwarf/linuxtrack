@@ -9,7 +9,7 @@
  * +x is right (when facing the camera)
  * +y is up  (when facing the camera)
  * +z fires straight out of the camera */
-struct reflector_model_type {
+typedef struct reflector_model_type {
   /* p0 is the topmost reflector, and it is always 
    * (0,0,0) because it is the origin for p1, p2,
    * and the head center */
@@ -19,7 +19,7 @@ struct reflector_model_type {
   float p2[3]; /* x,y,z */
   /* user's head center, again referenced to p0 */
   float hc[3];  /* x,y,z */
-};
+} reflector_model_type;
 
 /* like the reflector model, all units are in millimeters.  
  * The common, camera centric coordinate system is used:

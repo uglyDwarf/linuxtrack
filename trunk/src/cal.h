@@ -31,11 +31,11 @@ struct frame_type {
   char *bitmap; /* 8bits per pixel, monochrome 0x00 or 0xff */
 };
 
-enum cal_device_category_type {
+typedef enum cal_device_category_type {
   tir4_camera,
   webcam,
   wiimote
-};
+} cal_device_category_type;
 
 enum cal_device_state_type {
   pre_init, /* before init called or after shutdown */

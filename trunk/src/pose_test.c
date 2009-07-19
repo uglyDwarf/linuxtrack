@@ -3,6 +3,8 @@
 #include "cal.h"
 #include "tir4_driver.h"
 #include "pose.h"
+#include "pref_global.h"
+#include "utils.h"
 
 int main(int argc, char **argv) {
   struct frame_type frame;
@@ -10,13 +12,21 @@ int main(int argc, char **argv) {
   struct transform t;
   struct reflector_model_type rm;
 
-  ccb.device.category = tir4_camera;
+  if(get_device(&(ccb.device.category)) == false){
+    log_message("Can't get device category!\n");
+    return 1;
+  }
 /*   ccb.mode = diagnostic; */
 /*   ccb.mode = operational_1dot; */
   ccb.mode = operational_3dot;
 
   cal_init(&ccb);
 
+  if(get_pose_setup(&rm) == false){
+    log_message("Can't get pose setup!\n");
+    return 1;
+  }
+/*
   rm.p1[0] = -35.0;
   rm.p1[1] = -50.0;
   rm.p1[2] = -92.5;
@@ -26,6 +36,7 @@ int main(int argc, char **argv) {
   rm.hc[0] = +0.0;
   rm.hc[1] = -100.0;
   rm.hc[2] = +90.0;
+*/
   pose_init(rm, 0.0);
 
   /* call below sets led green */
