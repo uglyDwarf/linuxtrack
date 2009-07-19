@@ -20,7 +20,10 @@ int main(int argc, char **argv) {
 /*   ccb.mode = operational_1dot; */
   ccb.mode = operational_3dot;
 
-  cal_init(&ccb);
+  if(cal_init(&ccb) < 0){
+    log_message("Initialization unsuccessfull!\n");
+    return 1;
+  }
 
   if(get_pose_setup(&rm) == false){
     log_message("Can't get pose setup!\n");

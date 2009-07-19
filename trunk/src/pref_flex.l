@@ -37,5 +37,5 @@ KEY			[a-zA-Z0-9-]+
                           BEGIN(INITIAL);
 			}
   
-.			printf( "Unrecognized character: %s\n", yytext );
+.			log_message( "Unrecognized character: %s\n", yytext );
 %%

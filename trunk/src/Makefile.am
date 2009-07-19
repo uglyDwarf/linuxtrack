@@ -11,7 +11,7 @@ pose_test_SOURCES =  cal.c cal.h tir4_driver.c  tir4_driver.h  pose_test.c \
   pref_bison.y pref_flex.l
 xlinuxtrack_xpl_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h xlinuxtrack.c ltlib.c ltlib.h
 ltlib_test_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h ltlib.c ltlib.h ltlib_test.c
-dist_data_DATA = bulk_config_data.bin prefs.txt
+dist_data_DATA = bulk_config_data.bin .linuxtrack
 
 wiimote_driver_test_CFLAGS = -m32 -fPIC
 tir4_driver_test_CFLAGS = -m32 -fPIC

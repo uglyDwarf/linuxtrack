@@ -802,7 +802,7 @@ YY_RULE_SETUP
 case 9:
 YY_RULE_SETUP
 #line 40 "pref_flex.l"
-printf( "Unrecognized character: %s\n", yytext );
+log_message( "Unrecognized character: %s\n", yytext );
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
