@@ -33,8 +33,8 @@
 #define START_PIX_0X200_BIT_MASK 0X10
 #define STOP_PIX_0X100_BIT_MASK 0X40
 #define STOP_PIX_0X200_BIT_MASK 0X08
-#define BULK_READ_SIZE 0X4000
-#define BULK_READ_TIMEOUT 4000   /* in milliseconds */
+#define BULK_READ_SIZE 0X64
+#define BULK_READ_TIMEOUT 40   /* in milliseconds */
 #define BULK_WRITE_TIMEOUT 1000 /* in milliseconds */
 #define TIR_LED_MSGID 0x10
 #define TIR_LED_MSGLEN 0x03
@@ -147,6 +147,7 @@ static struct protobloblist_type msgproc_open_blobs;
 static struct protobloblist_type msgproc_closed_blobs;
 static struct framelist_type master_framelist;
 static bool usb_inited = false;
+static uint16_t msgproc_stripe_minimum_vline;
 
 /*******************************/
 /* private function prototypes */
@@ -396,6 +397,23 @@ int tir4_do_read_and_process(struct camera_control_block *ccb)
     msgproc_add_byte((uint8_t) usb_read_buf[i],
                      ccb->mode);
   }
+
+/*   numread = usb_bulk_read(tir4_handle, */
+/*                           TIR_BULK_IN_EP, */
+/*                           usb_read_buf, */
+/*                           msgproc_msglen-1, */
+/*                           BULK_READ_TIMEOUT); */
+/*   if (numread < 0) { */
+/*     tir4_error_alert("Error during TIR4 device USB BULK READ.\n"); */
+/*     printf("Errno: %s\n",usb_strerror()); */
+/*     /\* FIXME: timeouts read as errors here!! *\/ */
+/*     tir4_fatal(); */
+/*     exit(1); */
+/*   } */
+/*   for (i=0; i<numread; i++) { */
+/*     msgproc_add_byte((uint8_t) usb_read_buf[i], */
+/*                      ccb->mode); */
+/*   } */
 
   return 0;
 }
@@ -664,6 +682,7 @@ void msgproc_init(void)
   msgproc_state = awaiting_header_byte0;
   protobloblist_init(&msgproc_open_blobs);
   protobloblist_init(&msgproc_closed_blobs);
+  msgproc_stripe_minimum_vline = 0;
 }
 
 void msgproc_add_byte(uint8_t b, enum cal_operating_mode opmode)
@@ -737,9 +756,14 @@ void msgproc_add_byte(uint8_t b, enum cal_operating_mode opmode)
         struct stripe_type newstripe;
         msgproc_substripe_index = 0;
         newstripe = msgproc_convert_device_stripe(msgproc_pending_device_stripe);
+        if (newstripe.vline < msgproc_stripe_minimum_vline) {
+          printf("Out of order stripe detected; min_vline: %d\tstripe.vline: %d\n", msgproc_stripe_minimum_vline, newstripe.vline);
+
+        }
         msgproc_add_stripe(newstripe);
       }
       else {
+        msgproc_stripe_minimum_vline = 0;
         /* about done, just move any open to closed blobs,
          * and create the frame */
         msgproc_close_all_open_blobs();
