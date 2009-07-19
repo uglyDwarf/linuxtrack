@@ -13,11 +13,14 @@ int main(int argc, char **argv) {
   lt_recenter();
 
   while (true) {
+/*   int i; */
+/*   for(i=0;i<500;i++){ */
     lt_get_camera_update(&heading,&pitch,&roll,
                          &tx, &ty, &tz);
 
     printf("heading: %f\tpitch: %f\n", heading, pitch);
     usleep(20000);
   }
+  lt_shutdown();
   return 0;
 }
