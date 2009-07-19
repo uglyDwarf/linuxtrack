@@ -131,6 +131,32 @@ int cal_set_good_indication(struct camera_control_block *ccb,
 int cal_get_frame(struct camera_control_block *ccb,
                   struct frame_type *f);
 
+/* Start a capture thread, this WILL BLOCK until the 
+ * thread has actually started; this should be a very short 
+ * period */
+void cal_thread_start(struct camera_control_block *ccb);
+
+
+/* Request termination of capture thread
+ * note that the thread may not actually stop if its 
+ * hung up looking for a frame.  It will stop when the 
+ * it gets a chance though.  use the cal_thread_is_stopped()
+ * below to poll until its really stopped, if needed */ 
+void cal_thread_stop(void);
+
+/* returns true if the capture thread is actually stopped,
+ * technically should not be needed */
+bool cal_thread_is_stopped(void);
+
+
+/* Access function meant to be used from outside.
+ * return_frame is assumed to be a freed frame, 
+ * (no bitmap or blobs allocated). 
+ * be sure to free the frame returned when done with it!
+ * returns false if unable to get a new frame */
+void cal_thread_get_frame(struct frame_type *return_frame, 
+                          bool *return_frame_valid);
+
 /* frees the memory allocated to the given frame.  
  * For every frame populated, with cal_populate_frame,
  * this must be called when finished with the frame to 
