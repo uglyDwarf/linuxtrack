@@ -152,7 +152,7 @@ int wiimote_get_frame(struct camera_control_block *ccb,
     for (i=0; i<CWIID_IR_SRC_COUNT; i++) {
         if (state.ir_src[i].valid) {
             if (valid<required_blobnum) {
-                f->bloblist.blobs[valid].x = state.ir_src[i].pos[CWIID_X] - WIIMOTE_HORIZONTAL_RESOLUTION/2;
+                f->bloblist.blobs[valid].x = -1 * state.ir_src[i].pos[CWIID_X] + WIIMOTE_HORIZONTAL_RESOLUTION/2;
                 f->bloblist.blobs[valid].y = state.ir_src[i].pos[CWIID_Y] - WIIMOTE_VERTICAL_RESOLUTION/2;
                 f->bloblist.blobs[valid].score = state.ir_src[i].size;
             }
