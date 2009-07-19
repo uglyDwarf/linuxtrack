@@ -33,7 +33,7 @@
 #define START_PIX_0X200_BIT_MASK 0X10
 #define STOP_PIX_0X100_BIT_MASK 0X40
 #define STOP_PIX_0X200_BIT_MASK 0X08
-#define BULK_READ_SIZE 0X64
+#define BULK_READ_SIZE 64
 #define BULK_READ_TIMEOUT 40   /* in milliseconds */
 #define BULK_WRITE_TIMEOUT 1000 /* in milliseconds */
 #define TIR_LED_MSGID 0x10
