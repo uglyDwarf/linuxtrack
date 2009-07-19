@@ -230,8 +230,8 @@ bool pose_process_blobs(struct bloblist_type blobs,
 /*   /\* DELETEME TEST END *\/ */
 
   sort_blobs(blobs);
-  printf("Sorted_blobs: \n");
-  bloblist_print(blobs);
+/*   printf("Sorted_blobs: \n"); */
+/*   bloblist_print(blobs); */
 
 //  print_matrix(model_base, "Model_base");
 //  print_vec(model_ref, "Ref_point");
