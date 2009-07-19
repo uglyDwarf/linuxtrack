@@ -32,7 +32,7 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = tir4_driver_test$(EXEEXT) pose_test$(EXEEXT) \
-	wiimote_driver_test$(EXEEXT) xlinuxtrack_xpl$(EXEEXT) \
+	wiimote_driver_test$(EXEEXT) xlinuxtrack.xpl$(EXEEXT) \
 	ltlib_test$(EXEEXT)
 subdir = src
 DIST_COMMON = $(dist_data_DATA) $(srcdir)/Makefile.am \
@@ -93,7 +93,8 @@ am_xlinuxtrack_xpl_OBJECTS = xlinuxtrack_xpl-cal.$(OBJEXT) \
 	xlinuxtrack_xpl-pose.$(OBJEXT) \
 	xlinuxtrack_xpl-wiimote_driver.$(OBJEXT) \
 	xlinuxtrack_xpl-xlinuxtrack.$(OBJEXT) \
-	xlinuxtrack_xpl-ltlib.$(OBJEXT)
+	xlinuxtrack_xpl-ltlib.$(OBJEXT) xlinuxtrack_xpl-list.$(OBJEXT) \
+	xlinuxtrack_xpl-utils.$(OBJEXT)
 xlinuxtrack_xpl_OBJECTS = $(am_xlinuxtrack_xpl_OBJECTS)
 xlinuxtrack_xpl_LDADD = $(LDADD)
 xlinuxtrack_xpl_LINK = $(CCLD) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) \
@@ -228,7 +229,7 @@ pose_test_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  pose_test.c \
   pref.c pref.h pref_global.c pref_global.h utils.c utils.h list.c list.h \
   pref_bison.y pref_flex.l
 
-xlinuxtrack_xpl_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h xlinuxtrack.c ltlib.c ltlib.h
+xlinuxtrack_xpl_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h xlinuxtrack.c ltlib.c ltlib.h list.h list.c utils.h utils.c
 ltlib_test_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h ltlib.c ltlib.h ltlib_test.c
 dist_data_DATA = bulk_config_data.bin .linuxtrack
 wiimote_driver_test_CFLAGS = -m32 -fPIC
@@ -318,8 +319,8 @@ tir4_driver_test$(EXEEXT): $(tir4_driver_test_OBJECTS) $(tir4_driver_test_DEPEND
 wiimote_driver_test$(EXEEXT): $(wiimote_driver_test_OBJECTS) $(wiimote_driver_test_DEPENDENCIES) 
 	@rm -f wiimote_driver_test$(EXEEXT)
 	$(wiimote_driver_test_LINK) $(wiimote_driver_test_OBJECTS) $(wiimote_driver_test_LDADD) $(LIBS)
-xlinuxtrack_xpl$(EXEEXT): $(xlinuxtrack_xpl_OBJECTS) $(xlinuxtrack_xpl_DEPENDENCIES) 
-	@rm -f xlinuxtrack_xpl$(EXEEXT)
+xlinuxtrack.xpl$(EXEEXT): $(xlinuxtrack_xpl_OBJECTS) $(xlinuxtrack_xpl_DEPENDENCIES) 
+	@rm -f xlinuxtrack.xpl$(EXEEXT)
 	$(xlinuxtrack_xpl_LINK) $(xlinuxtrack_xpl_OBJECTS) $(xlinuxtrack_xpl_LDADD) $(LIBS)
 
 mostlyclean-compile:
@@ -360,10 +361,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wiimote_driver_test-wiimote_driver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wiimote_driver_test-wiimote_driver_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-cal.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-list.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-ltlib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-math_utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-pose.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-tir4_driver.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-wiimote_driver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-xlinuxtrack.Po@am__quote@
 
@@ -912,6 +915,34 @@ xlinuxtrack_xpl-ltlib.obj: ltlib.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ltlib.c' object='xlinuxtrack_xpl-ltlib.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-ltlib.obj `if test -f 'ltlib.c'; then $(CYGPATH_W) 'ltlib.c'; else $(CYGPATH_W) '$(srcdir)/ltlib.c'; fi`
+
+xlinuxtrack_xpl-list.o: list.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-list.o -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-list.Tpo -c -o xlinuxtrack_xpl-list.o `test -f 'list.c' || echo '$(srcdir)/'`list.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-list.Tpo $(DEPDIR)/xlinuxtrack_xpl-list.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='list.c' object='xlinuxtrack_xpl-list.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-list.o `test -f 'list.c' || echo '$(srcdir)/'`list.c
+
+xlinuxtrack_xpl-list.obj: list.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-list.obj -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-list.Tpo -c -o xlinuxtrack_xpl-list.obj `if test -f 'list.c'; then $(CYGPATH_W) 'list.c'; else $(CYGPATH_W) '$(srcdir)/list.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-list.Tpo $(DEPDIR)/xlinuxtrack_xpl-list.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='list.c' object='xlinuxtrack_xpl-list.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-list.obj `if test -f 'list.c'; then $(CYGPATH_W) 'list.c'; else $(CYGPATH_W) '$(srcdir)/list.c'; fi`
+
+xlinuxtrack_xpl-utils.o: utils.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-utils.o -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-utils.Tpo -c -o xlinuxtrack_xpl-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-utils.Tpo $(DEPDIR)/xlinuxtrack_xpl-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='utils.c' object='xlinuxtrack_xpl-utils.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
+
+xlinuxtrack_xpl-utils.obj: utils.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-utils.obj -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-utils.Tpo -c -o xlinuxtrack_xpl-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-utils.Tpo $(DEPDIR)/xlinuxtrack_xpl-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='utils.c' object='xlinuxtrack_xpl-utils.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
 
 .l.c:
 	$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ -- $(LEXCOMPILE)
