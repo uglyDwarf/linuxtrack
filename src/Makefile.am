@@ -1,16 +1,28 @@
 bin_PROGRAMS = tir4_driver_test pose_test wiimote_driver_test xlinuxtrack.xpl ltlib_test
 
-tir4_driver_test_SOURCES =  cal.c cal.h tir4_driver.c  tir4_driver.h  tir4_driver_test.c \
-  math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h
-wiimote_driver_test_SOURCES =  cal.c cal.h wiimote_driver.c  wiimote_driver.h  wiimote_driver_test.c \
-  math_utils.c math_utils.h pose.c pose.h tir4_driver.c  tir4_driver.h
+noinst_LIBRARIES = liblinuxtrack.a
 
-pose_test_SOURCES =  cal.c cal.h tir4_driver.c  tir4_driver.h  pose_test.c \
-  math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h \
-  pref.c pref.h pref_global.c pref_global.h utils.c utils.h list.c list.h \
-  pref_bison.y pref_flex.l
-xlinuxtrack_xpl_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h xlinuxtrack.c ltlib.c ltlib.h list.h list.c utils.h utils.c
-ltlib_test_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h ltlib.c ltlib.h ltlib_test.c
+liblinuxtrack_a_SOURCES = cal.c cal.h list.c list.h ltlib.c ltlib.h \
+  math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
+  pref_flex.l pref_global.c pref_global.h pref_int.h tir4_driver.c \
+  tir4_driver.h utils.c utils.h wiimote_driver.c wiimote_driver.h
+
+
+
+
+tir4_driver_test_SOURCES =  tir4_driver_test.c
+wiimote_driver_test_SOURCES = wiimote_driver_test.c 
+pose_test_SOURCES = pose_test.c
+xlinuxtrack_xpl_SOURCES = xlinuxtrack.c
+ltlib_test_SOURCES = ltlib_test.c 
+
+tir4_driver_test_LDADD =  liblinuxtrack.a
+wiimote_driver_test_LDADD = liblinuxtrack.a 
+pose_test_LDADD = liblinuxtrack.a
+xlinuxtrack_xpl_LDADD = liblinuxtrack.a
+ltlib_test_LDADD = liblinuxtrack.a 
+
+
 dist_data_DATA = bulk_config_data.bin .linuxtrack
 
 wiimote_driver_test_CFLAGS = -m32 -fPIC

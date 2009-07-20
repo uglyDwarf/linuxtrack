@@ -132,3 +132,9 @@ void matrix_to_euler(float matrix[3][3], float *pitch, float *yaw, float *roll)
   }
 }
 
+void add_vecs(float vec1[3],float vec2[3],float res[3])
+{
+  res[0] = vec1[0] + vec2[0];
+  res[1] = vec1[1] + vec2[1];
+  res[2] = vec1[2] + vec2[2];
+}

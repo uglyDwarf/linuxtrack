@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include "pref_global.h"
 #include "ltlib.h"
+#include "utils.h" 
 
 /**************************/
 /* private Static members */
@@ -18,6 +20,12 @@ float expfilt(float x,
               float y_minus_1,
               float filtfactor);
 
+void expfilt_vec(float x[3], 
+              float y_minus_1[3],
+              float filtfactor,
+              float res[3]);
+
+float clamp_angle(float angle);
 
 /************************/
 /* function definitions */
@@ -28,7 +36,12 @@ int lt_init(struct lt_configuration_type config)
   filterfactor = config.filterfactor;
   angle_scalefactor = config.angle_scalefactor;
 
-  ccb.device.category = tir4_camera;
+  if(get_device(&(ccb.device.category)) == false){
+    log_message("Can't get device category!\n");
+    return 1;
+  }
+//  ccb.device.category = tir4_camera;
+
   ccb.mode = operational_3dot;
   if(cal_init(&ccb)!= 0){
     return -1;
@@ -36,6 +49,7 @@ int lt_init(struct lt_configuration_type config)
   cal_set_good_indication(&ccb, true);
   cal_thread_start(&ccb);
 
+/*
   rm.p1[0] = -35.0;
   rm.p1[1] = -50.0;
   rm.p1[2] = -92.5;
@@ -45,6 +59,11 @@ int lt_init(struct lt_configuration_type config)
   rm.hc[0] = +0.0;
   rm.hc[1] = -100.0;
   rm.hc[2] = +90.0;
+*/
+  if(get_pose_setup(&rm) == false){
+    log_message("Can't get pose setup!\n");
+    return 1;
+  }
   pose_init(rm, 0.0);
 
   filtered_bloblist.num_blobs = 3;
@@ -61,18 +80,11 @@ int lt_get_camera_update(float *heading,
                          float *ty,
                          float *tz)
 {
-  float raw_heading = 0.0;
-  float raw_pitch = 0.0;
-  float raw_roll = 0.0;
-  float raw_tx = 0.0;
-  float raw_ty = 0.0;
-  float raw_tz = 0.0;
-  static float filtered_heading = 0;
-  static float filtered_pitch = 0;
-  static float filtered_roll = 0;
-  static float filtered_tx = 0;
-  static float filtered_ty = 0;
-  static float filtered_tz = 0;
+  float raw_angles[3];
+  float raw_translations[3];
+  static float filtered_angles[3] = {0.0f, 0.0f, 0.0f};
+  static float filtered_translations[3] = {0.0f, 0.0f, 0.0f};
+  
   struct transform t;
   struct frame_type frame;
   bool frame_valid;
@@ -103,44 +115,25 @@ int lt_get_camera_update(float *heading,
 
     pose_process_blobs(filtered_bloblist, &t);
     pose_compute_camera_update(t,
-                               &raw_heading,
-                               &raw_pitch,
-                               &raw_roll,
-                               &raw_tx,
-                               &raw_ty,
-                               &raw_tz);
+                               &raw_angles[0], //heading
+                               &raw_angles[1], //pitch
+                               &raw_angles[2], //roll
+                               &raw_translations[0], //tx
+                               &raw_translations[1], //ty
+                               &raw_translations[1]);//tz
     frame_free(&ccb, &frame);
-    if ((raw_heading < 180.0) && (raw_heading > -180.0)) {
-      filtered_heading = expfilt(raw_heading,
-                                 filtered_heading,
-                                 filterfactor);
-    }
-    if ((raw_pitch < 180.0) && (raw_pitch > -180.0)) {
-      filtered_pitch = expfilt(raw_pitch,
-                               filtered_pitch,
-                               filterfactor);
-    }
-    if ((raw_roll < 180.0) && (raw_roll > -180.0)) {
-      filtered_roll = expfilt(raw_roll,
-                              filtered_roll,
-                              filterfactor);
-    }
-    filtered_tx = expfilt(raw_tx,
-                          filtered_tx,
-                          filterfactor);
-    filtered_ty = expfilt(raw_ty,
-                          filtered_ty,
-                          filterfactor);
-    filtered_tz = expfilt(raw_tz,
-                          filtered_tz,
-                          filterfactor);
+    
+    expfilt_vec(raw_angles, filtered_angles, filterfactor, filtered_angles);
+    expfilt_vec(raw_translations, filtered_translations, filterfactor, 
+            filtered_translations);
+    
   }  
-  *heading = angle_scalefactor * filtered_heading;
-  *pitch = angle_scalefactor * filtered_pitch;
-  *roll = angle_scalefactor * filtered_roll;
-  *tx = filtered_tx;
-  *ty = filtered_ty;
-  *tz = filtered_tz;
+  *heading = clamp_angle(angle_scalefactor * filtered_angles[0]);
+  *pitch = clamp_angle(angle_scalefactor * filtered_angles[1]);
+  *roll = clamp_angle(angle_scalefactor * filtered_angles[2]);
+  *tx = filtered_translations[0];
+  *ty = filtered_translations[1];
+  *tz = filtered_translations[2];
 }
 
 int lt_shutdown(void)
@@ -164,3 +157,25 @@ float expfilt(float x,
 
   return y;
 }
+
+void expfilt_vec(float x[3], 
+              float y_minus_1[3],
+              float filterfactor,
+              float res[3]) 
+{
+  res[0] = expfilt(x[0], y_minus_1[0], filterfactor);
+  res[1] = expfilt(x[1], y_minus_1[1], filterfactor);
+  res[2] = expfilt(x[2], y_minus_1[2], filterfactor);
+}
+
+float clamp_angle(float angle)
+{
+  if(angle<-180.0){
+    return -180.0;
+  }else if(angle>180.0){
+    return 180.0;
+  }else{
+    return angle;
+  }
+}
+

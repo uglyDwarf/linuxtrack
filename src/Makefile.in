@@ -15,6 +15,7 @@
 @SET_MAKE@
 
 
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
@@ -44,59 +45,45 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
+LIBRARIES = $(noinst_LIBRARIES)
+AR = ar
+ARFLAGS = cru
+liblinuxtrack_a_AR = $(AR) $(ARFLAGS)
+liblinuxtrack_a_LIBADD =
+am_liblinuxtrack_a_OBJECTS = cal.$(OBJEXT) list.$(OBJEXT) \
+	ltlib.$(OBJEXT) math_utils.$(OBJEXT) pose.$(OBJEXT) \
+	pref.$(OBJEXT) pref_bison.$(OBJEXT) pref_flex.$(OBJEXT) \
+	pref_global.$(OBJEXT) tir4_driver.$(OBJEXT) utils.$(OBJEXT) \
+	wiimote_driver.$(OBJEXT)
+liblinuxtrack_a_OBJECTS = $(am_liblinuxtrack_a_OBJECTS)
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_ltlib_test_OBJECTS = ltlib_test-cal.$(OBJEXT) \
-	ltlib_test-tir4_driver.$(OBJEXT) \
-	ltlib_test-math_utils.$(OBJEXT) ltlib_test-pose.$(OBJEXT) \
-	ltlib_test-wiimote_driver.$(OBJEXT) ltlib_test-ltlib.$(OBJEXT) \
-	ltlib_test-ltlib_test.$(OBJEXT)
+am_ltlib_test_OBJECTS = ltlib_test-ltlib_test.$(OBJEXT)
 ltlib_test_OBJECTS = $(am_ltlib_test_OBJECTS)
-ltlib_test_LDADD = $(LDADD)
+ltlib_test_DEPENDENCIES = liblinuxtrack.a
 ltlib_test_LINK = $(CCLD) $(ltlib_test_CFLAGS) $(CFLAGS) \
 	$(ltlib_test_LDFLAGS) $(LDFLAGS) -o $@
-am_pose_test_OBJECTS = pose_test-cal.$(OBJEXT) \
-	pose_test-tir4_driver.$(OBJEXT) pose_test-pose_test.$(OBJEXT) \
-	pose_test-math_utils.$(OBJEXT) pose_test-pose.$(OBJEXT) \
-	pose_test-wiimote_driver.$(OBJEXT) pose_test-pref.$(OBJEXT) \
-	pose_test-pref_global.$(OBJEXT) pose_test-utils.$(OBJEXT) \
-	pose_test-list.$(OBJEXT) pose_test-pref_bison.$(OBJEXT) \
-	pose_test-pref_flex.$(OBJEXT)
+am_pose_test_OBJECTS = pose_test-pose_test.$(OBJEXT)
 pose_test_OBJECTS = $(am_pose_test_OBJECTS)
-pose_test_LDADD = $(LDADD)
+pose_test_DEPENDENCIES = liblinuxtrack.a
 pose_test_LINK = $(CCLD) $(pose_test_CFLAGS) $(CFLAGS) \
 	$(pose_test_LDFLAGS) $(LDFLAGS) -o $@
-am_tir4_driver_test_OBJECTS = tir4_driver_test-cal.$(OBJEXT) \
-	tir4_driver_test-tir4_driver.$(OBJEXT) \
-	tir4_driver_test-tir4_driver_test.$(OBJEXT) \
-	tir4_driver_test-math_utils.$(OBJEXT) \
-	tir4_driver_test-pose.$(OBJEXT) \
-	tir4_driver_test-wiimote_driver.$(OBJEXT)
+am_tir4_driver_test_OBJECTS =  \
+	tir4_driver_test-tir4_driver_test.$(OBJEXT)
 tir4_driver_test_OBJECTS = $(am_tir4_driver_test_OBJECTS)
-tir4_driver_test_LDADD = $(LDADD)
+tir4_driver_test_DEPENDENCIES = liblinuxtrack.a
 tir4_driver_test_LINK = $(CCLD) $(tir4_driver_test_CFLAGS) $(CFLAGS) \
 	$(tir4_driver_test_LDFLAGS) $(LDFLAGS) -o $@
-am_wiimote_driver_test_OBJECTS = wiimote_driver_test-cal.$(OBJEXT) \
-	wiimote_driver_test-wiimote_driver.$(OBJEXT) \
-	wiimote_driver_test-wiimote_driver_test.$(OBJEXT) \
-	wiimote_driver_test-math_utils.$(OBJEXT) \
-	wiimote_driver_test-pose.$(OBJEXT) \
-	wiimote_driver_test-tir4_driver.$(OBJEXT)
+am_wiimote_driver_test_OBJECTS =  \
+	wiimote_driver_test-wiimote_driver_test.$(OBJEXT)
 wiimote_driver_test_OBJECTS = $(am_wiimote_driver_test_OBJECTS)
-wiimote_driver_test_LDADD = $(LDADD)
+wiimote_driver_test_DEPENDENCIES = liblinuxtrack.a
 wiimote_driver_test_LINK = $(CCLD) $(wiimote_driver_test_CFLAGS) \
 	$(CFLAGS) $(wiimote_driver_test_LDFLAGS) $(LDFLAGS) -o $@
-am_xlinuxtrack_xpl_OBJECTS = xlinuxtrack_xpl-cal.$(OBJEXT) \
-	xlinuxtrack_xpl-tir4_driver.$(OBJEXT) \
-	xlinuxtrack_xpl-math_utils.$(OBJEXT) \
-	xlinuxtrack_xpl-pose.$(OBJEXT) \
-	xlinuxtrack_xpl-wiimote_driver.$(OBJEXT) \
-	xlinuxtrack_xpl-xlinuxtrack.$(OBJEXT) \
-	xlinuxtrack_xpl-ltlib.$(OBJEXT) xlinuxtrack_xpl-list.$(OBJEXT) \
-	xlinuxtrack_xpl-utils.$(OBJEXT)
+am_xlinuxtrack_xpl_OBJECTS = xlinuxtrack_xpl-xlinuxtrack.$(OBJEXT)
 xlinuxtrack_xpl_OBJECTS = $(am_xlinuxtrack_xpl_OBJECTS)
-xlinuxtrack_xpl_LDADD = $(LDADD)
+xlinuxtrack_xpl_DEPENDENCIES = liblinuxtrack.a
 xlinuxtrack_xpl_LINK = $(CCLD) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) \
 	$(xlinuxtrack_xpl_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -109,12 +96,12 @@ LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 LEXCOMPILE = $(LEX) $(LFLAGS) $(AM_LFLAGS)
 YLWRAP = $(top_srcdir)/ylwrap
 YACCCOMPILE = $(YACC) $(YFLAGS) $(AM_YFLAGS)
-SOURCES = $(ltlib_test_SOURCES) $(pose_test_SOURCES) \
-	$(tir4_driver_test_SOURCES) $(wiimote_driver_test_SOURCES) \
-	$(xlinuxtrack_xpl_SOURCES)
-DIST_SOURCES = $(ltlib_test_SOURCES) $(pose_test_SOURCES) \
-	$(tir4_driver_test_SOURCES) $(wiimote_driver_test_SOURCES) \
-	$(xlinuxtrack_xpl_SOURCES)
+SOURCES = $(liblinuxtrack_a_SOURCES) $(ltlib_test_SOURCES) \
+	$(pose_test_SOURCES) $(tir4_driver_test_SOURCES) \
+	$(wiimote_driver_test_SOURCES) $(xlinuxtrack_xpl_SOURCES)
+DIST_SOURCES = $(liblinuxtrack_a_SOURCES) $(ltlib_test_SOURCES) \
+	$(pose_test_SOURCES) $(tir4_driver_test_SOURCES) \
+	$(wiimote_driver_test_SOURCES) $(xlinuxtrack_xpl_SOURCES)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -218,19 +205,22 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-tir4_driver_test_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  tir4_driver_test.c \
-  math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h
+noinst_LIBRARIES = liblinuxtrack.a
+liblinuxtrack_a_SOURCES = cal.c cal.h list.c list.h ltlib.c ltlib.h \
+  math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
+  pref_flex.l pref_global.c pref_global.h pref_int.h tir4_driver.c \
+  tir4_driver.h utils.c utils.h wiimote_driver.c wiimote_driver.h
 
-wiimote_driver_test_SOURCES = cal.c cal.h wiimote_driver.c  wiimote_driver.h  wiimote_driver_test.c \
-  math_utils.c math_utils.h pose.c pose.h tir4_driver.c  tir4_driver.h
-
-pose_test_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  pose_test.c \
-  math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h \
-  pref.c pref.h pref_global.c pref_global.h utils.c utils.h list.c list.h \
-  pref_bison.y pref_flex.l
-
-xlinuxtrack_xpl_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h xlinuxtrack.c ltlib.c ltlib.h list.h list.c utils.h utils.c
-ltlib_test_SOURCES = cal.c cal.h tir4_driver.c  tir4_driver.h  math_utils.c math_utils.h pose.c pose.h wiimote_driver.c  wiimote_driver.h ltlib.c ltlib.h ltlib_test.c
+tir4_driver_test_SOURCES = tir4_driver_test.c
+wiimote_driver_test_SOURCES = wiimote_driver_test.c 
+pose_test_SOURCES = pose_test.c
+xlinuxtrack_xpl_SOURCES = xlinuxtrack.c
+ltlib_test_SOURCES = ltlib_test.c 
+tir4_driver_test_LDADD = liblinuxtrack.a
+wiimote_driver_test_LDADD = liblinuxtrack.a 
+pose_test_LDADD = liblinuxtrack.a
+xlinuxtrack_xpl_LDADD = liblinuxtrack.a
+ltlib_test_LDADD = liblinuxtrack.a 
 dist_data_DATA = bulk_config_data.bin .linuxtrack
 wiimote_driver_test_CFLAGS = -m32 -fPIC
 tir4_driver_test_CFLAGS = -m32 -fPIC
@@ -279,6 +269,18 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
+
+clean-noinstLIBRARIES:
+	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+pref_bison.h: pref_bison.c
+	@if test ! -f $@; then \
+	  rm -f pref_bison.c; \
+	  $(MAKE) $(AM_MAKEFLAGS) pref_bison.c; \
+	else :; fi
+liblinuxtrack.a: $(liblinuxtrack_a_OBJECTS) $(liblinuxtrack_a_DEPENDENCIES) 
+	-rm -f liblinuxtrack.a
+	$(liblinuxtrack_a_AR) liblinuxtrack.a $(liblinuxtrack_a_OBJECTS) $(liblinuxtrack_a_LIBADD)
+	$(RANLIB) liblinuxtrack.a
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	test -z "$(bindir)" || $(MKDIR_P) "$(DESTDIR)$(bindir)"
@@ -305,11 +307,6 @@ clean-binPROGRAMS:
 ltlib_test$(EXEEXT): $(ltlib_test_OBJECTS) $(ltlib_test_DEPENDENCIES) 
 	@rm -f ltlib_test$(EXEEXT)
 	$(ltlib_test_LINK) $(ltlib_test_OBJECTS) $(ltlib_test_LDADD) $(LIBS)
-pref_bison.h: pref_bison.c
-	@if test ! -f $@; then \
-	  rm -f pref_bison.c; \
-	  $(MAKE) $(AM_MAKEFLAGS) pref_bison.c; \
-	else :; fi
 pose_test$(EXEEXT): $(pose_test_OBJECTS) $(pose_test_DEPENDENCIES) 
 	@rm -f pose_test$(EXEEXT)
 	$(pose_test_LINK) $(pose_test_OBJECTS) $(pose_test_LDADD) $(LIBS)
@@ -329,45 +326,22 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib_test-cal.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib_test-ltlib.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cal.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib_test-ltlib_test.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib_test-math_utils.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib_test-pose.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib_test-tir4_driver.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib_test-wiimote_driver.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose_test-cal.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose_test-list.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose_test-math_utils.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose_test-pose.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/math_utils.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose_test-pose_test.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose_test-pref.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose_test-pref_bison.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose_test-pref_flex.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose_test-pref_global.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose_test-tir4_driver.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose_test-utils.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose_test-wiimote_driver.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir4_driver_test-cal.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir4_driver_test-math_utils.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir4_driver_test-pose.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir4_driver_test-tir4_driver.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_bison.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_flex.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_global.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir4_driver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir4_driver_test-tir4_driver_test.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir4_driver_test-wiimote_driver.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wiimote_driver_test-cal.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wiimote_driver_test-math_utils.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wiimote_driver_test-pose.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wiimote_driver_test-tir4_driver.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wiimote_driver_test-wiimote_driver.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wiimote_driver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wiimote_driver_test-wiimote_driver_test.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-cal.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-list.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-ltlib.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-math_utils.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-pose.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-tir4_driver.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-utils.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-wiimote_driver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_xpl-xlinuxtrack.Po@am__quote@
 
 .c.o:
@@ -384,90 +358,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
 
-ltlib_test-cal.o: cal.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-cal.o -MD -MP -MF $(DEPDIR)/ltlib_test-cal.Tpo -c -o ltlib_test-cal.o `test -f 'cal.c' || echo '$(srcdir)/'`cal.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/ltlib_test-cal.Tpo $(DEPDIR)/ltlib_test-cal.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='cal.c' object='ltlib_test-cal.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-cal.o `test -f 'cal.c' || echo '$(srcdir)/'`cal.c
-
-ltlib_test-cal.obj: cal.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-cal.obj -MD -MP -MF $(DEPDIR)/ltlib_test-cal.Tpo -c -o ltlib_test-cal.obj `if test -f 'cal.c'; then $(CYGPATH_W) 'cal.c'; else $(CYGPATH_W) '$(srcdir)/cal.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/ltlib_test-cal.Tpo $(DEPDIR)/ltlib_test-cal.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='cal.c' object='ltlib_test-cal.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-cal.obj `if test -f 'cal.c'; then $(CYGPATH_W) 'cal.c'; else $(CYGPATH_W) '$(srcdir)/cal.c'; fi`
-
-ltlib_test-tir4_driver.o: tir4_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-tir4_driver.o -MD -MP -MF $(DEPDIR)/ltlib_test-tir4_driver.Tpo -c -o ltlib_test-tir4_driver.o `test -f 'tir4_driver.c' || echo '$(srcdir)/'`tir4_driver.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/ltlib_test-tir4_driver.Tpo $(DEPDIR)/ltlib_test-tir4_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tir4_driver.c' object='ltlib_test-tir4_driver.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-tir4_driver.o `test -f 'tir4_driver.c' || echo '$(srcdir)/'`tir4_driver.c
-
-ltlib_test-tir4_driver.obj: tir4_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-tir4_driver.obj -MD -MP -MF $(DEPDIR)/ltlib_test-tir4_driver.Tpo -c -o ltlib_test-tir4_driver.obj `if test -f 'tir4_driver.c'; then $(CYGPATH_W) 'tir4_driver.c'; else $(CYGPATH_W) '$(srcdir)/tir4_driver.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/ltlib_test-tir4_driver.Tpo $(DEPDIR)/ltlib_test-tir4_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tir4_driver.c' object='ltlib_test-tir4_driver.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-tir4_driver.obj `if test -f 'tir4_driver.c'; then $(CYGPATH_W) 'tir4_driver.c'; else $(CYGPATH_W) '$(srcdir)/tir4_driver.c'; fi`
-
-ltlib_test-math_utils.o: math_utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-math_utils.o -MD -MP -MF $(DEPDIR)/ltlib_test-math_utils.Tpo -c -o ltlib_test-math_utils.o `test -f 'math_utils.c' || echo '$(srcdir)/'`math_utils.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/ltlib_test-math_utils.Tpo $(DEPDIR)/ltlib_test-math_utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='math_utils.c' object='ltlib_test-math_utils.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-math_utils.o `test -f 'math_utils.c' || echo '$(srcdir)/'`math_utils.c
-
-ltlib_test-math_utils.obj: math_utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-math_utils.obj -MD -MP -MF $(DEPDIR)/ltlib_test-math_utils.Tpo -c -o ltlib_test-math_utils.obj `if test -f 'math_utils.c'; then $(CYGPATH_W) 'math_utils.c'; else $(CYGPATH_W) '$(srcdir)/math_utils.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/ltlib_test-math_utils.Tpo $(DEPDIR)/ltlib_test-math_utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='math_utils.c' object='ltlib_test-math_utils.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-math_utils.obj `if test -f 'math_utils.c'; then $(CYGPATH_W) 'math_utils.c'; else $(CYGPATH_W) '$(srcdir)/math_utils.c'; fi`
-
-ltlib_test-pose.o: pose.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-pose.o -MD -MP -MF $(DEPDIR)/ltlib_test-pose.Tpo -c -o ltlib_test-pose.o `test -f 'pose.c' || echo '$(srcdir)/'`pose.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/ltlib_test-pose.Tpo $(DEPDIR)/ltlib_test-pose.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pose.c' object='ltlib_test-pose.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-pose.o `test -f 'pose.c' || echo '$(srcdir)/'`pose.c
-
-ltlib_test-pose.obj: pose.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-pose.obj -MD -MP -MF $(DEPDIR)/ltlib_test-pose.Tpo -c -o ltlib_test-pose.obj `if test -f 'pose.c'; then $(CYGPATH_W) 'pose.c'; else $(CYGPATH_W) '$(srcdir)/pose.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/ltlib_test-pose.Tpo $(DEPDIR)/ltlib_test-pose.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pose.c' object='ltlib_test-pose.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-pose.obj `if test -f 'pose.c'; then $(CYGPATH_W) 'pose.c'; else $(CYGPATH_W) '$(srcdir)/pose.c'; fi`
-
-ltlib_test-wiimote_driver.o: wiimote_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-wiimote_driver.o -MD -MP -MF $(DEPDIR)/ltlib_test-wiimote_driver.Tpo -c -o ltlib_test-wiimote_driver.o `test -f 'wiimote_driver.c' || echo '$(srcdir)/'`wiimote_driver.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/ltlib_test-wiimote_driver.Tpo $(DEPDIR)/ltlib_test-wiimote_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wiimote_driver.c' object='ltlib_test-wiimote_driver.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-wiimote_driver.o `test -f 'wiimote_driver.c' || echo '$(srcdir)/'`wiimote_driver.c
-
-ltlib_test-wiimote_driver.obj: wiimote_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-wiimote_driver.obj -MD -MP -MF $(DEPDIR)/ltlib_test-wiimote_driver.Tpo -c -o ltlib_test-wiimote_driver.obj `if test -f 'wiimote_driver.c'; then $(CYGPATH_W) 'wiimote_driver.c'; else $(CYGPATH_W) '$(srcdir)/wiimote_driver.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/ltlib_test-wiimote_driver.Tpo $(DEPDIR)/ltlib_test-wiimote_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wiimote_driver.c' object='ltlib_test-wiimote_driver.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-wiimote_driver.obj `if test -f 'wiimote_driver.c'; then $(CYGPATH_W) 'wiimote_driver.c'; else $(CYGPATH_W) '$(srcdir)/wiimote_driver.c'; fi`
-
-ltlib_test-ltlib.o: ltlib.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-ltlib.o -MD -MP -MF $(DEPDIR)/ltlib_test-ltlib.Tpo -c -o ltlib_test-ltlib.o `test -f 'ltlib.c' || echo '$(srcdir)/'`ltlib.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/ltlib_test-ltlib.Tpo $(DEPDIR)/ltlib_test-ltlib.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ltlib.c' object='ltlib_test-ltlib.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-ltlib.o `test -f 'ltlib.c' || echo '$(srcdir)/'`ltlib.c
-
-ltlib_test-ltlib.obj: ltlib.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-ltlib.obj -MD -MP -MF $(DEPDIR)/ltlib_test-ltlib.Tpo -c -o ltlib_test-ltlib.obj `if test -f 'ltlib.c'; then $(CYGPATH_W) 'ltlib.c'; else $(CYGPATH_W) '$(srcdir)/ltlib.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/ltlib_test-ltlib.Tpo $(DEPDIR)/ltlib_test-ltlib.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ltlib.c' object='ltlib_test-ltlib.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-ltlib.obj `if test -f 'ltlib.c'; then $(CYGPATH_W) 'ltlib.c'; else $(CYGPATH_W) '$(srcdir)/ltlib.c'; fi`
-
 ltlib_test-ltlib_test.o: ltlib_test.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-ltlib_test.o -MD -MP -MF $(DEPDIR)/ltlib_test-ltlib_test.Tpo -c -o ltlib_test-ltlib_test.o `test -f 'ltlib_test.c' || echo '$(srcdir)/'`ltlib_test.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/ltlib_test-ltlib_test.Tpo $(DEPDIR)/ltlib_test-ltlib_test.Po
@@ -481,34 +371,6 @@ ltlib_test-ltlib_test.obj: ltlib_test.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ltlib_test.c' object='ltlib_test-ltlib_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-ltlib_test.obj `if test -f 'ltlib_test.c'; then $(CYGPATH_W) 'ltlib_test.c'; else $(CYGPATH_W) '$(srcdir)/ltlib_test.c'; fi`
-
-pose_test-cal.o: cal.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-cal.o -MD -MP -MF $(DEPDIR)/pose_test-cal.Tpo -c -o pose_test-cal.o `test -f 'cal.c' || echo '$(srcdir)/'`cal.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-cal.Tpo $(DEPDIR)/pose_test-cal.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='cal.c' object='pose_test-cal.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-cal.o `test -f 'cal.c' || echo '$(srcdir)/'`cal.c
-
-pose_test-cal.obj: cal.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-cal.obj -MD -MP -MF $(DEPDIR)/pose_test-cal.Tpo -c -o pose_test-cal.obj `if test -f 'cal.c'; then $(CYGPATH_W) 'cal.c'; else $(CYGPATH_W) '$(srcdir)/cal.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-cal.Tpo $(DEPDIR)/pose_test-cal.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='cal.c' object='pose_test-cal.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-cal.obj `if test -f 'cal.c'; then $(CYGPATH_W) 'cal.c'; else $(CYGPATH_W) '$(srcdir)/cal.c'; fi`
-
-pose_test-tir4_driver.o: tir4_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-tir4_driver.o -MD -MP -MF $(DEPDIR)/pose_test-tir4_driver.Tpo -c -o pose_test-tir4_driver.o `test -f 'tir4_driver.c' || echo '$(srcdir)/'`tir4_driver.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-tir4_driver.Tpo $(DEPDIR)/pose_test-tir4_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tir4_driver.c' object='pose_test-tir4_driver.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-tir4_driver.o `test -f 'tir4_driver.c' || echo '$(srcdir)/'`tir4_driver.c
-
-pose_test-tir4_driver.obj: tir4_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-tir4_driver.obj -MD -MP -MF $(DEPDIR)/pose_test-tir4_driver.Tpo -c -o pose_test-tir4_driver.obj `if test -f 'tir4_driver.c'; then $(CYGPATH_W) 'tir4_driver.c'; else $(CYGPATH_W) '$(srcdir)/tir4_driver.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-tir4_driver.Tpo $(DEPDIR)/pose_test-tir4_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tir4_driver.c' object='pose_test-tir4_driver.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-tir4_driver.obj `if test -f 'tir4_driver.c'; then $(CYGPATH_W) 'tir4_driver.c'; else $(CYGPATH_W) '$(srcdir)/tir4_driver.c'; fi`
 
 pose_test-pose_test.o: pose_test.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-pose_test.o -MD -MP -MF $(DEPDIR)/pose_test-pose_test.Tpo -c -o pose_test-pose_test.o `test -f 'pose_test.c' || echo '$(srcdir)/'`pose_test.c
@@ -524,160 +386,6 @@ pose_test-pose_test.obj: pose_test.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-pose_test.obj `if test -f 'pose_test.c'; then $(CYGPATH_W) 'pose_test.c'; else $(CYGPATH_W) '$(srcdir)/pose_test.c'; fi`
 
-pose_test-math_utils.o: math_utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-math_utils.o -MD -MP -MF $(DEPDIR)/pose_test-math_utils.Tpo -c -o pose_test-math_utils.o `test -f 'math_utils.c' || echo '$(srcdir)/'`math_utils.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-math_utils.Tpo $(DEPDIR)/pose_test-math_utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='math_utils.c' object='pose_test-math_utils.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-math_utils.o `test -f 'math_utils.c' || echo '$(srcdir)/'`math_utils.c
-
-pose_test-math_utils.obj: math_utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-math_utils.obj -MD -MP -MF $(DEPDIR)/pose_test-math_utils.Tpo -c -o pose_test-math_utils.obj `if test -f 'math_utils.c'; then $(CYGPATH_W) 'math_utils.c'; else $(CYGPATH_W) '$(srcdir)/math_utils.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-math_utils.Tpo $(DEPDIR)/pose_test-math_utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='math_utils.c' object='pose_test-math_utils.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-math_utils.obj `if test -f 'math_utils.c'; then $(CYGPATH_W) 'math_utils.c'; else $(CYGPATH_W) '$(srcdir)/math_utils.c'; fi`
-
-pose_test-pose.o: pose.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-pose.o -MD -MP -MF $(DEPDIR)/pose_test-pose.Tpo -c -o pose_test-pose.o `test -f 'pose.c' || echo '$(srcdir)/'`pose.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-pose.Tpo $(DEPDIR)/pose_test-pose.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pose.c' object='pose_test-pose.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-pose.o `test -f 'pose.c' || echo '$(srcdir)/'`pose.c
-
-pose_test-pose.obj: pose.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-pose.obj -MD -MP -MF $(DEPDIR)/pose_test-pose.Tpo -c -o pose_test-pose.obj `if test -f 'pose.c'; then $(CYGPATH_W) 'pose.c'; else $(CYGPATH_W) '$(srcdir)/pose.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-pose.Tpo $(DEPDIR)/pose_test-pose.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pose.c' object='pose_test-pose.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-pose.obj `if test -f 'pose.c'; then $(CYGPATH_W) 'pose.c'; else $(CYGPATH_W) '$(srcdir)/pose.c'; fi`
-
-pose_test-wiimote_driver.o: wiimote_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-wiimote_driver.o -MD -MP -MF $(DEPDIR)/pose_test-wiimote_driver.Tpo -c -o pose_test-wiimote_driver.o `test -f 'wiimote_driver.c' || echo '$(srcdir)/'`wiimote_driver.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-wiimote_driver.Tpo $(DEPDIR)/pose_test-wiimote_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wiimote_driver.c' object='pose_test-wiimote_driver.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-wiimote_driver.o `test -f 'wiimote_driver.c' || echo '$(srcdir)/'`wiimote_driver.c
-
-pose_test-wiimote_driver.obj: wiimote_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-wiimote_driver.obj -MD -MP -MF $(DEPDIR)/pose_test-wiimote_driver.Tpo -c -o pose_test-wiimote_driver.obj `if test -f 'wiimote_driver.c'; then $(CYGPATH_W) 'wiimote_driver.c'; else $(CYGPATH_W) '$(srcdir)/wiimote_driver.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-wiimote_driver.Tpo $(DEPDIR)/pose_test-wiimote_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wiimote_driver.c' object='pose_test-wiimote_driver.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-wiimote_driver.obj `if test -f 'wiimote_driver.c'; then $(CYGPATH_W) 'wiimote_driver.c'; else $(CYGPATH_W) '$(srcdir)/wiimote_driver.c'; fi`
-
-pose_test-pref.o: pref.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-pref.o -MD -MP -MF $(DEPDIR)/pose_test-pref.Tpo -c -o pose_test-pref.o `test -f 'pref.c' || echo '$(srcdir)/'`pref.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-pref.Tpo $(DEPDIR)/pose_test-pref.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pref.c' object='pose_test-pref.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-pref.o `test -f 'pref.c' || echo '$(srcdir)/'`pref.c
-
-pose_test-pref.obj: pref.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-pref.obj -MD -MP -MF $(DEPDIR)/pose_test-pref.Tpo -c -o pose_test-pref.obj `if test -f 'pref.c'; then $(CYGPATH_W) 'pref.c'; else $(CYGPATH_W) '$(srcdir)/pref.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-pref.Tpo $(DEPDIR)/pose_test-pref.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pref.c' object='pose_test-pref.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-pref.obj `if test -f 'pref.c'; then $(CYGPATH_W) 'pref.c'; else $(CYGPATH_W) '$(srcdir)/pref.c'; fi`
-
-pose_test-pref_global.o: pref_global.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-pref_global.o -MD -MP -MF $(DEPDIR)/pose_test-pref_global.Tpo -c -o pose_test-pref_global.o `test -f 'pref_global.c' || echo '$(srcdir)/'`pref_global.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-pref_global.Tpo $(DEPDIR)/pose_test-pref_global.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pref_global.c' object='pose_test-pref_global.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-pref_global.o `test -f 'pref_global.c' || echo '$(srcdir)/'`pref_global.c
-
-pose_test-pref_global.obj: pref_global.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-pref_global.obj -MD -MP -MF $(DEPDIR)/pose_test-pref_global.Tpo -c -o pose_test-pref_global.obj `if test -f 'pref_global.c'; then $(CYGPATH_W) 'pref_global.c'; else $(CYGPATH_W) '$(srcdir)/pref_global.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-pref_global.Tpo $(DEPDIR)/pose_test-pref_global.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pref_global.c' object='pose_test-pref_global.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-pref_global.obj `if test -f 'pref_global.c'; then $(CYGPATH_W) 'pref_global.c'; else $(CYGPATH_W) '$(srcdir)/pref_global.c'; fi`
-
-pose_test-utils.o: utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-utils.o -MD -MP -MF $(DEPDIR)/pose_test-utils.Tpo -c -o pose_test-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-utils.Tpo $(DEPDIR)/pose_test-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='utils.c' object='pose_test-utils.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
-
-pose_test-utils.obj: utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-utils.obj -MD -MP -MF $(DEPDIR)/pose_test-utils.Tpo -c -o pose_test-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-utils.Tpo $(DEPDIR)/pose_test-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='utils.c' object='pose_test-utils.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
-
-pose_test-list.o: list.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-list.o -MD -MP -MF $(DEPDIR)/pose_test-list.Tpo -c -o pose_test-list.o `test -f 'list.c' || echo '$(srcdir)/'`list.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-list.Tpo $(DEPDIR)/pose_test-list.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='list.c' object='pose_test-list.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-list.o `test -f 'list.c' || echo '$(srcdir)/'`list.c
-
-pose_test-list.obj: list.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-list.obj -MD -MP -MF $(DEPDIR)/pose_test-list.Tpo -c -o pose_test-list.obj `if test -f 'list.c'; then $(CYGPATH_W) 'list.c'; else $(CYGPATH_W) '$(srcdir)/list.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-list.Tpo $(DEPDIR)/pose_test-list.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='list.c' object='pose_test-list.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-list.obj `if test -f 'list.c'; then $(CYGPATH_W) 'list.c'; else $(CYGPATH_W) '$(srcdir)/list.c'; fi`
-
-pose_test-pref_bison.o: pref_bison.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-pref_bison.o -MD -MP -MF $(DEPDIR)/pose_test-pref_bison.Tpo -c -o pose_test-pref_bison.o `test -f 'pref_bison.c' || echo '$(srcdir)/'`pref_bison.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-pref_bison.Tpo $(DEPDIR)/pose_test-pref_bison.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pref_bison.c' object='pose_test-pref_bison.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-pref_bison.o `test -f 'pref_bison.c' || echo '$(srcdir)/'`pref_bison.c
-
-pose_test-pref_bison.obj: pref_bison.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-pref_bison.obj -MD -MP -MF $(DEPDIR)/pose_test-pref_bison.Tpo -c -o pose_test-pref_bison.obj `if test -f 'pref_bison.c'; then $(CYGPATH_W) 'pref_bison.c'; else $(CYGPATH_W) '$(srcdir)/pref_bison.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-pref_bison.Tpo $(DEPDIR)/pose_test-pref_bison.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pref_bison.c' object='pose_test-pref_bison.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-pref_bison.obj `if test -f 'pref_bison.c'; then $(CYGPATH_W) 'pref_bison.c'; else $(CYGPATH_W) '$(srcdir)/pref_bison.c'; fi`
-
-pose_test-pref_flex.o: pref_flex.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-pref_flex.o -MD -MP -MF $(DEPDIR)/pose_test-pref_flex.Tpo -c -o pose_test-pref_flex.o `test -f 'pref_flex.c' || echo '$(srcdir)/'`pref_flex.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-pref_flex.Tpo $(DEPDIR)/pose_test-pref_flex.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pref_flex.c' object='pose_test-pref_flex.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-pref_flex.o `test -f 'pref_flex.c' || echo '$(srcdir)/'`pref_flex.c
-
-pose_test-pref_flex.obj: pref_flex.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-pref_flex.obj -MD -MP -MF $(DEPDIR)/pose_test-pref_flex.Tpo -c -o pose_test-pref_flex.obj `if test -f 'pref_flex.c'; then $(CYGPATH_W) 'pref_flex.c'; else $(CYGPATH_W) '$(srcdir)/pref_flex.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-pref_flex.Tpo $(DEPDIR)/pose_test-pref_flex.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pref_flex.c' object='pose_test-pref_flex.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-pref_flex.obj `if test -f 'pref_flex.c'; then $(CYGPATH_W) 'pref_flex.c'; else $(CYGPATH_W) '$(srcdir)/pref_flex.c'; fi`
-
-tir4_driver_test-cal.o: cal.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -MT tir4_driver_test-cal.o -MD -MP -MF $(DEPDIR)/tir4_driver_test-cal.Tpo -c -o tir4_driver_test-cal.o `test -f 'cal.c' || echo '$(srcdir)/'`cal.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tir4_driver_test-cal.Tpo $(DEPDIR)/tir4_driver_test-cal.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='cal.c' object='tir4_driver_test-cal.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -c -o tir4_driver_test-cal.o `test -f 'cal.c' || echo '$(srcdir)/'`cal.c
-
-tir4_driver_test-cal.obj: cal.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -MT tir4_driver_test-cal.obj -MD -MP -MF $(DEPDIR)/tir4_driver_test-cal.Tpo -c -o tir4_driver_test-cal.obj `if test -f 'cal.c'; then $(CYGPATH_W) 'cal.c'; else $(CYGPATH_W) '$(srcdir)/cal.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tir4_driver_test-cal.Tpo $(DEPDIR)/tir4_driver_test-cal.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='cal.c' object='tir4_driver_test-cal.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -c -o tir4_driver_test-cal.obj `if test -f 'cal.c'; then $(CYGPATH_W) 'cal.c'; else $(CYGPATH_W) '$(srcdir)/cal.c'; fi`
-
-tir4_driver_test-tir4_driver.o: tir4_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -MT tir4_driver_test-tir4_driver.o -MD -MP -MF $(DEPDIR)/tir4_driver_test-tir4_driver.Tpo -c -o tir4_driver_test-tir4_driver.o `test -f 'tir4_driver.c' || echo '$(srcdir)/'`tir4_driver.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tir4_driver_test-tir4_driver.Tpo $(DEPDIR)/tir4_driver_test-tir4_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tir4_driver.c' object='tir4_driver_test-tir4_driver.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -c -o tir4_driver_test-tir4_driver.o `test -f 'tir4_driver.c' || echo '$(srcdir)/'`tir4_driver.c
-
-tir4_driver_test-tir4_driver.obj: tir4_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -MT tir4_driver_test-tir4_driver.obj -MD -MP -MF $(DEPDIR)/tir4_driver_test-tir4_driver.Tpo -c -o tir4_driver_test-tir4_driver.obj `if test -f 'tir4_driver.c'; then $(CYGPATH_W) 'tir4_driver.c'; else $(CYGPATH_W) '$(srcdir)/tir4_driver.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tir4_driver_test-tir4_driver.Tpo $(DEPDIR)/tir4_driver_test-tir4_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tir4_driver.c' object='tir4_driver_test-tir4_driver.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -c -o tir4_driver_test-tir4_driver.obj `if test -f 'tir4_driver.c'; then $(CYGPATH_W) 'tir4_driver.c'; else $(CYGPATH_W) '$(srcdir)/tir4_driver.c'; fi`
-
 tir4_driver_test-tir4_driver_test.o: tir4_driver_test.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -MT tir4_driver_test-tir4_driver_test.o -MD -MP -MF $(DEPDIR)/tir4_driver_test-tir4_driver_test.Tpo -c -o tir4_driver_test-tir4_driver_test.o `test -f 'tir4_driver_test.c' || echo '$(srcdir)/'`tir4_driver_test.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tir4_driver_test-tir4_driver_test.Tpo $(DEPDIR)/tir4_driver_test-tir4_driver_test.Po
@@ -691,76 +399,6 @@ tir4_driver_test-tir4_driver_test.obj: tir4_driver_test.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tir4_driver_test.c' object='tir4_driver_test-tir4_driver_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -c -o tir4_driver_test-tir4_driver_test.obj `if test -f 'tir4_driver_test.c'; then $(CYGPATH_W) 'tir4_driver_test.c'; else $(CYGPATH_W) '$(srcdir)/tir4_driver_test.c'; fi`
-
-tir4_driver_test-math_utils.o: math_utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -MT tir4_driver_test-math_utils.o -MD -MP -MF $(DEPDIR)/tir4_driver_test-math_utils.Tpo -c -o tir4_driver_test-math_utils.o `test -f 'math_utils.c' || echo '$(srcdir)/'`math_utils.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tir4_driver_test-math_utils.Tpo $(DEPDIR)/tir4_driver_test-math_utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='math_utils.c' object='tir4_driver_test-math_utils.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -c -o tir4_driver_test-math_utils.o `test -f 'math_utils.c' || echo '$(srcdir)/'`math_utils.c
-
-tir4_driver_test-math_utils.obj: math_utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -MT tir4_driver_test-math_utils.obj -MD -MP -MF $(DEPDIR)/tir4_driver_test-math_utils.Tpo -c -o tir4_driver_test-math_utils.obj `if test -f 'math_utils.c'; then $(CYGPATH_W) 'math_utils.c'; else $(CYGPATH_W) '$(srcdir)/math_utils.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tir4_driver_test-math_utils.Tpo $(DEPDIR)/tir4_driver_test-math_utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='math_utils.c' object='tir4_driver_test-math_utils.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -c -o tir4_driver_test-math_utils.obj `if test -f 'math_utils.c'; then $(CYGPATH_W) 'math_utils.c'; else $(CYGPATH_W) '$(srcdir)/math_utils.c'; fi`
-
-tir4_driver_test-pose.o: pose.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -MT tir4_driver_test-pose.o -MD -MP -MF $(DEPDIR)/tir4_driver_test-pose.Tpo -c -o tir4_driver_test-pose.o `test -f 'pose.c' || echo '$(srcdir)/'`pose.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tir4_driver_test-pose.Tpo $(DEPDIR)/tir4_driver_test-pose.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pose.c' object='tir4_driver_test-pose.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -c -o tir4_driver_test-pose.o `test -f 'pose.c' || echo '$(srcdir)/'`pose.c
-
-tir4_driver_test-pose.obj: pose.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -MT tir4_driver_test-pose.obj -MD -MP -MF $(DEPDIR)/tir4_driver_test-pose.Tpo -c -o tir4_driver_test-pose.obj `if test -f 'pose.c'; then $(CYGPATH_W) 'pose.c'; else $(CYGPATH_W) '$(srcdir)/pose.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tir4_driver_test-pose.Tpo $(DEPDIR)/tir4_driver_test-pose.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pose.c' object='tir4_driver_test-pose.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -c -o tir4_driver_test-pose.obj `if test -f 'pose.c'; then $(CYGPATH_W) 'pose.c'; else $(CYGPATH_W) '$(srcdir)/pose.c'; fi`
-
-tir4_driver_test-wiimote_driver.o: wiimote_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -MT tir4_driver_test-wiimote_driver.o -MD -MP -MF $(DEPDIR)/tir4_driver_test-wiimote_driver.Tpo -c -o tir4_driver_test-wiimote_driver.o `test -f 'wiimote_driver.c' || echo '$(srcdir)/'`wiimote_driver.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tir4_driver_test-wiimote_driver.Tpo $(DEPDIR)/tir4_driver_test-wiimote_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wiimote_driver.c' object='tir4_driver_test-wiimote_driver.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -c -o tir4_driver_test-wiimote_driver.o `test -f 'wiimote_driver.c' || echo '$(srcdir)/'`wiimote_driver.c
-
-tir4_driver_test-wiimote_driver.obj: wiimote_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -MT tir4_driver_test-wiimote_driver.obj -MD -MP -MF $(DEPDIR)/tir4_driver_test-wiimote_driver.Tpo -c -o tir4_driver_test-wiimote_driver.obj `if test -f 'wiimote_driver.c'; then $(CYGPATH_W) 'wiimote_driver.c'; else $(CYGPATH_W) '$(srcdir)/wiimote_driver.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tir4_driver_test-wiimote_driver.Tpo $(DEPDIR)/tir4_driver_test-wiimote_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wiimote_driver.c' object='tir4_driver_test-wiimote_driver.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tir4_driver_test_CFLAGS) $(CFLAGS) -c -o tir4_driver_test-wiimote_driver.obj `if test -f 'wiimote_driver.c'; then $(CYGPATH_W) 'wiimote_driver.c'; else $(CYGPATH_W) '$(srcdir)/wiimote_driver.c'; fi`
-
-wiimote_driver_test-cal.o: cal.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -MT wiimote_driver_test-cal.o -MD -MP -MF $(DEPDIR)/wiimote_driver_test-cal.Tpo -c -o wiimote_driver_test-cal.o `test -f 'cal.c' || echo '$(srcdir)/'`cal.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/wiimote_driver_test-cal.Tpo $(DEPDIR)/wiimote_driver_test-cal.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='cal.c' object='wiimote_driver_test-cal.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -c -o wiimote_driver_test-cal.o `test -f 'cal.c' || echo '$(srcdir)/'`cal.c
-
-wiimote_driver_test-cal.obj: cal.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -MT wiimote_driver_test-cal.obj -MD -MP -MF $(DEPDIR)/wiimote_driver_test-cal.Tpo -c -o wiimote_driver_test-cal.obj `if test -f 'cal.c'; then $(CYGPATH_W) 'cal.c'; else $(CYGPATH_W) '$(srcdir)/cal.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/wiimote_driver_test-cal.Tpo $(DEPDIR)/wiimote_driver_test-cal.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='cal.c' object='wiimote_driver_test-cal.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -c -o wiimote_driver_test-cal.obj `if test -f 'cal.c'; then $(CYGPATH_W) 'cal.c'; else $(CYGPATH_W) '$(srcdir)/cal.c'; fi`
-
-wiimote_driver_test-wiimote_driver.o: wiimote_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -MT wiimote_driver_test-wiimote_driver.o -MD -MP -MF $(DEPDIR)/wiimote_driver_test-wiimote_driver.Tpo -c -o wiimote_driver_test-wiimote_driver.o `test -f 'wiimote_driver.c' || echo '$(srcdir)/'`wiimote_driver.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/wiimote_driver_test-wiimote_driver.Tpo $(DEPDIR)/wiimote_driver_test-wiimote_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wiimote_driver.c' object='wiimote_driver_test-wiimote_driver.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -c -o wiimote_driver_test-wiimote_driver.o `test -f 'wiimote_driver.c' || echo '$(srcdir)/'`wiimote_driver.c
-
-wiimote_driver_test-wiimote_driver.obj: wiimote_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -MT wiimote_driver_test-wiimote_driver.obj -MD -MP -MF $(DEPDIR)/wiimote_driver_test-wiimote_driver.Tpo -c -o wiimote_driver_test-wiimote_driver.obj `if test -f 'wiimote_driver.c'; then $(CYGPATH_W) 'wiimote_driver.c'; else $(CYGPATH_W) '$(srcdir)/wiimote_driver.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/wiimote_driver_test-wiimote_driver.Tpo $(DEPDIR)/wiimote_driver_test-wiimote_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wiimote_driver.c' object='wiimote_driver_test-wiimote_driver.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -c -o wiimote_driver_test-wiimote_driver.obj `if test -f 'wiimote_driver.c'; then $(CYGPATH_W) 'wiimote_driver.c'; else $(CYGPATH_W) '$(srcdir)/wiimote_driver.c'; fi`
 
 wiimote_driver_test-wiimote_driver_test.o: wiimote_driver_test.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -MT wiimote_driver_test-wiimote_driver_test.o -MD -MP -MF $(DEPDIR)/wiimote_driver_test-wiimote_driver_test.Tpo -c -o wiimote_driver_test-wiimote_driver_test.o `test -f 'wiimote_driver_test.c' || echo '$(srcdir)/'`wiimote_driver_test.c
@@ -776,118 +414,6 @@ wiimote_driver_test-wiimote_driver_test.obj: wiimote_driver_test.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -c -o wiimote_driver_test-wiimote_driver_test.obj `if test -f 'wiimote_driver_test.c'; then $(CYGPATH_W) 'wiimote_driver_test.c'; else $(CYGPATH_W) '$(srcdir)/wiimote_driver_test.c'; fi`
 
-wiimote_driver_test-math_utils.o: math_utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -MT wiimote_driver_test-math_utils.o -MD -MP -MF $(DEPDIR)/wiimote_driver_test-math_utils.Tpo -c -o wiimote_driver_test-math_utils.o `test -f 'math_utils.c' || echo '$(srcdir)/'`math_utils.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/wiimote_driver_test-math_utils.Tpo $(DEPDIR)/wiimote_driver_test-math_utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='math_utils.c' object='wiimote_driver_test-math_utils.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -c -o wiimote_driver_test-math_utils.o `test -f 'math_utils.c' || echo '$(srcdir)/'`math_utils.c
-
-wiimote_driver_test-math_utils.obj: math_utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -MT wiimote_driver_test-math_utils.obj -MD -MP -MF $(DEPDIR)/wiimote_driver_test-math_utils.Tpo -c -o wiimote_driver_test-math_utils.obj `if test -f 'math_utils.c'; then $(CYGPATH_W) 'math_utils.c'; else $(CYGPATH_W) '$(srcdir)/math_utils.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/wiimote_driver_test-math_utils.Tpo $(DEPDIR)/wiimote_driver_test-math_utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='math_utils.c' object='wiimote_driver_test-math_utils.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -c -o wiimote_driver_test-math_utils.obj `if test -f 'math_utils.c'; then $(CYGPATH_W) 'math_utils.c'; else $(CYGPATH_W) '$(srcdir)/math_utils.c'; fi`
-
-wiimote_driver_test-pose.o: pose.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -MT wiimote_driver_test-pose.o -MD -MP -MF $(DEPDIR)/wiimote_driver_test-pose.Tpo -c -o wiimote_driver_test-pose.o `test -f 'pose.c' || echo '$(srcdir)/'`pose.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/wiimote_driver_test-pose.Tpo $(DEPDIR)/wiimote_driver_test-pose.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pose.c' object='wiimote_driver_test-pose.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -c -o wiimote_driver_test-pose.o `test -f 'pose.c' || echo '$(srcdir)/'`pose.c
-
-wiimote_driver_test-pose.obj: pose.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -MT wiimote_driver_test-pose.obj -MD -MP -MF $(DEPDIR)/wiimote_driver_test-pose.Tpo -c -o wiimote_driver_test-pose.obj `if test -f 'pose.c'; then $(CYGPATH_W) 'pose.c'; else $(CYGPATH_W) '$(srcdir)/pose.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/wiimote_driver_test-pose.Tpo $(DEPDIR)/wiimote_driver_test-pose.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pose.c' object='wiimote_driver_test-pose.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -c -o wiimote_driver_test-pose.obj `if test -f 'pose.c'; then $(CYGPATH_W) 'pose.c'; else $(CYGPATH_W) '$(srcdir)/pose.c'; fi`
-
-wiimote_driver_test-tir4_driver.o: tir4_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -MT wiimote_driver_test-tir4_driver.o -MD -MP -MF $(DEPDIR)/wiimote_driver_test-tir4_driver.Tpo -c -o wiimote_driver_test-tir4_driver.o `test -f 'tir4_driver.c' || echo '$(srcdir)/'`tir4_driver.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/wiimote_driver_test-tir4_driver.Tpo $(DEPDIR)/wiimote_driver_test-tir4_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tir4_driver.c' object='wiimote_driver_test-tir4_driver.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -c -o wiimote_driver_test-tir4_driver.o `test -f 'tir4_driver.c' || echo '$(srcdir)/'`tir4_driver.c
-
-wiimote_driver_test-tir4_driver.obj: tir4_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -MT wiimote_driver_test-tir4_driver.obj -MD -MP -MF $(DEPDIR)/wiimote_driver_test-tir4_driver.Tpo -c -o wiimote_driver_test-tir4_driver.obj `if test -f 'tir4_driver.c'; then $(CYGPATH_W) 'tir4_driver.c'; else $(CYGPATH_W) '$(srcdir)/tir4_driver.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/wiimote_driver_test-tir4_driver.Tpo $(DEPDIR)/wiimote_driver_test-tir4_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tir4_driver.c' object='wiimote_driver_test-tir4_driver.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(wiimote_driver_test_CFLAGS) $(CFLAGS) -c -o wiimote_driver_test-tir4_driver.obj `if test -f 'tir4_driver.c'; then $(CYGPATH_W) 'tir4_driver.c'; else $(CYGPATH_W) '$(srcdir)/tir4_driver.c'; fi`
-
-xlinuxtrack_xpl-cal.o: cal.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-cal.o -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-cal.Tpo -c -o xlinuxtrack_xpl-cal.o `test -f 'cal.c' || echo '$(srcdir)/'`cal.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-cal.Tpo $(DEPDIR)/xlinuxtrack_xpl-cal.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='cal.c' object='xlinuxtrack_xpl-cal.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-cal.o `test -f 'cal.c' || echo '$(srcdir)/'`cal.c
-
-xlinuxtrack_xpl-cal.obj: cal.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-cal.obj -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-cal.Tpo -c -o xlinuxtrack_xpl-cal.obj `if test -f 'cal.c'; then $(CYGPATH_W) 'cal.c'; else $(CYGPATH_W) '$(srcdir)/cal.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-cal.Tpo $(DEPDIR)/xlinuxtrack_xpl-cal.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='cal.c' object='xlinuxtrack_xpl-cal.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-cal.obj `if test -f 'cal.c'; then $(CYGPATH_W) 'cal.c'; else $(CYGPATH_W) '$(srcdir)/cal.c'; fi`
-
-xlinuxtrack_xpl-tir4_driver.o: tir4_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-tir4_driver.o -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-tir4_driver.Tpo -c -o xlinuxtrack_xpl-tir4_driver.o `test -f 'tir4_driver.c' || echo '$(srcdir)/'`tir4_driver.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-tir4_driver.Tpo $(DEPDIR)/xlinuxtrack_xpl-tir4_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tir4_driver.c' object='xlinuxtrack_xpl-tir4_driver.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-tir4_driver.o `test -f 'tir4_driver.c' || echo '$(srcdir)/'`tir4_driver.c
-
-xlinuxtrack_xpl-tir4_driver.obj: tir4_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-tir4_driver.obj -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-tir4_driver.Tpo -c -o xlinuxtrack_xpl-tir4_driver.obj `if test -f 'tir4_driver.c'; then $(CYGPATH_W) 'tir4_driver.c'; else $(CYGPATH_W) '$(srcdir)/tir4_driver.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-tir4_driver.Tpo $(DEPDIR)/xlinuxtrack_xpl-tir4_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tir4_driver.c' object='xlinuxtrack_xpl-tir4_driver.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-tir4_driver.obj `if test -f 'tir4_driver.c'; then $(CYGPATH_W) 'tir4_driver.c'; else $(CYGPATH_W) '$(srcdir)/tir4_driver.c'; fi`
-
-xlinuxtrack_xpl-math_utils.o: math_utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-math_utils.o -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-math_utils.Tpo -c -o xlinuxtrack_xpl-math_utils.o `test -f 'math_utils.c' || echo '$(srcdir)/'`math_utils.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-math_utils.Tpo $(DEPDIR)/xlinuxtrack_xpl-math_utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='math_utils.c' object='xlinuxtrack_xpl-math_utils.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-math_utils.o `test -f 'math_utils.c' || echo '$(srcdir)/'`math_utils.c
-
-xlinuxtrack_xpl-math_utils.obj: math_utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-math_utils.obj -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-math_utils.Tpo -c -o xlinuxtrack_xpl-math_utils.obj `if test -f 'math_utils.c'; then $(CYGPATH_W) 'math_utils.c'; else $(CYGPATH_W) '$(srcdir)/math_utils.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-math_utils.Tpo $(DEPDIR)/xlinuxtrack_xpl-math_utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='math_utils.c' object='xlinuxtrack_xpl-math_utils.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-math_utils.obj `if test -f 'math_utils.c'; then $(CYGPATH_W) 'math_utils.c'; else $(CYGPATH_W) '$(srcdir)/math_utils.c'; fi`
-
-xlinuxtrack_xpl-pose.o: pose.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-pose.o -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-pose.Tpo -c -o xlinuxtrack_xpl-pose.o `test -f 'pose.c' || echo '$(srcdir)/'`pose.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-pose.Tpo $(DEPDIR)/xlinuxtrack_xpl-pose.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pose.c' object='xlinuxtrack_xpl-pose.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-pose.o `test -f 'pose.c' || echo '$(srcdir)/'`pose.c
-
-xlinuxtrack_xpl-pose.obj: pose.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-pose.obj -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-pose.Tpo -c -o xlinuxtrack_xpl-pose.obj `if test -f 'pose.c'; then $(CYGPATH_W) 'pose.c'; else $(CYGPATH_W) '$(srcdir)/pose.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-pose.Tpo $(DEPDIR)/xlinuxtrack_xpl-pose.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pose.c' object='xlinuxtrack_xpl-pose.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-pose.obj `if test -f 'pose.c'; then $(CYGPATH_W) 'pose.c'; else $(CYGPATH_W) '$(srcdir)/pose.c'; fi`
-
-xlinuxtrack_xpl-wiimote_driver.o: wiimote_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-wiimote_driver.o -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-wiimote_driver.Tpo -c -o xlinuxtrack_xpl-wiimote_driver.o `test -f 'wiimote_driver.c' || echo '$(srcdir)/'`wiimote_driver.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-wiimote_driver.Tpo $(DEPDIR)/xlinuxtrack_xpl-wiimote_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wiimote_driver.c' object='xlinuxtrack_xpl-wiimote_driver.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-wiimote_driver.o `test -f 'wiimote_driver.c' || echo '$(srcdir)/'`wiimote_driver.c
-
-xlinuxtrack_xpl-wiimote_driver.obj: wiimote_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-wiimote_driver.obj -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-wiimote_driver.Tpo -c -o xlinuxtrack_xpl-wiimote_driver.obj `if test -f 'wiimote_driver.c'; then $(CYGPATH_W) 'wiimote_driver.c'; else $(CYGPATH_W) '$(srcdir)/wiimote_driver.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-wiimote_driver.Tpo $(DEPDIR)/xlinuxtrack_xpl-wiimote_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='wiimote_driver.c' object='xlinuxtrack_xpl-wiimote_driver.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-wiimote_driver.obj `if test -f 'wiimote_driver.c'; then $(CYGPATH_W) 'wiimote_driver.c'; else $(CYGPATH_W) '$(srcdir)/wiimote_driver.c'; fi`
-
 xlinuxtrack_xpl-xlinuxtrack.o: xlinuxtrack.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-xlinuxtrack.o -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-xlinuxtrack.Tpo -c -o xlinuxtrack_xpl-xlinuxtrack.o `test -f 'xlinuxtrack.c' || echo '$(srcdir)/'`xlinuxtrack.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-xlinuxtrack.Tpo $(DEPDIR)/xlinuxtrack_xpl-xlinuxtrack.Po
@@ -901,48 +427,6 @@ xlinuxtrack_xpl-xlinuxtrack.obj: xlinuxtrack.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='xlinuxtrack.c' object='xlinuxtrack_xpl-xlinuxtrack.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-xlinuxtrack.obj `if test -f 'xlinuxtrack.c'; then $(CYGPATH_W) 'xlinuxtrack.c'; else $(CYGPATH_W) '$(srcdir)/xlinuxtrack.c'; fi`
-
-xlinuxtrack_xpl-ltlib.o: ltlib.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-ltlib.o -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-ltlib.Tpo -c -o xlinuxtrack_xpl-ltlib.o `test -f 'ltlib.c' || echo '$(srcdir)/'`ltlib.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-ltlib.Tpo $(DEPDIR)/xlinuxtrack_xpl-ltlib.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ltlib.c' object='xlinuxtrack_xpl-ltlib.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-ltlib.o `test -f 'ltlib.c' || echo '$(srcdir)/'`ltlib.c
-
-xlinuxtrack_xpl-ltlib.obj: ltlib.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-ltlib.obj -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-ltlib.Tpo -c -o xlinuxtrack_xpl-ltlib.obj `if test -f 'ltlib.c'; then $(CYGPATH_W) 'ltlib.c'; else $(CYGPATH_W) '$(srcdir)/ltlib.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-ltlib.Tpo $(DEPDIR)/xlinuxtrack_xpl-ltlib.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ltlib.c' object='xlinuxtrack_xpl-ltlib.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-ltlib.obj `if test -f 'ltlib.c'; then $(CYGPATH_W) 'ltlib.c'; else $(CYGPATH_W) '$(srcdir)/ltlib.c'; fi`
-
-xlinuxtrack_xpl-list.o: list.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-list.o -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-list.Tpo -c -o xlinuxtrack_xpl-list.o `test -f 'list.c' || echo '$(srcdir)/'`list.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-list.Tpo $(DEPDIR)/xlinuxtrack_xpl-list.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='list.c' object='xlinuxtrack_xpl-list.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-list.o `test -f 'list.c' || echo '$(srcdir)/'`list.c
-
-xlinuxtrack_xpl-list.obj: list.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-list.obj -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-list.Tpo -c -o xlinuxtrack_xpl-list.obj `if test -f 'list.c'; then $(CYGPATH_W) 'list.c'; else $(CYGPATH_W) '$(srcdir)/list.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-list.Tpo $(DEPDIR)/xlinuxtrack_xpl-list.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='list.c' object='xlinuxtrack_xpl-list.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-list.obj `if test -f 'list.c'; then $(CYGPATH_W) 'list.c'; else $(CYGPATH_W) '$(srcdir)/list.c'; fi`
-
-xlinuxtrack_xpl-utils.o: utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-utils.o -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-utils.Tpo -c -o xlinuxtrack_xpl-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-utils.Tpo $(DEPDIR)/xlinuxtrack_xpl-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='utils.c' object='xlinuxtrack_xpl-utils.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
-
-xlinuxtrack_xpl-utils.obj: utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -MT xlinuxtrack_xpl-utils.obj -MD -MP -MF $(DEPDIR)/xlinuxtrack_xpl-utils.Tpo -c -o xlinuxtrack_xpl-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xlinuxtrack_xpl-utils.Tpo $(DEPDIR)/xlinuxtrack_xpl-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='utils.c' object='xlinuxtrack_xpl-utils.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_xpl_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_xpl-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
 
 .l.c:
 	$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ -- $(LEXCOMPILE)
@@ -1043,7 +527,7 @@ distdir: $(DISTFILES)
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
-all-am: Makefile $(PROGRAMS) $(DATA)
+all-am: Makefile $(LIBRARIES) $(PROGRAMS) $(DATA)
 installdirs:
 	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
@@ -1079,7 +563,8 @@ maintainer-clean-generic:
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-noinstLIBRARIES \
+	mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -1137,18 +622,18 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_dataDATA
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
-	clean-generic ctags distclean distclean-compile \
-	distclean-generic distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-binPROGRAMS \
-	install-data install-data-am install-dist_dataDATA install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-dist_dataDATA
+	clean-generic clean-noinstLIBRARIES ctags distclean \
+	distclean-compile distclean-generic distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-binPROGRAMS install-data install-data-am \
+	install-dist_dataDATA install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic pdf pdf-am ps ps-am tags uninstall \
+	uninstall-am uninstall-binPROGRAMS uninstall-dist_dataDATA
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
