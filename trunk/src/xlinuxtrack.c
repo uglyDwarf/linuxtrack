@@ -4,6 +4,7 @@
 #include "XPLMDataAccess.h"
 #include <stdio.h>
 #include <math.h>
+#include "ltlib.h"
 
 XPLMHotKeyID	gHotKey = NULL;
 XPLMDataRef		head_psi = NULL;
@@ -21,6 +22,7 @@ PLUGIN_API int XPluginStart(
                             char *		outSig,
                             char *		outDesc)
 {
+  struct lt_configuration_type ltconf;
 	strcpy(outName, "linuxTrack");
 	strcpy(outSig, "linuxtrack.camera");
 	strcpy(outDesc, "A plugin that controls view using your webcam.");
@@ -35,7 +37,7 @@ PLUGIN_API int XPluginStart(
   if((head_psi==NULL)||(head_the==NULL)){
     return(0);
   }
-  if(lt_init(NULL)!=0){
+  if(lt_init(ltconf)!=0){
     return(0);
   }
 	return(1);
@@ -105,8 +107,13 @@ int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
   /* Fill out the camera position info. */
   /* FIXME: not doing translation */
   /* FIXME: not roll, is this even possible? */
-  XPLMSetDataf(head_psi,heading);
-  XPLMSetDataf(head_the,pitch);
+
+  if ((heading < 180.0) && (heading > -180.0)) {
+    XPLMSetDataf(head_psi,heading);
+  }
+  if ((pitch < 180.0) && (pitch > -180.0)) {
+    XPLMSetDataf(head_the,pitch);
+  }
 	return 1;
 }                                   
 
