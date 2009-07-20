@@ -17,5 +17,6 @@ void transpose(float matrix[3][3], float trans[3][3]);
 void transpose_in_place(float matrix[3][3]);
 float sqr(float f);
 void matrix_to_euler(float matrix[3][3], float *pitch, float *yaw, float *roll);
+void add_vecs(float vec1[3],float vec2[3],float res[3]);
 
 #endif
