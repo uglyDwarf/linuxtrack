@@ -168,7 +168,7 @@ void get_transform(float new_base[3][3], float rot[3][3]){
   mul_matrix(center_base_t, new_base, rot);
 }
 
-void sort_blobs(struct bloblist_type bl)
+void pose_sort_blobs(struct bloblist_type bl)
 {
   struct blob_type tmp_blob;
   char topmost_blob_index;
@@ -229,7 +229,6 @@ bool pose_process_blobs(struct bloblist_type blobs,
 /*   exit(1); */
 /*   /\* DELETEME TEST END *\/ */
 
-  sort_blobs(blobs);
 /*   printf("Sorted_blobs: \n"); */
 /*   bloblist_print(blobs); */
 
