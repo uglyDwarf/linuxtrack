@@ -37,6 +37,8 @@ PLUGIN_API int XPluginStart(
   if((head_psi==NULL)||(head_the==NULL)){
     return(0);
   }
+  ltconf.filterfactor = 0.12;
+  ltconf.angle_scalefactor = 3.0;
   if(lt_init(ltconf)!=0){
     return(0);
   }
@@ -107,13 +109,8 @@ int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
   /* Fill out the camera position info. */
   /* FIXME: not doing translation */
   /* FIXME: not roll, is this even possible? */
-
-  if ((heading < 180.0) && (heading > -180.0)) {
-    XPLMSetDataf(head_psi,heading);
-  }
-  if ((pitch < 180.0) && (pitch > -180.0)) {
-    XPLMSetDataf(head_the,pitch);
-  }
+  XPLMSetDataf(head_psi,heading);
+  XPLMSetDataf(head_the,pitch);
 	return 1;
 }                                   
 

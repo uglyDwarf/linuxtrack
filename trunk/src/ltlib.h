@@ -5,6 +5,9 @@
 
 struct lt_configuration_type {
   struct cal_device_type device;  
+  /* 1.0 for raw, the closer to zero, the more filtering */
+  float filterfactor;  
+  float angle_scalefactor;  
 };
 
 int lt_init(struct lt_configuration_type config);
