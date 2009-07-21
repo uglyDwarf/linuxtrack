@@ -66,13 +66,40 @@ bool setup_cap(reflector_model_type *rm)
   rm->hc[0] = 0.0;
   rm->hc[1] = -hy;
   rm->hc[2] = hz;
+  rm->type = CAP;
   return true;
 }
 
 bool setup_clip(reflector_model_type *rm)
 {
-  log_message("Setting up Clip... Not implemented yet:-(\n");
+  log_message("Setting up Clip...\n");
+  float y1, y2, z1, z2, hx, hy, hz;
+  /*
+  y1 is vertical dist of upper and middle point
+  y2 is vertical dist of upper and lower point
+  z1 is horizontal dist of upper and middle point
+  z2 is horizontal dist of uper and lower point
+  hx,hy,hz are head center coords with upper point as origin
+  */ 
+  if(get_coord("Clip-Y1", &y1) && get_coord("Clip-Y2", &y2) &&
+     get_coord("Clip-Z1", &z1) && get_coord("Clip-Z2", &z2) &&
+     get_coord("Head-X", &hx) && get_coord("Head-Y", &hy) &&
+     get_coord("Head-Z", &hz) != true){
+    log_message("Can't read-in Clip setup!\n");
+    return false;
+  }
   
+  rm->p1[0] = 0;
+  rm->p1[1] = -y1;
+  rm->p1[2] = z1;
+  rm->p2[0] = 0;
+  rm->p2[1] = -y2;
+  rm->p2[2] = -z2;
+  rm->hc[0] = hx;
+  rm->hc[1] = -hy;
+  rm->hc[2] = hz;
+  rm->type = CLIP;
+  return true;
 }
 
 

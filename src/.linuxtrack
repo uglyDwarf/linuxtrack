@@ -8,5 +8,11 @@ Cap-Y = 50
 Cap-Z = 92.5
 Head-Y = 100
 Head-Z = 90
-
-
+#Comment previous and uncomment this if you use Clip...
+#Clip-Y1 = 
+#Clip-Y2 = 
+#Clip-Z1 = 
+#Clip-Z2 = 
+#Head-X = 
+#Head-Y = 
+#Head-Z = 
