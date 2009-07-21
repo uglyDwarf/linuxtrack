@@ -17,6 +17,8 @@ float model_base[3][3];
 float center_ref[3];
 float center_base[3][3];
 
+enum {M_CAP, M_CLIP} type;
+
 volatile bool center_flag = false;
 
 void pose_init(struct reflector_model_type rm,
@@ -80,6 +82,16 @@ void pose_init(struct reflector_model_type rm,
   float vec3[3];
   make_vec(ref, model_point0, vec3);
   matrix_times_vec(model_base, vec3, model_ref);
+  switch(rm.type){
+    case CAP:
+      type = M_CAP;
+      break;
+    case CLIP:
+      type = M_CLIP;
+      break;
+    default:
+      break;
+  }
 }
 
 float blob_dist(struct blob_type b0, struct blob_type b1)
@@ -174,27 +186,46 @@ void pose_sort_blobs(struct bloblist_type bl)
   char topmost_blob_index;
   /* find the topmost blob
    * so few its not worth iterating */
-  topmost_blob_index = 0;
-  if (bl.blobs[1].y > bl.blobs[0].y) {
-    topmost_blob_index = 1;
-    if (bl.blobs[2].y > bl.blobs[1].y) {
+  if(type == M_CAP){
+    topmost_blob_index = 0;
+    if (bl.blobs[1].y > bl.blobs[0].y) {
+      topmost_blob_index = 1;
+      if (bl.blobs[2].y > bl.blobs[1].y) {
+        topmost_blob_index = 2;
+      }
+    }
+    else if (bl.blobs[2].y > bl.blobs[0].y) {
       topmost_blob_index = 2;
     }
-  }
-  else if (bl.blobs[2].y > bl.blobs[0].y) {
-    topmost_blob_index = 2;
-  }
-  /* swap the topmost to index 0 */
-  if (topmost_blob_index != 0) {
-    tmp_blob = bl.blobs[0];
-    bl.blobs[0] = bl.blobs[topmost_blob_index];
-    bl.blobs[topmost_blob_index] = tmp_blob;
-  }
-  /* make sure the blob[1] is the leftmost */
-  if (bl.blobs[2].x < bl.blobs[1].x) {
-    tmp_blob = bl.blobs[1];
-    bl.blobs[1] = bl.blobs[2];
-    bl.blobs[2] = tmp_blob;
+    /* swap the topmost to index 0 */
+    if (topmost_blob_index != 0) {
+      tmp_blob = bl.blobs[0];
+      bl.blobs[0] = bl.blobs[topmost_blob_index];
+      bl.blobs[topmost_blob_index] = tmp_blob;
+    }
+    /* make sure the blob[1] is the leftmost */
+    if (bl.blobs[2].x < bl.blobs[1].x) {
+      tmp_blob = bl.blobs[1];
+      bl.blobs[1] = bl.blobs[2];
+      bl.blobs[2] = tmp_blob;
+    }
+  }else if(type = M_CLIP){
+    //sort by y (bubble sort like... Hope I got it right;-)
+    if (bl.blobs[1].y > bl.blobs[0].y) {
+      tmp_blob = bl.blobs[1];
+      bl.blobs[1] = bl.blobs[0];
+      bl.blobs[0] = tmp_blob;
+    }
+    if (bl.blobs[2].y > bl.blobs[1].y) {
+      tmp_blob = bl.blobs[1];
+      bl.blobs[1] = bl.blobs[2];
+      bl.blobs[2] = tmp_blob;
+    }
+    if (bl.blobs[1].y > bl.blobs[0].y) {
+      tmp_blob = bl.blobs[1];
+      bl.blobs[1] = bl.blobs[0];
+      bl.blobs[0] = tmp_blob;
+    }
   }
 }
 

@@ -19,6 +19,7 @@ typedef struct reflector_model_type {
   float p2[3]; /* x,y,z */
   /* user's head center, again referenced to p0 */
   float hc[3];  /* x,y,z */
+  enum {CAP, CLIP} type;
 } reflector_model_type;
 
 /* like the reflector model, all units are in millimeters.  
