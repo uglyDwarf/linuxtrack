@@ -8,24 +8,29 @@ bool get_device(enum cal_device_category_type *dev_type_enum)
 {
   bool dev_ok = false;
   char *dev_type = get_key("Global", "Capture-device");
-  if(strcmp(dev_type, "Tir4") == 0){
-    log_message("Device Type: Track IR 4\n");
-    *dev_type_enum = tir4_camera;
-    dev_ok = true;
+  if (dev_type == NULL) {
+    dev_ok = false;
   }
-  if(strcmp(dev_type, "Webcam") == 0){
-    log_message("Device Type: Webcam\n");
-    *dev_type_enum = webcam;
-    dev_ok = true;
-  }
-  if(strcmp(dev_type, "Wiimote") == 0){
-    log_message("Device Type: Wiimote\n");
-    *dev_type_enum = wiimote;
-    dev_ok = true;
-  }
-  if(dev_ok == false){
-    log_message("Wrong device type found: '%s'\n", dev_type);
-    log_message(" Valid options are: 'Tir4', 'Webcam', 'Wiimote'.\n");
+  else {
+    if(strcmp(dev_type, "Tir4") == 0){
+      log_message("Device Type: Track IR 4\n");
+      *dev_type_enum = tir4_camera;
+      dev_ok = true;
+    }
+    if(strcmp(dev_type, "Webcam") == 0){
+      log_message("Device Type: Webcam\n");
+      *dev_type_enum = webcam;
+      dev_ok = true;
+    }
+    if(strcmp(dev_type, "Wiimote") == 0){
+      log_message("Device Type: Wiimote\n");
+      *dev_type_enum = wiimote;
+      dev_ok = true;
+    }
+    if(dev_ok == false){
+      log_message("Wrong device type found: '%s'\n", dev_type);
+      log_message(" Valid options are: 'Tir4', 'Webcam', 'Wiimote'.\n");
+    }
   }
   return dev_ok;
 }
@@ -55,7 +60,7 @@ bool setup_cap(reflector_model_type *rm)
   rm->p1[0] = -x/2;
   rm->p1[1] = -y;
   rm->p1[2] = -z;
-  rm->p2[0] = -x/2;
+  rm->p2[0] = +x/2;
   rm->p2[1] = -y;
   rm->p2[2] = -z;
   rm->hc[0] = 0.0;
