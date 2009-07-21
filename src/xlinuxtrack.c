@@ -7,6 +7,9 @@
 #include "ltlib.h"
 
 XPLMHotKeyID	gHotKey = NULL;
+XPLMDataRef		head_x = NULL;
+XPLMDataRef		head_y = NULL;
+XPLMDataRef		head_z = NULL;
 XPLMDataRef		head_psi = NULL;
 XPLMDataRef		head_the = NULL;
 
@@ -32,9 +35,13 @@ PLUGIN_API int XPluginStart(
                                "3D linuxTrack view",
                                MyHotKeyCallback,
                                NULL);
+  head_x = XPLMFindDataRef("sim/graphics/view/pilots_head_x");
+  head_y = XPLMFindDataRef("sim/graphics/view/pilots_head_y");
+  head_z = XPLMFindDataRef("sim/graphics/view/pilots_head_z");
   head_psi = XPLMFindDataRef("sim/graphics/view/pilots_head_psi");
   head_the = XPLMFindDataRef("sim/graphics/view/pilots_head_the");
-  if((head_psi==NULL)||(head_the==NULL)){
+  if((head_x==NULL)||(head_y==NULL)||(head_z==NULL)||
+     (head_psi==NULL)||(head_the==NULL)){
     return(0);
   }
   ltconf.filterfactor = 0.12;
@@ -109,6 +116,9 @@ int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
   /* Fill out the camera position info. */
   /* FIXME: not doing translation */
   /* FIXME: not roll, is this even possible? */
+  XPLMSetDataf(head_x,tx);
+  XPLMSetDataf(head_y,ty);
+  XPLMSetDataf(head_z,tz);
   XPLMSetDataf(head_psi,heading);
   XPLMSetDataf(head_the,pitch);
 	return 1;
