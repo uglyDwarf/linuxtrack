@@ -1,13 +1,13 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Enable wiimote support */
+#undef CWIID
+
 /* Define to 1 if you have the <assert.h> header file. */
 #undef HAVE_ASSERT_H
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
-
-/* Define to 1 if you have the `cwiid' library (-lcwiid). */
-#undef HAVE_LIBCWIID
 
 /* Define to 1 if you have the `m' library (-lm). */
 #undef HAVE_LIBM
