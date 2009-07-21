@@ -1,6 +1,10 @@
 /*************************************************************
  ****************** CAMERA ABSTRACTION LAYER *****************
  *************************************************************/
+#ifdef HAVE_CONFIG_H
+  #include "../config.h"
+#endif
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,7 +40,11 @@ int cal_init(struct camera_control_block *ccb)
 /*     returnval = webcam_init(ccb); */
     break;
   case wiimote:
-     returnval = wiimote_init(ccb); 
+#ifdef CWIID
+     returnval = wiimote_init(ccb);
+#else
+/*     returnval = wiimote_init(ccb); */
+#endif
     break;
   }
   return returnval;
@@ -52,7 +60,11 @@ int cal_shutdown(struct camera_control_block *ccb)
 /*     return webcam_shutdown(ccb); */
     break;
   case wiimote:
+#ifdef CWIID
      return wiimote_shutdown(ccb); 
+#else
+/*     return wiimote_shutdown(ccb); */
+#endif
     break;
   }
   return -1;
@@ -68,7 +80,11 @@ int cal_suspend(struct camera_control_block *ccb)
 /*     return webcam_suspend(ccb); */
     break;
   case wiimote:
-     return wiimote_suspend(ccb); 
+#ifdef CWIID
+     return wiimote_suspend(ccb);
+#else
+/*     return wiimote_suspend(ccb); */
+#endif 
     break;
   }
   return -1;
@@ -85,7 +101,11 @@ void cal_change_operating_mode(struct camera_control_block *ccb,
 /*     return webcam_change_operating_mode(ccb,newmode); */
     break;
   case wiimote:
+#ifdef CWIID
     wiimote_change_operating_mode(ccb,newmode); 
+#else
+/*    wiimote_change_operating_mode(ccb,newmode); */
+#endif
     break;
   }
 }
@@ -100,7 +120,11 @@ int cal_wakeup(struct camera_control_block *ccb)
 /*     return webcam_wakeup(ccb); */
     break;
   case wiimote:
+#ifdef CWIID
      return wiimote_wakeup(ccb); 
+#else
+/*     return wiimote_wakeup(ccb); */
+#endif
     break;
   }
   return -1;
@@ -134,7 +158,11 @@ int cal_get_frame(struct camera_control_block *ccb,
 /*     return webcam_populate_frame(ccb, f); */
     break;
   case wiimote:
+#ifdef CWIID
      return wiimote_get_frame(ccb, f); 
+#else
+/*     return wiimote_get_frame(ccb, f); */
+#endif
     break;
   }
   return -1;

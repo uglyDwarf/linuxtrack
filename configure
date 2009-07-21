@@ -639,6 +639,8 @@ ac_includes_default="\
 
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+CWIID_FALSE
+CWIID_TRUE
 XPLANE_PLUGIN_FALSE
 XPLANE_PLUGIN_TRUE
 XPLANE_SDK
@@ -4160,7 +4162,6 @@ $as_echo "$as_me: error: libusb not found" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-
 { $as_echo "$as_me:$LINENO: checking for cwiid_open in -lcwiid" >&5
 $as_echo_n "checking for cwiid_open in -lcwiid... " >&6; }
 if test "${ac_cv_lib_cwiid_cwiid_open+set}" = set; then
@@ -4227,16 +4228,14 @@ fi
 { $as_echo "$as_me:$LINENO: result: $ac_cv_lib_cwiid_cwiid_open" >&5
 $as_echo "$ac_cv_lib_cwiid_cwiid_open" >&6; }
 if test "x$ac_cv_lib_cwiid_cwiid_open" = x""yes; then
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBCWIID 1
+
+
+cat >>confdefs.h <<\_ACEOF
+#define CWIID /**/
 _ACEOF
 
-  LIBS="-lcwiid $LIBS"
+    with_cwiid=yes
 
-else
-  { { $as_echo "$as_me:$LINENO: error: libcwiid not found" >&5
-$as_echo "$as_me: error: libcwiid not found" >&2;}
-   { (exit 1); exit 1; }; }
 fi
 
 
@@ -5543,6 +5542,14 @@ else
   XPLANE_PLUGIN_FALSE=
 fi
 
+ if test x$with_cwiid = xyes; then
+  CWIID_TRUE=
+  CWIID_FALSE='#'
+else
+  CWIID_TRUE='#'
+  CWIID_FALSE=
+fi
+
 
 
 
@@ -5665,6 +5672,13 @@ if test -z "${XPLANE_PLUGIN_TRUE}" && test -z "${XPLANE_PLUGIN_FALSE}"; then
   { { $as_echo "$as_me:$LINENO: error: conditional \"XPLANE_PLUGIN\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 $as_echo "$as_me: error: conditional \"XPLANE_PLUGIN\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${CWIID_TRUE}" && test -z "${CWIID_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"CWIID\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+$as_echo "$as_me: error: conditional \"CWIID\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi

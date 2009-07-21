@@ -22,7 +22,11 @@ AM_PROG_CC_C_O
 AC_CHECK_LIB([m], [sqrt])
 AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_LIB([usb], [usb_open], , AC_MSG_ERROR([libusb not found]))
-AC_CHECK_LIB([cwiid], [cwiid_open], , AC_MSG_ERROR([libcwiid not found]))
+AC_CHECK_LIB([cwiid], [cwiid_open], 
+  [
+    AC_DEFINE([CWIID], [], [Enable wiimote support])
+    with_cwiid=yes
+  ],)
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdint.h assert.h])
@@ -58,6 +62,7 @@ AC_ARG_ENABLE([xplane_plugin],
 )
 
 AM_CONDITIONAL(XPLANE_PLUGIN, [test x$with_xplane_plugin = xyes])
+AM_CONDITIONAL(CWIID, [test x$with_cwiid = xyes])
 
 
 
