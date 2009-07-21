@@ -97,6 +97,9 @@ void	MyHotKeyCallback(void *               inRefcon)
                                xplm_Phase_LastCockpit,
                                0,
                                NULL);
+          XPLMSetDataf(head_x,0.0f);
+          XPLMSetDataf(head_y,0.0f);
+          XPLMSetDataf(head_z,0.0f);
 	  XPLMSetDataf(head_psi,0.0f);
 	  XPLMSetDataf(head_the,0.0f);
 	}

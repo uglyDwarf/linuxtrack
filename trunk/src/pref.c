@@ -25,6 +25,7 @@ bool read_prefs(char *fname, char *section)
     line_num = 1;
     //yydebug=1;
     int res = yyparse();
+    fclose(yyin);
     free(parsed_file);
     parsed_file = NULL;
     if(res == 0){
@@ -151,12 +152,132 @@ char *get_key(char *section_name, char *key_name)
   return kv->value;
 }
 
+bool change_key(char *section_name, char *key_name, char *new_value)
+{
+  if(read_prefs_on_init() == false){
+    return false;
+  }
+  key_val_struct *kv = find_key(section_name, key_name);
+  free(kv->value);
+  kv->value = strdup(new_value);
+  return true;
+}
+
+
+
+bool dump_section(section_struct *section, FILE *of)
+{
+  fprintf(of, "[%s]\n", section->name);
+  
+  iterator i;
+  init_iterator(section->contents, &i);
+  
+  section_item *sci;
+  while((sci = (section_item *)get_next(&i)) != NULL){
+    switch(sci->sec_item_type){
+      case KEY_VAL:
+        fprintf(of,"%s = %s\n", sci->key_val->key, sci->key_val->value);
+        break;
+      case SEC_COMMENT:
+        fprintf(of,"%s\n", sci->comment);
+        break;
+    }
+  }
+}
+
+bool dump_prefs(char *file_name)
+{
+  FILE *of;
+  if(file_name == NULL){
+    of = stderr;
+  }else{
+    of = fopen(file_name, "w");
+    if(of == NULL){
+      log_message("Can't open file '%s'!\n", file_name);
+      return false;
+    }
+  }
+  if(read_prefs_on_init() == false){
+    return false;
+  }
+  iterator i;
+  init_iterator(prefs, &i);
+  
+  pref_file_item *pfi;
+  while((pfi = (pref_file_item *)get_next(&i)) != NULL){
+    switch(pfi->item_type){
+      case SECTION:
+        dump_section(pfi->section, of);
+        break;
+      case PREF_COMMENT:
+        fprintf(of,"%s\n", pfi->comment);
+        break;
+    }
+  }
+  if(file_name != NULL){
+    fclose(of);
+  }
+  return true;
+}
+
+void free_section(section_struct *section)
+{
+  free(section->name);
+  
+  iterator i;
+  init_iterator(section->contents, &i);
+  
+  section_item *sci;
+  while((sci = (section_item *)get_next(&i)) != NULL){
+    switch(sci->sec_item_type){
+      case KEY_VAL:
+        free(sci->key_val->key);
+        free(sci->key_val->value);
+        free(sci->key_val);
+        break;
+      case SEC_COMMENT:
+        free(sci->comment);
+        break;
+    }
+    free(sci);
+  }
+  free_list(section->contents, false);
+}
+
+void free_prefs()
+{
+  iterator i;
+  init_iterator(prefs, &i);
+  
+  pref_file_item *pfi;
+  while((pfi = (pref_file_item *)get_next(&i)) != NULL){
+    switch(pfi->item_type){
+      case SECTION:
+        free_section(pfi->section);
+        free(pfi->section);
+        break;
+      case PREF_COMMENT:
+        free(pfi->comment);
+        break;
+    }
+    free(pfi);
+  }
+  free_list(prefs, false);
+}
+
 /*
 int main(int argc, char *argv[])
 {
   printf("Device type: %s\n", get_key("Global", "Capture-device"));
   printf("Head ref [0, %s, %s]\n", get_key("Global", "Head-Y"), 
   	get_key("Global", "Head-Z"));
+  dump_prefs("pref1.dmp");
+  change_key("Global", "Head-Y", "333");
+  change_key("Global", "Head-Z", "444");
+  printf("Head ref [0, %s, %s]\n", get_key("Global", "Head-Y"), 
+  	get_key("Global", "Head-Z"));
+  dump_prefs("pref2.dmp");
+  free_prefs();
   return 0;
 }
 */
