@@ -78,7 +78,7 @@ void pose_init(struct reflector_model_type rm,
   make_base(vec1, vec2, center_base);
 
   /* Convert reference point to model base coordinates */
-  float ref_pt[3];
+//  float ref_pt[3];
   float vec3[3];
   make_vec(ref, model_point0, vec3);
   matrix_times_vec(model_base, vec3, model_ref);
@@ -154,7 +154,7 @@ void alter_pose(struct bloblist_type blobs, float points[3][3])
 
 void get_translation(float base[3][3], float ref[3], float origin[3],
                      float trans[3], bool do_center){
-  float tmp[3];
+//  float tmp[3];
   float t_base[3][3];
   float new_ref[3];
   transpose(base, t_base);
@@ -175,7 +175,7 @@ void get_translation(float base[3][3], float ref[3], float origin[3],
 }
 
 void get_transform(float new_base[3][3], float rot[3][3]){
-  float center_base_t[3][3], new_base_t[3][3];
+  float center_base_t[3][3];
   transpose(center_base, center_base_t);
   mul_matrix(center_base_t, new_base, rot);
 }
@@ -183,7 +183,7 @@ void get_transform(float new_base[3][3], float rot[3][3]){
 void pose_sort_blobs(struct bloblist_type bl)
 {
   struct blob_type tmp_blob;
-  char topmost_blob_index;
+  int topmost_blob_index;
   /* find the topmost blob
    * so few its not worth iterating */
   if(type == M_CAP){
@@ -209,7 +209,7 @@ void pose_sort_blobs(struct bloblist_type bl)
       bl.blobs[1] = bl.blobs[2];
       bl.blobs[2] = tmp_blob;
     }
-  }else if(type = M_CLIP){
+  }else if(type == M_CLIP){
     //sort by y (bubble sort like... Hope I got it right;-)
     if (bl.blobs[1].y > bl.blobs[0].y) {
       tmp_blob = bl.blobs[1];
@@ -289,7 +289,7 @@ bool pose_process_blobs(struct bloblist_type blobs,
     }
   }
 //  print_matrix(new_base, "New_base");
-  float new_ref[3];
+//  float new_ref[3];
   get_translation(new_base, model_ref, points[0], trans->tr, centering);
 //  print_vec(trans->tr, "translation");
   get_transform(new_base, trans->rot);
@@ -328,6 +328,7 @@ int pose_compute_camera_update(struct transform trans,
   (*pitch) *= 180.0/M_PI;
   (*yaw)   *= 180.0/M_PI;
   (*roll)  *= 180.0/M_PI;
+  return 0;
 }
 
 

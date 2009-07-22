@@ -11,4 +11,7 @@ bool change_key(char *section_name, char *key_name, char *new_value);
 bool dump_prefs(char *file_name);
 void free_prefs();
 
+bool set_custom_section(char *name);
+char *get_custom_key(char *key_name);
+
 #endif

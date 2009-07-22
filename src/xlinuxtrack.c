@@ -51,9 +51,7 @@ PLUGIN_API int XPluginStart(
      (head_psi==NULL)||(head_the==NULL)){
     return(0);
   }
-  ltconf.filterfactor = 0.12;
-  ltconf.angle_scalefactor = 3.0;
-  if(lt_init(ltconf)!=0){
+  if(lt_init(ltconf, "XPlane")!=0){
     return(0);
   }
 	return(1);

@@ -3,6 +3,7 @@
   #include <stdlib.h>
   #include <string.h>
   #include "pref_bison.h"
+  #include "utils.h"
   extern int line_num;
 %}
 %option noyywrap
@@ -16,18 +17,18 @@ KEY			[a-zA-Z0-9-]+
 \]                      { return(TOKEN_RIGHT_BRACKET);}  
 
 {KEY}			{
-			  yylval.str=strdup(yytext);
+			  yylval.str=my_strdup(yytext);
 			  return(TOKEN_KEY);
 			}
 #.*			{
-			  yylval.str=strdup(yytext);
+			  yylval.str=my_strdup(yytext);
 			  return(TOKEN_COMMENT);
 			}
   
 [[:blank:]]		/* eat up whitespace */
 
 <VALUE>[^\n]*		{
-			  yylval.str=strdup(yytext);
+			  yylval.str=my_strdup(yytext);
 			  return(TOKEN_VALUE);
 			}
 

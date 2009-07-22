@@ -16,6 +16,8 @@ plist prefs;
 
 bool read_already = false;
 char *pref_file = ".linuxtrack";
+char *def_section_name = "Default";
+char *custom_section_name = NULL;
 
 bool read_prefs(char *fname, char *section)
 {
@@ -159,7 +161,7 @@ bool change_key(char *section_name, char *key_name, char *new_value)
   }
   key_val_struct *kv = find_key(section_name, key_name);
   free(kv->value);
-  kv->value = strdup(new_value);
+  kv->value = my_strdup(new_value);
   return true;
 }
 
@@ -181,8 +183,12 @@ bool dump_section(section_struct *section, FILE *of)
       case SEC_COMMENT:
         fprintf(of,"%s\n", sci->comment);
         break;
+      default:
+        assert(0);
+        break;
     }
   }
+  return true;
 }
 
 bool dump_prefs(char *file_name)
@@ -264,6 +270,34 @@ void free_prefs()
   }
   free_list(prefs, false);
 }
+
+bool set_custom_section(char *name)
+{
+  if(name != NULL){
+    if(section_exists(name) == true){
+      custom_section_name = my_strdup(name);
+      log_message("Custom section '%s' found!\n", name);
+      return true;
+    }else{
+      log_message("Attempted to set nonexistent section '%s'!\n", name);
+    }
+  }
+  return false;
+}
+
+char *get_custom_key(char *key_name)
+{
+  if((custom_section_name != NULL) && 
+     (key_exists(custom_section_name, key_name) == true)){
+    return get_key(custom_section_name, key_name);
+  }else if(key_exists(def_section_name, key_name) == true){
+    return get_key(def_section_name, key_name);
+  }else{
+    log_message("Attempted to get nonexistent key '%s'\n", key_name);
+  }
+  return NULL;
+};
+
 
 /*
 int main(int argc, char *argv[])

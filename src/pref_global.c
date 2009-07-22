@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "pref.h"
 #include "pref_global.h"
+#include "utils.h"
 
 bool get_device(enum cal_device_category_type *dev_type_enum)
 {
@@ -116,3 +117,37 @@ bool get_pose_setup(reflector_model_type *rm)
   return false;
 }
 
+bool get_scale_factors(struct lt_scalefactors *sf)
+{
+  char *pitch_m = get_custom_key("Pitch-multiplier");
+  char *yaw_m = get_custom_key("Yaw-multiplier");
+  char *roll_m = get_custom_key("Roll-multiplier");
+  char *xm = get_custom_key("Xtranslation-multiplier");
+  char *ym = get_custom_key("Ytranslation-multiplier");
+  char *zm = get_custom_key("Ztranslation-multiplier");
+  
+  if((pitch_m != NULL) && (roll_m != NULL) &&(yaw_m != NULL) &&
+     (xm != NULL) && (ym != NULL) && (zm != NULL)){
+    sf->pitch_sf = atof(pitch_m);
+    sf->yaw_sf = atof(yaw_m);
+    sf->roll_sf = atof(roll_m);
+    sf->tx_sf = atof(xm);
+    sf->ty_sf = atof(ym);
+    sf->tz_sf = atof(zm);
+    return true; 
+  }else{
+    return false;
+  }
+  
+}
+
+bool get_filter_factor(float *ff)
+{
+  char *cff = get_custom_key("Filter-factor");
+  if(cff == NULL){
+    return false;
+  }else{
+    *ff = atof(cff);
+    return true;
+  }
+}

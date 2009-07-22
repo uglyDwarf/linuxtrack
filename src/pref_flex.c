@@ -471,9 +471,10 @@ char *yytext;
   #include <stdlib.h>
   #include <string.h>
   #include "pref_bison.h"
+  #include "utils.h"
   extern int line_num;
 
-#line 477 "pref_flex.c"
+#line 478 "pref_flex.c"
 
 #define INITIAL 0
 #define VALUE 1
@@ -661,9 +662,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 13 "pref_flex.l"
+#line 14 "pref_flex.l"
 
-#line 667 "pref_flex.c"
+#line 668 "pref_flex.c"
 
 	if ( !(yy_init) )
 		{
@@ -748,52 +749,52 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 14 "pref_flex.l"
+#line 15 "pref_flex.l"
 {BEGIN(VALUE); return(TOKEN_EQ);}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 15 "pref_flex.l"
+#line 16 "pref_flex.l"
 { return(TOKEN_LEFT_BRACKET);}  
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 16 "pref_flex.l"
+#line 17 "pref_flex.l"
 { return(TOKEN_RIGHT_BRACKET);}  
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 18 "pref_flex.l"
+#line 19 "pref_flex.l"
 {
-			  yylval.str=strdup(yytext);
+			  yylval.str=my_strdup(yytext);
 			  return(TOKEN_KEY);
 			}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 22 "pref_flex.l"
+#line 23 "pref_flex.l"
 {
-			  yylval.str=strdup(yytext);
+			  yylval.str=my_strdup(yytext);
 			  return(TOKEN_COMMENT);
 			}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 27 "pref_flex.l"
+#line 28 "pref_flex.l"
 /* eat up whitespace */
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 29 "pref_flex.l"
+#line 30 "pref_flex.l"
 {
-			  yylval.str=strdup(yytext);
+			  yylval.str=my_strdup(yytext);
 			  return(TOKEN_VALUE);
 			}
 	YY_BREAK
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 35 "pref_flex.l"
+#line 36 "pref_flex.l"
 {
 			  line_num++;
                           BEGIN(INITIAL);
@@ -801,15 +802,15 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 40 "pref_flex.l"
+#line 41 "pref_flex.l"
 log_message( "Unrecognized character: %s\n", yytext );
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 41 "pref_flex.l"
+#line 42 "pref_flex.l"
 ECHO;
 	YY_BREAK
-#line 813 "pref_flex.c"
+#line 814 "pref_flex.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(VALUE):
 	yyterminate();
@@ -1808,7 +1809,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 41 "pref_flex.l"
+#line 42 "pref_flex.l"
 
 
 

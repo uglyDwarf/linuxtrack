@@ -8,7 +8,7 @@ AC_CONFIG_SRCDIR([src/tir4_driver.h])
 AC_CONFIG_HEADERS([config.h])
 
 AS_IF([test "$debug" != "no"],
-      [CFLAGS="$FLAGS -g -O0"],
+      [CFLAGS="$FLAGS -g -O0 -Wall"],
       [CFLAGS="$FLAGS -O3"])
 
 # Checks for programs.

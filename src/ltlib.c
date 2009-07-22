@@ -8,7 +8,8 @@
 /**************************/
 static struct camera_control_block ccb;
 static float filterfactor=1.0;
-static float angle_scalefactor=1.0;
+
+static struct lt_scalefactors scales = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 static struct bloblist_type filtered_bloblist;
 static struct blob_type filtered_blobs[3];
 static bool first_frame_read = false;
@@ -30,11 +31,21 @@ float clamp_angle(float angle);
 /************************/
 /* function definitions */
 /************************/
-int lt_init(struct lt_configuration_type config)
+int lt_init(struct lt_configuration_type config, char *cust_section)
 {
   struct reflector_model_type rm;
-  filterfactor = config.filterfactor;
-  angle_scalefactor = config.angle_scalefactor;
+  
+  set_custom_section(cust_section);
+//  filterfactor = config.filterfactor;
+//  angle_scalefactor = config.angle_scalefactor;
+  
+  if(get_filter_factor(&filterfactor) != true){
+    return -1;
+  }
+  if(get_scale_factors(&scales) != true){
+    return -1;
+  }
+  get_scale_factors(&scales);
 
   if(get_device(&(ccb.device.category)) == false){
     log_message("Can't get device category!\n");
@@ -128,18 +139,20 @@ int lt_get_camera_update(float *heading,
             filtered_translations);
     
   }  
-  *heading = clamp_angle(angle_scalefactor * filtered_angles[0]);
-  *pitch = clamp_angle(angle_scalefactor * filtered_angles[1]);
-  *roll = clamp_angle(angle_scalefactor * filtered_angles[2]);
-  *tx = filtered_translations[0];
-  *ty = filtered_translations[1];
-  *tz = filtered_translations[2];
+  *heading = clamp_angle(scales.yaw_sf * filtered_angles[0]);
+  *pitch = clamp_angle(scales.pitch_sf * filtered_angles[1]);
+  *roll = clamp_angle(scales.roll_sf * filtered_angles[2]);
+  *tx = scales.tx_sf * filtered_translations[0];
+  *ty = scales.ty_sf * filtered_translations[1];
+  *tz = scales.tz_sf * filtered_translations[2];
+  return 0;
 }
 
 int lt_shutdown(void)
 {
   cal_thread_stop();
   cal_shutdown(&ccb);
+  return 0;
 }
 
 void lt_recenter(void)
