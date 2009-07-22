@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <unistd.h>
 #include "ltlib.h"
 
 /* int main(int argc, char **argv) { */
@@ -30,9 +31,7 @@ int main(int argc, char **argv) {
   float heading, pitch, roll;
   float tx, ty, tz;
   
-  ltconf.filterfactor = 0.12;
-  ltconf.angle_scalefactor = 3.0;
-  lt_init(ltconf);
+  lt_init(ltconf, NULL);
   sleep(2);
   lt_recenter();
 

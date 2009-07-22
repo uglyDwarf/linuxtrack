@@ -1167,6 +1167,7 @@ bool stripelist_draw(struct stripelist_type *sl,
     stripe_draw(sli->stripe,bmp);
     sli = stripelist_iter_next(sli);
   }
+  return true;
 }
 
 void stripelist_print(struct stripelist_type sl)
@@ -1358,7 +1359,7 @@ bool protobloblist_populate_frame(struct protobloblist_type *pbl,
                                   struct frame_type *f,
                                   enum cal_operating_mode opmode)
 {
-  struct protobloblist_iter *pbli;
+//  struct protobloblist_iter *pbli;
   int i;
   unsigned int required_blobnum = 0;
   struct protoblob_type wb;

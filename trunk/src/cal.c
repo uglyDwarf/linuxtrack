@@ -11,6 +11,7 @@
 #include <pthread.h>
 
 #include "cal.h"
+#include "tir4_driver.h"
 #include "wiimote_driver.h"
 
 /*********************/
