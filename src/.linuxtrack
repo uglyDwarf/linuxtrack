@@ -9,13 +9,15 @@ Cap-Z = 92.5
 Head-Y = 100
 Head-Z = 90
 #Comment previous and uncomment this if you use Clip...
-#Clip-Y1 = 
-#Clip-Y2 = 
-#Clip-Z1 = 
-#Clip-Z2 = 
-#Head-X = 
-#Head-Y = 
-#Head-Z = 
+#Model-type = Clip
+#Clip-Y1 = 40
+#Clip-Y2 = 110
+#Clip-Z1 = 30
+#Clip-Z2 = 50
+#Change sign of Head-X, if your clip is on the right side
+#Head-X = -100
+#Head-Y = -100
+#Head-Z = 50
 [Default]
 Filter-factor = 0.12
 Pitch-multiplier = 3.0
