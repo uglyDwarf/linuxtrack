@@ -122,7 +122,9 @@ int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
   float tx, ty, tz;
   lt_get_camera_update(&heading,&pitch,&roll,
                        &tx, &ty, &tz);
-
+  tx *= 1e-3;
+  ty *= 1e-3;
+  tz *= 1e-3;
 /*   printf("heading: %f\tpitch: %f\n", heading, pitch); */
 
   /* Fill out the camera position info. */
