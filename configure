@@ -2340,9 +2340,9 @@ ac_config_headers="$ac_config_headers config.h"
 
 
 if test "$debug" != "no"; then
-  CFLAGS="$FLAGS -g -O0 -Wall"
+  CFLAGS+=" -g -O0 -Wall "
 else
-  CFLAGS="$FLAGS -O3"
+  CFLAGS+=" -O3 "
 fi
 
 
