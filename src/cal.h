@@ -5,6 +5,14 @@
 #define CAL__H
 #include <stdbool.h>
 
+
+#define CAL_CAPTURE_THREAD_CREATION_ERROR -200
+#define CAL_UNABLE_TO_FIND_CAMERA_DEVICE_ERROR -201
+#define CAL_DEVICE_PERMISSIONS_ERROR -202
+#define CAL_GENERAL_CAMERA_DEVICE_OPEN_FAILED_ERROR -203
+#define CAL_CAMERA_DEVICE_DISCONNECTED_ERROR -204
+#define CAL_UNKNOWN_CAMERA_DEVICE_ERROR -205
+
 struct blob_type {
   /* coordinates of the blob on the screen 
    * these coordinates will have the center of 
