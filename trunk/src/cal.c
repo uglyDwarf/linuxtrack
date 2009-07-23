@@ -156,7 +156,7 @@ int cal_get_frame(struct camera_control_block *ccb,
     return tir4_get_frame(ccb, f);
     break;
   case webcam:
-/*     return webcam_populate_frame(ccb, f); */
+/*     return webcam_get_frame(ccb, f); */
     break;
   case wiimote:
 #ifdef CWIID
