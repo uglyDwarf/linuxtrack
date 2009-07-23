@@ -2345,6 +2345,7 @@ else
   CFLAGS+=" -O3 "
 fi
 
+CFLAGS+=" -m32 "
 
 # Checks for programs.
 for ac_prog in 'bison -y' byacc
