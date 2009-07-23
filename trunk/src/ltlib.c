@@ -95,12 +95,13 @@ int lt_get_camera_update(float *heading,
   float raw_translations[3];
   static float filtered_angles[3] = {0.0f, 0.0f, 0.0f};
   static float filtered_translations[3] = {0.0f, 0.0f, 0.0f};
-  
   struct transform t;
   struct frame_type frame;
   bool frame_valid;
-  cal_thread_get_frame(&frame, 
-                       &frame_valid);
+  int retval;
+  retval = cal_thread_get_frame(&frame, 
+                                &frame_valid);
+  if (retval < 0) { return retval; }
   if (frame_valid) {
     pose_sort_blobs(frame.bloblist);
     int i;

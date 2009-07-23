@@ -47,7 +47,8 @@
 #define MAX_BULK_CONFIG_PACKETSIZE 64
 #define BULK_CONFIG_INTERPACKET_SLEEP_TIME 800 /* microseconds? */
 #define BITMAP_NUM_BYTES (TIR4_HORIZONTAL_RESOLUTION*TIR4_VERTICAL_RESOLUTION)
-
+#define TIR4_LIBUSB_TIMEOUT_ERR -110
+#define TIR4_LIBUSB_NO_DEVICE_ERR -19
 
 /**********************/
 /* private data types */
@@ -154,11 +155,11 @@ static uint16_t msgproc_stripe_minimum_vline;
 /* private function prototypes */
 /*******************************/
 int tir4_fatal(void);
-void tir4_set_configuration(void);
-void tir4_set_altinterface(void);
-void tir4_claim(void);
-void tir4_release(void);
-void tir4_close(void);
+int tir4_set_configuration(void);
+int tir4_set_altinterface(void);
+int tir4_claim(void);
+int tir4_release(void);
+int tir4_close(void);
 struct usb_device *tir4_find_device(uint16_t, uint16_t);
 void tir4_write_bulk_config_data(void);
 void set_led_worker(uint8_t, uint8_t);
@@ -260,6 +261,7 @@ bool tir4_is_device_present(struct cal_device_type *cal_device)
 int tir4_init(struct camera_control_block *ccb)
 {
   struct usb_device *tir4_device;
+  int retval;
 
   ccb->pixel_width = TIR4_HORIZONTAL_RESOLUTION;
   ccb->pixel_height = TIR4_VERTICAL_RESOLUTION;
@@ -281,24 +283,29 @@ int tir4_init(struct camera_control_block *ccb)
   /* find the tir4 */
   tir4_device = tir4_find_device(TIR_VENDOR_ID,TIR4_PRODUCT_ID);
   if(!tir4_device) {
-    log_message("Unable to locate TIR4 device\n");
-    return -1;
+    log_message("TIR4: Unable to locate TIR4 device\n");
+    return CAL_UNABLE_TO_FIND_DEVICE_ERR;
   }
 
   /* open the tir4 */
   tir4_handle = usb_open(tir4_device);
 
   /* claim the tir4 */
-  tir4_claim();
+  retval = tir4_claim();
+  if (retval< 0) { return retval; }
 
   /* this makes it work */
-  tir4_set_altinterface();
+  retval = tir4_set_altinterface();
+  if (retval< 0) { return retval; }
 
   /* again this is strange, but it seems to work */
   tir4_release();
-  tir4_set_configuration();
-  tir4_claim();
-  tir4_set_altinterface();
+  retval = tir4_set_configuration();
+  if (retval< 0) { return retval; }
+  retval = tir4_claim();
+  if (retval< 0) { return retval; }
+  retval = tir4_set_altinterface();
+  if (retval< 0) { return retval; }
 
   tir4_write_bulk_config_data();
   set_all_led_off();
@@ -339,15 +346,15 @@ int tir4_suspend(struct camera_control_block *ccb)
   return 0;
 }
 
-void tir4_change_operating_mode(struct camera_control_block *ccb,
-                                enum cal_operating_mode newmode)
+int tir4_change_operating_mode(struct camera_control_block *ccb,
+                               enum cal_operating_mode newmode)
 {
   ccb->mode = newmode;
   if (!(ccb->state == suspended)) {
-    log_message("Attempted to change the operating mode of the TIR4 device while outside of suspended mode.\n");
-    tir4_fatal();
-    exit(1);
+    log_message("TIR4: Attempted to change the operating mode of the TIR4 device while outside of suspended mode.\n");
+    return CAL_INVALID_OPERATION_ERR;
   }
+  return 0;
 }
 
 int tir4_wakeup(struct camera_control_block *ccb)
@@ -368,9 +375,12 @@ int tir4_set_good_indication(struct camera_control_block *ccb,
 int tir4_get_frame(struct camera_control_block *ccb,
                    struct frame_type *f)
 {
-  /* FIXME: do a flush here if its too long */
+  int retval;
+  /* FIXME: do a flush here if its too long
+   * or make the queue fixed length! */
   while (!tir4_is_frame_available()) {
-    tir4_do_read_and_process(ccb);
+    retval=tir4_do_read_and_process(ccb);
+    if (retval < 0) { return retval; }
   }
   tir4_populate_frame(f);
   return 0;
@@ -385,14 +395,19 @@ int tir4_do_read_and_process(struct camera_control_block *ccb)
                           BULK_READ_SIZE,
                           BULK_READ_TIMEOUT);
   if (numread < 0) {
-    log_message("Error during TIR4 device USB BULK READ.\n");
-    log_message("USB Errstring: %s\n",usb_strerror());
-    /* FIXME: timeouts read as errors here!! */
-    tir4_fatal();
-    exit(1);
+    if (numread == TIR4_LIBUSB_TIMEOUT_ERR) {
+      log_message("TIR4: USB read timeout.");
+    }
+    else if (numread == TIR4_LIBUSB_NO_DEVICE_ERR) {
+      log_message("TIR4: Camera disconnected.\n");
+      return CAL_DISCONNECTED_ERR;
+    }
+    else {
+    log_message("TIR4: Unknown error during read.  USB Errstring: %s\n",usb_strerror());
+      return CAL_UNKNOWN_ERR;
+    }
   }
   int i;
-
   for (i=0; i<numread; i++) {
     msgproc_add_byte((uint8_t) usb_read_buf[i],
                      ccb->mode);
@@ -406,58 +421,59 @@ int tir4_populate_frame(struct frame_type *f)
   return 0;
 }
 
-void tir4_set_configuration(void)
+int tir4_set_configuration(void)
 {
   int ret;
   ret = usb_set_configuration(tir4_handle, TIR_CONFIGURATION);
   if (ret < 0) {
-    log_message("Unable to set the configuration of the TIR4 device.\n");
-    tir4_fatal();
-    exit(1);
+    log_message("TIR4: Unable to set the configuration of the TIR4 device.\n");
+    return CAL_DEVICE_OPEN_ERR;
   }
+  return 0;
 }
 
-void tir4_set_altinterface(void)
+int tir4_set_altinterface(void)
 {
   int ret;
   ret = usb_set_altinterface(tir4_handle, TIR_ALTINTERFACE);
   if (ret < 0) {
-    log_message("Unable to set the alt interface of the TIR4 device.\n");
-    tir4_fatal();
-    exit(1);
+    log_message("TIR4: Unable to set the alt interface of the TIR4 device.\n");
+    return CAL_DEVICE_OPEN_ERR;
   }
+  return 0;
 }
 
-void tir4_claim(void)
+int tir4_claim(void)
 {
   int ret;
   ret = usb_claim_interface(tir4_handle, TIR_INTERFACE_ID);
   if (ret < 0) {
-    log_message("Unable to claim the TIR4 device.\nThis is most likely a permissions problem.\nRunning this app sudo may be a quick fix.\n");
-    tir4_release();
-    exit(1);
+    log_message("TIR4: Unable to claim the TIR4 device.\nThis is most likely a permissions problem.\nRunning this app sudo may be a quick fix.\n");
+    return CAL_PROBABLE_PERMISSIONS_ERR;
   }
+  return 0;
 }
 
-void tir4_release(void)
+int tir4_release(void)
 {
   int ret;
   ret = usb_release_interface(tir4_handle, 0);
   if (ret < 0) {
-    log_message("failed to release TIR4 interface.\n");
-    exit(1);
+    log_message("TIR4: failed to release TIR4 interface.\n");
+    return CAL_UNKNOWN_ERR;
   }
+  return 0;
 }
 
-void tir4_close(void)
+int tir4_close(void)
 {
   int ret;
   ret = usb_close(tir4_handle);
   if (ret < 0) {
-    log_message("failed to close TIR4 interface.\n");
-    tir4_release();
-    exit(1);
+    log_message("TIR4: failed to close TIR4 interface.\n");
+    return CAL_UNKNOWN_ERR;
   }
+  return 0;
 }
 
 /* search the bus for our desired device */
@@ -494,7 +510,7 @@ void tir4_write_bulk_config_data(void)
 
   bulkfp = fopen(bulk_config_data_filename, "rb");
   if (bulkfp == NULL) {
-    log_message("Unable to open the tir4 bulk config datafile.\n");
+    log_message("TIR4: Unable to open the tir4 bulk config datafile.\n");
     tir4_fatal();
     exit(1);
   }
@@ -512,16 +528,16 @@ void tir4_write_bulk_config_data(void)
       computedchecksum += fgetc_result;
       break;
     default:
-      log_message("Invalid state while reading bulk config datafile.\n");
+      log_message("TIR4: Invalid state while reading bulk config datafile.\n");
       tir4_fatal();
       exit(1);
     }
   }
   computedchecksum = ~computedchecksum;
   if (computedchecksum != filechecksum) {
-    log_message("computedchecksum: 0x%08x\n",computedchecksum);
-    log_message("filechecksum: 0x%08x\n",filechecksum);
-    log_message("Bulk config datafile failed checksum.\n");
+    log_message("TIR4: computedchecksum: 0x%08x\n",computedchecksum);
+    log_message("TIR4: filechecksum: 0x%08x\n",filechecksum);
+    log_message("TIR4: Bulk config datafile failed checksum.\n");
     tir4_fatal();
     exit(1);
   }
@@ -559,7 +575,7 @@ void tir4_write_bulk_config_data(void)
       state = reading_data_byte0;
       break;
     default:
-      log_message("Invalid state while reading bulk config datafile.\n");
+      log_message("TIR4: Invalid state while reading bulk config datafile.\n");
       tir4_fatal();
       exit(1);
     }
@@ -699,7 +715,7 @@ void msgproc_add_byte(uint8_t b, enum cal_operating_mode opmode)
     else {
       /* maybe we're off by one?
        * drop one and try again */
-      log_message("Debug: Warning USB bad packet data: 0x%02x\n", msgproc_msglen);
+      log_message("TIR4: Debug: Warning USB bad packet data: 0x%02x\n", msgproc_msglen);
       msgproc_msglen = b;
       msgproc_state = awaiting_header_byte1;
     }
@@ -710,7 +726,7 @@ void msgproc_add_byte(uint8_t b, enum cal_operating_mode opmode)
       msgproc_msgcnt++;
       if (msgproc_msgcnt >= msgproc_msglen) {
         free(f.bitmap);
-        log_message("Debug: USB packet ended midstripe. Packet dropped.\n");
+        log_message("TIR4: Debug: USB packet ended midstripe. Packet dropped.\n");
         msgproc_state = awaiting_header_byte0;
       }
       else {
@@ -734,7 +750,7 @@ void msgproc_add_byte(uint8_t b, enum cal_operating_mode opmode)
         msgproc_substripe_index = 0;
         newstripe = msgproc_convert_device_stripe(msgproc_pending_device_stripe);
         if (newstripe.vline < msgproc_stripe_minimum_vline) {
-          log_message("Warning: TIR4 out of order stripe detected; min_vline: %d\tstripe.vline: %d\n", msgproc_stripe_minimum_vline, newstripe.vline);
+          log_message("TIR4: Warning: TIR4 out of order stripe detected; min_vline: %d\tstripe.vline: %d\n", msgproc_stripe_minimum_vline, newstripe.vline);
 
         }
         msgproc_add_stripe(newstripe);

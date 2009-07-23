@@ -47,8 +47,8 @@ int tir4_suspend(struct camera_control_block *ccb);
 
 /* may only be called while suspended.  Used to change from 
  * operational mode mode to diagnostic mode and vice versa */
-void tir4_change_operating_mode(struct camera_control_block *ccb,
-                                enum cal_operating_mode newmode);
+int tir4_change_operating_mode(struct camera_control_block *ccb,
+                               enum cal_operating_mode newmode);
 
 /* unsuspend the currently suspended (and inited) 
  * camera device. 

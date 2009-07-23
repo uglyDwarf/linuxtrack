@@ -118,12 +118,18 @@ int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
 {
   float heading, pitch, roll;
   float tx, ty, tz;
-  lt_get_camera_update(&heading,&pitch,&roll,
-                       &tx, &ty, &tz);
+  int retval;
+  retval = lt_get_camera_update(&heading,&pitch,&roll,
+                                &tx, &ty, &tz);
+  if (retval < 0) {
+    printf("xlinuxtrack: Error code %d detected! Aborting!\n", retval);
+    return 0;
+  }
   tx *= 1e-3;
   ty *= 1e-3;
   tz *= 1e-3;
-/*   printf("heading: %f\tpitch: %f\n", heading, pitch); */
+  printf("heading: %f\tpitch: %f\n", heading, pitch);
+  printf("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);
 
   /* Fill out the camera position info. */
   /* FIXME: not doing translation */
