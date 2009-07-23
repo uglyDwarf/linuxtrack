@@ -6,12 +6,13 @@
 #include <stdbool.h>
 
 
-#define CAL_GENERAL_CAMERA_DEVICE_OPEN_FAILED_ERROR -200
-#define CAL_DEVICE_PERMISSIONS_ERROR -201
-#define CAL_UNABLE_TO_FIND_CAMERA_DEVICE_ERROR -202
-#define CAL_CAPTURE_THREAD_CREATION_ERROR -203
-#define CAL_CAMERA_DEVICE_DISCONNECTED_ERROR -204
-#define CAL_UNKNOWN_CAMERA_DEVICE_ERROR -205
+#define CAL_DEVICE_OPEN_ERR -200
+#define CAL_PROBABLE_PERMISSIONS_ERR -201
+#define CAL_UNABLE_TO_FIND_DEVICE_ERR -202
+#define CAL_CAPTURE_THREAD_CREATION_ERR -203
+#define CAL_DISCONNECTED_ERR -204
+#define CAL_UNKNOWN_ERR -205
+#define CAL_INVALID_OPERATION_ERR -206
 
 struct blob_type {
   /* coordinates of the blob on the screen 
@@ -162,8 +163,8 @@ bool cal_thread_is_stopped(void);
  * (no bitmap or blobs allocated). 
  * be sure to free the frame returned when done with it!
  * returns false if unable to get a new frame */
-void cal_thread_get_frame(struct frame_type *return_frame, 
-                          bool *return_frame_valid);
+int cal_thread_get_frame(struct frame_type *return_frame, 
+                         bool *return_frame_valid);
 
 /* frees the memory allocated to the given frame.  
  * For every frame populated, with cal_populate_frame,

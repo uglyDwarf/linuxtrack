@@ -212,6 +212,7 @@ pthread_mutex_t pending_frame_mutex = PTHREAD_MUTEX_INITIALIZER;
 /* guarded by pending_frame_mutex: { */
 static struct frame_type pending_frame;
 static bool pending_frame_valid = false;
+static int pending_frame_error = 0;
 /* } */
 
 pthread_mutex_t capture_thread_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -297,24 +298,33 @@ bool cal_thread_is_stopped(void)
  * return_frame is assumed to be a freed frame, 
  * (no bitmap or blobs allocated). 
  * be sure to free the frame returned when done with it! */
-void cal_thread_get_frame(struct frame_type *return_frame, 
-                          bool *return_frame_valid)
+int cal_thread_get_frame(struct frame_type *return_frame, 
+                         bool *return_frame_valid)
 {
+  int retval;
   if(pthread_mutex_trylock(&pending_frame_mutex) == 0){
     //we hold the lock now!
-    if (pending_frame_valid) {
-      *return_frame_valid = true;
+    if (pending_frame_error < 0) {
       pending_frame_valid = false;
-      *return_frame = pending_frame;
+      retval = pending_frame_error;
     }
     else {
-      *return_frame_valid = false;
+      if (pending_frame_valid) {
+        *return_frame_valid = true;
+        pending_frame_valid = false;
+        *return_frame = pending_frame;
+      }
+      else {
+        *return_frame_valid = false;
+      }
     }
     pthread_mutex_unlock(&pending_frame_mutex);
   }
   else {
+    retval = 0;
     *return_frame_valid = false;
   }
+  return retval;
 }
 
 
@@ -322,6 +332,7 @@ void cal_thread_get_frame(struct frame_type *return_frame,
 void *capture_thread(void *ccb)
 {
   struct frame_type frame;
+  int retval;
   /* on entry, we signal that we are running */
   pthread_mutex_lock(&capture_thread_mutex);
   current_capture_state_active = true;
@@ -336,15 +347,21 @@ void *capture_thread(void *ccb)
     }
     pthread_mutex_unlock(&capture_thread_mutex);
     if (!terminate_flag) {
-      cal_get_frame(ccb, &frame);
+      retval = cal_get_frame(ccb, &frame);
       pthread_mutex_lock(&pending_frame_mutex);
       /* if there is an unread valid frame,
        * we free it before overwriting it */
       if (pending_frame_valid) {
         frame_free(ccb, &pending_frame);
       }
-      pending_frame_valid = true;
-      pending_frame = frame;
+      if (retval < 0) {
+        pending_frame_valid = false;
+        pending_frame_error = retval;
+      }
+      else {
+        pending_frame_valid = true;
+        pending_frame = frame;
+      }
       pthread_mutex_unlock(&pending_frame_mutex);
     }
   }
