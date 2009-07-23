@@ -128,8 +128,8 @@ int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
   tx *= 1e-3;
   ty *= 1e-3;
   tz *= 1e-3;
-  printf("heading: %f\tpitch: %f\n", heading, pitch);
-  printf("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);
+/*   printf("heading: %f\tpitch: %f\n", heading, pitch); */
+/*   printf("tx: %f\ty: %f\tz: %f\n", tx, ty, tz); */
 
   /* Fill out the camera position info. */
   /* FIXME: not doing translation */
