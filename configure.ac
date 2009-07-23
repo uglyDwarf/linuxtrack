@@ -10,6 +10,7 @@ AC_CONFIG_HEADERS([config.h])
 AS_IF([test "$debug" != "no"],
       [CFLAGS+=" -g -O0 -Wall "],
       [CFLAGS+=" -O3 "])
+CFLAGS+=" -m32 "
 
 # Checks for programs.
 AC_PROG_YACC
