@@ -108,10 +108,14 @@ bool setup_clip(reflector_model_type *rm)
 bool get_pose_setup(reflector_model_type *rm)
 {
   char *model_type = get_key("Global", "Model-type");
-  if(strcmp(model_type, "Cap") == 0){
+  if (model_type == NULL) {
+    return false;
+  }
+  strlower(model_type);
+  if(strcmp(model_type, "cap") == 0){
     return setup_cap(rm);
   }
-  if(strcmp(model_type, "Clip") == 0){
+  if(strcmp(model_type, "clip") == 0){
     return setup_clip(rm);
   }
   return false;

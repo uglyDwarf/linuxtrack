@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "pref_global.h"
 #include "ltlib.h"
 #include "utils.h" 
@@ -36,8 +37,6 @@ int lt_init(struct lt_configuration_type config, char *cust_section)
   struct reflector_model_type rm;
   
   set_custom_section(cust_section);
-//  filterfactor = config.filterfactor;
-//  angle_scalefactor = config.angle_scalefactor;
   
   if(get_filter_factor(&filterfactor) != true){
     return -1;
@@ -49,9 +48,23 @@ int lt_init(struct lt_configuration_type config, char *cust_section)
 
   if(get_device(&(ccb.device.category)) == false){
     log_message("Can't get device category!\n");
-    return 1;
+    return -1;
   }
-//  ccb.device.category = tir4_camera;
+
+  if(get_pose_setup(&rm) == false){
+    log_message("Can't get pose setup!\n");
+    return -1;
+  }
+  if (rm.type == CAP) {
+    ccb.enable_IR_illuminator_LEDS = true;
+  }
+  else if (rm.type == CLIP) {
+    ccb.enable_IR_illuminator_LEDS = false;
+  }
+  else {
+    log_message("Unknown Model-type!\n");
+    return -1;
+  }
 
   ccb.mode = operational_3dot;
   if(cal_init(&ccb)!= 0){
@@ -71,12 +84,7 @@ int lt_init(struct lt_configuration_type config, char *cust_section)
   rm.hc[1] = -100.0;
   rm.hc[2] = +90.0;
 */
-  if(get_pose_setup(&rm) == false){
-    log_message("Can't get pose setup!\n");
-    return 1;
-  }
   pose_init(rm, 0.0);
-
   filtered_bloblist.num_blobs = 3;
   filtered_bloblist.blobs = filtered_blobs;
   first_frame_read = false;
