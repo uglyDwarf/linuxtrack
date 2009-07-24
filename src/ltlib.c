@@ -3,6 +3,7 @@
 #include "pref_global.h"
 #include "ltlib.h"
 #include "utils.h" 
+#include <math.h>
 
 /**************************/
 /* private Static members */
@@ -23,6 +24,15 @@ float expfilt(float x,
               float filtfactor);
 
 void expfilt_vec(float x[3], 
+              float y_minus_1[3],
+              float filtfactor,
+              float res[3]);
+
+float nonlinfilt(float x, 
+              float y_minus_1,
+              float filtfactor);
+
+void nonlinfilt_vec(float x[3], 
               float y_minus_1[3],
               float filtfactor,
               float res[3]);
@@ -117,10 +127,10 @@ int lt_get_camera_update(float *heading,
     int i;
     for(i=0;i<3;i++) {
       if (first_frame_read) {
-        filtered_bloblist.blobs[i].x = expfilt(frame.bloblist.blobs[i].x,
+        filtered_bloblist.blobs[i].x = nonlinfilt(frame.bloblist.blobs[i].x,
                                                filtered_bloblist.blobs[i].x,
                                                filterfactor);
-        filtered_bloblist.blobs[i].y = expfilt(frame.bloblist.blobs[i].y,
+        filtered_bloblist.blobs[i].y = nonlinfilt(frame.bloblist.blobs[i].y,
                                                filtered_bloblist.blobs[i].y,
                                                filterfactor);
       }
@@ -148,8 +158,8 @@ int lt_get_camera_update(float *heading,
                                &raw_translations[2]);//tz
     frame_free(&ccb, &frame);
     
-    expfilt_vec(raw_angles, filtered_angles, filterfactor, filtered_angles);
-    expfilt_vec(raw_translations, filtered_translations, filterfactor, 
+    nonlinfilt_vec(raw_angles, filtered_angles, filterfactor, filtered_angles);
+    nonlinfilt_vec(raw_translations, filtered_translations, filterfactor, 
             filtered_translations);
     
   }  
@@ -194,6 +204,29 @@ void expfilt_vec(float x[3],
   res[1] = expfilt(x[1], y_minus_1[1], filterfactor);
   res[2] = expfilt(x[2], y_minus_1[2], filterfactor);
 }
+
+
+float nonlinfilt(float x, 
+              float y_minus_1,
+              float filterfactor) 
+{
+  float y;
+  float delta = x - y_minus_1;
+  y = y_minus_1 + delta * (fabsf(delta)/(fabsf(delta) + filterfactor));
+
+  return y;
+}
+
+void nonlinfilt_vec(float x[3], 
+              float y_minus_1[3],
+              float filterfactor,
+              float res[3]) 
+{
+  res[0] = nonlinfilt(x[0], y_minus_1[0], filterfactor);
+  res[1] = nonlinfilt(x[1], y_minus_1[1], filterfactor);
+  res[2] = nonlinfilt(x[2], y_minus_1[2], filterfactor);
+}
+
 
 float clamp_angle(float angle)
 {

@@ -20,7 +20,7 @@ Head-Z = 90
 #Head-Y = -100
 #Head-Z = 50
 [Default]
-Filter-factor = 0.12
+Filter-factor = 5
 Pitch-multiplier = 3.0
 Yaw-multiplier = 3.0
 Roll-multiplier = 3.0
