@@ -14,6 +14,7 @@
 #define CAL_UNKNOWN_ERR -205
 #define CAL_INVALID_OPERATION_ERR -206
 
+
 struct blob_type {
   /* coordinates of the blob on the screen 
    * these coordinates will have the center of 
@@ -79,6 +80,31 @@ struct camera_control_block {
   enum cal_device_state_type state;
   bool enable_IR_illuminator_LEDS; /* for tir4 */
 };
+
+typedef int (*device_init_fun)(struct camera_control_block *ccb);
+typedef int (*device_shutdown_fun)(struct camera_control_block *ccb);
+typedef int (*device_suspend_fun)(struct camera_control_block *ccb);
+typedef int (*device_change_operating_mode_fun)(
+  struct camera_control_block *ccb, enum cal_operating_mode newmode);
+typedef int (*device_wakeup_fun)(struct camera_control_block *ccb);
+typedef int (*device_set_good_indication_fun)(
+  struct camera_control_block *ccb, bool arg);
+typedef int (*device_get_frame_fun)(struct camera_control_block *ccb, 
+  struct frame_type *f);
+
+
+
+typedef struct {
+  device_init_fun device_init;
+  device_shutdown_fun device_shutdown;
+  device_suspend_fun device_suspend;
+  device_change_operating_mode_fun device_change_operating_mode;
+  device_wakeup_fun device_wakeup;
+  device_set_good_indication_fun device_set_good_indication;
+  device_get_frame_fun device_get_frame;
+} dev_interface;
+
+
 
 /* call to init an uninitialized camera device 
  * typically called once at setup

@@ -16,6 +16,11 @@
 #include "wiimote_driver.h"
 #include "webcam_driver.h"
 
+
+dev_interface *iface = NULL;
+
+
+
 /*********************/
 /* private Constants */
 /*********************/
@@ -33,142 +38,67 @@ void *capture_thread(void *ccb);
 /************************/
 int cal_init(struct camera_control_block *ccb)
 {
-  int returnval;
-
   switch (ccb->device.category) {
   case tir4_camera:
-    returnval = tir4_init(ccb);
+    iface = &tir4_interface;
     break;
   case webcam:
-     returnval = webcam_init(ccb);
+    iface = &webcam_interface;
     break;
   case wiimote:
 #ifdef CWIID
-     returnval = wiimote_init(ccb);
+    iface = &wiimote_interface;
 #else
-/*     returnval = wiimote_init(ccb); */
+/*         iface = &tir4_interface; */
 #endif
     break;
   }
-  return returnval;
+  assert((iface != NULL) && (iface->device_init != NULL));
+  return (iface->device_init)(ccb);
 }
 
 int cal_shutdown(struct camera_control_block *ccb)
 {
-  switch (ccb->device.category) {
-  case tir4_camera:
-    return tir4_shutdown(ccb);
-    break;
-  case webcam:
-     return webcam_shutdown(ccb);
-     break;
-  case wiimote:
-#ifdef CWIID
-     return wiimote_shutdown(ccb); 
-#else
-/*     return wiimote_shutdown(ccb); */
-#endif
-    break;
-  }
-  return -1;
+  assert((iface != NULL) && (iface->device_shutdown != NULL));
+  return (iface->device_shutdown)(ccb);
 }
 
 int cal_suspend(struct camera_control_block *ccb)
 {
-  switch (ccb->device.category) {
-  case tir4_camera:
-    return tir4_suspend(ccb);
-    break;
-  case webcam:
-    return webcam_suspend(ccb);
-    break;
-  case wiimote:
-#ifdef CWIID
-     return wiimote_suspend(ccb);
-#else
-/*     return wiimote_suspend(ccb); */
-#endif 
-    break;
-  }
-  return -1;
+  assert((iface != NULL) && (iface->device_suspend != NULL));
+  return (iface->device_suspend)(ccb);
 }
 
 void cal_change_operating_mode(struct camera_control_block *ccb,
                               enum cal_operating_mode newmode)
 {
-  switch (ccb->device.category) {
-  case tir4_camera:
-    tir4_change_operating_mode(ccb,newmode);
-    break;
-  case webcam:
-    return webcam_change_operating_mode(ccb,newmode);
-    break;
-  case wiimote:
-#ifdef CWIID
-    wiimote_change_operating_mode(ccb,newmode); 
-#else
-/*    wiimote_change_operating_mode(ccb,newmode); */
-#endif
-    break;
-  }
+  assert((iface != NULL) && (iface->device_change_operating_mode != NULL));
+  (iface->device_change_operating_mode)(ccb, newmode);
+  return;
 }
 
 int cal_wakeup(struct camera_control_block *ccb)
 {
-  switch (ccb->device.category) {
-  case tir4_camera:
-    return tir4_wakeup(ccb);
-    break;
-  case webcam:
-    return webcam_wakeup(ccb);
-    break;
-  case wiimote:
-#ifdef CWIID
-     return wiimote_wakeup(ccb); 
-#else
-/*     return wiimote_wakeup(ccb); */
-#endif
-    break;
-  }
-  return -1;
+  assert((iface != NULL) && (iface->device_wakeup != NULL));
+  return (iface->device_wakeup)(ccb);
 }
 
 int cal_set_good_indication(struct camera_control_block *ccb,
                              bool arg)
 {
-  switch (ccb->device.category) {
-  case tir4_camera:
-    return tir4_set_good_indication(ccb, arg);
-    break;
-  case webcam:
-    /* do nothing */
-    break;
-  case wiimote:
-    /* do nothing (?) */
-    break;
+  assert(iface != NULL);
+  if(iface->device_set_good_indication != NULL){
+    return (iface->device_set_good_indication)(ccb, arg);
+  }else{
+    return 0;
   }
-  return -1;
 }
 
 int cal_get_frame(struct camera_control_block *ccb,
                          struct frame_type *f)
 {
-  switch (ccb->device.category) {
-  case tir4_camera:
-    return tir4_get_frame(ccb, f);
-    break;
-  case webcam:
-    return webcam_get_frame(ccb, f);
-    break;
-  case wiimote:
-#ifdef CWIID
-     return wiimote_get_frame(ccb, f); 
-#else
-/*     return wiimote_get_frame(ccb, f); */
-#endif
-    break;
-  }
-  return -1;
+  assert((iface != NULL) && (iface->device_get_frame != NULL));
+  return (iface->device_get_frame)(ccb, f);
 }
 
 void frame_free(struct camera_control_block *ccb,

@@ -42,6 +42,20 @@ typedef struct{
 
 webcam_info wc_info;
 
+/*************/
+/* interface */
+/*************/
+
+dev_interface webcam_interface = {
+  .device_init = webcam_init,
+  .device_shutdown = webcam_shutdown,
+  .device_suspend = webcam_suspend,
+  .device_change_operating_mode = webcam_change_operating_mode,
+  .device_wakeup = webcam_wakeup,
+  .device_set_good_indication = NULL,
+  .device_get_frame = webcam_get_frame,
+};
+
 int is_webcam(char *fname, char *webcam_id)
 {
   int fd = open(fname, O_RDWR);
@@ -404,7 +418,7 @@ int webcam_suspend(struct camera_control_block *ccb)
   return 0;
 }
 
-void webcam_change_operating_mode(struct camera_control_block *ccb, 
+int webcam_change_operating_mode(struct camera_control_block *ccb, 
                              enum cal_operating_mode newmode)
 {
   ccb->mode = newmode;
@@ -424,7 +438,8 @@ void webcam_change_operating_mode(struct camera_control_block *ccb,
     default:
       assert(0);
       break;
-  }    
+  } 
+  return 0;   
 }
 
 

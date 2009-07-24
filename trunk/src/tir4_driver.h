@@ -19,6 +19,8 @@
 /*********************/
 /* none */
 
+extern dev_interface tir4_interface;
+
 /******************************/
 /* public function prototypes */
 /******************************/

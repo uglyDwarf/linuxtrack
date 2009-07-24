@@ -230,6 +230,21 @@ int tir4_do_read_and_process(struct camera_control_block *ccb);
 int tir4_populate_frame(struct frame_type *f);
 bool tir4_is_frame_available(void);
 
+/*************/
+/* interface */
+/*************/
+
+dev_interface tir4_interface = {
+  .device_init = tir4_init,
+  .device_shutdown = tir4_shutdown,
+  .device_suspend = tir4_suspend,
+  .device_change_operating_mode = tir4_change_operating_mode,
+  .device_wakeup = tir4_wakeup,
+  .device_set_good_indication = tir4_set_good_indication,
+  .device_get_frame = tir4_get_frame,
+};
+
+
 
 /************************/
 /* function definitions */
