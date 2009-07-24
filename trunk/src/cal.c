@@ -247,6 +247,7 @@ void cal_thread_start(struct camera_control_block *ccb)
   }
   /* so no thread is running, we can access all shared
    * variables freely right now */
+  pending_frame_error = 0;
   pending_frame_valid = false;
   current_capture_state_active = false;
   pending_capture_state_active = true;
@@ -301,7 +302,7 @@ bool cal_thread_is_stopped(void)
 int cal_thread_get_frame(struct frame_type *return_frame, 
                          bool *return_frame_valid)
 {
-  int retval;
+  int retval=0;
   if(pthread_mutex_trylock(&pending_frame_mutex) == 0){
     //we hold the lock now!
     if (pending_frame_error < 0) {
@@ -321,7 +322,6 @@ int cal_thread_get_frame(struct frame_type *return_frame,
     pthread_mutex_unlock(&pending_frame_mutex);
   }
   else {
-    retval = 0;
     *return_frame_valid = false;
   }
   return retval;
