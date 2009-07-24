@@ -53,7 +53,7 @@ int is_webcam(char *fname, char *webcam_id)
   struct v4l2_capability capability;
 
   //Query device capabilities
-  int ioctl_res = my_ioctl(fd, VIDIOC_QUERYCAP, &capability);
+  int ioctl_res = ioctl(fd, VIDIOC_QUERYCAP, &capability);
   if(ioctl_res == 0){
     __u32 cap = capability.capabilities;
     log_message("  Found V4L2 webcam: '%s' at %s\n", 
@@ -141,7 +141,7 @@ bool set_capture_format(struct camera_control_block *ccb)
     return false;
   }
   
-  if(0 != my_ioctl(wc_info.fd, VIDIOC_S_FMT, &fmt)){
+  if(0 != ioctl(wc_info.fd, VIDIOC_S_FMT, &fmt)){
     switch(errno){
       case EBUSY:
         log_message("Can't switch formats right now!\n");
@@ -179,7 +179,7 @@ bool set_stream_params()
   sp.parm.capture.timeperframe.numerator = den;
   sp.parm.capture.timeperframe.denominator = num;
 
-  if(-1 == my_ioctl(wc_info.fd, VIDIOC_S_PARM, &sp)){
+  if(-1 == ioctl(wc_info.fd, VIDIOC_S_PARM, &sp)){
     log_message("Stream parameters setup failed! (%s)\n", strerror(errno));
     return false;
   }
@@ -202,7 +202,7 @@ int request_streaming_buffers()
   reqb.memory = V4L2_MEMORY_MMAP;
   
   //request buffers from driver
-  if(0 != my_ioctl(wc_info.fd, VIDIOC_REQBUFS, &reqb)){
+  if(0 != ioctl(wc_info.fd, VIDIOC_REQBUFS, &reqb)){
     log_message("Couldn't get streaming buffers! (%s)\n", strerror(errno));
     return 0;
   }
@@ -243,7 +243,7 @@ bool setup_streaming_buffers()
     buf.memory = V4L2_MEMORY_MMAP;
     buf.index = cntr;
 
-    if(0 != my_ioctl(wc_info.fd, VIDIOC_QUERYBUF, &buf)){
+    if(0 != ioctl(wc_info.fd, VIDIOC_QUERYBUF, &buf)){
       log_message("Request for buffer failed...\n");
       return false;
     }
@@ -358,6 +358,7 @@ int webcam_shutdown(struct camera_control_block *ccb)
 
   }
   release_buffers();
+  free(wc_info.bw_frame);
   ccb->state = pre_init;
   close(wc_info.fd);
   return 0;
@@ -376,14 +377,14 @@ int webcam_wakeup(struct camera_control_block *ccb)
     buf.memory = V4L2_MEMORY_MMAP;
     buf.index = cntr;
 
-    if(0 != my_ioctl(wc_info.fd, VIDIOC_QBUF, &buf)){
+    if(0 != ioctl(wc_info.fd, VIDIOC_QBUF, &buf)){
       log_message("Queuing of buffer failed...\n");
       return -1;
     }
   }
   log_message("Buffers queued, starting to stream!\n");
   
-  if(-1 == my_ioctl(wc_info.fd, VIDIOC_STREAMON, &type)){
+  if(-1 == ioctl(wc_info.fd, VIDIOC_STREAMON, &type)){
     log_message("Start of streaming failed!\n");
     return -1;
   }
@@ -394,7 +395,7 @@ int webcam_wakeup(struct camera_control_block *ccb)
 int webcam_suspend(struct camera_control_block *ccb)
 {
   enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  if(-1 == my_ioctl(wc_info.fd, VIDIOC_STREAMOFF, &type)){
+  if(-1 == ioctl(wc_info.fd, VIDIOC_STREAMOFF, &type)){
     log_message("Problem stopping streaming!\n");
     return -1;
   }
@@ -426,41 +427,17 @@ void webcam_change_operating_mode(struct camera_control_block *ccb,
   }    
 }
 
-/*
-struct blob_type {
-  / * coordinates of the blob on the screen 
-   * these coordinates will have the center of 
-   * the screen at (0,0).*
-   * (+resx/2,+resy/2) = top right corner
-   * (-resx/2,-resy/2) = bottom left corner
-   * /
-  float x,y; 
-  / * total # pixels area, used for sorting/scoring blobs * /
-  unsigned int score; 
-};
 
-struct bloblist_type {
-  unsigned int num_blobs;
-  / * array of blobs, they will come from the driver 
-   * already sorted in area.  The driver will allocate
-   * memory for these, and the caller must call 
-   * frame_free(frame) to free these when finished * /
-  struct blob_type *blobs; 
-};
-
-struct frame_type {
-  struct bloblist_type bloblist; 
-  char *bitmap; / * 8bits per pixel, monochrome 0x00 or 0xff * /
-};
-*/
 int webcam_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 {
+  f->bloblist.num_blobs = wc_info.expecting_blobs;
+
   struct v4l2_buffer buf;
   memset(&buf, 0, sizeof(buf));
   buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   buf.memory = V4L2_MEMORY_MMAP;
 
-  if(-1 == my_ioctl(wc_info.fd, VIDIOC_DQBUF, &buf)){
+  if(-1 == ioctl(wc_info.fd, VIDIOC_DQBUF, &buf)){
     switch(errno){
       case EAGAIN:
         return -1; //FIXME!!! Should call ioctl again...
@@ -472,37 +449,38 @@ int webcam_get_frame(struct camera_control_block *ccb, struct frame_type *f)
         return -1;
     }
   }
+  //There seems to be some kind of race condition - the above ioctl
+  //blocks forever and by this log it seems to go away...
+  log_message("");
   assert(buf.index < wc_info.buffers);
   
   //Convert YUYV format to bw image
   //FIXME!!! - this would work only with YUYV!
   unsigned char *source_buf = (buffers[buf.index]).start;
   unsigned char *dest_buf = wc_info.bw_frame;
-  int cntr, cntr1, pts;
-  pts = 0;
+  int cntr, cntr1;
+//  int pts = 0;
   
   for(cntr = cntr1 = 0; cntr < buf.bytesused; cntr += 2, cntr1++){
     if(source_buf[cntr] > wc_info.threshold){
       dest_buf[cntr1] = source_buf[cntr];
-      ++pts;
+//      ++pts;
     }else{
       dest_buf[cntr1] = 0;
     }
   }
   
-  printf("%d points found!\n", pts);
-  
-  if(-1 == my_ioctl(wc_info.fd, VIDIOC_QBUF, &buf)){
-    log_message("Error queuing buffer!\n");
-  }
-  
+//  printf("%d points found!\n", pts);
+
   if(wc_info.is_diag == true){
     f->bitmap = (char *)my_malloc(wc_info.w * wc_info.h);
     memcpy(f->bitmap, dest_buf, wc_info.w * wc_info.h);
   }
   
-  f->bloblist.num_blobs = wc_info.expecting_blobs;
-  f->bloblist.blobs = NULL;
+  if(-1 == ioctl(wc_info.fd, VIDIOC_QBUF, &buf)){
+    log_message("Error queuing buffer!\n");
+  }
+  //log_message("Queued buffer %d\n", buf.index);
   
   if(search_for_blobs(wc_info.bw_frame, wc_info.w, wc_info.h, &(f->bloblist),
                    wc_info.min_blob_pixels, wc_info.max_blob_pixels) != true){

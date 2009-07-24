@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #define IOCTL_RETRY_COUNT 5
 

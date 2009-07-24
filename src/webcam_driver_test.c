@@ -4,6 +4,7 @@
 #include "string.h"
 
 #include "cal.h"
+#include "pref.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -30,13 +31,13 @@ int main(int argc, char *argv[])
   for(i = 0; i< 5; ++i){
     if(webcam_get_frame(&ccb, &ft) == 0){
       printf("."); 
+      frame_free(&ccb, &ft);
     }else{
       printf("Problem getting frame\n");
     }
-    frame_free(&ccb, &ft);
   }
   printf("\n");
-  printf("Pausing for a 5 seconds...\n");
+  printf("Pausing for a second...\n");
   if(webcam_suspend(&ccb) != 0){
     printf("Problem suspending!\n");
   }
@@ -46,17 +47,18 @@ int main(int argc, char *argv[])
     printf("Problem waking up!\n");
   }
   printf("Reading frames: ");
-  for(i = 0; i< 5; ++i){
+  for(i = 0; i< 5000; ++i){
     if(webcam_get_frame(&ccb, &ft) == 0){
       printf("."); 
+      frame_free(&ccb, &ft);
     }else{
       printf("Problem getting frame\n");
     }
-    frame_free(&ccb, &ft);
   }
   printf("\n");
   printf("Shutting down...\n");
   webcam_shutdown(&ccb);
+  free_prefs();
   printf("Webcam closed!\n");
   return 0;
 }

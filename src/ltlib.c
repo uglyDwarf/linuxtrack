@@ -46,7 +46,7 @@ int lt_init(struct lt_configuration_type config, char *cust_section)
   }
   get_scale_factors(&scales);
 
-  if(get_device(&(ccb.device.category)) == false){
+  if(get_device(&ccb) == false){
     log_message("Can't get device category!\n");
     return -1;
   }
@@ -109,7 +109,9 @@ int lt_get_camera_update(float *heading,
   int retval;
   retval = cal_thread_get_frame(&frame, 
                                 &frame_valid);
-  if (retval < 0) { return retval; }
+  if (retval < 0) {
+    return retval; 
+  }
   if (frame_valid) {
     pose_sort_blobs(frame.bloblist);
     int i;

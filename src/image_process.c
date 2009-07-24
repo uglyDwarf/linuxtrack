@@ -23,7 +23,10 @@ int get_blob(unsigned char *pt,unsigned char *low_limit,
 	       int line,struct my_blob_type *b, int linelen, int rec_level)
 {
   unsigned char *p_ul,*p_u,*p_ur,*p_l,*p_r,*p_dl,*p_d,*p_dr;
-  if(rec_level>1000) return(0);
+  if(rec_level>1000){
+    log_message("Recursion level reached!\n");
+    return(0);
+  }
   rec_level++;
   int x = (pt - left_limit);
   ++b->score;
@@ -70,8 +73,8 @@ int search_for_blobs(unsigned char *buf, int w, int h,
   unsigned char *limit=buf+h*w;
   unsigned char *ptr;
   struct my_blob_type blob;
-  blobs->blobs = 
-    (struct blob_type *)my_malloc(max_blobs * sizeof(struct blob_type));
+  blobs->blobs = (struct blob_type *)
+    my_malloc(max_blobs * sizeof(struct blob_type));
   
   ptr=buf;
   while(ptr<limit){
@@ -79,24 +82,27 @@ int search_for_blobs(unsigned char *buf, int w, int h,
       int line=(ptr-buf)/w;
       blob.x = blob.y = 0.0f;
       blob.score = 0;
+      blob.sum = 0;
       get_blob(ptr,buf,limit,buf+(line*w),line,&blob,w,0);
- //     printf("Have blob %f, %f - %d points!\n", blob.x/blob.sum, blob.y/blob.sum,
- //            blob.score);
       if((blob.score > min) && (blob.score < max)){
-        if(counter > max_blobs){
-          return false;
-        }
-        struct blob_type *tmp = &((blobs->blobs)[counter]); 
-        tmp->x = (blob.x / blob.sum) - (w / 2.0);
-        tmp->y = (blob.y / blob.sum) - (h / 2.0);
+//        printf("Have blob %f, %f - %d points!\n", blob.x/blob.sum, blob.y/blob.sum,
+//               blob.score);
+        struct blob_type *tmp = &(blobs->blobs[counter]); 
+        tmp->x = (w / 2.0) - (blob.x / blob.sum);
+        tmp->y = (h / 2.0) - (blob.y / blob.sum);
         tmp->score = blob.score;
         ++counter;
       }
+    }
+    if(counter >= max_blobs){
+      break;
     }
     ++ptr;
   }
   if(counter == max_blobs){
     return true;
   }
+  free(blobs->blobs);
+  blobs->num_blobs = 0;
   return false;
 }

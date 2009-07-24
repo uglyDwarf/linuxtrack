@@ -9,10 +9,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <assert.h>
 
 #include "cal.h"
 #include "tir4_driver.h"
 #include "wiimote_driver.h"
+#include "webcam_driver.h"
 
 /*********************/
 /* private Constants */
@@ -38,7 +40,7 @@ int cal_init(struct camera_control_block *ccb)
     returnval = tir4_init(ccb);
     break;
   case webcam:
-/*     returnval = webcam_init(ccb); */
+     returnval = webcam_init(ccb);
     break;
   case wiimote:
 #ifdef CWIID
@@ -58,8 +60,8 @@ int cal_shutdown(struct camera_control_block *ccb)
     return tir4_shutdown(ccb);
     break;
   case webcam:
-/*     return webcam_shutdown(ccb); */
-    break;
+     return webcam_shutdown(ccb);
+     break;
   case wiimote:
 #ifdef CWIID
      return wiimote_shutdown(ccb); 
@@ -78,7 +80,7 @@ int cal_suspend(struct camera_control_block *ccb)
     return tir4_suspend(ccb);
     break;
   case webcam:
-/*     return webcam_suspend(ccb); */
+    return webcam_suspend(ccb);
     break;
   case wiimote:
 #ifdef CWIID
@@ -99,7 +101,7 @@ void cal_change_operating_mode(struct camera_control_block *ccb,
     tir4_change_operating_mode(ccb,newmode);
     break;
   case webcam:
-/*     return webcam_change_operating_mode(ccb,newmode); */
+    return webcam_change_operating_mode(ccb,newmode);
     break;
   case wiimote:
 #ifdef CWIID
@@ -118,7 +120,7 @@ int cal_wakeup(struct camera_control_block *ccb)
     return tir4_wakeup(ccb);
     break;
   case webcam:
-/*     return webcam_wakeup(ccb); */
+    return webcam_wakeup(ccb);
     break;
   case wiimote:
 #ifdef CWIID
@@ -156,7 +158,7 @@ int cal_get_frame(struct camera_control_block *ccb,
     return tir4_get_frame(ccb, f);
     break;
   case webcam:
-/*     return webcam_get_frame(ccb, f); */
+    return webcam_get_frame(ccb, f);
     break;
   case wiimote:
 #ifdef CWIID
@@ -172,9 +174,13 @@ int cal_get_frame(struct camera_control_block *ccb,
 void frame_free(struct camera_control_block *ccb,
                 struct frame_type *f)
 {
+  assert(f->bloblist.blobs != NULL);
   free(f->bloblist.blobs);
+  f->bloblist.blobs = NULL;
   if (ccb->mode == diagnostic) {
+    assert(f->bitmap != NULL);
     free(f->bitmap);
+    f->bitmap = NULL;
   }
 }
 
@@ -356,12 +362,12 @@ void *capture_thread(void *ccb)
       }
       if (retval < 0) {
         pending_frame_valid = false;
-        pending_frame_error = retval;
       }
       else {
         pending_frame_valid = true;
         pending_frame = frame;
       }
+      pending_frame_error = retval;
       pthread_mutex_unlock(&pending_frame_mutex);
     }
   }
