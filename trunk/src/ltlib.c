@@ -115,24 +115,27 @@ int lt_get_camera_update(float *heading,
                                                filterfactor);
       }
       else {
-        first_frame_read = true;
         filtered_bloblist.blobs[i].x = frame.bloblist.blobs[i].x;
         filtered_bloblist.blobs[i].y = frame.bloblist.blobs[i].y;
       }
+    }
+    if (!first_frame_read) {
+      first_frame_read = true;
     }
 /*     printf("*** RAW blobs ***\n"); */
 /*     bloblist_print(frame.bloblist); */
 /*     printf("*** filtered blobs ***\n"); */
 /*     bloblist_print(filtered_bloblist); */
-
+        
     pose_process_blobs(filtered_bloblist, &t);
+/*     transform_print(t); */
     pose_compute_camera_update(t,
                                &raw_angles[0], //heading
                                &raw_angles[1], //pitch
                                &raw_angles[2], //roll
                                &raw_translations[0], //tx
                                &raw_translations[1], //ty
-                               &raw_translations[1]);//tz
+                               &raw_translations[2]);//tz
     frame_free(&ccb, &frame);
     
     expfilt_vec(raw_angles, filtered_angles, filterfactor, filtered_angles);
