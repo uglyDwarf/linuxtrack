@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include <fcntl.h>
 #include <linux/videodev2.h>
+#include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <errno.h>
 #include "webcam_driver.h"
