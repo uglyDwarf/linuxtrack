@@ -7,6 +7,22 @@
 #include <cwiid.h>
 #include "wiimote_driver.h"
 
+/*************/
+/* interface */
+/*************/
+
+dev_interface wiimote_interface = {
+  .device_init = wiimote_init,
+  .device_shutdown = wiimote_shutdown,
+  .device_suspend = wiimote_suspend,
+  .device_change_operating_mode = wiimote_change_operating_mode,
+  .device_wakeup = wiimote_wakeup,
+  .device_set_good_indication = NULL,
+  .device_get_frame = wiimote_get_frame,
+};
+
+
+
 /*********************/
 /* private Constants */
 /*********************/
@@ -77,10 +93,11 @@ int wiimote_suspend(struct camera_control_block *ccb) {
 
 /* may only be called while suspended.  Used to change from 
  * operational mode mode to diagnostic mode and vice versa */
-void wiimote_change_operating_mode(struct camera_control_block *ccb,
+int wiimote_change_operating_mode(struct camera_control_block *ccb,
                                 enum cal_operating_mode newmode)
 {
     // TODO
+    return 0;
 }
 
 

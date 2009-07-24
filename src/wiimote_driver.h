@@ -17,6 +17,8 @@
 /*********************/
 /* none */
 
+extern dev_interface wiimote_interface;
+
 /******************************/
 /* public function prototypes */
 /******************************/
@@ -45,7 +47,7 @@ int wiimote_suspend(struct camera_control_block *ccb);
 
 /* may only be called while suspended.  Used to change from 
  * operational mode mode to diagnostic mode and vice versa */
-void wiimote_change_operating_mode(struct camera_control_block *ccb,
+int wiimote_change_operating_mode(struct camera_control_block *ccb,
                                 enum cal_operating_mode newmode);
 
 /* unsuspend the currently suspended (and inited) 
