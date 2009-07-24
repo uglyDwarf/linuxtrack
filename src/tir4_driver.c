@@ -309,7 +309,9 @@ int tir4_init(struct camera_control_block *ccb)
 
   tir4_write_bulk_config_data();
   set_all_led_off();
-  set_ir_led_on(true);
+  if (ccb->enable_IR_illuminator_LEDS) {
+    set_ir_led_on(true);
+  }
 
   msgproc_init();
   framelist_init(&master_framelist);

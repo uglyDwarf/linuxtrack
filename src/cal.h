@@ -77,6 +77,7 @@ struct camera_control_block {
   unsigned int pixel_height;
   enum cal_operating_mode mode;
   enum cal_device_state_type state;
+  bool enable_IR_illuminator_LEDS; /* for tir4 */
 };
 
 /* call to init an uninitialized camera device 

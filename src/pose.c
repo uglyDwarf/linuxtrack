@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "pose.h"
 #include "math_utils.h"
 #include "cal.h"

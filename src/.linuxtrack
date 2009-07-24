@@ -9,6 +9,7 @@ Cap-Z = 92.5
 Head-Y = 100
 Head-Z = 90
 #Comment previous and uncomment this if you use Clip...
+#Note that clip disables the TIR4 IR Illuminator LEDS
 #Model-type = Clip
 #Clip-Y1 = 40
 #Clip-Y2 = 110

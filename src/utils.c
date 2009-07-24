@@ -70,4 +70,10 @@ int my_ioctl(int d, int request, void *argp)
   return res;
 }
 
-
+void strlower(char *s)
+{
+  while (*s) {
+    *s = tolower(*s);
+    s++;
+  }
+}
