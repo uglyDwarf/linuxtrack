@@ -281,6 +281,8 @@ bool pose_process_blobs(struct bloblist_type blobs,
   if(center_flag == true){
     center_flag = false;
     centering = true;
+/*     print_matrix(center_base, "center-base"); */
+/*     print_matrix(new_base, "new-base"); */
     int i,j;
     for(i = 0; i < 3; ++i){
       for(j = 0; j < 3; ++j){

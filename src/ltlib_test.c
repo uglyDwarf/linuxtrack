@@ -46,8 +46,9 @@ int main(int argc, char **argv) {
     if (retval < 0) { 
       printf("Error %d detected! Aborting!\n", retval);
       return retval; 
-    };
-    printf("heading: %f\tpitch: %f\n", heading, pitch);
+    }
+    printf("heading: %f\tpitch: %f\troll: %f\n", heading, pitch, roll);
+    printf("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);
     usleep(20000);
   }
   lt_shutdown();
