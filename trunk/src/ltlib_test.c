@@ -44,8 +44,8 @@ int main(int argc, char **argv) {
     retval = lt_get_camera_update(&heading,&pitch,&roll,
                                   &tx, &ty, &tz);
     if (retval < 0) { 
-      printf("Error %d detected! Aborting!\n", retval);
-      return retval; 
+      usleep(20000);
+      continue; 
     }
     printf("heading: %f\tpitch: %f\troll: %f\n", heading, pitch, roll);
     printf("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);

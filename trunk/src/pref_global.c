@@ -5,27 +5,26 @@
 #include "pref_global.h"
 #include "utils.h"
 
-bool get_device(enum cal_device_category_type *dev_type_enum)
+bool get_device(struct camera_control_block *ccb)
 {
   bool dev_ok = false;
   char *dev_type = get_key("Global", "Capture-device");
   if (dev_type == NULL) {
     dev_ok = false;
-  }
-  else {
+  } else {
     if(strcmp(dev_type, "Tir4") == 0){
       log_message("Device Type: Track IR 4\n");
-      *dev_type_enum = tir4_camera;
+      ccb->device.category = tir4_camera;
       dev_ok = true;
     }
     if(strcmp(dev_type, "Webcam") == 0){
       log_message("Device Type: Webcam\n");
-      *dev_type_enum = webcam;
+      ccb->device.category = webcam;
       dev_ok = true;
     }
     if(strcmp(dev_type, "Wiimote") == 0){
       log_message("Device Type: Wiimote\n");
-      *dev_type_enum = wiimote;
+      ccb->device.category = wiimote;
       dev_ok = true;
     }
     if(dev_ok == false){
@@ -33,6 +32,14 @@ bool get_device(enum cal_device_category_type *dev_type_enum)
       log_message(" Valid options are: 'Tir4', 'Webcam', 'Wiimote'.\n");
     }
   }
+  
+  char *dev_id = get_key("Global", "Capture-device-id");
+  if (dev_id == NULL) {
+    dev_ok = false;
+  }else{
+    ccb->device.device_id = dev_id;
+  }
+  
   return dev_ok;
 }
 

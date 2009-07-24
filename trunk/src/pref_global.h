@@ -7,7 +7,7 @@
 #include "ltlib.h"
 #include "pref.h"
 
-bool get_device(cal_device_category_type *dev_type_enum);
+bool get_device(struct camera_control_block *ccb);
 bool get_pose_setup(reflector_model_type *rm);
 bool get_scale_factors(struct lt_scalefactors *sf);
 bool get_filter_factor(float *ff);

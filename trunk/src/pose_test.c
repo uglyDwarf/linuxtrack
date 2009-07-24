@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
   struct transform t;
   struct reflector_model_type rm;
 
-  if(get_device(&(ccb.device.category)) == false){
+  if(get_device(&ccb) == false){
     log_message("Can't get device category!\n");
     return 1;
   }
