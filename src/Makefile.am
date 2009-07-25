@@ -7,7 +7,7 @@ liblinuxtrack_a_SOURCES = cal.c cal.h list.c list.h ltlib.c ltlib.h \
   image_process.c image_process.h
 
 noinst_LIBRARIES = liblinuxtrack.a
-dist_data_DATA = bulk_config_data.bin .linuxtrack
+dist_data_DATA = .linuxtrack
 
 if CWIID
   bin_PROGRAMS += wiimote_driver_test
