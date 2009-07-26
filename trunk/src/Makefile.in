@@ -237,7 +237,7 @@ liblinuxtrack_a_SOURCES = cal.c cal.h list.c list.h ltlib.c ltlib.h \
 	webcam_driver.c webcam_driver.h image_process.c \
 	image_process.h $(am__append_2)
 noinst_LIBRARIES = liblinuxtrack.a
-dist_data_DATA = bulk_config_data.bin .linuxtrack
+dist_data_DATA = .linuxtrack
 @CWIID_TRUE@wiimote_driver_test_SOURCES = wiimote_driver_test.c 
 @CWIID_TRUE@wiimote_driver_test_LDADD = liblinuxtrack.a 
 @CWIID_TRUE@wiimote_driver_test_CFLAGS = -m32 -fPIC

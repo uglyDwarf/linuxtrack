@@ -138,3 +138,41 @@ void add_vecs(float vec1[3],float vec2[3],float res[3])
   res[1] = vec1[1] + vec2[1];
   res[2] = vec1[2] + vec2[2];
 }
+
+
+bool make_bez(float deadzone, float k, bez_def *b)
+{
+  b->p0_x = deadzone;
+  b->p0_y = 0.0f;
+  b->p1_x = k;
+  b->p1_y = 1.0 - k;
+  b->p2_x = 1.0f;
+  b->p2_y = 1.0f;
+
+  b->ax = b->p0_x - 2 * b->p1_x + b->p2_x;
+  b->bx = 2 * (b->p1_x - b->p0_x);
+  b->cx = b->p0_x;
+  
+  b->ay = b->p0_y - 2 * b->p1_y + b->p2_y;
+  b->by = 2 * (b->p1_y - b->p0_y);
+  b->cy = b->p0_y;
+  return true;
+}
+
+float bezier(float x, bez_def *b)
+{
+  if(x < b->p0_x){
+    return 0.0f;
+  }
+  float c = b->cx - x;
+  float t = (-(b->bx) + sqrt((b->bx * b->bx) - 4 * b->ax * c)) / (2 * b->ax);
+  float y = (t * t) * b->ay + t * b->by + b->cy;
+  return y;
+}
+
+/*
+Bezier usage example
+  bez_def b;
+  make_bez(0.0f, 0.6, &b);
+  y = bezier(x, &b);
+*/
