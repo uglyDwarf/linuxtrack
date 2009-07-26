@@ -86,7 +86,7 @@ section_struct *find_section(char *section_name)
   while((pfi = (pref_file_item *)get_next(&i)) != NULL){
     if(pfi->item_type == SECTION){
       assert(pfi->section != NULL);
-      if(strcmp(pfi->section->name, section_name) == 0){
+      if(strcasecmp(pfi->section->name, section_name) == 0){
         return pfi->section;
       }
     }
@@ -110,7 +110,7 @@ key_val_struct *find_key(char *section_name, char *key_name)
   while((si = (section_item *)get_next(&i)) != NULL){
     if(si->sec_item_type == KEY_VAL){
       assert(si->key_val != NULL);
-      if(strcmp(si->key_val->key, key_name) == 0){
+      if(strcasecmp(si->key_val->key, key_name) == 0){
         return si->key_val;
       }
     }
