@@ -76,7 +76,7 @@ int is_webcam(char *fname, char *webcam_id)
     if((cap & V4L2_CAP_VIDEO_CAPTURE) && 
       (cap & V4L2_CAP_STREAMING)){
       //we like this device ;-)
-      if(strcmp((char *)capability.card, webcam_id) == 0){
+      if(strncasecmp((char *)capability.card, webcam_id, strlen(webcam_id)) == 0){
         //this is the device we are looking for!
         return fd;
       }

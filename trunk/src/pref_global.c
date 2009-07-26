@@ -12,17 +12,17 @@ bool get_device(struct camera_control_block *ccb)
   if (dev_type == NULL) {
     dev_ok = false;
   } else {
-    if(strcmp(dev_type, "Tir4") == 0){
+    if(strcasecmp(dev_type, "Tir4") == 0){
       log_message("Device Type: Track IR 4\n");
       ccb->device.category = tir4_camera;
       dev_ok = true;
     }
-    if(strcmp(dev_type, "Webcam") == 0){
+    if(strcasecmp(dev_type, "Webcam") == 0){
       log_message("Device Type: Webcam\n");
       ccb->device.category = webcam;
       dev_ok = true;
     }
-    if(strcmp(dev_type, "Wiimote") == 0){
+    if(strcasecmp(dev_type, "Wiimote") == 0){
       log_message("Device Type: Wiimote\n");
       ccb->device.category = wiimote;
       dev_ok = true;
@@ -118,11 +118,10 @@ bool get_pose_setup(reflector_model_type *rm)
   if (model_type == NULL) {
     return false;
   }
-  strlower(model_type);
-  if(strcmp(model_type, "cap") == 0){
+  if(strcasecmp(model_type, "Cap") == 0){
     return setup_cap(rm);
   }
-  if(strcmp(model_type, "clip") == 0){
+  if(strcasecmp(model_type, "Clip") == 0){
     return setup_clip(rm);
   }
   return false;

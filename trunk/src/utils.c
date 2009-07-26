@@ -73,7 +73,7 @@ int my_ioctl(int d, int request, void *argp)
 
 void strlower(char *s)
 {
-  while (*s) {
+  while (*s != '\0') {
     *s = tolower(*s);
     s++;
   }
