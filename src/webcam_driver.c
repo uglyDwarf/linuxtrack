@@ -455,6 +455,7 @@ int webcam_get_frame(struct camera_control_block *ccb, struct frame_type *f)
   if(-1 == ioctl(wc_info.fd, VIDIOC_DQBUF, &buf)){
     switch(errno){
       case EAGAIN:
+        log_message("Problem dequeing buffer! (%s)\n", strerror(errno));
         return -1; //FIXME!!! Should call ioctl again...
       case EIO:
             /* Could ignore EIO, see spec. */
