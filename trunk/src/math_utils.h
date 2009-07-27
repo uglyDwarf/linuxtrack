@@ -1,6 +1,7 @@
 #ifndef MATH_UTILS__H
 #define MATH_UTILS__H
 
+#include <stdbool.h>
 #include <math.h>
 
 typedef struct bez_def {
