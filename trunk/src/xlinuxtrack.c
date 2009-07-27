@@ -4,6 +4,7 @@
 #include "XPLMDataAccess.h"
 #include <stdio.h>
 #include <math.h>
+#include <math_utils.h>
 #include "ltlib.h"
 
 XPLMHotKeyID	gHotKey = NULL;
@@ -121,6 +122,15 @@ int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
   int retval;
   retval = lt_get_camera_update(&heading,&pitch,&roll,
                                 &tx, &ty, &tz);
+
+  if(is_finite(heading) && is_finite(pitch) && is_finite(roll) &&
+     is_finite(tx) && is_finite(ty) && is_finite(tz)){
+    // Empty
+  }else{
+    printf("Bad values!\n");
+    return 1;
+  }
+
   if (retval < 0) {
     printf("xlinuxtrack: Error code %d detected!\n", retval);
     return 1;

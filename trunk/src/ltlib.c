@@ -3,6 +3,7 @@
 #include "pref_global.h"
 #include "ltlib.h"
 #include "utils.h" 
+#include "math_utils.h"
 #include <math.h>
 
 /**************************/
@@ -94,13 +95,33 @@ int lt_init(struct lt_configuration_type config, char *cust_section)
   rm.hc[1] = -100.0;
   rm.hc[2] = +90.0;
 */
-  pose_init(rm, 0.0);
+  pose_init(rm, 35.0);
   filtered_bloblist.num_blobs = 3;
   filtered_bloblist.blobs = filtered_blobs;
   first_frame_read = false;
   return 0;
 }
 
+//Purpose of this procedure is to modify translations to work more
+//intuitively - if I rotate my head right and move it to the left,
+//it should move view left, not back
+void rotate_translations(float *heading, float *pitch, float *roll, 
+                         float *tx, float *ty, float *tz)
+{
+  float tm[3][3];
+  float k = 180.0 / M_PI;
+  float p = *pitch / k;
+  float y = *heading / k;
+  float r = *roll / k;
+  euler_to_matrix(p, y, r, tm);
+  float tr[3] = {*tx, *ty, *tz};
+  float res[3];
+  transpose_in_place(tm);
+  matrix_times_vec(tm, tr, res);
+  *tx = res[0];
+  *ty = res[1];
+  *tz = res[2];
+}
 
 int lt_get_camera_update(float *heading,
                          float *pitch,
@@ -169,6 +190,9 @@ int lt_get_camera_update(float *heading,
   *tx = scales.tx_sf * filtered_translations[0];
   *ty = scales.ty_sf * filtered_translations[1];
   *tz = scales.tz_sf * filtered_translations[2];
+  
+  rotate_translations(heading, pitch, roll, tx, ty, tz);
+  
   return 0;
 }
 

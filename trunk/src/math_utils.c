@@ -132,6 +132,28 @@ void matrix_to_euler(float matrix[3][3], float *pitch, float *yaw, float *roll)
   }
 }
 
+void euler_to_matrix(float pitch, float yaw, float roll, float matrix[3][3])
+{
+  float cp = cosf(-pitch);
+  float sp = sinf(-pitch);
+  float cy = cosf(-yaw);
+  float sy = sinf(-yaw);
+  float cr = cosf(-roll);
+  float sr = sinf(-roll);
+  matrix[0][0] = cr * cy;
+  matrix[0][1] = sr * cy;
+  matrix[0][2] = -sy;
+
+  matrix[1][0] = cr * sy * sp - sr * cp;
+  matrix[1][1] = sr * sy * sp + cr * cp;
+  matrix[1][2] = cy * sp;
+
+  matrix[2][0] = cr * sy * cp + sr * sp;
+  matrix[2][1] = sr * sy * cp - cr * sp;
+  matrix[2][2] = cy * cp;
+}
+
+
 void add_vecs(float vec1[3],float vec2[3],float res[3])
 {
   res[0] = vec1[0] + vec2[0];
@@ -176,3 +198,14 @@ Bezier usage example
   make_bez(0.0f, 0.6, &b);
   y = bezier(x, &b);
 */
+
+bool is_finite(float f)
+{
+  if(finite(f) != 0){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+
