@@ -135,7 +135,7 @@ void alter_pose(struct bloblist_type blobs, float points[3][3])
     sigma = -1;
   }
 
-  h1 = -sqrt(sqr(s * R01) - sqr(d01));
+  h1 = ((type == M_CAP)? -1 : 1) * sqrt(sqr(s * R01) - sqr(d01));
   h2 = -sigma * sqrt(sqr(s * R02) - sqr(d02));
 
   points[0][0] = blobs.blobs[0].x / s;
