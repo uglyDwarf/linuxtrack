@@ -104,7 +104,7 @@ bool setup_clip(reflector_model_type *rm)
   rm->p2[1] = -y2;
   rm->p2[2] = -z2;
   rm->hc[0] = hx;
-  rm->hc[1] = -hy;
+  rm->hc[1] = hy;
   rm->hc[2] = hz;
   rm->type = CLIP;
   return true;
