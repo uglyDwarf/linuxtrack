@@ -13,6 +13,7 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <errno.h>
+#include <sys/poll.h>
 #include "webcam_driver.h"
 #include "utils.h"
 #include "pref.h"
@@ -58,7 +59,7 @@ dev_interface webcam_interface = {
 
 int is_webcam(char *fname, char *webcam_id)
 {
-  int fd = open(fname, O_RDWR);
+  int fd = open(fname, O_RDWR | O_NONBLOCK);
   if(fd == -1){
     log_message("Can't open file '%s'!\n", fname);
     return -1;
@@ -452,22 +453,43 @@ int webcam_get_frame(struct camera_control_block *ccb, struct frame_type *f)
   buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   buf.memory = V4L2_MEMORY_MMAP;
 
-  if(-1 == ioctl(wc_info.fd, VIDIOC_DQBUF, &buf)){
+  int res;
+  struct pollfd pfd = {
+    .fd = wc_info.fd,
+    .events = POLLIN | POLLRDNORM,
+    .revents = 0
+  };
+  
+  while(1){
+    res = poll(&pfd, 1, 500);
+    if(res == 1){
+      if(pfd.revents == (POLLIN | POLLRDNORM)){
+        //we have data!
+        break;
+      }else{
+        log_message("Poll returned with unexpected event!\n");
+      }
+    }else if(res == -1){
+      log_message("Poll returned error! (%s)", strerror(errno));
+      return -1;
+    }else if(res == 0){
+      log_message("Poll timed out!\n");
+    }else{
+      log_message("Poll returned unexpected value %d!\n", res);
+      return -1;
+    }
+  };
+  
+  while(-1 == ioctl(wc_info.fd, VIDIOC_DQBUF, &buf)){
     switch(errno){
       case EAGAIN:
-        log_message("Problem dequeing buffer! (%s)\n", strerror(errno));
-        return -1; //FIXME!!! Should call ioctl again...
-      case EIO:
-            /* Could ignore EIO, see spec. */
-            /* fall through */
+        continue;
+        break;
       default:
         log_message("Problem dequeing buffer! (%s)\n", strerror(errno));
         return -1;
     }
   }
-  //There seems to be some kind of race condition - the above ioctl
-  //blocks forever and by this log it seems to go away...
-  log_message("");
   assert(buf.index < wc_info.buffers);
   
   //Convert YUYV format to bw image
