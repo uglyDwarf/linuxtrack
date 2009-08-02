@@ -19,6 +19,7 @@ XPLMDataRef		head_the = NULL;
 XPLMDataRef		joy_buttons = NULL;
 int 			buttons[1520];
 int 			button_number = 3;
+float			debounce_time = 0.01;
 
 int pos_init_flag = 0;
 bool freeze = false;
@@ -135,17 +136,15 @@ void process_joy()
       if(button != 0){
         ts = XPLMGetElapsedTime();
 	state = 2;
-	printf("Switching to state 2\n");
       }
       break;
     case 2: //Counting...
       if(button == 0){
         state = 1; //button was released, go back
       }else{
-        if((XPLMGetElapsedTime() - ts) > 0.025){
+        if((XPLMGetElapsedTime() - ts) > debounce_time){
 	  freeze = (freeze == false)? true : false;
 	  state = 3;
-          printf("Switching to state 3\n");
 	}
       }
       break;
@@ -153,16 +152,14 @@ void process_joy()
       if(button == 0){
         ts = XPLMGetElapsedTime();
 	state = 4;
-	printf("Switching to state 4\n");
       }
       break;
     case 4:
       if(button != 0){
         state = 3; //button was pressed again, go back
       }else{
-        if((XPLMGetElapsedTime() - ts) > 0.025){
+        if((XPLMGetElapsedTime() - ts) > debounce_time){
 	  state = 1;
-	  printf("Switching to state 1\n");
 	}
       }
       break;
