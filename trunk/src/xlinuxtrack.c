@@ -2,8 +2,10 @@
 #include "XPLMDisplay.h"
 #include "XPLMUtilities.h"
 #include "XPLMDataAccess.h"
+#include "XPLMProcessing.h"
 #include <stdio.h>
 #include <math.h>
+#include <stdbool.h>
 #include <math_utils.h>
 #include "ltlib.h"
 
@@ -14,7 +16,12 @@ XPLMDataRef		head_z = NULL;
 XPLMDataRef		head_psi = NULL;
 XPLMDataRef		head_the = NULL;
 
+XPLMDataRef		joy_buttons = NULL;
+int 			buttons[1520];
+int 			button_number = 3;
+
 int pos_init_flag = 0;
+bool freeze = false;
 
 float base_x;
 float base_y;
@@ -34,33 +41,35 @@ PLUGIN_API int XPluginStart(
                             char *		outDesc)
 {
   struct lt_configuration_type ltconf;
-	strcpy(outName, "linuxTrack");
-	strcpy(outSig, "linuxtrack.camera");
-	strcpy(outDesc, "A plugin that controls view using your webcam.");
+  strcpy(outName, "linuxTrack");
+  strcpy(outSig, "linuxtrack.camera");
+  strcpy(outDesc, "A plugin that controls view using your webcam.");
 
-	/* Register our hot key for the new view. */
-	gHotKey = XPLMRegisterHotKey(XPLM_VK_F8, xplm_DownFlag, 
-                               "3D linuxTrack view",
-                               MyHotKeyCallback,
-                               NULL);
+  /* Register our hot key for the new view. */
+  gHotKey = XPLMRegisterHotKey(XPLM_VK_F8, xplm_DownFlag, 
+                         "3D linuxTrack view",
+                         MyHotKeyCallback,
+                         NULL);
   head_x = XPLMFindDataRef("sim/graphics/view/pilots_head_x");
   head_y = XPLMFindDataRef("sim/graphics/view/pilots_head_y");
   head_z = XPLMFindDataRef("sim/graphics/view/pilots_head_z");
   head_psi = XPLMFindDataRef("sim/graphics/view/pilots_head_psi");
   head_the = XPLMFindDataRef("sim/graphics/view/pilots_head_the");
+  joy_buttons = XPLMFindDataRef("sim/joystick/joystick_button_values");
+  
   if((head_x==NULL)||(head_y==NULL)||(head_z==NULL)||
-     (head_psi==NULL)||(head_the==NULL)){
+     (head_psi==NULL)||(head_the==NULL)||(joy_buttons==NULL)){
     return(0);
   }
   if(lt_init(ltconf, "XPlane")!=0){
     return(0);
   }
-	return(1);
+  return(1);
 }
 
 PLUGIN_API void	XPluginStop(void)
 {
-	XPLMUnregisterHotKey(gHotKey);
+  XPLMUnregisterHotKey(gHotKey);
   lt_shutdown();
 }
 
@@ -90,9 +99,10 @@ void	MyHotKeyCallback(void *               inRefcon)
 	/* Now we control the camera until the view changes. */
 	if(active==0){
 	  active=1;
-      pos_init_flag = 1;
-    lt_recenter();
-    XPLMRegisterDrawCallback(
+          pos_init_flag = 1;
+	  freeze = false;
+          lt_recenter();
+          XPLMRegisterDrawCallback(
                              AircraftDrawCallback,
                              xplm_Phase_LastCockpit,
                              0,
@@ -113,6 +123,56 @@ void	MyHotKeyCallback(void *               inRefcon)
 	}
 }
 
+void process_joy()
+{
+  static int state = 1;
+  static float ts;
+  
+  XPLMGetDatavi(joy_buttons, buttons, 0, 1520);
+  int button = buttons[button_number];
+  switch(state){
+    case 1: //Waiting for button to be pressed
+      if(button != 0){
+        ts = XPLMGetElapsedTime();
+	state = 2;
+	printf("Switching to state 2\n");
+      }
+      break;
+    case 2: //Counting...
+      if(button == 0){
+        state = 1; //button was released, go back
+      }else{
+        if((XPLMGetElapsedTime() - ts) > 0.025){
+	  freeze = (freeze == false)? true : false;
+	  state = 3;
+          printf("Switching to state 3\n");
+	}
+      }
+      break;
+    case 3: //Waiting for button to be released
+      if(button == 0){
+        ts = XPLMGetElapsedTime();
+	state = 4;
+	printf("Switching to state 4\n");
+      }
+      break;
+    case 4:
+      if(button != 0){
+        state = 3; //button was pressed again, go back
+      }else{
+        if((XPLMGetElapsedTime() - ts) > 0.025){
+	  state = 1;
+	  printf("Switching to state 1\n");
+	}
+      }
+      break;
+    default:
+      printf("Joystick button processing got into wrong state (%d)!\n", state);
+      state = 1;
+      break;
+  }
+}
+
 int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
                           int                  inIsBefore,
                           void *               inRefcon)
@@ -120,6 +180,8 @@ int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
   float heading, pitch, roll;
   float tx, ty, tz;
   int retval;
+  
+  process_joy(button_number);
   retval = lt_get_camera_update(&heading,&pitch,&roll,
                                 &tx, &ty, &tz);
 
@@ -135,6 +197,10 @@ int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
     printf("xlinuxtrack: Error code %d detected!\n", retval);
     return 1;
   }
+  if(freeze == true){
+    return 1;
+  }
+  
   tx *= 1e-3;
   ty *= 1e-3;
   tz *= 1e-3;
