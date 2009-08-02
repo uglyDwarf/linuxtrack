@@ -5,6 +5,7 @@
 
 #include "cal.h"
 #include "pref.h"
+#include "pref_int.h"
 
 #include <stdio.h>
 #include <unistd.h>

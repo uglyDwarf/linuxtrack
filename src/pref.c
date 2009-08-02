@@ -3,6 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include "pref_int.h"
+#include "pref.h"
 
 int yyparse(void);
 extern FILE* yyin;
@@ -18,6 +19,88 @@ bool read_already = false;
 char *pref_file = ".linuxtrack";
 char *def_section_name = "Default";
 char *custom_section_name = NULL;
+int read_counter = 0;
+
+
+bool open_game_pref(char *key, pref_id *prf)
+{
+  if(get_custom_key(key) == NULL){
+    return false;
+  }
+  *prf = (pref_struct*)my_malloc(sizeof(pref_struct));
+  (*prf)->key_name = my_strdup(key);
+  (*prf)->data_type = NONE;
+  (*prf)->last_read = -1;
+  return true;
+}
+
+float get_flt(pref_id prf)
+{
+  char *key = prf->key_name;
+  if(prf->data_type == NONE){
+    prf->data_type = FLT;
+    prf->last_read = read_counter;
+    prf->flt = atof(get_custom_key(key));
+  }else{
+    if(prf->data_type != FLT){
+      log_message("Preference %s is not float!\n", key);
+      return 0.0f;
+    }
+    if(prf->last_read != read_counter){
+      prf->flt = atof(get_custom_key(key));
+    }
+  }
+  return prf->flt;
+}
+
+int get_int(pref_id prf)
+{
+  char *key = prf->key_name;
+  if(prf->data_type == NONE){
+    prf->data_type = INT;
+    prf->last_read = read_counter;
+    prf->integer = atoi(get_custom_key(key));
+  }else{
+    if(prf->data_type != INT){
+      log_message("Preference %s is not int!\n", key);
+      return 0;
+    }
+    if(prf->last_read != read_counter){
+      prf->integer = atoi(get_custom_key(key));
+    }
+  }
+  return prf->integer;
+}
+
+char *get_str(pref_id prf)
+{
+  char *key = prf->key_name;
+  if(prf->data_type == NONE){
+    prf->data_type = STR;
+    prf->last_read = read_counter;
+    prf->string = get_custom_key(key);
+  }else{
+    if(prf->data_type != STR){
+      log_message("Preference %s is not string!\n", key);
+      return 0;
+    }
+    if(prf->last_read != read_counter){
+      prf->string = get_custom_key(key);
+    }
+  }
+  return prf->string;
+}
+
+bool close_game_pref(pref_id *prf)
+{
+  free((*prf)->key_name);
+  (*prf)->key_name = NULL;
+  free(*prf);
+  *prf = NULL;
+  return true;
+}
+
+
 
 bool read_prefs(char *fname, char *section)
 {
@@ -32,6 +115,7 @@ bool read_prefs(char *fname, char *section)
     parsed_file = NULL;
     if(res == 0){
       log_message("Preferences read OK!\n");
+      ++read_counter;
       return(true);
     }
   }
@@ -302,6 +386,7 @@ char *get_custom_key(char *key_name)
 /*
 int main(int argc, char *argv[])
 {
+  set_custom_section("XPlane");
   printf("Device type: %s\n", get_key("Global", "Capture-device"));
   printf("Head ref [0, %s, %s]\n", get_key("Global", "Head-Y"), 
   	get_key("Global", "Head-Z"));
@@ -311,7 +396,31 @@ int main(int argc, char *argv[])
   printf("Head ref [0, %s, %s]\n", get_key("Global", "Head-Y"), 
   	get_key("Global", "Head-Z"));
   dump_prefs("pref2.dmp");
+  
+  pref_id ff, fb, fc;
+  if(open_game_pref("Filter-factor", &ff)){
+    printf("Pref OK... %f\n", get_flt(ff));
+    
+    close_game_pref(&ff);
+  }
+  if(open_game_pref("Freeze-button", &fb)){
+    printf("Pref OK... %d\n", get_int(fb));
+    
+    close_game_pref(&fb);
+  }
+  if(open_game_pref("test", &fc)){
+    printf("Pref OK... %s\n", get_str(fc));
+    
+    close_game_pref(&fc);
+  }
+
+  
+  
   free_prefs();
   return 0;
 }
+
+//gcc -o pt -g pref.c utils.c list.c pref_bison.c pref_flex.c; ./pt
+
+
 */
