@@ -28,3 +28,5 @@ Xtranslation-multiplier = 3.0
 Ytranslation-multiplier = 3.0
 Ztranslation-multiplier = 3.0
 [XPlane]
+Freeze-button = 3
+Recenter-button = 4

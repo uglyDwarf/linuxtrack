@@ -3,15 +3,13 @@
 
 #include <stdbool.h>
 
-bool section_exists(char *section_name);
-bool key_exists(char *section_name, char *key_name);
-char *get_key(char *section_name, char *key_name);
-
-bool change_key(char *section_name, char *key_name, char *new_value);
-bool dump_prefs(char *file_name);
-void free_prefs();
-
 bool set_custom_section(char *name);
-char *get_custom_key(char *key_name);
+
+typedef struct pref_struct *pref_id;
+bool open_game_pref(char *key, pref_id *prf);
+float get_flt(pref_id prf);
+int get_int(pref_id prf);
+char *get_str(pref_id prf);
+bool close_game_pref(pref_id *prf);
 
 #endif

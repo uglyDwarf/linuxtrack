@@ -18,6 +18,7 @@
 #include "utils.h"
 #include "pref.h"
 #include "image_process.h"
+#include "pref_int.h"
 
 #define NUM_OF_BUFFERS 8
 typedef struct {

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "pref.h"
+#include "pref_int.h"
 #include "pref_global.h"
 #include "utils.h"
 

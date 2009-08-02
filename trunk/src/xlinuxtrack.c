@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <math_utils.h>
 #include "ltlib.h"
+#include "pref.h"
 
 XPLMHotKeyID	gHotKey = NULL;
 XPLMDataRef		head_x = NULL;
@@ -18,7 +19,10 @@ XPLMDataRef		head_the = NULL;
 
 XPLMDataRef		joy_buttons = NULL;
 int 			buttons[1520];
-int 			button_number = 3;
+
+int 			freeze_button = 3;
+int			recenter_button = 4;
+
 float			debounce_time = 0.01;
 
 int pos_init_flag = 0;
@@ -27,6 +31,7 @@ bool freeze = false;
 float base_x;
 float base_y;
 float base_z;
+bool active_flag = false;
 
 
 void	MyHotKeyCallback(void *               inRefcon);    
@@ -34,6 +39,11 @@ void	MyHotKeyCallback(void *               inRefcon);
 int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
                           int                  inIsBefore,
                           void *               inRefcon);
+float	MyFlightLoopCallback(
+                                   float                inElapsedSinceLastCall,    
+                                   float                inElapsedTimeSinceLastFlightLoop,    
+                                   int                  inCounter,    
+                                   void *               inRefcon);
 
 
 PLUGIN_API int XPluginStart(
@@ -65,12 +75,33 @@ PLUGIN_API int XPluginStart(
   if(lt_init(ltconf, "XPlane")!=0){
     return(0);
   }
+  XPLMRegisterFlightLoopCallback(		
+	MyFlightLoopCallback,	/* Callback */
+	-1.0,					/* Interval */
+	NULL);					/* refcon not used. */
+  pref_id frb;
+  if(open_game_pref("Freeze-button", &frb)){
+    freeze_button = get_int(frb);
+    printf("Button 1\n");
+    close_game_pref(&frb);
+  }else{
+    printf("Bad1\n");
+  }
+  if(open_game_pref("Recenter-button", &frb)){
+    recenter_button = get_int(frb);
+    printf("Button 2\n");
+    close_game_pref(&frb);
+  }else{
+    printf("Bad2\n");
+  }
+  
   return(1);
 }
 
 PLUGIN_API void	XPluginStop(void)
 {
   XPLMUnregisterHotKey(gHotKey);
+  XPLMUnregisterFlightLoopCallback(MyFlightLoopCallback, NULL);
   lt_shutdown();
 }
 
@@ -90,16 +121,9 @@ PLUGIN_API void XPluginReceiveMessage(
 {
 }
 
-void	MyHotKeyCallback(void *               inRefcon)
+void activate(void)
 {
-  static int active=0;
-	/* This is the hotkey callback.  First we simulate a joystick press and
-	 * release to put us in 'free view 1'.  This guarantees that no panels
-	 * are showing and we are an external view. */
-	 
-	/* Now we control the camera until the view changes. */
-	if(active==0){
-	  active=1;
+	  active_flag=true;
           pos_init_flag = 1;
 	  freeze = false;
           lt_recenter();
@@ -108,8 +132,11 @@ void	MyHotKeyCallback(void *               inRefcon)
                              xplm_Phase_LastCockpit,
                              0,
                              NULL);
-	}else{
-	  active=0;
+}
+
+void deactivate(void)
+{
+	  active_flag=false;
 	  XPLMUnregisterDrawCallback(
                                AircraftDrawCallback,
                                xplm_Phase_LastCockpit,
@@ -121,54 +148,95 @@ void	MyHotKeyCallback(void *               inRefcon)
           XPLMSetDataf(head_z,base_z);
 	  XPLMSetDataf(head_psi,0.0f);
 	  XPLMSetDataf(head_the,0.0f);
+}
+
+void	MyHotKeyCallback(void *               inRefcon)
+{
+	/* This is the hotkey callback.  First we simulate a joystick press and
+	 * release to put us in 'free view 1'.  This guarantees that no panels
+	 * are showing and we are an external view. */
+	 
+	/* Now we control the camera until the view changes. */
+	if(active_flag==false){
+	  activate();
+	}else{
+	  deactivate();
 	}
 }
 
-void process_joy()
+void joy_fsm(int button, int *state, float *ts, bool *flag)
 {
-  static int state = 1;
-  static float ts;
-  
-  XPLMGetDatavi(joy_buttons, buttons, 0, 1520);
-  int button = buttons[button_number];
-  switch(state){
+  switch(*state){
     case 1: //Waiting for button to be pressed
       if(button != 0){
-        ts = XPLMGetElapsedTime();
-	state = 2;
+        *ts = XPLMGetElapsedTime();
+	*state = 2;
       }
       break;
     case 2: //Counting...
       if(button == 0){
-        state = 1; //button was released, go back
+        *state = 1; //button was released, go back
       }else{
-        if((XPLMGetElapsedTime() - ts) > debounce_time){
-	  freeze = (freeze == false)? true : false;
-	  state = 3;
+        if((XPLMGetElapsedTime() - *ts) > debounce_time){
+	  *flag = (*flag == false)? true : false;
+	  *state = 3;
 	}
       }
       break;
     case 3: //Waiting for button to be released
       if(button == 0){
-        ts = XPLMGetElapsedTime();
-	state = 4;
+        *ts = XPLMGetElapsedTime();
+	*state = 4;
       }
       break;
     case 4:
       if(button != 0){
-        state = 3; //button was pressed again, go back
+        *state = 3; //button was pressed again, go back
       }else{
-        if((XPLMGetElapsedTime() - ts) > debounce_time){
-	  state = 1;
+        if((XPLMGetElapsedTime() - *ts) > debounce_time){
+	  *state = 1;
 	}
       }
       break;
     default:
-      printf("Joystick button processing got into wrong state (%d)!\n", state);
-      state = 1;
+      printf("Joystick button processing got into wrong state (%d)!\n", *state);
+      *state = 1;
       break;
   }
 }
+
+void process_joy()
+{
+  static float freeze_ts;
+  static float recenter_ts;
+  static int freeze_state = 1;
+  static int recenter_state = 1;
+  
+  XPLMGetDatavi(joy_buttons, buttons, 0, 1520);
+  
+  joy_fsm(buttons[freeze_button], &freeze_state, &freeze_ts, &freeze);
+  joy_fsm(buttons[recenter_button], &recenter_state, &recenter_ts, &active_flag);
+}
+
+float	MyFlightLoopCallback(
+                                   float                inElapsedSinceLastCall,    
+                                   float                inElapsedTimeSinceLastFlightLoop,    
+                                   int                  inCounter,    
+                                   void *               inRefcon)
+{
+        bool last_active_flag = active_flag;
+        process_joy();
+        if(last_active_flag != active_flag){
+	  if(active_flag){
+	    activate();
+	  }else{
+	    deactivate();
+	  }
+	}
+	return -1.0;
+}                                   
+
+
 
 int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
                           int                  inIsBefore,
@@ -178,7 +246,6 @@ int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
   float tx, ty, tz;
   int retval;
   
-  process_joy(button_number);
   retval = lt_get_camera_update(&heading,&pitch,&roll,
                                 &tx, &ty, &tz);
 
