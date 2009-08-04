@@ -6,6 +6,7 @@
 #include "math_utils.h"
 #include "pref_int.h"
 #include <math.h>
+#include <assert.h>
 
 /**************************/
 /* private Static members */
@@ -145,6 +146,7 @@ int lt_get_camera_update(float *heading,
     return retval; 
   }
   if (frame_valid) {
+    assert(frame.bloblist.num_blobs == 3);
     pose_sort_blobs(frame.bloblist);
     int i;
     for(i=0;i<3;i++) {
