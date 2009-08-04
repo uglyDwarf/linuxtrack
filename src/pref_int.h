@@ -3,6 +3,7 @@
 
 #include "utils.h"
 #include "list.h"
+#include "pref.h"
 
 
 typedef struct{
@@ -35,6 +36,7 @@ typedef struct{
 extern plist prefs;
 
 typedef struct pref_struct{
+  char *section_name;
   char *key_name;
   enum {NONE, STR, FLT, INT} data_type;
   int last_read;
@@ -53,6 +55,11 @@ bool change_key(char *section_name, char *key_name, char *new_value);
 bool dump_prefs(char *file_name);
 void free_prefs();
 
-char *get_custom_key(char *key_name);
+bool set_custom_section(char *name);
+bool open_pref(char *section, char *key, pref_id *prf);
+float get_flt(pref_id prf);
+int get_int(pref_id prf);
+char *get_str(pref_id prf);
+bool close_pref(pref_id *prf);
 
 #endif

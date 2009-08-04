@@ -130,12 +130,12 @@ bool get_pose_setup(reflector_model_type *rm)
 
 bool get_scale_factors(struct lt_scalefactors *sf)
 {
-  char *pitch_m = get_custom_key("Pitch-multiplier");
-  char *yaw_m = get_custom_key("Yaw-multiplier");
-  char *roll_m = get_custom_key("Roll-multiplier");
-  char *xm = get_custom_key("Xtranslation-multiplier");
-  char *ym = get_custom_key("Ytranslation-multiplier");
-  char *zm = get_custom_key("Ztranslation-multiplier");
+  char *pitch_m = get_key(NULL, "Pitch-multiplier");
+  char *yaw_m = get_key(NULL, "Yaw-multiplier");
+  char *roll_m = get_key(NULL, "Roll-multiplier");
+  char *xm = get_key(NULL, "Xtranslation-multiplier");
+  char *ym = get_key(NULL, "Ytranslation-multiplier");
+  char *zm = get_key(NULL, "Ztranslation-multiplier");
   
   if((pitch_m != NULL) && (roll_m != NULL) &&(yaw_m != NULL) &&
      (xm != NULL) && (ym != NULL) && (zm != NULL)){
@@ -149,12 +149,11 @@ bool get_scale_factors(struct lt_scalefactors *sf)
   }else{
     return false;
   }
-  
 }
 
 bool get_filter_factor(float *ff)
 {
-  char *cff = get_custom_key("Filter-factor");
+  char *cff = get_key(NULL, "Filter-factor");
   if(cff == NULL){
     return false;
   }else{

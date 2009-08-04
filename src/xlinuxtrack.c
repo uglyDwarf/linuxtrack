@@ -8,7 +8,6 @@
 #include <stdbool.h>
 #include <math_utils.h>
 #include "ltlib.h"
-#include "pref.h"
 
 XPLMHotKeyID	gHotKey = NULL;
 XPLMDataRef		head_x = NULL;
@@ -80,19 +79,17 @@ PLUGIN_API int XPluginStart(
 	-1.0,					/* Interval */
 	NULL);					/* refcon not used. */
   pref_id frb;
-  if(open_game_pref("Freeze-button", &frb)){
-    freeze_button = get_int(frb);
-    printf("Button 1\n");
-    close_game_pref(&frb);
+  if(lt_open_pref("Freeze-button", &frb)){
+    freeze_button = lt_get_int(frb);
+    lt_close_pref(&frb);
   }else{
-    printf("Bad1\n");
+    printf("Couldn't find Freeze-buton definition!\n");
   }
-  if(open_game_pref("Recenter-button", &frb)){
-    recenter_button = get_int(frb);
-    printf("Button 2\n");
-    close_game_pref(&frb);
+  if(lt_open_pref("Recenter-button", &frb)){
+    recenter_button = lt_get_int(frb);
+    lt_close_pref(&frb);
   }else{
-    printf("Bad2\n");
+    printf("Couldn't find Recenter-buton definition!\n");
   }
   
   return(1);
