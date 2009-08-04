@@ -2,6 +2,7 @@
 #define LINUX_TRACK__H
 
 #include "pose.h"
+#include "pref.h"
 
 struct lt_configuration_type {
   struct cal_device_type device;  
@@ -29,6 +30,13 @@ int lt_get_camera_update(float *heading,
                          float *tx,
                          float *ty,
                          float *tz);
+
+bool lt_open_pref(char *key, pref_id *prf);
+float lt_get_flt(pref_id prf);
+int lt_get_int(pref_id prf);
+char *lt_get_str(pref_id prf);
+bool lt_close_pref(pref_id *prf);
+
 
 #endif
 

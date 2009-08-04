@@ -5,7 +5,6 @@
 #include "cal.h"
 #include "pose.h"
 #include "ltlib.h"
-#include "pref.h"
 
 bool get_device(struct camera_control_block *ccb);
 bool get_pose_setup(reflector_model_type *rm);

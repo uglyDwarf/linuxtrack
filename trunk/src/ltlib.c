@@ -4,6 +4,7 @@
 #include "ltlib.h"
 #include "utils.h" 
 #include "math_utils.h"
+#include "pref_int.h"
 #include <math.h>
 
 /**************************/
@@ -261,5 +262,30 @@ float clamp_angle(float angle)
   }else{
     return angle;
   }
+}
+
+bool lt_open_pref(char *key, pref_id *prf)
+{
+  return open_pref(NULL, key, prf);
+}
+
+float lt_get_flt(pref_id prf)
+{
+  return get_flt(prf);
+}
+
+int lt_get_int(pref_id prf)
+{
+  return get_int(prf);
+}
+
+char *lt_get_str(pref_id prf)
+{
+  return get_str(prf);
+}
+
+bool lt_close_pref(pref_id *prf)
+{
+  return close_pref(prf);
 }
 
