@@ -248,6 +248,7 @@ int cal_thread_get_frame(struct frame_type *return_frame,
     else {
       if (pending_frame_valid) {
         *return_frame_valid = true;
+	//this causes frame to be processed only one time
         pending_frame_valid = false;
         *return_frame = pending_frame;
       }

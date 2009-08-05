@@ -147,6 +147,12 @@ int lt_get_camera_update(float *heading,
   }
   if (frame_valid) {
     assert(frame.bloblist.num_blobs == 3);
+    if(is_finite(frame.bloblist.blobs[0].x) && is_finite(frame.bloblist.blobs[0].y) &&
+       is_finite(frame.bloblist.blobs[1].x) && is_finite(frame.bloblist.blobs[1].y) &&
+       is_finite(frame.bloblist.blobs[2].x) && is_finite(frame.bloblist.blobs[2].y)){
+    }else{
+      return -1;
+    }
     pose_sort_blobs(frame.bloblist);
     int i;
     for(i=0;i<3;i++) {
@@ -182,6 +188,14 @@ int lt_get_camera_update(float *heading,
                                &raw_translations[2]);//tz
     frame_free(&ccb, &frame);
     
+    if(is_finite(raw_angles[0]) && is_finite(raw_angles[1]) && 
+      is_finite(raw_angles[2]) && is_finite(raw_translations[0]) && 
+      is_finite(raw_translations[1]) && is_finite(raw_translations[2])){
+	//intentionaly left empty
+    }else{
+      return -1;
+    }
+
     nonlinfilt_vec(raw_angles, filtered_angles, filterfactor, filtered_angles);
     nonlinfilt_vec(raw_translations, filtered_translations, filterfactor, 
             filtered_translations);
