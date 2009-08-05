@@ -74,6 +74,7 @@ PLUGIN_API int XPluginStart(
   if(lt_init(ltconf, "XPlane")!=0){
     return(0);
   }
+  lt_suspend();
   XPLMRegisterFlightLoopCallback(		
 	MyFlightLoopCallback,	/* Callback */
 	-1.0,					/* Interval */
@@ -129,6 +130,7 @@ void activate(void)
                              xplm_Phase_LastCockpit,
                              0,
                              NULL);
+	  lt_wakeup();
 }
 
 void deactivate(void)
@@ -145,6 +147,7 @@ void deactivate(void)
           XPLMSetDataf(head_z,base_z);
 	  XPLMSetDataf(head_psi,0.0f);
 	  XPLMSetDataf(head_the,0.0f);
+	  lt_suspend();
 }
 
 void	MyHotKeyCallback(void *               inRefcon)
