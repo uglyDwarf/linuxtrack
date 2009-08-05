@@ -213,8 +213,28 @@ int lt_get_camera_update(float *heading,
   return 0;
 }
 
+int lt_suspend(void)
+{
+  if(ccb.state == suspended){
+    return 0;
+  }else{
+    return cal_suspend(&ccb);
+  }
+}
+
+int lt_wakeup(void)
+{
+  if(ccb.state == active){
+    return 0;
+  }else{
+    first_frame_read = false;
+    return cal_wakeup(&ccb);
+  }
+}
+
 int lt_shutdown(void)
 {
+  lt_wakeup();
   cal_thread_stop();
   cal_shutdown(&ccb);
   return 0;

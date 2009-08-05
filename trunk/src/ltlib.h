@@ -23,6 +23,8 @@ struct lt_scalefactors {
 int lt_init(struct lt_configuration_type config, char *cust_section);
 int lt_get_transform(struct transform *t);
 int lt_shutdown(void);
+int lt_suspend(void);
+int lt_wakeup(void);
 void lt_recenter(void);
 int lt_get_camera_update(float *heading,
                          float *pitch,
