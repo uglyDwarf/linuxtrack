@@ -37,6 +37,10 @@ bool lt_open_pref(char *key, pref_id *prf);
 float lt_get_flt(pref_id prf);
 int lt_get_int(pref_id prf);
 char *lt_get_str(pref_id prf);
+bool lt_set_flt(pref_id *prf, float f);
+bool lt_set_int(pref_id *prf, int i);
+bool lt_set_str(pref_id *prf, char *str);
+bool lt_save_prefs();
 bool lt_close_pref(pref_id *prf);
 
 

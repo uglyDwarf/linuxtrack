@@ -320,6 +320,26 @@ char *lt_get_str(pref_id prf)
   return get_str(prf);
 }
 
+bool lt_set_flt(pref_id *prf, float f)
+{
+  return set_flt(prf, f);
+}
+
+bool lt_set_int(pref_id *prf, int i)
+{
+  return set_int(prf, i);
+}
+
+bool lt_set_str(pref_id *prf, char *str)
+{
+  return set_str(prf, str);
+}
+
+bool lt_save_prefs()
+{
+  return save_prefs();
+}
+
 bool lt_close_pref(pref_id *prf)
 {
   return close_pref(prf);
