@@ -7,6 +7,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <time.h>
 
 #define IOCTL_RETRY_COUNT 5
 
@@ -44,6 +45,12 @@ void log_message(const char *format, ...)
       return;
     }
   }
+  time_t now = time(NULL);
+  struct tm  *ts = localtime(&now);
+  char       buf[80];
+  strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", ts);
+  
+  fprintf(stderr, "[%s] ", buf);
   va_list ap;
   va_start(ap,format);
   vfprintf(stderr, format, ap);
