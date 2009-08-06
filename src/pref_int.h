@@ -60,6 +60,12 @@ bool open_pref(char *section, char *key, pref_id *prf);
 float get_flt(pref_id prf);
 int get_int(pref_id prf);
 char *get_str(pref_id prf);
+
+bool set_flt(pref_id *prf, float f);
+bool set_int(pref_id *prf, int i);
+bool set_str(pref_id *prf, char *str);
+
+bool save_prefs();
 bool close_pref(pref_id *prf);
 
 #endif

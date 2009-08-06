@@ -1,5 +1,8 @@
-#include <stdbool.h>
+#define _GNU_SOURCE
+#include <features.h>
 #include <stdio.h>
+#undef _GNU_SOURCE
+#include <stdbool.h>
 #include <string.h>
 #include <assert.h>
 #include "pref_int.h"
@@ -50,7 +53,7 @@ float get_flt(pref_id prf)
     prf->flt = atof(get_key(section, key));
   }else{
     if(prf->data_type != FLT){
-      log_message("Preference %s is not float!\n", key);
+      log_message("Preference %s is not float (%d)!\n", key, prf->data_type);
       return 0.0f;
     }
     if(prf->last_read != read_counter){
@@ -99,6 +102,74 @@ char *get_str(pref_id prf)
   }
   return prf->string;
 }
+
+
+bool set_flt(pref_id *prf, float f)
+{
+  char *section = (*prf)->section_name;
+  char *key = (*prf)->key_name;
+  if((*prf)->data_type == NONE){
+    (*prf)->data_type = FLT;
+    (*prf)->last_read = read_counter;
+  }else{
+    if((*prf)->data_type != FLT){
+      log_message("Preference %s is not float!\n", key);
+      return false;
+    }
+  }
+  char *new_val;
+  asprintf(&new_val, "%f", f);
+  bool rv = change_key(section, key, new_val);
+  free(new_val);
+  if(rv == true){
+    (*prf)->flt = f;
+  }
+  return rv;
+}
+
+bool set_int(pref_id *prf, int i)
+{
+  char *section = (*prf)->section_name;
+  char *key = (*prf)->key_name;
+  if((*prf)->data_type == NONE){
+    (*prf)->data_type = INT;
+    (*prf)->last_read = read_counter;
+  }else{
+    if((*prf)->data_type != INT){
+      log_message("Preference %s is not int!\n", key);
+      return false;
+    }
+  }
+  char *new_val;
+  asprintf(&new_val, "%d", i);
+  bool rv = change_key(section, key, new_val);
+  free(new_val);
+  if(rv == true){
+    (*prf)->integer = i;
+  }
+  return rv;
+}
+
+bool set_str(pref_id *prf, char *str)
+{
+  char *section = (*prf)->section_name;
+  char *key = (*prf)->key_name;
+  if((*prf)->data_type == NONE){
+    (*prf)->data_type = STR;
+    (*prf)->last_read = read_counter;
+  }else{
+    if((*prf)->data_type != STR){
+      log_message("Preference %s is not string!\n", key);
+      return false;
+    }
+  }
+  bool rv = change_key(section, key, (*prf)->string);
+  if(rv == true){
+    (*prf)->string = my_strdup(str);
+  }
+  return rv;
+}
+
 
 bool close_pref(pref_id *prf)
 {
@@ -265,12 +336,56 @@ char *get_key(char *section_name, char *key_name)
 }
 
 
+bool add_key(char *section_name, char *key_name, char *new_value)
+{
+  section_struct *section = find_section(section_name);
+  if(section == NULL){
+    log_message("Attempted to add key to nonexistent section %s!\n", section_name);
+    return false;
+  }
+  key_val_struct *kv = (key_val_struct*)my_malloc(sizeof(key_val_struct));
+  kv->key = my_strdup(key_name);
+  kv->value = my_strdup(new_value);
+  
+  section_item *item = (section_item*)my_malloc(sizeof(section_item));
+  item->sec_item_type = KEY_VAL;
+  item->key_val = kv;
+  
+  add_element(section->contents, item);
+  return true;
+}
+
 bool change_key(char *section_name, char *key_name, char *new_value)
 {
   if(read_prefs_on_init() == false){
+    return NULL;
+  }
+  key_val_struct *kv = NULL;
+  if(section_name != NULL){
+    if(section_exists(section_name)){
+      kv = find_key(section_name, key_name);
+      if(kv == NULL){
+        return add_key(section_name, key_name, new_value);
+      }
+    }else{
+      log_message("Section %s doesn't exist!\n", section_name);
+      return false;
+    }
+  }else{
+    if(custom_section_name != NULL){
+      if(key_exists(custom_section_name, key_name) == true){
+        kv = find_key(custom_section_name, key_name);
+      }else{
+        return add_key(custom_section_name, key_name, new_value);
+      }
+    }else{
+      log_message("Set custom section name before change of pref %s!\n", key_name);
+      return false;
+    }
+  }
+  if(kv == NULL){
     return false;
   }
-  key_val_struct *kv = find_key(section_name, key_name);
   free(kv->value);
   kv->value = my_strdup(new_value);
   return true;
@@ -324,6 +439,7 @@ bool dump_prefs(char *file_name)
   while((pfi = (pref_file_item *)get_next(&i)) != NULL){
     switch(pfi->item_type){
       case SECTION:
+        fprintf(of, "\n");
         dump_section(pfi->section, of);
         break;
       case PREF_COMMENT:
@@ -396,8 +512,33 @@ bool set_custom_section(char *name)
   return false;
 }
 
-/*
+bool save_prefs()
+{
+  char *pfile = get_pref_file_name();
+  if(pfile == NULL){
+    log_message("Can't find preference file!\n");
+  }
+  char *tmp_file;
+  asprintf(&tmp_file, "%s.new", pfile);
+  if(dump_prefs(tmp_file) == true){
+    char *old_file;
+    asprintf(&old_file, "%s.old", pfile);
+    remove(old_file);
+    if(rename(pfile, old_file) == 0){
+      if(rename(tmp_file, pfile) != 0){
+        log_message("Can't rename '%s' to '%s'\n", tmp_file, pfile);
+        return false;
+      }
+    }else{
+    }
+  }else{
+    log_message("Can't write prefs to file '%s'\n", tmp_file);
+    return false;
+  }
+  return true;
+}
 
+/*
 int main(int argc, char *argv[])
 {
   set_custom_section("XPlane");
@@ -409,26 +550,22 @@ int main(int argc, char *argv[])
   change_key("Global", "Head-Z", "444");
   printf("Head ref [0, %s, %s]\n", get_key("Global", "Head-Y"), 
   	get_key("Global", "Head-Z"));
-  dump_prefs("pref2.dmp");
   
   pref_id ff, fb, fc;
   if(open_pref(NULL, "Filter-factor", &ff)){
     printf("Pref OK... %f\n", get_flt(ff));
-    
+    if(set_flt(&ff, 3.14))
+      printf("Pref OK... %f\n", get_flt(ff));
     close_pref(&ff);
   }
-  if(open_pref(NULL, "Freeze-button", &fb)){
+  if(open_pref(NULL, "Recenter-button", &fb)){
     printf("Pref OK... %d\n", get_int(fb));
-    
+    if(set_int(&fb, 14))
+      printf("Pref OK... %d\n", get_int(fb));
     close_pref(&fb);
   }
-  if(open_pref(NULL, "test", &fc)){
-    printf("Pref OK... %s\n", get_str(fc));
-    
-    close_pref(&fc);
-  }
-
-  
+  dump_prefs("pref2.dmp");
+  save_prefs();
   
   free_prefs();
   return 0;
