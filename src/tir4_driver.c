@@ -376,7 +376,9 @@ int tir4_change_operating_mode(struct camera_control_block *ccb,
 
 int tir4_wakeup(struct camera_control_block *ccb)
 {
-  set_ir_led_on(true);
+  if (ccb->enable_IR_illuminator_LEDS) {
+    set_ir_led_on(true);
+  }
   ccb->state = active;
   return 0;
 }

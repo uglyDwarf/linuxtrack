@@ -228,6 +228,7 @@ int lt_wakeup(void)
     return 0;
   }else{
     first_frame_read = false;
+    cal_set_good_indication(&ccb, true);
     return cal_wakeup(&ccb);
   }
 }
