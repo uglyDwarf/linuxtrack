@@ -1,23 +1,42 @@
-#include <string.h>
+#include "XPLMGraphics.h"
+#include "XPLMMenus.h"
 #include "XPLMDisplay.h"
 #include "XPLMUtilities.h"
 #include "XPLMDataAccess.h"
 #include "XPLMProcessing.h"
+#include "XPWidgets.h"
+#include "XPStandardWidgets.h"
+#include <string.h>
 #include <stdio.h>
 #include <math.h>
 #include <stdbool.h>
 #include <math_utils.h>
 #include "ltlib.h"
 
-XPLMHotKeyID	gHotKey = NULL;
+XPLMHotKeyID		gHotKey = NULL;
 XPLMDataRef		head_x = NULL;
 XPLMDataRef		head_y = NULL;
 XPLMDataRef		head_z = NULL;
 XPLMDataRef		head_psi = NULL;
 XPLMDataRef		head_the = NULL;
+			
+XPWidgetID		setupWindow = NULL;
+XPWidgetID		mapText = NULL;
+XPWidgetID		saveButton = NULL;
+			
+XPLMMenuID		setupMenu = NULL;
+			
+XPWidgetID		jmWindow;
+XPWidgetID		jmText;
+XPWidgetID		jmButton;
+int			jmWindowOpened = 0;
+int			jmRun = 0;
 
 XPLMDataRef		joy_buttons = NULL;
 int 			buttons[1520];
+
+int 			buttonIndex = -1;
+char			text[150];
 
 int 			freeze_button = 3;
 int			recenter_button = 4;
@@ -33,16 +52,364 @@ float base_z;
 bool active_flag = false;
 
 
+
+
+
+
 void	MyHotKeyCallback(void *               inRefcon);    
 
 int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
                           int                  inIsBefore,
                           void *               inRefcon);
-float	MyFlightLoopCallback(
+
+float	joystickCallback(
                                    float                inElapsedSinceLastCall,    
                                    float                inElapsedTimeSinceLastFlightLoop,    
                                    int                  inCounter,    
                                    void *               inRefcon);
+
+bool createSetupWindow(int x, int y, int w, int h);
+
+struct buttonDef{
+  char *caption;
+  XPWidgetID text;
+  XPWidgetID button;
+  char *prefName;
+  pref_id pref;
+};
+
+struct buttonDef btArray[] = {
+  {
+    .caption = "Start/Stop tracking:",
+    .prefName = "Recenter-button"
+  },
+  {
+    .caption = "Tracking freeze:",
+    .prefName = "Freeze-button"
+  }
+};
+
+struct scrollerDef{
+  char *caption;
+  float min;
+  float max;
+  XPWidgetID text;
+  XPWidgetID scroller;
+  int dx;
+  int dy;
+  int w;
+  char *prefName;
+  pref_id pref;
+};
+
+struct scrollerDef scArray[] = {
+  {.caption = "Pitch sensitivity", 
+   .min = 0.0,
+   .max = 10.0,
+   .dx = 20, 
+   .dy = 50,
+   .w = 160,
+   .prefName = "Pitch-multiplier"},
+  {.caption = "Yaw sensitivity", 
+   .min = 0.0,
+   .max = 10.0,
+   .dx = 0, 
+   .dy = 30,
+   .w = 160,
+   .prefName = "Yaw-multiplier"},
+  {.caption = "X-translation sensitivity", 
+   .min = 0.0,
+   .max = 10.0,
+   .dx = 0, 
+   .dy = 30,
+   .w = 160,
+   .prefName = "Xtranslation-multiplier"},
+  {.caption = "Y-translation sensitivity", 
+   .min = 0.0,
+   .max = 10.0,
+   .dx = 0, 
+   .dy = 30,
+   .w = 160,
+   .prefName = "Ytranslation-multiplier"},
+  {.caption = "Z-translation sensitivity", 
+   .min = 0.0,
+   .max = 10.0,
+   .dx = 0, 
+   .dy = 30,
+   .w = 160,
+   .prefName = "Ztranslation-multiplier"},
+  {.caption = "Filter factor", 
+   .min = 0.0,
+   .max = 50.0,
+   .dx = 0, 
+   .dy = 30,
+   .w = 160,
+   .prefName = "Filter-factor"}
+};
+
+
+
+
+
+void linuxTrackMenuHandler(void *inMenuRef, void *inItemRef)
+{
+  if(setupWindow == NULL){
+    createSetupWindow(100, 600, 300, 370);
+  }else{
+    if(!XPIsWidgetVisible(setupWindow)){
+      XPShowWidget(setupWindow);
+    }
+  }
+  return;
+}
+
+int jmProcessJoy()
+{
+  int new_buttons[160];
+  int i = 0;
+  XPLMGetDatavi(joy_buttons, new_buttons, 0, 160);
+  for(i = 0;i < 160;++i){
+    if(new_buttons[i] != buttons[i]){
+      return i;
+    }
+  }
+  return -1.0;
+}
+
+bool updateButtonCaption(int index, int button)
+{
+  if(index < 0){
+    return false;
+  }
+  sprintf(text, "%s button %d", btArray[index].caption, button);
+  XPSetWidgetDescriptor(btArray[index].text, text);
+  lt_set_int(&(btArray[index].pref), button);
+  switch(index){
+    case 0:
+      recenter_button = button;
+      break;
+    case 1:
+      freeze_button = button;
+      break;
+    default:
+      break;
+  };
+  return true;
+}
+
+int jmWindowHandler(XPWidgetMessage inMessage,
+			XPWidgetID inWidget,
+			long inParam1,
+			long inParam2)
+{
+  if(inMessage == xpMsg_PushButtonPressed){
+    //there is only one button
+    jmRun = 0;
+    if(jmWindow != NULL){
+      jmWindowOpened = 0;
+      buttonIndex = -1;
+      XPHideWidget(jmWindow);
+    }
+    return 1;
+  }
+  return 0;
+}
+
+int joyMapDialog(char *caption)
+{
+  if(jmWindowOpened != 0){
+    return -1;
+  }
+  jmWindowOpened = 1;
+  
+  if(jmWindow != NULL){
+    XPSetWidgetDescriptor(jmText, caption);
+    XPShowWidget(jmWindow);
+  }else{
+    int x  = 100;
+    int y  = 600;
+    int w  = 300;
+    int h  = 100;
+    int x2 = x + w;
+    int y2 = y - h;
+
+    jmWindow = XPCreateWidget(x, y, x2, y2,
+  				  1, //Visible
+				  "Joystick button mapping...",
+				  1, //Root
+				  NULL, //No container
+				  xpWidgetClass_MainWindow 
+    );
+    jmText = XPCreateWidget(x+20, y - 20, x2 -20, y -40 ,
+    				   1, caption, 0, jmWindow, 
+				   xpWidgetClass_Caption);
+    jmButton = XPCreateWidget(x+80, y2+40, x2-80, y2+20, 1, 
+  				  "Cancel", 0, jmWindow,
+  				  xpWidgetClass_Button);
+    XPLMGetDatavi(joy_buttons, buttons, 0, 160);
+    XPAddWidgetCallback(jmWindow, jmWindowHandler);
+  }
+  jmRun = 1;
+  return 0;
+}
+
+bool updateScrollerCaption(int i)
+{
+  struct scrollerDef *sc = &(scArray[i]);
+  long pos = XPGetWidgetProperty(sc->scroller, 
+               xpProperty_ScrollBarSliderPosition, NULL);
+  float val = sc->min + (sc->max - sc->min) * pos / 100.0;
+  sprintf(text, "%s = %g", sc->caption, val);
+  XPSetWidgetDescriptor(sc->text, text);
+  lt_set_flt(&(scArray[i].pref), val);
+  return true;
+}
+
+
+
+int setupWindowHandler(XPWidgetMessage inMessage,
+			XPWidgetID inWidget,
+			long inParam1,
+			long inParam2)
+{
+  if(inMessage == xpMessage_CloseButtonPushed){
+    if(setupWindow != NULL){
+      XPHideWidget(setupWindow);
+    }
+    return 1;
+  }
+  if(inMessage == xpMsg_PushButtonPressed){
+    if(inParam1 == (long)btArray[0].button){
+      buttonIndex = 0;
+      joyMapDialog("Remap joystick button for Start/Stop Tracking");
+    }
+    if(inParam1 == (long)btArray[1].button){
+      buttonIndex = 1;
+      joyMapDialog("Remap joystick button for Tracking freeze");
+    }
+    if(inParam1 == (long)saveButton){
+      lt_save_prefs();
+    }
+  }
+  if(inMessage == xpMsg_ScrollBarSliderPositionChanged){
+    int i;
+    for(i = 0; i < 6; ++i){
+      if(inParam1 == (long)scArray[i].scroller){
+        updateScrollerCaption(i);
+	break;
+      }
+    }
+  }
+  
+  return 0;
+}
+
+bool setupScrollers(XPWidgetID *window, int x, int y)
+{
+  int i;
+  int px = x;
+  int py = y;
+  int w;
+  XPWidgetID sc;
+  
+  for(i = 0; i < 6; ++i){
+    px += scArray[i].dx;
+    py -= scArray[i].dy;
+    w = scArray[i].w;
+    
+    sc = scArray[i].scroller = XPCreateWidget(px, py, px + w, py - 10 , 1, 
+  				  scArray[i].caption, 0, *window,
+  				  xpWidgetClass_ScrollBar 
+    );
+    XPSetWidgetProperty(sc, xpProperty_ScrollBarType, xpScrollBarTypeSlider);
+    XPSetWidgetProperty(sc, xpProperty_ScrollBarMin, 0);
+    XPSetWidgetProperty(sc, xpProperty_ScrollBarMax, 100);
+    XPSetWidgetProperty(sc, xpProperty_ScrollBarPageAmount, 10);
+    
+    if(!lt_open_pref(scArray[i].prefName, &(scArray[i].pref))){
+      scArray[i].pref = NULL;
+    }
+    
+    
+    float prf = lt_get_flt(scArray[i].pref);
+    long pos = 100 * (prf - scArray[i].min) / (scArray[i].max - scArray[i].min);
+    if(pos > 100){
+      pos = 100;
+    }else if(pos < 0){
+      pos = 0;
+    }
+    XPSetWidgetProperty(sc, xpProperty_ScrollBarSliderPosition, pos);
+    
+    scArray[i].text = XPCreateWidget(px, py + 18, px + w, py + 5 ,
+    				 1, scArray[i].caption, 0, *window,
+  				  xpWidgetClass_Caption);
+    updateScrollerCaption(i);
+  }
+  return true;
+}
+
+bool createSetupWindow(int x, int y, int w, int h)
+{
+  int x2 = x + w;
+  int y2 = y - h;
+  
+  setupWindow = XPCreateWidget(x, y, x2, y2,
+  				1, //Visible
+				"Linux Track Setup",
+				1, //Root
+				NULL, //No container
+				xpWidgetClass_MainWindow 
+  );
+  
+  XPSetWidgetProperty(setupWindow, xpProperty_MainWindowHasCloseBoxes, 1);
+  
+  XPWidgetID sw = XPCreateWidget(x+10, y-30, x2-10, y2+10, 
+  				1, //Visible
+				"", //Desc
+				0, //Root
+				setupWindow,
+				xpWidgetClass_SubWindow
+  );
+  
+  XPSetWidgetProperty(sw, xpProperty_SubWindowType, 
+  				xpSubWindowStyle_SubWindow
+  );
+  
+  mapText = XPCreateWidget(x+20, y2 + 140, x2 -20, y2 + 120 ,
+    				 1, "Joystick button maping",
+				 0, setupWindow, xpWidgetClass_Caption);
+  btArray[0].button = XPCreateWidget(x2-120, y2+120, x2-20, y2+100, 1, 
+  				"Remap", 0, setupWindow,
+  				xpWidgetClass_Button);
+  btArray[0].text = XPCreateWidget(x+20, y2 + 120, x2 -140, y2 + 100 ,
+    				 1, btArray[0].caption,
+				 0, setupWindow, xpWidgetClass_Caption);
+  if(!lt_open_pref(btArray[0].prefName, &(btArray[0].pref))){
+    btArray[0].pref = NULL;
+  }
+  btArray[1].button = XPCreateWidget(x2-120, y2+90, x2-20, y2+70, 1, 
+  				"Remap", 0, setupWindow,
+  				xpWidgetClass_Button);
+  btArray[1].text = XPCreateWidget(x+20, y2 + 90, x2 -140, y2 + 70 ,
+    				 1, btArray[1].caption,
+				 0, setupWindow, xpWidgetClass_Caption);
+  if(!lt_open_pref(btArray[1].prefName, &(btArray[1].pref))){
+    btArray[1].pref = NULL;
+  }
+  saveButton = XPCreateWidget(x+20, y2+30, x2-20, y2+10, 1, 
+  				"Save preferences", 0, setupWindow,
+  				xpWidgetClass_Button);
+  XPSetWidgetProperty(btArray[0].button, xpProperty_ButtonType, xpPushButton);
+  XPSetWidgetProperty(btArray[1].button, xpProperty_ButtonType, xpPushButton);
+  XPSetWidgetProperty(saveButton, xpProperty_ButtonType, xpPushButton);
+  updateButtonCaption(0, recenter_button);
+  updateButtonCaption(1, freeze_button);
+
+  setupScrollers(&setupWindow, x, y);
+
+  XPAddWidgetCallback(setupWindow, setupWindowHandler);
+  return true;
+}
 
 
 PLUGIN_API int XPluginStart(
@@ -76,22 +443,28 @@ PLUGIN_API int XPluginStart(
   }
   lt_suspend();
   XPLMRegisterFlightLoopCallback(		
-	MyFlightLoopCallback,	/* Callback */
+	joystickCallback,	/* Callback */
 	-1.0,					/* Interval */
 	NULL);					/* refcon not used. */
   pref_id frb;
   if(lt_open_pref("Freeze-button", &frb)){
     freeze_button = lt_get_int(frb);
-    lt_close_pref(&frb);
+    //lt_close_pref(&frb);
   }else{
     printf("Couldn't find Freeze-buton definition!\n");
   }
   if(lt_open_pref("Recenter-button", &frb)){
     recenter_button = lt_get_int(frb);
-    lt_close_pref(&frb);
+    //lt_close_pref(&frb);
   }else{
     printf("Couldn't find Recenter-buton definition!\n");
   }
+  int index = XPLMAppendMenuItem(XPLMFindPluginsMenu(), "LinuxTrack", NULL, 1);
+
+
+  setupMenu = XPLMCreateMenu("LinuxTrack", XPLMFindPluginsMenu(), index, 
+                         linuxTrackMenuHandler, NULL);
+  XPLMAppendMenuItem(setupMenu, "Setup", (void *)"Setup", 1);
   
   return(1);
 }
@@ -99,7 +472,7 @@ PLUGIN_API int XPluginStart(
 PLUGIN_API void	XPluginStop(void)
 {
   XPLMUnregisterHotKey(gHotKey);
-  XPLMUnregisterFlightLoopCallback(MyFlightLoopCallback, NULL);
+  XPLMUnregisterFlightLoopCallback(joystickCallback, NULL);
   lt_shutdown();
 }
 
@@ -218,19 +591,29 @@ void process_joy()
   joy_fsm(buttons[recenter_button], &recenter_state, &recenter_ts, &active_flag);
 }
 
-float	MyFlightLoopCallback(
+float	joystickCallback(
                                    float                inElapsedSinceLastCall,    
                                    float                inElapsedTimeSinceLastFlightLoop,    
                                    int                  inCounter,    
                                    void *               inRefcon)
 {
-        bool last_active_flag = active_flag;
-        process_joy();
-        if(last_active_flag != active_flag){
-	  if(active_flag){
-	    activate();
-	  }else{
-	    deactivate();
+	if(jmRun != 0){
+	  int res = jmProcessJoy();
+	  if(res != -1){
+	    updateButtonCaption(buttonIndex, res);
+            XPHideWidget(jmWindow);
+            jmWindowOpened = 0;
+	    jmRun = 0;
+	  }
+	}else{
+          bool last_active_flag = active_flag;
+          process_joy();
+          if(last_active_flag != active_flag){
+	    if(active_flag){
+	      activate();
+	    }else{
+	      deactivate();
+	    }
 	  }
 	}
 	return -1.0;

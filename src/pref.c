@@ -23,10 +23,66 @@ char *pref_file = ".linuxtrack";
 char *def_section_name = "Default";
 char *custom_section_name = NULL;
 int read_counter = 0;
+plist opened_prefs = NULL;
 
+struct opened{
+  char *section;
+  char *key;
+  pref_id prf;
+  int refcount;
+};
+
+
+bool name_match(char *n1, char *n2){
+  if(n1 == NULL){
+    if(n2 == NULL){
+      return true;
+    }else{
+      return false;
+    }
+  }else{
+    if(n2 == NULL){
+      return false;
+    }else{
+      if(strcmp(n1,n2) == 0){
+        return true;
+      }else{
+        return false;
+      }
+    }
+  }
+}
 
 bool open_pref(char *section, char *key, pref_id *prf)
 {
+
+  printf("Request to open %s\n", key);
+  if(opened_prefs == NULL){
+    opened_prefs = create_list();
+  }
+  
+  iterator i;
+  init_iterator(opened_prefs, &i);
+  
+  struct opened* o;
+  bool matched = false;
+  while((o = (struct opened*)get_next(&i)) != NULL){
+    if(name_match(section, o->section)){
+      if(name_match(key, o->key)){
+        matched = true;
+        break;
+      }
+    }
+  }
+
+  if(matched){
+    *prf = o->prf;
+    o->refcount++;
+    printf("Found match (%d refs)!\n", o->refcount);
+    return true;
+  }
+  
+  printf("Creating new...\n");
   if(get_key(NULL, key) == NULL){
     return false;
   }
@@ -39,12 +95,22 @@ bool open_pref(char *section, char *key, pref_id *prf)
   (*prf)->key_name = my_strdup(key);
   (*prf)->data_type = NONE;
   (*prf)->last_read = -1;
+  o = (struct opened*)my_malloc(sizeof(struct opened));
+  o->section = section;
+  o->key = key;
+  o->prf = *prf;
+  o->refcount = 1;
+  add_element(opened_prefs, o);
   return true;
 }
 
 
 float get_flt(pref_id prf)
 {
+  if(prf == NULL){
+    log_message("Null float preference queried!\n");
+    return 0.0f;
+  }
   char *section = prf->section_name;
   char *key = prf->key_name;
   if(prf->data_type == NONE){
@@ -65,6 +131,10 @@ float get_flt(pref_id prf)
 
 int get_int(pref_id prf)
 {
+  if(prf == NULL){
+    log_message("Null int preference queried!\n");
+    return 0;
+  }
   char *section = prf->section_name;
   char *key = prf->key_name;
   if(prf->data_type == NONE){
@@ -85,6 +155,10 @@ int get_int(pref_id prf)
 
 char *get_str(pref_id prf)
 {
+  if(prf == NULL){
+    log_message("Null str preference queried!\n");
+    return NULL;
+  }
   char *section = prf->section_name;
   char *key = prf->key_name;
   if(prf->data_type == NONE){
@@ -106,6 +180,10 @@ char *get_str(pref_id prf)
 
 bool set_flt(pref_id *prf, float f)
 {
+  if(prf == NULL){
+    log_message("Tried to set null float preference!\n");
+    return false;
+  }
   char *section = (*prf)->section_name;
   char *key = (*prf)->key_name;
   if((*prf)->data_type == NONE){
@@ -129,6 +207,10 @@ bool set_flt(pref_id *prf, float f)
 
 bool set_int(pref_id *prf, int i)
 {
+  if(prf == NULL){
+    log_message("Tried to set null int preference!\n");
+    return false;
+  }
   char *section = (*prf)->section_name;
   char *key = (*prf)->key_name;
   if((*prf)->data_type == NONE){
@@ -152,6 +234,10 @@ bool set_int(pref_id *prf, int i)
 
 bool set_str(pref_id *prf, char *str)
 {
+  if(prf == NULL){
+    log_message("Tried to set null str preference!\n");
+    return false;
+  }
   char *section = (*prf)->section_name;
   char *key = (*prf)->key_name;
   if((*prf)->data_type == NONE){
@@ -173,13 +259,36 @@ bool set_str(pref_id *prf, char *str)
 
 bool close_pref(pref_id *prf)
 {
-  if((*prf)->section_name != NULL){
-    free((*prf)->section_name);
-    (*prf)->section_name = NULL;
+  printf("Closing pref!\n");
+  if(prf == NULL){
+    log_message("Trying to close null pref.\n");
   }
-  free((*prf)->key_name);
-  (*prf)->key_name = NULL;
-  free(*prf);
+  
+  iterator i;
+  init_iterator(opened_prefs, &i);
+  
+  struct opened* o;
+  bool matched = false;
+  while((o = (struct opened*)get_next(&i)) != NULL){
+    if(o->prf == *prf){
+        matched = true;
+        break;
+    }
+  }
+  if(matched == false){
+    log_message("Trying to close already closed preference!\n");
+    return false;
+  }
+  o->refcount--;
+  if(o->refcount <= 0){
+    if((*prf)->section_name != NULL){
+      free((*prf)->section_name);
+      (*prf)->section_name = NULL;
+    }
+    free((*prf)->key_name);
+    (*prf)->key_name = NULL;
+    free(*prf);
+  }
   *prf = NULL;
   return true;
 }

@@ -130,34 +130,45 @@ bool get_pose_setup(reflector_model_type *rm)
 
 bool get_scale_factors(struct lt_scalefactors *sf)
 {
-  char *pitch_m = get_key(NULL, "Pitch-multiplier");
-  char *yaw_m = get_key(NULL, "Yaw-multiplier");
-  char *roll_m = get_key(NULL, "Roll-multiplier");
-  char *xm = get_key(NULL, "Xtranslation-multiplier");
-  char *ym = get_key(NULL, "Ytranslation-multiplier");
-  char *zm = get_key(NULL, "Ztranslation-multiplier");
+  static pref_id pitch_m = NULL;
+  static pref_id yaw_m = NULL;
+  static pref_id roll_m = NULL;
+  static pref_id xm = NULL;
+  static pref_id ym = NULL;
+  static pref_id zm = NULL;
   
-  if((pitch_m != NULL) && (roll_m != NULL) &&(yaw_m != NULL) &&
-     (xm != NULL) && (ym != NULL) && (zm != NULL)){
-    sf->pitch_sf = atof(pitch_m);
-    sf->yaw_sf = atof(yaw_m);
-    sf->roll_sf = atof(roll_m);
-    sf->tx_sf = atof(xm);
-    sf->ty_sf = atof(ym);
-    sf->tz_sf = atof(zm);
-    return true; 
-  }else{
-    return false;
+  if(pitch_m == NULL){
+    if((
+      open_pref(NULL, "Pitch-multiplier", &pitch_m) && 
+      open_pref(NULL, "Yaw-multiplier", &yaw_m) &&
+      open_pref(NULL, "Roll-multiplier", &roll_m) &&
+      open_pref(NULL, "Xtranslation-multiplier", &xm) &&
+      open_pref(NULL, "Ytranslation-multiplier", &ym) &&
+      open_pref(NULL, "Ztranslation-multiplier", &zm)
+      ) != true){
+      log_message("Can't read scale factor prefs!\n");
+      return false;
+    }
+    
   }
+  sf->pitch_sf = get_flt(pitch_m);
+  sf->yaw_sf = get_flt(yaw_m);
+  sf->roll_sf = get_flt(roll_m);
+  sf->tx_sf = get_flt(xm);
+  sf->ty_sf = get_flt(ym);
+  sf->tz_sf = get_flt(zm);
+  return true; 
 }
 
 bool get_filter_factor(float *ff)
 {
-  char *cff = get_key(NULL, "Filter-factor");
+  static pref_id cff = NULL;
   if(cff == NULL){
-    return false;
-  }else{
-    *ff = atof(cff);
-    return true;
+    if(open_pref(NULL, "Filter-factor", &cff) != true){
+      log_message("Can't read scale factor prefs!\n");
+      return false;
+    } 
   }
+  *ff = get_flt(cff);
+  return true;
 }

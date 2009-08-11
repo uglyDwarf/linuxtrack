@@ -57,7 +57,6 @@ int lt_init(struct lt_configuration_type config, char *cust_section)
   if(get_scale_factors(&scales) != true){
     return -1;
   }
-  get_scale_factors(&scales);
 
   if(get_device(&ccb) == false){
     log_message("Can't get device category!\n");
@@ -146,6 +145,7 @@ int lt_get_camera_update(float *heading,
     return retval; 
   }
   if (frame_valid) {
+    get_filter_factor(&filterfactor);
     assert(frame.bloblist.num_blobs == 3);
     if(is_finite(frame.bloblist.blobs[0].x) && is_finite(frame.bloblist.blobs[0].y) &&
        is_finite(frame.bloblist.blobs[1].x) && is_finite(frame.bloblist.blobs[1].y) &&
@@ -201,6 +201,7 @@ int lt_get_camera_update(float *heading,
             filtered_translations);
     
   }  
+  get_scale_factors(&scales);
   *heading = clamp_angle(scales.yaw_sf * filtered_angles[0]);
   *pitch = clamp_angle(scales.pitch_sf * filtered_angles[1]);
   *roll = clamp_angle(scales.roll_sf * filtered_angles[2]);
@@ -218,6 +219,7 @@ int lt_suspend(void)
   if(ccb.state == suspended){
     return 0;
   }else{
+    cal_thread_stop();
     return cal_suspend(&ccb);
   }
 }
@@ -229,6 +231,7 @@ int lt_wakeup(void)
   }else{
     first_frame_read = false;
     cal_set_good_indication(&ccb, true);
+    cal_thread_start(&ccb);
     return cal_wakeup(&ccb);
   }
 }

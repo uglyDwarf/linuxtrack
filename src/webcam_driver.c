@@ -468,7 +468,11 @@ int webcam_get_frame(struct camera_control_block *ccb, struct frame_type *f)
         //we have data!
         break;
       }else{
-        log_message("Poll returned with unexpected event!\n");
+        if((pfd.revents && POLLERR) != 0){
+          log_message("Poll returned error (%s)!\n", strerror(errno));
+	}else{
+	  log_message("Poll returned unexpected event! (%X)\n",pfd.revents);
+	}
       }
     }else if(res == -1){
       log_message("Poll returned error! (%s)", strerror(errno));
