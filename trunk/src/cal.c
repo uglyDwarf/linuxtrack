@@ -60,6 +60,7 @@ int cal_init(struct camera_control_block *ccb)
 int cal_shutdown(struct camera_control_block *ccb)
 {
   assert((iface != NULL) && (iface->device_shutdown != NULL));
+  
   return (iface->device_shutdown)(ccb);
 }
 
