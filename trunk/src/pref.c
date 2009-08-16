@@ -96,8 +96,8 @@ bool open_pref(char *section, char *key, pref_id *prf)
   (*prf)->data_type = NONE;
   (*prf)->last_read = -1;
   o = (struct opened*)my_malloc(sizeof(struct opened));
-  o->section = section;
-  o->key = key;
+  o->section = (section != NULL) ? my_strdup(section) : NULL;
+  o->key = my_strdup(key);
   o->prf = *prf;
   o->refcount = 1;
   add_element(opened_prefs, o);
@@ -288,6 +288,12 @@ bool close_pref(pref_id *prf)
     free((*prf)->key_name);
     (*prf)->key_name = NULL;
     free(*prf);
+    o = (struct opened*)delete_current(opened_prefs, &i);
+    assert(o != NULL);
+    if(o->section != NULL){
+      free(o->section);
+    }
+    free(o->key);
   }
   *prf = NULL;
   return true;
@@ -355,6 +361,10 @@ section_struct *find_section(char *section_name)
 {
   if(read_prefs_on_init() == false){
     return NULL;
+  }
+  if(section_name == NULL){
+    log_message("Attempt to find section with NULL name!");
+    return false;
   }
   iterator i;
   init_iterator(prefs, &i);
@@ -447,9 +457,16 @@ char *get_key(char *section_name, char *key_name)
 
 bool add_key(char *section_name, char *key_name, char *new_value)
 {
+  if(read_prefs_on_init() == false){
+    return NULL;
+  }
+  if(section_name == NULL){
+    section_name = custom_section_name;
+  }
   section_struct *section = find_section(section_name);
   if(section == NULL){
-    log_message("Attempted to add key to nonexistent section %s!\n", section_name);
+    log_message("Attempted to add key to nonexistent section %s!\n", 
+      (section_name != NULL? section_name : "'NULL'"));
     return false;
   }
   key_val_struct *kv = (key_val_struct*)my_malloc(sizeof(key_val_struct));

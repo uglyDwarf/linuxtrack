@@ -34,6 +34,7 @@ int lt_get_camera_update(float *heading,
                          float *tz);
 
 bool lt_open_pref(char *key, pref_id *prf);
+bool lt_create_pref(char *key);
 float lt_get_flt(pref_id prf);
 int lt_get_int(pref_id prf);
 char *lt_get_str(pref_id prf);
@@ -43,6 +44,7 @@ bool lt_set_str(pref_id *prf, char *str);
 bool lt_save_prefs();
 bool lt_close_pref(pref_id *prf);
 
+void lt_log_message(const char *format, ...);
 
 #endif
 

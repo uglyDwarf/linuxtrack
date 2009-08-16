@@ -2,8 +2,11 @@
 #include "list.h"
 
 
+typedef struct list_iterator{
+} list_iterator;
 
 typedef struct list_element{
+  struct list_element *prev;
   struct list_element *next;
   void *payload;
 } list_element;
@@ -34,6 +37,7 @@ bool is_empty(plist l)
 void add_element(plist pl, void *payload)
 {
   list_element* new_elem = my_malloc(sizeof(list_element));
+  new_elem->prev = NULL;
   new_elem->next = NULL;
   new_elem->payload = payload;
   
@@ -45,6 +49,7 @@ void add_element(plist pl, void *payload)
     //add new element to the end
     assert(pl->tail != NULL);
     pl->tail->next = new_elem;
+    new_elem->prev = pl->tail;
     pl->tail = new_elem;
   }
 }
@@ -56,7 +61,25 @@ void init_iterator(plist l, iterator *i)
   *i = l->head;
 }
 
+void init_rev_iterator(plist l, iterator *i)
+{
+  assert(l != NULL);
+  assert(i != NULL);
+  *i = l->tail;
+}
+
 void* get_next(iterator* i)
+{
+  assert(i != NULL);
+  if((*i) == NULL){
+    return(NULL);
+  }
+  void* payload = (*i)->payload;
+  *i = (*i)->next;
+  return(payload);
+}
+
+void* get_prev(iterator* i)
 {
   assert(i != NULL);
   if((*i) == NULL){
@@ -75,6 +98,44 @@ void* get_current(iterator* i)
   }
   void* payload = (*i)->payload;
   return(payload);
+}
+
+void *delete_current(plist pl, iterator* i)
+{
+  assert(i != NULL);
+  if(is_empty(pl)){
+    log_message("Attempted to delete from empty list!");
+    return NULL;
+  }
+  //iterator is already one element farther
+  list_element *current = NULL;
+  if((*i) == NULL){
+    current = pl->tail;
+  }else if(*i == pl->head){
+    current = pl->head;
+  }else{
+    current = (*i)->prev;
+  }
+  if(current == NULL){
+    log_message("Can't deternime which element to delete!");
+    return false; 
+  }
+  
+  if(pl->head == current){
+    pl->head = current->next;
+  }
+  if(pl->tail == current){
+    pl->tail = current->prev;
+  }
+  list_element *prev = current->prev;
+  list_element *next = current->next;
+  if(prev != NULL){
+    prev->next = next;
+  }
+  if(next != NULL){
+    next->prev = prev;
+  }
+  return current->payload;
 }
 
 void free_list(plist list_ptr, bool free_payload)
