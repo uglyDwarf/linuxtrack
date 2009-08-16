@@ -41,6 +41,8 @@ void* get_next(iterator* i);
  */
 void* get_current(iterator* i);
 
+void *delete_current(plist pl, iterator* i);
+
 /*
  * Frees the list and optionaly also its elements
  */

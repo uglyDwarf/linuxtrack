@@ -38,8 +38,8 @@ int 			buttons[1520];
 int 			buttonIndex = -1;
 char			text[150];
 
-int 			freeze_button = 3;
-int			recenter_button = 4;
+int 			freeze_button = -1;
+int			recenter_button = -1;
 
 float			debounce_time = 0.01;
 
@@ -181,8 +181,17 @@ bool updateButtonCaption(int index, int button)
   if(index < 0){
     return false;
   }
-  sprintf(text, "%s button %d", btArray[index].caption, button);
+  if(button >= 0){
+    sprintf(text, "%s button %d", btArray[index].caption, button);
+  }else{
+    sprintf(text, "%s Not mapped", btArray[index].caption);
+  }
   XPSetWidgetDescriptor(btArray[index].text, text);
+  
+  if(button < 0){
+    return true;
+  }
+  
   lt_set_int(&(btArray[index].pref), button);
   switch(index){
     case 0:
@@ -348,6 +357,23 @@ bool setupScrollers(XPWidgetID *window, int x, int y)
   return true;
 }
 
+bool get_pref(char *name, pref_id *prf)
+{
+  if(!lt_open_pref(name, prf)){
+    if(lt_create_pref(name)){
+      if(!lt_open_pref(name, prf)){
+        prf = NULL;
+        lt_log_message("Couldn't open newly created pref '%s'!\n", 
+	            name);
+      }
+    }else{
+      *prf = NULL;
+      lt_log_message("Couldn't create pref '%s'!\n", name);
+    }
+  }
+  return true;
+}
+
 bool createSetupWindow(int x, int y, int w, int h)
 {
   int x2 = x + w;
@@ -384,18 +410,14 @@ bool createSetupWindow(int x, int y, int w, int h)
   btArray[0].text = XPCreateWidget(x+20, y2 + 120, x2 -140, y2 + 100 ,
     				 1, btArray[0].caption,
 				 0, setupWindow, xpWidgetClass_Caption);
-  if(!lt_open_pref(btArray[0].prefName, &(btArray[0].pref))){
-    btArray[0].pref = NULL;
-  }
+  get_pref(btArray[0].prefName, &(btArray[0].pref));
   btArray[1].button = XPCreateWidget(x2-120, y2+90, x2-20, y2+70, 1, 
   				"Remap", 0, setupWindow,
   				xpWidgetClass_Button);
   btArray[1].text = XPCreateWidget(x+20, y2 + 90, x2 -140, y2 + 70 ,
     				 1, btArray[1].caption,
 				 0, setupWindow, xpWidgetClass_Caption);
-  if(!lt_open_pref(btArray[1].prefName, &(btArray[1].pref))){
-    btArray[1].pref = NULL;
-  }
+  get_pref(btArray[1].prefName, &(btArray[1].pref));
   saveButton = XPCreateWidget(x+20, y2+30, x2-20, y2+10, 1, 
   				"Save preferences", 0, setupWindow,
   				xpWidgetClass_Button);
@@ -446,18 +468,20 @@ PLUGIN_API int XPluginStart(
 	joystickCallback,	/* Callback */
 	-1.0,					/* Interval */
 	NULL);					/* refcon not used. */
-  pref_id frb;
+  pref_id frb, rcb;
   if(lt_open_pref("Freeze-button", &frb)){
     freeze_button = lt_get_int(frb);
-    //lt_close_pref(&frb);
+    lt_close_pref(&frb);
   }else{
-    printf("Couldn't find Freeze-buton definition!\n");
+    freeze_button = -1;
+    lt_log_message("Couldn't find Freeze-buton definition!\n");
   }
-  if(lt_open_pref("Recenter-button", &frb)){
-    recenter_button = lt_get_int(frb);
-    //lt_close_pref(&frb);
+  if(lt_open_pref("Recenter-button", &rcb)){
+    recenter_button = lt_get_int(rcb);
+    lt_close_pref(&rcb);
   }else{
-    printf("Couldn't find Recenter-buton definition!\n");
+    recenter_button = -1;
+    lt_log_message("Couldn't find Recenter-buton definition!\n");
   }
   int index = XPLMAppendMenuItem(XPLMFindPluginsMenu(), "LinuxTrack", NULL, 1);
 
@@ -572,7 +596,7 @@ void joy_fsm(int button, int *state, float *ts, bool *flag)
       }
       break;
     default:
-      printf("Joystick button processing got into wrong state (%d)!\n", *state);
+      lt_log_message("Joystick button processing got into wrong state (%d)!\n", *state);
       *state = 1;
       break;
   }
@@ -587,8 +611,12 @@ void process_joy()
   
   XPLMGetDatavi(joy_buttons, buttons, 0, 1520);
   
-  joy_fsm(buttons[freeze_button], &freeze_state, &freeze_ts, &freeze);
-  joy_fsm(buttons[recenter_button], &recenter_state, &recenter_ts, &active_flag);
+  if(freeze_button != -1){
+    joy_fsm(buttons[freeze_button], &freeze_state, &freeze_ts, &freeze);
+  }
+  if(recenter_button != -1){
+    joy_fsm(buttons[recenter_button], &recenter_state, &recenter_ts, &active_flag);
+  }
 }
 
 float	joystickCallback(
@@ -640,7 +668,7 @@ int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
      is_finite(tx) && is_finite(ty) && is_finite(tz)){
     // Empty
   }else{
-    printf("Bad values!\n");
+    lt_log_message("Bad values!\n");
     return 1;
   }
 

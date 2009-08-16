@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
 #include "pref_global.h"
 #include "ltlib.h"
@@ -304,6 +305,11 @@ float clamp_angle(float angle)
   }
 }
 
+bool lt_create_pref(char *key)
+{
+  return add_key(NULL, key, "");
+}
+
 bool lt_open_pref(char *key, pref_id *prf)
 {
   return open_pref(NULL, key, prf);
@@ -349,3 +355,10 @@ bool lt_close_pref(pref_id *prf)
   return close_pref(prf);
 }
 
+void lt_log_message(const char *format, ...)
+{
+  va_list ap;
+  va_start(ap,format);
+  log_message(format, ap);
+  va_end(ap);
+}
