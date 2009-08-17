@@ -22,7 +22,7 @@ Pros of this device are given by the fact that it is designed for motion trackin
 
 Cons:
   * infra red diodes in the tracker can become quite hot (lowers lifetime)
-  * prize - it is just high
+  * price - it is just high
 
 = Wiimote =
 Support for this device was contributed by Mr. Big. 
@@ -30,7 +30,7 @@ Support for this device was contributed by Mr. Big.
 Pros:
   * bluetooth connection
   * ease of use (plug and play)
-  * prize
+  * price
   * low cpu usage
 
 Cons:
@@ -39,7 +39,7 @@ Cons:
 
 = Webcam =
 Support for this devices is a bit controversial. There are lots of webcams, but lots of them aren't supported in linux at all, some of them work somehow and only a few work really well. Also buying a webcam that should work with linux doesn't guarantee that it will work thanks to frequent changes of hardware, firmware... Also even webcams, that are claimed to be UVC compatible often doesn't support the standart as whole.
-Prize of those better webcams is considerably higher than for example prize of wiimote.
+Price of those better webcams is considerably higher than for example price of wiimote.
 There is at least one feature the webcam needs to have to be usable in this kind of application and it is ability to turn off autoexposure (also automatic white balance, autofocus and other auto features).
 Without it you can't get stable high framerate, which is a must in this application.
 The only benefit you can get by using webcam is higher picture resolution.
@@ -59,4 +59,4 @@ Cons:
   * for some webcams you can't turn automatic exposure off
 
 
-PS. I'm speaking from my own experience - I have 3 different webcams and only one works(after several hours of playing with it, and only using cheat - windows in virtual machine); given the fact, that wiimote has pretty much the same prize as the one working, there is not much more to think of... And if someone is interested, the one working is Creative Live! Cam Optia (non AF model).
+PS. I'm speaking from my own experience - I have 3 different webcams and only one works(after several hours of playing with it, and only using cheat - windows in virtual machine); given the fact, that wiimote has pretty much the same price as the one working, there is not much more to think of... And if someone is interested, the one working is Creative Live! Cam Optia (non AF model).
