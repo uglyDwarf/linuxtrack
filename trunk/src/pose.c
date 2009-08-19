@@ -4,6 +4,7 @@
 #include "math_utils.h"
 #include "cal.h"
 
+float model_dist = 1000.0;
 /* Focal length */
 float internal_focal_depth;
 
@@ -100,7 +101,7 @@ float blob_dist(struct blob_type b0, struct blob_type b1)
   return sqrt(sqr(b1.x-b0.x) + sqr(b1.y-b0.y));
 }
 
-void alter_pose(struct bloblist_type blobs, float points[3][3])
+void alter_pose(struct bloblist_type blobs, float points[3][3], bool centering)
 {
   float R01, R02, R12, d01, d02, d12, a, b, c, s, h1, h2, sigma;
   float tmp[3];
@@ -138,6 +139,10 @@ void alter_pose(struct bloblist_type blobs, float points[3][3])
   h1 = ((type == M_CAP)? -1 : 1) * sqrt(sqr(s * R01) - sqr(d01));
   h2 = ((type == M_CAP)? -1 : 1) * sigma * sqrt(sqr(s * R02) - sqr(d02));
 
+  if(centering){
+    internal_focal_depth = model_dist * s;
+  }
+  
   points[0][0] = blobs.blobs[0].x / s;
   points[1][0] = blobs.blobs[0].y / s;
   points[2][0] = internal_focal_depth / s;
@@ -238,6 +243,10 @@ bool pose_process_blobs(struct bloblist_type blobs,
 
   float points[3][3];
   bool centering = false;
+  if(center_flag == true){
+    center_flag = false;
+    centering = true;
+  }
 
 /*   /\* DELETEME TEST START *\/ */
 /*   printf("deleteme test start\n"); */
@@ -268,7 +277,7 @@ bool pose_process_blobs(struct bloblist_type blobs,
 
 //  print_matrix(model_base, "Model_base");
 //  print_vec(model_ref, "Ref_point");
-  alter_pose(blobs, points);
+  alter_pose(blobs, points, centering);
 //  print_matrix(points, "Alter");
 
   float new_base[3][3];
@@ -281,9 +290,7 @@ bool pose_process_blobs(struct bloblist_type blobs,
 //  print_vec(vec1, "vec1");
 //  print_vec(vec2, "vec2");
   make_base(vec1, vec2, new_base);
-  if(center_flag == true){
-    center_flag = false;
-    centering = true;
+  if(centering == true){
 /*     print_matrix(center_base, "center-base"); */
 /*     print_matrix(new_base, "new-base"); */
     int i,j;
@@ -299,7 +306,6 @@ bool pose_process_blobs(struct bloblist_type blobs,
 //  print_vec(trans->tr, "translation");
   get_transform(new_base, trans->rot);
 //  print_matrix(trans->rot, "Rot");
-  center_flag = false;
   return true;
 }
 
