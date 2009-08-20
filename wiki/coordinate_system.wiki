@@ -8,7 +8,7 @@ The coordinate system used is intended to be consistent with the Alter92 coordin
 
 The linux-track pose estimator has the following inputs and outputs:
  * *Reflector model* (input)
- * *Camera Focal Depth* (input)
+ * *Approximate distance bwtween model and tracker* (input)
  * *Reference Frame* (input)
  * *Nth Frame* (input)
  * *Transformation* (output)
@@ -34,7 +34,7 @@ http://linux-track.googlecode.com/svn/wiki/XYZDiagram.png
 
 The pose estimation algorithm requires the "common" X-Y-Z coordinates of the three points that make up the reflector (or active LEDs).  
 The algorithm also requires a reasonable estimate of the user's head-center with respect to the reflector model origin.
-All units are in millimeters.
+All sizes/distances are in millimeters.
 
 Points must be defined in the common X-Y-Z coordiates with respect to the camera, in a neutral facing.
 
@@ -48,11 +48,9 @@ http://linux-track.googlecode.com/svn/wiki/XYZReflectorDiagram.png
 
 Because point 0 is by definition 0,0,0, it is not an explicit  part of the to the {{{struct reflector_model_type}}}.
 
-= Camera Focal Depth (Viewing Angle) =
+= Camera - model distance =
 The Alter92 algorithm uses weak-perspective, so no Z-translations are directly estimatable.
-However, by providing a focal depth the Alter92 scaling factor may be used with the focal depth to estimate Z-translations.
-
-The camera focal depth is given in pixels.
+However, by providing estimated distance between model and the tracker, Alter92 scaling factor may be used with this distance to estimate Z-translations.
 
 = Input Frames =
 
@@ -74,10 +72,10 @@ This means that for most cameras, the blob centers must be mirrored horizontally
 Note that the blob input to the pose estimator are pixel-area sorted (biggest area is index0).  The pose estimator is responsible for resorting these as needed.
 
 == Input Reference Frame ==
-TBD
+We use reference frame as a center point and we judge rotations and translations computed from Nth frame.
 
 == Input Nth Frame ==
-TBD
+We get new frame from the image sensor, we compute new model postion. By referencing reference trame we compute angles and translations we need.
 
 = Output Transformation =
 The linux-track end-output is a transformation.
