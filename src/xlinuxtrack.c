@@ -13,7 +13,9 @@
 #include <math_utils.h>
 #include "ltlib.h"
 
-XPLMHotKeyID		gHotKey = NULL;
+XPLMHotKeyID		gFreezeKey = NULL;
+XPLMHotKeyID		gTrackKey = NULL;
+
 XPLMDataRef		head_x = NULL;
 XPLMDataRef		head_y = NULL;
 XPLMDataRef		head_z = NULL;
@@ -445,10 +447,14 @@ PLUGIN_API int XPluginStart(
   strcpy(outDesc, "A plugin that controls view using your webcam.");
 
   /* Register our hot key for the new view. */
-  gHotKey = XPLMRegisterHotKey(XPLM_VK_F8, xplm_DownFlag, 
+  gTrackKey = XPLMRegisterHotKey(XPLM_VK_F8, xplm_DownFlag, 
                          "3D linuxTrack view",
                          MyHotKeyCallback,
-                         NULL);
+                         (void*)0);
+  gFreezeKey = XPLMRegisterHotKey(XPLM_VK_F9, xplm_DownFlag, 
+                         "Freeze 3D linuxTrack view",
+                         MyHotKeyCallback,
+                         (void*)1);
   head_x = XPLMFindDataRef("sim/graphics/view/pilots_head_x");
   head_y = XPLMFindDataRef("sim/graphics/view/pilots_head_y");
   head_z = XPLMFindDataRef("sim/graphics/view/pilots_head_z");
@@ -495,7 +501,8 @@ PLUGIN_API int XPluginStart(
 
 PLUGIN_API void	XPluginStop(void)
 {
-  XPLMUnregisterHotKey(gHotKey);
+  XPLMUnregisterHotKey(gTrackKey);
+  XPLMUnregisterHotKey(gFreezeKey);
   XPLMUnregisterFlightLoopCallback(joystickCallback, NULL);
   lt_shutdown();
 }
@@ -549,16 +556,18 @@ void deactivate(void)
 
 void	MyHotKeyCallback(void *               inRefcon)
 {
-	/* This is the hotkey callback.  First we simulate a joystick press and
-	 * release to put us in 'free view 1'.  This guarantees that no panels
-	 * are showing and we are an external view. */
-	 
-	/* Now we control the camera until the view changes. */
-	if(active_flag==false){
-	  activate();
-	}else{
-	  deactivate();
-	}
+  switch((int)inRefcon){
+    case 0:
+      if(active_flag==false){
+	activate();
+      }else{
+	deactivate();
+      }
+      break;
+    case 1:
+      freeze = (freeze == false)? true : false;
+      break;
+  }
 }
 
 void joy_fsm(int button, int *state, float *ts, bool *flag)
