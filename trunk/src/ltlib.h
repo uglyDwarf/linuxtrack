@@ -41,7 +41,8 @@ char *lt_get_str(pref_id prf);
 bool lt_set_flt(pref_id *prf, float f);
 bool lt_set_int(pref_id *prf, int i);
 bool lt_set_str(pref_id *prf, char *str);
-bool lt_save_prefs();
+bool lt_save_prefs(void);
+bool lt_pref_changed(pref_id prf);
 bool lt_close_pref(pref_id *prf);
 
 void lt_log_message(const char *format, ...);

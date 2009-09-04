@@ -35,16 +35,21 @@ typedef struct{
 
 extern plist prefs;
 
-typedef struct pref_struct{
+typedef struct pref_data{
   char *section_name;
   char *key_name;
   enum {NONE, STR, FLT, INT} data_type;
-  int last_read;
   union{
     char *string;
     float flt;
     int integer;
   };
+  plist refs;
+} pref_data;
+
+typedef struct pref_struct{
+  bool changed;
+  pref_data *data;
 } pref_struct;
 
 bool section_exists(char *section_name);
@@ -67,6 +72,8 @@ bool set_int(pref_id *prf, int i);
 bool set_str(pref_id *prf, char *str);
 
 bool save_prefs();
+bool pref_changed(pref_id pref);
 bool close_pref(pref_id *prf);
+
 
 #endif

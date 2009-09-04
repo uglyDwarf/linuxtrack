@@ -23,10 +23,8 @@ enum {M_CAP, M_CLIP} type;
 
 volatile bool center_flag = false;
 
-void pose_init(struct reflector_model_type rm,
-               float focal_depth)
+void pose_init(struct reflector_model_type rm)
 {
-  internal_focal_depth = focal_depth;
   /* Physical dimensions */
   /* Camera looks in direction of Z axis */
   /* X axis goes then to the right */
