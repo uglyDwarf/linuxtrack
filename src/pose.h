@@ -44,8 +44,7 @@ struct transform{
   float rot[3][3];
 };
 
-void pose_init(struct reflector_model_type rm,
-               float focal_depth);
+void pose_init(struct reflector_model_type rm);
 
 void pose_sort_blobs(struct bloblist_type bl);
 

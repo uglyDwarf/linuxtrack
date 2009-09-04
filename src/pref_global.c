@@ -6,10 +6,43 @@
 #include "pref_global.h"
 #include "utils.h"
 
+
+char *get_device_section()
+{
+  static pref_id dev_section = NULL;
+  if(dev_section == NULL){
+    if(!open_pref("Global", "Input", &dev_section)){
+      log_message("Entry 'Input' missing in 'Global' section!\n");
+      return NULL;
+    }
+  }
+  return get_str(dev_section);
+}
+
+char *get_model_section()
+{
+  static pref_id model_section = NULL;
+  static char *name;
+  if(model_section == NULL){
+    if(!open_pref("Global", "Model", &model_section)){
+      log_message("Entry 'Model' missing in 'Global' section!\n");
+      return NULL;
+    }
+  }
+  if(pref_changed(model_section)){
+    name = get_str(model_section);
+  }
+  return name;
+}
+
 bool get_device(struct camera_control_block *ccb)
 {
   bool dev_ok = false;
-  char *dev_type = get_key("Global", "Capture-device");
+  char *dev_section = get_device_section();
+  if(dev_section == NULL){
+    return false;
+  }
+  char *dev_type = get_key(dev_section, "Capture-device");
   if (dev_type == NULL) {
     dev_ok = false;
   } else {
@@ -34,7 +67,7 @@ bool get_device(struct camera_control_block *ccb)
     }
   }
   
-  char *dev_id = get_key("Global", "Capture-device-id");
+  char *dev_id = get_key(dev_section, "Capture-device-id");
   if (dev_id == NULL) {
     dev_ok = false;
   }else{
@@ -46,25 +79,52 @@ bool get_device(struct camera_control_block *ccb)
 
 bool get_coord(char *coord_id, float *f)
 {
-  char *str = get_key("Global", coord_id);
+  char *model_section = get_model_section();
+  if(model_section == NULL){
+    return false;
+  }
+  char *str = get_key(model_section, coord_id);
   if(str == NULL){
-    log_message("Cannot find key %s in section global!\n", coord_id);
+    log_message("Cannot find key %s in section %s!\n", coord_id, model_section);
     return false;
   }
   *f = atof(str);
   return true;
 }
 
-bool setup_cap(reflector_model_type *rm)
+typedef enum {X, Y, Z, H_Y, H_Z} cap_index;
+
+
+bool setup_cap(reflector_model_type *rm, char *model_section, 
+		bool *changed)
 {
-  log_message("Setting up Cap...\n");
-  float x,y,z,hy,hz;
-  if(get_coord("Cap-X", &x) && get_coord("Cap-Y", &y) &&
-     get_coord("Cap-Z", &z) && get_coord("Head-Y", &hy) &&
-     get_coord("Head-Z", &hz) != true){
-    log_message("Can't read-in Cap setup!\n");
-    return false;
+  static char *ids[] = {"Cap-X", "Cap-Y", "Cap-Z", "Head-Y", "Head-Z"};
+  static pref_id prefs[] = {NULL, NULL, NULL, NULL, NULL};
+  static bool init_done = false;
+  
+  if(!init_done){
+    cap_index i;
+    for(i = X; i<= H_Z; ++i){
+      if(!open_pref(model_section, ids[i], &(prefs[i]))){
+        log_message("Couldn't setup Cap!\n");
+        return false;
+      }
+    }
   }
+  init_done = true;
+  
+  *changed = pref_changed(prefs[X]) || pref_changed(prefs[Y]) ||
+            pref_changed(prefs[Z]) || pref_changed(prefs[H_Y]) ||
+	    pref_changed(prefs[H_Z]);
+  if(!*changed){
+    return true;
+  }
+  
+  float x = get_flt(prefs[X]);
+  float y = get_flt(prefs[Y]);
+  float z = get_flt(prefs[Z]);
+  float hy = get_flt(prefs[H_Y]);
+  float hz = get_flt(prefs[H_Z]);
   
   rm->p1[0] = -x/2;
   rm->p1[1] = -y;
@@ -79,10 +139,44 @@ bool setup_cap(reflector_model_type *rm)
   return true;
 }
 
-bool setup_clip(reflector_model_type *rm)
+typedef enum {Y1, Y2, Z1, Z2, HX, HY, HZ} clip_index;
+
+bool setup_clip(reflector_model_type *rm, char *model_section, 
+		bool *changed)
 {
   log_message("Setting up Clip...\n");
-  float y1, y2, z1, z2, hx, hy, hz;
+  static char *ids[] = {"Clip-Y1", "Clip-Y2", "Clip-Z1", "Clip-Z2", 
+  			"Head-X", "Head-Y", "Head-Z"};
+  static pref_id prefs[] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+  static bool init_done = false;
+  
+  if(!init_done){
+    clip_index i;
+    for(i = Y1; i<= HZ; ++i){
+      if(!open_pref(model_section, ids[i], &(prefs[i]))){
+        log_message("Couldn't setup Clip!\n");
+        return false;
+      }
+    }
+  }
+  init_done = true;
+  
+  *changed = pref_changed(prefs[Y1]) || pref_changed(prefs[Y2]) ||
+            pref_changed(prefs[Z1]) || pref_changed(prefs[Z2]) ||
+            pref_changed(prefs[HX]) || pref_changed(prefs[HY]) ||
+	    pref_changed(prefs[HZ]);
+  if(!*changed){
+    return true;
+  }
+  
+  float y1 = get_flt(prefs[Y1]);
+  float y2 = get_flt(prefs[Y2]);
+  float z1 = get_flt(prefs[Z1]);
+  float z2 = get_flt(prefs[Z2]);
+  float hx = get_flt(prefs[HX]);
+  float hy = get_flt(prefs[HY]);
+  float hz = get_flt(prefs[HZ]);
+
   /*
   y1 is vertical dist of upper and middle point
   y2 is vertical dist of upper and lower point
@@ -90,13 +184,6 @@ bool setup_clip(reflector_model_type *rm)
   z2 is horizontal dist of uper and lower point
   hx,hy,hz are head center coords with upper point as origin
   */ 
-  if(get_coord("Clip-Y1", &y1) && get_coord("Clip-Y2", &y2) &&
-     get_coord("Clip-Z1", &z1) && get_coord("Clip-Z2", &z2) &&
-     get_coord("Head-X", &hx) && get_coord("Head-Y", &hy) &&
-     get_coord("Head-Z", &hz) != true){
-    log_message("Can't read-in Clip setup!\n");
-    return false;
-  }
   
   rm->p1[0] = 0;
   rm->p1[1] = -y1;
@@ -113,17 +200,30 @@ bool setup_clip(reflector_model_type *rm)
 
 
 
-bool get_pose_setup(reflector_model_type *rm)
+bool get_pose_setup(reflector_model_type *rm, bool *model_changed)
 {
-  char *model_type = get_key("Global", "Model-type");
+  char *model_section = get_model_section();
+  if(model_section == NULL){
+    return false;
+  }
+  static pref_id pref_model_type = NULL;
+  if(pref_model_type == NULL){
+    if(!open_pref(model_section, "Model-type", &pref_model_type)){
+      log_message("Couldn't find Model-type!\n");
+      return false;
+    }
+    
+  }
+  char *model_type = get_str(pref_model_type);
   if (model_type == NULL) {
     return false;
   }
+  log_message("Model: '%s'\n", model_type);
   if(strcasecmp(model_type, "Cap") == 0){
-    return setup_cap(rm);
+    return setup_cap(rm, model_section, model_changed);
   }
   if(strcasecmp(model_type, "Clip") == 0){
-    return setup_clip(rm);
+    return setup_clip(rm, model_section, model_changed);
   }
   return false;
 }

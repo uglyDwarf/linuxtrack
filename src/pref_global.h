@@ -6,8 +6,9 @@
 #include "pose.h"
 #include "ltlib.h"
 
+char *get_device_section();
 bool get_device(struct camera_control_block *ccb);
-bool get_pose_setup(reflector_model_type *rm);
+bool get_pose_setup(reflector_model_type *rm, bool *model_changed);
 bool get_scale_factors(struct lt_scalefactors *sf);
 bool get_filter_factor(float *ff);
 

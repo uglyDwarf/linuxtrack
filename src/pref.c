@@ -28,9 +28,9 @@ plist opened_prefs = NULL;
 struct opened{
   char *section;
   char *key;
-  pref_id prf;
-  int refcount;
+  pref_data prf;
 };
+
 
 
 bool name_match(char *n1, char *n2){
@@ -76,37 +76,46 @@ bool open_pref(char *section, char *key, pref_id *prf)
   }
 
   if(matched){
-    *prf = o->prf;
-    o->refcount++;
-    printf("Found match (%d refs)!\n", o->refcount);
+    *prf = (pref_struct*)my_malloc(sizeof(pref_struct));
+    (*prf)->data = &(o->prf);
+    (*prf)->changed = true;
+    add_element(o->prf.refs, *prf);
     return true;
   }
   
   printf("Creating new...\n");
-  if(get_key(NULL, key) == NULL){
+  if(get_key(section, key) == NULL){
     return false;
   }
   *prf = (pref_struct*)my_malloc(sizeof(pref_struct));
-  if(section != NULL){
-    (*prf)->section_name = my_strdup(section);
-  }else{
-    (*prf)->section_name = NULL;
-  }
-  (*prf)->key_name = my_strdup(key);
-  (*prf)->data_type = NONE;
-  (*prf)->last_read = -1;
+  (*prf)->changed = true;
+
   o = (struct opened*)my_malloc(sizeof(struct opened));
   o->section = (section != NULL) ? my_strdup(section) : NULL;
   o->key = my_strdup(key);
-  o->prf = *prf;
-  o->refcount = 1;
+  if(section != NULL){// Check it !!!
+    o->prf.section_name = my_strdup(section);
+  }else{
+    o->prf.section_name = NULL;
+  }
+  o->prf.key_name = my_strdup(key);
+  o->prf.data_type = NONE;
+  o->prf.refs = create_list();
+  (*prf)->data = &(o->prf);
+  add_element(o->prf.refs, *prf);
   add_element(opened_prefs, o);
+  
   return true;
 }
 
-
-float get_flt(pref_id prf)
+bool pref_changed(pref_id pref)
 {
+  return pref->changed;
+}
+
+float get_flt(pref_id pref)
+{
+  pref_data *prf = pref->data;
   if(prf == NULL){
     log_message("Null float preference queried!\n");
     return 0.0f;
@@ -115,22 +124,24 @@ float get_flt(pref_id prf)
   char *key = prf->key_name;
   if(prf->data_type == NONE){
     prf->data_type = FLT;
-    prf->last_read = read_counter;
+    pref->changed = false;
     prf->flt = atof(get_key(section, key));
   }else{
     if(prf->data_type != FLT){
       log_message("Preference %s is not float (%d)!\n", key, prf->data_type);
       return 0.0f;
     }
-    if(prf->last_read != read_counter){
+    if(pref->changed == true){
       prf->flt = atof(get_key(section, key));
+      pref->changed = false;
     }
   }
   return prf->flt;
 }
 
-int get_int(pref_id prf)
+int get_int(pref_id pref)
 {
+  pref_data *prf = pref->data;
   if(prf == NULL){
     log_message("Null int preference queried!\n");
     return 0;
@@ -139,22 +150,24 @@ int get_int(pref_id prf)
   char *key = prf->key_name;
   if(prf->data_type == NONE){
     prf->data_type = INT;
-    prf->last_read = read_counter;
+    pref->changed = false;
     prf->integer = atoi(get_key(section, key));
   }else{
     if(prf->data_type != INT){
       log_message("Preference %s is not int!\n", key);
       return 0;
     }
-    if(prf->last_read != read_counter){
+    if(pref->changed == true){
       prf->integer = atoi(get_key(section, key));
+      pref->changed = false;
     }
   }
   return prf->integer;
 }
 
-char *get_str(pref_id prf)
+char *get_str(pref_id pref)
 {
+  pref_data *prf = pref->data;
   if(prf == NULL){
     log_message("Null str preference queried!\n");
     return NULL;
@@ -163,34 +176,50 @@ char *get_str(pref_id prf)
   char *key = prf->key_name;
   if(prf->data_type == NONE){
     prf->data_type = STR;
-    prf->last_read = read_counter;
+    pref->changed = false;
     prf->string = get_key(section, key);
   }else{
     if(prf->data_type != STR){
       log_message("Preference %s is not string!\n", key);
       return 0;
     }
-    if(prf->last_read != read_counter){
+    if(pref->changed == true){
       prf->string = get_key(section, key);
+      pref->changed = false;
     }
   }
   return prf->string;
 }
 
-
-bool set_flt(pref_id *prf, float f)
+void mark_pref_changed(pref_id *prf)
 {
+  if(prf == NULL){
+    log_message("Tried to mark NULL preference as changed!\n");
+    return;
+  }
+  iterator i;
+  init_iterator((*prf)->data->refs, &i);
+  
+  pref_struct* ref;
+  while((ref = (pref_struct*)get_next(&i)) != NULL){
+    ref->changed = true;
+  }
+}
+
+bool set_flt(pref_id *pref, float f)
+{
+  pref_data *prf = (*pref)->data;
   if(prf == NULL){
     log_message("Tried to set null float preference!\n");
     return false;
   }
-  char *section = (*prf)->section_name;
-  char *key = (*prf)->key_name;
-  if((*prf)->data_type == NONE){
-    (*prf)->data_type = FLT;
-    (*prf)->last_read = read_counter;
+  char *section = prf->section_name;
+  char *key = prf->key_name;
+  if(prf->data_type == NONE){
+    prf->data_type = FLT;
+    mark_pref_changed(pref);
   }else{
-    if((*prf)->data_type != FLT){
+    if(prf->data_type != FLT){
       log_message("Preference %s is not float!\n", key);
       return false;
     }
@@ -200,24 +229,25 @@ bool set_flt(pref_id *prf, float f)
   bool rv = change_key(section, key, new_val);
   free(new_val);
   if(rv == true){
-    (*prf)->flt = f;
+    prf->flt = f;
   }
   return rv;
 }
 
-bool set_int(pref_id *prf, int i)
+bool set_int(pref_id *pref, int i)
 {
+  pref_data *prf = (*pref)->data;
   if(prf == NULL){
     log_message("Tried to set null int preference!\n");
     return false;
   }
-  char *section = (*prf)->section_name;
-  char *key = (*prf)->key_name;
-  if((*prf)->data_type == NONE){
-    (*prf)->data_type = INT;
-    (*prf)->last_read = read_counter;
+  char *section = prf->section_name;
+  char *key = prf->key_name;
+  if(prf->data_type == NONE){
+    prf->data_type = INT;
+    mark_pref_changed(pref);
   }else{
-    if((*prf)->data_type != INT){
+    if(prf->data_type != INT){
       log_message("Preference %s is not int!\n", key);
       return false;
     }
@@ -227,42 +257,44 @@ bool set_int(pref_id *prf, int i)
   bool rv = change_key(section, key, new_val);
   free(new_val);
   if(rv == true){
-    (*prf)->integer = i;
+    prf->integer = i;
   }
   return rv;
 }
 
-bool set_str(pref_id *prf, char *str)
+bool set_str(pref_id *pref, char *str)
 {
+  pref_data *prf = (*pref)->data;
   if(prf == NULL){
     log_message("Tried to set null str preference!\n");
     return false;
   }
-  char *section = (*prf)->section_name;
-  char *key = (*prf)->key_name;
-  if((*prf)->data_type == NONE){
-    (*prf)->data_type = STR;
-    (*prf)->last_read = read_counter;
+  char *section = prf->section_name;
+  char *key = prf->key_name;
+  if(prf->data_type == NONE){
+    prf->data_type = STR;
+    mark_pref_changed(pref);
   }else{
-    if((*prf)->data_type != STR){
+    if(prf->data_type != STR){
       log_message("Preference %s is not string!\n", key);
       return false;
     }
   }
-  bool rv = change_key(section, key, (*prf)->string);
+  bool rv = change_key(section, key, prf->string);
   if(rv == true){
-    (*prf)->string = my_strdup(str);
+    prf->string = my_strdup(str);
   }
   return rv;
 }
 
 
-bool close_pref(pref_id *prf)
+bool close_pref(pref_id *pref)
 {
   printf("Closing pref!\n");
-  if(prf == NULL){
+  if(pref == NULL){
     log_message("Trying to close null pref.\n");
   }
+  pref_data *prf = (*pref)->data;
   
   iterator i;
   init_iterator(opened_prefs, &i);
@@ -270,7 +302,7 @@ bool close_pref(pref_id *prf)
   struct opened* o;
   bool matched = false;
   while((o = (struct opened*)get_next(&i)) != NULL){
-    if(o->prf == *prf){
+    if(&(o->prf) == prf){
         matched = true;
         break;
     }
@@ -279,15 +311,15 @@ bool close_pref(pref_id *prf)
     log_message("Trying to close already closed preference!\n");
     return false;
   }
-  o->refcount--;
-  if(o->refcount <= 0){
-    if((*prf)->section_name != NULL){
-      free((*prf)->section_name);
-      (*prf)->section_name = NULL;
+  delete_current(o->prf.refs, &i);
+  if(is_empty(o->prf.refs)){
+    free_list(o->prf.refs, false);
+    if(prf->section_name != NULL){
+      free(prf->section_name);
+      prf->section_name = NULL;
     }
-    free((*prf)->key_name);
-    (*prf)->key_name = NULL;
-    free(*prf);
+    free(prf->key_name);
+    prf->key_name = NULL;
     o = (struct opened*)delete_current(opened_prefs, &i);
     assert(o != NULL);
     if(o->section != NULL){
@@ -295,7 +327,7 @@ bool close_pref(pref_id *prf)
     }
     free(o->key);
   }
-  *prf = NULL;
+  *pref = NULL;
   return true;
 }
 
@@ -388,6 +420,7 @@ key_val_struct *find_key(char *section_name, char *key_name)
   }
   section_struct *sec = find_section(section_name);
   if(sec == NULL){
+    log_message("Section %s not found!\n", section_name);
     return NULL;
   }
   iterator i;
@@ -434,6 +467,7 @@ char *get_key(char *section_name, char *key_name)
   if(read_prefs_on_init() == false){
     return NULL;
   }
+  printf("Getkey %s %s\n", section_name!=NULL?section_name:"NULL", key_name);
   key_val_struct *kv = NULL;
   if(section_name != NULL){
     kv = find_key(section_name, key_name);

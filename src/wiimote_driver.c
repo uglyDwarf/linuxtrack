@@ -5,6 +5,7 @@
 #include <string.h>
 #include <assert.h>
 #include <cwiid.h>
+#include <unistd.h>
 #include "wiimote_driver.h"
 
 /*************/
@@ -133,6 +134,7 @@ int wiimote_get_frame(struct camera_control_block *ccb,
     int valid;
     int i;
 
+usleep(10000);
 
     if (!gStateCheckIn--) {
         gStateCheckIn = STATE_CHECK_INTERVAL;

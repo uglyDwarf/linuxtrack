@@ -17,6 +17,7 @@
 #include "webcam_driver.h"
 #include "utils.h"
 #include "pref.h"
+#include "pref_global.h"
 #include "image_process.h"
 #include "pref_int.h"
 
@@ -119,16 +120,22 @@ int search_for_webcam(char *webcam_id)
   return wfd;
 }
 
+
+
 bool read_pref_format(struct v4l2_format *fmt)
 {
   memset(fmt, 0, sizeof(struct v4l2_format));
   
-  char *res = get_key("Webcam", "Resolution");
+  char *dev_section = get_device_section();
+  if(dev_section == NULL){
+    return false;
+  }
+  char *res = get_key(dev_section, "Resolution");
   if(res == NULL){
     log_message("No resolution specified!\n");
     return false;
   }
-  char *pix = get_key("Webcam", "Pixel-format");
+  char *pix = get_key(dev_section, "Pixel-format");
   if(pix == NULL){
     log_message("No pixel format specified!\n");
     return false;
@@ -177,7 +184,11 @@ bool set_capture_format(struct camera_control_block *ccb)
 
 bool set_stream_params()
 {
-  char *fps = get_key("Webcam", "Fps");
+  char *dev_section = get_device_section();
+  if(dev_section == NULL){
+    return false;
+  }
+  char *fps = get_key(dev_section, "Fps");
   if(fps == NULL){
     log_message("No framerate specified!\n");
     return false;
@@ -302,17 +313,21 @@ bool release_buffers()
 
 bool read_img_processing_prefs()
 {
-  char *thres = get_key("Webcam", "Threshold");
+  char *dev_section = get_device_section();
+  if(dev_section == NULL){
+    return false;
+  }
+  char *thres = get_key(dev_section, "Threshold");
   if(thres == NULL){
     log_message("No threshold specified!\n");
     return false;
   }
-  char *max = get_key("Webcam", "Max-blob");
+  char *max = get_key(dev_section, "Max-blob");
   if(max == NULL){
     log_message("No maximal pixel count for blob specified!\n");
     return false;
   }
-  char *min = get_key("Webcam", "Min-blob");
+  char *min = get_key(dev_section, "Min-blob");
   if(min == NULL){
     log_message("No minimal pixel count for blob specified!\n");
     return false;

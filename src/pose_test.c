@@ -24,8 +24,8 @@ int main(int argc, char **argv) {
     log_message("Initialization unsuccessfull!\n");
     return 1;
   }
-
-  if(get_pose_setup(&rm) == false){
+  bool changed;
+  if(get_pose_setup(&rm, &changed) == false){
     log_message("Can't get pose setup!\n");
     return 1;
   }
@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
   rm.hc[1] = -100.0;
   rm.hc[2] = +90.0;
 */
-  pose_init(rm, 0.0);
+  pose_init(rm);
 
   /* call below sets led green */
   cal_set_good_indication(&ccb, true);

@@ -46,9 +46,33 @@ float clamp_angle(float angle);
 /************************/
 /* function definitions */
 /************************/
-int lt_init(struct lt_configuration_type config, char *cust_section)
+
+bool check_pose()
 {
   struct reflector_model_type rm;
+  bool changed;
+  if(get_pose_setup(&rm, &changed) == false){
+    log_message("Can't get pose setup!\n");
+    return false;
+  }
+  if(changed){
+    pose_init(rm);
+    if (rm.type == CAP) {
+      ccb.enable_IR_illuminator_LEDS = true;
+    }
+    else if (rm.type == CLIP) {
+      ccb.enable_IR_illuminator_LEDS = false;
+    }
+    else {
+      log_message("Unknown Model-type!\n");
+      return false;
+    }
+  }
+  return true;
+}
+
+int lt_init(struct lt_configuration_type config, char *cust_section)
+{
   
   set_custom_section(cust_section);
   
@@ -63,19 +87,8 @@ int lt_init(struct lt_configuration_type config, char *cust_section)
     log_message("Can't get device category!\n");
     return -1;
   }
-
-  if(get_pose_setup(&rm) == false){
+  if(check_pose() == false){
     log_message("Can't get pose setup!\n");
-    return -1;
-  }
-  if (rm.type == CAP) {
-    ccb.enable_IR_illuminator_LEDS = true;
-  }
-  else if (rm.type == CLIP) {
-    ccb.enable_IR_illuminator_LEDS = false;
-  }
-  else {
-    log_message("Unknown Model-type!\n");
     return -1;
   }
 
@@ -86,18 +99,6 @@ int lt_init(struct lt_configuration_type config, char *cust_section)
   cal_set_good_indication(&ccb, true);
   cal_thread_start(&ccb);
 
-/*
-  rm.p1[0] = -35.0;
-  rm.p1[1] = -50.0;
-  rm.p1[2] = -92.5;
-  rm.p2[0] = +35.0;
-  rm.p2[1] = -50.0;
-  rm.p2[2] = -92.5;
-  rm.hc[0] = +0.0;
-  rm.hc[1] = -100.0;
-  rm.hc[2] = +90.0;
-*/
-  pose_init(rm, 35.0);
   filtered_bloblist.num_blobs = 3;
   filtered_bloblist.blobs = filtered_blobs;
   first_frame_read = false;
@@ -146,8 +147,11 @@ int lt_get_camera_update(float *heading,
     return retval; 
   }
   if (frame_valid) {
+    check_pose();
     get_filter_factor(&filterfactor);
-    assert(frame.bloblist.num_blobs == 3);
+    if(frame.bloblist.num_blobs != 3){
+      return -1;
+    }
     if(is_finite(frame.bloblist.blobs[0].x) && is_finite(frame.bloblist.blobs[0].y) &&
        is_finite(frame.bloblist.blobs[1].x) && is_finite(frame.bloblist.blobs[1].y) &&
        is_finite(frame.bloblist.blobs[2].x) && is_finite(frame.bloblist.blobs[2].y)){
@@ -348,6 +352,11 @@ bool lt_set_str(pref_id *prf, char *str)
 bool lt_save_prefs()
 {
   return save_prefs();
+}
+
+bool lt_pref_changed(pref_id pref)
+{
+  return pref_changed(pref);
 }
 
 bool lt_close_pref(pref_id *prf)
