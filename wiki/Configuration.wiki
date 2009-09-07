@@ -71,30 +71,30 @@ Recenter-button = 4
 = Details =
 
 = Global section =
-This section should always be in the file and it should be the first one...
+This section should always be in the file and it should be the first one (the file is more clear if it is first)...
 It should contain 2 entries:
-  * *Input = ...* - specifies name of section containing informations concerning input device. 
-  * *Model = ...* - specifies name of section containing informations concerning used model.
+  * *Input = ...* - name of section containing input device specification. 
+  * *Model = ...* - name of section containing used model type/dimmensions.
 
 = Device info =
-This section, which name is specified in section Global, item Input contains informations on tracking device.
+This section tracking device info.
 For the moment three devices are supported: TrackIR4, Wiimote and Webcam (V4L2).
 This section contains following items:
-  * *Capture-device = ...* - specifies type of device. Valid options are 'TIR4', 'Wiimote' and 'Webcam'.
-  * *Capture-device-id = ...* - specifies device id (currently used only for Webcams to allow user to have several webcms attached at once - eg. laptop with built-in crappy one and attached better one for tracking).
+  * *Capture-device = ...* - type of device. Valid options are 'TIR4', 'Wiimote' and 'Webcam'.
+  * *Capture-device-id = ...* - device id string (currently used only for Webcams to allow user to have several webcms attached at once - eg. laptop with built-in crappy one and better one for tracking).
 
 The rest of options is to be used just by webcam interface:
-  * *Resolution = ... x ...* - specifies resolution to be used 
+  * *Resolution = ... x ...* - resolution to be used 
   * *Pixel-format = YUYV* - right now the only supported format
   * *Fps = ../1* - frames per second - make sure webcam can do what you ask from it!
-  * *Threshold = ...* value from 0 to 255 used to threshold image to get just three brigh spots on dark background.
-  * *Max-blob = ...* If number of pixels in the bright spot goes over this number, the spot is considered not valid. 
-  * *Min-blob = ...* Bright spot with less than this number of pixels is not valid.
+  * *Threshold = ...* value from 0 to 255 used to threshold image to get just three bright spots on dark background.
+  * *Max-blob = ...* If number of pixels in the bright spot goes over this number, the spot is considered invalid. 
+  * *Min-blob = ...* Bright spot with less than this number of pixels is not valid (if the sensor if noisy, this should help).
 
 = Model info =
 This section describes model that tracker tracks...
 Highest model point is the reference.
-First item specifies type of model (al values are in millimeters):
+First item specifies type of model (all values are in millimeters):
   * *Model-type = ...* Type of model. Valid options are 'Cap' and 'Clip'.
 If type is Cap, following items are present:
   * *Cap-X = ...* Distance between left and right LED/reflector.
@@ -108,7 +108,15 @@ If the model is Clip, following items are present:
   * *Clip-Y2 = ...* Vertical distance between upper and lower LED
   * *Clip-Z1 = ...* Horizontal distance between upper and middle LED
   * *Clip-Z2 = ...* Horizontal distance between upper and lower LED
-  * *Head-X = ...* Distance between center of your head and clip ()
-  * *Head-Y = ...*
-  * *Head-Z = ...*
+  * *Head-X = ...* Horizontal distance (left/right) between center of your head and clip (positive value, if your clip is on the right side of your head, negative otherwise)
+  * *Head-Y = ...* Vertical distance between upper LED and point around which your head pitches/rolls. 
+  * *Head-Z = ...* Horizontal distance (forward/backward) between upper LED and point around which your head pitches/rolls. 
 
+*There is one difference there - All cap values are positive, while Head-... values for Clip can be both positive and negative!*
+
+= Default section = 
+This section contains info on tracking - sensitivities and filter factor.
+Values specified here can be overriden by plugin/program specific section (more on that later).
+
+= Plugin/program specific sections =
+.linuxtrack file can contain any number of sections that are used to store data for plugins/programs using linuxtrack library.
