@@ -38,6 +38,16 @@ AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
 
+AC_CANONICAL_HOST
+
+
+AC_CHECK_TYPE([struct v4l2_frmsizeenum],                                                                                                  
+  [
+    AC_DEFINE([V4L2], [1],[Use videodev2.h (V4L2)])
+    with_v4l2=yes
+  ], [],                                                                             
+  [[#include  <linux/videodev2.h>]]                                                                                                           
+)                                                                                                                                             
 
 XPLANE_SDK=
 AC_ARG_WITH([xplane_sdk],
@@ -62,8 +72,21 @@ AC_ARG_ENABLE([xplane_plugin],
             ]
 )
 
+AS_IF([case $host_os in darwin*) true;; *) false;; esac],
+  [    
+    AC_DEFINE([DARWIN], [], [We are on Darwin])
+    with_darwin=yes
+  ]
+)
+
+
 AM_CONDITIONAL(XPLANE_PLUGIN, [test x$with_xplane_plugin = xyes])
 AM_CONDITIONAL(CWIID, [test x$with_cwiid = xyes])
+AM_CONDITIONAL(V4L2, [test x$with_v4l2 = xyes])
+AM_CONDITIONAL(DARWIN, [test x$with_darwin = xyes])
+
+
+
 
 
 
