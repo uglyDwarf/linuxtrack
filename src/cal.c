@@ -43,7 +43,9 @@ int cal_init(struct camera_control_block *ccb)
     iface = &tir4_interface;
     break;
   case webcam:
+#ifdef V4L2
     iface = &webcam_interface;
+#endif
     break;
   case wiimote:
 #ifdef CWIID

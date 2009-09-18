@@ -1,5 +1,13 @@
+#ifdef HAVE_CONFIG_H
+  #include "../config.h"
+#endif
+
 #define _GNU_SOURCE
+
+#ifndef DARWIN
 #include <features.h>
+#endif
+
 #include <stdio.h>
 #undef _GNU_SOURCE
 #include <stdbool.h>
