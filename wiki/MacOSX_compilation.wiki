@@ -1,0 +1,63 @@
+#summary Howto compile linuxtrack on Mac
+
+= Introduction =
+
+Here are brief instructions that should help you to compile Linuxtrack on Mac OSX.
+
+*For the moment only TrackIR 4 is supported!*
+
+  # Download and compile libusb 0.1.12 (newer libusb won't work)
+  # Download XPlane SDK
+  # Download and compile linuxtrack
+
+The rest of the process is the same as on linux - you have to copy the plugin to your XPlane installation, copy .linuxtrack  file to your home directory and finally customize it...
+
+= Details =
+
+== Download and compile libusb 0.1.12 ==
+Go to http://sourceforge.net/projects/libusb/ and download libusb 0.1.12 (it is marked as legacy).
+Newer versions won't work for now...
+
+Open the terminal, unpack the archive and compile the library:
+
+{{{
+mkdir linuxtrack
+cd linuxtrack
+cp ~/Downloads/libusb-0.1.12.tar .
+tar xf libusb-0.1.12.tar
+cd libusb-0.1.12
+./configure --prefix=~/linuxtrack/libusb
+make
+make install
+}}} 
+
+Remarks:
+ * We assume you are going to use ~/linuxtarck directory for plugin staff, if not, change paths accordingly...
+ * If the system didn't unpack the archive for you, change the 'xf' options in tar command to 'xfz'.
+
+== Download XPlane SDK ==
+Go to http://www.xsquawkbox.net/xpsdk/mediawiki/Download and download XPlane SDK (I use older 1.0.2, but 2.0 version should work too). 
+
+Just unpack it to the '~/linuxtrack' directory.
+
+Now ~/linuxtrack contains two subdirs - 'libusb' and 'SDK'.
+
+== Download and compile linuxtrack ==
+Checkout linuxtrack source and compile it:
+
+{{{
+cd ~/linuxtrack
+svn checkout http://linux-track.googlecode.com/svn/trunk/ linux-track-read-only
+cd linux-track-read-only
+export CFLAGS=-I/Users/michal/linuxtrack/libusb/include
+export LDFLAGS=-L/Users/michal/linuxtrack/libusb/lib
+./configure --disable-dependency-tracking
+make
+}}}
+
+Remarks:
+ * Be sure to adjust CFLAGS and LDFLAGS accordingly and use absolute paths!
+
+Now go to linux-track-read-only/src and copy .linuxtrack file to your home directory. Then edit the file (there is a wikipage on the subject) to suit you.
+
+Finally copy xlinuxtrack.xpl file to your XPlane install directory - exactly to Resources/plugins directory.
