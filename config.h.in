@@ -3,6 +3,9 @@
 /* Enable wiimote support */
 #undef CWIID
 
+/* We are on Darwin */
+#undef DARWIN
+
 /* Define to 1 if you have the <assert.h> header file. */
 #undef HAVE_ASSERT_H
 
@@ -71,6 +74,9 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
+
+/* Use videodev2.h (V4L2) */
+#undef V4L2
 
 /* Version number of package */
 #undef VERSION
