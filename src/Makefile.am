@@ -1,3 +1,11 @@
+if DARWIN
+  AM_CFLAGS = -arch i386 -arch ppc
+  DARWINFLAGS = -undefined dynamic_lookup
+  SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
+else
+  SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
+endif
+
 bin_PROGRAMS = tir4_driver_test pose_test ltlib_test
 
 liblinuxtrack_a_SOURCES = cal.c cal.h list.c list.h ltlib.c ltlib.h \
@@ -27,15 +35,11 @@ if V4L2
   webcam_driver_test_LDFLAGS = -L/lib32 -L/usr/lib32 $(CWIIDFLAGS)
 endif
 
-if DARWIN
-  DARWINFLAGS = -undefined dynamic_lookup
-endif
-
 if XPLANE_PLUGIN
   bin_PROGRAMS += xlinuxtrack.xpl
   xlinuxtrack_xpl_SOURCES = xlinuxtrack.c
-  xlinuxtrack_xpl_CFLAGS = -I../${XPLANE_SDK}/CHeaders/XPLM -I../${XPLANE_SDK}/CHeaders/Widgets -I../${XPLANE_SDK}/CHeaders/Wrappers -DIBM=0 -DAPL=0 -DLIN=1 -fPIC -m32
-  xlinuxtrack_xpl_LDFLAGS = -shared -fPIC -L/lib32 -L/usr/lib32 $(CWIIDFLAGS) $(DARWINFLAGS)
+  xlinuxtrack_xpl_CFLAGS = -I../${XPLANE_SDK}/CHeaders/XPLM -I../${XPLANE_SDK}/CHeaders/Widgets -I../${XPLANE_SDK}/CHeaders/Wrappers $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS)
+  xlinuxtrack_xpl_LDFLAGS = -shared -fPIC -L/lib32 -L/usr/lib32 $(CWIIDFLAGS) $(DARWINFLAGS) -dynamiclib
   xlinuxtrack_xpl_LDADD = liblinuxtrack.a
 endif
 
@@ -49,7 +53,7 @@ ltlib_test_LDADD = liblinuxtrack.a
 
 tir4_driver_test_CFLAGS = -m32 -fPIC
 pose_test_CFLAGS = -m32 -fPIC
-ltlib_test_CFLAGS = -I../${XPLANE_SDK}/CHeaders/XPLM -I../${XPLANE_SDK}/CHeaders/Widgets -I../${XPLANE_SDK}/CHeaders/Wrappers -DIBM=0 -DAPL=0 -DLIN=1 -fPIC -m32
+ltlib_test_CFLAGS = -fPIC -m32
 tir4_driver_test_LDFLAGS = -L/lib32 -L/usr/lib32 $(CWIIDFLAGS)
 pose_test_LDFLAGS = -L/lib32 -L/usr/lib32 $(CWIIDFLAGS)
 ltlib_test_LDFLAGS = -fPIC -L/lib32 -L/usr/lib32 $(CWIIDFLAGS)
