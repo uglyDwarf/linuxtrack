@@ -26,13 +26,13 @@ cd linuxtrack
 cp ~/Downloads/libusb-0.1.12.tar .
 tar xf libusb-0.1.12.tar
 cd libusb-0.1.12
-./configure --prefix=~/linuxtrack/libusb
+./configure --prefix=/Users/michal/linuxtrack/libusb
 make
 make install
 }}} 
 
 Remarks:
- * We assume you are going to use ~/linuxtarck directory for plugin staff, if not, change paths accordingly...
+ * We assume you are going to use /Users/michal/linuxtarck directory for plugin staff, change paths accordingly...
  * If the system didn't unpack the archive for you, change the 'xf' options in tar command to 'xfz'.
 
 == Download XPlane SDK ==
