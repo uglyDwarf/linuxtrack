@@ -1,0 +1,11 @@
+#summary Frequently asked questions
+
+= Introduction =
+This page should contain answers of frequently asked questions.
+
+ * I do have a question and it is not answered here...
+
+= Details =
+
+== I do have a question and it is not answered here... ==
+If you have a question that is not here that you think it deserves to be here, just post it as a comment and we'll add it here along with an answer.
