@@ -1,5 +1,8 @@
 #summary Howto compile linuxtrack on Mac
 
+= Current status =
+libusb-0.1.12 version is reported not to work... I'm in the process of porting TIR4 to libusb-1.0, hopefully that one will work.
+
 = Introduction =
 
 Here are brief instructions that should help you to compile Linuxtrack on Mac OSX.
