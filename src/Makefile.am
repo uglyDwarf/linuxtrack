@@ -6,15 +6,34 @@ else
   SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
 endif
 
-bin_PROGRAMS = tir4_driver_test pose_test ltlib_test
+bin_PROGRAMS = pose_test ltlib_test
 
 liblinuxtrack_a_SOURCES = cal.c cal.h list.c list.h ltlib.c ltlib.h \
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
-  pref_flex.l pref_global.c pref_global.h pref_int.h tir4_driver.c \
-  tir4_driver.h utils.c utils.h image_process.c image_process.h
+  pref_flex.l pref_global.c pref_global.h pref_int.h \
+  utils.c utils.h image_process.c image_process.h
 
 noinst_LIBRARIES = liblinuxtrack.a
 dist_data_DATA = .linuxtrack
+
+if LIBUSB
+  bin_PROGRAMS += tir4_driver_test
+  liblinuxtrack_a_SOURCES += tir4_driver.c tir4_driver.h
+  tir4_driver_test_SOURCES =  tir4_driver_test.c
+  tir4_driver_test_LDADD =  liblinuxtrack.a
+  tir4_driver_test_CFLAGS = -m32 -fPIC
+  tir4_driver_test_LDFLAGS = -L/lib32 -L/usr/lib32
+endif
+
+if LIBUSB10
+  liblinuxtrack_a_SOURCES += libusb_ifc.c tir.h tir_hw.c tir_hw.h \
+    tir_img.c tir_img.h usb_ifc.h
+else
+  if OPENUSB
+    liblinuxtrack_a_SOURCES += openusb_ifc.c tir.h tir_hw.c tir_hw.h \
+      tir_img.c tir_img.h usb_ifc.h
+  endif
+endif
 
 if CWIID
   bin_PROGRAMS += wiimote_driver_test
@@ -43,18 +62,14 @@ if XPLANE_PLUGIN
   xlinuxtrack_xpl_LDADD = liblinuxtrack.a
 endif
 
-tir4_driver_test_SOURCES =  tir4_driver_test.c
 pose_test_SOURCES = pose_test.c
 ltlib_test_SOURCES = ltlib_test.c 
 
-tir4_driver_test_LDADD =  liblinuxtrack.a
 pose_test_LDADD = liblinuxtrack.a
 ltlib_test_LDADD = liblinuxtrack.a 
 
-tir4_driver_test_CFLAGS = -m32 -fPIC
 pose_test_CFLAGS = -m32 -fPIC
 ltlib_test_CFLAGS = -fPIC -m32
-tir4_driver_test_LDFLAGS = -L/lib32 -L/usr/lib32 $(CWIIDFLAGS)
 pose_test_LDFLAGS = -L/lib32 -L/usr/lib32 $(CWIIDFLAGS)
 ltlib_test_LDFLAGS = -fPIC -L/lib32 -L/usr/lib32 $(CWIIDFLAGS)
 

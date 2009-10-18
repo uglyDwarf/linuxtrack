@@ -48,7 +48,7 @@ int cal_init(struct camera_control_block *ccb)
 #endif
     break;
   case wiimote:
-#ifdef CWIID
+#ifdef HAVE_LIBCWIID
     iface = &wiimote_interface;
 #else
 /*         iface = &tir4_interface; */
