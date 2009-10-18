@@ -1,8 +1,5 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Enable wiimote support */
-#undef CWIID
-
 /* We are on Darwin */
 #undef DARWIN
 
@@ -12,14 +9,23 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Define to 1 if you have the `cwiid' library (-lcwiid). */
+#undef HAVE_LIBCWIID
+
 /* Define to 1 if you have the `m' library (-lm). */
 #undef HAVE_LIBM
+
+/* Define to 1 if you have the `openusb' library (-lopenusb). */
+#undef HAVE_LIBOPENUSB
 
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #undef HAVE_LIBPTHREAD
 
 /* Define to 1 if you have the `usb' library (-lusb). */
 #undef HAVE_LIBUSB
+
+/* Define to 1 if you have the `usb-1.0' library (-lusb-1.0). */
+#undef HAVE_LIBUSB_1_0
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
