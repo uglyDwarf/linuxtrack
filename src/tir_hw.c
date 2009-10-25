@@ -110,6 +110,9 @@ static bool check_firmware(unsigned char *firmware, unsigned int size)
   unsigned int cksum_uploaded;
   size_t t;
   
+  while(receive_data(packet, sizeof(packet), &t));
+
+
   if(!send_data(Get_status, sizeof(Get_status))){
     log_message("Couldn't send data!\n");
     return false;
@@ -240,8 +243,6 @@ bool init_camera_tir(char data_path[], bool force_fw_load, bool ir_on)
   
   send_data(Fifo_flush,sizeof(Fifo_flush));
   send_data(Camera_stop,sizeof(Camera_stop));
-  send_data(Get_status,sizeof(Get_status));
-  send_data(Fpga_init,sizeof(Fpga_init));
   
   switch(device){
     case TIR4:
@@ -275,7 +276,6 @@ bool init_camera_tir(char data_path[], bool force_fw_load, bool ir_on)
   
   send_data(Fifo_flush,sizeof(Fifo_flush));
   send_data(Camera_stop,sizeof(Camera_stop));
-  check_firmware(fw, fw_size);
   send_data(Cfg_reload,sizeof(Cfg_reload));
   if(device == TIR5){
     send_data(unk_8,sizeof(unk_8));
