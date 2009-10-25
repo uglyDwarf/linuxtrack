@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "usb_ifc.h"
 #include "tir_hw.h"
+#include "tir_img.h"
 #include "utils.h"
 
 typedef struct {
@@ -23,14 +24,25 @@ typedef struct {
 static plist preblobs = NULL;
 static plist finished_blobs = NULL;
 
+/*
 static void print_pblob(preblob_t *b)
 {
   log_message("last:{v:%d %d - %d} current:{v:%d %d - %d} cur:%d\n", b->last_stripe.vline, b->last_stripe.hstart,
     b->last_stripe.hstop, b->current_stripe.vline, b->current_stripe.hstart,
     b->current_stripe.hstop, b->current_stripes);
 }
+*/
 
-static int stripes_to_blobs_tir()
+blob* new_blob(float x, float y, float score)
+{
+  blob *tmp = (blob*)my_malloc(sizeof(blob));
+  tmp->x = x;
+  tmp->y = y;
+  tmp->score = score;
+  return tmp;
+}
+
+static int stripes_to_blobs_tir(plist *blob_list)
 {
   if(preblobs == NULL){
     preblobs = create_list();
@@ -38,6 +50,7 @@ static int stripes_to_blobs_tir()
   if(finished_blobs == NULL){
     finished_blobs = create_list();
   }
+  plist blobs = create_list();
   int cntr = 0;
   iterator i;
   preblob_t *pb;
@@ -45,6 +58,7 @@ static int stripes_to_blobs_tir()
   while((pb = (preblob_t*)get_next(&i)) != NULL){
     float x = pb->sum_x / pb->count;
     float y = pb->sum_y / pb->count;
+    add_element(blobs, new_blob(x, y, 0.0f)); //TODO!!!
     log_message("Blob: %g   %g   %d points\n", x, y, pb->count);
     cntr++;
   }
@@ -52,22 +66,17 @@ static int stripes_to_blobs_tir()
   while((pb = (preblob_t*)get_next(&i)) != NULL){
     float x = pb->sum_x / pb->count;
     float y = pb->sum_y / pb->count;
-    
+    add_element(blobs, new_blob(x, y, 0.0f)); //TODO!!!
     log_message("Blob: %g   %g   %d points\n", x, y, pb->count);
     cntr++;
   }
+  log_message("End of blobs %d!\n", cntr);
   free_list(preblobs, true);
   preblobs = NULL;
   free_list(finished_blobs, true);
   finished_blobs = NULL;
-  
-  if(cntr == 3){
-//    turn_led_on_tir(TIR_LED_GREEN);
-  }else{
-//    turn_led_off_tir(TIR_LED_GREEN);
-  }
-  log_message("%d\n", cntr);
-  return 0;
+  *blob_list = blobs;
+  return cntr;
 }
 
 static bool stripes_coincide(stripe_t *stripe1, stripe_t *stripe2)
@@ -205,10 +214,11 @@ static int process_stripes_tir4(int size, unsigned char payload[])
     }
   }
   if(!null_packet){
-    stripes_to_blobs_tir();
 //    log_message("End of frame!\n");
+    return 1;
   }
-  return 0;
+  log_message("Null packet (size %d)!\n", size);
+  return 2;
 }
 
 static int process_stripes_tir5(int size, unsigned char payload[])
@@ -239,22 +249,22 @@ static int process_stripes_tir5(int size, unsigned char payload[])
     }
   }
   if(!null_packet){
-    stripes_to_blobs_tir();
+    return 1;
     log_message("End of frame!\n");
   }
-  return 0;
+  return 2;
 }
 
-bool process_packet_tir5(unsigned char data[], size_t size)
+static int process_packet_tir5(unsigned char data[], size_t size)
 {
   unsigned char packet_num = data[0];
   if(data[1] != 0x10){
     log_message("Unrecognized packet number 0x%02X!\n", packet_num);
-    return false;
+    return -1;
   }
   if((data[0] ^ data[1] ^ data[2] ^ data[3]) != 0xAA){
     log_message("Bad packet header!\n");
-    return false;
+    return -1;
   }
   unsigned int ts = (((((data[size-4] << 8) + data[size-3]) << 8) + data[size-2])
     << 8) + data[size-1];
@@ -263,37 +273,49 @@ bool process_packet_tir5(unsigned char data[], size_t size)
   }
   switch(data[2]){
     case 0:
-      process_stripes_tir4(size - 8, &(data[4]));
+      return process_stripes_tir4(size - 8, &(data[4]));
       break;
     case 5:
-      process_stripes_tir5(size - 8, &(data[4]));
+      return process_stripes_tir5(size - 8, &(data[4]));
       break;
   }
-  return true;
+  return -1;
 }
 
-int read_packet_tir()
+int read_blobs_tir(plist *blob_list)
 {
   size_t res, transferred;
-  if(!receive_data(packet, sizeof(packet), &transferred)){
-    log_message("Problem reading data from TIR! %d - %d transferred\n", res, transferred);
-    return 1;
-  }
-  if(packet[1] == 0x1C){
-    int limit = (transferred > packet[0]) ? packet[0] : transferred;
-    process_stripes_tir4(limit-2, &(packet[2]));
-  }else if(packet[1] == 0x7e){
-    log_message("Nop packet!\n");
-  }else if(packet[1] == 0x10){
-    process_packet_tir5(packet, transferred);
-  }else{
-    int i;
-    for(i = 0; i < transferred; ++i){
-      log_message("%02X ", packet[i]);
+  int ret_code;
+  while(1){
+    if(!receive_data(packet, sizeof(packet), &transferred)){
+      log_message("Problem reading data from TIR! %d - %d transferred\n", res, transferred);
+      return -1;
     }
-    log_message("\n");
+    ret_code = 2;
+    if(packet[1] == 0x1C){
+      int limit = (transferred > packet[0]) ? packet[0] : transferred;
+      ret_code = process_stripes_tir4(limit-2, &(packet[2]));
+    }else if(packet[1] == 0x7e){
+      log_message("Nop packet!\n");
+    }else if(packet[1] == 0x10){
+      ret_code = process_packet_tir5(packet, transferred);
+    }else{
+      int i;
+      for(i = 0; i < transferred; ++i){
+	log_message("Unk. %02X\n", packet[i]);
+      }
+    }
+    
+    if(ret_code == 2){ //Nop packet...
+      continue;
+    }
+    break;
   }
-  return 0;
+  if(ret_code > 0){  
+    return stripes_to_blobs_tir(blob_list);
+  }
+  log_message("No blobs today!\n");
+  return ret_code;
 }
 
 /*

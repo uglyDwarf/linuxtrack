@@ -21,6 +21,7 @@ AM_PROG_CC_C_O
 
 # Checks for libraries.
 AC_CHECK_LIB([m], [sqrt])
+AC_CHECK_LIB([z], [gzopen])
 AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_LIB([usb], [usb_open], ,)
 AC_CHECK_LIB([openusb], [openusb_init], ,)

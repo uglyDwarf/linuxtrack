@@ -44,7 +44,8 @@ struct frame_type {
 typedef enum cal_device_category_type {
   tir4_camera,
   webcam,
-  wiimote
+  wiimote,
+  tir
 } cal_device_category_type;
 
 enum cal_device_state_type {
