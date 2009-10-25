@@ -13,6 +13,7 @@
 
 #include "cal.h"
 #include "tir4_driver.h"
+#include "tir_driver.h"
 #include "wiimote_driver.h"
 #include "webcam_driver.h"
 
@@ -39,9 +40,16 @@ void *capture_thread(void *ccb);
 int cal_init(struct camera_control_block *ccb)
 {
   switch (ccb->device.category) {
+#if HAVE_LIBUSB_1_0 || HAVE_LIBOPENUSB
+  case tir:
+    iface = &tir_interface;
+    break;
+#endif
+#ifdef HAVE_LIBUSB
   case tir4_camera:
     iface = &tir4_interface;
     break;
+#endif
   case webcam:
 #ifdef V4L2
     iface = &webcam_interface;

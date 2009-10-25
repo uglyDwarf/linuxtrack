@@ -27,6 +27,9 @@
 /* Define to 1 if you have the `usb-1.0' library (-lusb-1.0). */
 #undef HAVE_LIBUSB_1_0
 
+/* Define to 1 if you have the `z' library (-lz). */
+#undef HAVE_LIBZ
+
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 

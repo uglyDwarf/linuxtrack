@@ -3,9 +3,11 @@
 #include <zlib.h>
 #include <string.h>
 #include <malloc.h>
+#include <assert.h>
 #include "tir_hw.h"
 #include "tir_img.h"
 #include "usb_ifc.h"
+#include "utils.h"
 
 #define TIR_CONFIGURATION 1
 #define TIR_INTERFACE 0
@@ -45,9 +47,9 @@ unsigned char packet[4096];
 static unsigned int cksum_firmware(unsigned char *firmware, int size)
 {
   unsigned int cksum = 0;
-  unsigned int byte;
+  unsigned int byte = 0;
   
-  while(size >= 0){
+  while(size > 0){
     byte = (unsigned int)*firmware;
 
     cksum += byte;
@@ -104,7 +106,7 @@ static bool load_firmware(char *fname, unsigned char *buffer[], unsigned int *si
 
 static bool check_firmware(unsigned char *firmware, unsigned int size)
 {
-  unsigned int cksum = cksum_firmware(firmware, size);
+  unsigned int cksum;
   unsigned int cksum_uploaded;
   size_t t;
   
@@ -116,10 +118,14 @@ static bool check_firmware(unsigned char *firmware, unsigned int size)
     log_message("Couldn't receive data!\n");
     return false;
   }
-  cksum_uploaded = 0x0000FFFF & (*(unsigned int*)&(packet[5]));
+  cksum = cksum_firmware(firmware, size);
+  cksum_uploaded = ((unsigned int)packet[4] << 8) | (unsigned int)packet[5];
   if(cksum != cksum_uploaded){
     log_message("Cksum doesn't match! Uploaded: %04X, Computed: %04X\n",
       cksum_uploaded, cksum);
+    log_message("Status packet: %02X %02X %02X %02X %02X %02X %02X %02X\n",
+      packet[0], packet[1], packet[2], packet[3], packet[4], packet[5], 
+      packet[6]);
     return false;
   }
   return true;
@@ -148,7 +154,7 @@ static bool upload_firmware(unsigned char *firmware, unsigned int size)
       return false;
     }
   }
-  
+  log_message("Firmware uploaded!\n");
   
   return true;
 }
@@ -210,7 +216,7 @@ bool start_camera_tir()
   return true;
 }
 
-bool init_camera_tir(bool ir_on)
+bool init_camera_tir(char data_path[], bool force_fw_load, bool ir_on)
 {
   unsigned char *fw = NULL;
   unsigned int fw_size = 0;
@@ -249,9 +255,15 @@ bool init_camera_tir(bool ir_on)
       return false;
       break;
   }
-  upload_firmware(fw, fw_size);
-  check_firmware(fw, fw_size);
-  free(fw);
+  if(force_fw_load || (check_firmware(fw, fw_size) == false)){
+    upload_firmware(fw, fw_size);
+    if(check_firmware(fw, fw_size) == false){
+      log_message("Failed to upload firmware!\n");
+      return false;
+    }
+  }else{
+    log_message("Not loading firmware - it is already loaded!\n");
+  }
   
   if(device == TIR5){
     send_data(unk_7,sizeof(unk_7));
@@ -263,7 +275,7 @@ bool init_camera_tir(bool ir_on)
   
   send_data(Fifo_flush,sizeof(Fifo_flush));
   send_data(Camera_stop,sizeof(Camera_stop));
-  send_data(Get_status,sizeof(Get_status));
+  check_firmware(fw, fw_size);
   send_data(Cfg_reload,sizeof(Cfg_reload));
   if(device == TIR5){
     send_data(unk_8,sizeof(unk_8));
@@ -284,14 +296,15 @@ bool init_camera_tir(bool ir_on)
   }
   
   if(device == TIR4){
-  send_data(Video_off,sizeof(Video_off));
-  send_data(Fifo_flush,sizeof(Fifo_flush));
-  send_data(Video_on,sizeof(Video_on));
+    send_data(Video_off,sizeof(Video_off));
+    send_data(Fifo_flush,sizeof(Fifo_flush));
+    send_data(Video_on,sizeof(Video_on));
   }
+  free(fw);
   return true;
 }
 
-bool open_tir()
+bool open_tir(char data_path[], bool force_fw_load, bool ir_on)
 {
   if(!init_usb()){
     log_message("Init failed!\n");
@@ -307,7 +320,7 @@ bool open_tir()
     return false;
   }
 
-  init_camera_tir(true);
+  init_camera_tir(data_path, force_fw_load, ir_on);
   start_camera_tir();
   return true;
 }
@@ -322,9 +335,9 @@ bool resume_tir()
   return start_camera_tir();
 }
 
-bool read_frame()
+bool read_frame(plist *blob_list)
 {
-  return read_packet_tir();
+  return read_blobs_tir(blob_list);
 }
 
 bool close_tir()
@@ -336,4 +349,58 @@ bool close_tir()
   turn_led_off_tir(TIR_LED_IR);
   finish_usb(TIR_INTERFACE);
   return true;
+}
+
+void get_res_tir(unsigned int *w, unsigned int *h)
+{
+  switch(device){
+    case TIR4:
+      *w = 710;
+      *h = 288;
+      break;
+    case TIR5:
+      *w = 640;
+      *h = 480;
+      break;
+    default:
+      assert(0);
+      break;
+  }
+  
+}
+
+void switch_green(bool state)
+{
+  if(state){
+    turn_led_on_tir(TIR_LED_GREEN);
+  }else{
+    turn_led_off_tir(TIR_LED_GREEN);
+  }
+}
+
+void switch_blue(bool state)
+{
+  if(state){
+    turn_led_on_tir(TIR_LED_BLUE);
+  }else{
+    turn_led_off_tir(TIR_LED_BLUE);
+  }
+}
+
+void switch_red(bool state)
+{
+  if(state){
+    turn_led_on_tir(TIR_LED_RED);
+  }else{
+    turn_led_off_tir(TIR_LED_RED);
+  }
+}
+
+void switch_ir(bool state)
+{
+  if(state){
+    turn_led_on_tir(TIR_LED_IR);
+  }else{
+    turn_led_off_tir(TIR_LED_IR);
+  }
 }

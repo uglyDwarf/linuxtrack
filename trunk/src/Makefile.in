@@ -39,10 +39,10 @@ bin_PROGRAMS = pose_test$(EXEEXT) ltlib_test$(EXEEXT) $(am__EXEEXT_1) \
 @LIBUSB_TRUE@am__append_1 = tir4_driver_test
 @LIBUSB_TRUE@am__append_2 = tir4_driver.c tir4_driver.h
 @LIBUSB10_TRUE@am__append_3 = libusb_ifc.c tir.h tir_hw.c tir_hw.h \
-@LIBUSB10_TRUE@    tir_img.c tir_img.h usb_ifc.h
+@LIBUSB10_TRUE@    tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c
 
 @LIBUSB10_FALSE@am__append_4 = openusb_ifc.c tir.h tir_hw.c tir_hw.h \
-@LIBUSB10_FALSE@      tir_img.c tir_img.h usb_ifc.h
+@LIBUSB10_FALSE@      tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c
 
 @CWIID_TRUE@am__append_5 = wiimote_driver_test
 @CWIID_TRUE@am__append_6 = wiimote_driver.c wiimote_driver.h
@@ -69,14 +69,14 @@ am__liblinuxtrack_a_SOURCES_DIST = cal.c cal.h list.c list.h ltlib.c \
 	pref_bison.y pref_flex.l pref_global.c pref_global.h \
 	pref_int.h utils.c utils.h image_process.c image_process.h \
 	tir4_driver.c tir4_driver.h libusb_ifc.c tir.h tir_hw.c \
-	tir_hw.h tir_img.c tir_img.h usb_ifc.h openusb_ifc.c \
-	wiimote_driver.c wiimote_driver.h webcam_driver.c \
-	webcam_driver.h
+	tir_hw.h tir_img.c tir_img.h usb_ifc.h tir_driver.h \
+	tir_driver.c openusb_ifc.c wiimote_driver.c wiimote_driver.h \
+	webcam_driver.c webcam_driver.h
 @LIBUSB_TRUE@am__objects_1 = tir4_driver.$(OBJEXT)
 @LIBUSB10_TRUE@am__objects_2 = libusb_ifc.$(OBJEXT) tir_hw.$(OBJEXT) \
-@LIBUSB10_TRUE@	tir_img.$(OBJEXT)
+@LIBUSB10_TRUE@	tir_img.$(OBJEXT) tir_driver.$(OBJEXT)
 @LIBUSB10_FALSE@am__objects_3 = openusb_ifc.$(OBJEXT) tir_hw.$(OBJEXT) \
-@LIBUSB10_FALSE@	tir_img.$(OBJEXT)
+@LIBUSB10_FALSE@	tir_img.$(OBJEXT) tir_driver.$(OBJEXT)
 @CWIID_TRUE@am__objects_4 = wiimote_driver.$(OBJEXT)
 @V4L2_TRUE@am__objects_5 = webcam_driver.$(OBJEXT)
 am_liblinuxtrack_a_OBJECTS = cal.$(OBJEXT) list.$(OBJEXT) \
@@ -412,6 +412,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_global.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir4_driver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir4_driver_test-tir4_driver_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir_driver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir_hw.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir_img.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Po@am__quote@
