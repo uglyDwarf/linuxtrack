@@ -29,10 +29,10 @@ if LIBUSB10
   liblinuxtrack_a_SOURCES += libusb_ifc.c tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c
 else
-  if OPENUSB
-    liblinuxtrack_a_SOURCES += openusb_ifc.c tir.h tir_hw.c tir_hw.h \
-      tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c
-  endif
+if OPENUSB
+  liblinuxtrack_a_SOURCES += openusb_ifc.c tir.h tir_hw.c tir_hw.h \
+    tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c
+endif
 endif
 
 if CWIID
