@@ -97,7 +97,9 @@ int lt_init(struct lt_configuration_type config, char *cust_section)
     return -1;
   }
   cal_set_good_indication(&ccb, true);
-  cal_thread_start(&ccb);
+  if(cal_thread_start(&ccb) != 0){
+    return -1;
+  }
 
   filtered_bloblist.num_blobs = 3;
   filtered_bloblist.blobs = filtered_blobs;

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
+#include <assert.h>
 #include "ltlib.h"
 
 /* int main(int argc, char **argv) { */

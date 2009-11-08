@@ -171,7 +171,7 @@ int cal_get_frame(struct camera_control_block *ccb,
 /* Start a capture thread, this WILL BLOCK until the 
  * thread has actually started; this should be a very short 
  * period */
-void cal_thread_start(struct camera_control_block *ccb);
+int cal_thread_start(struct camera_control_block *ccb);
 
 
 /* Request termination of capture thread
@@ -205,9 +205,5 @@ void frame_free(struct camera_control_block *ccb,
 /* primarily for debug, will print a string 
  * represtentation of the given frame to stdout */ 
 void frame_print(struct frame_type f);
-
-void bloblist_print(struct bloblist_type bl);
-
-void blob_print(struct blob_type b);
 
 #endif
