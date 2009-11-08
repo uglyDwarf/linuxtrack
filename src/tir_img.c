@@ -61,7 +61,7 @@ static int stripes_to_blobs_tir(plist *blob_list)
     float x = pb->sum_x / pb->count;
     float y = pb->sum_y / pb->count;
     add_element(blobs, new_blob(x, y, pb->count)); //TODO!!!
-    log_message("Blob: %g   %g   %d points\n", x, y, pb->count);
+    //log_message("Blob: %g   %g   %d points\n", x, y, pb->count);
     cntr++;
   }
   init_iterator(preblobs, &i);
@@ -69,10 +69,10 @@ static int stripes_to_blobs_tir(plist *blob_list)
     float x = pb->sum_x / pb->count;
     float y = pb->sum_y / pb->count;
     add_element(blobs, new_blob(x, y, pb->count)); //TODO!!!
-    log_message("Blob: %g   %g   %d points\n", x, y, pb->count);
+    //log_message("Blob: %g   %g   %d points\n", x, y, pb->count);
     cntr++;
   }
-  log_message("End of blobs %d!\n", cntr);
+  //log_message("End of blobs %d!\n", cntr);
   free_list(preblobs, true);
   preblobs = NULL;
   free_list(finished_blobs, true);
@@ -134,8 +134,8 @@ static void add_to_list(plist *l, void* elem)
 
 static int add_stripe(stripe_t *stripe)
 {
-  log_message("Stripe: %d   %d - %d (%d   %d)\n", stripe->vline, stripe->hstart, 
-         stripe->hstop, stripe->sum, stripe->sum_x);
+  //log_message("Stripe: %d   %d - %d (%d   %d)\n", stripe->vline, stripe->hstart, 
+  //       stripe->hstop, stripe->sum, stripe->sum_x);
   if(preblobs == NULL){
     preblobs = create_list();
   }
@@ -198,6 +198,9 @@ static bool process_stripe_tir(unsigned char p_stripe[])
       stripe.hstart |= 0x200;
     if(rest & 0x08)
       stripe.hstop |= 0x200;
+    stripe.hstart -= 82;
+    stripe.vline -= 12;
+    stripe.hstop -= 82;
     stripe.sum = stripe.hstop - stripe.hstart + 1;
     stripe.sum_x = (unsigned int)(stripe.sum * (stripe.sum - 1) / 2.0);
     
@@ -222,7 +225,6 @@ static bool process_stripe_tir5(unsigned char payload[])
 		    ((unsigned int)payload[6]) >>7;
     stripe.sum = (((unsigned int)payload[6]) & 0x7F) << 8 |
                    ((unsigned int)payload[7]);
-    
     if(add_stripe(&stripe)){
       log_message("Couldn't add stripe!\n");
     }
@@ -366,28 +368,28 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
     }
     switch(type){
       case 0x20:
-        log_message("Status packet!\n");
+        //Status packet
         *ptr = limit;
         type = -1;
         break;
       case 0x40:
-        log_message("DevInfo packet!\n");
+        //DevInfo packet
         *ptr = limit;
         type = -1;
         break;
       case 0x10:
-        log_message("TIR5 packet!\n");
+        //TIR5 packet
         have_frame = process_packet_tir5(data, ptr, pktsize, limit);
         *ptr = limit;
         type = -1;
         break;
       case 0x1C:
-//        log_message("TIR4 packet!\n");
+        //TIR4 packet
         have_frame = process_packet_tir4(data, ptr, pktsize, limit);
 	if(*ptr >= limit){
           type = -1;
 	}
-//        log_message("   size %d, limit %d, ptr %d\n", pktsize, limit, *ptr);
+        //log_message("   size %d, limit %d, ptr %d\n", pktsize, limit, *ptr);
         break;
       default:
         break;
@@ -396,8 +398,6 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
     if(have_frame == true){
       break;
     }
-
-//    sleep(1);
   }
   return have_frame;
 }

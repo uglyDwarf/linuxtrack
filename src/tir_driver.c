@@ -133,6 +133,7 @@ int tir_blobs_to_bt(int num_blobs, plist blob_list, struct bloblist_type *blt)
       cal_b = &(bt[counter]);
       cal_b->x = (w / 2.0) - b->x;
       cal_b->y = (h / 2.0) - b->y;
+      cal_b->y *= 2.0;
       cal_b->score = b->score;
     }
     ++counter;
@@ -157,18 +158,16 @@ int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)
     if(blob_list != NULL){
       free_list(blob_list, true);
     }
-    printf("1\n");
     return -1;
   }
   if(tir_blobs_to_bt(3, blob_list, &(f->bloblist)) != 0){
-    log_message("Wrong!");
+    //log_message("Wrong!");
   }
   free_list(blob_list, true);
   if(f->bloblist.num_blobs != 3){
-    printf("2  %d\n", f->bloblist.num_blobs);
     return -1;
   }
-  log_message("Valid block with %d blobs\n", f->bloblist.num_blobs);
+  //log_message("Valid block with %d blobs\n", f->bloblist.num_blobs);
   f->bitmap = NULL;
   return 0;
 }

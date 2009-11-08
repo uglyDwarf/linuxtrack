@@ -41,8 +41,8 @@ bin_PROGRAMS = pose_test$(EXEEXT) ltlib_test$(EXEEXT) $(am__EXEEXT_1) \
 @LIBUSB10_TRUE@am__append_3 = libusb_ifc.c tir.h tir_hw.c tir_hw.h \
 @LIBUSB10_TRUE@    tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c
 
-@LIBUSB10_FALSE@am__append_4 = openusb_ifc.c tir.h tir_hw.c tir_hw.h \
-@LIBUSB10_FALSE@      tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c
+@LIBUSB10_FALSE@@OPENUSB_TRUE@am__append_4 = openusb_ifc.c tir.h tir_hw.c tir_hw.h \
+@LIBUSB10_FALSE@@OPENUSB_TRUE@    tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c
 
 @CWIID_TRUE@am__append_5 = wiimote_driver_test
 @CWIID_TRUE@am__append_6 = wiimote_driver.c wiimote_driver.h
@@ -75,8 +75,10 @@ am__liblinuxtrack_a_SOURCES_DIST = cal.c cal.h list.c list.h ltlib.c \
 @LIBUSB_TRUE@am__objects_1 = tir4_driver.$(OBJEXT)
 @LIBUSB10_TRUE@am__objects_2 = libusb_ifc.$(OBJEXT) tir_hw.$(OBJEXT) \
 @LIBUSB10_TRUE@	tir_img.$(OBJEXT) tir_driver.$(OBJEXT)
-@LIBUSB10_FALSE@am__objects_3 = openusb_ifc.$(OBJEXT) tir_hw.$(OBJEXT) \
-@LIBUSB10_FALSE@	tir_img.$(OBJEXT) tir_driver.$(OBJEXT)
+@LIBUSB10_FALSE@@OPENUSB_TRUE@am__objects_3 = openusb_ifc.$(OBJEXT) \
+@LIBUSB10_FALSE@@OPENUSB_TRUE@	tir_hw.$(OBJEXT) \
+@LIBUSB10_FALSE@@OPENUSB_TRUE@	tir_img.$(OBJEXT) \
+@LIBUSB10_FALSE@@OPENUSB_TRUE@	tir_driver.$(OBJEXT)
 @CWIID_TRUE@am__objects_4 = wiimote_driver.$(OBJEXT)
 @V4L2_TRUE@am__objects_5 = webcam_driver.$(OBJEXT)
 am_liblinuxtrack_a_OBJECTS = cal.$(OBJEXT) list.$(OBJEXT) \
@@ -727,8 +729,6 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_dataDATA
 	mostlyclean-generic pdf pdf-am ps ps-am tags uninstall \
 	uninstall-am uninstall-binPROGRAMS uninstall-dist_dataDATA
 
-@LIBUSB10_FALSE@  if OPENUSB
-@LIBUSB10_FALSE@  endif
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
