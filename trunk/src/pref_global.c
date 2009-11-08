@@ -223,7 +223,7 @@ bool get_pose_setup(reflector_model_type *rm, bool *model_changed)
   if (model_type == NULL) {
     return false;
   }
-  log_message("Model: '%s'\n", model_type);
+  //log_message("Model: '%s'\n", model_type);
   if(strcasecmp(model_type, "Cap") == 0){
     return setup_cap(rm, model_section, model_changed);
   }

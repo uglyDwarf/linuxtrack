@@ -161,6 +161,10 @@ int lt_get_camera_update(float *heading,
       return -1;
     }
     pose_sort_blobs(frame.bloblist);
+    //printf("[%f, %f], [%f, %f], [%f, %f]\n", frame.bloblist.blobs[0].x,
+    //frame.bloblist.blobs[0].y, frame.bloblist.blobs[1].x,
+    //frame.bloblist.blobs[1].y, frame.bloblist.blobs[2].x,
+    //frame.bloblist.blobs[2].y);
     int i;
     for(i=0;i<3;i++) {
       if (first_frame_read) {
