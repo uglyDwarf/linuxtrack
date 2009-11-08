@@ -108,10 +108,10 @@ static bool claim_tir(unsigned int config, unsigned int interface)
     log_message("Couldn't claim interface!\n");
     return false;
   }
-  if(libusb_reset_device(handle)){
-    log_message("Couldn't reset device!\n");
-    return false;
-  }
+//  if(libusb_reset_device(handle)){
+//    log_message("Couldn't reset device!\n");
+//    return false;
+//  }
   int cfg;
   if(libusb_get_configuration(handle, &cfg)){
     log_message("Can't get device configuration!\n");

@@ -16,6 +16,7 @@
 #include "tir_driver.h"
 #include "wiimote_driver.h"
 #include "webcam_driver.h"
+#include "utils.h"
 
 
 dev_interface *iface = NULL;
@@ -39,29 +40,43 @@ void *capture_thread(void *ccb);
 /************************/
 int cal_init(struct camera_control_block *ccb)
 {
+  assert(ccb != NULL);
   switch (ccb->device.category) {
+    case tir:
 #if HAVE_LIBUSB_1_0 || HAVE_LIBOPENUSB
-  case tir:
-    iface = &tir_interface;
-    break;
-#endif
-#ifdef HAVE_LIBUSB
-  case tir4_camera:
-    iface = &tir4_interface;
-    break;
-#endif
-  case webcam:
-#ifdef V4L2
-    iface = &webcam_interface;
-#endif
-    break;
-  case wiimote:
-#ifdef HAVE_LIBCWIID
-    iface = &wiimote_interface;
+      iface = &tir_interface;
 #else
-/*         iface = &tir4_interface; */
+      log_message("Track IR driver was not compiled!\n");
 #endif
-    break;
+      break;
+    case tir4_camera:
+#ifdef HAVE_LIBUSB
+      iface = &tir4_interface;
+#else
+      log_message("Track IR4 driver was not compiled!\n");
+#endif
+      break;
+    case webcam:
+#ifdef V4L2
+      iface = &webcam_interface;
+#else
+      log_message("Webcam driver was not compiled!\n");
+#endif
+      break;
+    case wiimote:
+#ifdef HAVE_LIBCWIID
+      iface = &wiimote_interface;
+#else
+      log_message("Wiimote driver was not compiled!\n");
+#endif
+      break;
+    default:
+      assert(0);
+      break;
+  }
+  if(iface == NULL){
+    log_message("Driver not found!\n");
+    return -1;
   }
   assert((iface != NULL) && (iface->device_init != NULL));
   return (iface->device_init)(ccb);
@@ -69,6 +84,7 @@ int cal_init(struct camera_control_block *ccb)
 
 int cal_shutdown(struct camera_control_block *ccb)
 {
+  assert(ccb != NULL);
   assert((iface != NULL) && (iface->device_shutdown != NULL));
   
   return (iface->device_shutdown)(ccb);
@@ -76,6 +92,7 @@ int cal_shutdown(struct camera_control_block *ccb)
 
 int cal_suspend(struct camera_control_block *ccb)
 {
+  assert(ccb != NULL);
   assert((iface != NULL) && (iface->device_suspend != NULL));
   return (iface->device_suspend)(ccb);
 }
@@ -83,6 +100,7 @@ int cal_suspend(struct camera_control_block *ccb)
 void cal_change_operating_mode(struct camera_control_block *ccb,
                               enum cal_operating_mode newmode)
 {
+  assert(ccb != NULL);
   assert((iface != NULL) && (iface->device_change_operating_mode != NULL));
   (iface->device_change_operating_mode)(ccb, newmode);
   return;
@@ -90,6 +108,7 @@ void cal_change_operating_mode(struct camera_control_block *ccb,
 
 int cal_wakeup(struct camera_control_block *ccb)
 {
+  assert(ccb != NULL);
   assert((iface != NULL) && (iface->device_wakeup != NULL));
   return (iface->device_wakeup)(ccb);
 }
@@ -97,6 +116,7 @@ int cal_wakeup(struct camera_control_block *ccb)
 int cal_set_good_indication(struct camera_control_block *ccb,
                              bool arg)
 {
+  assert(ccb != NULL);
   assert(iface != NULL);
   if(iface->device_set_good_indication != NULL){
     return (iface->device_set_good_indication)(ccb, arg);
@@ -108,6 +128,8 @@ int cal_set_good_indication(struct camera_control_block *ccb,
 int cal_get_frame(struct camera_control_block *ccb,
                          struct frame_type *f)
 {
+  assert(ccb != NULL);
+  assert(f != NULL);
   assert((iface != NULL) && (iface->device_get_frame != NULL));
   return (iface->device_get_frame)(ccb, f);
 }
@@ -115,6 +137,7 @@ int cal_get_frame(struct camera_control_block *ccb,
 void frame_free(struct camera_control_block *ccb,
                 struct frame_type *f)
 {
+  assert(ccb != NULL);
   assert(f->bloblist.blobs != NULL);
   free(f->bloblist.blobs);
   f->bloblist.blobs = NULL;
@@ -125,13 +148,9 @@ void frame_free(struct camera_control_block *ccb,
   }
 }
 
-void frame_print(struct frame_type f)
+void blob_print(struct blob_type b)
 {
-  printf("-- start frame --\n");
-  printf("num blobs: %d\n", f.bloblist.num_blobs);
-  bloblist_print(f.bloblist);
-  /* FIXME: print something for pixels? */
-  printf("-- end frame --\n");
+  printf("x: %f\ty: %f\tscore: %d\n", b.x,b.y,b.score);
 }
 
 void bloblist_print(struct bloblist_type bl)
@@ -145,11 +164,15 @@ void bloblist_print(struct bloblist_type bl)
   printf("-- end blob --\n");
 }
 
-
-void blob_print(struct blob_type b)
+void frame_print(struct frame_type f)
 {
-  printf("x: %f\ty: %f\tscore: %d\n", b.x,b.y,b.score);
+  printf("-- start frame --\n");
+  printf("num blobs: %d\n", f.bloblist.num_blobs);
+  bloblist_print(f.bloblist);
+  /* FIXME: print something for pixels? */
+  printf("-- end frame --\n");
 }
+
 
 /* Thread implementation*/
 pthread_t capture_thread_id;
@@ -171,8 +194,9 @@ static bool current_capture_state_active = false;
 /* Start the capture thread, this WILL BLOCK until the 
  * thread has actually started; this should be a very short 
  * period */
-void cal_thread_start(struct camera_control_block *ccb)
+int cal_thread_start(struct camera_control_block *ccb)
 {
+  assert(ccb != NULL);
   /* check if there is a capture thread running, 
    * and handle this oddball case:
    *   - capture thread was previously started, 
@@ -190,7 +214,7 @@ void cal_thread_start(struct camera_control_block *ccb)
   }
   pthread_mutex_unlock(&capture_thread_mutex);
   if (already_running) {
-    return;
+    return 0;
   }
   /* so no thread is running, we can access all shared
    * variables freely right now */
@@ -201,8 +225,8 @@ void cal_thread_start(struct camera_control_block *ccb)
   int res = pthread_create(&capture_thread_id, NULL, 
                            capture_thread, (void*)ccb);
   if(res != 0){
-    fprintf(stderr, "Can't create capture thread!\n");
-    exit(1);
+    log_message("Can't create capture thread!\n");
+    return -1;
   }
   /* thread created, to keep things simple, we block until
    * it has started executing */ 
@@ -214,6 +238,7 @@ void cal_thread_start(struct camera_control_block *ccb)
     }
     pthread_mutex_unlock(&capture_thread_mutex);
   }
+  return 0;
 }
 
 /* Request termination of capture thread

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
+#include <usb.h>
 #include "tir4_driver.h"
 #include "utils.h"
 
@@ -1554,3 +1555,12 @@ bool tir4_is_frame_available(void)
 {
   return !framelist_iter_complete(framelist_get_iter(&master_framelist));
 }
+
+/*
+int main(int argc, char *argv)
+{
+  msgproc_init();
+  msgproc_add_byte(b, operational_3dot);
+  
+}
+*/

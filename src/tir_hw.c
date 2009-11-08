@@ -24,13 +24,13 @@ unsigned char Fpga_init[] = {0x1b};
 unsigned char Cfg_reload[] = {0x20};
 unsigned char Get_status[] = {0x1d};
 unsigned char Get_conf[] = {0x17};
+unsigned char Precision_mode[] = {0x19, 0x03, 0x10, 0x00, 0x05};
+unsigned char Set_threshold[] = {0x15, 0xFD, 0x01, 0x00};
 
 unsigned char unk_2[] =  {0x12, 0x01};
 unsigned char unk_3[] =  {0x13, 0x01};
 unsigned char unk_8[] =  {0x15, 0x96, 0x01, 0x00};
-unsigned char unk_12[] = {0x15, 0xFD, 0x01, 0x00};
 unsigned char unk_1[] =  {0x17, 0x01};
-unsigned char unk_10[] = {0x19, 0x03, 0x10, 0x00, 0x05};
 unsigned char unk_9[] =  {0x19, 0x04, 0x10, 0x00, 0x00};
 unsigned char unk_13[] = {0x19, 0x04, 0x10, 0x03, 0x00};
 unsigned char unk_7[] =  {0x19, 0x05, 0x10, 0x10, 0x00};
@@ -203,7 +203,7 @@ bool stop_camera_tir()
     send_data(unk_4,sizeof(unk_4));
     send_data(unk_13,sizeof(unk_13));
     send_data(unk_9,sizeof(unk_9));
-    send_data(unk_10,sizeof(unk_10));
+    send_data(Precision_mode,sizeof(Precision_mode));
   }
   
   return true;
@@ -283,12 +283,12 @@ bool init_camera_tir(char data_path[], bool force_fw_load, bool ir_on)
     send_data(unk_6,sizeof(unk_6));
     send_data(unk_4,sizeof(unk_4));
     send_data(unk_9,sizeof(unk_9));
-    send_data(unk_10,sizeof(unk_10));
+    send_data(Precision_mode,sizeof(Precision_mode));
     send_data(unk_9,sizeof(unk_9));
     send_data(unk_11,sizeof(unk_11));
-    send_data(unk_12,sizeof(unk_12));
+    //send_data(Set_threshold,sizeof(Set_threshold));
     send_data(unk_13,sizeof(unk_13));
-    send_data(unk_10,sizeof(unk_10));
+    send_data(Precision_mode,sizeof(Precision_mode));
     send_data(Fifo_flush,sizeof(Fifo_flush));
     send_data(Camera_stop,sizeof(Camera_stop));
     send_data(unk_11,sizeof(unk_11));

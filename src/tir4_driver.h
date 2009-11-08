@@ -2,7 +2,6 @@
 #define TIR4_DRIVER__H
 
 #include <stdbool.h>
-#include <usb.h>
 #include "cal.h"
 
 /********************/
