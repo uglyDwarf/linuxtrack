@@ -1,12 +1,14 @@
 #Global section should contain global settings (eg. Capture device type)
 [Global]
 Input = TrackIR4
+#Input = TrackIR
 #Input = Webcamera
 #Input = Wii
 Model = Cap
 #Comment previous and uncomment this if you use Clip...
 #Note that clip disables the TIR4 IR Illuminator LEDS
 #Model = Clip
+#Store-directory = /home/michal/lt_store
 
 
 [Cap]
@@ -31,6 +33,14 @@ Head-Z = 50
 [TrackIR4]
 Capture-device = Tir4
 Capture-device-id = Track IR 4
+
+[TrackIR]
+Capture-device = Tir
+Capture-device-id = Track IR
+Max-blob = 1024
+Min-blob = 15
+IR-LEDs = off
+
 
 [Webcamera]
 Capture-device = Webcam

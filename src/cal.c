@@ -252,6 +252,7 @@ void cal_thread_stop(void)
   pthread_mutex_lock(&capture_thread_mutex);
   pending_capture_state_active = false;
   pthread_mutex_unlock(&capture_thread_mutex);
+  pthread_detach(capture_thread_id);
 }
 
 /* returns true if the thread is actually stopped */

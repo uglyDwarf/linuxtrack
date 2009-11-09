@@ -135,7 +135,9 @@ void *delete_current(plist pl, iterator* i)
   if(next != NULL){
     next->prev = prev;
   }
-  return current->payload;
+  void *payload = current->payload;
+  free(current);
+  return payload;
 }
 
 void free_list(plist list_ptr, bool free_payload)

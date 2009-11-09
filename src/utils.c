@@ -85,3 +85,13 @@ void strlower(char *s)
     s++;
   }
 }
+
+char *my_strcat(char *str1, char *str2)
+{
+  size_t len1 = strlen(str1);
+  size_t sum = len1 + strlen(str2) + 1; //Count trainling null too
+  char *res = (char*)my_malloc(sum);
+  strcpy(res, str1);
+  strcpy(res + len1, str2);
+  return res;
+}

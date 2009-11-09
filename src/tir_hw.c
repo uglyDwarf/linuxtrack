@@ -39,6 +39,7 @@ unsigned char unk_11[] = {0x19, 0x09, 0x10, 0x07, 0x01};
 unsigned char unk_5[] =  {0x23, 0x42, 0x08, 0x01, 0x00, 0x00};
 unsigned char unk_6[] =  {0x23, 0x42, 0x10, 0x8F, 0x00, 0x00};
 
+static bool ir_on = false;
 
 dev_found device = NONE;
 
@@ -78,7 +79,7 @@ static bool load_firmware(char *fname, unsigned char *buffer[], unsigned int *si
 
   f = gzopen(fname, "rb");
   if(f == NULL){
-    log_message("Couldn't open firmware!\n");
+    log_message("Couldn't open firmware (%s)!\n", fname);
     return false;
   }
   
@@ -214,15 +215,19 @@ bool start_camera_tir()
   stop_camera_tir();
   send_data(Get_conf,sizeof(Get_conf));
   send_data(Get_status,sizeof(Get_status));
-  send_data(Video_on,sizeof(Video_on)); 
-  turn_led_on_tir(TIR_LED_IR);
+  send_data(Video_on,sizeof(Video_on));
+  if(ir_on){ 
+    turn_led_on_tir(TIR_LED_IR);
+  }
   return true;
 }
 
-bool init_camera_tir(char data_path[], bool force_fw_load, bool ir_on)
+bool init_camera_tir(char data_path[], bool force_fw_load, bool p_ir_on)
 {
   unsigned char *fw = NULL;
   unsigned int fw_size = 0;
+  
+  ir_on = p_ir_on;
 
   send_data(Video_off,sizeof(Video_off));
   if(device == TIR5){
@@ -244,12 +249,17 @@ bool init_camera_tir(char data_path[], bool force_fw_load, bool ir_on)
   send_data(Fifo_flush,sizeof(Fifo_flush));
   send_data(Camera_stop,sizeof(Camera_stop));
   
+  char *fw_path;
   switch(device){
     case TIR4:
-      load_firmware("tir4.fw.gz", &fw, &fw_size);
+      fw_path = my_strcat(data_path, "/tir4.fw.gz");
+      load_firmware(fw_path, &fw, &fw_size);
+      free(fw_path);
       break;
     case TIR5:
-      load_firmware("tir5.fw.gz", &fw, &fw_size);
+      fw_path = my_strcat(data_path, "/tir5.fw.gz");
+      load_firmware(fw_path, &fw, &fw_size);
+      free(fw_path);
       break;
     default:
       log_message("Unknown device!\n");
