@@ -1,34 +1,33 @@
 #summary Howto compile linuxtrack on Mac
 
 = Current status =
-libusb-0.1.12 version is reported not to work... I'm in the process of porting TIR4 to libusb-1.0, hopefully that one will work.
-
+libusb-1.0 version is nearly finished... Few rough edges left, but I'm working on it.
 = Introduction =
 
 Here are brief instructions that should help you to compile Linuxtrack on Mac OSX.
 
-*For the moment only TrackIR 4 is supported!*
+*Track IR 4 and 5 should be supported!*
+(as I only have TIR4, TIR5 working is yet to be confirmed)
 
-  # Download and compile libusb 0.1.12 (newer libusb won't work)
+  # Download and compile libusb-1.0
   # Download XPlane SDK
   # Download and compile linuxtrack
 
-The rest of the process is the same as on linux - you have to copy the plugin to your XPlane installation, copy .linuxtrack  file to your home directory and finally customize it...
+The rest of the process is the same as on linux - you have to copy the plugin to your XPlane installation, download firmware (look at ReadmeFirst page), copy .linuxtrack  file to your home directory and finally customize it...
 
 = Details =
 
-== Download and compile libusb 0.1.12 ==
-Go to http://sourceforge.net/projects/libusb/ and download libusb 0.1.12 (it is marked as legacy).
-Newer versions won't work for now...
+== Download and compile libusb-1.0 ==
+Go to http://sourceforge.net/projects/libusb/ and download libusb-1.0...
 
 Open the terminal, unpack the archive and compile the library:
 
 {{{
 mkdir linuxtrack
 cd linuxtrack
-cp ~/Downloads/libusb-0.1.12.tar .
-tar xf libusb-0.1.12.tar
-cd libusb-0.1.12
+cp ~/Downloads/libusb-1.0.3.tar .
+tar xf libusb-1.0.3.tar
+cd libusb-1.0.3
 ./configure --prefix=/Users/michal/linuxtrack/libusb
 make
 make install
@@ -36,7 +35,7 @@ make install
 
 Remarks:
  * We assume you are going to use /Users/michal/linuxtarck directory for plugin staff, change paths accordingly...
- * If the system didn't unpack the archive for you, change the 'xf' options in tar command to 'xfz'.
+ * If the system didn't unpack the archive for you, change the 'xf' options in tar command to 'xfz' for *.gzip, or 'xfj' for *.bz2 archive.
 
 == Download XPlane SDK ==
 Go to http://www.xsquawkbox.net/xpsdk/mediawiki/Download and download XPlane SDK (I use older 1.0.2, but 2.0 version should work too). 
@@ -61,6 +60,11 @@ make
 Remarks:
  * Be sure to adjust CFLAGS and LDFLAGS accordingly and use absolute paths!
 
-Now go to linux-track-read-only/src and copy .linuxtrack file to your home directory. Then edit the file (there is a wikipage on the subject) to suit you.
+== Download firmware ==
+Download firmware files from http://media.naturalpoint.com/software/external/bulk_config_data.tar.gz and unpack them to the same directory, where XPlane executable is
+(This will change soon, but for now it is necessary).
+
+== Final touches ==
+Go to linux-track-read-only/src and copy .linuxtrack file to your home directory. Then edit the file (there is a wikipage on the subject) to suit you.
 
 Finally copy xlinuxtrack.xpl file to your XPlane install directory - exactly to Resources/plugins directory.
