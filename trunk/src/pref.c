@@ -189,7 +189,7 @@ char *get_str(pref_id pref)
   }else{
     if(prf->data_type != STR){
       log_message("Preference %s is not string!\n", key);
-      return 0;
+      return NULL;
     }
     if(pref->changed == true){
       prf->string = get_key(section, key);

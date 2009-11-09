@@ -19,6 +19,32 @@ char *get_device_section()
   return get_str(dev_section);
 }
 
+char *get_storage_path()
+{
+  static pref_id storage_path = NULL;
+  if(storage_path == NULL){
+    if(!open_pref("Global", "Store-directory", &storage_path)){
+      log_message("Entry 'Store-directory' missing in 'Global' section!\n");
+      return ".";
+    }
+  }
+  return get_str(storage_path);
+}
+
+bool get_ir_on(bool def)
+{
+  static pref_id ir_on = NULL;
+  char *dev_sec = get_device_section();
+  if(ir_on == NULL){
+    if(!open_pref(dev_sec, "IR-LEDs", &ir_on)){
+      log_message("Entry 'IR-LEDs' missing in '%s' section!\n", dev_sec);
+      return def;
+    }
+  }
+  
+  return strcasecmp(get_str(ir_on), "on") == 0 ? true : false;
+}
+
 char *get_model_section()
 {
   static pref_id model_section = NULL;

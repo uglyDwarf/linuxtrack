@@ -13,7 +13,7 @@
 
 pref_id min_blob = NULL;
 pref_id max_blob = NULL;
-
+char *storage_path = NULL;
 
 int tir_init(struct camera_control_block *ccb)
 {
@@ -30,6 +30,8 @@ int tir_init(struct camera_control_block *ccb)
   if(!open_pref(dev_section, "Min-blob", &min_blob)){
     return -1;
   }
+  storage_path = get_storage_path();
+  
   if(get_int(max_blob) == 0){
     log_message("Please set 'Max-blob' in section %s!\n", dev_section);
     if(!set_int(&max_blob, 200)){
@@ -47,7 +49,7 @@ int tir_init(struct camera_control_block *ccb)
 
   tir_change_operating_mode(ccb, ccb->mode);
   
-  if(open_tir(".", false, true)){
+  if(open_tir(storage_path, false, get_ir_on(ccb->enable_IR_illuminator_LEDS))){
     ccb->state = active;
     return 0;
   }else{
