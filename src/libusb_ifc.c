@@ -16,7 +16,7 @@ bool init_usb()
     return false;
   }
   
-  libusb_set_debug(usb_context, 3);
+  libusb_set_debug(usb_context, 0);
   return true;
 }
 
