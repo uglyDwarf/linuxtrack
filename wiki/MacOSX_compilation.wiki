@@ -1,7 +1,7 @@
 #summary Howto compile linuxtrack on Mac
 
 = Current status =
-libusb-1.0 version is nearly finished... Few rough edges left, but I'm working on it.
+Should be usable...
 = Introduction =
 
 Here are brief instructions that should help you to compile Linuxtrack on Mac OSX.
@@ -25,9 +25,9 @@ Open the terminal, unpack the archive and compile the library:
 {{{
 mkdir linuxtrack
 cd linuxtrack
-cp ~/Downloads/libusb-1.0.3.tar .
-tar xf libusb-1.0.3.tar
-cd libusb-1.0.3
+cp ~/Downloads/libusb-1.0.4.tar.bz2 .
+tar xfj libusb-1.0.4.tar.bz2
+cd libusb-1.0.4
 ./configure --prefix=/Users/michal/linuxtrack/libusb
 make
 make install
@@ -35,7 +35,7 @@ make install
 
 Remarks:
  * We assume you are going to use /Users/michal/linuxtarck directory for plugin staff, change paths accordingly...
- * If the system didn't unpack the archive for you, change the 'xf' options in tar command to 'xfz' for *.gzip, or 'xfj' for *.bz2 archive.
+ * If the system didn't unpack the archive for you, change the 'xf' options in tar command to 'xfz' for *.gz, or 'xfj' for *.bz2 archive.
 
 == Download XPlane SDK ==
 Go to http://www.xsquawkbox.net/xpsdk/mediawiki/Download and download XPlane SDK (I use older 1.0.2, but 2.0 version should work too). 
@@ -61,8 +61,7 @@ Remarks:
  * Be sure to adjust CFLAGS and LDFLAGS accordingly and use absolute paths!
 
 == Download firmware ==
-Download firmware files from http://media.naturalpoint.com/software/external/bulk_config_data.tar.gz and unpack them to the same directory, where XPlane executable is
-(This will change soon, but for now it is necessary).
+Download firmware files from http://media.naturalpoint.com/software/external/bulk_config_data.tar.gz and unpack them to a directory of your choice. Later on, when editing .linuxtrack, uncomment Store-directory option and specify your path there.
 
 == Final touches ==
 Go to linux-track-read-only/src and copy .linuxtrack file to your home directory. Then edit the file (there is a wikipage on the subject) to suit you.
