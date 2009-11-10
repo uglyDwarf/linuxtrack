@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <zlib.h>
 #include <string.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <assert.h>
 #include "tir_hw.h"
 #include "tir_img.h"
