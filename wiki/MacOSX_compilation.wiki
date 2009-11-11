@@ -61,9 +61,18 @@ Remarks:
  * Be sure to adjust CFLAGS and LDFLAGS accordingly and use absolute paths!
 
 == Download firmware ==
-Download firmware files from http://media.naturalpoint.com/software/external/bulk_config_data.tar.gz and unpack them to a directory of your choice. Later on, when editing .linuxtrack, uncomment Store-directory option and specify your path there.
+Download firmware files from http://media.naturalpoint.com/software/external/bulk_config_data.tar.gz and unpack them to a directory of your choice. Later on, when editing .linuxtrack, uncomment Store-directory key and specify your path there.
 
 == Final touches ==
 Go to linux-track-read-only/src and copy .linuxtrack file to your home directory. Then edit the file (there is a wikipage on the subject) to suit you.
 
-Finally copy xlinuxtrack.xpl file to your XPlane install directory - exactly to Resources/plugins directory.
+First of all comment line 'Input = TrackIR4' and uncomment 'Input = TrackIR' - this enables the new driver.
+
+Then uncomment 'Store-directory' key and specify the directory holding firmware files there (I didn't tested paths with spaces - it might cause problems).
+
+If you use reflective TrackClip, change 'IR-LEDs = off' to 'IR-LEDs = on'.
+
+Finally copy xlinuxtrack.xpl file to your XPlane - exactly to Resources/plugins directory.
+
+== Problem? ==
+If you encounter a problem, look to the directory where your XPlane executable resides and check log.txt file (lowercase!). Also running XPlane from terminal can give you some interesting info... If the log file doesn't make sense to you, please include it with the error description, also .linuxtrack file from your home directory and short description of your setup - TrackIR4/TrackIR5 with TrackClip/Vector clip...
