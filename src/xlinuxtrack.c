@@ -21,7 +21,7 @@ XPLMDataRef		head_y = NULL;
 XPLMDataRef		head_z = NULL;
 XPLMDataRef		head_psi = NULL;
 XPLMDataRef		head_the = NULL;
-			
+
 XPWidgetID		setupWindow = NULL;
 XPWidgetID		mapText = NULL;
 XPWidgetID		saveButton = NULL;
@@ -458,6 +458,7 @@ PLUGIN_API int XPluginStart(
   head_x = XPLMFindDataRef("sim/graphics/view/pilots_head_x");
   head_y = XPLMFindDataRef("sim/graphics/view/pilots_head_y");
   head_z = XPLMFindDataRef("sim/graphics/view/pilots_head_z");
+  
   head_psi = XPLMFindDataRef("sim/graphics/view/pilots_head_psi");
   head_the = XPLMFindDataRef("sim/graphics/view/pilots_head_the");
   joy_buttons = XPLMFindDataRef("sim/joystick/joystick_button_values");
@@ -529,6 +530,7 @@ void activate(void)
           pos_init_flag = 1;
 	  freeze = false;
           lt_recenter();
+	  XPLMCommandKeyStroke(xplm_key_forward);
           XPLMRegisterDrawCallback(
                              AircraftDrawCallback,
                              xplm_Phase_LastCockpit,
@@ -694,15 +696,14 @@ int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
   /* Fill out the camera position info. */
   /* FIXME: not doing translation */
   /* FIXME: not roll, is this even possible? */
-  
+
   if(pos_init_flag == 1){
     pos_init_flag = 0;
     base_x = XPLMGetDataf(head_x);
     base_y = XPLMGetDataf(head_y);
     base_z = XPLMGetDataf(head_z);
-    
   }
-  
+    
   XPLMSetDataf(head_x,base_x + tx);
   XPLMSetDataf(head_y,base_y + ty);
   XPLMSetDataf(head_z,base_z + tz);
