@@ -16,6 +16,8 @@ Here are brief instructions that should help you to compile Linuxtrack on Mac OS
 The rest of the process is the same as on linux - you have to copy the plugin to your XPlane installation, download firmware (look at ReadmeFirst page), copy .linuxtrack  file to your home directory and finally customize it...
 
 = Details =
+== XCode ==
+Make sure you have XCode installed - if not, it is on your system DVD, so install it.
 
 == Download and compile libusb-1.0 ==
 Go to http://sourceforge.net/projects/libusb/ and download libusb-1.0...
