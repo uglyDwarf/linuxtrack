@@ -39,7 +39,7 @@ void log_message(const char *format, ...)
   
   
   if(output_stream == NULL){
-    output_stream = freopen("./log.txt", "w", stderr);
+    output_stream = freopen("./lt_log.txt", "w", stderr);
     if(output_stream == NULL){
       printf("Error opening logfile!\n");
       return;
