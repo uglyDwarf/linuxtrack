@@ -248,6 +248,7 @@ bool init_camera_tir(char data_path[], bool force_fw_load, bool p_ir_on)
   
   send_data(Fifo_flush,sizeof(Fifo_flush));
   send_data(Camera_stop,sizeof(Camera_stop));
+  send_data(Get_status,sizeof(Get_status));
   
   char *fw_path;
   switch(device){
@@ -286,6 +287,7 @@ bool init_camera_tir(char data_path[], bool force_fw_load, bool p_ir_on)
   
   send_data(Fifo_flush,sizeof(Fifo_flush));
   send_data(Camera_stop,sizeof(Camera_stop));
+  send_data(Get_status,sizeof(Get_status));
   send_data(Cfg_reload,sizeof(Cfg_reload));
   if(device == TIR5){
     send_data(unk_8,sizeof(unk_8));
