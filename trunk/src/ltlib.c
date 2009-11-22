@@ -93,6 +93,7 @@ int lt_init(struct lt_configuration_type config, char *cust_section)
   }
 
   ccb.mode = operational_3dot;
+  ccb.diag = false;
   if(cal_init(&ccb)!= 0){
     return -1;
   }

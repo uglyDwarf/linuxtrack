@@ -144,16 +144,15 @@ void free_list(plist list_ptr, bool free_payload)
 {
   list_element* elem;
   assert(list_ptr != NULL);
-  if(list_ptr->head == NULL){
-    return;
-  }
-  while(list_ptr->head != NULL){
-    elem = list_ptr->head;
-    list_ptr->head = elem->next;
-    if(free_payload == true){
-      free(elem->payload);
+  if(list_ptr->head != NULL){
+    while(list_ptr->head != NULL){
+      elem = list_ptr->head;
+      list_ptr->head = elem->next;
+      if(free_payload == true){
+	free(elem->payload);
+      }
+      free(elem);
     }
-    free(elem);
   }
   list_ptr->tail = NULL;
   free(list_ptr);

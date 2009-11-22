@@ -440,10 +440,6 @@ int webcam_change_operating_mode(struct camera_control_block *ccb,
 {
   ccb->mode = newmode;
   switch(ccb->mode){
-    case diagnostic:
-      wc_info.is_diag = true;
-      wc_info.expecting_blobs = -1;
-      break;
     case operational_1dot:
       wc_info.is_diag = false;
       wc_info.expecting_blobs = 1;
@@ -531,7 +527,7 @@ int webcam_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 //  printf("%d points found!\n", pts);
 
   if(wc_info.is_diag == true){
-    f->bitmap = (char *)my_malloc(wc_info.w * wc_info.h);
+    f->bitmap = (unsigned char *)my_malloc(wc_info.w * wc_info.h);
     memcpy(f->bitmap, dest_buf, wc_info.w * wc_info.h);
   }
   

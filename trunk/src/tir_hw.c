@@ -347,10 +347,10 @@ bool resume_tir()
   return start_camera_tir();
 }
 
-bool read_frame(plist *blob_list)
-{
-  return read_blobs_tir(blob_list);
-}
+//bool read_frame(plist *blob_list)
+//{
+//  return read_blobs_tir(blob_list, );
+//}
 
 bool close_tir()
 {
@@ -368,7 +368,7 @@ void get_res_tir(unsigned int *w, unsigned int *h)
   switch(device){
     case TIR4:
       *w = 710;
-      *h = 288;
+      *h = 2 * 288;
       break;
     case TIR5:
       *w = 640;

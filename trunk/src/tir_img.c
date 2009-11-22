@@ -24,6 +24,8 @@ typedef struct {
 
 static plist preblobs = NULL;
 static plist finished_blobs = NULL;
+static unsigned char *picture = NULL;
+static unsigned int pic_x, pic_y;
 
 /*
 static void print_pblob(preblob_t *b)
@@ -44,8 +46,35 @@ blob* new_blob(float x, float y, float score)
   return tmp;
 }
 
+static void clip_coord(unsigned int *coord, unsigned int min,
+                       unsigned int max)
+{
+  unsigned int tmp = *coord;
+  tmp = (tmp < min) ? min : tmp;
+  tmp = (tmp > max) ? max : tmp;
+  *coord = tmp;
+}
+
+static void draw_stripe(unsigned int x, unsigned y, unsigned int x_end)
+{
+  if(picture == NULL)
+    return;
+  printf("Hallo!\n");
+  clip_coord(&x, 0, pic_x);
+  clip_coord(&y, 0, pic_y);
+  clip_coord(&x_end, 0, pic_x);
+  unsigned char *ptr = picture + y * pic_y + x;
+  x_end -= x;
+  while(x_end > 0){
+    *(++ptr) = 0x80;
+    --x_end;
+  }
+}
+
 static int stripes_to_blobs_tir(plist *blob_list)
 {
+  unsigned int x,y;
+  get_res_tir(&x, &y);
   if(preblobs == NULL){
     preblobs = create_list();
   }
@@ -136,6 +165,7 @@ static int add_stripe(stripe_t *stripe)
 {
   //log_message("Stripe: %d   %d - %d (%d   %d)\n", stripe->vline, stripe->hstart, 
   //       stripe->hstop, stripe->sum, stripe->sum_x);
+  draw_stripe(stripe->hstart, stripe->vline, stripe->hstop);
   if(preblobs == NULL){
     preblobs = create_list();
   }
@@ -402,12 +432,19 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
   return have_frame;
 }
 
-int read_blobs_tir(plist *blob_list)
+
+
+
+int read_blobs_tir(plist *blob_list, unsigned char pic[], uint x, uint y)
 {
   static size_t size = 0;
   static size_t ptr = 0;
   bool have_frame = false;
-  
+  picture = pic;
+  if(pic != NULL){
+    pic_x = x;
+    pic_y = y;
+  }
   while(1){
     if(ptr >= size){
       if(!receive_data(packet, sizeof(packet), &size)){
@@ -419,7 +456,18 @@ int read_blobs_tir(plist *blob_list)
       break;
     }
   }
+  
   if(have_frame){
+/*
+    static int fc = 0;
+    char name[] = "fXXXXXXX.raw";
+    sprintf(name, "f%04d.raw", fc++);
+    FILE *f = fopen(name, "wb");
+    if(f != NULL){
+      fwrite(pic, 1, x * y, f);
+      fclose(f);
+    }
+*/
     return stripes_to_blobs_tir(blob_list);
   }else{
     return 0;

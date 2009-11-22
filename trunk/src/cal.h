@@ -38,7 +38,7 @@ struct bloblist_type {
 
 struct frame_type {
   struct bloblist_type bloblist; 
-  char *bitmap; /* 8bits per pixel, monochrome 0x00 or 0xff */
+  unsigned char *bitmap; /* 8bits per pixel, monochrome 0x00 or 0xff */
 };
 
 typedef enum cal_device_category_type {
@@ -67,10 +67,7 @@ enum cal_operating_mode {
   /* operational_3dot only reports frames with 3 or more blobs, 
    * and only the first 3 blobs are populated.  The bitmap field 
    * in the frames are NOT populated. */
-  operational_3dot, 
-  /* diagnostic reports all frames with 1 or more blobs. The 
-   * bitmap field in the frames ARE populated. */
-  diagnostic
+  operational_3dot
 };
 
 struct camera_control_block {
@@ -79,6 +76,7 @@ struct camera_control_block {
   unsigned int pixel_height;
   enum cal_operating_mode mode;
   enum cal_device_state_type state;
+  bool diag;
   bool enable_IR_illuminator_LEDS; /* for tir4 */
 };
 

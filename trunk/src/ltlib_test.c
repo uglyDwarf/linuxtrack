@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
   };  
   lt_recenter();
 int cntr=0; 
-  while (++cntr < 100) {
+  while (++cntr < 200) {
     retval = lt_get_camera_update(&heading,&pitch,&roll,
                                   &tx, &ty, &tz);
     if (retval < 0) {
