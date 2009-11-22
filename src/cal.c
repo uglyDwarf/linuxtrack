@@ -141,7 +141,7 @@ void frame_free(struct camera_control_block *ccb,
   assert(f->bloblist.blobs != NULL);
   free(f->bloblist.blobs);
   f->bloblist.blobs = NULL;
-  if (ccb->mode == diagnostic) {
+  if (ccb->diag) {
     assert(f->bitmap != NULL);
     free(f->bitmap);
     f->bitmap = NULL;

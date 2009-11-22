@@ -174,7 +174,7 @@ bool is_green_led_on(void);
 bool is_red_led_on(void);
 bool is_blue_led_on(void);
 void msgproc_init(void);
-void msgproc_add_byte(uint8_t b, enum cal_operating_mode opmode);
+void msgproc_add_byte(uint8_t b, struct camera_control_block *ccb);
 struct stripe_type msgproc_convert_device_stripe(device_stripe_type ds);
 void msgproc_add_stripe(struct stripe_type s);
 void msgproc_close_all_open_blobs(void);
@@ -183,7 +183,7 @@ uint16_t pixel_crop(uint16_t inpixel,
                     uint16_t limitpixel);
 bool stripe_is_hcontact(struct stripe_type s0,
                         struct stripe_type s1);
-void stripe_draw(struct stripe_type s, char *bitmap);
+void stripe_draw(struct stripe_type s, unsigned char *bitmap);
 void stripe_print(struct stripe_type s);
 void protoblob_init(struct protoblob_type *pb);
 float point_crop(float inpoint,
@@ -211,9 +211,9 @@ void protobloblist_pop_biggest_protoblob(struct protobloblist_type *pbl,
                                          struct protoblob_type *pb);
 bool protobloblist_populate_frame(struct protobloblist_type *pbl,
                                   struct frame_type *f,
-                                  enum cal_operating_mode opmode);
+                                  struct camera_control_block *ccb);
 void protobloblist_draw(struct protobloblist_type *pbl,
-                        char *bmp);
+                        unsigned char *bmp);
 void protobloblist_print(struct protobloblist_type pbl);
 void framelist_init(struct framelist_type *fl);
 void framelist_pop(struct framelist_type *fl,
@@ -430,7 +430,7 @@ int tir4_do_read_and_process(struct camera_control_block *ccb)
   int i;
   for (i=0; i<numread; i++) {
     msgproc_add_byte((uint8_t) usb_read_buf[i],
-                     ccb->mode);
+                     ccb);
   }
   return 0;
 }
@@ -698,7 +698,7 @@ void msgproc_init(void)
   msgproc_stripe_minimum_vline = 0;
 }
 
-void msgproc_add_byte(uint8_t b, enum cal_operating_mode opmode)
+void msgproc_add_byte(uint8_t b, struct camera_control_block *ccb)
 {
   int i;
   bool is_vsync, frame_was_made;
@@ -782,7 +782,7 @@ void msgproc_add_byte(uint8_t b, enum cal_operating_mode opmode)
         msgproc_close_all_open_blobs();
         frame_was_made = protobloblist_populate_frame(&msgproc_closed_blobs,
                                                       &f,
-                                                      opmode);
+                                                      ccb);
         if (frame_was_made) {
           framelist_add_frame(&master_framelist, f);
         }
@@ -954,10 +954,10 @@ bool stripe_is_hcontact(struct stripe_type s0,
  * (resx,resy) = top right corner
  * (0,0) = bottom left corner
  */
-void stripe_draw(struct stripe_type s, char *bitmap)
+void stripe_draw(struct stripe_type s, unsigned char *bitmap)
 {
-  char *startpoint=NULL;
-  char *endpoint=NULL;
+  unsigned char *startpoint=NULL;
+  unsigned char *endpoint=NULL;
   uint16_t vline=0, hstart=0, hstop=0;
   /* have to crop, deinterlace and flip here */
   vline = pixel_crop(s.vline,
@@ -1194,7 +1194,7 @@ struct stripelist_type stripelist_merge(struct stripelist_type *sl0,
 }
 
 bool stripelist_draw(struct stripelist_type *sl,
-                     char *bmp)
+                     unsigned char *bmp)
 {
   struct stripelist_iter *sli;
 
@@ -1393,7 +1393,7 @@ void protobloblist_pop_biggest_protoblob(struct protobloblist_type *pbl,
 
 bool protobloblist_populate_frame(struct protobloblist_type *pbl,
                                   struct frame_type *f,
-                                  enum cal_operating_mode opmode)
+                                  struct camera_control_block *ccb)
 {
 //  struct protobloblist_iter *pbli;
   int i;
@@ -1404,15 +1404,15 @@ bool protobloblist_populate_frame(struct protobloblist_type *pbl,
     return false;
   }
 
-  switch (opmode) {
-  case diagnostic: /* report all blobs, if there are any */
+  if(ccb->diag){
     required_blobnum = pbl->length;
-    f->bitmap = (char *) malloc(BITMAP_NUM_BYTES*sizeof(char));
+    f->bitmap = (unsigned char *) malloc(BITMAP_NUM_BYTES*sizeof(char));
     assert(f->bitmap);
     memset(f->bitmap, '\0', BITMAP_NUM_BYTES);
     protobloblist_draw(pbl,
                        f->bitmap);
-    break;
+  }
+  switch (ccb->mode) {
   case operational_1dot:
     required_blobnum = 1;
     break;
@@ -1440,7 +1440,7 @@ bool protobloblist_populate_frame(struct protobloblist_type *pbl,
 }
 
 void protobloblist_draw(struct protobloblist_type *pbl,
-                        char *bmp)
+                        unsigned char *bmp)
 {
   struct protobloblist_iter *pbli;
 

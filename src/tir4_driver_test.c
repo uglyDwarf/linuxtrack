@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
   struct camera_control_block ccb;
 
   ccb.device.category = tir4_camera;
-  ccb.mode = diagnostic;
+  ccb.diag = true;
 /*   ccb.mode = operational_1dot; */
 /*   ccb.mode = operational_3dot; */
 

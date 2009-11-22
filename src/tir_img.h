@@ -8,6 +8,6 @@ typedef struct{
   float score;
 } blob;
 
-int read_blobs_tir(plist *blob_list);
+int read_blobs_tir(plist *blob_list, unsigned char pic[], uint x, uint y);
 
 #endif

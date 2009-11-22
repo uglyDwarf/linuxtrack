@@ -404,7 +404,7 @@ bool createSetupWindow(int x, int y, int w, int h)
   );
   
   mapText = XPCreateWidget(x+20, y2 + 140, x2 -20, y2 + 120 ,
-    				 1, "Joystick button maping",
+    				 1, "Joystick button mapping",
 				 0, setupWindow, xpWidgetClass_Caption);
   btArray[0].button = XPCreateWidget(x2-120, y2+120, x2-20, y2+100, 1, 
   				"Remap", 0, setupWindow,

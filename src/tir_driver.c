@@ -6,6 +6,7 @@
 #include "list.h"
 #include "cal.h"
 #include <stdio.h>
+#include <string.h>
 #include "pref.h"
 #include "pref_int.h"
 #include "pref_global.h"
@@ -19,7 +20,6 @@ int tir_init(struct camera_control_block *ccb)
 {
   assert(ccb != NULL);
   assert(ccb->device.category == tir);
-  
   char *dev_section = get_device_section();
   if(dev_section == NULL){
     return -1;
@@ -46,11 +46,11 @@ int tir_init(struct camera_control_block *ccb)
       return -1;
     }
   }
-
-  tir_change_operating_mode(ccb, ccb->mode);
   
+  tir_change_operating_mode(ccb, ccb->mode);
   if(open_tir(storage_path, false, get_ir_on(ccb->enable_IR_illuminator_LEDS))){
     ccb->state = active;
+    get_res_tir(&(ccb->pixel_height), &(ccb->pixel_width));
     return 0;
   }else{
     ccb->state = suspended;
@@ -83,8 +83,6 @@ int tir_change_operating_mode(struct camera_control_block *ccb,
 {
   ccb->mode = newmode;
   switch(ccb->mode){
-    case diagnostic:
-      break;
     case operational_1dot:
       break;
     case operational_3dot:
@@ -156,9 +154,19 @@ int tir_blobs_to_bt(int num_blobs, plist blob_list, struct bloblist_type *blt)
 int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 {
   plist blob_list = NULL;
-  if(read_blobs_tir(&blob_list) < 0){
+  if(ccb->diag){
+    f->bitmap = my_malloc(ccb->pixel_width * ccb->pixel_height);
+    memset(f->bitmap, 0, ccb->pixel_width * ccb->pixel_height);
+  }else{
+    f->bitmap = NULL;
+  }
+  if(read_blobs_tir(&blob_list, f->bitmap, ccb->pixel_width, ccb->pixel_height) < 0){
     if(blob_list != NULL){
       free_list(blob_list, true);
+    }
+    if(ccb->diag){
+      free(f->bitmap);
+      f->bitmap = NULL;
     }
     return -1;
   }
@@ -167,10 +175,13 @@ int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)
   }
   free_list(blob_list, true);
   if(f->bloblist.num_blobs != 3){
+    if(ccb->diag){
+      free(f->bitmap);
+      f->bitmap = NULL;
+    }
     return -1;
   }
   //log_message("Valid block with %d blobs\n", f->bloblist.num_blobs);
-  f->bitmap = NULL;
   return 0;
 }
 
