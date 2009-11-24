@@ -435,7 +435,7 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
 
 
 
-int read_blobs_tir(plist *blob_list, unsigned char pic[], uint x, uint y)
+int read_blobs_tir(plist *blob_list, unsigned char pic[], unsigned int x, unsigned int y)
 {
   static size_t size = 0;
   static size_t ptr = 0;
