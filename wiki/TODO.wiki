@@ -8,13 +8,23 @@ You can comment on that if you want me to add features/change priorities...
 = Details =
 
 Check issues with SDK v2.00 (joystick buttons not working) (Planned soon)
+
 Track IR4 sensitivity control (Planned soon)
+
 Track IR5 full support (should work soon)
+
 Remove set_good from cal (Planed soon)
+
 Pose should be recomputed when frame is received, not when app asks... (Planned soon)
+
 GUI - Qt (Planned soon)
+
 Wiimote and webcam support for Macs. (When time permits)
+
 Revise the whole project, add comments... (When time permits)
+
 Create dedicated plugin for 9.X version of XPlane (When time permits/ if needed)
+
 Add support for games under Wine (Proof of concept working)
+
 Add deadzones and sensitivity curves (if needed, so far no request for that)
