@@ -96,19 +96,25 @@ bool send_data(unsigned char data[], size_t size)
   return true;
 }
 
-bool receive_data(unsigned char data[], size_t size, size_t *transferred)
+bool receive_data(unsigned char data[], size_t size, size_t *transferred, 
+                  unsigned int timeout)
 {
   int32_t res;
+  if(timeout == 0){
+    timeout = 500;
+  }
   struct openusb_bulk_request br = {
     .payload = data,
     .length = size,
-    .timeout = 500,
+    .timeout = timeout,
     .flags = 0,
     .next = NULL
   };
   if((res = openusb_bulk_xfer(devhandle, 0, in, &br)) != OPENUSB_SUCCESS){
-    log_message("Can't receive message! (%d)\n", res);
-    return false;
+    if(res != OPENUSB_IO_TIMEOUT){
+      log_message("Can't receive message! (%d)\n", res);
+      return false;
+    }
   }
   *transferred = br.result.transferred_bytes;
   return true;

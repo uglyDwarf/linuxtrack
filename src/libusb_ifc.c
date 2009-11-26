@@ -142,13 +142,19 @@ bool send_data(unsigned char data[], size_t size)
   return true;
 }
 
-bool receive_data(unsigned char data[], size_t size, size_t *transferred)
+bool receive_data(unsigned char data[], size_t size, size_t *transferred,
+                  unsigned int timeout)
 {
+  if(timeout == 0){
+    timeout = 500;
+  }
   *transferred = 0;
   int res;
-  if((res = libusb_bulk_transfer(handle, 0x82, data, size, (int*)transferred, 500))){
-    log_message("Problem reading data from TIR! %d - %d transferred\n", res, *transferred);
-    return false;
+  if((res = libusb_bulk_transfer(handle, 0x82, data, size, (int*)transferred, timeout))){
+    if(res != LIBUSB_ERROR_TIMEOUT){
+      log_message("Problem reading data from TIR! %d - %d transferred\n", res, *transferred);
+      return false;
+    }
   }
   return true;
 }

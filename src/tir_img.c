@@ -386,8 +386,18 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
           }
           break;
         default:
-          log_message("ERROR! ('%02X')\n", data[*ptr], data[*ptr + 1]);
-//	  exit(1);
+          log_message("ERROR!!! ('%02X %02X')\n", data[*ptr], data[*ptr + 1]);
+/*	  printf("Error at %d\n", *ptr);
+	  int counter;
+	  for(counter = 0; counter < size+2; ++counter){
+	    if(counter % 16 == 0){
+	      printf("\n%6d ", counter);
+	    }
+	    printf("%02X ", data[counter]);
+	  }
+	  printf("\n");
+*/
+	  *ptr = size; //Read new packet...
           return false;
           break;
       }
@@ -447,10 +457,10 @@ int read_blobs_tir(plist *blob_list, unsigned char pic[], unsigned int x, unsign
   }
   while(1){
     if(ptr >= size){
-      if(!receive_data(packet, sizeof(packet), &size)){
+      ptr = 0;
+      if(!receive_data(packet, sizeof(packet), &size, 1000)){
         return -1;
       }
-      ptr = 0;
     }
     if((have_frame = process_packet(packet, &ptr, size)) == true){
       break;

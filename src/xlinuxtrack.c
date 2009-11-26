@@ -45,6 +45,7 @@ int			recenter_button = -1;
 
 float			debounce_time = 0.01;
 
+int button_array_size = 0;
 int pos_init_flag = 0;
 bool freeze = false;
 
@@ -167,10 +168,10 @@ void linuxTrackMenuHandler(void *inMenuRef, void *inItemRef)
 
 int jmProcessJoy()
 {
-  int new_buttons[160];
+  int new_buttons[1520];
   int i = 0;
-  XPLMGetDatavi(joy_buttons, new_buttons, 0, 160);
-  for(i = 0;i < 160;++i){
+  XPLMGetDatavi(joy_buttons, new_buttons, 0, button_array_size);
+  for(i = 0;i < button_array_size;++i){
     if(new_buttons[i] != buttons[i]){
       return i;
     }
@@ -257,7 +258,7 @@ int joyMapDialog(char *caption)
     jmButton = XPCreateWidget(x+80, y2+40, x2-80, y2+20, 1, 
   				  "Cancel", 0, jmWindow,
   				  xpWidgetClass_Button);
-    XPLMGetDatavi(joy_buttons, buttons, 0, 160);
+    XPLMGetDatavi(joy_buttons, buttons, 0, button_array_size);
     XPAddWidgetCallback(jmWindow, jmWindowHandler);
   }
   jmRun = 1;
@@ -462,6 +463,19 @@ PLUGIN_API int XPluginStart(
   head_psi = XPLMFindDataRef("sim/graphics/view/pilots_head_psi");
   head_the = XPLMFindDataRef("sim/graphics/view/pilots_head_the");
   joy_buttons = XPLMFindDataRef("sim/joystick/joystick_button_values");
+  
+  int xplane_ver;
+  int sdk_ver;
+  XPLMHostApplicationID app_id;
+  XPLMGetVersions(&xplane_ver, &sdk_ver, &app_id);
+  if(xplane_ver < 850){
+    button_array_size = 64;
+  }else if(xplane_ver < 900){
+    button_array_size = 160;
+  }else{
+    button_array_size = 1520;
+  }
+  printf("%d joystick buttons\n", button_array_size);
   
   if((head_x==NULL)||(head_y==NULL)||(head_z==NULL)||
      (head_psi==NULL)||(head_the==NULL)||(joy_buttons==NULL)){
