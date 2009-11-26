@@ -25,7 +25,11 @@ unsigned char Cfg_reload[] = {0x20};
 unsigned char Get_status[] = {0x1d};
 unsigned char Get_conf[] = {0x17};
 unsigned char Precision_mode[] = {0x19, 0x03, 0x10, 0x00, 0x05};
-unsigned char Set_threshold[] = {0x15, 0xFD, 0x01, 0x00};
+unsigned char Set_threshold[] = {0x15, 0x96, 0x01, 0x00};
+unsigned char Set_exposure_h[] =  {0x23, 0x42, 0x08, 0x01, 0x00, 0x00};
+unsigned char Set_exposure_l[] =  {0x23, 0x42, 0x10, 0x8F, 0x00, 0x00};
+unsigned char Set_ir_brightness[] =  {0x10, 0x00, 0x02, 0x00, 0xA0};
+
 
 unsigned char unk_2[] =  {0x12, 0x01};
 unsigned char unk_3[] =  {0x13, 0x01};
@@ -36,19 +40,34 @@ unsigned char unk_13[] = {0x19, 0x04, 0x10, 0x03, 0x00};
 unsigned char unk_7[] =  {0x19, 0x05, 0x10, 0x10, 0x00};
 unsigned char unk_4[] =  {0x19, 0x09, 0x10, 0x05, 0x01};
 unsigned char unk_11[] = {0x19, 0x09, 0x10, 0x07, 0x01};
-unsigned char unk_5[] =  {0x23, 0x42, 0x08, 0x01, 0x00, 0x00};
-unsigned char unk_6[] =  {0x23, 0x42, 0x10, 0x8F, 0x00, 0x00};
 
 static bool ir_on = false;
 
 dev_found device = NONE;
 
+typedef struct{
+  bool fw_loaded;
+  int cfg_flag;
+  unsigned int fw_cksum;
+} tir_status_t;
+
+typedef struct{
+  unsigned char *firmware;
+  size_t size;
+  unsigned int cksum;
+} firmware_t;
+
+
 unsigned char packet[4096];
 
-static unsigned int cksum_firmware(unsigned char *firmware, int size)
+static void cksum_firmware(firmware_t *fw)
 {
+  assert(fw != NULL);
   unsigned int cksum = 0;
   unsigned int byte = 0;
+  
+  unsigned char *firmware = fw->firmware;
+  size_t size = fw->size;
   
   while(size > 0){
     byte = (unsigned int)*firmware;
@@ -60,28 +79,81 @@ static unsigned int cksum_firmware(unsigned char *firmware, int size)
     --size;
     ++firmware; 
   }
-  return cksum & 0xffff;
+  fw->cksum = cksum & 0xffff;
 }
 
 
-static bool load_firmware(char *fname, unsigned char *buffer[], unsigned int *size)
+static bool read_status_tir(tir_status_t *status)
 {
+  assert(status != NULL);
+  size_t t;
+  if(!send_data(Get_status, sizeof(Get_status))){
+    log_message("Couldn't send status request!\n");
+    return false;
+  }
+  if(!receive_data(packet, sizeof(packet), &t, 2000)){
+    log_message("Couldn't receive status!\n");
+    return false;
+  }
+  log_message("Status packet: %02X %02X %02X %02X %02X %02X %02X\n",
+    packet[0], packet[1], packet[2], packet[3], packet[4], packet[5], 
+    packet[6]);
+  
+  status->fw_loaded = (packet[3] == 1) ? true : false;
+  status->cfg_flag = packet[6];
+  status->fw_cksum = (((unsigned int)packet[4]) << 8) + (unsigned int)packet[5]; 
+  return true;
+}
+
+static bool read_rom_data_tir()
+{
+  size_t t;
+  if(!send_data(Get_conf, sizeof(Get_conf))){
+    log_message("Couldn't send config data request!\n");
+    return false;
+  }
+  if(!receive_data(packet, sizeof(packet), &t, 2000)){
+    log_message("Couldn't receive config data!\n");
+    return false;
+  }
+  return true;
+}
+
+
+
+static bool load_firmware(firmware_t *fw, char data_path[])
+{
+  assert(fw != NULL);
+  assert(data_path != NULL);
   gzFile *f;
   unsigned int tsize = FW_SIZE_INCREMENT;
-  unsigned char *tbuf = malloc(tsize);
+  unsigned char *tbuf = my_malloc(tsize);
   unsigned char *ptr = tbuf;
   unsigned int read = 0;
+  size_t *size = &(fw->size);
   *size = 0;
   
-  if(tbuf == NULL){
-    return false;
+  char *fw_path;
+  switch(device){
+    case TIR4:
+      fw_path = my_strcat(data_path, "/tir4.fw.gz");
+      break;
+    case TIR5:
+      fw_path = my_strcat(data_path, "/tir5.fw.gz");
+      break;
+    default:
+      log_message("Unknown device!\n");
+      return false;
+      break;
   }
-
-  f = gzopen(fname, "rb");
+  log_message("Loading firmware '%s'\n", fw_path);
+  f = gzopen(fw_path, "rb");
   if(f == NULL){
-    log_message("Couldn't open firmware (%s)!\n", fname);
+    log_message("Couldn't open firmware (%s)!\n", fw_path);
+    free(fw_path);
     return false;
   }
+  free(fw_path);
   
   while(1){
     read = gzread(f, ptr, FW_SIZE_INCREMENT);
@@ -98,47 +170,23 @@ static bool load_firmware(char *fname, unsigned char *buffer[], unsigned int *si
   
   gzclose(f);
   if(tbuf != NULL){
-    *buffer = tbuf;
+    fw->firmware = tbuf;
+    cksum_firmware(fw);
+    log_message("Size: %d  Cksum: %04X\n", fw->size, fw->cksum);
     return true;
   }else{
+    fw->firmware = NULL;
     return false;
   }
 }
 
-static bool check_firmware(unsigned char *firmware, unsigned int size)
-{
-  unsigned int cksum;
-  unsigned int cksum_uploaded;
-  size_t t;
-  
-  while(receive_data(packet, sizeof(packet), &t));
 
-
-  if(!send_data(Get_status, sizeof(Get_status))){
-    log_message("Couldn't send data!\n");
-    return false;
-  }
-  if(!receive_data(packet, sizeof(packet), &t)){
-    log_message("Couldn't receive data!\n");
-    return false;
-  }
-  cksum = cksum_firmware(firmware, size);
-  cksum_uploaded = ((unsigned int)packet[4] << 8) | (unsigned int)packet[5];
-  if(cksum != cksum_uploaded){
-    log_message("Cksum doesn't match! Uploaded: %04X, Computed: %04X\n",
-      cksum_uploaded, cksum);
-    log_message("Status packet: %02X %02X %02X %02X %02X %02X %02X %02X\n",
-      packet[0], packet[1], packet[2], packet[3], packet[4], packet[5], 
-      packet[6]);
-    return false;
-  }
-  return true;
-}
-
-static bool upload_firmware(unsigned char *firmware, unsigned int size)
+static bool upload_firmware(firmware_t *fw)
 {
   unsigned char buf[62];
   unsigned char len;
+  unsigned char *firmware = fw->firmware;
+  size_t size = fw->size;
   
   if(!send_data(Fpga_init, sizeof(Fpga_init))){
     log_message("Couldn't init fpga!\n");
@@ -185,134 +233,103 @@ bool turn_led_on_tir(unsigned char leds)
   return wiggle_leds_tir(leds, leds);
 }
 
+bool flush_fifo_tir()
+{
+  if(device == TIR5){
+    usleep(100000);
+  }
+  return send_data(Fifo_flush,sizeof(Fifo_flush));
+}
+
 
 bool stop_camera_tir()
 {
   send_data(Video_off,sizeof(Video_off));
-  if(device == TIR5){
-      send_data(unk_2,sizeof(unk_2));
-      send_data(unk_3,sizeof(unk_3));
-  }
-  
-  send_data(Fifo_flush,sizeof(Fifo_flush));
-  send_data(Camera_stop,sizeof(Camera_stop));
+  flush_fifo_tir();
   turn_led_off_tir(TIR_LED_IR);
-  if(device == TIR5){
-    send_data(unk_8,sizeof(unk_8));
-    send_data(unk_5,sizeof(unk_5));
-    send_data(unk_6,sizeof(unk_6));
-    send_data(unk_4,sizeof(unk_4));
-    send_data(unk_13,sizeof(unk_13));
-    send_data(unk_9,sizeof(unk_9));
-    send_data(Precision_mode,sizeof(Precision_mode));
-  }
-  
+  turn_led_off_tir(TIR_LED_RED);
+  turn_led_off_tir(TIR_LED_GREEN);
+  turn_led_off_tir(TIR_LED_BLUE);
+  send_data(Camera_stop,sizeof(Camera_stop));
+  usleep(50000);
   return true;
 }
 
 bool start_camera_tir()
 {
   stop_camera_tir();
-  send_data(Get_conf,sizeof(Get_conf));
-  send_data(Get_status,sizeof(Get_status));
   send_data(Video_on,sizeof(Video_on));
   if(ir_on){ 
     turn_led_on_tir(TIR_LED_IR);
+  }
+  if(device == TIR4){
+    flush_fifo_tir();
   }
   return true;
 }
 
 bool init_camera_tir(char data_path[], bool force_fw_load, bool p_ir_on)
 {
-  unsigned char *fw = NULL;
-  unsigned int fw_size = 0;
+  tir_status_t status;
   
   ir_on = p_ir_on;
 
-  send_data(Video_off,sizeof(Video_off));
-  if(device == TIR5){
-      send_data(unk_2,sizeof(unk_2));
-      send_data(unk_3,sizeof(unk_3));
+  if(!stop_camera_tir()){
+    return false;
   }
-  send_data(Video_off,sizeof(Video_off));
-  send_data(Fifo_flush,sizeof(Fifo_flush));
-  
-  stop_camera_tir();
-  
-  if(device == TIR5){
-      send_data(Get_conf,sizeof(Get_conf));
-      send_data(unk_4,sizeof(unk_4));
-      send_data(Fifo_flush,sizeof(Fifo_flush));
-      send_data(unk_5,sizeof(unk_5));
+  if(!read_rom_data_tir()){
+    return false;
+  }
+  if(!read_status_tir(&status)){
+    return false;
+  }
+  firmware_t firmware;
+  if(!load_firmware(&firmware, data_path)){
+    log_message("Error loading firmware!\n");
+    return false;
   }
   
-  send_data(Fifo_flush,sizeof(Fifo_flush));
-  send_data(Camera_stop,sizeof(Camera_stop));
-  send_data(Get_status,sizeof(Get_status));
+  if(force_fw_load | (!status.fw_loaded) | (status.fw_cksum != firmware.cksum)){
+    upload_firmware(&firmware);
+  }
   
-  char *fw_path;
-  switch(device){
-    case TIR4:
-      fw_path = my_strcat(data_path, "/tir4.fw.gz");
-      load_firmware(fw_path, &fw, &fw_size);
-      free(fw_path);
+  if(!read_status_tir(&status)){
+    return false;
+  }
+  
+  if(status.fw_cksum != firmware.cksum){
+    log_message("Firmware not loaded correctly!");
+    return false;
+  }
+  
+  switch(status.cfg_flag){
+    case 0:
+      log_message("Problem configuring TrackIR!\n");
+      return false;
       break;
-    case TIR5:
-      fw_path = my_strcat(data_path, "/tir5.fw.gz");
-      load_firmware(fw_path, &fw, &fw_size);
-      free(fw_path);
+    case 1:
+      //
+      break;
+    case 2:
+      send_data(Cfg_reload,sizeof(Cfg_reload));
+      if(device == TIR5){
+        send_data(Set_ir_brightness,sizeof(Set_ir_brightness));
+        send_data(Set_exposure_h,sizeof(Set_exposure_h));
+        send_data(Set_exposure_l,sizeof(Set_exposure_l));
+	send_data(Set_threshold,sizeof(Set_threshold));
+      }
       break;
     default:
-      log_message("Unknown device!\n");
+      log_message("Unknown flag value!\n");
       return false;
       break;
   }
-  if(force_fw_load || (check_firmware(fw, fw_size) == false)){
-    upload_firmware(fw, fw_size);
-    if(check_firmware(fw, fw_size) == false){
-      log_message("Failed to upload firmware!\n");
-      return false;
-    }
-  }else{
-    log_message("Not loading firmware - it is already loaded!\n");
-  }
   
   if(device == TIR5){
-    send_data(unk_7,sizeof(unk_7));
-  }
-  
-  if(ir_on){
-    turn_led_on_tir(TIR_LED_IR);
-  }
-  
-  send_data(Fifo_flush,sizeof(Fifo_flush));
-  send_data(Camera_stop,sizeof(Camera_stop));
-  send_data(Get_status,sizeof(Get_status));
-  send_data(Cfg_reload,sizeof(Cfg_reload));
-  if(device == TIR5){
-    send_data(unk_8,sizeof(unk_8));
-    send_data(unk_5,sizeof(unk_5));
-    send_data(unk_6,sizeof(unk_6));
-    send_data(unk_4,sizeof(unk_4));
-    send_data(unk_9,sizeof(unk_9));
     send_data(Precision_mode,sizeof(Precision_mode));
-    send_data(unk_9,sizeof(unk_9));
-    send_data(unk_11,sizeof(unk_11));
-    //send_data(Set_threshold,sizeof(Set_threshold));
-    send_data(unk_13,sizeof(unk_13));
-    send_data(Precision_mode,sizeof(Precision_mode));
-    send_data(Fifo_flush,sizeof(Fifo_flush));
-    send_data(Camera_stop,sizeof(Camera_stop));
-    send_data(unk_11,sizeof(unk_11));
-    send_data(Video_on,sizeof(Video_on));  
   }
   
-  if(device == TIR4){
-    send_data(Video_off,sizeof(Video_off));
-    send_data(Fifo_flush,sizeof(Fifo_flush));
-    send_data(Video_on,sizeof(Video_on));
-  }
-  free(fw);
+  free(firmware.firmware);
   return true;
 }
 
@@ -332,7 +349,8 @@ bool open_tir(char data_path[], bool force_fw_load, bool ir_on)
     return false;
   }
 
-  init_camera_tir(data_path, force_fw_load, ir_on);
+  if(!init_camera_tir(data_path, force_fw_load, ir_on))
+    return false;
   start_camera_tir();
   return true;
 }
