@@ -12,6 +12,7 @@ typedef struct {
   unsigned int hstop;
   unsigned int sum_x;
   unsigned int sum;
+  unsigned int points;
 } stripe_t;
 
 typedef struct {
@@ -20,13 +21,14 @@ typedef struct {
   int current_stripes;
   float sum_x, sum_y;
   int count;
+  int points;
 } preblob_t;
 
 static plist preblobs = NULL;
 static plist finished_blobs = NULL;
 static unsigned char *picture = NULL;
 static unsigned int pic_x, pic_y;
-
+static int pkt_no = 0;
 /*
 static void print_pblob(preblob_t *b)
 {
@@ -59,7 +61,6 @@ static void draw_stripe(unsigned int x, unsigned y, unsigned int x_end)
 {
   if(picture == NULL)
     return;
-  printf("Hallo!\n");
   clip_coord(&x, 0, pic_x);
   clip_coord(&y, 0, pic_y);
   clip_coord(&x_end, 0, pic_x);
@@ -89,7 +90,7 @@ static int stripes_to_blobs_tir(plist *blob_list)
   while((pb = (preblob_t*)get_next(&i)) != NULL){
     float x = pb->sum_x / pb->count;
     float y = pb->sum_y / pb->count;
-    add_element(blobs, new_blob(x, y, pb->count)); //TODO!!!
+    add_element(blobs, new_blob(x, y, pb->points));
     //log_message("Blob: %g   %g   %d points\n", x, y, pb->count);
     cntr++;
   }
@@ -97,7 +98,7 @@ static int stripes_to_blobs_tir(plist *blob_list)
   while((pb = (preblob_t*)get_next(&i)) != NULL){
     float x = pb->sum_x / pb->count;
     float y = pb->sum_y / pb->count;
-    add_element(blobs, new_blob(x, y, pb->count)); //TODO!!!
+    add_element(blobs, new_blob(x, y, pb->points));
     //log_message("Blob: %g   %g   %d points\n", x, y, pb->count);
     cntr++;
   }
@@ -127,6 +128,7 @@ static void merge_blobs(preblob_t *b1, preblob_t *b2)
   b1->sum_x += b2->sum_x;
   b1->sum_y += b2->sum_y;
   b1->count += b2->count;
+  b1->points += b2->points;
 }
 
 static void add_stripe_to_preblob(preblob_t *pb, stripe_t *stripe)
@@ -135,6 +137,7 @@ static void add_stripe_to_preblob(preblob_t *pb, stripe_t *stripe)
   pb->sum_y += (float)stripe->sum * stripe->vline;
   pb->count += stripe->sum;
   pb->current_stripes++;
+  pb->points += stripe->points;
   if(pb->current_stripes == 1){
     pb->current_stripe = *stripe;
   }else{
@@ -147,6 +150,7 @@ static preblob_t* new_preblob()
   preblob_t* pb = (preblob_t*) my_malloc(sizeof(preblob_t));
   pb->sum_x = pb->sum_y = 0.0f;
   pb->count = 0;
+  pb->points = 0;
   pb->current_stripes = 0;
   pb->last_stripe.vline = -1;
   return pb;
@@ -233,7 +237,7 @@ static bool process_stripe_tir(unsigned char p_stripe[])
     stripe.hstop -= 82;
     stripe.sum = stripe.hstop - stripe.hstart + 1;
     stripe.sum_x = (unsigned int)(stripe.sum * (stripe.sum - 1) / 2.0);
-    
+    stripe.points = stripe.sum;
     if(add_stripe(&stripe)){
       log_message("Couldn't add stripe!\n");
     }
@@ -247,8 +251,9 @@ static bool process_stripe_tir5(unsigned char payload[])
                      (((unsigned int)payload[1]) >> 6);
     stripe.vline = ((((unsigned int)payload[1]) & 0x3F) << 3) | 
                     ((((unsigned int)payload[2]) & 0xE0) >> 5);
-    stripe.hstop = (((((unsigned int)payload[2]) & 0x1F) << 3) | 
-                    (((unsigned int)payload[3]) >> 3)) + stripe.hstart;
+    stripe.points = (((((unsigned int)payload[2]) & 0x1F) << 5) | 
+                    (((unsigned int)payload[3]) >> 3));
+    stripe.hstop =  stripe.points + stripe.hstart - 1;
     stripe.sum_x = (((unsigned int)payload[3]) & 7) << 17 |
                     (((unsigned int)payload[4]) << 9) | 
 		    ((unsigned int)payload[5]) << 1 |
@@ -284,13 +289,13 @@ bool process_packet_tir5(unsigned char data[], size_t *ptr, int pktsize, int lim
       assert(0);
       return false;
     }
-    ps |= data[limit - 4];
-    ps = (ps << 8) | data[limit - 3];
-    ps = (ps << 8) | data[limit - 2];
-    ps = (ps << 8) | data[limit - 1];
+    ps = data[limit - 4];
+    ps = (ps << 8) + data[limit - 3];
+    ps = (ps << 8) + data[limit - 2];
+    ps = (ps << 8) + data[limit - 1];
     if(ps != (pktsize - 8)){
       log_message("Bad packet size! %d x %d\n", ps, pktsize - 8);
-      assert(0);
+//      assert(0);
       return false;
     }
   }
@@ -298,6 +303,7 @@ bool process_packet_tir5(unsigned char data[], size_t *ptr, int pktsize, int lim
   switch(type){
     case 0:
     case 5:
+      pkt_no = data[*ptr];
       *ptr += 4;
       while(ps > 0){
 	if(type == 0){
@@ -471,7 +477,8 @@ int read_blobs_tir(plist *blob_list, unsigned char pic[], unsigned int x, unsign
 /*
     static int fc = 0;
     char name[] = "fXXXXXXX.raw";
-    sprintf(name, "f%04d.raw", fc++);
+    sprintf(name, "f%02X%04d.raw", pkt_no, fc++);
+    printf("%s\n", name);
     FILE *f = fopen(name, "wb");
     if(f != NULL){
       fwrite(pic, 1, x * y, f);
