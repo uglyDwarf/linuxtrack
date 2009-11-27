@@ -91,9 +91,17 @@ static bool read_status_tir(tir_status_t *status)
     log_message("Couldn't send status request!\n");
     return false;
   }
-  if(!receive_data(packet, sizeof(packet), &t, 2000)){
-    log_message("Couldn't receive status!\n");
-    return false;
+  int counter = 0;
+  while(counter < 10){
+    if(!receive_data(packet, sizeof(packet), &t, 2000)){
+      log_message("Couldn't receive status!\n");
+      return false;
+    }
+    if((packet[0] == 0x07) && (packet[1] == 0x20)){
+      break;
+    }
+    usleep(10000);
+    counter++;
   }
   log_message("Status packet: %02X %02X %02X %02X %02X %02X %02X\n",
     packet[0], packet[1], packet[2], packet[3], packet[4], packet[5], 
@@ -112,9 +120,17 @@ static bool read_rom_data_tir()
     log_message("Couldn't send config data request!\n");
     return false;
   }
-  if(!receive_data(packet, sizeof(packet), &t, 2000)){
-    log_message("Couldn't receive config data!\n");
-    return false;
+  int counter = 0;
+  while(counter < 10){
+    if(!receive_data(packet, sizeof(packet), &t, 2000)){
+      log_message("Couldn't receive status!\n");
+      return false;
+    }
+    if((packet[0] == 0x14) && (packet[1] == 0x40)){
+      break;
+    }
+    usleep(10000);
+    counter++;
   }
   return true;
 }
@@ -271,12 +287,17 @@ bool start_camera_tir()
 bool init_camera_tir(char data_path[], bool force_fw_load, bool p_ir_on)
 {
   tir_status_t status;
+  size_t t;
   
   ir_on = p_ir_on;
 
   if(!stop_camera_tir()){
     return false;
   }
+  //To flush any pending packets...
+  receive_data(packet, sizeof(packet), &t, 100);
+  receive_data(packet, sizeof(packet), &t, 100);
+  receive_data(packet, sizeof(packet), &t, 100);
   if(!read_rom_data_tir()){
     return false;
   }
@@ -292,7 +313,7 @@ bool init_camera_tir(char data_path[], bool force_fw_load, bool p_ir_on)
   if(force_fw_load | (!status.fw_loaded) | (status.fw_cksum != firmware.cksum)){
     upload_firmware(&firmware);
   }
-  
+
   if(!read_status_tir(&status)){
     return false;
   }
@@ -302,28 +323,24 @@ bool init_camera_tir(char data_path[], bool force_fw_load, bool p_ir_on)
     return false;
   }
   
-  switch(status.cfg_flag){
-    case 0:
-      log_message("Problem configuring TrackIR!\n");
-      return false;
-      break;
-    case 1:
-      //
-      break;
-    case 2:
-      send_data(Cfg_reload,sizeof(Cfg_reload));
-      if(device == TIR5){
-        send_data(Set_ir_brightness,sizeof(Set_ir_brightness));
-        send_data(Set_exposure_h,sizeof(Set_exposure_h));
-        send_data(Set_exposure_l,sizeof(Set_exposure_l));
-	send_data(Set_threshold,sizeof(Set_threshold));
+  if(status.cfg_flag == 1){
+    send_data(Cfg_reload,sizeof(Cfg_reload));
+    while(status.cfg_flag != 2){
+      if(!read_status_tir(&status)){
+	return false;
       }
-      break;
-    default:
-      log_message("Unknown flag value!\n");
-      return false;
-      break;
+    }
+    if(device == TIR5){
+      send_data(Set_ir_brightness,sizeof(Set_ir_brightness));
+      send_data(Set_exposure_h,sizeof(Set_exposure_h));
+      send_data(Set_exposure_l,sizeof(Set_exposure_l));
+      send_data(Set_threshold,sizeof(Set_threshold));
+    }
+  }else if(status.cfg_flag != 2){
+    log_message("TIR configuration problem!\n");
+    return false;
   }
+  
   
   if(device == TIR5){
     send_data(Precision_mode,sizeof(Precision_mode));
