@@ -7,13 +7,13 @@ You can comment on that if you want me to add features/change priorities...
 
 = Details =
 
-Check issues with SDK v2.00 (joystick buttons not working) (Planned soon)
+Check issues with SDK v2.00 (joystick buttons not working) (Should be fixed - waiting for feedback)
 
 Track IR4 sensitivity control (Planned soon)
 
-Track IR5 full support (should work soon)
+Track IR5 full support (working on it)
 
-Remove set_good from cal (Planed soon)
+Remove set_good from cal (done)
 
 Pose should be recomputed when frame is received, not when app asks... (Planned soon)
 
