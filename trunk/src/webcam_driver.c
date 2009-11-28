@@ -55,7 +55,6 @@ dev_interface webcam_interface = {
   .device_suspend = webcam_suspend,
   .device_change_operating_mode = webcam_change_operating_mode,
   .device_wakeup = webcam_wakeup,
-  .device_set_good_indication = NULL,
   .device_get_frame = webcam_get_frame,
 };
 

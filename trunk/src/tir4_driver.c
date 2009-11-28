@@ -241,7 +241,6 @@ dev_interface tir4_interface = {
   .device_suspend = tir4_suspend,
   .device_change_operating_mode = tir4_change_operating_mode,
   .device_wakeup = tir4_wakeup,
-  .device_set_good_indication = tir4_set_good_indication,
   .device_get_frame = tir4_get_frame,
 };
 

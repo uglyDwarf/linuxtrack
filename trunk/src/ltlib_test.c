@@ -39,8 +39,24 @@ int main(int argc, char **argv) {
     return retval; 
   };  
   lt_recenter();
-int cntr=0; 
-  while (++cntr < 200) {
+  int cntr=0; 
+  while (++cntr < 100) {
+    retval = lt_get_camera_update(&heading,&pitch,&roll,
+                                  &tx, &ty, &tz);
+    if (retval < 0) {
+      printf("Not updated!\n"); 
+      usleep(9000);
+      continue; 
+    }
+    printf("heading: %f\tpitch: %f\troll: %f\n", heading, pitch, roll);
+    printf("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);
+    usleep(9000);
+  }
+  lt_suspend();
+  sleep(2);
+  lt_wakeup();
+  cntr = 0;
+  while (++cntr < 100) {
     retval = lt_get_camera_update(&heading,&pitch,&roll,
                                   &tx, &ty, &tz);
     if (retval < 0) {

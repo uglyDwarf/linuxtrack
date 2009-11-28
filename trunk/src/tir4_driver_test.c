@@ -14,10 +14,7 @@ int main(int argc, char **argv) {
 
   cal_init(&ccb);
 
-  /* call below sets led green */
-  cal_set_good_indication(&ccb, true);
-
-  /* loop forever reading and printing results */
+/* loop forever reading and printing results */
 /*   while (true) { */
 /*     cal_get_frame(&ccb, &frame); */
 /*     frame_print(frame); */

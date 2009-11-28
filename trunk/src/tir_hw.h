@@ -8,16 +8,23 @@
 
 unsigned char packet[4096];
 
-extern bool turn_led_off_tir(unsigned char leds);
-extern bool turn_led_on_tir(unsigned char leds);
-extern bool stop_camera_tir();
-extern bool start_camera_tir();
-extern bool init_camera_tir(char data_path[], bool force_fw_load, bool p_ir_on);
-extern void get_res_tir(unsigned int *w, unsigned int *h);
-extern void switch_green(bool state);
-extern void switch_blue(bool state);
-extern void switch_red(bool state);
-extern void switch_ir(bool state);
+void get_res_tir(unsigned int *w, unsigned int *h);
+
+typedef bool (*stop_camera_tir_fun)();
+typedef bool (*start_camera_tir_fun)();
+typedef bool (*init_camera_tir_fun)(char data_path[], bool force_fw_load, bool p_ir_on);
+typedef void (*get_res_tir_fun)(unsigned int *w, unsigned int *h);
+
+typedef struct {
+  stop_camera_tir_fun stop_camera_tir;
+  start_camera_tir_fun start_camera_tir;
+  init_camera_tir_fun init_camera_tir;
+  get_res_tir_fun get_res_tir;
+} tir_interface;
+
+extern tir_interface tir4;
+extern tir_interface tir5;
 
 
 #endif
+

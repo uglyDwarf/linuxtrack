@@ -86,8 +86,6 @@ typedef int (*device_suspend_fun)(struct camera_control_block *ccb);
 typedef int (*device_change_operating_mode_fun)(
   struct camera_control_block *ccb, enum cal_operating_mode newmode);
 typedef int (*device_wakeup_fun)(struct camera_control_block *ccb);
-typedef int (*device_set_good_indication_fun)(
-  struct camera_control_block *ccb, bool arg);
 typedef int (*device_get_frame_fun)(struct camera_control_block *ccb, 
   struct frame_type *f);
 
@@ -99,7 +97,6 @@ typedef struct {
   device_suspend_fun device_suspend;
   device_change_operating_mode_fun device_change_operating_mode;
   device_wakeup_fun device_wakeup;
-  device_set_good_indication_fun device_set_good_indication;
   device_get_frame_fun device_get_frame;
 } dev_interface;
 
