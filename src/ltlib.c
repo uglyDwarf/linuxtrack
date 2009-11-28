@@ -97,7 +97,6 @@ int lt_init(struct lt_configuration_type config, char *cust_section)
   if(cal_init(&ccb)!= 0){
     return -1;
   }
-  cal_set_good_indication(&ccb, true);
   if(cal_thread_start(&ccb) != 0){
     return -1;
   }
@@ -242,7 +241,6 @@ int lt_wakeup(void)
     return 0;
   }else{
     first_frame_read = false;
-    cal_set_good_indication(&ccb, true);
     cal_thread_start(&ccb);
     return cal_wakeup(&ccb);
   }

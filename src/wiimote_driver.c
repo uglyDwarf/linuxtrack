@@ -18,7 +18,6 @@ dev_interface wiimote_interface = {
   .device_suspend = wiimote_suspend,
   .device_change_operating_mode = wiimote_change_operating_mode,
   .device_wakeup = wiimote_wakeup,
-  .device_set_good_indication = NULL,
   .device_get_frame = wiimote_get_frame,
 };
 
@@ -108,19 +107,6 @@ int wiimote_change_operating_mode(struct camera_control_block *ccb,
  * a return value < 0 indicates error */
 int wiimote_wakeup(struct camera_control_block *ccb) {
     // TODO
-    return 0;
-}
-
-/* this controls the wiimote red and green LED
- * typically called whenever the tracking is "good"
- * when called with true, the green led is lit
- * when called with false, the red led is lit
- * neither is lit immediatly after init!
- * a return value < 0 indicates error */
-int wiimote_set_good_indication(struct camera_control_block *ccb,
-                             bool arg)
-{
-    cwiid_set_led(gWiimote, CWIID_LED1_ON | CWIID_LED4_ON);
     return 0;
 }
 

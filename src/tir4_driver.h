@@ -57,15 +57,6 @@ int tir4_change_operating_mode(struct camera_control_block *ccb,
  * a return value < 0 indicates error */
 int tir4_wakeup(struct camera_control_block *ccb);
 
-/* this controls the tir4 red and green LED
- * typically called whenever the tracking is "good"
- * when called with true, the green led is lit
- * when called with false, the red led is lit
- * neither is lit immediatly after init!
- * a return value < 0 indicates error */
-int tir4_set_good_indication(struct camera_control_block *ccb,
-                             bool arg);
-
 /* read the usb, and process it into frames
  * a return value < 0 indicates error */
 int tir4_get_frame(struct camera_control_block *ccb,

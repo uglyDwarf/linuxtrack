@@ -56,15 +56,6 @@ int wiimote_change_operating_mode(struct camera_control_block *ccb,
  * a return value < 0 indicates error */
 int wiimote_wakeup(struct camera_control_block *ccb);
 
-/* this controls the wiimote red and green LED
- * typically called whenever the tracking is "good"
- * when called with true, the green led is lit
- * when called with false, the red led is lit
- * neither is lit immediatly after init!
- * a return value < 0 indicates error */
-int wiimote_set_good_indication(struct camera_control_block *ccb,
-                             bool arg);
-
 /* read the usb, and process it into frames
  * a return value < 0 indicates error */
 int wiimote_get_frame(struct camera_control_block *ccb,

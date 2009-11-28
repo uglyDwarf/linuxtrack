@@ -16,6 +16,7 @@
 
 #define FW_SIZE_INCREMENT 50000
 
+//Known packets
 unsigned char Video_off[] = {0x14, 0x01};
 unsigned char Video_on[] = {0x14, 0x00};
 unsigned char Fifo_flush[] = {0x12};
@@ -25,15 +26,16 @@ unsigned char Cfg_reload[] = {0x20};
 unsigned char Get_status[] = {0x1d};
 unsigned char Get_conf[] = {0x17};
 unsigned char Precision_mode[] = {0x19, 0x03, 0x10, 0x00, 0x05};
-unsigned char Set_threshold[] = {0x15, 0x96, 0x01, 0x00};
-unsigned char Set_exposure_h[] =  {0x23, 0x42, 0x08, 0x01, 0x00, 0x00};
-unsigned char Set_exposure_l[] =  {0x23, 0x42, 0x10, 0x8F, 0x00, 0x00};
+//unsigned char Set_threshold[] = {0x15, 0x96, 0x01, 0x00};
+//unsigned char Set_threshold1[] = {0x15, 0x76, 0x01, 0x00};
+//unsigned char Set_exposure_h[] =  {0x23, 0x42, 0x08, 0x01, 0x00, 0x00};
+//unsigned char Set_exposure_l[] =  {0x23, 0x42, 0x10, 0x8F, 0x00, 0x00};
+//unsigned char Set_exposure_l1[] =  {0x23, 0x42, 0x10, 0x5e, 0x00, 0x00};
 unsigned char Set_ir_brightness[] =  {0x10, 0x00, 0x02, 0x00, 0xA0};
 
-
+//Unknown packets
 unsigned char unk_2[] =  {0x12, 0x01};
 unsigned char unk_3[] =  {0x13, 0x01};
-unsigned char unk_8[] =  {0x15, 0x96, 0x01, 0x00};
 unsigned char unk_1[] =  {0x17, 0x01};
 unsigned char unk_9[] =  {0x19, 0x04, 0x10, 0x00, 0x00};
 unsigned char unk_13[] = {0x19, 0x04, 0x10, 0x03, 0x00};
@@ -44,6 +46,10 @@ unsigned char unk_11[] = {0x19, 0x09, 0x10, 0x07, 0x01};
 static bool ir_on = false;
 
 dev_found device = NONE;
+
+tir_interface tir4;
+tir_interface tir5;
+tir_interface *tir = NULL;
 
 typedef struct{
   bool fw_loaded;
@@ -257,8 +263,32 @@ bool flush_fifo_tir()
   return send_data(Fifo_flush,sizeof(Fifo_flush));
 }
 
+bool set_threshold(unsigned int val)
+{
+  unsigned char pkt[] = {0x15, 0x96, 0x01, 0x00};
+  if(val < 30){
+    val = 30;
+  }
+  if(val > 253){
+    val = 253;
+  }
+  pkt[1] = val;
+  return send_data(pkt, sizeof(pkt));
+}
 
-bool stop_camera_tir()
+bool set_exposure(unsigned int exp)
+{
+  unsigned char Set_exposure_h[] =  {0x23, 0x42, 0x08, 0x01, 0x00, 0x00};
+  unsigned char Set_exposure_l[] =  {0x23, 0x42, 0x10, 0x8F, 0x00, 0x00};
+  
+  Set_exposure_h[3] = exp >> 8;
+  Set_exposure_l[3] = exp & 0xFF;
+  return send_data(Set_exposure_h, sizeof(Set_exposure_h)) && 
+    send_data(Set_exposure_l, sizeof(Set_exposure_l));
+  
+}
+
+bool stop_camera_tir4()
 {
   send_data(Video_off,sizeof(Video_off));
   flush_fifo_tir();
@@ -271,7 +301,43 @@ bool stop_camera_tir()
   return true;
 }
 
-bool start_camera_tir()
+bool stop_camera_tir5()
+{
+  send_data(Video_off,sizeof(Video_off));
+  usleep(50000);
+  send_data(Video_off,sizeof(Video_off));
+  usleep(50000);
+  send_data(Video_off,sizeof(Video_off));
+  usleep(50000);
+  send_data(Video_off,sizeof(Video_off));
+  usleep(50000);
+  send_data(Video_off,sizeof(Video_off));
+  usleep(50000);
+  send_data(unk_2,sizeof(unk_2));
+  send_data(unk_3,sizeof(unk_3));
+  send_data(Video_off,sizeof(Video_off));
+  usleep(50000);
+  send_data(Video_off,sizeof(Video_off));
+  usleep(50000);
+  send_data(Video_off,sizeof(Video_off));
+  usleep(50000);
+  send_data(Video_off,sizeof(Video_off));
+  usleep(50000);
+  send_data(Video_off,sizeof(Video_off));
+  usleep(50000);
+  flush_fifo_tir();
+  send_data(Camera_stop,sizeof(Camera_stop));
+  turn_led_off_tir(TIR_LED_IR);
+  return true;
+}
+
+bool stop_camera_tir()
+{
+  assert(tir != NULL);
+  return tir->stop_camera_tir();
+}
+
+bool start_camera_tir4()
 {
   stop_camera_tir();
   send_data(Video_on,sizeof(Video_on));
@@ -284,7 +350,27 @@ bool start_camera_tir()
   return true;
 }
 
-bool init_camera_tir(char data_path[], bool force_fw_load, bool p_ir_on)
+bool start_camera_tir5()
+{
+  stop_camera_tir();
+  send_data(Video_on,sizeof(Video_on));
+  if(ir_on){ 
+    turn_led_on_tir(TIR_LED_IR);
+  }
+  if(device == TIR4){
+    flush_fifo_tir();
+  }
+  return true;
+}
+
+bool start_camera_tir()
+{
+  assert(tir != NULL);
+  return tir->start_camera_tir();
+}
+
+
+bool init_camera_tir4(char data_path[], bool force_fw_load, bool p_ir_on)
 {
   tir_status_t status;
   size_t t;
@@ -332,9 +418,8 @@ bool init_camera_tir(char data_path[], bool force_fw_load, bool p_ir_on)
     }
     if(device == TIR5){
       send_data(Set_ir_brightness,sizeof(Set_ir_brightness));
-      send_data(Set_exposure_h,sizeof(Set_exposure_h));
-      send_data(Set_exposure_l,sizeof(Set_exposure_l));
-      send_data(Set_threshold,sizeof(Set_threshold));
+      set_exposure(0x18F);
+      set_threshold(0x96);
     }
   }else if(status.cfg_flag != 2){
     log_message("TIR configuration problem!\n");
@@ -348,6 +433,57 @@ bool init_camera_tir(char data_path[], bool force_fw_load, bool p_ir_on)
   
   free(firmware.firmware);
   return true;
+}
+
+
+
+bool init_camera_tir5(char data_path[], bool force_fw_load, bool p_ir_on)
+{
+  tir_status_t status;
+  ir_on = p_ir_on;
+  
+  stop_camera_tir();
+  
+  read_rom_data_tir();
+  send_data(unk_4,sizeof(unk_4));
+  flush_fifo_tir();
+  set_exposure(0x18F);
+  read_status_tir(&status);
+  firmware_t firmware;
+  if(!load_firmware(&firmware, data_path)){
+    log_message("Error loading firmware!\n");
+    return false;
+  }
+  upload_firmware(&firmware);
+  free(firmware.firmware);
+  send_data(unk_7,sizeof(unk_7));
+  flush_fifo_tir();
+  send_data(Camera_stop,sizeof(Camera_stop));
+  read_status_tir(&status);
+  send_data(Cfg_reload,sizeof(Cfg_reload));
+  set_threshold(0x96);
+  set_exposure(0x18F);
+  send_data(unk_4,sizeof(unk_4));
+  send_data(unk_9,sizeof(unk_9));
+  send_data(unk_9,sizeof(unk_9));
+  send_data(Precision_mode,sizeof(Precision_mode));
+  send_data(unk_9,sizeof(unk_9));
+  send_data(unk_11,sizeof(unk_11));
+  set_threshold(0x76);
+  set_exposure(0x15E);
+  send_data(unk_9,sizeof(unk_9));
+  send_data(Precision_mode,sizeof(Precision_mode));
+  flush_fifo_tir();
+  send_data(Camera_stop,sizeof(Camera_stop));
+  send_data(unk_11,sizeof(unk_11));
+  send_data(Video_on,sizeof(Video_on));
+  return true;
+}
+
+bool init_camera_tir(char data_path[], bool force_fw_load, bool p_ir_on)
+{
+  assert(tir != NULL);
+  return tir->init_camera_tir(data_path, force_fw_load, p_ir_on);
 }
 
 bool open_tir(char data_path[], bool force_fw_load, bool ir_on)
@@ -365,9 +501,22 @@ bool open_tir(char data_path[], bool force_fw_load, bool ir_on)
     log_message("Couldn't prepare!\n");
     return false;
   }
-
-  if(!init_camera_tir(data_path, force_fw_load, ir_on))
+  
+  switch(device){
+    case TIR4:
+      tir = &tir4;
+      break;
+    case TIR5:
+      tir = &tir5;
+      break;
+    default:
+      log_message("No device!\n");
+      return false;
+      break;
+  }
+  if(!init_camera_tir(data_path, force_fw_load, ir_on)){
     return false;
+  }
   start_camera_tir();
   return true;
 }
@@ -382,11 +531,6 @@ bool resume_tir()
   return start_camera_tir();
 }
 
-//bool read_frame(plist *blob_list)
-//{
-//  return read_blobs_tir(blob_list, );
-//}
-
 bool close_tir()
 {
   stop_camera_tir();
@@ -398,22 +542,22 @@ bool close_tir()
   return true;
 }
 
+void get_res_tir4(unsigned int *w, unsigned int *h)
+{
+  *w = 710;
+  *h = 2 * 288;
+}
+
+void get_res_tir5(unsigned int *w, unsigned int *h)
+{
+  *w = 640;
+  *h = 480;
+}
+
 void get_res_tir(unsigned int *w, unsigned int *h)
 {
-  switch(device){
-    case TIR4:
-      *w = 710;
-      *h = 2 * 288;
-      break;
-    case TIR5:
-      *w = 640;
-      *h = 480;
-      break;
-    default:
-      assert(0);
-      break;
-  }
-  
+  assert(tir != NULL);
+  tir->get_res_tir(w,h);
 }
 
 void switch_green(bool state)
@@ -451,3 +595,19 @@ void switch_ir(bool state)
     turn_led_off_tir(TIR_LED_IR);
   }
 }
+
+tir_interface tir4 = {
+  .stop_camera_tir = stop_camera_tir4,
+  .start_camera_tir = start_camera_tir4,
+  .init_camera_tir = init_camera_tir4,
+  .get_res_tir = get_res_tir4
+};
+
+tir_interface tir5 = {
+  .stop_camera_tir = stop_camera_tir5,
+  .start_camera_tir = start_camera_tir5,
+  .init_camera_tir = init_camera_tir5,
+  .get_res_tir = get_res_tir5
+};
+
+

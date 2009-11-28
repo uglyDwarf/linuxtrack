@@ -113,18 +113,6 @@ int cal_wakeup(struct camera_control_block *ccb)
   return (iface->device_wakeup)(ccb);
 }
 
-int cal_set_good_indication(struct camera_control_block *ccb,
-                             bool arg)
-{
-  assert(ccb != NULL);
-  assert(iface != NULL);
-  if(iface->device_set_good_indication != NULL){
-    return (iface->device_set_good_indication)(ccb, arg);
-  }else{
-    return 0;
-  }
-}
-
 int cal_get_frame(struct camera_control_block *ccb,
                          struct frame_type *f)
 {
