@@ -289,6 +289,10 @@ bool pose_process_blobs(struct bloblist_type blobs,
 //  print_vec(vec2, "vec2");
   make_base(vec1, vec2, new_base);
   if(centering == true){
+//    printf("Center:\n");
+//    printf("[%g, %g]\n", blobs.blobs[0].x, blobs.blobs[0].y);
+//    printf("[%g, %g]\n", blobs.blobs[1].x, blobs.blobs[1].y);
+//    printf("[%g, %g]\n", blobs.blobs[2].x, blobs.blobs[2].y);
 /*     print_matrix(center_base, "center-base"); */
 /*     print_matrix(new_base, "new-base"); */
     int i,j;
