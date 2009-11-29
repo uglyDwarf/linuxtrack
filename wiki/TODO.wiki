@@ -11,7 +11,7 @@ Check issues with SDK v2.00 (joystick buttons not working) (Should be fixed - wa
 
 Track IR4 sensitivity control (Planned soon)
 
-Track IR5 full support (working on it)
+Track IR5 full support (basic TIR5 support done, working on camera controls implementation)
 
 Remove set_good from cal (done)
 
