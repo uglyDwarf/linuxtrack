@@ -50,7 +50,8 @@ int tir_init(struct camera_control_block *ccb)
   tir_change_operating_mode(ccb, ccb->mode);
   if(open_tir(storage_path, false, get_ir_on(ccb->enable_IR_illuminator_LEDS))){
     ccb->state = active;
-    get_res_tir(&(ccb->pixel_height), &(ccb->pixel_width));
+    float tf;
+    get_res_tir(&(ccb->pixel_width), &(ccb->pixel_height), &tf);
     return 0;
   }else{
     ccb->state = suspended;
@@ -122,7 +123,8 @@ int tir_blobs_to_bt(int num_blobs, plist blob_list, struct bloblist_type *blt)
   int counter = 0;
   int valid =0;
   int w, h;
-  get_res_tir(&w, &h);
+  float hf;
+  get_res_tir(&w, &h, &hf);
   init_iterator(blob_list, &i);
   while((b = (blob*)get_next(&i)) != NULL){
     if((b->score < min) || (b->score > max)){
@@ -133,7 +135,6 @@ int tir_blobs_to_bt(int num_blobs, plist blob_list, struct bloblist_type *blt)
       cal_b = &(bt[counter]);
       cal_b->x = (w / 2.0) - b->x;
       cal_b->y = (h / 2.0) - b->y;
-      cal_b->y *= 2.0;
       cal_b->score = b->score;
     }
     ++counter;
@@ -154,13 +155,17 @@ int tir_blobs_to_bt(int num_blobs, plist blob_list, struct bloblist_type *blt)
 int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 {
   plist blob_list = NULL;
+  unsigned int w,h;
+  float hf;
+  get_res_tir(&w, &h, &hf);
   if(ccb->diag){
-    f->bitmap = my_malloc(ccb->pixel_width * ccb->pixel_height);
-    memset(f->bitmap, 0, ccb->pixel_width * ccb->pixel_height);
+    f->bitmap = my_malloc(w * h);
+    memset(f->bitmap, 0, w * h);
   }else{
     f->bitmap = NULL;
   }
-  if(read_blobs_tir(&blob_list, f->bitmap, ccb->pixel_width, ccb->pixel_height) < 0){
+  
+  if(read_blobs_tir(&blob_list, f->bitmap, w, h, hf) < 0){
     if(blob_list != NULL){
       free_list(blob_list, true);
     }

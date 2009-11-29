@@ -542,22 +542,24 @@ bool close_tir()
   return true;
 }
 
-void get_res_tir4(unsigned int *w, unsigned int *h)
+void get_res_tir4(unsigned int *w, unsigned int *h, float *hf)
 {
   *w = 710;
   *h = 2 * 288;
+  *hf = 2.0f;
 }
 
-void get_res_tir5(unsigned int *w, unsigned int *h)
+void get_res_tir5(unsigned int *w, unsigned int *h, float *hf)
 {
   *w = 640;
   *h = 480;
+  *hf = 1.0f;
 }
 
-void get_res_tir(unsigned int *w, unsigned int *h)
+void get_res_tir(unsigned int *w, unsigned int *h, float *hf)
 {
   assert(tir != NULL);
-  tir->get_res_tir(w,h);
+  tir->get_res_tir(w, h, hf);
 }
 
 void switch_green(bool state)

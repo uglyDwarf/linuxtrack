@@ -8,12 +8,12 @@
 
 unsigned char packet[4096];
 
-void get_res_tir(unsigned int *w, unsigned int *h);
+void get_res_tir(unsigned int *w, unsigned int *h, float *hf);
 
 typedef bool (*stop_camera_tir_fun)();
 typedef bool (*start_camera_tir_fun)();
 typedef bool (*init_camera_tir_fun)(char data_path[], bool force_fw_load, bool p_ir_on);
-typedef void (*get_res_tir_fun)(unsigned int *w, unsigned int *h);
+typedef void (*get_res_tir_fun)(unsigned int *w, unsigned int *h, float *hf);
 
 typedef struct {
   stop_camera_tir_fun stop_camera_tir;
