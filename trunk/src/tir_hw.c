@@ -26,24 +26,17 @@ unsigned char Cfg_reload[] = {0x20};
 unsigned char Get_status[] = {0x1d};
 unsigned char Get_conf[] = {0x17};
 unsigned char Precision_mode[] = {0x19, 0x03, 0x10, 0x00, 0x05};
-//unsigned char Set_threshold[] = {0x15, 0x96, 0x01, 0x00};
-//unsigned char Set_threshold1[] = {0x15, 0x76, 0x01, 0x00};
-//unsigned char Set_exposure_h[] =  {0x23, 0x42, 0x08, 0x01, 0x00, 0x00};
-//unsigned char Set_exposure_l[] =  {0x23, 0x42, 0x10, 0x8F, 0x00, 0x00};
-//unsigned char Set_exposure_l1[] =  {0x23, 0x42, 0x10, 0x5e, 0x00, 0x00};
 unsigned char Set_ir_brightness[] =  {0x10, 0x00, 0x02, 0x00, 0xA0};
 
 //Unknown packets
 unsigned char unk_2[] =  {0x12, 0x01};
 unsigned char unk_3[] =  {0x13, 0x01};
 unsigned char unk_1[] =  {0x17, 0x01};
-unsigned char unk_9[] =  {0x19, 0x04, 0x10, 0x00, 0x00};
-unsigned char unk_13[] = {0x19, 0x04, 0x10, 0x03, 0x00};
 unsigned char unk_7[] =  {0x19, 0x05, 0x10, 0x10, 0x00};
-unsigned char unk_4[] =  {0x19, 0x09, 0x10, 0x05, 0x01};
-unsigned char unk_11[] = {0x19, 0x09, 0x10, 0x07, 0x01};
 
 static bool ir_on = false;
+static unsigned char status_brightness = 3; //0 - highest, 3 lowest
+static unsigned char ir_brightness = 5; //5 - lowest, 7 - highest
 
 dev_found device = NONE;
 
@@ -65,6 +58,27 @@ typedef struct{
 
 
 unsigned char packet[4096];
+
+void set_status_brightness_tir(unsigned char b)
+{
+  if(b > 3){
+    b = 3;
+  }
+  status_brightness = b;
+}
+
+void set_ir_brightness_tir(unsigned char b)
+{
+  if(b < 5){
+    b = 5;
+  }
+  if(b > 7){
+    b = 7;
+  }
+  ir_brightness = b;
+}
+
+
 
 static void cksum_firmware(firmware_t *fw)
 {
@@ -276,7 +290,23 @@ bool set_threshold(unsigned int val)
   return send_data(pkt, sizeof(pkt));
 }
 
-bool set_exposure(unsigned int exp)
+static bool control_status_led_tir(bool status1, bool status2)
+{
+  unsigned char pkt[] =  {0x19, 0x04, 0x10, 0x00, 0x00};
+  pkt[3] = status_brightness;
+  pkt[4] = (status1 ? 0x20 : 0) | (status2 ? 0x02 : 0);
+  return send_data(pkt, sizeof(pkt));
+}
+
+static bool control_ir_led_tir(bool ir)
+{
+  unsigned char pkt[] =  {0x19, 0x09, 0x10, 0x00, 0x00};
+  pkt[3] = ir ? ir_brightness : 0;
+  pkt[4] = ir ? 0x01 : 0;
+  return send_data(pkt, sizeof(pkt));
+}
+
+static bool set_exposure(unsigned int exp)
 {
   unsigned char Set_exposure_h[] =  {0x23, 0x42, 0x08, 0x01, 0x00, 0x00};
   unsigned char Set_exposure_l[] =  {0x23, 0x42, 0x10, 0x8F, 0x00, 0x00};
@@ -327,7 +357,7 @@ bool stop_camera_tir5()
   usleep(50000);
   flush_fifo_tir();
   send_data(Camera_stop,sizeof(Camera_stop));
-  turn_led_off_tir(TIR_LED_IR);
+  control_ir_led_tir(false);
   return true;
 }
 
@@ -344,9 +374,7 @@ bool start_camera_tir4()
   if(ir_on){ 
     turn_led_on_tir(TIR_LED_IR);
   }
-  if(device == TIR4){
-    flush_fifo_tir();
-  }
+  flush_fifo_tir();
   return true;
 }
 
@@ -355,10 +383,9 @@ bool start_camera_tir5()
   stop_camera_tir();
   send_data(Video_on,sizeof(Video_on));
   if(ir_on){ 
-    turn_led_on_tir(TIR_LED_IR);
-  }
-  if(device == TIR4){
-    flush_fifo_tir();
+    control_ir_led_tir(true);
+  }else{
+    control_ir_led_tir(false);
   }
   return true;
 }
@@ -445,7 +472,7 @@ bool init_camera_tir5(char data_path[], bool force_fw_load, bool p_ir_on)
   stop_camera_tir();
   
   read_rom_data_tir();
-  send_data(unk_4,sizeof(unk_4));
+  control_ir_led_tir(true);
   flush_fifo_tir();
   set_exposure(0x18F);
   read_status_tir(&status);
@@ -463,19 +490,19 @@ bool init_camera_tir5(char data_path[], bool force_fw_load, bool p_ir_on)
   send_data(Cfg_reload,sizeof(Cfg_reload));
   set_threshold(0x96);
   set_exposure(0x18F);
-  send_data(unk_4,sizeof(unk_4));
-  send_data(unk_9,sizeof(unk_9));
-  send_data(unk_9,sizeof(unk_9));
+  control_ir_led_tir(true);
+  control_status_led_tir(false, false);
+  control_status_led_tir(false, false);
   send_data(Precision_mode,sizeof(Precision_mode));
-  send_data(unk_9,sizeof(unk_9));
-  send_data(unk_11,sizeof(unk_11));
+  control_status_led_tir(false, false);
+  control_ir_led_tir(true);
   set_threshold(0x76);
   set_exposure(0x15E);
-  send_data(unk_9,sizeof(unk_9));
+  control_status_led_tir(false, false);
   send_data(Precision_mode,sizeof(Precision_mode));
   flush_fifo_tir();
   send_data(Camera_stop,sizeof(Camera_stop));
-  send_data(unk_11,sizeof(unk_11));
+  control_ir_led_tir(true);
   send_data(Video_on,sizeof(Video_on));
   return true;
 }
