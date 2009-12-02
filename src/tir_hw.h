@@ -14,11 +14,13 @@ typedef bool (*stop_camera_tir_fun)();
 typedef bool (*start_camera_tir_fun)();
 typedef bool (*init_camera_tir_fun)(char data_path[], bool force_fw_load, bool p_ir_on);
 typedef void (*get_res_tir_fun)(unsigned int *w, unsigned int *h, float *hf);
+typedef bool (*close_camera_tir_fun)();
 
 typedef struct {
   stop_camera_tir_fun stop_camera_tir;
   start_camera_tir_fun start_camera_tir;
   init_camera_tir_fun init_camera_tir;
+  close_camera_tir_fun close_camera_tir;
   get_res_tir_fun get_res_tir;
 } tir_interface;
 

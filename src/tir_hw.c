@@ -290,6 +290,8 @@ bool set_threshold(unsigned int val)
   return send_data(pkt, sizeof(pkt));
 }
 
+
+// 22 both green, 33 both red
 static bool control_status_led_tir(bool status1, bool status2)
 {
   unsigned char pkt[] =  {0x19, 0x04, 0x10, 0x00, 0x00};
@@ -558,16 +560,36 @@ bool resume_tir()
   return start_camera_tir();
 }
 
-bool close_tir()
-{
+bool close_camera_tir4(){
   stop_camera_tir();
-  turn_led_off_tir(TIR_LED_RED);
-  turn_led_off_tir(TIR_LED_GREEN);
-  turn_led_off_tir(TIR_LED_BLUE);
-  turn_led_off_tir(TIR_LED_IR);
   finish_usb(TIR_INTERFACE);
   return true;
 }
+
+bool close_camera_tir5()
+{
+  stop_camera_tir();
+  set_threshold(0x96);
+  set_exposure(0x18F);
+  control_ir_led_tir(true);
+  control_status_led_tir(false, false);
+  control_status_led_tir(false, false);
+  send_data(Precision_mode,sizeof(Precision_mode));
+  turn_led_off_tir(TIR_LED_IR);
+  if(!send_data(Fpga_init, sizeof(Fpga_init))){
+    log_message("Couldn't init fpga!\n");
+  }
+  finish_usb(TIR_INTERFACE);
+  return true;
+}
+
+bool close_tir()
+{
+  assert(tir != NULL);
+  return tir->close_camera_tir();
+}
+
+
 
 void get_res_tir4(unsigned int *w, unsigned int *h, float *hf)
 {
@@ -629,6 +651,7 @@ tir_interface tir4 = {
   .stop_camera_tir = stop_camera_tir4,
   .start_camera_tir = start_camera_tir4,
   .init_camera_tir = init_camera_tir4,
+  .close_camera_tir = close_camera_tir4,
   .get_res_tir = get_res_tir4
 };
 
@@ -636,6 +659,7 @@ tir_interface tir5 = {
   .stop_camera_tir = stop_camera_tir5,
   .start_camera_tir = start_camera_tir5,
   .init_camera_tir = init_camera_tir5,
+  .close_camera_tir = close_camera_tir5,
   .get_res_tir = get_res_tir5
 };
 
