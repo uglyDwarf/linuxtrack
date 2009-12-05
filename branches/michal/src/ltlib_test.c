@@ -28,12 +28,11 @@
 /* } */
 
 int main(int argc, char **argv) {
-  struct lt_configuration_type ltconf;
   float heading, pitch, roll;
   float tx, ty, tz;
   int retval;
 
-  retval = lt_init(ltconf, NULL);
+  retval = lt_init(NULL);
   if (retval < 0) { 
     printf("Error %d detected! Aborting!\n", retval);
     return retval; 

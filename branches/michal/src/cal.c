@@ -17,6 +17,7 @@
 #include "wiimote_driver.h"
 #include "webcam_driver.h"
 #include "utils.h"
+#include "tracking.h"
 
 
 dev_interface *iface = NULL;
@@ -129,11 +130,6 @@ void frame_free(struct camera_control_block *ccb,
   assert(f->bloblist.blobs != NULL);
   free(f->bloblist.blobs);
   f->bloblist.blobs = NULL;
-  if (ccb->diag) {
-    assert(f->bitmap != NULL);
-    free(f->bitmap);
-    f->bitmap = NULL;
-  }
 }
 
 void blob_print(struct blob_type b)
@@ -165,13 +161,6 @@ void frame_print(struct frame_type f)
 /* Thread implementation*/
 pthread_t capture_thread_id;
 
-//Those are last data from hardware (processed)
-pthread_mutex_t pending_frame_mutex = PTHREAD_MUTEX_INITIALIZER;
-/* guarded by pending_frame_mutex: { */
-static struct frame_type pending_frame;
-static bool pending_frame_valid = false;
-static int pending_frame_error = 0;
-/* } */
 
 pthread_mutex_t capture_thread_mutex = PTHREAD_MUTEX_INITIALIZER;
 /* guarded by capture_thread_mutex: { */
@@ -204,10 +193,6 @@ int cal_thread_start(struct camera_control_block *ccb)
   if (already_running) {
     return 0;
   }
-  /* so no thread is running, we can access all shared
-   * variables freely right now */
-  pending_frame_error = 0;
-  pending_frame_valid = false;
   current_capture_state_active = false;
   pending_capture_state_active = true;
   int res = pthread_create(&capture_thread_id, NULL, 
@@ -256,38 +241,6 @@ bool cal_thread_is_stopped(void)
   return it_died;
 }
 
-/* Access function meant to be used from outside
- * return_frame is assumed to be a freed frame, 
- * (no bitmap or blobs allocated). 
- * be sure to free the frame returned when done with it! */
-int cal_thread_get_frame(struct frame_type *return_frame, 
-                         bool *return_frame_valid)
-{
-  int retval=0;
-  if(pthread_mutex_trylock(&pending_frame_mutex) == 0){
-    //we hold the lock now!
-    if (pending_frame_error < 0) {
-      pending_frame_valid = false;
-      retval = pending_frame_error;
-    }
-    else {
-      if (pending_frame_valid) {
-        *return_frame_valid = true;
-	//this causes frame to be processed only one time
-        pending_frame_valid = false;
-        *return_frame = pending_frame;
-      }
-      else {
-        *return_frame_valid = false;
-      }
-    }
-    pthread_mutex_unlock(&pending_frame_mutex);
-  }
-  else {
-    *return_frame_valid = false;
-  }
-  return retval;
-}
 
 
 //Main function of capture thread
@@ -301,6 +254,9 @@ void *capture_thread(void *ccb)
   pthread_mutex_unlock(&capture_thread_mutex);
   /* the run until told to stop loop */
   bool terminate_flag = false;
+  frame.bloblist.blobs = my_malloc(sizeof(struct blob_type) * 3);
+  frame.bloblist.num_blobs = 3;
+  frame.bitmap = NULL;
   while (!terminate_flag) {
     /* watch for a signal to flag termination */
     pthread_mutex_lock(&capture_thread_mutex);
@@ -308,34 +264,15 @@ void *capture_thread(void *ccb)
       terminate_flag = true;
     }
     pthread_mutex_unlock(&capture_thread_mutex);
+    
     if (!terminate_flag) {
       retval = cal_get_frame(ccb, &frame);
-      pthread_mutex_lock(&pending_frame_mutex);
-      /* if there is an unread valid frame,
-       * we free it before overwriting it */
-      if (pending_frame_valid) {
-        frame_free(ccb, &pending_frame);
-      }
-      if (retval < 0) {
-        pending_frame_valid = false;
-      }
-      else {
-        pending_frame_valid = true;
-        pending_frame = frame;
-      }
-      pending_frame_error = retval;
-      pthread_mutex_unlock(&pending_frame_mutex);
+      update_pose(ccb, &frame, retval == 0);
+      
     }
   }
-  pthread_mutex_lock(&pending_frame_mutex);
-  /* if there is final unread valid frame,
-   * we free it before terminating */
-  if (pending_frame_valid) {
-    frame_free(ccb, &pending_frame);
-  }
-  pending_frame_valid = false;
-  pthread_mutex_unlock(&pending_frame_mutex);
 
+  frame_free(ccb, &frame);
   pthread_mutex_lock(&capture_thread_mutex);
   current_capture_state_active = false;
   pthread_mutex_unlock(&capture_thread_mutex);

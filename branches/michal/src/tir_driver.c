@@ -116,7 +116,7 @@ int tir_blobs_to_bt(int num_blobs, plist blob_list, struct bloblist_type *blt)
   int min = get_int(min_blob);
   int max = get_int(max_blob);
 
-  struct blob_type *bt = my_malloc(sizeof(struct blob_type) * num_blobs);
+  struct blob_type *bt = blt->blobs;
   blob *b;
   struct blob_type *cal_b;
   iterator i;
@@ -141,13 +141,10 @@ int tir_blobs_to_bt(int num_blobs, plist blob_list, struct bloblist_type *blt)
   }
   if(valid == num_blobs){
     blt->num_blobs = num_blobs;
-    blt->blobs = bt;
     return 0;
   }else{
     log_message("Have %d valid blobs, expecting %d!\n", valid, num_blobs);
-    blt->num_blobs = 0;
-    free(bt);
-    blt->blobs = NULL;
+    blt->num_blobs = valid;
     return -1;
   }
 }
@@ -159,35 +156,19 @@ int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)
   float hf;
   get_res_tir(&w, &h, &hf);
   if(ccb->diag){
-    f->bitmap = my_malloc(w * h);
+    assert(f->bitmap != NULL);
     memset(f->bitmap, 0, w * h);
-  }else{
-    f->bitmap = NULL;
   }
   
   if(read_blobs_tir(&blob_list, f->bitmap, w, h, hf) < 0){
     if(blob_list != NULL){
       free_list(blob_list, true);
     }
-    if(ccb->diag){
-      free(f->bitmap);
-      f->bitmap = NULL;
-    }
     return -1;
   }
-  if(tir_blobs_to_bt(3, blob_list, &(f->bloblist)) != 0){
-    //log_message("Wrong!");
-  }
+  int res = tir_blobs_to_bt(3, blob_list, &(f->bloblist));
   free_list(blob_list, true);
-  if(f->bloblist.num_blobs != 3){
-    if(ccb->diag){
-      free(f->bitmap);
-      f->bitmap = NULL;
-    }
-    return -1;
-  }
-  //log_message("Valid block with %d blobs\n", f->bloblist.num_blobs);
-  return 0;
+  return res; 
 }
 
 dev_interface tir_interface = {

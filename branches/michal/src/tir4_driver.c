@@ -1424,8 +1424,6 @@ bool protobloblist_populate_frame(struct protobloblist_type *pbl,
   }
 
   f->bloblist.num_blobs = required_blobnum;
-  f->bloblist.blobs = (struct blob_type *)
-    malloc(f->bloblist.num_blobs*sizeof(struct blob_type));
   assert(f->bloblist.blobs);
 
   for(i=0; i<required_blobnum;i++) {

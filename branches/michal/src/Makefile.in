@@ -68,10 +68,10 @@ am__liblinuxtrack_a_SOURCES_DIST = cal.c cal.h list.c list.h ltlib.c \
 	ltlib.h math_utils.c math_utils.h pose.c pose.h pref.c pref.h \
 	pref_bison.y pref_flex.l pref_global.c pref_global.h \
 	pref_int.h utils.c utils.h image_process.c image_process.h \
-	tir4_driver.c tir4_driver.h libusb_ifc.c tir.h tir_hw.c \
-	tir_hw.h tir_img.c tir_img.h usb_ifc.h tir_driver.h \
-	tir_driver.c openusb_ifc.c wiimote_driver.c wiimote_driver.h \
-	webcam_driver.c webcam_driver.h
+	tracking.c tracking.h tir4_driver.c tir4_driver.h libusb_ifc.c \
+	tir.h tir_hw.c tir_hw.h tir_img.c tir_img.h usb_ifc.h \
+	tir_driver.h tir_driver.c openusb_ifc.c wiimote_driver.c \
+	wiimote_driver.h webcam_driver.c webcam_driver.h
 @LIBUSB_TRUE@am__objects_1 = tir4_driver.$(OBJEXT)
 @LIBUSB10_TRUE@am__objects_2 = libusb_ifc.$(OBJEXT) tir_hw.$(OBJEXT) \
 @LIBUSB10_TRUE@	tir_img.$(OBJEXT) tir_driver.$(OBJEXT)
@@ -85,8 +85,8 @@ am_liblinuxtrack_a_OBJECTS = cal.$(OBJEXT) list.$(OBJEXT) \
 	ltlib.$(OBJEXT) math_utils.$(OBJEXT) pose.$(OBJEXT) \
 	pref.$(OBJEXT) pref_bison.$(OBJEXT) pref_flex.$(OBJEXT) \
 	pref_global.$(OBJEXT) utils.$(OBJEXT) image_process.$(OBJEXT) \
-	$(am__objects_1) $(am__objects_2) $(am__objects_3) \
-	$(am__objects_4) $(am__objects_5)
+	tracking.$(OBJEXT) $(am__objects_1) $(am__objects_2) \
+	$(am__objects_3) $(am__objects_4) $(am__objects_5)
 liblinuxtrack_a_OBJECTS = $(am_liblinuxtrack_a_OBJECTS)
 @LIBUSB_TRUE@am__EXEEXT_1 = tir4_driver_test$(EXEEXT)
 @CWIID_TRUE@am__EXEEXT_2 = wiimote_driver_test$(EXEEXT)
@@ -272,8 +272,8 @@ liblinuxtrack_a_SOURCES = cal.c cal.h list.c list.h ltlib.c ltlib.h \
 	math_utils.c math_utils.h pose.c pose.h pref.c pref.h \
 	pref_bison.y pref_flex.l pref_global.c pref_global.h \
 	pref_int.h utils.c utils.h image_process.c image_process.h \
-	$(am__append_2) $(am__append_3) $(am__append_4) \
-	$(am__append_6) $(am__append_8)
+	tracking.c tracking.h $(am__append_2) $(am__append_3) \
+	$(am__append_4) $(am__append_6) $(am__append_8)
 noinst_LIBRARIES = liblinuxtrack.a
 dist_data_DATA = .linuxtrack
 @LIBUSB_TRUE@tir4_driver_test_SOURCES = tir4_driver_test.c
@@ -417,6 +417,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir_driver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir_hw.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir_img.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tracking.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver_test-webcam_driver_test.Po@am__quote@

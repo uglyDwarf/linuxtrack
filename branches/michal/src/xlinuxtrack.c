@@ -442,7 +442,6 @@ PLUGIN_API int XPluginStart(
                             char *		outSig,
                             char *		outDesc)
 {
-  struct lt_configuration_type ltconf;
   strcpy(outName, "linuxTrack");
   strcpy(outSig, "linuxtrack.camera");
   strcpy(outDesc, "A plugin that controls view using your webcam.");
@@ -481,7 +480,7 @@ PLUGIN_API int XPluginStart(
      (head_psi==NULL)||(head_the==NULL)||(joy_buttons==NULL)){
     return(0);
   }
-  if(lt_init(ltconf, "XPlane")!=0){
+  if(lt_init("XPlane")!=0){
     return(0);
   }
   lt_suspend();

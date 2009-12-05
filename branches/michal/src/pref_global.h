@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "cal.h"
 #include "pose.h"
-#include "ltlib.h"
+#include "tracking.h"
 
 char *get_device_section();
 char *get_storage_path();

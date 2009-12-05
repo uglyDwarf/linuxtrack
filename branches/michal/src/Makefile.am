@@ -11,7 +11,7 @@ bin_PROGRAMS = pose_test ltlib_test
 liblinuxtrack_a_SOURCES = cal.c cal.h list.c list.h ltlib.c ltlib.h \
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
   pref_flex.l pref_global.c pref_global.h pref_int.h \
-  utils.c utils.h image_process.c image_process.h
+  utils.c utils.h image_process.c image_process.h tracking.c tracking.h
 
 noinst_LIBRARIES = liblinuxtrack.a
 dist_data_DATA = .linuxtrack
