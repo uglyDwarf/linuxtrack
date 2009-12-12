@@ -29,6 +29,7 @@ mkdir linuxtrack
 cd linuxtrack
 cp ~/Downloads/libusb-1.0.4.tar.bz2 .
 tar xfj libusb-1.0.4.tar.bz2
+export CFLAGS=-m32
 cd libusb-1.0.4
 ./configure --prefix=/Users/michal/linuxtrack/libusb
 make
@@ -38,6 +39,7 @@ make install
 Remarks:
  * We assume you are going to use /Users/michal/linuxtarck directory for plugin staff, change paths accordingly...
  * If the system didn't unpack the archive for you, change the 'xf' options in tar command to 'xfz' for *.gz, or 'xfj' for *.bz2 archive.
+ * The CFLAGS setting should take care of problems compiling on Snow Leopard (which is 64 bit system, while XPlane needs 32 bit plugins). I do not own SL myself so I can't really test it, so your feedback is appreciated.
 
 == Download XPlane SDK ==
 Go to http://www.xsquawkbox.net/xpsdk/mediawiki/Download and download XPlane SDK (I use older 1.0.2, but 2.0 version should work too). 
