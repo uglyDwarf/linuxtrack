@@ -405,36 +405,53 @@ bool init_camera_tir4(char data_path[], bool force_fw_load, bool p_ir_on)
   size_t t;
   
   ir_on = p_ir_on;
-
-  if(!stop_camera_tir()){
-    return false;
-  }
-  //To flush any pending packets...
-  receive_data(packet, sizeof(packet), &t, 100);
-  receive_data(packet, sizeof(packet), &t, 100);
-  receive_data(packet, sizeof(packet), &t, 100);
-  if(!read_rom_data_tir()){
-    return false;
-  }
-  if(!read_status_tir(&status)){
-    return false;
-  }
+  
+  int init_counter = 0;
   firmware_t firmware;
-  if(!load_firmware(&firmware, data_path)){
-    log_message("Error loading firmware!\n");
-    return false;
-  }
+  bool fw_loaded = false;
+  bool fw_ok = false;
   
-  if(force_fw_load | (!status.fw_loaded) | (status.fw_cksum != firmware.cksum)){
-    upload_firmware(&firmware);
-  }
+  while(init_counter < 3){
+    if(!stop_camera_tir()){
+      return false;
+    }
+    //To flush any pending packets...
+    receive_data(packet, sizeof(packet), &t, 100);
+    receive_data(packet, sizeof(packet), &t, 100);
+    receive_data(packet, sizeof(packet), &t, 100);
+    if(!read_rom_data_tir()){
+      return false;
+    }
+    if(!read_status_tir(&status)){
+      return false;
+    }
+    if(!fw_loaded){
+      if(!load_firmware(&firmware, data_path)){
+	log_message("Error loading firmware!\n");
+	return false;
+      }
+      fw_loaded = true;
+    }
 
-  if(!read_status_tir(&status)){
-    return false;
+    if(force_fw_load | (!status.fw_loaded) | (status.fw_cksum != firmware.cksum)){
+      upload_firmware(&firmware);
+    }
+
+    if(!read_status_tir(&status)){
+      return false;
+    }
+
+    if(status.fw_cksum == firmware.cksum){
+      fw_ok = true;
+      break;
+    }
+    log_message("Firmware upload failed! (fw cksum : %X x uploaded: %X)\n", 
+                status.fw_cksum, firmware.cksum);
+    ++init_counter;
   }
-  
-  if(status.fw_cksum != firmware.cksum){
-    log_message("Firmware not loaded correctly!");
+  free(firmware.firmware);
+  if(!fw_ok){
+    log_message("Unable to upload firmware... Giving up!\n");
     return false;
   }
   
@@ -445,22 +462,10 @@ bool init_camera_tir4(char data_path[], bool force_fw_load, bool p_ir_on)
 	return false;
       }
     }
-    if(device == TIR5){
-      send_data(Set_ir_brightness,sizeof(Set_ir_brightness));
-      set_exposure(0x18F);
-      set_threshold(0x96);
-    }
   }else if(status.cfg_flag != 2){
     log_message("TIR configuration problem!\n");
     return false;
   }
-  
-  
-  if(device == TIR5){
-    send_data(Precision_mode,sizeof(Precision_mode));
-  }
-  
-  free(firmware.firmware);
   return true;
 }
 
@@ -470,25 +475,45 @@ bool init_camera_tir5(char data_path[], bool force_fw_load, bool p_ir_on)
 {
   tir_status_t status;
   ir_on = p_ir_on;
-  
-  stop_camera_tir();
-  
-  read_rom_data_tir();
-  control_ir_led_tir(true);
-  flush_fifo_tir();
-  set_exposure(0x18F);
-  read_status_tir(&status);
+  int init_counter = 0;
   firmware_t firmware;
-  if(!load_firmware(&firmware, data_path)){
-    log_message("Error loading firmware!\n");
+  bool fw_loaded = false;
+  bool fw_ok = false;
+  
+  while(init_counter < 3){
+    stop_camera_tir();
+
+    read_rom_data_tir();
+    control_ir_led_tir(true);
+    flush_fifo_tir();
+    set_exposure(0x18F);
+    read_status_tir(&status);
+    if(!fw_loaded){
+      if(!load_firmware(&firmware, data_path)){
+	log_message("Error loading firmware!\n");
+	return false;
+      }
+      fw_loaded = true;
+    }
+    upload_firmware(&firmware);
+    send_data(unk_7,sizeof(unk_7));
+    flush_fifo_tir();
+    send_data(Camera_stop,sizeof(Camera_stop));
+    read_status_tir(&status);
+    if(status.fw_cksum == firmware.cksum){
+      fw_ok = true;
+      break;
+    }
+    log_message("Firmware upload failed! (fw cksum : %X x uploaded: %X)\n", 
+                status.fw_cksum, firmware.cksum);
+    ++init_counter;
+  }
+  free(firmware.firmware);
+  if(!fw_ok){
+    log_message("Unable to upload firmware... Giving up!\n");
     return false;
   }
-  upload_firmware(&firmware);
-  free(firmware.firmware);
-  send_data(unk_7,sizeof(unk_7));
-  flush_fifo_tir();
-  send_data(Camera_stop,sizeof(Camera_stop));
-  read_status_tir(&status);
+  
   send_data(Cfg_reload,sizeof(Cfg_reload));
   set_threshold(0x96);
   set_exposure(0x18F);
