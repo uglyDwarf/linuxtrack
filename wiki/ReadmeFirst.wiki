@@ -35,14 +35,22 @@ make
   * xlinuxtrack.xpl goes in X-Plane/Resources/plugins directory
   * .linuxtrack (which is hidden normaly) goes in your home directory.
   Edit its contents (for the moment there is no GUI that would do it for you, but it is comming soon...) to fill in type of model you use (clip or cap), dimmensions of your model, device you are going to use (tir, wiimote, webcam) and possibly few other parameters... * TODO - elaborate *
-  * Another file that you will need is 'bulk_config_data.bin'
-  this can be found from Natural Point at
-{{{
-http://media.naturalpoint.com/software/external/bulk_config_data.tgz
-}}}
-  Unpack it to your X-Plane directory.
+  * There are some dependences that have to be met to be able to compile some drivers (these packages are valid for ubuntu9.04):
+    * 'trackir4' driver needs 'libusb-dev' and its dependences
+      Another file that you will need is 'bulk_config_data.bin' this can be found from Natural Point at
+      {{{
+         http://media.naturalpoint.com/software/external/bulk_config_data.tgz
+      }}}
+      Unpack it to your X-Plane directory.
+    * 'trackir' driver needs either 'libusb-1.0-0-dev' or 'libopenusb-dev' and its dependences
+      Another file that you will need is 'bulk_config_data.bin' this can be found from Natural Point at
+      {{{
+         http://media.naturalpoint.com/software/external/bulk_config_data.tar.gz
+      }}}
+      Unpack it to some directory and fill-in the name of this directory into the .linuxtrack file under 'Store-directory' key (of course delete hash mark on the begining of the line...).
+    * 'wiimote' driver needs 'libcwiid1-dev' and its dependences
 
-  * I am using a Tracker 4 Pro and needed a rule to make my Ubuntu 9.04 work.
+  * I am using a TrackIr 4 Pro and needed a rule to make my Ubuntu 9.04 work.
   (otherwise you need to run X-Plane as root, which is very bad thing).
   I named the rule 51-TIR4.rules and put it in my /lib/udev/rules.d folder.
 
@@ -50,8 +58,9 @@ http://media.naturalpoint.com/software/external/bulk_config_data.tgz
 
   In it is the following line.
 {{{
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device",SYSFS{idVendor}=="131d" , SYSFS{idProduct}=="0156", MODE="0666"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device",SYSFS{idVendor}=="131d", MODE="0666"
 }}}
+  This is going to work for TrackIR5 too...
 
   * Now when you run X-Plane, by pressing F8 you should be able to move you simulated head by moving your read head. In Plugins menu, there is linuxtrack item containing setup window. Use it to adjust sensitivities of different axes and possibly map functions to joystick buttons. When done, save prefs and enjoy!
 
