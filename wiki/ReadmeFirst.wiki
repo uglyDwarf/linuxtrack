@@ -64,7 +64,7 @@ SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device",SYSFS{idVendor}=="131d", MODE="0666
 
   * Now when you run X-Plane, by pressing F8 you should be able to move you simulated head by moving your read head. In Plugins menu, there is linuxtrack item containing setup window. Use it to adjust sensitivities of different axes and possibly map functions to joystick buttons. When done, save prefs and enjoy!
 
-  * When things go wrong, try running X-Plane from terminal and check messages you see there. Also check log.txt (all lowercase!) that resides in your X-Plane directory.
+  * When things go wrong, try running X-Plane from terminal and check messages you see there. Also check lt_log.txt (all lowercase!) that resides in your X-Plane directory.
   In case of crash, try running X-Plane from gdb (debugger) and make it crash again. When it does, make backtrace log and send it to us - it will help us to find what went wrong and hopefully to correct it. * TODO - elaborate on backtrace *
 
 = Building on 64 bit system =
