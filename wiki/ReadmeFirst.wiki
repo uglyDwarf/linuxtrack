@@ -9,7 +9,7 @@ Here is short walk-through made by Bill that should help you to get linuxtrack u
 = Using SVN to get linuxtrack =
   * You are going to need svn installed, if you don't have it, you need to install it (on Ubuntu use Synaptic Package Manager, other distros have different packaging systems)
   * make a directory in your home to hold two subdirectories (I called mine XLinuxTracker but could be anything)
-  * download XPlane SDK (http://www.xsquawkbox.net/xpsdk/mediawiki/Main_Page) and put it into that directory
+  * download XPlane SDK (http://www.xsquawkbox.net/xpsdk/mediawiki/Main_Page) and extract it into that directory
   * start up your terminal and cd to the directory you made
   * use the following command to download all the files you need (this will get the latest version)
 {{{
