@@ -7,6 +7,8 @@ You can comment on that if you want me to add features/change priorities...
 
 = Details =
 
+*There are more fundamental changes to the linuxtrack itself, so these are on hold for now... I'll update the status as soon as I have something new.*
+
 Add udev rule template (Next thing to do)
 
 Track IR4 sensitivity control (Planned soon)
@@ -25,8 +27,8 @@ Add deadzones and sensitivity curves (request received, as soon as GUI is ready)
 
 Add support for games under Wine (Proof of concept working)
 
-Wiimote and webcam support for Macs. (When time permits)
+Wiimote and webcam support for Macs. (Proof of concept showed that current architecture is not going to work well)
 
 Revise the whole project, add comments... (When time permits)
 
-Create dedicated plugin for 9.X version of XPlane (When time permits/ if needed)
+Create dedicated plugin for 9.X version of XPlane (Moved higher, it would joystick usage less complicated)
