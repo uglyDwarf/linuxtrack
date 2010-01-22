@@ -16,17 +16,19 @@ CFLAGS+=" -m32 "
 AC_PROG_YACC
 AC_PROG_CC
 AC_PROG_LEX
-AC_PROG_RANLIB
+LT_INIT
+AC_PROG_LIBTOOL
+AC_CONFIG_MACRO_DIR([m4])
 AM_PROG_CC_C_O
 
 # Checks for libraries.
-AC_CHECK_LIB([m], [sqrt])
-AC_CHECK_LIB([z], [gzopen])
-AC_CHECK_LIB([pthread], [pthread_create])
-AC_CHECK_LIB([usb], [usb_open], ,)
-AC_CHECK_LIB([openusb], [openusb_init], ,)
-AC_CHECK_LIB([usb-1.0], [libusb_init], ,)
-AC_CHECK_LIB([cwiid], [cwiid_open], ,)
+AC_CHECK_LIB([m], [sqrt], [LIBM=true], [AC_MSG_FAILURE([I need libm!])])
+AC_CHECK_LIB([z], [gzopen], [LIBZ=true])
+AC_CHECK_LIB([pthread], [pthread_create], [LIBPTHREAD=true], [AC_MSG_FAILURE([I need libpthread!])])
+AC_CHECK_LIB([usb], [usb_open], [LIBUSB=true])
+AC_CHECK_LIB([openusb], [openusb_init], [LIBOPENUSB=true])
+AC_CHECK_LIB([usb-1.0], [libusb_init], [LIBUSB10=true])
+AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdint.h assert.h])
@@ -78,14 +80,16 @@ AS_IF([case $host_os in darwin*) true;; *) false;; esac],
   ]
 )
 
-
 AM_CONDITIONAL(XPLANE_PLUGIN, [test x$with_xplane_plugin = xyes])
-AM_CONDITIONAL(CWIID, [test  "x$ac_cv_lib_cwiid_cwiid_open" = x""yes])
+AM_CONDITIONAL(CWIID, [test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes])
 AM_CONDITIONAL(V4L2, [test x$with_v4l2 = xyes])
 AM_CONDITIONAL(DARWIN, [test x$with_darwin = xyes])
-AM_CONDITIONAL(LIBUSB, [test "x$ac_cv_lib_usb_usb_open" = x""yes])
-AM_CONDITIONAL(LIBUSB10, [test "x$ac_cv_lib_usb_1_0_libusb_init" = x""yes])
-AM_CONDITIONAL(OPENUSB, [test  "x$ac_cv_lib_openusb_openusb_init" = x""yes])
+AM_CONDITIONAL(LIBUSB, [test "x$ac_cv_lib_usb_usb_open" = xyes])
+AM_CONDITIONAL(LIBUSB10, [test "x$ac_cv_lib_usb_1_0_libusb_init" = xyes])
+AM_CONDITIONAL(OPENUSB, [test  "x$ac_cv_lib_openusb_openusb_init" = xyes])
+AM_CONDITIONAL(LIBZ, [test  "x$ac_cv_lib_z_gzopen" = xyes])
+
+
 
 
 # Checks for library functions.

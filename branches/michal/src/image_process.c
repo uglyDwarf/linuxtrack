@@ -73,8 +73,8 @@ int search_for_blobs(unsigned char *buf, int w, int h,
   unsigned char *limit=buf+h*w;
   unsigned char *ptr;
   struct my_blob_type blob;
-  blobs->blobs = (struct blob_type *)
-    my_malloc(max_blobs * sizeof(struct blob_type));
+//  blobs->blobs = (struct blob_type *)
+//    my_malloc(max_blobs * sizeof(struct blob_type));
   
   ptr=buf;
   while(ptr<limit){
@@ -102,7 +102,7 @@ int search_for_blobs(unsigned char *buf, int w, int h,
   if(counter == max_blobs){
     return true;
   }
-  free(blobs->blobs);
-  blobs->num_blobs = 0;
+//  free(blobs->blobs);
+//  blobs->num_blobs = 0;
   return false;
 }

@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <assert.h>
+#include <dlfcn.h>
 
 #include "cal.h"
 #include "tir4_driver.h"
@@ -20,8 +21,15 @@
 #include "tracking.h"
 
 
-dev_interface *iface = NULL;
-
+dev_interface iface = {
+  .device_init = NULL,
+  .device_shutdown = NULL,
+  .device_suspend = NULL,
+  .device_change_operating_mode = NULL,
+  .device_wakeup = NULL,
+  .device_get_frame = NULL
+};
+void *libhandle = NULL;
 
 
 /*********************/
@@ -41,77 +49,76 @@ void *capture_thread(void *ccb);
 /************************/
 int cal_init(struct camera_control_block *ccb)
 {
+  char *libname = NULL;
   assert(ccb != NULL);
   switch (ccb->device.category) {
     case tir:
-#if HAVE_LIBUSB_1_0 || HAVE_LIBOPENUSB
-      iface = &tir_interface;
-#else
-      log_message("Track IR driver was not compiled!\n");
-#endif
+      libname = "libtir1.so";
+      break;
+    case tir_open:
+      libname = "libtir2.so";
       break;
     case tir4_camera:
-#ifdef HAVE_LIBUSB
-      iface = &tir4_interface;
-#else
-      log_message("Track IR4 driver was not compiled!\n");
-#endif
+      libname = "libtir4.so";
       break;
     case webcam:
-#ifdef V4L2
-      iface = &webcam_interface;
-#else
-      log_message("Webcam driver was not compiled!\n");
-#endif
+      libname = "libwc.so";
       break;
     case wiimote:
-#ifdef HAVE_LIBCWIID
-      iface = &wiimote_interface;
-#else
-      log_message("Wiimote driver was not compiled!\n");
-#endif
+      libname = "libwii.so";
       break;
     default:
       assert(0);
       break;
   }
-  if(iface == NULL){
-    log_message("Driver not found!\n");
+  
+  libhandle = dlopen(libname, RTLD_NOW | RTLD_LOCAL);
+  if(libhandle == NULL){
+    printf("Couldn't load library %s - %s!\n", libname, dlerror());
     return -1;
   }
-  assert((iface != NULL) && (iface->device_init != NULL));
-  return (iface->device_init)(ccb);
+  dlerror(); //clear any existing error...
+  
+  *(void**) (&iface.device_init) = dlsym(libhandle, "ltr_cal_init");
+  *(void**) (&iface.device_shutdown) = dlsym(libhandle, "ltr_cal_shutdown");
+  *(void**) (&iface.device_suspend) = dlsym(libhandle, "ltr_cal_suspend");
+  *(void**) (&iface.device_change_operating_mode) = dlsym(libhandle, "ltr_cal_change_operating_mode");
+  *(void**) (&iface.device_wakeup) = dlsym(libhandle, "ltr_cal_wakeup");
+  *(void**) (&iface.device_get_frame) = dlsym(libhandle, "ltr_cal_get_frame");
+  
+  assert(iface.device_init != NULL);
+  return (iface.device_init)(ccb);
 }
 
 int cal_shutdown(struct camera_control_block *ccb)
 {
   assert(ccb != NULL);
-  assert((iface != NULL) && (iface->device_shutdown != NULL));
+  assert(iface.device_shutdown != NULL);
   
-  return (iface->device_shutdown)(ccb);
+  return (iface.device_shutdown)(ccb);
 }
 
 int cal_suspend(struct camera_control_block *ccb)
 {
   assert(ccb != NULL);
-  assert((iface != NULL) && (iface->device_suspend != NULL));
-  return (iface->device_suspend)(ccb);
+  assert(iface.device_suspend != NULL);
+  return (iface.device_suspend)(ccb);
 }
 
 void cal_change_operating_mode(struct camera_control_block *ccb,
                               enum cal_operating_mode newmode)
 {
   assert(ccb != NULL);
-  assert((iface != NULL) && (iface->device_change_operating_mode != NULL));
-  (iface->device_change_operating_mode)(ccb, newmode);
+  assert(iface.device_change_operating_mode != NULL);
+  (iface.device_change_operating_mode)(ccb, newmode);
   return;
 }
 
 int cal_wakeup(struct camera_control_block *ccb)
 {
   assert(ccb != NULL);
-  assert((iface != NULL) && (iface->device_wakeup != NULL));
-  return (iface->device_wakeup)(ccb);
+  assert(iface.device_wakeup != NULL);
+  return (iface.device_wakeup)(ccb);
 }
 
 int cal_get_frame(struct camera_control_block *ccb,
@@ -119,8 +126,8 @@ int cal_get_frame(struct camera_control_block *ccb,
 {
   assert(ccb != NULL);
   assert(f != NULL);
-  assert((iface != NULL) && (iface->device_get_frame != NULL));
-  return (iface->device_get_frame)(ccb, f);
+  assert(iface.device_get_frame != NULL);
+  return (iface.device_get_frame)(ccb, f);
 }
 
 void frame_free(struct camera_control_block *ccb,

@@ -49,15 +49,6 @@ webcam_info wc_info;
 /* interface */
 /*************/
 
-dev_interface webcam_interface = {
-  .device_init = webcam_init,
-  .device_shutdown = webcam_shutdown,
-  .device_suspend = webcam_suspend,
-  .device_change_operating_mode = webcam_change_operating_mode,
-  .device_wakeup = webcam_wakeup,
-  .device_get_frame = webcam_get_frame,
-};
-
 int is_webcam(char *fname, char *webcam_id)
 {
   int fd = open(fname, O_RDWR | O_NONBLOCK);
@@ -340,7 +331,7 @@ bool read_img_processing_prefs()
 /*
  * I'm going to actively ignore resolution and I'll set it from prefs...
  */
-int webcam_init(struct camera_control_block *ccb)
+int ltr_cal_init(struct camera_control_block *ccb)
 {
   assert(ccb != NULL);
   assert(ccb->device.category == webcam);
@@ -350,7 +341,7 @@ int webcam_init(struct camera_control_block *ccb)
     return -1;
   }
   wc_info.fd = fd;
-  webcam_change_operating_mode(ccb, ccb->mode);
+  ltr_cal_change_operating_mode(ccb, ccb->mode);
   
   if(set_capture_format(ccb) != true){
     log_message("Couldn't set capture format!\n");
@@ -373,7 +364,7 @@ int webcam_init(struct camera_control_block *ccb)
     return -1;
   }
   ccb->state = suspended;
-  if(webcam_wakeup(ccb) != 0){
+  if(ltr_cal_wakeup(ccb) != 0){
     log_message("Couldn't start streaming!\n");
     close(fd);
     return -1;
@@ -381,10 +372,10 @@ int webcam_init(struct camera_control_block *ccb)
   return 0;
 }
 
-int webcam_shutdown(struct camera_control_block *ccb)
+int ltr_cal_shutdown(struct camera_control_block *ccb)
 {
   if(ccb->state == active){
-      webcam_suspend(ccb);
+      ltr_cal_suspend(ccb);
 
   }
   release_buffers();
@@ -394,7 +385,7 @@ int webcam_shutdown(struct camera_control_block *ccb)
   return 0;
 }
 
-int webcam_wakeup(struct camera_control_block *ccb)
+int ltr_cal_wakeup(struct camera_control_block *ccb)
 {
   log_message("Queuing buffers...\n");
   enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -422,7 +413,7 @@ int webcam_wakeup(struct camera_control_block *ccb)
   return 0;
 }
 
-int webcam_suspend(struct camera_control_block *ccb)
+int ltr_cal_suspend(struct camera_control_block *ccb)
 {
   enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if(-1 == ioctl(wc_info.fd, VIDIOC_STREAMOFF, &type)){
@@ -434,7 +425,7 @@ int webcam_suspend(struct camera_control_block *ccb)
   return 0;
 }
 
-int webcam_change_operating_mode(struct camera_control_block *ccb, 
+int ltr_cal_change_operating_mode(struct camera_control_block *ccb, 
                              enum cal_operating_mode newmode)
 {
   ccb->mode = newmode;
@@ -455,7 +446,7 @@ int webcam_change_operating_mode(struct camera_control_block *ccb,
 }
 
 
-int webcam_get_frame(struct camera_control_block *ccb, struct frame_type *f)
+int ltr_cal_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 {
   f->bloblist.num_blobs = wc_info.expecting_blobs;
 

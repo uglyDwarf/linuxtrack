@@ -12,16 +12,6 @@
 /* interface */
 /*************/
 
-dev_interface wiimote_interface = {
-  .device_init = wiimote_init,
-  .device_shutdown = wiimote_shutdown,
-  .device_suspend = wiimote_suspend,
-  .device_change_operating_mode = wiimote_change_operating_mode,
-  .device_wakeup = wiimote_wakeup,
-  .device_get_frame = wiimote_get_frame,
-};
-
-
 
 /*********************/
 /* private Constants */
@@ -55,7 +45,7 @@ bool wiimote_is_device_present(struct cal_device_type *cal_device) {
  * turns the IR leds on
  * this function may block for up to 3 seconds 
  * a return value < 0 indicates error */
-int wiimote_init(struct camera_control_block *ccb) {
+int ltr_cal_init(struct camera_control_block *ccb) {
     bdaddr_t bdaddr;
     
     bdaddr = *BDADDR_ANY;
@@ -79,21 +69,21 @@ int wiimote_init(struct camera_control_block *ccb) {
  * can be used to deactivate the wiimote;
  * must call init to restart
  * a return value < 0 indicates error */
-int wiimote_shutdown(struct camera_control_block *ccb) {
+int ltr_cal_shutdown(struct camera_control_block *ccb) {
     if (gWiimote) cwiid_close(gWiimote);
     return 0;
 }
 
 /* turn off all the leds, and flush the queue 
  * a return value < 0 indicates error */
-int wiimote_suspend(struct camera_control_block *ccb) {
+int ltr_cal_suspend(struct camera_control_block *ccb) {
     // TODO - we might turn off IR reception here
     return 0;
 }
 
 /* may only be called while suspended.  Used to change from 
  * operational mode mode to diagnostic mode and vice versa */
-int wiimote_change_operating_mode(struct camera_control_block *ccb,
+int ltr_cal_change_operating_mode(struct camera_control_block *ccb,
                                 enum cal_operating_mode newmode)
 {
     // TODO
@@ -105,14 +95,14 @@ int wiimote_change_operating_mode(struct camera_control_block *ccb,
  * camera device. 
  * IR leds will reactivate, but that is all
  * a return value < 0 indicates error */
-int wiimote_wakeup(struct camera_control_block *ccb) {
+int ltr_cal_wakeup(struct camera_control_block *ccb) {
     // TODO
     return 0;
 }
 
 /* read the usb, and process it into frames
  * a return value < 0 indicates error */
-int wiimote_get_frame(struct camera_control_block *ccb,
+int ltr_cal_get_frame(struct camera_control_block *ccb,
                    struct frame_type *f)
 {
     struct cwiid_state state;

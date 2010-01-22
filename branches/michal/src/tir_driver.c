@@ -16,10 +16,10 @@ pref_id min_blob = NULL;
 pref_id max_blob = NULL;
 char *storage_path = NULL;
 
-int tir_init(struct camera_control_block *ccb)
+int ltr_cal_init(struct camera_control_block *ccb)
 {
   assert(ccb != NULL);
-  assert(ccb->device.category == tir);
+  assert((ccb->device.category == tir) || (ccb->device.category == tir_open));
   char *dev_section = get_device_section();
   if(dev_section == NULL){
     return -1;
@@ -47,7 +47,7 @@ int tir_init(struct camera_control_block *ccb)
     }
   }
   
-  tir_change_operating_mode(ccb, ccb->mode);
+  ltr_cal_change_operating_mode(ccb, ccb->mode);
   if(open_tir(storage_path, false, get_ir_on(ccb->enable_IR_illuminator_LEDS))){
     ccb->state = active;
     float tf;
@@ -59,7 +59,7 @@ int tir_init(struct camera_control_block *ccb)
   }
 }
 
-int tir_shutdown(struct camera_control_block *ccb)
+int ltr_cal_shutdown(struct camera_control_block *ccb)
 {
   if(close_tir()){
     ccb->state = suspended;
@@ -69,7 +69,7 @@ int tir_shutdown(struct camera_control_block *ccb)
   }
 }
 
-int tir_suspend(struct camera_control_block *ccb)
+int ltr_cal_suspend(struct camera_control_block *ccb)
 {
   if(pause_tir()){
     ccb->state = suspended;
@@ -79,7 +79,7 @@ int tir_suspend(struct camera_control_block *ccb)
   }
 }
 
-int tir_change_operating_mode(struct camera_control_block *ccb,
+int ltr_cal_change_operating_mode(struct camera_control_block *ccb,
                              enum cal_operating_mode newmode)
 {
   ccb->mode = newmode;
@@ -95,7 +95,7 @@ int tir_change_operating_mode(struct camera_control_block *ccb,
   return 0;   
 }
 
-int tir_wakeup(struct camera_control_block *ccb)
+int ltr_cal_wakeup(struct camera_control_block *ccb)
 {
   if(resume_tir()){
     ccb->state = active;
@@ -149,7 +149,7 @@ int tir_blobs_to_bt(int num_blobs, plist blob_list, struct bloblist_type *blt)
   }
 }
 
-int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)
+int ltr_cal_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 {
   plist blob_list = NULL;
   unsigned int w,h;
@@ -170,14 +170,4 @@ int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)
   free_list(blob_list, true);
   return res; 
 }
-
-dev_interface tir_interface = {
-  .device_init = tir_init,
-  .device_shutdown = tir_shutdown,
-  .device_suspend = tir_suspend,
-  .device_change_operating_mode = tir_change_operating_mode,
-  .device_wakeup = tir_wakeup,
-  .device_get_frame = tir_get_frame,
-};
-
 

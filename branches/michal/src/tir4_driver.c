@@ -231,21 +231,6 @@ int tir4_do_read_and_process(struct camera_control_block *ccb);
 int tir4_populate_frame(struct frame_type *f);
 bool tir4_is_frame_available(void);
 
-/*************/
-/* interface */
-/*************/
-
-dev_interface tir4_interface = {
-  .device_init = tir4_init,
-  .device_shutdown = tir4_shutdown,
-  .device_suspend = tir4_suspend,
-  .device_change_operating_mode = tir4_change_operating_mode,
-  .device_wakeup = tir4_wakeup,
-  .device_get_frame = tir4_get_frame,
-};
-
-
-
 /************************/
 /* function definitions */
 /************************/
@@ -273,7 +258,7 @@ bool tir4_is_device_present(struct cal_device_type *cal_device)
   return (tir4_device!=NULL);
 }
 
-int tir4_init(struct camera_control_block *ccb)
+int ltr_cal_init(struct camera_control_block *ccb)
 {
   struct usb_device *tir4_device;
   int retval;
@@ -344,7 +329,7 @@ int tir4_fatal(void)
   return -1;
 }
 
-int tir4_shutdown(struct camera_control_block *ccb)
+int ltr_cal_shutdown(struct camera_control_block *ccb)
 {
   framelist_flush(ccb,
                   &master_framelist);
@@ -355,7 +340,7 @@ int tir4_shutdown(struct camera_control_block *ccb)
   return 0;
 }
 
-int tir4_suspend(struct camera_control_block *ccb)
+int ltr_cal_suspend(struct camera_control_block *ccb)
 {
   ccb->state = suspended;
   set_all_led_off();
@@ -363,7 +348,7 @@ int tir4_suspend(struct camera_control_block *ccb)
   return 0;
 }
 
-int tir4_change_operating_mode(struct camera_control_block *ccb,
+int ltr_cal_change_operating_mode(struct camera_control_block *ccb,
                                enum cal_operating_mode newmode)
 {
   ccb->mode = newmode;
@@ -374,7 +359,7 @@ int tir4_change_operating_mode(struct camera_control_block *ccb,
   return 0;
 }
 
-int tir4_wakeup(struct camera_control_block *ccb)
+int ltr_cal_wakeup(struct camera_control_block *ccb)
 {
   if (ccb->enable_IR_illuminator_LEDS) {
     set_ir_led_on(true);
@@ -391,7 +376,7 @@ int tir4_set_good_indication(struct camera_control_block *ccb,
   return 0;
 }
 
-int tir4_get_frame(struct camera_control_block *ccb,
+int ltr_cal_get_frame(struct camera_control_block *ccb,
                    struct frame_type *f)
 {
   int retval;
