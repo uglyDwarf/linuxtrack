@@ -35,7 +35,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = pose_test$(EXEEXT) ltlib_test$(EXEEXT)
+bin_PROGRAMS = pose_test$(EXEEXT) ltlib_test$(EXEEXT) \
+	lt_server$(EXEEXT) lt_client$(EXEEXT)
 @CWIID_TRUE@am__append_1 = libwii.la 
 @V4L2_TRUE@am__append_2 = libwc.la 
 @LIBUSB_TRUE@am__append_3 = libtir4.la 
@@ -60,7 +61,7 @@ am_liblinuxtrack_a_OBJECTS = cal.$(OBJEXT) list.$(OBJEXT) \
 	ltlib.$(OBJEXT) math_utils.$(OBJEXT) pose.$(OBJEXT) \
 	pref.$(OBJEXT) pref_bison.$(OBJEXT) pref_flex.$(OBJEXT) \
 	pref_global.$(OBJEXT) utils.$(OBJEXT) image_process.$(OBJEXT) \
-	tracking.$(OBJEXT)
+	tracking.$(OBJEXT) netcomm.$(OBJEXT)
 liblinuxtrack_a_OBJECTS = $(am_liblinuxtrack_a_OBJECTS)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -105,6 +106,12 @@ xlinuxtrack_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @XPLANE_PLUGIN_TRUE@am_xlinuxtrack_la_rpath = -rpath $(libdir)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
+lt_client_SOURCES = lt_client.c
+lt_client_OBJECTS = lt_client.$(OBJEXT)
+lt_client_DEPENDENCIES = liblinuxtrack.a
+am_lt_server_OBJECTS = lt_server.$(OBJEXT)
+lt_server_OBJECTS = $(am_lt_server_OBJECTS)
+lt_server_DEPENDENCIES = liblinuxtrack.a
 am_ltlib_test_OBJECTS = ltlib_test-ltlib_test.$(OBJEXT)
 ltlib_test_OBJECTS = $(am_ltlib_test_OBJECTS)
 ltlib_test_DEPENDENCIES = liblinuxtrack.a
@@ -139,12 +146,13 @@ LTYACCCOMPILE = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 SOURCES = $(liblinuxtrack_a_SOURCES) $(libtir1_la_SOURCES) \
 	$(libtir2_la_SOURCES) $(libtir4_la_SOURCES) \
 	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
-	$(xlinuxtrack_la_SOURCES) $(ltlib_test_SOURCES) \
-	$(pose_test_SOURCES)
+	$(xlinuxtrack_la_SOURCES) lt_client.c $(lt_server_SOURCES) \
+	$(ltlib_test_SOURCES) $(pose_test_SOURCES)
 DIST_SOURCES = $(liblinuxtrack_a_SOURCES) $(libtir1_la_SOURCES) \
 	$(libtir2_la_SOURCES) $(libtir4_la_SOURCES) \
 	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
-	$(am__xlinuxtrack_la_SOURCES_DIST) $(ltlib_test_SOURCES) \
+	$(am__xlinuxtrack_la_SOURCES_DIST) lt_client.c \
+	$(lt_server_SOURCES) $(ltlib_test_SOURCES) \
 	$(pose_test_SOURCES)
 dist_dataDATA_INSTALL = $(INSTALL_DATA)
 DATA = $(dist_data_DATA)
@@ -273,13 +281,18 @@ top_srcdir = @top_srcdir@
 @DARWIN_TRUE@SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
 lib_LTLIBRARIES = $(am__append_1) $(am__append_2) $(am__append_3) \
 	$(am__append_4) $(am__append_5) $(am__append_6)
+lt_server_SOURCES = lt_server.c
+lt_server_LDADD = -lm -lpthread -ldl liblinuxtrack.a 
+lt_client = lt_client.c
+lt_client_LDADD = -lm -lpthread -ldl liblinuxtrack.a 
 liblinuxtrack_a_SOURCES = cal.c cal.h list.c list.h ltlib.c ltlib.h \
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
   pref_flex.l pref_global.c pref_global.h pref_int.h \
-  utils.c utils.h image_process.c image_process.h tracking.c tracking.h
+  utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
+  netcomm.c netcomm.h
 
 libtir4_la_SOURCES = tir4_driver.c tir4_driver.h
-libtir4_la_LIBADD = -lusb liblinuxtrack.a
+libtir4_la_LIBADD = -lusb  liblinuxtrack.a
 libtir1_la_SOURCES = libusb_ifc.c tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c
 
@@ -422,6 +435,12 @@ clean-binPROGRAMS:
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
+lt_client$(EXEEXT): $(lt_client_OBJECTS) $(lt_client_DEPENDENCIES) 
+	@rm -f lt_client$(EXEEXT)
+	$(LINK) $(lt_client_OBJECTS) $(lt_client_LDADD) $(LIBS)
+lt_server$(EXEEXT): $(lt_server_OBJECTS) $(lt_server_DEPENDENCIES) 
+	@rm -f lt_server$(EXEEXT)
+	$(LINK) $(lt_server_OBJECTS) $(lt_server_LDADD) $(LIBS)
 ltlib_test$(EXEEXT): $(ltlib_test_OBJECTS) $(ltlib_test_DEPENDENCIES) 
 	@rm -f ltlib_test$(EXEEXT)
 	$(ltlib_test_LINK) $(ltlib_test_OBJECTS) $(ltlib_test_LDADD) $(LIBS)
@@ -439,9 +458,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/image_process.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libusb_ifc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lt_client.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lt_server.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib_test-ltlib_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/math_utils.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/netcomm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openusb_ifc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose_test-pose_test.Po@am__quote@

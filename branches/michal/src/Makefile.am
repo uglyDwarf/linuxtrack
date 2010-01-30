@@ -6,7 +6,7 @@ else
   SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
 endif
 
-bin_PROGRAMS = pose_test ltlib_test
+bin_PROGRAMS = pose_test ltlib_test lt_server lt_client
 
 lib_LTLIBRARIES =
 
@@ -32,14 +32,20 @@ if OPENUSB
 endif
 endif
 
+lt_server_SOURCES = lt_server.c
+lt_server_LDADD = -lm -lpthread -ldl liblinuxtrack.a 
+lt_client = lt_client.c
+lt_client_LDADD = -lm -lpthread -ldl liblinuxtrack.a 
+
 
 liblinuxtrack_a_SOURCES = cal.c cal.h list.c list.h ltlib.c ltlib.h \
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
   pref_flex.l pref_global.c pref_global.h pref_int.h \
-  utils.c utils.h image_process.c image_process.h tracking.c tracking.h
+  utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
+  netcomm.c netcomm.h
 
 libtir4_la_SOURCES = tir4_driver.c tir4_driver.h
-libtir4_la_LIBADD = -lusb liblinuxtrack.a
+libtir4_la_LIBADD = -lusb  liblinuxtrack.a
 libtir1_la_SOURCES = libusb_ifc.c tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c
 libtir1_la_LIBADD = -lz -lusb-1.0 liblinuxtrack.a
