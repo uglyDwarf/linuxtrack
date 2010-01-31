@@ -3,10 +3,6 @@
  * Its responsibility is to get frames from the device and send them
  * over to the client part.
  *
- * It has four states:
- *  1) IDLE - waiting for incomming connection
- *  2) SUSPENDED - device is initialized but stopped
- *  3) WORKING - capturing frames and sending them to the client
  *
  *
  *
@@ -38,7 +34,6 @@ void *data_relay(void *arg)
 {
   char msg[1024];
   int sfd = *(int *)arg;
-  int cntr = 0;
   int retval;
   struct frame_type frame;
   bool was_running;
@@ -66,8 +61,13 @@ void *data_relay(void *arg)
         pthread_mutex_unlock(&state_mx);
 	retval = cal_get_frame(&ccb, &frame);
 	printf("Have frame!\n");
-	snprintf(msg, sizeof(msg), "New val %d....\n", cntr++);
-	write(sfd, &msg, sizeof(msg));
+      printf("%d blobs!\n", frame.bloblist.num_blobs);
+      printf("[%g, %g]\n", (frame.bloblist.blobs[0]).x, (frame.bloblist.blobs[0]).y);
+      printf("[%g, %g]\n", (frame.bloblist.blobs[1]).x, (frame.bloblist.blobs[1]).y);
+      printf("[%g, %g]\n\n", (frame.bloblist.blobs[2]).x, (frame.bloblist.blobs[2]).y);
+        size_t size = encode_bloblist(&(frame.bloblist), msg);
+
+	write(sfd, &msg, size);
 	was_running = true;
         break;
       case PAUSE:

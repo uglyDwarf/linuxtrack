@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "cal.h"
 
 int init_client(const char *name, unsigned int port)
 {
@@ -161,4 +162,62 @@ int accept_connection(int socket)
     return -1;
   }
   return cfd;
+}
+
+void encode_float(float *f, char *buffer)
+{
+  unsigned int *uf = (unsigned int*)f;
+  buffer[0] = *uf & 0xFF;
+  buffer[1] = (*uf >> 8) & 0xFF;
+  buffer[2] = (*uf >> 16) & 0xFF;
+  buffer[3] = (*uf >> 24) & 0xFF;
+//  printf("%g -> %X\n", *f, *uf);
+}
+
+void decode_float(char *buffer, float *f)
+{
+  unsigned int uf = 0;
+  uf = buffer[3];
+  uf <<= 8;
+  uf += (buffer[2] & 0xFF);
+  uf <<= 8;
+  uf += (buffer[1] & 0xFF);
+  uf <<= 8;
+  uf += (buffer[0] & 0xFF);
+  *f = *(float*)(&uf);
+//  printf("%g -> %X\n", *f, uf);
+}
+
+size_t encode_bloblist(struct bloblist_type *blobs, char *buffer)
+{
+  buffer[0] = blobs->num_blobs;
+  ++buffer;
+  size_t cntr = 1;
+  int i;
+  for(i = 0; i < blobs->num_blobs; ++i){
+    encode_float(&((blobs->blobs)[i].x), buffer);
+    //printf("%g => %02X %02X %02X %02X\n", ((blobs->blobs)[i].x), buffer[0], buffer[1], buffer[2], buffer[3]);
+    buffer += 4;
+    encode_float(&((blobs->blobs)[i].y), buffer);
+    //printf("%g => %02X %02X %02X %02X\n", ((blobs->blobs)[i].y), buffer[0], buffer[1], buffer[2], buffer[3]);
+    buffer += 4;
+    cntr += 8;
+  }
+  return cntr;
+}
+
+void decode_bloblist(struct bloblist_type *blobs, char *buffer)
+{
+  blobs->num_blobs = buffer[0];
+//  printf("Got %d blobs!\n", blobs->num_blobs);
+  ++buffer;
+  int i;
+  for(i = 0; i < blobs->num_blobs; ++i){
+    decode_float(buffer, &((blobs->blobs)[i].x));
+    //printf("%g => %02X %02X %02X %02X\n", ((blobs->blobs)[i].x), buffer[0], buffer[1], buffer[2], buffer[3]); 
+    buffer += 4;
+    decode_float(buffer, &((blobs->blobs)[i].y));
+    //printf("%g => %02X %02X %02X %02X\n", ((blobs->blobs)[i].y), buffer[0], buffer[1], buffer[2], buffer[3]);
+    buffer += 4;
+  }
 }
