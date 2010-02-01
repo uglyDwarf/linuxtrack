@@ -16,6 +16,11 @@ pref_id min_blob = NULL;
 pref_id max_blob = NULL;
 char *storage_path = NULL;
 
+int ltr_cal_change_operating_mode(struct camera_control_block *ccb,
+                             enum cal_operating_mode newmode);
+
+
+
 int ltr_cal_init(struct camera_control_block *ccb)
 {
   assert(ccb != NULL);

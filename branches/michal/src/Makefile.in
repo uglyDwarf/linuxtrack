@@ -35,8 +35,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = pose_test$(EXEEXT) ltlib_test$(EXEEXT) \
-	lt_server$(EXEEXT) lt_client$(EXEEXT)
+bin_PROGRAMS = ltlib_test$(EXEEXT) lt_server$(EXEEXT) \
+	lt_client$(EXEEXT)
 @CWIID_TRUE@am__append_1 = libwii.la 
 @V4L2_TRUE@am__append_2 = libwc.la 
 @LIBUSB_TRUE@am__append_3 = libtir4.la 
@@ -44,8 +44,9 @@ bin_PROGRAMS = pose_test$(EXEEXT) ltlib_test$(EXEEXT) \
 @LIBZ_TRUE@@OPENUSB_TRUE@am__append_5 = libtir2.la 
 @XPLANE_PLUGIN_TRUE@am__append_6 = xlinuxtrack.la
 subdir = src
-DIST_COMMON = $(dist_data_DATA) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in pref_bison.c pref_bison.h pref_flex.c
+DIST_COMMON = $(dist_data_DATA) $(include_HEADERS) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in pref_bison.c \
+	pref_bison.h pref_flex.c
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -53,16 +54,6 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
-LIBRARIES = $(noinst_LIBRARIES)
-ARFLAGS = cru
-liblinuxtrack_a_AR = $(AR) $(ARFLAGS)
-liblinuxtrack_a_LIBADD =
-am_liblinuxtrack_a_OBJECTS = cal.$(OBJEXT) list.$(OBJEXT) \
-	ltlib.$(OBJEXT) math_utils.$(OBJEXT) pose.$(OBJEXT) \
-	pref.$(OBJEXT) pref_bison.$(OBJEXT) pref_flex.$(OBJEXT) \
-	pref_global.$(OBJEXT) utils.$(OBJEXT) image_process.$(OBJEXT) \
-	tracking.$(OBJEXT) netcomm.$(OBJEXT)
-liblinuxtrack_a_OBJECTS = $(am_liblinuxtrack_a_OBJECTS)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -70,32 +61,41 @@ am__vpath_adj = case $$p in \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
-	"$(DESTDIR)$(datadir)"
+	"$(DESTDIR)$(datadir)" "$(DESTDIR)$(includedir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
-libtir1_la_DEPENDENCIES = liblinuxtrack.a
+liblinuxtrack_la_LIBADD =
+am_liblinuxtrack_la_OBJECTS = cal.lo list.lo ltlib_int.lo \
+	math_utils.lo pose.lo pref.lo pref_bison.lo pref_flex.lo \
+	pref_global.lo utils.lo image_process.lo tracking.lo \
+	netcomm.lo
+liblinuxtrack_la_OBJECTS = $(am_liblinuxtrack_la_OBJECTS)
+liblt_la_DEPENDENCIES =
+am_liblt_la_OBJECTS = ltlib.lo
+liblt_la_OBJECTS = $(am_liblt_la_OBJECTS)
+libtir1_la_DEPENDENCIES =
 am_libtir1_la_OBJECTS = libusb_ifc.lo tir_hw.lo tir_img.lo \
 	tir_driver.lo
 libtir1_la_OBJECTS = $(am_libtir1_la_OBJECTS)
 @LIBUSB10_TRUE@@LIBZ_TRUE@am_libtir1_la_rpath = -rpath $(libdir)
-libtir2_la_DEPENDENCIES = liblinuxtrack.a
+libtir2_la_DEPENDENCIES =
 am_libtir2_la_OBJECTS = openusb_ifc.lo tir_hw.lo tir_img.lo \
 	tir_driver.lo
 libtir2_la_OBJECTS = $(am_libtir2_la_OBJECTS)
 @LIBZ_TRUE@@OPENUSB_TRUE@am_libtir2_la_rpath = -rpath $(libdir)
-libtir4_la_DEPENDENCIES = liblinuxtrack.a
+libtir4_la_DEPENDENCIES =
 am_libtir4_la_OBJECTS = tir4_driver.lo
 libtir4_la_OBJECTS = $(am_libtir4_la_OBJECTS)
 @LIBUSB_TRUE@am_libtir4_la_rpath = -rpath $(libdir)
-libwc_la_DEPENDENCIES = liblinuxtrack.a
+libwc_la_DEPENDENCIES =
 am_libwc_la_OBJECTS = webcam_driver.lo
 libwc_la_OBJECTS = $(am_libwc_la_OBJECTS)
 @V4L2_TRUE@am_libwc_la_rpath = -rpath $(libdir)
-libwii_la_DEPENDENCIES = liblinuxtrack.a
+libwii_la_DEPENDENCIES =
 am_libwii_la_OBJECTS = wiimote_driver.lo
 libwii_la_OBJECTS = $(am_libwii_la_OBJECTS)
 @CWIID_TRUE@am_libwii_la_rpath = -rpath $(libdir)
-@XPLANE_PLUGIN_TRUE@xlinuxtrack_la_DEPENDENCIES = liblinuxtrack.a
+xlinuxtrack_la_DEPENDENCIES =
 am__xlinuxtrack_la_SOURCES_DIST = xlinuxtrack.c
 @XPLANE_PLUGIN_TRUE@am_xlinuxtrack_la_OBJECTS =  \
 @XPLANE_PLUGIN_TRUE@	xlinuxtrack_la-xlinuxtrack.lo
@@ -108,22 +108,16 @@ binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 lt_client_SOURCES = lt_client.c
 lt_client_OBJECTS = lt_client.$(OBJEXT)
-lt_client_DEPENDENCIES = liblinuxtrack.a
+lt_client_DEPENDENCIES =
 am_lt_server_OBJECTS = lt_server.$(OBJEXT)
 lt_server_OBJECTS = $(am_lt_server_OBJECTS)
-lt_server_DEPENDENCIES = liblinuxtrack.a
+lt_server_DEPENDENCIES =
 am_ltlib_test_OBJECTS = ltlib_test-ltlib_test.$(OBJEXT)
 ltlib_test_OBJECTS = $(am_ltlib_test_OBJECTS)
-ltlib_test_DEPENDENCIES = liblinuxtrack.a
+ltlib_test_DEPENDENCIES =
 ltlib_test_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ltlib_test_CFLAGS) \
 	$(CFLAGS) $(ltlib_test_LDFLAGS) $(LDFLAGS) -o $@
-am_pose_test_OBJECTS = pose_test-pose_test.$(OBJEXT)
-pose_test_OBJECTS = $(am_pose_test_OBJECTS)
-pose_test_DEPENDENCIES = liblinuxtrack.a
-pose_test_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(pose_test_CFLAGS) \
-	$(CFLAGS) $(pose_test_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -143,19 +137,20 @@ YLWRAP = $(top_srcdir)/ylwrap
 YACCCOMPILE = $(YACC) $(YFLAGS) $(AM_YFLAGS)
 LTYACCCOMPILE = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=compile $(YACC) $(YFLAGS) $(AM_YFLAGS)
-SOURCES = $(liblinuxtrack_a_SOURCES) $(libtir1_la_SOURCES) \
-	$(libtir2_la_SOURCES) $(libtir4_la_SOURCES) \
-	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
+SOURCES = $(liblinuxtrack_la_SOURCES) $(liblt_la_SOURCES) \
+	$(libtir1_la_SOURCES) $(libtir2_la_SOURCES) \
+	$(libtir4_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(xlinuxtrack_la_SOURCES) lt_client.c $(lt_server_SOURCES) \
-	$(ltlib_test_SOURCES) $(pose_test_SOURCES)
-DIST_SOURCES = $(liblinuxtrack_a_SOURCES) $(libtir1_la_SOURCES) \
-	$(libtir2_la_SOURCES) $(libtir4_la_SOURCES) \
-	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
+	$(ltlib_test_SOURCES)
+DIST_SOURCES = $(liblinuxtrack_la_SOURCES) $(liblt_la_SOURCES) \
+	$(libtir1_la_SOURCES) $(libtir2_la_SOURCES) \
+	$(libtir4_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(am__xlinuxtrack_la_SOURCES_DIST) lt_client.c \
-	$(lt_server_SOURCES) $(ltlib_test_SOURCES) \
-	$(pose_test_SOURCES)
+	$(lt_server_SOURCES) $(ltlib_test_SOURCES)
 dist_dataDATA_INSTALL = $(INSTALL_DATA)
 DATA = $(dist_data_DATA)
+includeHEADERS_INSTALL = $(INSTALL_HEADER)
+HEADERS = $(include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -279,45 +274,51 @@ top_srcdir = @top_srcdir@
 @DARWIN_TRUE@DARWINFLAGS = -undefined dynamic_lookup
 @DARWIN_FALSE@SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
 @DARWIN_TRUE@SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
-lib_LTLIBRARIES = $(am__append_1) $(am__append_2) $(am__append_3) \
-	$(am__append_4) $(am__append_5) $(am__append_6)
+lib_LTLIBRARIES = liblinuxtrack.la liblt.la $(am__append_1) \
+	$(am__append_2) $(am__append_3) $(am__append_4) \
+	$(am__append_5) $(am__append_6)
 lt_server_SOURCES = lt_server.c
-lt_server_LDADD = -lm -lpthread -ldl liblinuxtrack.a 
+lt_server_LDADD = -lm -lpthread -ldl -llinuxtrack 
 lt_client = lt_client.c
-lt_client_LDADD = -lm -lpthread -ldl liblinuxtrack.a 
-liblinuxtrack_a_SOURCES = cal.c cal.h list.c list.h ltlib.c ltlib.h \
+lt_client_LDADD = -lm -lpthread -ldl -llinuxtrack 
+include_HEADERS = ltlib.h
+liblt_la_SOURCES = ltlib.c ltlib.h
+liblt_la_LIBADD = -ldl
+liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h ltlib_int.c ltlib_int.h \
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
   pref_flex.l pref_global.c pref_global.h pref_int.h \
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
   netcomm.c netcomm.h
 
 libtir4_la_SOURCES = tir4_driver.c tir4_driver.h
-libtir4_la_LIBADD = -lusb  liblinuxtrack.a
+libtir4_la_LIBADD = -lusb  -llinuxtrack
 libtir1_la_SOURCES = libusb_ifc.c tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c
 
-libtir1_la_LIBADD = -lz -lusb-1.0 liblinuxtrack.a
+libtir1_la_LIBADD = -lz -lusb-1.0 -llinuxtrack
 libtir2_la_SOURCES = openusb_ifc.c tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c
 
-libtir2_la_LIBADD = -lz -lopenusb liblinuxtrack.a
+libtir2_la_LIBADD = -lz -lopenusb -llinuxtrack
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h
-libwii_la_LIBADD = -lcwiid liblinuxtrack.a
+libwii_la_LIBADD = -lcwiid -llinuxtrack
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h
-libwc_la_LIBADD = liblinuxtrack.a
-noinst_LIBRARIES = liblinuxtrack.a
+libwc_la_LIBADD = -llinuxtrack
 dist_data_DATA = .linuxtrack
 @XPLANE_PLUGIN_TRUE@xlinuxtrack_la_SOURCES = xlinuxtrack.c
 @XPLANE_PLUGIN_TRUE@xlinuxtrack_la_CFLAGS = -I../${XPLANE_SDK}/CHeaders/XPLM -I../${XPLANE_SDK}/CHeaders/Widgets -I../${XPLANE_SDK}/CHeaders/Wrappers $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS)
 @XPLANE_PLUGIN_TRUE@xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib
-@XPLANE_PLUGIN_TRUE@xlinuxtrack_la_LIBADD = liblinuxtrack.a
-pose_test_SOURCES = pose_test.c
+@XPLANE_PLUGIN_TRUE@xlinuxtrack_la_LIBADD = -llt
+
+#pose_test_SOURCES = pose_test.c
 ltlib_test_SOURCES = ltlib_test.c 
-pose_test_LDADD = -lm -lpthread -ldl liblinuxtrack.a
-ltlib_test_LDADD = -lm -lpthread -ldl liblinuxtrack.a 
-pose_test_CFLAGS = -m32 -fPIC
+
+#pose_test_LDADD = -lm -lpthread -ldl -llt
+ltlib_test_LDADD = -lm -lpthread -ldl -llt
+
+#pose_test_CFLAGS = -m32 -fPIC
 ltlib_test_CFLAGS = -fPIC -m32
-pose_test_LDFLAGS = -L/lib32 -L/usr/lib32
+#pose_test_LDFLAGS = -L/lib32 -L/usr/lib32
 ltlib_test_LDFLAGS = -fPIC -L/lib32 -L/usr/lib32
 AM_YFLAGS = -d
 AM_LFLAGS = -i
@@ -356,18 +357,6 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-
-clean-noinstLIBRARIES:
-	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-pref_bison.h: pref_bison.c
-	@if test ! -f $@; then \
-	  rm -f pref_bison.c; \
-	  $(MAKE) $(AM_MAKEFLAGS) pref_bison.c; \
-	else :; fi
-liblinuxtrack.a: $(liblinuxtrack_a_OBJECTS) $(liblinuxtrack_a_DEPENDENCIES) 
-	-rm -f liblinuxtrack.a
-	$(liblinuxtrack_a_AR) liblinuxtrack.a $(liblinuxtrack_a_OBJECTS) $(liblinuxtrack_a_LIBADD)
-	$(RANLIB) liblinuxtrack.a
 install-libLTLIBRARIES: $(lib_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
 	test -z "$(libdir)" || $(MKDIR_P) "$(DESTDIR)$(libdir)"
@@ -395,6 +384,15 @@ clean-libLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
+pref_bison.h: pref_bison.c
+	@if test ! -f $@; then \
+	  rm -f pref_bison.c; \
+	  $(MAKE) $(AM_MAKEFLAGS) pref_bison.c; \
+	else :; fi
+liblinuxtrack.la: $(liblinuxtrack_la_OBJECTS) $(liblinuxtrack_la_DEPENDENCIES) 
+	$(LINK) -rpath $(libdir) $(liblinuxtrack_la_OBJECTS) $(liblinuxtrack_la_LIBADD) $(LIBS)
+liblt.la: $(liblt_la_OBJECTS) $(liblt_la_DEPENDENCIES) 
+	$(LINK) -rpath $(libdir) $(liblt_la_OBJECTS) $(liblt_la_LIBADD) $(LIBS)
 libtir1.la: $(libtir1_la_OBJECTS) $(libtir1_la_DEPENDENCIES) 
 	$(LINK) $(am_libtir1_la_rpath) $(libtir1_la_OBJECTS) $(libtir1_la_LIBADD) $(LIBS)
 libtir2.la: $(libtir2_la_OBJECTS) $(libtir2_la_DEPENDENCIES) 
@@ -444,9 +442,6 @@ lt_server$(EXEEXT): $(lt_server_OBJECTS) $(lt_server_DEPENDENCIES)
 ltlib_test$(EXEEXT): $(ltlib_test_OBJECTS) $(ltlib_test_DEPENDENCIES) 
 	@rm -f ltlib_test$(EXEEXT)
 	$(ltlib_test_LINK) $(ltlib_test_OBJECTS) $(ltlib_test_LDADD) $(LIBS)
-pose_test$(EXEEXT): $(pose_test_OBJECTS) $(pose_test_DEPENDENCIES) 
-	@rm -f pose_test$(EXEEXT)
-	$(pose_test_LINK) $(pose_test_OBJECTS) $(pose_test_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -454,29 +449,29 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cal.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/image_process.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cal.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/image_process.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libusb_ifc.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lt_client.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lt_server.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib_int.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib_test-ltlib_test.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/math_utils.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/netcomm.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/math_utils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/netcomm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openusb_ifc.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose_test-pose_test.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_bison.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_flex.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_global.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_bison.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_flex.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_global.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir4_driver.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir_driver.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir_hw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir_img.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tracking.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tracking.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wiimote_driver.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_la-xlinuxtrack.Plo@am__quote@
@@ -523,20 +518,6 @@ ltlib_test-ltlib_test.obj: ltlib_test.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-ltlib_test.obj `if test -f 'ltlib_test.c'; then $(CYGPATH_W) 'ltlib_test.c'; else $(CYGPATH_W) '$(srcdir)/ltlib_test.c'; fi`
 
-pose_test-pose_test.o: pose_test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-pose_test.o -MD -MP -MF $(DEPDIR)/pose_test-pose_test.Tpo -c -o pose_test-pose_test.o `test -f 'pose_test.c' || echo '$(srcdir)/'`pose_test.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-pose_test.Tpo $(DEPDIR)/pose_test-pose_test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pose_test.c' object='pose_test-pose_test.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-pose_test.o `test -f 'pose_test.c' || echo '$(srcdir)/'`pose_test.c
-
-pose_test-pose_test.obj: pose_test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -MT pose_test-pose_test.obj -MD -MP -MF $(DEPDIR)/pose_test-pose_test.Tpo -c -o pose_test-pose_test.obj `if test -f 'pose_test.c'; then $(CYGPATH_W) 'pose_test.c'; else $(CYGPATH_W) '$(srcdir)/pose_test.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/pose_test-pose_test.Tpo $(DEPDIR)/pose_test-pose_test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pose_test.c' object='pose_test-pose_test.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pose_test_CFLAGS) $(CFLAGS) -c -o pose_test-pose_test.obj `if test -f 'pose_test.c'; then $(CYGPATH_W) 'pose_test.c'; else $(CYGPATH_W) '$(srcdir)/pose_test.c'; fi`
-
 .l.c:
 	$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ -- $(LEXCOMPILE)
 
@@ -564,6 +545,23 @@ uninstall-dist_dataDATA:
 	  f=$(am__strip_dir) \
 	  echo " rm -f '$(DESTDIR)$(datadir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(datadir)/$$f"; \
+	done
+install-includeHEADERS: $(include_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(includedir)" || $(MKDIR_P) "$(DESTDIR)$(includedir)"
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(includeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(includedir)/$$f'"; \
+	  $(includeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(includedir)/$$f"; \
+	done
+
+uninstall-includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(includedir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(includedir)/$$f"; \
 	done
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
@@ -642,11 +640,11 @@ distdir: $(DISTFILES)
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
-all-am: Makefile $(LIBRARIES) $(LTLIBRARIES) $(PROGRAMS) $(DATA)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA) $(HEADERS)
 install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -681,7 +679,7 @@ maintainer-clean-generic:
 clean: clean-am
 
 clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
-	clean-libtool clean-noinstLIBRARIES mostlyclean-am
+	clean-libtool mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -699,7 +697,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-dist_dataDATA
+install-data-am: install-dist_dataDATA install-includeHEADERS
 
 install-dvi: install-dvi-am
 
@@ -736,25 +734,26 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-binPROGRAMS uninstall-dist_dataDATA \
-	uninstall-libLTLIBRARIES
+	uninstall-includeHEADERS uninstall-libLTLIBRARIES
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
-	clean-generic clean-libLTLIBRARIES clean-libtool \
-	clean-noinstLIBRARIES ctags distclean distclean-compile \
-	distclean-generic distclean-libtool distclean-tags distdir dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-binPROGRAMS install-data install-data-am \
-	install-dist_dataDATA install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
+	clean-generic clean-libLTLIBRARIES clean-libtool ctags \
+	distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-binPROGRAMS \
+	install-data install-data-am install-dist_dataDATA install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-includeHEADERS install-info \
 	install-info-am install-libLTLIBRARIES install-man install-pdf \
 	install-pdf-am install-ps install-ps-am install-strip \
 	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-dist_dataDATA uninstall-libLTLIBRARIES
+	uninstall-dist_dataDATA uninstall-includeHEADERS \
+	uninstall-libLTLIBRARIES
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

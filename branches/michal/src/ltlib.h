@@ -1,8 +1,9 @@
 #ifndef LINUX_TRACK__H
 #define LINUX_TRACK__H
 
-#include "pose.h"
-#include "pref.h"
+#include <stdbool.h>
+
+typedef struct pref_struct *pref_id;
 
 int lt_init(char *cust_section);
 int lt_shutdown(void);

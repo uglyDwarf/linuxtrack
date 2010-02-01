@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "usb_ifc.h"
+#include "utils.h"
 
 static openusb_handle_t handle;
 static openusb_dev_handle_t devhandle;

@@ -1,43 +1,80 @@
-
-//#include <stdio.h>
+#include <stdlib.h>
+#include <dlfcn.h>
 #include <stdarg.h>
-//#include <string.h>
-#include "pref_global.h"
-//#include "ltlib.h"
-#include "utils.h" 
-#include "pref_int.h"
-//#include <math.h>
-//#include <assert.h>
-#include <pthread.h>
+#include <stdio.h>
+#include "ltlib_int.h"
 
-#include "cal.h"
-#include "tracking.h"
 
-static struct camera_control_block ccb;
+int (*fun_lt_int_init)(char *cust_section) = NULL;
+int (*fun_lt_int_shutdown)(void) = NULL;
+int (*fun_lt_int_suspend)(void) = NULL;
+int (*fun_lt_int_wakeup)(void) = NULL;
+void (*fun_lt_int_recenter)(void) = NULL;
+int (*fun_lt_int_get_camera_update)(float *heading,
+                         float *pitch,
+                         float *roll,
+                         float *tx,
+                         float *ty,
+                         float *tz) = NULL;
+bool (*fun_lt_int_open_pref)(char *key, pref_id *prf) = NULL;
+bool (*fun_lt_int_create_pref)(char *key) = NULL;
+float (*fun_lt_int_get_flt)(pref_id prf) = NULL;
+int (*fun_lt_int_get_int)(pref_id prf) = NULL;
+char *(*fun_lt_int_get_str)(pref_id prf) = NULL;
+bool (*fun_lt_int_set_flt)(pref_id *prf, float f) = NULL;
+bool (*fun_lt_int_set_int)(pref_id *prf, int i) = NULL;
+bool (*fun_lt_int_set_str)(pref_id *prf, char *str) = NULL;
+bool (*fun_lt_int_save_prefs)(void) = NULL;
+bool (*fun_lt_int_pref_changed)(pref_id prf) = NULL;
+bool (*fun_lt_int_close_pref)(pref_id *prf) = NULL;
+
+void (*fun_lt_int_log_message)(const char *format, ...) = NULL;
+
+
+
+
+static int lt_load_functions()
+{
+  void *libhandle = NULL;
+  
+  libhandle = dlopen("liblinuxtrack.so", RTLD_NOW | RTLD_LOCAL);
+  if(libhandle == NULL){
+    printf("Couldn't load library %s - %s!\n", "liblinuxtrack.so", dlerror());
+    return -1;
+  }
+  dlerror(); //clear any existing error...
+  
+  *(void**) (&fun_lt_int_init) = dlsym(libhandle, "lt_int_init");
+  *(void**) (&fun_lt_int_shutdown) = dlsym(libhandle, "lt_int_shutdown");
+  *(void**) (&fun_lt_int_suspend) = dlsym(libhandle, "lt_int_suspend");
+  *(void**) (&fun_lt_int_wakeup) = dlsym(libhandle, "lt_int_wakeup");
+  *(void**) (&fun_lt_int_recenter) = dlsym(libhandle, "lt_int_recenter");
+  *(void**) (&fun_lt_int_get_camera_update) = dlsym(libhandle, "lt_int_get_camera_update");
+  *(void**) (&fun_lt_int_open_pref) = dlsym(libhandle, "lt_int_open_pref");
+  *(void**) (&fun_lt_int_create_pref) = dlsym(libhandle, "lt_int_create_pref");
+  *(void**) (&fun_lt_int_get_flt) = dlsym(libhandle, "lt_int_get_flt");
+  *(void**) (&fun_lt_int_get_int) = dlsym(libhandle, "lt_int_get_int");
+  *(void**) (&fun_lt_int_get_str) = dlsym(libhandle, "lt_int_get_str");
+  *(void**) (&fun_lt_int_set_flt) = dlsym(libhandle, "lt_int_set_flt");
+  *(void**) (&fun_lt_int_set_int) = dlsym(libhandle, "lt_int_set_int");
+  *(void**) (&fun_lt_int_set_str) = dlsym(libhandle, "lt_int_set_str");
+  *(void**) (&fun_lt_int_save_prefs) = dlsym(libhandle, "lt_int_save_prefs");
+  *(void**) (&fun_lt_int_pref_changed) = dlsym(libhandle, "lt_int_pref_changed");
+  *(void**) (&fun_lt_int_close_pref) = dlsym(libhandle, "lt_int_close_pref");
+  *(void**) (&fun_lt_int_log_message) = dlsym(libhandle, "lt_int_log_message");
+  
+  return 0;
+}
 
 
 int lt_init(char *cust_section)
 {
-  
-  set_custom_section(cust_section);
-  
-  if(get_device(&ccb) == false){
-    log_message("Can't get device category!\n");
-    return -1;
+  if(fun_lt_int_init == NULL){
+    if(lt_load_functions() != 0){
+      return -1;
+    }
   }
-
-  ccb.mode = operational_3dot;
-  ccb.diag = false;
-  if(cal_init(&ccb)!= 0){
-    return -1;
-  }
-  if(cal_thread_start(&ccb) != 0){
-    return -1;
-  }
-  if(!init_tracking(&ccb)){
-    return -1;
-  }
-  return 0;
+  return fun_lt_int_init(cust_section);
 }
 
 int lt_get_camera_update(float *heading,
@@ -47,111 +84,173 @@ int lt_get_camera_update(float *heading,
                          float *ty,
                          float *tz)
 {
-  pthread_mutex_lock(&pose_mutex);
-  
-  *heading = lt_current_pose.heading;
-  *pitch = lt_current_pose.pitch;
-  *roll = lt_current_pose.roll;
-  *tx = lt_current_pose.tx;
-  *ty = lt_current_pose.ty;
-  *tz = lt_current_pose.tz;
-  
-  pthread_mutex_unlock(&pose_mutex);
-  return 0;
+  if(fun_lt_int_get_camera_update == NULL){
+    if(lt_load_functions() != 0){
+      return -1;
+    }
+  }
+  return fun_lt_int_get_camera_update(heading, pitch, roll, tx, ty, tz);
 }
 
 int lt_suspend(void)
 {
-  if(ccb.state == suspended){
-    return 0;
-  }else{
-    cal_thread_stop();
-    return cal_suspend(&ccb);
+  if(fun_lt_int_suspend == NULL){
+    if(lt_load_functions() != 0){
+      return -1;
+    }
   }
+  return fun_lt_int_suspend();
 }
 
 int lt_wakeup(void)
 {
-  if(ccb.state == active){
-    return 0;
-  }else{
-    cal_thread_start(&ccb);
-    return cal_wakeup(&ccb);
+  if(fun_lt_int_wakeup == NULL){
+    if(lt_load_functions() != 0){
+      return -1;
+    }
   }
+  return fun_lt_int_wakeup();
 }
 
 int lt_shutdown(void)
 {
-  lt_wakeup();
-  cal_thread_stop();
-  cal_shutdown(&ccb);
-  return 0;
+  if(fun_lt_int_shutdown == NULL){
+    if(lt_load_functions() != 0){
+      return -1;
+    }
+  }
+  return fun_lt_int_shutdown();
 }
 
 void lt_recenter(void)
 {
-  pose_recenter();
+  if(fun_lt_int_recenter == NULL){
+    if(lt_load_functions() != 0){
+      return;
+    }
+  }
+  return fun_lt_int_recenter();
 }
 
 bool lt_create_pref(char *key)
 {
-  return add_key(NULL, key, "");
+  if(fun_lt_int_create_pref == NULL){
+    if(lt_load_functions() != 0){
+      return false;
+    }
+  }
+  return fun_lt_int_create_pref(key);
 }
 
 bool lt_open_pref(char *key, pref_id *prf)
 {
-  return open_pref(NULL, key, prf);
+  if(fun_lt_int_open_pref == NULL){
+    if(lt_load_functions() != 0){
+      return false;
+    }
+  }
+  return fun_lt_int_open_pref(key, prf);
 }
 
 float lt_get_flt(pref_id prf)
 {
-  return get_flt(prf);
+  if(fun_lt_int_get_flt == NULL){
+    if(lt_load_functions() != 0){
+      return -1.0;
+    }
+  }
+  return fun_lt_int_get_flt(prf);
 }
 
 int lt_get_int(pref_id prf)
 {
-  return get_int(prf);
+  if(fun_lt_int_get_int == NULL){
+    if(lt_load_functions() != 0){
+      return -1;
+    }
+  }
+  return fun_lt_int_get_int(prf);
 }
 
 char *lt_get_str(pref_id prf)
 {
-  return get_str(prf);
+  if(fun_lt_int_get_str == NULL){
+    if(lt_load_functions() != 0){
+      return NULL;
+    }
+  }
+  return fun_lt_int_get_str(prf);
 }
 
 bool lt_set_flt(pref_id *prf, float f)
 {
-  return set_flt(prf, f);
+  if(fun_lt_int_set_flt== NULL){
+    if(lt_load_functions() != 0){
+      return false;
+    }
+  }
+  return fun_lt_int_set_flt(prf, f);
 }
 
 bool lt_set_int(pref_id *prf, int i)
 {
-  return set_int(prf, i);
+  if(fun_lt_int_set_int == NULL){
+    if(lt_load_functions() != 0){
+      return false;
+    }
+  }
+  return fun_lt_int_set_int(prf, i);
 }
 
 bool lt_set_str(pref_id *prf, char *str)
 {
-  return set_str(prf, str);
+  if(fun_lt_int_set_str == NULL){
+    if(lt_load_functions() != 0){
+      return -1;
+    }
+  }
+  return fun_lt_int_set_str(prf, str);
 }
 
 bool lt_save_prefs()
 {
-  return save_prefs();
+  if(fun_lt_int_save_prefs == NULL){
+    if(lt_load_functions() != 0){
+      return false;
+    }
+  }
+  return fun_lt_int_save_prefs();
 }
 
 bool lt_pref_changed(pref_id pref)
 {
-  return pref_changed(pref);
+  if(fun_lt_int_pref_changed == NULL){
+    if(lt_load_functions() != 0){
+      return false;
+    }
+  }
+  return fun_lt_int_pref_changed(pref);
 }
 
 bool lt_close_pref(pref_id *prf)
 {
-  return close_pref(prf);
+  if(fun_lt_int_close_pref == NULL){
+    if(lt_load_functions() != 0){
+      return false;
+    }
+  }
+  return fun_lt_int_close_pref(prf);
 }
 
 void lt_log_message(const char *format, ...)
 {
+  if(fun_lt_int_log_message == NULL){
+    if(lt_load_functions() != 0){
+      return;
+    }
+  }
   va_list ap;
   va_start(ap,format);
-  log_message(format, ap);
+  fun_lt_int_log_message(format, ap);
   va_end(ap);
 }

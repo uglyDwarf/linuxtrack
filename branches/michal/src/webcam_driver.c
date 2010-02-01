@@ -49,6 +49,13 @@ webcam_info wc_info;
 /* interface */
 /*************/
 
+int ltr_cal_change_operating_mode(struct camera_control_block *ccb,
+                             enum cal_operating_mode newmode);
+int ltr_cal_wakeup(struct camera_control_block *ccb);
+int ltr_cal_suspend(struct camera_control_block *ccb);
+
+
+
 int is_webcam(char *fname, char *webcam_id)
 {
   int fd = open(fname, O_RDWR | O_NONBLOCK);
