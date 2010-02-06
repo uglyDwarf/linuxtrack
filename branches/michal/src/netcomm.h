@@ -9,6 +9,6 @@ typedef enum {INIT, SHUTDOWN, SUSPEND, WAKE, DATA} message_t;
 int init_client(const char *address, const unsigned int port);
 int init_server(unsigned int port);
 int accept_connection(int socket);
-size_t encode_bloblist(struct bloblist_type *blobs, char *buffer);
-void decode_bloblist(struct bloblist_type *blobs, char *buffer);
+size_t encode_bloblist(struct bloblist_type *blobs, unsigned char *buffer);
+void decode_bloblist(struct bloblist_type *blobs, unsigned char *buffer);
 #endif

@@ -14,7 +14,7 @@ void *data_receiver(void *arg)
   int cfd = *(int *)arg;
   printf("Data receiver starting!\n");
   ssize_t ret;
-  char msg[1024];
+  unsigned char msg[1024];
   while(1){
     ret = read(cfd, &msg, sizeof(msg));
     if(ret > 0){

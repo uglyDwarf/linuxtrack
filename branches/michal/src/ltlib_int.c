@@ -22,15 +22,10 @@ int lt_int_init(char *cust_section)
 
   ccb.mode = operational_3dot;
   ccb.diag = false;
-  if(cal_init(&ccb)!= 0){
+  if(!init_tracking()){
     return -1;
   }
-  if(cal_thread_start(&ccb) != 0){
-    return -1;
-  }
-  if(!init_tracking(&ccb)){
-    return -1;
-  }
+  pridat nejak call na run...
   return 0;
 }
 

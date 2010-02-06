@@ -26,9 +26,8 @@ struct current_pose{
 struct current_pose lt_current_pose;
 pthread_mutex_t pose_mutex;
 
-bool init_tracking(struct camera_control_block *ccb);
-int update_pose(struct camera_control_block *ccb, struct frame_type *frame, 
-                bool frame_valid);
+bool init_tracking();
+int update_pose(struct camera_control_block *ccb, struct frame_type *frame);
 
 
 #endif

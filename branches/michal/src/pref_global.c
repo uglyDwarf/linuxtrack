@@ -31,14 +31,27 @@ char *get_storage_path()
   return get_str(storage_path);
 }
 
-bool get_ir_on(bool def)
+bool get_ir_on()
 {
   static pref_id ir_on = NULL;
   char *dev_sec = get_device_section();
   if(ir_on == NULL){
     if(!open_pref(dev_sec, "IR-LEDs", &ir_on)){
-      log_message("Entry 'IR-LEDs' missing in '%s' section!\n", dev_sec);
-      return def;
+      reflector_model_type rm;
+      if(!get_pose_setup(&rm)){
+	log_message("Can't get model type!\n");
+	return false;
+      }
+      if (rm.type == CAP) {
+	return true;
+      }
+      else if (rm.type == CLIP) {
+	return false;
+      }
+      else {
+	log_message("Unknown Model-type!\n");
+	return false;
+      }
     }
   }
   
@@ -131,8 +144,7 @@ bool get_coord(char *coord_id, float *f)
 typedef enum {X, Y, Z, H_Y, H_Z} cap_index;
 
 
-bool setup_cap(reflector_model_type *rm, char *model_section, 
-		bool *changed)
+bool setup_cap(reflector_model_type *rm, char *model_section)
 {
   static char *ids[] = {"Cap-X", "Cap-Y", "Cap-Z", "Head-Y", "Head-Z"};
   static pref_id prefs[] = {NULL, NULL, NULL, NULL, NULL};
@@ -148,13 +160,6 @@ bool setup_cap(reflector_model_type *rm, char *model_section,
     }
   }
   init_done = true;
-  
-  *changed = pref_changed(prefs[X]) || pref_changed(prefs[Y]) ||
-            pref_changed(prefs[Z]) || pref_changed(prefs[H_Y]) ||
-	    pref_changed(prefs[H_Z]);
-  if(!*changed){
-    return true;
-  }
   
   float x = get_flt(prefs[X]);
   float y = get_flt(prefs[Y]);
@@ -177,8 +182,7 @@ bool setup_cap(reflector_model_type *rm, char *model_section,
 
 typedef enum {Y1, Y2, Z1, Z2, HX, HY, HZ} clip_index;
 
-bool setup_clip(reflector_model_type *rm, char *model_section, 
-		bool *changed)
+bool setup_clip(reflector_model_type *rm, char *model_section)
 {
   log_message("Setting up Clip...\n");
   static char *ids[] = {"Clip-Y1", "Clip-Y2", "Clip-Z1", "Clip-Z2", 
@@ -196,14 +200,6 @@ bool setup_clip(reflector_model_type *rm, char *model_section,
     }
   }
   init_done = true;
-  
-  *changed = pref_changed(prefs[Y1]) || pref_changed(prefs[Y2]) ||
-            pref_changed(prefs[Z1]) || pref_changed(prefs[Z2]) ||
-            pref_changed(prefs[HX]) || pref_changed(prefs[HY]) ||
-	    pref_changed(prefs[HZ]);
-  if(!*changed){
-    return true;
-  }
   
   float y1 = get_flt(prefs[Y1]);
   float y2 = get_flt(prefs[Y2]);
@@ -236,7 +232,7 @@ bool setup_clip(reflector_model_type *rm, char *model_section,
 
 
 
-bool get_pose_setup(reflector_model_type *rm, bool *model_changed)
+bool get_pose_setup(reflector_model_type *rm)
 {
   char *model_section = get_model_section();
   if(model_section == NULL){
@@ -256,10 +252,10 @@ bool get_pose_setup(reflector_model_type *rm, bool *model_changed)
   }
   //log_message("Model: '%s'\n", model_type);
   if(strcasecmp(model_type, "Cap") == 0){
-    return setup_cap(rm, model_section, model_changed);
+    return setup_cap(rm, model_section);
   }
   if(strcasecmp(model_type, "Clip") == 0){
-    return setup_clip(rm, model_section, model_changed);
+    return setup_clip(rm, model_section);
   }
   return false;
 }

@@ -13,41 +13,27 @@
 #include <dlfcn.h>
 
 #include "cal.h"
-#include "tir4_driver.h"
-#include "tir_driver.h"
-#include "wiimote_driver.h"
-#include "webcam_driver.h"
+//#include "tir4_driver.h"
+//#include "tir_driver.h"
+//#include "wiimote_driver.h"
+//#include "webcam_driver.h"
 #include "utils.h"
-#include "tracking.h"
+//#include "tracking.h"
 
 
 dev_interface iface = {
-  .device_init = NULL,
+  .device_run = NULL,
   .device_shutdown = NULL,
   .device_suspend = NULL,
-  .device_change_operating_mode = NULL,
   .device_wakeup = NULL,
-  .device_get_frame = NULL
+  .device_get_state = NULL
 };
 void *libhandle = NULL;
-
-
-/*********************/
-/* private Constants */
-/*********************/
-/* none */
-
-/**************************/
-/* private Static members */
-/**************************/
-/* none */
-
-void *capture_thread(void *ccb);
 
 /************************/
 /* function definitions */
 /************************/
-int cal_init(struct camera_control_block *ccb)
+int cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
 {
   char *libname = NULL;
   assert(ccb != NULL);
@@ -79,55 +65,39 @@ int cal_init(struct camera_control_block *ccb)
   }
   dlerror(); //clear any existing error...
   
-  *(void**) (&iface.device_init) = dlsym(libhandle, "ltr_cal_init");
+  *(void**) (&iface.device_run) = dlsym(libhandle, "ltr_cal_run");
   *(void**) (&iface.device_shutdown) = dlsym(libhandle, "ltr_cal_shutdown");
   *(void**) (&iface.device_suspend) = dlsym(libhandle, "ltr_cal_suspend");
-  *(void**) (&iface.device_change_operating_mode) = dlsym(libhandle, "ltr_cal_change_operating_mode");
   *(void**) (&iface.device_wakeup) = dlsym(libhandle, "ltr_cal_wakeup");
-  *(void**) (&iface.device_get_frame) = dlsym(libhandle, "ltr_cal_get_frame");
+  *(void**) (&iface.device_get_state) = dlsym(libhandle, "ltr_cal_get_state");
   
-  assert(iface.device_init != NULL);
-  return (iface.device_init)(ccb);
+  assert(iface.device_run != NULL);
+  return (iface.device_run)(ccb, cbk);
 }
 
-int cal_shutdown(struct camera_control_block *ccb)
+int cal_shutdown()
 {
-  assert(ccb != NULL);
   assert(iface.device_shutdown != NULL);
   
-  return (iface.device_shutdown)(ccb);
+  return (iface.device_shutdown)();
 }
 
-int cal_suspend(struct camera_control_block *ccb)
+int cal_suspend()
 {
-  assert(ccb != NULL);
   assert(iface.device_suspend != NULL);
-  return (iface.device_suspend)(ccb);
+  return (iface.device_suspend)();
 }
 
-void cal_change_operating_mode(struct camera_control_block *ccb,
-                              enum cal_operating_mode newmode)
+int cal_wakeup()
 {
-  assert(ccb != NULL);
-  assert(iface.device_change_operating_mode != NULL);
-  (iface.device_change_operating_mode)(ccb, newmode);
-  return;
-}
-
-int cal_wakeup(struct camera_control_block *ccb)
-{
-  assert(ccb != NULL);
   assert(iface.device_wakeup != NULL);
-  return (iface.device_wakeup)(ccb);
+  return (iface.device_wakeup)();
 }
 
-int cal_get_frame(struct camera_control_block *ccb,
-                         struct frame_type *f)
+enum cal_device_state_type cal_get_state()
 {
-  assert(ccb != NULL);
-  assert(f != NULL);
-  assert(iface.device_get_frame != NULL);
-  return (iface.device_get_frame)(ccb, f);
+  assert(iface.device_get_state != NULL);
+  return (iface.device_get_state)();
 }
 
 void frame_free(struct camera_control_block *ccb,
@@ -165,123 +135,3 @@ void frame_print(struct frame_type f)
 }
 
 
-/* Thread implementation*/
-pthread_t capture_thread_id;
-
-
-pthread_mutex_t capture_thread_mutex = PTHREAD_MUTEX_INITIALIZER;
-/* guarded by capture_thread_mutex: { */
-static bool pending_capture_state_active = false;
-static bool current_capture_state_active = false;
-/* } */
-
-/* Start the capture thread, this WILL BLOCK until the 
- * thread has actually started; this should be a very short 
- * period */
-int cal_thread_start(struct camera_control_block *ccb)
-{
-  assert(ccb != NULL);
-  /* check if there is a capture thread running, 
-   * and handle this oddball case:
-   *   - capture thread was previously started, 
-   *   - then it was told to stop, however,
-   *     - there were no frames, so its hung, unable to actually stop.
-   *   - we have called it to start again, so lets just clear the stop 
-   *     signal and return.
-   * In the typo case of starting the thread twice, well,
-   * we'll just continue running*/
-  bool already_running = false;
-  pthread_mutex_lock(&capture_thread_mutex);
-  if(current_capture_state_active){
-    already_running = true;
-    pending_capture_state_active = true;
-  }
-  pthread_mutex_unlock(&capture_thread_mutex);
-  if (already_running) {
-    return 0;
-  }
-  current_capture_state_active = false;
-  pending_capture_state_active = true;
-  int res = pthread_create(&capture_thread_id, NULL, 
-                           capture_thread, (void*)ccb);
-  if(res != 0){
-    log_message("Can't create capture thread!\n");
-    return -1;
-  }
-  /* thread created, to keep things simple, we block until
-   * it has started executing */ 
-  bool done = false;
-  while (!done) {
-    pthread_mutex_lock(&capture_thread_mutex);
-    if(current_capture_state_active){
-      done = true;
-    }
-    pthread_mutex_unlock(&capture_thread_mutex);
-  }
-  return 0;
-}
-
-/* Request termination of capture thread
- * note that the thread may not actually stop if its 
- * hung up looking for a frame.  It will stop when the 
- * it gets a chance though.  use the cal_thread_is_stopped()
- * below to poll until its really stopped, if needed */ 
-void cal_thread_stop(void)
-{
-  /* tell it to die */
-  pthread_mutex_lock(&capture_thread_mutex);
-  pending_capture_state_active = false;
-  pthread_mutex_unlock(&capture_thread_mutex);
-  pthread_detach(capture_thread_id);
-}
-
-/* returns true if the thread is actually stopped */
-bool cal_thread_is_stopped(void)
-{
-  /* did it actually die? */
-  bool it_died=false;
-  pthread_mutex_lock(&capture_thread_mutex);
-  if(current_capture_state_active == false){
-    it_died = true;
-  }
-  pthread_mutex_unlock(&capture_thread_mutex);
-  return it_died;
-}
-
-
-
-//Main function of capture thread
-void *capture_thread(void *ccb)
-{
-  struct frame_type frame;
-  int retval;
-  /* on entry, we signal that we are running */
-  pthread_mutex_lock(&capture_thread_mutex);
-  current_capture_state_active = true;
-  pthread_mutex_unlock(&capture_thread_mutex);
-  /* the run until told to stop loop */
-  bool terminate_flag = false;
-  frame.bloblist.blobs = my_malloc(sizeof(struct blob_type) * 3);
-  frame.bloblist.num_blobs = 3;
-  frame.bitmap = NULL;
-  while (!terminate_flag) {
-    /* watch for a signal to flag termination */
-    pthread_mutex_lock(&capture_thread_mutex);
-    if(pending_capture_state_active == false){
-      terminate_flag = true;
-    }
-    pthread_mutex_unlock(&capture_thread_mutex);
-    
-    if (!terminate_flag) {
-      retval = cal_get_frame(ccb, &frame);
-      update_pose(ccb, &frame, retval == 0);
-      
-    }
-  }
-
-  frame_free(ccb, &frame);
-  pthread_mutex_lock(&capture_thread_mutex);
-  current_capture_state_active = false;
-  pthread_mutex_unlock(&capture_thread_mutex);
-  return NULL;
-}

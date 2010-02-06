@@ -164,7 +164,7 @@ int accept_connection(int socket)
   return cfd;
 }
 
-void encode_float(float *f, char *buffer)
+void encode_float(float *f, unsigned char *buffer)
 {
   unsigned int *uf = (unsigned int*)f;
   buffer[0] = *uf & 0xFF;
@@ -174,7 +174,7 @@ void encode_float(float *f, char *buffer)
 //  printf("%g -> %X\n", *f, *uf);
 }
 
-void decode_float(char *buffer, float *f)
+void decode_float(unsigned char *buffer, float *f)
 {
   unsigned int uf = 0;
   uf = buffer[3];
@@ -188,7 +188,7 @@ void decode_float(char *buffer, float *f)
 //  printf("%g -> %X\n", *f, uf);
 }
 
-size_t encode_bloblist(struct bloblist_type *blobs, char *buffer)
+size_t encode_bloblist(struct bloblist_type *blobs, unsigned char *buffer)
 {
   buffer[0] = blobs->num_blobs;
   ++buffer;
@@ -206,7 +206,7 @@ size_t encode_bloblist(struct bloblist_type *blobs, char *buffer)
   return cntr;
 }
 
-void decode_bloblist(struct bloblist_type *blobs, char *buffer)
+void decode_bloblist(struct bloblist_type *blobs, unsigned char *buffer)
 {
   blobs->num_blobs = buffer[0];
 //  printf("Got %d blobs!\n", blobs->num_blobs);
