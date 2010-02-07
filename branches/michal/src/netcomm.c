@@ -208,7 +208,7 @@ size_t encode_bloblist(struct bloblist_type *blobs, unsigned char *buffer)
 
 void decode_bloblist(struct bloblist_type *blobs, unsigned char *buffer)
 {
-  blobs->num_blobs = buffer[0];
+  blobs->num_blobs = (buffer[0]<=3) ? buffer[0] : 3;
 //  printf("Got %d blobs!\n", blobs->num_blobs);
   ++buffer;
   int i;

@@ -3,7 +3,7 @@
 
 #include "cal.h"
 
-typedef enum {INIT, SHUTDOWN, SUSPEND, WAKE, DATA} message_t;
+typedef enum {RUN, SHUTDOWN, SUSPEND, WAKE, DATA} message_t;
 
 
 int init_client(const char *address, const unsigned int port);

@@ -129,15 +129,17 @@ int cal_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 }
 
 enum cal_device_state_type tracker_state = NOT_INITIALIZED;
+pthread_cond_t state_cv;
+pthread_mutex_t state_mx;
 
-int tir_run(struct camera_control_block *ccb, frame_callback_fun cbk)
+
+
+int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
 {
   int retval;
   enum cal_device_state_type last_state;
   struct frame_type frame;
   
-  pthread_cond_t state_cv;
-  pthread_mutex_t state_mx;
   if(pthread_mutex_init(&state_mx, NULL)){
     fprintf(stderr, "Can't init mutex!\n");
     return 1;
@@ -149,36 +151,41 @@ int tir_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   if(tir_init(ccb) != 0){
     return -1;
   }
-
   frame.bloblist.blobs = my_malloc(sizeof(struct blob_type) * 3);
   frame.bloblist.num_blobs = 3;
   frame.bitmap = NULL;
   
   last_state = STOPPED;
+  tracker_state = RUNNING;
+  resume_tir();
   while(1){
     pthread_mutex_lock(&state_mx);
     switch(tracker_state){
       case RUNNING:
-        pthread_mutex_unlock(&state_mx);
         retval = cal_get_frame(ccb, &frame);
+        cbk(ccb, &frame);
         break;
       case PAUSED:
+        printf("PAUSE (%d)!\n", last_state);
         if(last_state == RUNNING){
           pause_tir();
+          printf("Pausing!\n");
         }
         while(tracker_state == PAUSED){
           pthread_cond_wait(&state_cv, &state_mx);
         }
-        pthread_mutex_unlock(&state_mx);
         resume_tir();
+        printf("Unpausing!\n");
         break;
       default:
         break;
     }
+    last_state = tracker_state;
+    pthread_mutex_unlock(&state_mx);
     if(tracker_state == STOPPED){
+      printf("Stopping!\n");
       break;
     }
-    last_state = tracker_state;
   }
   printf("Thread stopping\n");
   if(last_state == PAUSED){
@@ -191,8 +198,56 @@ int tir_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   return 0;
 }
 
+int ltr_cal_shutdown()
+{
+  int res;
+  pthread_mutex_lock(&state_mx);
+  if(tracker_state == RUNNING){
+    tracker_state = STOPPED;
+    res = 0;
+  }else if(tracker_state == PAUSED){
+    tracker_state = STOPPED;
+    res = 0;
+    pthread_cond_broadcast(&state_cv);
+  }else{
+    log_message("Attempt to stop capture while it was not running!\n");
+    res = 1;
+  }
+  pthread_mutex_unlock(&state_mx);
+  return res;
+}
 
-enum cal_device_state_type tir_get_state()
+int ltr_cal_suspend()
+{
+  int res;
+  pthread_mutex_lock(&state_mx);
+  if(tracker_state == RUNNING){
+    tracker_state = PAUSED;
+    res = 0;
+  }else{
+    log_message("Attempt to suspend capture while it was not running!\n");
+    res = 1;
+  }
+  pthread_mutex_unlock(&state_mx);
+  return res;
+}
+
+int ltr_cal_wakeup()
+{
+  int res;
+  pthread_mutex_lock(&state_mx);
+  if(tracker_state == PAUSED){
+    tracker_state = RUNNING;
+    pthread_cond_broadcast(&state_cv);
+  }else{
+    log_message("Attempt to wake-up capture while it was not paused!\n");
+    res = 1;
+  }
+  pthread_mutex_unlock(&state_mx);
+  return 0;
+}
+
+enum cal_device_state_type ltr_cal_get_state()
 {
   return tracker_state;
 }

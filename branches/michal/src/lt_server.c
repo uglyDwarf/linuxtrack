@@ -9,7 +9,8 @@
  */
 
 #include <string.h>
-
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -20,16 +21,18 @@
 #include "utils.h"
 #include "pref_global.h"
 
-pthread_t data_relay_thread;
-
+bool waiting = true;
 pthread_cond_t state_cv;
 pthread_mutex_t state_mx;
+pthread_t comm;
 
 static struct camera_control_block ccb;
 int sfd;
+int cfd;
 
 int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 {
+  //BEWARE OF OVERRUN!
   unsigned char msg[2048];
   printf("Have frame!\n");
   printf("%d blobs!\n", frame->bloblist.num_blobs);
@@ -37,7 +40,9 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
   printf("[%g, %g]\n", (frame->bloblist.blobs[1]).x, (frame->bloblist.blobs[1]).y);
   printf("[%g, %g]\n\n", (frame->bloblist.blobs[2]).x, (frame->bloblist.blobs[2]).y);
   size_t size = encode_bloblist(&(frame->bloblist), msg);
-  write(sfd, &msg, size);
+  if(send(cfd, &msg, size, MSG_NOSIGNAL) < 0){
+    perror("write:");
+  }
   return 0;
 }
 
@@ -45,13 +50,13 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 
 void* the_server_thing(void *param)
 {
-  int cfd;
   while(1){
     cfd = accept_connection(sfd);
     if(cfd == -1){
       perror("accept:");
       continue;
     }
+    
     char msg = SHUTDOWN;
     ssize_t ret;
     do{
@@ -61,6 +66,12 @@ void* the_server_thing(void *param)
 	continue;
       }
       switch(msg){
+        case RUN:
+          pthread_mutex_lock(&state_mx);
+          waiting = false;
+          pthread_cond_broadcast(&state_cv);
+          pthread_mutex_unlock(&state_mx);
+         break;
         case SHUTDOWN:
           cal_shutdown();
 	  break;
@@ -89,21 +100,40 @@ int main(int argc, char *argv[])
     return 1;
   }
   
-  
   if((sfd = init_server(atoi(argv[1]))) < 0){
     fprintf(stderr, "Have problem....\n");
     return 1;
   }
   
-  pthread_t comm;
-  pthread_create(&comm, NULL, the_server_thing, NULL);
-  if(get_device(&ccb) == false){
-    log_message("Can't get device category!\n");
+  if(pthread_mutex_init(&state_mx, NULL)){
+    fprintf(stderr, "Can't init mutex!\n");
     return 1;
   }
-  ccb.mode = operational_3dot;
-  ccb.diag = false;
-  cal_run(&ccb, frame_callback);
+  if(pthread_cond_init(&state_cv, NULL)){
+    fprintf(stderr, "Can't init cond. var.!\n");
+    return 1;
+  }
+  
+  
+  pthread_create(&comm, NULL, the_server_thing, NULL);
+  
+  while(1){
+    pthread_mutex_lock(&state_mx);
+    
+    while(waiting == true){
+      pthread_cond_wait(&state_cv, &state_mx);
+    }
+    pthread_mutex_unlock(&state_mx);
 
+    if(get_device(&ccb) == false){
+      log_message("Can't get device category!\n");
+      return 1;
+    }
+    ccb.mode = operational_3dot;
+    ccb.diag = false;
+    cal_run(&ccb, frame_callback);
+    waiting = true;
+  }
+  pthread_cond_destroy(&state_cv);
   return 0;
 }

@@ -35,20 +35,21 @@ int client(int sfd)
   unsigned char msg;
   
   sleep(1);
-  msg = INIT;
+  msg = RUN;
   write(sfd, &msg, sizeof(msg));
-  sleep(10);
-  msg = WAKE;
-  write(sfd, &msg, sizeof(msg));
+  printf("RUN\n");
   sleep(10);
   msg = SUSPEND;
   write(sfd, &msg, sizeof(msg));
-  sleep(1);
+  printf("SUSPEND\n");
+  sleep(5);
   msg = WAKE;
   write(sfd, &msg, sizeof(msg));
+  printf("WAKE\n");
   sleep(2);
   msg = SHUTDOWN;
   write(sfd, &msg, sizeof(msg));
+  printf("SHUTDOWN\n");
   sleep(1);
   
   close(sfd);
