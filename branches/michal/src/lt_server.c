@@ -40,9 +40,10 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
   printf("[%g, %g]\n", (frame->bloblist.blobs[1]).x, (frame->bloblist.blobs[1]).y);
   printf("[%g, %g]\n\n", (frame->bloblist.blobs[2]).x, (frame->bloblist.blobs[2]).y);
   size_t size = encode_bloblist(&(frame->bloblist), msg);
-  if(send(cfd, &msg, size, MSG_NOSIGNAL) < 0){
-    perror("write:");
-  }
+//  if(send(cfd, &msg, size, MSG_NOSIGNAL) < 0){
+//    perror("write:");
+//    return -1;
+//  }
   return 0;
 }
 
@@ -118,6 +119,7 @@ int main(int argc, char *argv[])
   pthread_create(&comm, NULL, the_server_thing, NULL);
   
   while(1){
+    printf("Waiting!...\n");
     pthread_mutex_lock(&state_mx);
     
     while(waiting == true){
@@ -133,6 +135,7 @@ int main(int argc, char *argv[])
     ccb.diag = false;
     cal_run(&ccb, frame_callback);
     waiting = true;
+    printf("Back waiting!\n");
   }
   pthread_cond_destroy(&state_cv);
   return 0;

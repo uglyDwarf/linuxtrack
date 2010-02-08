@@ -128,26 +128,21 @@ int cal_get_frame(struct camera_control_block *ccb, struct frame_type *f)
   return res; 
 }
 
-enum cal_device_state_type tracker_state = NOT_INITIALIZED;
-pthread_cond_t state_cv;
-pthread_mutex_t state_mx;
+
+enum request_t {CONTINUE, RUN, PAUSE, SHUTDOWN} request;
+enum cal_device_state_type tracker_state = STOPPED;
+pthread_cond_t state_cv = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t state_mx = PTHREAD_MUTEX_INITIALIZER;
 
 
 
 int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
 {
   int retval;
-  enum cal_device_state_type last_state;
+  enum request_t my_request;
   struct frame_type frame;
+  bool stop_flag = false;
   
-  if(pthread_mutex_init(&state_mx, NULL)){
-    fprintf(stderr, "Can't init mutex!\n");
-    return 1;
-  }
-  if(pthread_cond_init(&state_cv, NULL)){
-    fprintf(stderr, "Can't init cond. var.!\n");
-    return 1;
-  }
   if(tir_init(ccb) != 0){
     return -1;
   }
@@ -155,96 +150,98 @@ int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   frame.bloblist.num_blobs = 3;
   frame.bitmap = NULL;
   
-  last_state = STOPPED;
   tracker_state = RUNNING;
-  resume_tir();
+//  resume_tir();
   while(1){
     pthread_mutex_lock(&state_mx);
+    my_request = request;
+    request = CONTINUE;
+    pthread_mutex_unlock(&state_mx);
     switch(tracker_state){
       case RUNNING:
-        retval = cal_get_frame(ccb, &frame);
-        cbk(ccb, &frame);
+        switch(my_request){
+          case PAUSE:
+            printf("Pause request!\n");
+            tracker_state = PAUSED;
+            pause_tir();
+            break;
+          case SHUTDOWN:
+            printf("Shutdown request!\n");
+            stop_flag = true;
+            break;
+          default:
+            retval = cal_get_frame(ccb, &frame);
+            if(cbk(ccb, &frame) < 0){
+              stop_flag = true;
+            }
+            break;
+        }
         break;
       case PAUSED:
-        printf("PAUSE (%d)!\n", last_state);
-        if(last_state == RUNNING){
-          pause_tir();
-          printf("Pausing!\n");
-        }
-        while(tracker_state == PAUSED){
+        pthread_mutex_lock(&state_mx);
+        printf("Waiting for unpause!\n");
+        while((request == PAUSE) || (request == CONTINUE)){
           pthread_cond_wait(&state_cv, &state_mx);
+          printf("blablabla\n");
         }
+        my_request = request;
+        request = CONTINUE;
+        pthread_mutex_unlock(&state_mx);
+        printf("Unpaused!\n");
         resume_tir();
-        printf("Unpausing!\n");
+        switch(my_request){
+          case RUN:
+            printf("Unpause request!\n");
+            tracker_state = RUNNING;
+            break;
+          case SHUTDOWN:
+            printf("Shutdown request!\n");
+            stop_flag = true;
+            break;
+          default:
+            assert(0);
+            break;
+        }
         break;
       default:
+        assert(0);
         break;
     }
-    last_state = tracker_state;
-    pthread_mutex_unlock(&state_mx);
-    if(tracker_state == STOPPED){
-      printf("Stopping!\n");
+    if(stop_flag == true){
       break;
     }
   }
+  
   printf("Thread stopping\n");
-  if(last_state == PAUSED){
-    resume_tir();
-  }
   close_tir();
   frame_free(ccb, &frame);
-  pthread_cond_destroy(&state_cv);
   printf("Thread almost stopped\n");
+  return 0;
+}
+
+int signal_request(enum request_t req)
+{
+  pthread_mutex_lock(&state_mx);
+  request = req;
+  pthread_cond_broadcast(&state_cv);
+  pthread_mutex_unlock(&state_mx);
   return 0;
 }
 
 int ltr_cal_shutdown()
 {
-  int res;
-  pthread_mutex_lock(&state_mx);
-  if(tracker_state == RUNNING){
-    tracker_state = STOPPED;
-    res = 0;
-  }else if(tracker_state == PAUSED){
-    tracker_state = STOPPED;
-    res = 0;
-    pthread_cond_broadcast(&state_cv);
-  }else{
-    log_message("Attempt to stop capture while it was not running!\n");
-    res = 1;
-  }
-  pthread_mutex_unlock(&state_mx);
-  return res;
+  return signal_request(SHUTDOWN);
 }
 
 int ltr_cal_suspend()
 {
-  int res;
-  pthread_mutex_lock(&state_mx);
-  if(tracker_state == RUNNING){
-    tracker_state = PAUSED;
-    res = 0;
-  }else{
-    log_message("Attempt to suspend capture while it was not running!\n");
-    res = 1;
-  }
-  pthread_mutex_unlock(&state_mx);
-  return res;
+  return signal_request(PAUSE);
 }
 
 int ltr_cal_wakeup()
 {
-  int res;
-  pthread_mutex_lock(&state_mx);
-  if(tracker_state == PAUSED){
-    tracker_state = RUNNING;
-    pthread_cond_broadcast(&state_cv);
-  }else{
-    log_message("Attempt to wake-up capture while it was not paused!\n");
-    res = 1;
-  }
-  pthread_mutex_unlock(&state_mx);
-  return 0;
+  printf("Requesting wakeup!\n");
+  return signal_request(RUN);
 }
 
 enum cal_device_state_type ltr_cal_get_state()

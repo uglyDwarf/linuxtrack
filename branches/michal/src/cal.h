@@ -41,7 +41,6 @@ typedef enum cal_device_category_type {
 } cal_device_category_type;
 
 enum cal_device_state_type {
-  NOT_INITIALIZED,
   RUNNING,
   PAUSED,
   STOPPED
