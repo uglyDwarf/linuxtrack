@@ -16,12 +16,12 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <stdbool.h>
+#include <assert.h>
 #include "netcomm.h"
 #include "cal.h"
 #include "utils.h"
 #include "pref_global.h"
 
-bool waiting = true;
 pthread_cond_t state_cv;
 pthread_mutex_t state_mx;
 pthread_t comm;
@@ -40,14 +40,15 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
   printf("[%g, %g]\n", (frame->bloblist.blobs[1]).x, (frame->bloblist.blobs[1]).y);
   printf("[%g, %g]\n\n", (frame->bloblist.blobs[2]).x, (frame->bloblist.blobs[2]).y);
   size_t size = encode_bloblist(&(frame->bloblist), msg);
-//  if(send(cfd, &msg, size, MSG_NOSIGNAL) < 0){
-//    perror("write:");
+  assert(cfd > 0);
+  if(send(cfd, &msg, size, MSG_NOSIGNAL) < 0){
+    perror("write:");
 //    return -1;
-//  }
+  }
   return 0;
 }
 
-
+enum {WAITING, WORKING, SHUTTING} state = WAITING;
 
 void* the_server_thing(void *param)
 {
@@ -69,11 +70,15 @@ void* the_server_thing(void *param)
       switch(msg){
         case RUN:
           pthread_mutex_lock(&state_mx);
-          waiting = false;
+          state = WORKING;
           pthread_cond_broadcast(&state_cv);
           pthread_mutex_unlock(&state_mx);
          break;
         case SHUTDOWN:
+          pthread_mutex_lock(&state_mx);
+          state = SHUTTING;
+          pthread_cond_broadcast(&state_cv);
+          pthread_mutex_unlock(&state_mx);
           cal_shutdown();
 	  break;
         case SUSPEND:
@@ -88,7 +93,13 @@ void* the_server_thing(void *param)
       }
     }while(msg != SHUTDOWN);
     
+    pthread_mutex_lock(&state_mx);
+    while(state != WAITING){
+      pthread_cond_wait(&state_cv, &state_mx);
+    }
+    pthread_mutex_unlock(&state_mx);
     close(cfd);
+    cfd = -1;
   }
   return NULL;
 }
@@ -119,10 +130,10 @@ int main(int argc, char *argv[])
   pthread_create(&comm, NULL, the_server_thing, NULL);
   
   while(1){
-    printf("Waiting!...\n");
     pthread_mutex_lock(&state_mx);
     
-    while(waiting == true){
+    printf("Waiting!...\n");
+    while(state == WAITING){
       pthread_cond_wait(&state_cv, &state_mx);
     }
     pthread_mutex_unlock(&state_mx);
@@ -134,7 +145,12 @@ int main(int argc, char *argv[])
     ccb.mode = operational_3dot;
     ccb.diag = false;
     cal_run(&ccb, frame_callback);
-    waiting = true;
+    
+    pthread_mutex_lock(&state_mx);
+    state = WAITING;
+    pthread_cond_broadcast(&state_cv);
+    pthread_mutex_unlock(&state_mx);
+    
     printf("Back waiting!\n");
   }
   pthread_cond_destroy(&state_cv);
