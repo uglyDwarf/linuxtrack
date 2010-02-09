@@ -52,7 +52,7 @@ liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h \
 #libtir4_la_SOURCES = tir4_driver.c tir4_driver.h new_cal.c new_cal.h
 #libtir4_la_LIBADD = -lusb  -llinuxtrack
 libtir1_la_SOURCES = libusb_ifc.c tir.h tir_hw.c tir_hw.h \
-    tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c
+    tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
 libtir1_la_LIBADD = -lz -lusb-1.0 -llinuxtrack
 #libtir2_la_SOURCES = openusb_ifc.c tir.h tir_hw.c tir_hw.h \
 #    tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c

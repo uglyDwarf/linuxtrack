@@ -10,6 +10,15 @@
 #include "pref.h"
 #include "pref_int.h"
 #include "pref_global.h"
+#include "runloop.h"
+
+tracker_interface trck_iface = {
+  .tracker_init = tir_init,
+  .tracker_pause = tir_pause,
+  .tracker_get_frame = tir_get_frame,
+  .tracker_resume = tir_resume,
+  .tracker_close = tir_close
+};
 
 
 pref_id min_blob = NULL;
@@ -105,7 +114,7 @@ int tir_blobs_to_bt(int num_blobs, plist blob_list, struct bloblist_type *blt)
   }
 }
 
-int cal_get_frame(struct camera_control_block *ccb, struct frame_type *f)
+int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 {
   plist blob_list = NULL;
   unsigned int w,h;
@@ -127,124 +136,18 @@ int cal_get_frame(struct camera_control_block *ccb, struct frame_type *f)
   return res; 
 }
 
-
-enum request_t {CONTINUE, RUN, PAUSE, SHUTDOWN} request;
-enum cal_device_state_type tracker_state = STOPPED;
-pthread_cond_t state_cv = PTHREAD_COND_INITIALIZER;
-pthread_mutex_t state_mx = PTHREAD_MUTEX_INITIALIZER;
-
-
-
-int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
+int tir_pause()
 {
-  int retval;
-  enum request_t my_request;
-  struct frame_type frame;
-  bool stop_flag = false;
-  
-  if(tir_init(ccb) != 0){
-    return -1;
-  }
-  frame.bloblist.blobs = my_malloc(sizeof(struct blob_type) * 3);
-  frame.bloblist.num_blobs = 3;
-  frame.bitmap = NULL;
-  
-  tracker_state = RUNNING;
-//  resume_tir();
-  while(1){
-    pthread_mutex_lock(&state_mx);
-    my_request = request;
-    request = CONTINUE;
-    pthread_mutex_unlock(&state_mx);
-    switch(tracker_state){
-      case RUNNING:
-        switch(my_request){
-          case PAUSE:
-            printf("Pause request!\n");
-            tracker_state = PAUSED;
-            pause_tir();
-            break;
-          case SHUTDOWN:
-            printf("Shutdown request!\n");
-            stop_flag = true;
-            break;
-          default:
-            retval = cal_get_frame(ccb, &frame);
-            if(cbk(ccb, &frame) < 0){
-              stop_flag = true;
-            }
-            break;
-        }
-        break;
-      case PAUSED:
-        pthread_mutex_lock(&state_mx);
-        printf("Waiting for unpause!\n");
-        while((request == PAUSE) || (request == CONTINUE)){
-          pthread_cond_wait(&state_cv, &state_mx);
-          printf("blablabla\n");
-        }
-        my_request = request;
-        request = CONTINUE;
-        pthread_mutex_unlock(&state_mx);
-        printf("Unpaused!\n");
-        resume_tir();
-        switch(my_request){
-          case RUN:
-            printf("Unpause request!\n");
-            tracker_state = RUNNING;
-            break;
-          case SHUTDOWN:
-            printf("Shutdown request!\n");
-            stop_flag = true;
-            break;
-          default:
-            assert(0);
-            break;
-        }
-        break;
-      default:
-        assert(0);
-        break;
-    }
-    if(stop_flag == true){
-      break;
-    }
-  }
-  
-  printf("Thread stopping\n");
-  close_tir();
-  frame_free(ccb, &frame);
-  printf("Thread almost stopped\n");
-  return 0;
+  return pause_tir() ? 0 : -1;
 }
 
-int signal_request(enum request_t req)
+int tir_resume()
 {
-  pthread_mutex_lock(&state_mx);
-  request = req;
-  pthread_cond_broadcast(&state_cv);
-  pthread_mutex_unlock(&state_mx);
-  return 0;
+  return resume_tir() ? 0 : -1;
 }
 
-int ltr_cal_shutdown()
+int tir_close()
 {
-  return signal_request(SHUTDOWN);
-}
-
-int ltr_cal_suspend()
-{
-  return signal_request(PAUSE);
-}
-
-int ltr_cal_wakeup()
-{
-  printf("Requesting wakeup!\n");
-  return signal_request(RUN);
-}
-
-enum cal_device_state_type ltr_cal_get_state()
-{
-  return tracker_state;
+  return close_tir() ? 0 : -1;
 }
 

@@ -2,10 +2,6 @@
  * This is the server part of linuxtrack.
  * Its responsibility is to get frames from the device and send them
  * over to the client part.
- *
- *
- *
- *
  */
 
 #include <string.h>
@@ -24,6 +20,7 @@
 
 pthread_cond_t state_cv;
 pthread_mutex_t state_mx;
+enum {WAITING, WORKING, SHUTTING} state = WAITING;
 pthread_t comm;
 
 static struct camera_control_block ccb;
@@ -32,23 +29,18 @@ int cfd;
 
 int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 {
-  //BEWARE OF OVERRUN!
+  assert(cfd > 0);
+  assert(frame->bloblist.num_blobs);
   unsigned char msg[2048];
-  printf("Have frame!\n");
-  printf("%d blobs!\n", frame->bloblist.num_blobs);
-  printf("[%g, %g]\n", (frame->bloblist.blobs[0]).x, (frame->bloblist.blobs[0]).y);
-  printf("[%g, %g]\n", (frame->bloblist.blobs[1]).x, (frame->bloblist.blobs[1]).y);
-  printf("[%g, %g]\n\n", (frame->bloblist.blobs[2]).x, (frame->bloblist.blobs[2]).y);
+  
   size_t size = encode_bloblist(&(frame->bloblist), msg);
   assert(cfd > 0);
   if(send(cfd, &msg, size, MSG_NOSIGNAL) < 0){
     perror("write:");
-//    return -1;
+    return -1;
   }
   return 0;
 }
-
-enum {WAITING, WORKING, SHUTTING} state = WAITING;
 
 void* the_server_thing(void *param)
 {
@@ -88,7 +80,7 @@ void* the_server_thing(void *param)
           cal_wakeup();
 	  break;
 	default:
-	  log_message("Unknown message!!!\n");
+          assert(0);
 	  break;
       }
     }while(msg != SHUTDOWN);
@@ -108,21 +100,21 @@ void* the_server_thing(void *param)
 int main(int argc, char *argv[])
 {
   if(argc != 2){
-    fprintf(stderr, "Bad args...\n");
+    log_message("Bad args...\n");
     return 1;
   }
   
   if((sfd = init_server(atoi(argv[1]))) < 0){
-    fprintf(stderr, "Have problem....\n");
+    log_message("Have problem....\n");
     return 1;
   }
   
   if(pthread_mutex_init(&state_mx, NULL)){
-    fprintf(stderr, "Can't init mutex!\n");
+    log_message("Can't init mutex!\n");
     return 1;
   }
   if(pthread_cond_init(&state_cv, NULL)){
-    fprintf(stderr, "Can't init cond. var.!\n");
+    log_message("Can't init cond. var.!\n");
     return 1;
   }
   
@@ -132,7 +124,6 @@ int main(int argc, char *argv[])
   while(1){
     pthread_mutex_lock(&state_mx);
     
-    printf("Waiting!...\n");
     while(state == WAITING){
       pthread_cond_wait(&state_cv, &state_mx);
     }
@@ -150,8 +141,6 @@ int main(int argc, char *argv[])
     state = WAITING;
     pthread_cond_broadcast(&state_cv);
     pthread_mutex_unlock(&state_mx);
-    
-    printf("Back waiting!\n");
   }
   pthread_cond_destroy(&state_cv);
   return 0;

@@ -81,7 +81,7 @@ am_liblt_la_OBJECTS = ltlib.lo
 liblt_la_OBJECTS = $(am_liblt_la_OBJECTS)
 libtir1_la_DEPENDENCIES =
 am_libtir1_la_OBJECTS = libusb_ifc.lo tir_hw.lo tir_img.lo \
-	tir_driver.lo
+	tir_driver.lo runloop.lo
 libtir1_la_OBJECTS = $(am_libtir1_la_OBJECTS)
 @LIBUSB10_TRUE@@LIBZ_TRUE@am_libtir1_la_rpath = -rpath $(libdir)
 xlinuxtrack_la_DEPENDENCIES =
@@ -277,7 +277,7 @@ liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h \
 #libtir4_la_SOURCES = tir4_driver.c tir4_driver.h new_cal.c new_cal.h
 #libtir4_la_LIBADD = -lusb  -llinuxtrack
 libtir1_la_SOURCES = libusb_ifc.c tir.h tir_hw.c tir_hw.h \
-    tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c
+    tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
 
 libtir1_la_LIBADD = -lz -lusb-1.0 -llinuxtrack
 #libtir2_la_SOURCES = openusb_ifc.c tir.h tir_hw.c tir_hw.h \
@@ -435,6 +435,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_bison.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_flex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_global.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/runloop.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir_driver.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir_hw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir_img.Plo@am__quote@
