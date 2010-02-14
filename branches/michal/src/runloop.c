@@ -46,7 +46,7 @@ int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
             break;
           default:
             retval = (trck_iface.tracker_get_frame)(ccb, &frame);
-            if(cbk(ccb, &frame) < 0){
+            if((retval == -1) || (cbk(ccb, &frame) < 0)){
               stop_flag = true;
             }
             break;

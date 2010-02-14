@@ -33,22 +33,23 @@ int main(int argc, char **argv) {
   int retval;
 
   retval = lt_init(NULL);
+  usleep(3000000);
   if (retval < 0) { 
     printf("Error %d detected! Aborting!\n", retval);
     return retval; 
   };  
   lt_recenter();
   int cntr=0; 
-  while (++cntr < 100) {
+  while (++cntr < 300) {
     retval = lt_get_camera_update(&heading,&pitch,&roll,
                                   &tx, &ty, &tz);
     if (retval < 0) {
       printf("Not updated!\n"); 
-      usleep(9000);
+      usleep(90000);
       continue; 
     }
-    printf("heading: %f\tpitch: %f\troll: %f\n", heading, pitch, roll);
-    printf("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);
+    //printf("heading: %f\tpitch: %f\troll: %f\n", heading, pitch, roll);
+    //printf("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);
     usleep(9000);
   }
   lt_suspend();
@@ -60,11 +61,11 @@ int main(int argc, char **argv) {
                                   &tx, &ty, &tz);
     if (retval < 0) {
       printf("Not updated!\n"); 
-      usleep(9000);
+      usleep(90000);
       continue; 
     }
-    printf("heading: %f\tpitch: %f\troll: %f\n", heading, pitch, roll);
-    printf("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);
+    //printf("heading: %f\tpitch: %f\troll: %f\n", heading, pitch, roll);
+    //printf("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);
     usleep(9000);
   }
   lt_shutdown();

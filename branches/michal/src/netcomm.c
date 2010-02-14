@@ -190,7 +190,7 @@ void decode_float(unsigned char *buffer, float *f)
 
 size_t encode_bloblist(struct bloblist_type *blobs, unsigned char *buffer)
 {
-  buffer[0] = blobs->num_blobs;
+  buffer[0] = (blobs->num_blobs) * sizeof(float);
   ++buffer;
   size_t cntr = 1;
   int i;
@@ -208,7 +208,8 @@ size_t encode_bloblist(struct bloblist_type *blobs, unsigned char *buffer)
 
 void decode_bloblist(struct bloblist_type *blobs, unsigned char *buffer)
 {
-  blobs->num_blobs = (buffer[0]<=3) ? buffer[0] : 3;
+  int data_size = buffer[0] / sizeof(float);
+  blobs->num_blobs = (data_size<=3) ? data_size : 3;
 //  printf("Got %d blobs!\n", blobs->num_blobs);
   ++buffer;
   int i;

@@ -3,6 +3,7 @@
 #include "pose.h"
 #include "math_utils.h"
 #include "cal.h"
+#include "utils.h"
 
 float model_dist = 1000.0;
 /* Focal length */
@@ -20,8 +21,6 @@ float center_ref[3];
 float center_base[3][3];
 
 enum {M_CAP, M_CLIP} type;
-
-volatile bool center_flag = false;
 
 void pose_init(struct reflector_model_type rm)
 {
@@ -236,16 +235,10 @@ void pose_sort_blobs(struct bloblist_type bl)
 
 
 bool pose_process_blobs(struct bloblist_type blobs,
-                        struct transform *trans)
+                        struct transform *trans, bool centering)
 {
 
   float points[3][3];
-  bool centering = false;
-  if(center_flag == true){
-    center_flag = false;
-    centering = true;
-  }
-
 /*   /\* DELETEME TEST START *\/ */
 /*   printf("deleteme test start\n"); */
 /*   struct bloblist_type testbloblist; */
@@ -289,10 +282,10 @@ bool pose_process_blobs(struct bloblist_type blobs,
 //  print_vec(vec2, "vec2");
   make_base(vec1, vec2, new_base);
   if(centering == true){
-//    printf("Center:\n");
-//    printf("[%g, %g]\n", blobs.blobs[0].x, blobs.blobs[0].y);
-//    printf("[%g, %g]\n", blobs.blobs[1].x, blobs.blobs[1].y);
-//    printf("[%g, %g]\n", blobs.blobs[2].x, blobs.blobs[2].y);
+    log_message("Center:\n");
+    log_message("[%g, %g]\n", blobs.blobs[0].x, blobs.blobs[0].y);
+    log_message("[%g, %g]\n", blobs.blobs[1].x, blobs.blobs[1].y);
+    log_message("[%g, %g]\n", blobs.blobs[2].x, blobs.blobs[2].y);
 /*     print_matrix(center_base, "center-base"); */
 /*     print_matrix(new_base, "new-base"); */
     int i,j;
@@ -343,14 +336,6 @@ int pose_compute_camera_update(struct transform trans,
   (*roll)  *= 180.0/M_PI;
   return 0;
 }
-
-
-void pose_recenter(void)
-{
-  center_flag = true;
-}
-
-
 
 /*
 int main(void)

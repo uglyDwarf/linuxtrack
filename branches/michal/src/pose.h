@@ -49,8 +49,8 @@ void pose_init(struct reflector_model_type rm);
 void pose_sort_blobs(struct bloblist_type bl);
 
 bool pose_process_blobs(struct bloblist_type blobs, 
-                        struct transform *trans);
-void pose_recenter(void);
+                        struct transform *trans,
+                        bool centering);
 int pose_compute_camera_update(struct transform trans,
                                float *yaw,
                                float *pitch,

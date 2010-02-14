@@ -105,13 +105,8 @@ int tir_blobs_to_bt(int num_blobs, plist blob_list, struct bloblist_type *blt)
     }
     ++counter;
   }
-  blt->num_blobs = num_blobs;
-  if(valid == num_blobs){
-    return 0;
-  }else{
-    log_message("Have %d valid blobs, expecting %d!\n", valid, num_blobs);
-    return -1;
-  }
+  blt->num_blobs = (valid > num_blobs) ? num_blobs : valid;
+  return 0;
 }
 
 int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)

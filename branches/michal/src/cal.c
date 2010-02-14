@@ -72,25 +72,28 @@ int cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   *(void**) (&iface.device_get_state) = dlsym(libhandle, "ltr_cal_get_state");
   
   assert(iface.device_run != NULL);
+  log_message("Running!\n");
   return (iface.device_run)(ccb, cbk);
 }
 
 int cal_shutdown()
 {
   assert(iface.device_shutdown != NULL);
-  
+  log_message("Closing!\n");
   return (iface.device_shutdown)();
 }
 
 int cal_suspend()
 {
   assert(iface.device_suspend != NULL);
+  log_message("Suspending!\n");
   return (iface.device_suspend)();
 }
 
 int cal_wakeup()
 {
   assert(iface.device_wakeup != NULL);
+  log_message("Waking!\n");
   return (iface.device_wakeup)();
 }
 

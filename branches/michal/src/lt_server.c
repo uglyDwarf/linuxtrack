@@ -30,15 +30,23 @@ int cfd;
 int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 {
   assert(cfd > 0);
-  assert(frame->bloblist.num_blobs);
   unsigned char msg[2048];
-  
+  printf("[%f,%f], [%f, %f], [%f, %f]\n", frame->bloblist.blobs[0].x, 
+  frame->bloblist.blobs[0].y,  frame->bloblist.blobs[1].x,
+   frame->bloblist.blobs[1].y, frame->bloblist.blobs[2].x,
+    frame->bloblist.blobs[2].y);
   size_t size = encode_bloblist(&(frame->bloblist), msg);
   assert(cfd > 0);
   if(send(cfd, &msg, size, MSG_NOSIGNAL) < 0){
     perror("write:");
     return -1;
   }
+  int r;
+        for(r=0; r<size;++r){
+          printf("%X ", msg[r]);
+        }
+        printf("\n\n");
+
   return 0;
 }
 
@@ -51,15 +59,17 @@ void* the_server_thing(void *param)
       continue;
     }
     
-    char msg = SHUTDOWN;
+    char msg[1024];
     ssize_t ret;
     do{
-      ret = read(cfd, &msg, sizeof(msg));
+      msg[0] = 255;
+      ret = recv(cfd, msg, sizeof(msg), 0);
       if(ret==-1){
         perror("read");
 	continue;
       }
-      switch(msg){
+      printf("Have message %d - len %d!\n", msg[0], ret);
+      switch(msg[0]){
         case RUN:
           pthread_mutex_lock(&state_mx);
           state = WORKING;
@@ -83,7 +93,7 @@ void* the_server_thing(void *param)
           assert(0);
 	  break;
       }
-    }while(msg != SHUTDOWN);
+    }while(msg[0] != SHUTDOWN);
     
     pthread_mutex_lock(&state_mx);
     while(state != WAITING){
@@ -127,6 +137,7 @@ int main(int argc, char *argv[])
     while(state == WAITING){
       pthread_cond_wait(&state_cv, &state_mx);
     }
+    printf("Wait ended!\n");
     pthread_mutex_unlock(&state_mx);
 
     if(get_device(&ccb) == false){
@@ -136,7 +147,7 @@ int main(int argc, char *argv[])
     ccb.mode = operational_3dot;
     ccb.diag = false;
     cal_run(&ccb, frame_callback);
-    
+    printf("Runned!\n");
     pthread_mutex_lock(&state_mx);
     state = WAITING;
     pthread_cond_broadcast(&state_cv);

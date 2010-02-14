@@ -3,7 +3,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "ltlib_int.h"
-
+#include "utils.h"
 
 int (*fun_lt_int_init)(char *cust_section) = NULL;
 int (*fun_lt_int_shutdown)(void) = NULL;
@@ -30,8 +30,32 @@ bool (*fun_lt_int_close_pref)(pref_id *prf) = NULL;
 
 void (*fun_lt_int_log_message)(const char *format, ...) = NULL;
 
+typedef struct{
+  char *name;
+  void *ref;
+} lib_fun_def_t;
 
-
+lib_fun_def_t functions[] = {
+{"lt_int_init", (void*) &fun_lt_int_init},
+{"lt_int_shutdown", (void*) &fun_lt_int_shutdown},
+{"lt_int_suspend", (void*) &fun_lt_int_suspend},
+{"lt_int_wakeup", (void*) &fun_lt_int_wakeup},
+{"lt_int_recenter", (void*) &fun_lt_int_recenter},
+{"lt_int_get_camera_update", (void*) &fun_lt_int_get_camera_update},
+{"lt_int_open_pref", (void*) &fun_lt_int_open_pref},
+{"lt_int_create_pref", (void*) &fun_lt_int_create_pref},
+{"lt_int_get_flt", (void*) &fun_lt_int_get_flt},
+{"lt_int_get_int", (void*) &fun_lt_int_get_int},
+{"lt_int_get_str", (void*) &fun_lt_int_get_str},
+{"lt_int_set_flt", (void*) &fun_lt_int_set_flt},
+{"lt_int_set_int", (void*) &fun_lt_int_set_int},
+{"lt_int_set_str", (void*) &fun_lt_int_set_str},
+{"lt_int_save_prefs", (void*) &fun_lt_int_save_prefs},
+{"lt_int_pref_changed", (void*) &fun_lt_int_pref_changed},
+{"lt_int_close_pref", (void*) &fun_lt_int_close_pref},
+{"lt_int_log_message", (void*) &fun_lt_int_log_message},
+{NULL, NULL}
+};
 
 static int lt_load_functions()
 {
@@ -44,6 +68,15 @@ static int lt_load_functions()
   }
   dlerror(); //clear any existing error...
   
+  int i = 0;
+  while(functions[i].name != NULL){
+    if((*(void **) (functions[i].ref) = dlsym(libhandle, functions[i].name)) == NULL){
+      log_message("Error loding functions: %s\n", dlerror());
+      return -1;
+    }
+    i++;
+  }
+  /*
   *(void**) (&fun_lt_int_init) = dlsym(libhandle, "lt_int_init");
   *(void**) (&fun_lt_int_shutdown) = dlsym(libhandle, "lt_int_shutdown");
   *(void**) (&fun_lt_int_suspend) = dlsym(libhandle, "lt_int_suspend");
@@ -62,7 +95,7 @@ static int lt_load_functions()
   *(void**) (&fun_lt_int_pref_changed) = dlsym(libhandle, "lt_int_pref_changed");
   *(void**) (&fun_lt_int_close_pref) = dlsym(libhandle, "lt_int_close_pref");
   *(void**) (&fun_lt_int_log_message) = dlsym(libhandle, "lt_int_log_message");
-  
+  */
   return 0;
 }
 

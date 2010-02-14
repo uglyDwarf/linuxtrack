@@ -14,7 +14,7 @@ static struct lt_scalefactors scales = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 static struct bloblist_type filtered_bloblist;
 static struct blob_type filtered_blobs[3];
 static bool first_frame_read = false;
-
+static bool recenter = false;
 struct current_pose lt_current_pose;
 
 /*******************************/
@@ -74,6 +74,12 @@ bool init_tracking()
   return true;
 }
 
+int recenter_tracking()
+{
+  recenter = true;
+  return 0;
+}
+
 //Purpose of this procedure is to modify translations to work more
 //intuitively - if I rotate my head right and move it to the left,
 //it should move view left, not back
@@ -97,14 +103,25 @@ void rotate_translations(float *heading, float *pitch, float *roll,
 
 pthread_mutex_t pose_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-int update_pose(struct camera_control_block *ccb, struct frame_type *frame)
+int update_pose(struct frame_type *frame)
 {
   float raw_angles[3];
   float raw_translations[3];
   static float filtered_angles[3] = {0.0f, 0.0f, 0.0f};
   static float filtered_translations[3] = {0.0f, 0.0f, 0.0f};
   struct transform t;
-  check_pose(ccb);
+  bool recentering = false;
+  
+  if(recenter == true){
+    recenter = false;
+    recentering = true;
+  } 
+  printf("[%f,%f], [%f, %f], [%f, %f]\n", frame->bloblist.blobs[0].x, 
+  frame->bloblist.blobs[0].y,  frame->bloblist.blobs[1].x,
+   frame->bloblist.blobs[1].y, frame->bloblist.blobs[2].x,
+    frame->bloblist.blobs[2].y);
+  
+  check_pose();
   get_filter_factor(&filterfactor);
   if(frame->bloblist.num_blobs != 3){
     return -1;
@@ -122,15 +139,14 @@ int update_pose(struct camera_control_block *ccb, struct frame_type *frame)
   //frame->bloblist.blobs[2].y);
   int i;
   for(i=0;i<3;i++) {
-    if (first_frame_read) {
+    if (first_frame_read /*|| (!recentering)*/) {
       filtered_bloblist.blobs[i].x = nonlinfilt(frame->bloblist.blobs[i].x,
 					      filtered_bloblist.blobs[i].x,
 					      filterfactor);
       filtered_bloblist.blobs[i].y = nonlinfilt(frame->bloblist.blobs[i].y,
 					      filtered_bloblist.blobs[i].y,
 					      filterfactor);
-    }
-    else {
+    }else{
       filtered_bloblist.blobs[i].x = frame->bloblist.blobs[i].x;
       filtered_bloblist.blobs[i].y = frame->bloblist.blobs[i].y;
     }
@@ -139,7 +155,7 @@ int update_pose(struct camera_control_block *ccb, struct frame_type *frame)
     first_frame_read = true;
   }
       
-  pose_process_blobs(filtered_bloblist, &t);
+  pose_process_blobs(filtered_bloblist, &t, recentering);
 /*     transform_print(t); */
   pose_compute_camera_update(t,
 			      &raw_angles[0], //heading
@@ -156,10 +172,17 @@ int update_pose(struct camera_control_block *ccb, struct frame_type *frame)
   }else{
     return -1;
   }
-
-  nonlinfilt_vec(raw_angles, filtered_angles, filterfactor, filtered_angles);
-  nonlinfilt_vec(raw_translations, filtered_translations, filterfactor, 
-	  filtered_translations);
+  
+  if(recentering){
+    for(i = 0; i < 3; ++i){
+      filtered_angles[i] = raw_angles[i];
+      filtered_translations[i] = raw_translations[i];
+    }
+  }else{
+    nonlinfilt_vec(raw_angles, filtered_angles, filterfactor, filtered_angles);
+    nonlinfilt_vec(raw_translations, filtered_translations, filterfactor, 
+          filtered_translations);
+  }
   
   get_scale_factors(&scales);
   pthread_mutex_lock(&pose_mutex);

@@ -3,30 +3,18 @@
 #include "pref_global.h"
 #include "utils.h" 
 #include "pref_int.h"
-
+#include "ltlib_client.h"
 #include "cal.h"
 #include "tracking.h"
 
-static struct camera_control_block ccb;
-
-
 int lt_int_init(char *cust_section)
 {
-  
   set_custom_section(cust_section);
-  
-  if(get_device(&ccb) == false){
-    log_message("Can't get device category!\n");
-    return -1;
-  }
-
-  ccb.mode = operational_3dot;
-  ccb.diag = false;
   if(!init_tracking()){
+    log_message("Couldn't initialize trcking!\n");
     return -1;
   }
-  pridat nejak call na run...
-  return 0;
+  return lt_client_init();
 }
 
 int lt_int_get_camera_update(float *heading,
@@ -51,35 +39,22 @@ int lt_int_get_camera_update(float *heading,
 
 int lt_int_suspend(void)
 {
-  if(ccb.state == suspended){
-    return 0;
-  }else{
-    cal_thread_stop();
-    return cal_suspend(&ccb);
-  }
+  return lt_client_suspend();
 }
 
 int lt_int_wakeup(void)
 {
-  if(ccb.state == active){
-    return 0;
-  }else{
-    cal_thread_start(&ccb);
-    return cal_wakeup(&ccb);
-  }
+  return lt_client_wakeup();
 }
 
 int lt_int_shutdown(void)
 {
-  lt_int_wakeup();
-  cal_thread_stop();
-  cal_shutdown(&ccb);
-  return 0;
+  return lt_client_close();
 }
 
 void lt_int_recenter(void)
 {
-  pose_recenter();
+  recenter_tracking();
 }
 
 bool lt_int_create_pref(char *key)
