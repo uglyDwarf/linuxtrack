@@ -44,12 +44,21 @@ void *lt_data_receiver(void *arg)
     if (FD_ISSET(cfd, &rd)) {
       ret = read(cfd, &msg, sizeof(msg));
       if(ret > 0){
+/*        char txt[4096];
+        char *txtp = txt;
+        for(r=0; r<ret; ++r){
+          sprintf(txtp, "%02X ", msg[r]);
+          txtp+=3;
+        }
+        sprintf(txtp, "\n\n");
+        log_message("%s", txt);*/
         decode_bloblist(&(frame.bloblist), msg);
         update_pose(&frame);
-        log_message("%d blobs!\n", frame.bloblist.num_blobs); //TODO
+        /*log_message("%d blobs!\n", frame.bloblist.num_blobs);
         log_message("[%g, %g]\n", (frame.bloblist.blobs[0]).x, (frame.bloblist.blobs[0]).y);
         log_message("[%g, %g]\n", (frame.bloblist.blobs[1]).x, (frame.bloblist.blobs[1]).y);
         log_message("[%g, %g]\n\n", (frame.bloblist.blobs[2]).x, (frame.bloblist.blobs[2]).y);
+        */
       }
     }
     

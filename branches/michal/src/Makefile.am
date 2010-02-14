@@ -10,9 +10,9 @@ bin_PROGRAMS = lt_server lt_client  ltlib_test
 
 lib_LTLIBRARIES = liblinuxtrack.la liblt.la
 
-#if CWIID
-#  lib_LTLIBRARIES += libwii.la 
-#endif
+if CWIID
+  lib_LTLIBRARIES += libwii.la 
+endif
 
 if V4L2
   lib_LTLIBRARIES += libwc.la 
@@ -56,8 +56,8 @@ libtir1_la_LIBADD = -lz -lusb-1.0 -llinuxtrack
 libtir2_la_SOURCES = openusb_ifc.c tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
 libtir2_la_LIBADD = -lz -lopenusb -llinuxtrack
-#libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h
-#libwii_la_LIBADD = -lcwiid -llinuxtrack
+libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
+libwii_la_LIBADD = -lcwiid -llinuxtrack
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_LIBADD = -llinuxtrack
 

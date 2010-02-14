@@ -13,7 +13,7 @@ static float filterfactor=1.0;
 static struct lt_scalefactors scales = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 static struct bloblist_type filtered_bloblist;
 static struct blob_type filtered_blobs[3];
-static bool first_frame_read = false;
+static bool first_frame = true;
 static bool recenter = false;
 struct current_pose lt_current_pose;
 
@@ -70,7 +70,7 @@ bool init_tracking()
   }
   filtered_bloblist.num_blobs = 3;
   filtered_bloblist.blobs = filtered_blobs;
-  first_frame_read = false;
+  first_frame = true;
   return true;
 }
 
@@ -115,13 +115,9 @@ int update_pose(struct frame_type *frame)
   if(recenter == true){
     recenter = false;
     recentering = true;
+    log_message("RECENTERING!\n");
   } 
-  printf("[%f,%f], [%f, %f], [%f, %f]\n", frame->bloblist.blobs[0].x, 
-  frame->bloblist.blobs[0].y,  frame->bloblist.blobs[1].x,
-   frame->bloblist.blobs[1].y, frame->bloblist.blobs[2].x,
-    frame->bloblist.blobs[2].y);
   
-  check_pose();
   get_filter_factor(&filterfactor);
   if(frame->bloblist.num_blobs != 3){
     return -1;
@@ -133,28 +129,29 @@ int update_pose(struct frame_type *frame)
     return -1;
   }
   pose_sort_blobs(frame->bloblist);
-  //printf("[%f, %f], [%f, %f], [%f, %f]\n", frame->bloblist.blobs[0].x,
-  //frame->bloblist.blobs[0].y, frame->bloblist.blobs[1].x,
-  //frame->bloblist.blobs[1].y, frame->bloblist.blobs[2].x,
-  //frame->bloblist.blobs[2].y);
+
   int i;
   for(i=0;i<3;i++) {
-    if (first_frame_read /*|| (!recentering)*/) {
-      filtered_bloblist.blobs[i].x = nonlinfilt(frame->bloblist.blobs[i].x,
-					      filtered_bloblist.blobs[i].x,
-					      filterfactor);
-      filtered_bloblist.blobs[i].y = nonlinfilt(frame->bloblist.blobs[i].y,
-					      filtered_bloblist.blobs[i].y,
-					      filterfactor);
-    }else{
+    if (first_frame || recentering) {
       filtered_bloblist.blobs[i].x = frame->bloblist.blobs[i].x;
       filtered_bloblist.blobs[i].y = frame->bloblist.blobs[i].y;
+    }else{
+      filtered_bloblist.blobs[i].x = nonlinfilt(frame->bloblist.blobs[i].x,
+                                              filtered_bloblist.blobs[i].x,
+                                              filterfactor);
+      filtered_bloblist.blobs[i].y = nonlinfilt(frame->bloblist.blobs[i].y,
+                                              filtered_bloblist.blobs[i].y,
+                                              filterfactor);
     }
   }
-  if (!first_frame_read) {
-    first_frame_read = true;
+  if (first_frame) {
+    first_frame = false;
   }
       
+  log_message("[%f,%f], [%f, %f], [%f, %f]\n", filtered_bloblist.blobs[0].x, 
+  filtered_bloblist.blobs[0].y,  filtered_bloblist.blobs[1].x,
+  filtered_bloblist.blobs[1].y, filtered_bloblist.blobs[2].x,
+  filtered_bloblist.blobs[2].y);
   pose_process_blobs(filtered_bloblist, &t, recentering);
 /*     transform_print(t); */
   pose_compute_camera_update(t,
@@ -173,7 +170,7 @@ int update_pose(struct frame_type *frame)
     return -1;
   }
   
-  if(recentering){
+  if(first_frame || recentering){
     for(i = 0; i < 3; ++i){
       filtered_angles[i] = raw_angles[i];
       filtered_translations[i] = raw_translations[i];

@@ -7,11 +7,22 @@
 #include <cwiid.h>
 #include <unistd.h>
 #include "wiimote_driver.h"
+#include "runloop.h"
+#include "utils.h"
 
 /*************/
 /* interface */
 /*************/
 
+
+
+tracker_interface trck_iface = {
+  .tracker_init = wiimote_init,
+  .tracker_pause = wiimote_suspend,
+  .tracker_get_frame = wiimote_get_frame,
+  .tracker_resume = wiimote_wakeup,
+  .tracker_close = wiimote_shutdown
+};
 
 /*********************/
 /* private Constants */
@@ -45,20 +56,20 @@ bool wiimote_is_device_present(struct cal_device_type *cal_device) {
  * turns the IR leds on
  * this function may block for up to 3 seconds 
  * a return value < 0 indicates error */
-int ltr_cal_init(struct camera_control_block *ccb) {
+int wiimote_init(struct camera_control_block *ccb) {
     bdaddr_t bdaddr;
     
     bdaddr = *BDADDR_ANY;
     
-    fprintf(stderr, "Put Wiimote in discoverable mode now (press 1+2)...\n");
+    printf("Put Wiimote in discoverable mode now (press 1+2)...\n");
     
     if (!(gWiimote = cwiid_open(&bdaddr, 0))) {
-        fprintf(stderr, "Wiimote not found\n");
+        printf("Wiimote not found\n");
         return -1;
     } else {
         cwiid_set_led(gWiimote, CWIID_LED1_ON | CWIID_LED4_ON);
         cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS | CWIID_RPT_IR);
-        fprintf(stderr, "Wiimote connected\n");
+        log_message("Wiimote connected\n");
     }
     return 0;
 }
@@ -69,40 +80,32 @@ int ltr_cal_init(struct camera_control_block *ccb) {
  * can be used to deactivate the wiimote;
  * must call init to restart
  * a return value < 0 indicates error */
-int ltr_cal_shutdown(struct camera_control_block *ccb) {
+int wiimote_shutdown() {
     if (gWiimote) cwiid_close(gWiimote);
     return 0;
 }
 
 /* turn off all the leds, and flush the queue 
  * a return value < 0 indicates error */
-int ltr_cal_suspend(struct camera_control_block *ccb) {
-    // TODO - we might turn off IR reception here
+int wiimote_suspend() {
+    cwiid_set_led(gWiimote, CWIID_LED1_ON);
+    cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS);
     return 0;
 }
-
-/* may only be called while suspended.  Used to change from 
- * operational mode mode to diagnostic mode and vice versa */
-int ltr_cal_change_operating_mode(struct camera_control_block *ccb,
-                                enum cal_operating_mode newmode)
-{
-    // TODO
-    return 0;
-}
-
 
 /* unsuspend the currently suspended (and inited) 
  * camera device. 
  * IR leds will reactivate, but that is all
  * a return value < 0 indicates error */
-int ltr_cal_wakeup(struct camera_control_block *ccb) {
-    // TODO
+int wiimote_wakeup() {
+    cwiid_set_led(gWiimote, CWIID_LED1_ON | CWIID_LED4_ON);
+    cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS | CWIID_RPT_IR);
     return 0;
 }
 
 /* read the usb, and process it into frames
  * a return value < 0 indicates error */
-int ltr_cal_get_frame(struct camera_control_block *ccb,
+int wiimote_get_frame(struct camera_control_block *ccb,
                    struct frame_type *f)
 {
     struct cwiid_state state;

@@ -37,18 +37,15 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = lt_server$(EXEEXT) lt_client$(EXEEXT) \
 	ltlib_test$(EXEEXT)
-
-#if CWIID
-#  lib_LTLIBRARIES += libwii.la 
-#endif
-@V4L2_TRUE@am__append_1 = libwc.la 
+@CWIID_TRUE@am__append_1 = libwii.la 
+@V4L2_TRUE@am__append_2 = libwc.la 
 
 #if LIBUSB
 #  lib_LTLIBRARIES += libtir4.la 
 #endif
-@LIBUSB10_TRUE@@LIBZ_TRUE@am__append_2 = libtir1.la 
-@LIBZ_TRUE@@OPENUSB_TRUE@am__append_3 = libtir2.la 
-@XPLANE_PLUGIN_TRUE@am__append_4 = xlinuxtrack.la
+@LIBUSB10_TRUE@@LIBZ_TRUE@am__append_3 = libtir1.la 
+@LIBZ_TRUE@@OPENUSB_TRUE@am__append_4 = libtir2.la 
+@XPLANE_PLUGIN_TRUE@am__append_5 = xlinuxtrack.la
 subdir = src
 DIST_COMMON = $(dist_data_DATA) $(include_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in pref_bison.c \
@@ -93,6 +90,10 @@ libwc_la_DEPENDENCIES =
 am_libwc_la_OBJECTS = webcam_driver.lo runloop.lo
 libwc_la_OBJECTS = $(am_libwc_la_OBJECTS)
 @V4L2_TRUE@am_libwc_la_rpath = -rpath $(libdir)
+libwii_la_DEPENDENCIES =
+am_libwii_la_OBJECTS = wiimote_driver.lo runloop.lo
+libwii_la_OBJECTS = $(am_libwii_la_OBJECTS)
+@CWIID_TRUE@am_libwii_la_rpath = -rpath $(libdir)
 xlinuxtrack_la_DEPENDENCIES =
 am__xlinuxtrack_la_SOURCES_DIST = xlinuxtrack.c
 @XPLANE_PLUGIN_TRUE@am_xlinuxtrack_la_OBJECTS =  \
@@ -137,12 +138,14 @@ LTYACCCOMPILE = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=compile $(YACC) $(YFLAGS) $(AM_YFLAGS)
 SOURCES = $(liblinuxtrack_la_SOURCES) $(liblt_la_SOURCES) \
 	$(libtir1_la_SOURCES) $(libtir2_la_SOURCES) \
-	$(libwc_la_SOURCES) $(xlinuxtrack_la_SOURCES) lt_client.c \
-	$(lt_server_SOURCES) $(ltlib_test_SOURCES)
+	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
+	$(xlinuxtrack_la_SOURCES) lt_client.c $(lt_server_SOURCES) \
+	$(ltlib_test_SOURCES)
 DIST_SOURCES = $(liblinuxtrack_la_SOURCES) $(liblt_la_SOURCES) \
 	$(libtir1_la_SOURCES) $(libtir2_la_SOURCES) \
-	$(libwc_la_SOURCES) $(am__xlinuxtrack_la_SOURCES_DIST) \
-	lt_client.c $(lt_server_SOURCES) $(ltlib_test_SOURCES)
+	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
+	$(am__xlinuxtrack_la_SOURCES_DIST) lt_client.c \
+	$(lt_server_SOURCES) $(ltlib_test_SOURCES)
 dist_dataDATA_INSTALL = $(INSTALL_DATA)
 DATA = $(dist_data_DATA)
 includeHEADERS_INSTALL = $(INSTALL_HEADER)
@@ -271,7 +274,8 @@ top_srcdir = @top_srcdir@
 @DARWIN_FALSE@SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
 @DARWIN_TRUE@SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
 lib_LTLIBRARIES = liblinuxtrack.la liblt.la $(am__append_1) \
-	$(am__append_2) $(am__append_3) $(am__append_4)
+	$(am__append_2) $(am__append_3) $(am__append_4) \
+	$(am__append_5)
 lt_server_SOURCES = lt_server.c
 lt_server_LDADD = -lm -lpthread -ldl -llinuxtrack 
 lt_client = lt_client.c
@@ -296,8 +300,8 @@ libtir2_la_SOURCES = openusb_ifc.c tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
 
 libtir2_la_LIBADD = -lz -lopenusb -llinuxtrack
-#libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h
-#libwii_la_LIBADD = -lcwiid -llinuxtrack
+libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
+libwii_la_LIBADD = -lcwiid -llinuxtrack
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_LIBADD = -llinuxtrack
 dist_data_DATA = .linuxtrack
@@ -395,6 +399,8 @@ libtir2.la: $(libtir2_la_OBJECTS) $(libtir2_la_DEPENDENCIES)
 	$(LINK) $(am_libtir2_la_rpath) $(libtir2_la_OBJECTS) $(libtir2_la_LIBADD) $(LIBS)
 libwc.la: $(libwc_la_OBJECTS) $(libwc_la_DEPENDENCIES) 
 	$(LINK) $(am_libwc_la_rpath) $(libwc_la_OBJECTS) $(libwc_la_LIBADD) $(LIBS)
+libwii.la: $(libwii_la_OBJECTS) $(libwii_la_DEPENDENCIES) 
+	$(LINK) $(am_libwii_la_rpath) $(libwii_la_OBJECTS) $(libwii_la_LIBADD) $(LIBS)
 xlinuxtrack.la: $(xlinuxtrack_la_OBJECTS) $(xlinuxtrack_la_DEPENDENCIES) 
 	$(xlinuxtrack_la_LINK) $(am_xlinuxtrack_la_rpath) $(xlinuxtrack_la_OBJECTS) $(xlinuxtrack_la_LIBADD) $(LIBS)
 install-binPROGRAMS: $(bin_PROGRAMS)
@@ -466,6 +472,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tracking.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wiimote_driver.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_la-xlinuxtrack.Plo@am__quote@
 
 .c.o:

@@ -17,8 +17,6 @@
 /*********************/
 /* none */
 
-extern dev_interface wiimote_interface;
-
 /******************************/
 /* public function prototypes */
 /******************************/
@@ -39,11 +37,11 @@ int wiimote_init(struct camera_control_block *ccb);
  * can be used to deactivate the wiimote;
  * must call init to restart
  * a return value < 0 indicates error */
-int wiimote_shutdown(struct camera_control_block *ccb);
+int wiimote_shutdown();
 
 /* turn off all the leds, and flush the queue 
  * a return value < 0 indicates error */
-int wiimote_suspend(struct camera_control_block *ccb);
+int wiimote_suspend();
 
 /* may only be called while suspended.  Used to change from 
  * operational mode mode to diagnostic mode and vice versa */
@@ -54,7 +52,7 @@ int wiimote_change_operating_mode(struct camera_control_block *ccb,
  * camera device. 
  * IR leds will reactivate, but that is all
  * a return value < 0 indicates error */
-int wiimote_wakeup(struct camera_control_block *ccb);
+int wiimote_wakeup();
 
 /* read the usb, and process it into frames
  * a return value < 0 indicates error */

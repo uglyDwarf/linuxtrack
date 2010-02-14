@@ -91,7 +91,7 @@ bool open_pref(char *section, char *key, pref_id *prf)
     return true;
   }
   
-  printf("Creating new...\n");
+  //printf("Creating new...\n");
   if(get_key(section, key) == NULL){
     return false;
   }
@@ -298,7 +298,7 @@ bool set_str(pref_id *pref, char *str)
 
 bool close_pref(pref_id *pref)
 {
-  printf("Closing pref!\n");
+  //printf("Closing pref!\n");
   if(pref == NULL){
     log_message("Trying to close null pref.\n");
   }
@@ -475,7 +475,7 @@ char *get_key(char *section_name, char *key_name)
   if(read_prefs_on_init() == false){
     return NULL;
   }
-  printf("Getkey %s %s\n", section_name!=NULL?section_name:"NULL", key_name);
+  //printf("Getkey %s %s\n", section_name!=NULL?section_name:"NULL", key_name);
   key_val_struct *kv = NULL;
   if(section_name != NULL){
     kv = find_key(section_name, key_name);

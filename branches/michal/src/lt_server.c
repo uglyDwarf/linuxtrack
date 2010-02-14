@@ -29,24 +29,26 @@ int cfd;
 
 int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 {
-  assert(cfd > 0);
   unsigned char msg[2048];
-  printf("[%f,%f], [%f, %f], [%f, %f]\n", frame->bloblist.blobs[0].x, 
+/*  log_message("[%f,%f], [%f, %f], [%f, %f]\n", frame->bloblist.blobs[0].x, 
   frame->bloblist.blobs[0].y,  frame->bloblist.blobs[1].x,
    frame->bloblist.blobs[1].y, frame->bloblist.blobs[2].x,
-    frame->bloblist.blobs[2].y);
+    frame->bloblist.blobs[2].y);*/
   size_t size = encode_bloblist(&(frame->bloblist), msg);
   assert(cfd > 0);
   if(send(cfd, &msg, size, MSG_NOSIGNAL) < 0){
     perror("write:");
     return -1;
   }
-  int r;
-        for(r=0; r<size;++r){
-          printf("%X ", msg[r]);
-        }
-        printf("\n\n");
-
+/*  int r;
+  char txt[4096];
+  char *txtp = txt;
+  for(r=0; r<size;++r){
+    sprintf(txtp, "%02X ", msg[r]);
+    txtp += 3;
+  }
+  sprintf(txtp, "\n\n");
+  log_message("%s", txt);*/
   return 0;
 }
 
@@ -58,7 +60,6 @@ void* the_server_thing(void *param)
       perror("accept:");
       continue;
     }
-    
     char msg[1024];
     ssize_t ret;
     do{
@@ -68,7 +69,10 @@ void* the_server_thing(void *param)
         perror("read");
 	continue;
       }
-      printf("Have message %d - len %d!\n", msg[0], ret);
+      if(ret == 0){
+        continue;
+      }
+      //printf("Have message %d - len %d!\n", msg[0], ret);
       switch(msg[0]){
         case RUN:
           pthread_mutex_lock(&state_mx);
@@ -137,7 +141,7 @@ int main(int argc, char *argv[])
     while(state == WAITING){
       pthread_cond_wait(&state_cv, &state_mx);
     }
-    printf("Wait ended!\n");
+    //printf("Wait ended!\n");
     pthread_mutex_unlock(&state_mx);
 
     if(get_device(&ccb) == false){
@@ -147,7 +151,6 @@ int main(int argc, char *argv[])
     ccb.mode = operational_3dot;
     ccb.diag = false;
     cal_run(&ccb, frame_callback);
-    printf("Runned!\n");
     pthread_mutex_lock(&state_mx);
     state = WAITING;
     pthread_cond_broadcast(&state_cv);

@@ -75,7 +75,6 @@ void pose_init(struct reflector_model_type rm)
 
 //for testing purposes
   make_base(vec1, vec2, center_base);
-
   /* Convert reference point to model base coordinates */
 //  float ref_pt[3];
   float vec3[3];
@@ -282,10 +281,10 @@ bool pose_process_blobs(struct bloblist_type blobs,
 //  print_vec(vec2, "vec2");
   make_base(vec1, vec2, new_base);
   if(centering == true){
-    log_message("Center:\n");
+    /*log_message("Center:\n");
     log_message("[%g, %g]\n", blobs.blobs[0].x, blobs.blobs[0].y);
     log_message("[%g, %g]\n", blobs.blobs[1].x, blobs.blobs[1].y);
-    log_message("[%g, %g]\n", blobs.blobs[2].x, blobs.blobs[2].y);
+    log_message("[%g, %g]\n", blobs.blobs[2].x, blobs.blobs[2].y);*/
 /*     print_matrix(center_base, "center-base"); */
 /*     print_matrix(new_base, "new-base"); */
     int i,j;
