@@ -7,9 +7,11 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include "cal.h"
 
-int init_client(const char *name, unsigned int port)
+int init_client(const char *name, unsigned int port,
+                unsigned int restart_timeout)
 {
   int sfd;
   struct addrinfo *ai;
@@ -52,12 +54,20 @@ int init_client(const char *name, unsigned int port)
   }
   
   freeaddrinfo(ai);
-  
+  while(1){
   status = connect(sfd, (struct sockaddr*)&inaddr, sizeof(inaddr));
   printf("Connecting...\n");
   if(status != 0){
-    perror("connect");
-    return -1;
+    if(errno == EINTR){
+      continue;
+    }else{
+      perror("connect");
+      if(restart_timeout != 0){
+        sleep(restart_timeout);
+      }
+      return -1;
+    }
+  }
   }
   return sfd;
 }
@@ -156,10 +166,19 @@ int accept_connection(int socket)
   struct sockaddr_in client;
   socklen_t client_len = sizeof(struct sockaddr);
   printf("Going to wait!\n");
-  cfd = accept(socket, (struct sockaddr*)&client, &client_len);
-  if(cfd == -1){
-    perror("accept::");
-    return -1;
+  while(1){
+    cfd = accept(socket, (struct sockaddr*)&client, &client_len);
+    if(cfd == -1){
+      if(errno == EINTR){
+        continue;
+      }else{
+        perror("accept");
+        return -1;
+      }
+    }else{
+      break;
+    }
+    
   }
   return cfd;
 }

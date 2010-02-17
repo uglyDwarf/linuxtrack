@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <errno.h>
 #include "netcomm.h"
+#include "utils.h"
 
 pthread_t data_receiver_thread;
 
@@ -17,6 +19,18 @@ void *data_receiver(void *arg)
   unsigned char msg[1024];
   while(1){
     ret = read(cfd, &msg, sizeof(msg));
+    if(ret < 0){
+      if(errno == EINTR){
+        continue;
+      }else{
+        perror("Read");
+        break;
+      }
+    }
+    if(ret == 0){
+      log_message("Server disconnected!\n");
+      break;
+    }
     if(ret > 0){
       decode_bloblist(&nb, msg);
       
@@ -26,8 +40,8 @@ void *data_receiver(void *arg)
       printf("[%g, %g]\n\n", (nb.blobs[2]).x, (nb.blobs[2]).y);
     }
   }
-  
   printf("Data receiver stopping!\n");
+  return NULL;
 }
 
 int client(int sfd)
@@ -85,7 +99,7 @@ int main(int argc, char *argv[])
     return 1;
   }
   int sfd;
-  if((sfd = init_client(argv[1], atoi(argv[2]))) < 0){
+  if((sfd = init_client(argv[1], atoi(argv[2]), 3)) < 0){
     fprintf(stderr, "Have problem....\n");
     return 1;
   }

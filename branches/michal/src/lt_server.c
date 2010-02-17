@@ -13,6 +13,8 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <stdio.h>
+#include <errno.h>
 #include "netcomm.h"
 #include "cal.h"
 #include "utils.h"
@@ -36,9 +38,14 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
     frame->bloblist.blobs[2].y);*/
   size_t size = encode_bloblist(&(frame->bloblist), msg);
   assert(cfd > 0);
-  if(send(cfd, &msg, size, MSG_NOSIGNAL) < 0){
-    perror("write:");
-    return -1;
+ repeat:
+  if(write(cfd, &msg, size) < 0){
+    if(errno == EINTR){
+      goto repeat;
+    }else{
+      perror("write:");
+      return -1;
+    }
   }
 /*  int r;
   char txt[4096];
@@ -64,13 +71,20 @@ void* the_server_thing(void *param)
     ssize_t ret;
     do{
       msg[0] = 255;
-      ret = recv(cfd, msg, sizeof(msg), 0);
+     repeat:
+      ret = read(cfd, msg, sizeof(msg));
       if(ret==-1){
-        perror("read");
-	continue;
+        if(errno == EINTR){
+          goto repeat;
+        }else{
+          perror("read");
+	  break;
+        }
       }
       if(ret == 0){
-        continue;
+        //this means the other side closed socket
+        log_message("Client disconnected...\n");
+        break;
       }
       //printf("Have message %d - len %d!\n", msg[0], ret);
       switch(msg[0]){
@@ -81,11 +95,11 @@ void* the_server_thing(void *param)
           pthread_mutex_unlock(&state_mx);
          break;
         case SHUTDOWN:
+          //just signal, the shutdown is under the loop
           pthread_mutex_lock(&state_mx);
           state = SHUTTING;
           pthread_cond_broadcast(&state_cv);
           pthread_mutex_unlock(&state_mx);
-          cal_shutdown();
 	  break;
         case SUSPEND:
           cal_suspend();
@@ -99,6 +113,7 @@ void* the_server_thing(void *param)
       }
     }while(msg[0] != SHUTDOWN);
     
+    cal_shutdown();
     pthread_mutex_lock(&state_mx);
     while(state != WAITING){
       pthread_cond_wait(&state_cv, &state_mx);

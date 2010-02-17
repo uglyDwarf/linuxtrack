@@ -42,7 +42,19 @@ void *lt_data_receiver(void *arg)
         exit(EXIT_FAILURE);
     }
     if (FD_ISSET(cfd, &rd)) {
+     repeat:
       ret = read(cfd, &msg, sizeof(msg));
+      if(ret < 0){
+        if(errno == EINTR){
+          goto repeat;
+        }else{
+          perror("read");
+          break;
+        }
+      }
+      if(ret == 0){
+        break;
+      }
       if(ret > 0){
 /*        char txt[4096];
         char *txtp = txt;
@@ -68,50 +80,48 @@ void *lt_data_receiver(void *arg)
   return NULL;
 }
 
+int send_msg(int cfd, message_t msg)
+{
+ repeat:
+  if(write(cfd, &msg, sizeof(msg)) < 0){
+    if(errno == EINTR){
+      goto repeat;
+    }else{
+      perror("write");
+      return -1;
+    }
+  }
+  return 0;
+}
+
 int lt_client_init()
 {
   int sfd;
-  message_t msg;
-  if((sfd = init_client("localhost", 3004)) < 0){ //TODO
+  if((sfd = init_client("localhost", 3004, 3)) < 0){ //TODO
     log_message("Can't initialize client!\n");
     return 1;
   }
   close_receiver = false;
   pthread_create(&data_receiver_thread, NULL, lt_data_receiver, &sfd);
-  msg = RUN;
-  if(write(cfd, &msg, sizeof(msg)) != sizeof(msg)){
-    return -1;
-  }
   log_message("Initializing...\n");
-  return 0;
+  return send_msg(cfd, RUN);
 }
 
 int lt_client_suspend()
 {
-  message_t msg;
-  msg = SUSPEND;
-  if(write(cfd, &msg, sizeof(msg)) != sizeof(msg)){
-    return -1;
-  }
-  log_message("Suspending...\n");
-  return 0;
+  return send_msg(cfd, SUSPEND);
 }
 
 int lt_client_wakeup()
 {
-  message_t msg;
-  msg = WAKE;
-  if(write(cfd, &msg, sizeof(msg)) != sizeof(msg)){
-    return -1;
-  }
-  log_message("Waking...\n");
-  return 0;
+  return send_msg(cfd, WAKE);
 }
 
 int lt_client_close()
 {
-  message_t msg;
   close_receiver = true;
+  return send_msg(cfd, SHUTDOWN);
+  message_t msg;
   msg = SHUTDOWN;
   if(write(cfd, &msg, sizeof(msg)) == sizeof(msg)){
     pthread_join(data_receiver_thread, NULL);
