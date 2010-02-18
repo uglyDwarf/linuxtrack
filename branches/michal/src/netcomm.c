@@ -68,6 +68,7 @@ int init_client(const char *name, unsigned int port,
       return -1;
     }
   }
+  break;
   }
   return sfd;
 }
