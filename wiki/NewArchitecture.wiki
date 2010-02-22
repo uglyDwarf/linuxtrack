@@ -1,7 +1,7 @@
 #summary Summary of architectural changes in linuxtrack
 = Introduction =
 
-Time passed and it turned out, that the first concept of static library is not going to work well... 
+Time has passed and it turned out, that the first concept of static library is not going to work well... 
 I'm going to do some changes to the whole concept and this page should summarize those changes and reasons behind that lead to this.
 
 *Feel free to comment - I'd like to hear your ideas!*
@@ -17,9 +17,9 @@ So the first change will be following: the application will link against a small
 
 The tracker will be a standalone "server" application - there are several reasons to go this way... It is possible to make the main application independent of the tracker itself - no more crashes of application caused by bug in linuxtrack. Also there are several advantages for Mac development - some interfaces expect the main thread is running message loop, which is hard to guarantee with static lib, but implementable in a standalone app.
 
-Server would be responsible for determining absolute rotations/translations and sending those informations to the client part.
+Server would be responsible for the "image capture" and analysis, determining positions of light "blobs" and sending their coordinates to the client part.
 
-The client would determine rotations/translations relative to the center point, filtration and other post-processing (dead-zones, sensitivity curves...).
+The client would do the rest - determining rotations/translations, filtration and other post-processing (dead-zones, sensitivity curves...).
 
 All "drivers" will be compiled as independent dynamic libraries, loaded on the fly by tracker - it will allow for easy distribution of compiled linuxtrack; so no more people scared by word "compile" ;-)
 
@@ -27,5 +27,5 @@ For the gui - I'm not sure how exactly to abstract linuxtrack from the gui syste
 I'm going to use Qt for that, but I'd like to allow other gui systems to be used.
 I've chosen Qt, because I'm much more familiar with it, than for example Gtk, PyGtk, Tcl/Tk...
 
-I'd like to detach the tracker itself from the setup part - gui would just communicate with it through a special interface. Pref interface from linuxtrack will change into some abstract interface for controls - slider, string, number, menu...
-Those controls should be able to load/save their current state, notify through callbacks on change...
+Although idea of the server that would be able to serve both for tracking and gui is tempting, I decided to go in the other direction. Server itself will be responsible for the image capture/analysis only - the reason being simplicity and clarity of the code.
+Gui will be completely separate, although internally using mostly the same code as the server does.
