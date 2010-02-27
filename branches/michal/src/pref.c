@@ -1,7 +1,7 @@
-#ifdef HAVE_CONFIG_H
+/*#ifdef HAVE_CONFIG_H
   #include "../config.h"
 #endif
-
+*/
 #define _GNU_SOURCE
 
 #ifndef DARWIN
@@ -20,17 +20,16 @@ int yyparse(void);
 extern FILE* yyin;
 extern int yydebug;
 extern char* yytext;
-
+extern section_struct *current_section;
 char *parsed_file;
 int line_num;
 
 plist prefs;
 
-bool read_already = false;
+bool prefs_read_already = false;
 char *pref_file = ".linuxtrack";
 char *def_section_name = "Default";
 char *custom_section_name = NULL;
-int read_counter = 0;
 plist opened_prefs = NULL;
 
 struct opened{
@@ -61,236 +60,208 @@ bool name_match(char *n1, char *n2){
   }
 }
 
+
+
+
 bool open_pref(char *section, char *key, pref_id *prf)
 {
+  return open_pref_w_callback(section, key, prf, NULL, NULL);
+}
 
-  printf("Request to open %s\n", key);
+void print_opened()
+{
+  iterator i;
+  init_iterator(opened_prefs, &i);
+  struct opened* o;
+  while((o = (struct opened*)get_next(&i)) != NULL){
+    printf("Opened: %s -> %s\n", o->section, o->key);
+  }
+}
+
+bool open_pref_w_callback(char *section, char *key, pref_id *prf, 
+                          pref_callback cbk,  void *param)
+{
+  assert(key != NULL);
+  assert(prf != NULL);
   if(opened_prefs == NULL){
     opened_prefs = create_list();
   }
-  
+  print_opened();
+  //Isn't it already opened?
   iterator i;
   init_iterator(opened_prefs, &i);
-  
   struct opened* o;
   bool matched = false;
   while((o = (struct opened*)get_next(&i)) != NULL){
     if(name_match(section, o->section)){
-      if(name_match(key, o->key)){
+      if(name_match(o->key, key)){
         matched = true;
         break;
       }
     }
   }
 
-  if(matched){
+  if(matched){ //It is...
     *prf = (pref_struct*)my_malloc(sizeof(pref_struct));
     (*prf)->data = &(o->prf);
-    (*prf)->changed = true;
+    (*prf)->cbk = cbk;
+    (*prf)->param = param;
     add_element(o->prf.refs, *prf);
     return true;
   }
   
-  //printf("Creating new...\n");
   if(get_key(section, key) == NULL){
+    log_message("Attempted to open nonexistent key '%s' in section '%s'!\n",
+                key, section);
     return false;
   }
+  
   *prf = (pref_struct*)my_malloc(sizeof(pref_struct));
-  (*prf)->changed = true;
+  (*prf)->cbk = cbk;
+  (*prf)->param = param;
 
   o = (struct opened*)my_malloc(sizeof(struct opened));
-  o->section = (section != NULL) ? my_strdup(section) : NULL;
-  o->key = my_strdup(key);
   if(section != NULL){// Check it !!!
     o->prf.section_name = my_strdup(section);
   }else{
     o->prf.section_name = NULL;
   }
+  o->section = o->prf.section_name;
   o->prf.key_name = my_strdup(key);
+  o->key = o->prf.key_name;
   o->prf.data_type = NONE;
   o->prf.refs = create_list();
   (*prf)->data = &(o->prf);
   add_element(o->prf.refs, *prf);
   add_element(opened_prefs, o);
-  
   return true;
-}
-
-bool pref_changed(pref_id pref)
-{
-  return pref->changed;
 }
 
 float get_flt(pref_id pref)
 {
+  assert(pref != NULL);
   pref_data *prf = pref->data;
-  if(prf == NULL){
-    log_message("Null float preference queried!\n");
-    return 0.0f;
-  }
+  assert(prf != NULL);
   char *section = prf->section_name;
   char *key = prf->key_name;
   if(prf->data_type == NONE){
     prf->data_type = FLT;
-    pref->changed = false;
     prf->flt = atof(get_key(section, key));
-  }else{
-    if(prf->data_type != FLT){
-      log_message("Preference %s is not float (%d)!\n", key, prf->data_type);
-      return 0.0f;
-    }
-    if(pref->changed == true){
-      prf->flt = atof(get_key(section, key));
-      pref->changed = false;
-    }
   }
+  assert(prf->data_type == FLT);
   return prf->flt;
 }
 
 int get_int(pref_id pref)
 {
+  assert(pref != NULL);
   pref_data *prf = pref->data;
-  if(prf == NULL){
-    log_message("Null int preference queried!\n");
-    return 0;
-  }
+  assert(prf != NULL);
   char *section = prf->section_name;
   char *key = prf->key_name;
   if(prf->data_type == NONE){
     prf->data_type = INT;
-    pref->changed = false;
     prf->integer = atoi(get_key(section, key));
-  }else{
-    if(prf->data_type != INT){
-      log_message("Preference %s is not int!\n", key);
-      return 0;
-    }
-    if(pref->changed == true){
-      prf->integer = atoi(get_key(section, key));
-      pref->changed = false;
-    }
   }
+  assert(prf->data_type == INT);
   return prf->integer;
 }
 
 char *get_str(pref_id pref)
 {
+  assert(pref != NULL);
   pref_data *prf = pref->data;
-  if(prf == NULL){
-    log_message("Null str preference queried!\n");
-    return NULL;
-  }
+  assert(prf != NULL);
   char *section = prf->section_name;
   char *key = prf->key_name;
   if(prf->data_type == NONE){
     prf->data_type = STR;
-    pref->changed = false;
-    prf->string = get_key(section, key);
-  }else{
-    if(prf->data_type != STR){
-      log_message("Preference %s is not string!\n", key);
-      return NULL;
-    }
-    if(pref->changed == true){
-      prf->string = get_key(section, key);
-      pref->changed = false;
-    }
+    char *val = get_key(section, key);
+    assert(val != NULL);
+    prf->string = my_strdup(val);
   }
+  assert(prf->data_type == STR);
   return prf->string;
 }
 
 void mark_pref_changed(pref_id *prf)
 {
-  if(prf == NULL){
-    log_message("Tried to mark NULL preference as changed!\n");
-    return;
-  }
+  assert(prf != NULL);
   iterator i;
   init_iterator((*prf)->data->refs, &i);
   
   pref_struct* ref;
   while((ref = (pref_struct*)get_next(&i)) != NULL){
-    ref->changed = true;
+    if(ref->cbk != NULL){
+      (ref->cbk)(ref->param);
+    }
   }
 }
 
 bool set_flt(pref_id *pref, float f)
 {
+  assert(pref != NULL);
   pref_data *prf = (*pref)->data;
-  if(prf == NULL){
-    log_message("Tried to set null float preference!\n");
-    return false;
-  }
+  assert(prf != NULL);
   char *section = prf->section_name;
   char *key = prf->key_name;
   if(prf->data_type == NONE){
     prf->data_type = FLT;
-    mark_pref_changed(pref);
-  }else{
-    if(prf->data_type != FLT){
-      log_message("Preference %s is not float!\n", key);
-      return false;
-    }
   }
+  assert(prf->data_type == FLT);
   char *new_val;
   asprintf(&new_val, "%f", f);
   bool rv = change_key(section, key, new_val);
   free(new_val);
   if(rv == true){
     prf->flt = f;
+    mark_pref_changed(pref);
   }
   return rv;
 }
 
 bool set_int(pref_id *pref, int i)
 {
+  assert(pref != NULL);
   pref_data *prf = (*pref)->data;
-  if(prf == NULL){
-    log_message("Tried to set null int preference!\n");
-    return false;
-  }
+  assert(prf != NULL);
   char *section = prf->section_name;
   char *key = prf->key_name;
   if(prf->data_type == NONE){
     prf->data_type = INT;
-    mark_pref_changed(pref);
-  }else{
-    if(prf->data_type != INT){
-      log_message("Preference %s is not int!\n", key);
-      return false;
-    }
   }
+  assert(prf->data_type == INT);
   char *new_val;
   asprintf(&new_val, "%d", i);
   bool rv = change_key(section, key, new_val);
   free(new_val);
   if(rv == true){
     prf->integer = i;
+    mark_pref_changed(pref);
   }
   return rv;
 }
 
 bool set_str(pref_id *pref, char *str)
 {
+  bool has_payload = true;
+  assert(pref != NULL);
   pref_data *prf = (*pref)->data;
-  if(prf == NULL){
-    log_message("Tried to set null str preference!\n");
-    return false;
-  }
+  assert(prf != NULL);
   char *section = prf->section_name;
   char *key = prf->key_name;
   if(prf->data_type == NONE){
     prf->data_type = STR;
-    mark_pref_changed(pref);
-  }else{
-    if(prf->data_type != STR){
-      log_message("Preference %s is not string!\n", key);
-      return false;
-    }
+    has_payload = false;
   }
-  bool rv = change_key(section, key, prf->string);
+  assert(prf->data_type == STR);
+  bool rv = change_key(section, key, str);
   if(rv == true){
+    if(has_payload){
+      free(prf->string);
+    }
     prf->string = my_strdup(str);
+    mark_pref_changed(pref);
   }
   return rv;
 }
@@ -298,15 +269,13 @@ bool set_str(pref_id *pref, char *str)
 
 bool close_pref(pref_id *pref)
 {
-  //printf("Closing pref!\n");
-  if(pref == NULL){
-    log_message("Trying to close null pref.\n");
-  }
+  assert(pref != NULL);
   pref_data *prf = (*pref)->data;
-  
+  assert(prf != NULL);
+  print_opened();
+  //Find pref in the list of opened prefs
   iterator i;
   init_iterator(opened_prefs, &i);
-  
   struct opened* o;
   bool matched = false;
   while((o = (struct opened*)get_next(&i)) != NULL){
@@ -315,11 +284,24 @@ bool close_pref(pref_id *pref)
         break;
     }
   }
-  if(matched == false){
-    log_message("Trying to close already closed preference!\n");
-    return false;
+  
+  assert(matched);
+  
+  iterator j;
+  init_iterator(o->prf.refs, &j);
+  pref_struct *p;
+  matched = false;
+  while((p = (pref_struct*)get_next(&j)) != NULL){
+    if(p == *pref){
+      matched = true;
+      break;
+    }
   }
-  delete_current(o->prf.refs, &i);
+  
+  assert(matched);
+  
+  delete_current(o->prf.refs, &j);
+  
   if(is_empty(o->prf.refs)){
     free_list(o->prf.refs, false);
     if(prf->section_name != NULL){
@@ -328,25 +310,31 @@ bool close_pref(pref_id *pref)
     }
     free(prf->key_name);
     prf->key_name = NULL;
+    if(prf->data_type == STR){
+      free(prf->string);
+    }
     o = (struct opened*)delete_current(opened_prefs, &i);
     assert(o != NULL);
-    if(o->section != NULL){
-      free(o->section);
-    }
-    free(o->key);
+    free(o);
   }
+  if(is_empty(opened_prefs)){
+    free_list(opened_prefs, false);
+    opened_prefs = NULL;
+  }
+  free(*pref);
   *pref = NULL;
   return true;
 }
 
 
 
-bool read_prefs(char *fname, char *section)
+bool parse_prefs(char *fname)
 {
   prefs = create_list();
   if((yyin=fopen(fname, "r")) != NULL){
     parsed_file = my_strdup(fname);
     line_num = 1;
+    current_section = NULL;
     //yydebug=1;
     int res = yyparse();
     fclose(yyin);
@@ -354,11 +342,11 @@ bool read_prefs(char *fname, char *section)
     parsed_file = NULL;
     if(res == 0){
       log_message("Preferences read OK!\n");
-      ++read_counter;
       return(true);
     }
   }
   log_message("Error encountered while reading preferences!\n");
+  free_prefs();
   return(false);
 }
 
@@ -368,11 +356,11 @@ void yyerror(char const *s)
   		 s, parsed_file, line_num, yytext);
 }
 
-char *get_pref_file_name()
+char *get_default_file_name()
 {
   char *home = getenv("HOME");
   if(home == NULL){
-    log_message("Please set HOME variable!'n");
+    log_message("Please set HOME variable!\n");
     return NULL;
   }
   char *pref_path = (char *)my_malloc(strlen(home) 
@@ -381,31 +369,38 @@ char *get_pref_file_name()
   return pref_path;
 }
 
-bool read_prefs_on_init()
+bool read_prefs(char *file, bool force_read)
 {
-  static bool read_already = false;
   static bool prefs_ok = false;
-  if(read_already == false){
-    char *pfile = get_pref_file_name();
+  bool free_str = false;
+  
+  if((prefs_read_already == false) || (force_read == true)){
+    char *pfile;
+    if(file != NULL){
+      pfile = file;
+    }else{
+      pfile = get_default_file_name();
+      free_str = true;
+    }
     if(pfile == NULL){
       return false;
     }
-    prefs_ok = read_prefs(pfile, "");
-    free(pfile);
-    read_already = true;
+    prefs_ok = parse_prefs(pfile);
+    if(free_str){
+      free(pfile);
+    }
+    if(prefs_ok){
+      prefs_read_already = true;
+    }
   }
   return prefs_ok;
 }
 
 section_struct *find_section(char *section_name)
 {
-  if(read_prefs_on_init() == false){
-    return NULL;
-  }
-  if(section_name == NULL){
-    log_message("Attempt to find section with NULL name!");
-    return false;
-  }
+  assert(prefs_read_already);
+  assert(section_name != NULL);
+  
   iterator i;
   init_iterator(prefs, &i);
   
@@ -423,9 +418,10 @@ section_struct *find_section(char *section_name)
 
 key_val_struct *find_key(char *section_name, char *key_name)
 {
-  if(read_prefs_on_init() == false){
-    return NULL;
-  }
+  assert(prefs_read_already);
+  assert(section_name != NULL);
+  assert(key_name != NULL);
+  
   section_struct *sec = find_section(section_name);
   if(sec == NULL){
     log_message("Section %s not found!\n", section_name);
@@ -448,9 +444,7 @@ key_val_struct *find_key(char *section_name, char *key_name)
 
 bool section_exists(char *section_name)
 {
-  if(read_prefs_on_init() == false){
-    return false;
-  }
+  assert(prefs_read_already);
   if(find_section(section_name) != NULL){
     return true;
   }else{
@@ -460,9 +454,7 @@ bool section_exists(char *section_name)
 
 bool key_exists(char *section_name, char *key_name)
 {
-  if(read_prefs_on_init() == false){
-    return false;
-  }
+  assert(prefs_read_already);
   if(find_key(section_name, key_name) != NULL){
     return true;
   }else{
@@ -472,10 +464,7 @@ bool key_exists(char *section_name, char *key_name)
 
 char *get_key(char *section_name, char *key_name)
 {
-  if(read_prefs_on_init() == false){
-    return NULL;
-  }
-  //printf("Getkey %s %s\n", section_name!=NULL?section_name:"NULL", key_name);
+  assert(prefs_read_already);
   key_val_struct *kv = NULL;
   if(section_name != NULL){
     kv = find_key(section_name, key_name);
@@ -499,9 +488,7 @@ char *get_key(char *section_name, char *key_name)
 
 bool add_key(char *section_name, char *key_name, char *new_value)
 {
-  if(read_prefs_on_init() == false){
-    return NULL;
-  }
+  assert(prefs_read_already);
   if(section_name == NULL){
     section_name = custom_section_name;
   }
@@ -525,37 +512,22 @@ bool add_key(char *section_name, char *key_name, char *new_value)
 
 bool change_key(char *section_name, char *key_name, char *new_value)
 {
-  if(read_prefs_on_init() == false){
-    return NULL;
+  assert(prefs_read_already);
+  assert(key_name != NULL);
+  assert(new_value != NULL);
+  
+  if(section_name == NULL){
+    assert(custom_section_name != NULL);
+    section_name = custom_section_name;
   }
   key_val_struct *kv = NULL;
-  if(section_name != NULL){
-    if(section_exists(section_name)){
-      kv = find_key(section_name, key_name);
-      if(kv == NULL){
-        return add_key(section_name, key_name, new_value);
-      }
-    }else{
-      log_message("Section %s doesn't exist!\n", section_name);
-      return false;
-    }
-  }else{
-    if(custom_section_name != NULL){
-      if(key_exists(custom_section_name, key_name) == true){
-        kv = find_key(custom_section_name, key_name);
-      }else{
-        return add_key(custom_section_name, key_name, new_value);
-      }
-    }else{
-      log_message("Set custom section name before change of pref %s!\n", key_name);
-      return false;
-    }
-  }
+  kv = find_key(section_name, key_name);
   if(kv == NULL){
-    return false;
+    return add_key(section_name, key_name, new_value);
+  }else{
+    free(kv->value);
+    kv->value = my_strdup(new_value);
   }
-  free(kv->value);
-  kv->value = my_strdup(new_value);
   return true;
 }
 
@@ -597,9 +569,7 @@ bool dump_prefs(char *file_name)
       return false;
     }
   }
-  if(read_prefs_on_init() == false){
-    return false;
-  }
+  assert(prefs_read_already);
   iterator i;
   init_iterator(prefs, &i);
   
@@ -682,64 +652,35 @@ bool set_custom_section(char *name)
 
 bool save_prefs()
 {
-  char *pfile = get_pref_file_name();
+  char *pfile = get_default_file_name();
   if(pfile == NULL){
     log_message("Can't find preference file!\n");
+    return false;
   }
-  char *tmp_file;
+  char *tmp_file = NULL;
+  char *old_file = NULL;
   asprintf(&tmp_file, "%s.new", pfile);
   if(dump_prefs(tmp_file) == true){
-    char *old_file;
     asprintf(&old_file, "%s.old", pfile);
     remove(old_file);
-    if(rename(pfile, old_file) == 0){
-      if(rename(tmp_file, pfile) != 0){
-        log_message("Can't rename '%s' to '%s'\n", tmp_file, pfile);
-        return false;
-      }
-    }else{
+    if(rename(pfile, old_file) != 0){
+      log_message("Can't rename '%s' to '%s'\n", old_file, pfile);
+    }
+    if(rename(tmp_file, pfile) != 0){
+      log_message("Can't rename '%s' to '%s'\n", tmp_file, pfile);
+      free(tmp_file);
+      free(old_file);
+      free(pfile);
+      return false;
     }
   }else{
     log_message("Can't write prefs to file '%s'\n", tmp_file);
+    free(tmp_file);
+      free(pfile);
     return false;
   }
+  if(tmp_file != NULL) free(tmp_file);
+  if(old_file != NULL) free(old_file);
+  free(pfile);
   return true;
 }
-
-/*
-int main(int argc, char *argv[])
-{
-  set_custom_section("XPlane");
-  printf("Device type: %s\n", get_key("Global", "Capture-device"));
-  printf("Head ref [0, %s, %s]\n", get_key("Global", "Head-Y"), 
-  	get_key("Global", "Head-Z"));
-  dump_prefs("pref1.dmp");
-  change_key("Global", "Head-Y", "333");
-  change_key("Global", "Head-Z", "444");
-  printf("Head ref [0, %s, %s]\n", get_key("Global", "Head-Y"), 
-  	get_key("Global", "Head-Z"));
-  
-  pref_id ff, fb, fc;
-  if(open_pref(NULL, "Filter-factor", &ff)){
-    printf("Pref OK... %f\n", get_flt(ff));
-    if(set_flt(&ff, 3.14))
-      printf("Pref OK... %f\n", get_flt(ff));
-    close_pref(&ff);
-  }
-  if(open_pref(NULL, "Recenter-button", &fb)){
-    printf("Pref OK... %d\n", get_int(fb));
-    if(set_int(&fb, 14))
-      printf("Pref OK... %d\n", get_int(fb));
-    close_pref(&fb);
-  }
-  dump_prefs("pref2.dmp");
-  save_prefs();
-  
-  free_prefs();
-  return 0;
-}
-//gcc -o pt -g pref.c utils.c list.c pref_bison.c pref_flex.c; ./pt
-
-
-*/
-

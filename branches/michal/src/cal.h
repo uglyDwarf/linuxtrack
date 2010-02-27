@@ -5,6 +5,10 @@
 #define NEW_CAL__H
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 struct blob_type {
   /* coordinates of the blob on the screen 
@@ -28,7 +32,9 @@ struct bloblist_type {
 };
 
 struct frame_type {
-  struct bloblist_type bloblist; 
+  struct bloblist_type bloblist;
+  unsigned int width;
+  unsigned int height;
   unsigned char *bitmap; /* 8bits per pixel, monochrome 0x00 or 0xff */
 };
 
@@ -124,5 +130,9 @@ void frame_free(struct camera_control_block *ccb,
 /* primarily for debug, will print a string 
  * represtentation of the given frame to stdout */ 
 void frame_print(struct frame_type f);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

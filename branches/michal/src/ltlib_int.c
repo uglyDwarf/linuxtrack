@@ -102,11 +102,6 @@ bool lt_int_save_prefs()
   return save_prefs();
 }
 
-bool lt_int_pref_changed(pref_id pref)
-{
-  return pref_changed(pref);
-}
-
 bool lt_int_close_pref(pref_id *prf)
 {
   return close_pref(prf);

@@ -2,9 +2,6 @@
 #include "list.h"
 
 
-typedef struct list_iterator{
-} list_iterator;
-
 typedef struct list_element{
   struct list_element *prev;
   struct list_element *next;
@@ -15,7 +12,6 @@ typedef struct list{
   list_element *head;
   list_element *tail;
 } list; 
-
 
 
 plist create_list()
@@ -58,67 +54,74 @@ void init_iterator(plist l, iterator *i)
 {
   assert(l != NULL);
   assert(i != NULL);
-  *i = l->head;
+  i->parent = l;
+  i->elem = l->head;
 }
 
 void init_rev_iterator(plist l, iterator *i)
 {
   assert(l != NULL);
   assert(i != NULL);
-  *i = l->tail;
+  i->parent = l;
+  i->elem = l->tail;
 }
 
 void* get_next(iterator* i)
 {
   assert(i != NULL);
-  if((*i) == NULL){
+  assert(i->parent != NULL);
+  if((i->elem) == NULL){
     return(NULL);
   }
-  void* payload = (*i)->payload;
-  *i = (*i)->next;
+  void* payload = i->elem->payload;
+  i->elem = i->elem->next;
   return(payload);
 }
 
 void* get_prev(iterator* i)
 {
   assert(i != NULL);
-  if((*i) == NULL){
+  assert(i->parent != NULL);
+  if((i->elem) == NULL){
     return(NULL);
   }
-  void* payload = (*i)->payload;
-  *i = (*i)->next;
+  void* payload = i->elem->payload;
+  i->elem = i->elem->prev;
   return(payload);
 }
 
 void* get_current(iterator* i)
 {
   assert(i != NULL);
-  if((*i) == NULL){
+  assert(i->parent != NULL);
+  if((i->elem) == NULL){
     return(NULL);
   }
-  void* payload = (*i)->payload;
+  void* payload = i->elem->payload;
   return(payload);
 }
 
 void *delete_current(plist pl, iterator* i)
 {
   assert(i != NULL);
+  assert(i->parent != NULL);
+  assert(i->parent == pl);
   if(is_empty(pl)){
-    log_message("Attempted to delete from empty list!");
+    log_message("Attempted to delete from empty list!\n");
     return NULL;
   }
   //iterator is already one element farther
   list_element *current = NULL;
-  if((*i) == NULL){
+  if((i->elem) == NULL){
     current = pl->tail;
-  }else if(*i == pl->head){
+  }else if(i->elem == pl->head){
     current = pl->head;
   }else{
-    current = (*i)->prev;
+    current = i->elem->prev;
   }
   if(current == NULL){
-    log_message("Can't deternime which element to delete!");
-    return false; 
+    log_message("Can't deternime which element to delete!\n");
+    return NULL; 
   }
   
   if(pl->head == current){

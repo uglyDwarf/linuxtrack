@@ -47,11 +47,14 @@ float clamp_angle(float angle);
 bool check_pose()
 {
   struct reflector_model_type rm;
-  if(get_pose_setup(&rm) == false){
+  bool changed;
+  if(get_pose_setup(&rm, &changed) == false){
     log_message("Can't get pose setup!\n");
     return false;
   }
-  pose_init(rm);
+  if(changed){
+    pose_init(rm);
+  }
   return true;
 }
 
@@ -111,7 +114,8 @@ int update_pose(struct frame_type *frame)
   static float filtered_translations[3] = {0.0f, 0.0f, 0.0f};
   struct transform t;
   bool recentering = false;
-  
+  check_pose();
+
   if(recenter == true){
     recenter = false;
     recentering = true;
@@ -148,10 +152,11 @@ int update_pose(struct frame_type *frame)
     first_frame = false;
   }
       
-  log_message("[%f,%f], [%f, %f], [%f, %f]\n", filtered_bloblist.blobs[0].x, 
+/*  log_message("[%f,%f], [%f, %f], [%f, %f]\n", filtered_bloblist.blobs[0].x, 
   filtered_bloblist.blobs[0].y,  filtered_bloblist.blobs[1].x,
   filtered_bloblist.blobs[1].y, filtered_bloblist.blobs[2].x,
   filtered_bloblist.blobs[2].y);
+*/
   pose_process_blobs(filtered_bloblist, &t, recentering);
 /*     transform_print(t); */
   pose_compute_camera_update(t,

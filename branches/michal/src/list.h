@@ -4,8 +4,11 @@
 #include <stdbool.h>
 #include "utils.h"
 
-typedef struct list_element* iterator;
 typedef struct list* plist;
+typedef struct iterator{
+  struct list_element *elem;
+  plist parent;
+} iterator;
 
 /*
  * Returns pointer empty list.
@@ -30,10 +33,22 @@ void add_element(plist pl, void *payload);
 void init_iterator(plist l, iterator *i);
 
 /*
+ * Initializes iterator i and points it to the 
+ * end of the list 
+ */
+void init_rev_iterator(plist l, iterator *i);
+
+/*
  * Returns pointer to next element in the list, 
  * NULL if you've reached the end...
  */
 void* get_next(iterator* i);
+
+/*
+ * Returns pointer to previous element in the list, 
+ * NULL if you've reached the beginning...
+ */
+void* get_prev(iterator* i);
 
 /*
  * Returns pointer to current element, NULL if at
@@ -50,26 +65,3 @@ void free_list(plist list_ptr, bool free_payload);
 
 #endif
 
-
-/*
-  Usage example:
-  --------------
-  
-  plist l = create_list();
-  
-  add_element(l, strdup("a'));
-  add_element(l, strdup("b"));
-  add_element(l, strdup("c"));
-  
-  iterator i;
-  init_iterator(l, &i);
-  
-  char* str;
-  while((str = (char *)get_next(&i)) != NULL){
-    printf("%s",str);
-  }
-  printf("\n");
-  
-  free_list(l, TRUE);
-  
-*/

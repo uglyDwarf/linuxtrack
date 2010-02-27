@@ -2,8 +2,7 @@
 #define LINUX_TRACK__H
 
 #include <stdbool.h>
-
-typedef struct pref_struct *pref_id;
+#include "pref.h"
 
 int lt_int_init(char *cust_section);
 int lt_int_shutdown(void);
@@ -25,7 +24,6 @@ bool lt_int_set_flt(pref_id *prf, float f);
 bool lt_int_set_int(pref_id *prf, int i);
 bool lt_int_set_str(pref_id *prf, char *str);
 bool lt_int_save_prefs(void);
-bool lt_int_pref_changed(pref_id prf);
 bool lt_int_close_pref(pref_id *prf);
 
 void lt_int_log_message(const char *format, ...);

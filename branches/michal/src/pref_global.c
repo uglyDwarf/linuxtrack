@@ -1,11 +1,18 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "pref.h"
 #include "pref_int.h"
 #include "pref_global.h"
 #include "utils.h"
 
+
+void pref_change_callback(void *param)
+{
+  assert(param != NULL);
+  *(bool*)param = true;
+}
 
 char *get_device_section()
 {
@@ -37,38 +44,31 @@ bool get_ir_on()
   char *dev_sec = get_device_section();
   if(ir_on == NULL){
     if(!open_pref(dev_sec, "IR-LEDs", &ir_on)){
-      reflector_model_type rm;
-      if(!get_pose_setup(&rm)){
-	log_message("Can't get model type!\n");
-	return false;
-      }
-      if (rm.type == CAP) {
-	return true;
-      }
-      else if (rm.type == CLIP) {
-	return false;
-      }
-      else {
-	log_message("Unknown Model-type!\n");
-	return false;
-      }
+      log_message("Unspecified if TIR should have IR LEDs on!\n");
+      return false;
     }
   }
   
   return strcasecmp(get_str(ir_on), "on") == 0 ? true : false;
 }
 
+bool model_section_changed = false;
+
 char *get_model_section()
 {
   static pref_id model_section = NULL;
   static char *name;
   if(model_section == NULL){
-    if(!open_pref("Global", "Model", &model_section)){
+    if(!open_pref_w_callback("Global", "Model", &model_section,
+      pref_change_callback, (void*)&model_section_changed)){
       log_message("Entry 'Model' missing in 'Global' section!\n");
       return NULL;
     }
+    model_section_changed = true;
   }
-  if(pref_changed(model_section)){
+  
+  if(model_section_changed){
+    model_section_changed = false;
     name = get_str(model_section);
   }
   return name;
@@ -141,8 +141,10 @@ bool get_coord(char *coord_id, float *f)
   return true;
 }
 
-typedef enum {X, Y, Z, H_Y, H_Z} cap_index;
+//FIXME Possible race condition!
+bool pose_changed = false;
 
+typedef enum {X, Y, Z, H_Y, H_Z} cap_index;
 
 bool setup_cap(reflector_model_type *rm, char *model_section)
 {
@@ -153,7 +155,8 @@ bool setup_cap(reflector_model_type *rm, char *model_section)
   if(!init_done){
     cap_index i;
     for(i = X; i<= H_Z; ++i){
-      if(!open_pref(model_section, ids[i], &(prefs[i]))){
+      if(!open_pref_w_callback(model_section, ids[i], &(prefs[i]), 
+        pref_change_callback, (void *)&pose_changed)){
         log_message("Couldn't setup Cap!\n");
         return false;
       }
@@ -193,7 +196,8 @@ bool setup_clip(reflector_model_type *rm, char *model_section)
   if(!init_done){
     clip_index i;
     for(i = Y1; i<= HZ; ++i){
-      if(!open_pref(model_section, ids[i], &(prefs[i]))){
+      if(!open_pref_w_callback(model_section, ids[i], &(prefs[i]),
+        pref_change_callback, (void *)&pose_changed)){
         log_message("Couldn't setup Clip!\n");
         return false;
       }
@@ -230,32 +234,38 @@ bool setup_clip(reflector_model_type *rm, char *model_section)
   return true;
 }
 
-
-
-bool get_pose_setup(reflector_model_type *rm)
+bool get_pose_setup(reflector_model_type *rm, bool *changed)
 {
+  assert(rm != NULL);
+  assert(changed != NULL);
   char *model_section = get_model_section();
   if(model_section == NULL){
     return false;
   }
   static pref_id pref_model_type = NULL;
   if(pref_model_type == NULL){
-    if(!open_pref(model_section, "Model-type", &pref_model_type)){
+    if(!open_pref_w_callback(model_section, "Model-type", &pref_model_type,
+      pref_change_callback, (void *)&pose_changed)){
       log_message("Couldn't find Model-type!\n");
       return false;
     }
-    
+    pose_changed = true;
   }
-  char *model_type = get_str(pref_model_type);
-  if (model_type == NULL) {
-    return false;
-  }
-  //log_message("Model: '%s'\n", model_type);
-  if(strcasecmp(model_type, "Cap") == 0){
-    return setup_cap(rm, model_section);
-  }
-  if(strcasecmp(model_type, "Clip") == 0){
-    return setup_clip(rm, model_section);
+  *changed = false;
+  if(pose_changed){
+    pose_changed = false;
+    *changed = true;
+    char *model_type = get_str(pref_model_type);
+    if (model_type == NULL) {
+      return false;
+    }
+    //log_message("Model: '%s'\n", model_type);
+    if(strcasecmp(model_type, "Cap") == 0){
+      return setup_cap(rm, model_section);
+    }
+    if(strcasecmp(model_type, "Clip") == 0){
+      return setup_clip(rm, model_section);
+    }
   }
   return false;
 }

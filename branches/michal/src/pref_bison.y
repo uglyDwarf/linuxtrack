@@ -73,7 +73,6 @@ key_val_pair:	TOKEN_KEY TOKEN_EQ TOKEN_VALUE {
 		  add_element(current_section->contents, item);
 		}
 ;
-
 %%
 
 

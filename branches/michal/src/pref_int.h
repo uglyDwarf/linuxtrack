@@ -48,8 +48,9 @@ typedef struct pref_data{
 } pref_data;
 
 typedef struct pref_struct{
-  bool changed;
   pref_data *data;
+  pref_callback cbk;
+  void *param;
 } pref_struct;
 
 bool section_exists(char *section_name);
@@ -63,6 +64,8 @@ void free_prefs();
 
 bool set_custom_section(char *name);
 bool open_pref(char *section, char *key, pref_id *prf);
+bool open_pref_w_callback(char *section, char *key, pref_id *prf, 
+                          pref_callback cbk,  void *param);
 float get_flt(pref_id prf);
 int get_int(pref_id prf);
 char *get_str(pref_id prf);
@@ -71,8 +74,8 @@ bool set_flt(pref_id *prf, float f);
 bool set_int(pref_id *prf, int i);
 bool set_str(pref_id *prf, char *str);
 
+bool read_prefs(char *file, bool force_read);
 bool save_prefs();
-bool pref_changed(pref_id pref);
 bool close_pref(pref_id *prf);
 
 

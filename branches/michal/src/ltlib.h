@@ -1,9 +1,15 @@
 #ifndef LINUX_TRACK__H
 #define LINUX_TRACK__H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 
 typedef struct pref_struct *pref_id;
+typedef void (*pref_callback)(void *);
+
 
 int lt_init(char *cust_section);
 int lt_shutdown(void);
@@ -25,10 +31,13 @@ bool lt_set_flt(pref_id *prf, float f);
 bool lt_set_int(pref_id *prf, int i);
 bool lt_set_str(pref_id *prf, char *str);
 bool lt_save_prefs(void);
-bool lt_pref_changed(pref_id prf);
 bool lt_close_pref(pref_id *prf);
 
 void lt_log_message(const char *format, ...);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

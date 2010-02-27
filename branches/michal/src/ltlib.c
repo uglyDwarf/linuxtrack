@@ -25,7 +25,6 @@ bool (*fun_lt_int_set_flt)(pref_id *prf, float f) = NULL;
 bool (*fun_lt_int_set_int)(pref_id *prf, int i) = NULL;
 bool (*fun_lt_int_set_str)(pref_id *prf, char *str) = NULL;
 bool (*fun_lt_int_save_prefs)(void) = NULL;
-bool (*fun_lt_int_pref_changed)(pref_id prf) = NULL;
 bool (*fun_lt_int_close_pref)(pref_id *prf) = NULL;
 
 void (*fun_lt_int_log_message)(const char *format, ...) = NULL;
@@ -51,7 +50,6 @@ lib_fun_def_t functions[] = {
 {"lt_int_set_int", (void*) &fun_lt_int_set_int},
 {"lt_int_set_str", (void*) &fun_lt_int_set_str},
 {"lt_int_save_prefs", (void*) &fun_lt_int_save_prefs},
-{"lt_int_pref_changed", (void*) &fun_lt_int_pref_changed},
 {"lt_int_close_pref", (void*) &fun_lt_int_close_pref},
 {"lt_int_log_message", (void*) &fun_lt_int_log_message},
 {NULL, NULL}
@@ -92,7 +90,6 @@ static int lt_load_functions()
   *(void**) (&fun_lt_int_set_int) = dlsym(libhandle, "lt_int_set_int");
   *(void**) (&fun_lt_int_set_str) = dlsym(libhandle, "lt_int_set_str");
   *(void**) (&fun_lt_int_save_prefs) = dlsym(libhandle, "lt_int_save_prefs");
-  *(void**) (&fun_lt_int_pref_changed) = dlsym(libhandle, "lt_int_pref_changed");
   *(void**) (&fun_lt_int_close_pref) = dlsym(libhandle, "lt_int_close_pref");
   *(void**) (&fun_lt_int_log_message) = dlsym(libhandle, "lt_int_log_message");
   */
@@ -253,16 +250,6 @@ bool lt_save_prefs()
     }
   }
   return fun_lt_int_save_prefs();
-}
-
-bool lt_pref_changed(pref_id pref)
-{
-  if(fun_lt_int_pref_changed == NULL){
-    if(lt_load_functions() != 0){
-      return false;
-    }
-  }
-  return fun_lt_int_pref_changed(pref);
 }
 
 bool lt_close_pref(pref_id *prf)

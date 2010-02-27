@@ -10,7 +10,7 @@
 
 %x VALUE
 
-KEY			[a-zA-Z0-9-]+
+KEY			[_a-zA-Z0-9-]+
 %%
 =[[:blank:]]*		{BEGIN(VALUE); return(TOKEN_EQ);}
 \[                      { return(TOKEN_LEFT_BRACKET);}  
@@ -40,3 +40,4 @@ KEY			[a-zA-Z0-9-]+
   
 .			log_message( "Unrecognized character: %s\n", yytext );
 %%
+
