@@ -115,11 +115,9 @@ int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)
   unsigned int w,h;
   float hf;
   get_res_tir(&w, &h, &hf);
-  if(ccb->diag){
-    assert(f->bitmap != NULL);
-    memset(f->bitmap, 0, w * h);
-  }
   
+  f->width = w;
+  f->height = h;
   if(read_blobs_tir(&blob_list, f->bitmap, w, h, hf) < 0){
     if(blob_list != NULL){
       free_list(blob_list, true);

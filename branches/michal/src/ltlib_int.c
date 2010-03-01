@@ -10,6 +10,10 @@
 int lt_int_init(char *cust_section)
 {
   set_custom_section(cust_section);
+  if(!read_prefs(NULL, false)){
+    log_message("Couldn't load preferences!\n");
+    return -1;
+  }
   if(!init_tracking()){
     log_message("Couldn't initialize trcking!\n");
     return -1;

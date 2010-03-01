@@ -3,6 +3,9 @@
 
 #include <stdlib.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 void* my_malloc(size_t size);
@@ -12,5 +15,8 @@ int my_ioctl(int d, int request, void *argp);
 void strlower(char *s);
 char *my_strcat(char *str1, char *str2);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

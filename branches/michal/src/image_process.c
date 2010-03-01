@@ -23,9 +23,10 @@ int get_blob(unsigned char *pt,unsigned char *low_limit,
 	       int line,struct my_blob_type *b, int linelen, int rec_level)
 {
   unsigned char *p_ul,*p_u,*p_ur,*p_l,*p_r,*p_dl,*p_d,*p_dr;
+  int res = 0;
   if(rec_level>1000){
     log_message("Recursion level reached!\n");
-    return(0);
+    return(-1);
   }
   rec_level++;
   int x = (pt - left_limit);
@@ -50,17 +51,17 @@ int get_blob(unsigned char *pt,unsigned char *low_limit,
   if((p_l!=NULL)&&(p_d!=NULL)) p_dl=p_d-1; else p_dl=NULL;
   if((p_r!=NULL)&&(p_d!=NULL)) p_dr=p_d+1; else p_dr=NULL;
   
-  if((p_ul!=NULL)&&(*p_ul > 0)) get_blob(p_ul,low_limit,high_limit,left_limit-linelen,line-1,b,linelen, rec_level);
-  if((p_u!=NULL)&&(*p_u > 0)) get_blob(p_u,low_limit,high_limit,left_limit-linelen,line-1,b,linelen, rec_level);
-  if((p_ur!=NULL)&&(*p_ur > 0)) get_blob(p_ur,low_limit,high_limit,left_limit-linelen,line-1,b,linelen, rec_level);
+  if((p_ul!=NULL)&&(*p_ul > 0)) res |= get_blob(p_ul,low_limit,high_limit,left_limit-linelen,line-1,b,linelen, rec_level);
+  if((p_u!=NULL)&&(*p_u > 0)) res |= get_blob(p_u,low_limit,high_limit,left_limit-linelen,line-1,b,linelen, rec_level);
+  if((p_ur!=NULL)&&(*p_ur > 0)) res |= get_blob(p_ur,low_limit,high_limit,left_limit-linelen,line-1,b,linelen, rec_level);
 
-  if((p_l!=NULL)&&(*p_l > 0)) get_blob(p_l,low_limit,high_limit,left_limit,line,b,linelen, rec_level);
-  if((p_r!=NULL)&&(*p_r > 0)) get_blob(p_r,low_limit,high_limit,left_limit,line,b,linelen, rec_level);
+  if((p_l!=NULL)&&(*p_l > 0)) res |= get_blob(p_l,low_limit,high_limit,left_limit,line,b,linelen, rec_level);
+  if((p_r!=NULL)&&(*p_r > 0)) res |= get_blob(p_r,low_limit,high_limit,left_limit,line,b,linelen, rec_level);
 
-  if((p_dl!=NULL)&&(*p_dl > 0)) get_blob(p_dl,low_limit,high_limit,left_limit+linelen,line+1,b,linelen, rec_level);
-  if((p_d!=NULL)&&(*p_d > 0)) get_blob(p_d,low_limit,high_limit,left_limit+linelen,line+1,b,linelen, rec_level);
-  if((p_dr!=NULL)&&(*p_dr > 0)) get_blob(p_dr,low_limit,high_limit,left_limit+linelen,line+1,b,linelen, rec_level);
-  return(0);
+  if((p_dl!=NULL)&&(*p_dl > 0)) res |= get_blob(p_dl,low_limit,high_limit,left_limit+linelen,line+1,b,linelen, rec_level);
+  if((p_d!=NULL)&&(*p_d > 0)) res |= get_blob(p_d,low_limit,high_limit,left_limit+linelen,line+1,b,linelen, rec_level);
+  if((p_dr!=NULL)&&(*p_dr > 0)) res |= get_blob(p_dr,low_limit,high_limit,left_limit+linelen,line+1,b,linelen, rec_level);
+  return(res);
 }
 
 

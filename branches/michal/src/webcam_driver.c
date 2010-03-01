@@ -458,7 +458,8 @@ int webcam_change_operating_mode(struct camera_control_block *ccb,
 int webcam_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 {
   f->bloblist.num_blobs = wc_info.expecting_blobs;
-
+  f->width = wc_info.w;
+  f->height = wc_info.h;
   struct v4l2_buffer buf;
   memset(&buf, 0, sizeof(buf));
   buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -512,21 +513,20 @@ int webcam_get_frame(struct camera_control_block *ccb, struct frame_type *f)
   unsigned char *source_buf = (buffers[buf.index]).start;
   unsigned char *dest_buf = wc_info.bw_frame;
   int cntr, cntr1;
-//  int pts = 0;
+  //int pts = 0;
   
   for(cntr = cntr1 = 0; cntr < buf.bytesused; cntr += 2, cntr1++){
     if(source_buf[cntr] > wc_info.threshold){
       dest_buf[cntr1] = source_buf[cntr];
-//      ++pts;
+      //++pts;
     }else{
       dest_buf[cntr1] = 0;
     }
   }
   
-//  printf("%d points found!\n", pts);
+  //log_message("%d points found!\n", pts);
 
-  if(wc_info.is_diag == true){
-    f->bitmap = (unsigned char *)my_malloc(wc_info.w * wc_info.h);
+  if(f->bitmap != NULL){
     memcpy(f->bitmap, dest_buf, wc_info.w * wc_info.h);
   }
   

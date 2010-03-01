@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <time.h>
+#include <assert.h>
 
 #define IOCTL_RETRY_COUNT 5
 
@@ -17,6 +18,7 @@ void* my_malloc(size_t size)
   void *ptr = malloc(size);
   if(ptr == NULL){
     log_message("Can't malloc memory! %s\n", strerror(errno));
+    assert(0);
     exit(1);
   }
   return ptr;

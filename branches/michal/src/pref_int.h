@@ -5,6 +5,9 @@
 #include "list.h"
 #include "pref.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct{
   char *key;
@@ -78,5 +81,8 @@ bool read_prefs(char *file, bool force_read);
 bool save_prefs();
 bool close_pref(pref_id *prf);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

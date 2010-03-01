@@ -501,6 +501,7 @@ int read_blobs_tir(plist *blob_list, unsigned char pic[],
   
   if(have_frame){
     int res = stripes_to_blobs_tir(blob_list);
+/*    
     if(pic != NULL){
       static int fc = 0;
       char name[] = "fXXXXXXX.raw";
@@ -512,6 +513,7 @@ int read_blobs_tir(plist *blob_list, unsigned char pic[],
 	fclose(f);
       }
     }
+*/
     return res;
   }else{
     return 0;

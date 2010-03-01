@@ -103,6 +103,39 @@ int wiimote_wakeup() {
     return 0;
 }
 
+static void clip_coord(int *coord, int min,
+                       int max)
+{
+  int tmp = *coord;
+  tmp = (tmp < min) ? min : tmp;
+  tmp = (tmp > max) ? max : tmp;
+  *coord = tmp;
+}
+
+void draw_cross(struct frame_type *f, int x, int y, int size)
+{
+  int cntr;
+  int x_m = x - size;
+  int x_p = x + size;
+  int y_m = y - size;
+  int y_p = y + size;
+  clip_coord(&x_m, 0, f->width);
+  clip_coord(&x_p, 0, f->width);
+  clip_coord(&y_m, 0, f->height);
+  clip_coord(&y_p, 0, f->height);
+  
+  unsigned char *pt;
+  pt = f->bitmap + (f->width * y) + x_m;
+  for(cntr = x_m; cntr < x_p; ++cntr){
+    *(pt++) = 0xFF;
+  }
+  pt = f->bitmap + (f->width * y_m) + x;
+  for(cntr = y_m; cntr < y_p; ++cntr){
+    *pt = 0xFF;
+    pt += f->width;
+  }
+}
+
 /* read the usb, and process it into frames
  * a return value < 0 indicates error */
 int wiimote_get_frame(struct camera_control_block *ccb,
@@ -112,8 +145,9 @@ int wiimote_get_frame(struct camera_control_block *ccb,
     unsigned int required_blobnum = 3;
     int valid;
     int i;
-
-usleep(10000);
+    
+    //Otherwise the polling takes too much processor
+    usleep(10000);
 
     if (!gStateCheckIn--) {
         gStateCheckIn = STATE_CHECK_INTERVAL;
@@ -141,6 +175,8 @@ usleep(10000);
         }
     }
     
+    f->width = WIIMOTE_HORIZONTAL_RESOLUTION;
+    f->height = WIIMOTE_VERTICAL_RESOLUTION;
     f->bloblist.num_blobs = valid < required_blobnum ? valid : required_blobnum;
     f->bloblist.blobs = (struct blob_type *)
         malloc(f->bloblist.num_blobs*sizeof(struct blob_type));
@@ -153,6 +189,9 @@ usleep(10000);
                 f->bloblist.blobs[valid].x = -1 * state.ir_src[i].pos[CWIID_X] + WIIMOTE_HORIZONTAL_RESOLUTION/2;
                 f->bloblist.blobs[valid].y = state.ir_src[i].pos[CWIID_Y] - WIIMOTE_VERTICAL_RESOLUTION/2;
                 f->bloblist.blobs[valid].score = state.ir_src[i].size;
+                if(f->bitmap != NULL){
+                  draw_cross(f, state.ir_src[i].pos[CWIID_X], state.ir_src[i].pos[CWIID_Y], state.ir_src[i].size);
+                }
             }
             valid++;
         }

@@ -1,11 +1,11 @@
 #ifndef LINUX_TRACK__H
 #define LINUX_TRACK__H
 
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdbool.h>
 
 typedef struct pref_struct *pref_id;
 typedef void (*pref_callback)(void *);

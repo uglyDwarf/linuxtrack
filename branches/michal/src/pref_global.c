@@ -252,22 +252,23 @@ bool get_pose_setup(reflector_model_type *rm, bool *changed)
     pose_changed = true;
   }
   *changed = false;
+  static res = false;
   if(pose_changed){
     pose_changed = false;
     *changed = true;
     char *model_type = get_str(pref_model_type);
-    if (model_type == NULL) {
-      return false;
-    }
-    //log_message("Model: '%s'\n", model_type);
+    assert(model_type != NULL);
+
     if(strcasecmp(model_type, "Cap") == 0){
-      return setup_cap(rm, model_section);
-    }
-    if(strcasecmp(model_type, "Clip") == 0){
-      return setup_clip(rm, model_section);
+      res = setup_cap(rm, model_section);
+    }else if(strcasecmp(model_type, "Clip") == 0){
+      res = setup_clip(rm, model_section);
+    }else{
+      log_message("Unknown modeltype specified in section %s\n", model_section);
+      res = false;
     }
   }
-  return false;
+  return res;
 }
 
 bool get_scale_factors(struct lt_scalefactors *sf)

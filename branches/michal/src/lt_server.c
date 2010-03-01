@@ -132,6 +132,10 @@ int main(int argc, char *argv[])
     log_message("Bad args...\n");
     return 1;
   }
+  if(!read_prefs(NULL, false)){
+    log_message("Couldn't load preferences!\n");
+    return -1;
+  }
   
   if((sfd = init_server(atoi(argv[1]))) < 0){
     log_message("Have problem....\n");
