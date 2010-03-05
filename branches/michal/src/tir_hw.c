@@ -42,7 +42,7 @@ dev_found device = NONE;
 
 tir_interface tir4;
 tir_interface tir5;
-tir_interface *tir = NULL;
+tir_interface *tir_iface = NULL;
 
 typedef struct{
   bool fw_loaded;
@@ -365,8 +365,8 @@ bool stop_camera_tir5()
 
 bool stop_camera_tir()
 {
-  assert(tir != NULL);
-  return tir->stop_camera_tir();
+  assert(tir_iface != NULL);
+  return tir_iface->stop_camera_tir();
 }
 
 bool start_camera_tir4()
@@ -394,8 +394,8 @@ bool start_camera_tir5()
 
 bool start_camera_tir()
 {
-  assert(tir != NULL);
-  return tir->start_camera_tir();
+  assert(tir_iface != NULL);
+  return tir_iface->start_camera_tir();
 }
 
 
@@ -511,8 +511,8 @@ bool init_camera_tir5(char data_path[], bool force_fw_load, bool p_ir_on)
 
 bool init_camera_tir(char data_path[], bool force_fw_load, bool p_ir_on)
 {
-  assert(tir != NULL);
-  return tir->init_camera_tir(data_path, force_fw_load, p_ir_on);
+  assert(tir_iface != NULL);
+  return tir_iface->init_camera_tir(data_path, force_fw_load, p_ir_on);
 }
 
 bool open_tir(char data_path[], bool force_fw_load, bool ir_on)
@@ -533,10 +533,10 @@ bool open_tir(char data_path[], bool force_fw_load, bool ir_on)
   
   switch(device){
     case TIR4:
-      tir = &tir4;
+      tir_iface = &tir4;
       break;
     case TIR5:
-      tir = &tir5;
+      tir_iface = &tir5;
       break;
     default:
       log_message("No device!\n");
@@ -585,8 +585,8 @@ bool close_camera_tir5()
 
 bool close_tir()
 {
-  assert(tir != NULL);
-  return tir->close_camera_tir();
+  assert(tir_iface != NULL);
+  return tir_iface->close_camera_tir();
 }
 
 
@@ -607,8 +607,8 @@ void get_res_tir5(unsigned int *w, unsigned int *h, float *hf)
 
 void get_res_tir(unsigned int *w, unsigned int *h, float *hf)
 {
-  assert(tir != NULL);
-  tir->get_res_tir(w, h, hf);
+  assert(tir_iface != NULL);
+  tir_iface->get_res_tir(w, h, hf);
 }
 
 void switch_green(bool state)

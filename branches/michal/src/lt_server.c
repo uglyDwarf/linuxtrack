@@ -18,6 +18,7 @@
 #include "netcomm.h"
 #include "cal.h"
 #include "utils.h"
+#include "pref_int.h"
 #include "pref_global.h"
 
 pthread_cond_t state_cv;

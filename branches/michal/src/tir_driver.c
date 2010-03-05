@@ -11,6 +11,7 @@
 #include "pref_int.h"
 #include "pref_global.h"
 #include "runloop.h"
+#include "image_process.h"
 
 tracker_interface trck_iface = {
   .tracker_init = tir_init,
@@ -65,6 +66,7 @@ int tir_init(struct camera_control_block *ccb)
   if(open_tir(storage_path, false, get_ir_on())){
     float tf;
     get_res_tir(&(ccb->pixel_width), &(ccb->pixel_height), &tf);
+    prepare_for_processing(ccb->pixel_width, ccb->pixel_height);
     return 0;
   }else{
     return -1;
@@ -77,13 +79,14 @@ int tir_set_good(struct camera_control_block *ccb, bool arg)
   return 0;
 }
 
-int tir_blobs_to_bt(int num_blobs, plist blob_list, struct bloblist_type *blt)
+int tir_blobs_to_bt(int num_blobs, plist blob_list, struct bloblist_type *blt,
+		    image *img)
 {
   int min = get_int(min_blob);
   int max = get_int(max_blob);
 
   struct blob_type *bt = blt->blobs;
-  blob *b;
+  struct blob_type *b;
   struct blob_type *cal_b;
   iterator i;
   int counter = 0;
@@ -92,15 +95,18 @@ int tir_blobs_to_bt(int num_blobs, plist blob_list, struct bloblist_type *blt)
   float hf;
   get_res_tir(&w, &h, &hf);
   init_iterator(blob_list, &i);
-  while((b = (blob*)get_next(&i)) != NULL){
+  while((b = (struct blob_type*)get_next(&i)) != NULL){
     if((b->score < min) || (b->score > max)){
       continue;
     }
     ++valid;
     if(counter < num_blobs){
       cal_b = &(bt[counter]);
-      cal_b->x = (w / 2.0) - b->x;
-      cal_b->y = (h / 2.0) - b->y;
+      cal_b->x = ((w - 1) / 2.0) - b->x;
+      cal_b->y = ((h - 1) / 2.0) - (b->y * hf);
+      if(img->bitmap != NULL){
+	draw_cross(img, b->x, b->y);
+      }
       cal_b->score = b->score;
     }
     ++counter;
@@ -118,13 +124,19 @@ int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)
   
   f->width = w;
   f->height = h;
-  if(read_blobs_tir(&blob_list, f->bitmap, w, h, hf) < 0){
+  image img = {
+    .bitmap = f->bitmap,
+    .w = w,
+    .h = h,
+    .ratio = hf
+  };
+  if(read_blobs_tir(&blob_list, &img) < 0){
     if(blob_list != NULL){
       free_list(blob_list, true);
     }
     return -1;
   }
-  int res = tir_blobs_to_bt(3, blob_list, &(f->bloblist));
+  int res = tir_blobs_to_bt(3, blob_list, &(f->bloblist), &img);
   free_list(blob_list, true);
   return res; 
 }

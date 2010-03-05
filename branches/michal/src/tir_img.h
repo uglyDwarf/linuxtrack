@@ -2,13 +2,8 @@
 #define TIR_IMG__H
 
 #include "list.h"
+#include "image_process.h"
 
-typedef struct{
-  float x,y;
-  float score;
-} blob;
-
-int read_blobs_tir(plist *blob_list, unsigned char pic[], 
-                   unsigned int x, unsigned int y, float yf);
+int read_blobs_tir(plist *blob_list, image *img);
 
 #endif

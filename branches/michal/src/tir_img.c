@@ -4,240 +4,11 @@
 #include "tir_hw.h"
 #include "tir_img.h"
 #include "utils.h"
+#include "image_process.h"
 #include <assert.h>
 
-typedef struct {
-  unsigned int vline;
-  unsigned int hstart;
-  unsigned int hstop;
-  unsigned int sum_x;
-  unsigned int sum;
-  unsigned int points;
-} stripe_t;
-
-typedef struct {
-  stripe_t last_stripe;
-  stripe_t current_stripe;
-  int current_stripes;
-  float sum_x, sum_y;
-  int count;
-  int points;
-} preblob_t;
-
-static plist preblobs = NULL;
-static plist finished_blobs = NULL;
-static unsigned char *picture = NULL;
-static unsigned int pic_x, pic_y;
-static float pic_yf;
 static int pkt_no = 0;
-/*
-static void print_pblob(preblob_t *b)
-{
-  log_message("last:{v:%d %d - %d} current:{v:%d %d - %d} cur:%d\n", b->last_stripe.vline, b->last_stripe.hstart,
-    b->last_stripe.hstop, b->current_stripe.vline, b->current_stripe.hstart,
-    b->current_stripe.hstop, b->current_stripes);
-}
-*/
-
-
-blob* new_blob(float x, float y, float score)
-{
-  blob *tmp = (blob*)my_malloc(sizeof(blob));
-  tmp->x = x;
-  tmp->y = y;
-  tmp->score = score;
-  return tmp;
-}
-
-static void clip_coord(int *coord, int min,
-                       int max)
-{
-  int tmp = *coord;
-  tmp = (tmp < min) ? min : tmp;
-  tmp = (tmp > max) ? max : tmp;
-  *coord = tmp;
-}
-
-static void draw_stripe(int x, int y, int x_end, unsigned char color)
-{
-  if(picture == NULL)
-    return;
-  clip_coord(&x, 0, pic_x);
-  clip_coord(&y, 0, pic_y);
-  clip_coord(&x_end, 0, pic_x);
-  unsigned char *ptr = picture + y * pic_x + x;
-  x_end -= x;
-  while(x_end > 0){
-    *(++ptr) = color;
-    --x_end;
-  }
-}
-
-void draw_cross(int x, int y)
-{
-  int x1 = (int)x - 5;
-  int x2 = (int)x + 5;
-  int y1 = y - 5;
-  int y2 = y + 5;
-  
-  if(picture == NULL)
-    return;
-  clip_coord(&x1, 0, pic_x);
-  clip_coord(&y1, 0, pic_y);
-  clip_coord(&x2, 0, pic_x);
-  clip_coord(&y2, 0, pic_y);
-  
-  draw_stripe(x1, y, x2, 0xFF);
-  
-  unsigned char *ptr = picture + y1 * pic_x + x;
-  int count = y2 - y1 + 1;
-  while(count > 0){
-    *ptr = 0xf0;
-    ptr += pic_x;
-    --count;
-  }
-}
-
-static int stripes_to_blobs_tir(plist *blob_list)
-{
-  if(preblobs == NULL){
-    preblobs = create_list();
-  }
-  if(finished_blobs == NULL){
-    finished_blobs = create_list();
-  }
-  plist blobs = create_list();
-  int cntr = 0;
-  iterator i;
-  preblob_t *pb;
-  init_iterator(finished_blobs, &i);
-  while((pb = (preblob_t*)get_next(&i)) != NULL){
-    float x = pb->sum_x / pb->count;
-    float y = (pb->sum_y / pb->count) * pic_yf;
-    draw_cross(x, y);
-    add_element(blobs, new_blob(x, y, pb->points));
-    //printf("Blob: %g   %g   %d points\n", x, y, pb->count);
-    cntr++;
-  }
-  init_iterator(preblobs, &i);
-  while((pb = (preblob_t*)get_next(&i)) != NULL){
-    float x = pb->sum_x / pb->count;
-    float y = (pb->sum_y / pb->count) * pic_yf;
-    draw_cross(x, y);
-    add_element(blobs, new_blob(x, y, pb->points));
-    //printf("Blob: %g   %g   %d points\n", x, y, pb->count);
-    cntr++;
-  }
-  //log_message("End of blobs %d!\n", cntr);
-  free_list(preblobs, true);
-  preblobs = NULL;
-  free_list(finished_blobs, true);
-  finished_blobs = NULL;
-  *blob_list = blobs;
-  return cntr;
-}
-
-static bool stripes_coincide(stripe_t *stripe1, stripe_t *stripe2)
-{
-  if(stripe2->vline - stripe1->vline == 1){
-    if((stripe1->hstart < stripe2->hstop) && 
-      (stripe1->hstop > stripe2->hstart)){
-      return true;
-    }
-  }
-  return false;
-}
-
-static void merge_blobs(preblob_t *b1, preblob_t *b2)
-{
-  b1->last_stripe.hstop = b2->last_stripe.hstop;
-  b1->sum_x += b2->sum_x;
-  b1->sum_y += b2->sum_y;
-  b1->count += b2->count;
-  b1->points += b2->points;
-}
-
-static void add_stripe_to_preblob(preblob_t *pb, stripe_t *stripe)
-{
-  pb->sum_x += ((float)stripe->sum * stripe->hstart) + stripe->sum_x;
-  pb->sum_y += (float)stripe->sum * stripe->vline;
-  pb->count += stripe->sum;
-  pb->current_stripes++;
-  pb->points += stripe->points;
-  if(pb->current_stripes == 1){
-    pb->current_stripe = *stripe;
-  }else{
-    pb->current_stripe.hstop = stripe->hstop;
-  }
-}
-
-static preblob_t* new_preblob()
-{
-  preblob_t* pb = (preblob_t*) my_malloc(sizeof(preblob_t));
-  pb->sum_x = pb->sum_y = 0.0f;
-  pb->count = 0;
-  pb->points = 0;
-  pb->current_stripes = 0;
-  pb->last_stripe.vline = -1;
-  return pb;
-}
-
-static void add_to_list(plist *l, void* elem)
-{
-  if(*l == NULL){
-    *l = create_list();
-  }
-  add_element(*l, elem);
-}
-
-
-static int add_stripe(stripe_t *stripe)
-{
-  //log_message("Stripe: %d   %d - %d (%d   %d)\n", stripe->vline, stripe->hstart, 
-  //       stripe->hstop, stripe->sum, stripe->sum_x);
-  draw_stripe(stripe->hstart, stripe->vline * pic_yf, stripe->hstop, 0x80);
-  if(preblobs == NULL){
-    preblobs = create_list();
-  }
-  iterator i;
-  preblob_t *pb;
-  preblob_t *first_match = NULL;
-  static int last_vline = -1;
-  //moving to the new line
-  if(last_vline != stripe->vline){
-    last_vline = stripe->vline;
-    init_iterator(preblobs, &i);
-    while((pb = (preblob_t*)get_next(&i)) != NULL){
-      pb->last_stripe = pb->current_stripe;
-      pb->current_stripes = 0;
-      //move finished blobs
-      if(stripe->vline - pb->last_stripe.vline > 1){
-	add_to_list(&finished_blobs, (void*)pb);
-	delete_current(preblobs, &i);
-	continue;
-      }
-    }
-  }
-  
-  init_iterator(preblobs, &i);
-  while((pb = (preblob_t*)get_next(&i)) != NULL){
-    if(stripes_coincide(&(pb->last_stripe), stripe)){
-      if(first_match == NULL){
-        first_match = pb;
-        add_stripe_to_preblob(pb, stripe);
-      }else{
-        merge_blobs(first_match, pb);
-	free(delete_current(preblobs, &i));
-      }
-    }
-  }
-  if(first_match == NULL){
-    pb = new_preblob();
-    add_element(preblobs, pb);
-    add_stripe_to_preblob(pb, stripe);
-  }
-  return 0;
-}
+static image *p_img = NULL;
 
 static bool process_stripe_tir(unsigned char p_stripe[])
 {
@@ -258,13 +29,16 @@ static bool process_stripe_tir(unsigned char p_stripe[])
       stripe.hstart |= 0x200;
     if(rest & 0x08)
       stripe.hstop |= 0x200;
+    assert(stripe.hstart >= 82);
+    assert(stripe.hstop >= 82);
+    assert(stripe.vline >= 12);
     stripe.hstart -= 82;
     stripe.vline -= 12;
     stripe.hstop -= 82;
     stripe.sum = stripe.hstop - stripe.hstart + 1;
     stripe.sum_x = (unsigned int)(stripe.sum * (stripe.sum - 1) / 2.0);
     stripe.points = stripe.sum;
-    if(add_stripe(&stripe)){
+    if(!add_stripe(&stripe, p_img)){
       log_message("Couldn't add stripe!\n");
     }
   return true;
@@ -286,7 +60,7 @@ static bool process_stripe_tir5(unsigned char payload[])
 		    ((unsigned int)payload[6]) >>7;
     stripe.sum = (((unsigned int)payload[6]) & 0x7F) << 8 |
                    ((unsigned int)payload[7]);
-    if(add_stripe(&stripe)){
+    if(!add_stripe(&stripe, p_img)){
       log_message("Couldn't add stripe!\n");
     }
   return true;
@@ -365,8 +139,8 @@ bool process_packet_tir4(unsigned char data[], size_t *ptr, int pktsize, int lim
       have_frame = true;
       go_on = false;
     }else{
-//      log_message("\t%02X%02X%02X%02X\n", data[*ptr], data[*ptr + 1],
-//             data[*ptr + 2], data[*ptr + 3]);
+      log_message("\t%02X%02X%02X%02X\n", data[*ptr], data[*ptr + 1],
+             data[*ptr + 2], data[*ptr + 3]);
       assert((data[*ptr + 3] & 7) == 0);
       process_stripe_tir((unsigned char *)ui);
     }
@@ -477,16 +251,14 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
 
 
 
-int read_blobs_tir(plist *blob_list, unsigned char pic[], 
-                   unsigned int x, unsigned int y, float yf)
+int read_blobs_tir(plist *blob_list, image *img)
 {
+  assert(blob_list != NULL);
+  assert(img != NULL);
+  p_img = img;
   static size_t size = 0;
   static size_t ptr = 0;
   bool have_frame = false;
-  picture = pic;
-  pic_x = x;
-  pic_y = y;
-  pic_yf = yf;
   while(1){
     if(ptr >= size){
       ptr = 0;
@@ -500,7 +272,7 @@ int read_blobs_tir(plist *blob_list, unsigned char pic[],
   }
   
   if(have_frame){
-    int res = stripes_to_blobs_tir(blob_list);
+    int res = stripes_to_blobs(blob_list);
 /*    
     if(pic != NULL){
       static int fc = 0;

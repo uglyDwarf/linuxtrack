@@ -112,7 +112,7 @@ bool get_device(struct camera_control_block *ccb)
     }
     if(dev_ok == false){
       log_message("Wrong device type found: '%s'\n", dev_type);
-      log_message(" Valid options are: 'Tir4', 'Webcam', 'Wiimote'.\n");
+      log_message(" Valid options are: 'Tir4', 'Tir', 'Tir_openusb', 'Webcam', 'Wiimote'.\n");
     }
   }
   
@@ -252,7 +252,7 @@ bool get_pose_setup(reflector_model_type *rm, bool *changed)
     pose_changed = true;
   }
   *changed = false;
-  static res = false;
+  static bool res = false;
   if(pose_changed){
     pose_changed = false;
     *changed = true;
