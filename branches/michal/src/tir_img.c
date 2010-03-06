@@ -29,12 +29,12 @@ static bool process_stripe_tir(unsigned char p_stripe[])
       stripe.hstart |= 0x200;
     if(rest & 0x08)
       stripe.hstop |= 0x200;
-    assert(stripe.hstart >= 82);
-    assert(stripe.hstop >= 82);
+    assert(stripe.hstart >= 81);
+    assert(stripe.hstop >= 81);
     assert(stripe.vline >= 12);
-    stripe.hstart -= 82;
+    stripe.hstart -= 81;
     stripe.vline -= 12;
-    stripe.hstop -= 82;
+    stripe.hstop -= 81;
     stripe.sum = stripe.hstop - stripe.hstart + 1;
     stripe.sum_x = (unsigned int)(stripe.sum * (stripe.sum - 1) / 2.0);
     stripe.points = stripe.sum;
@@ -139,8 +139,8 @@ bool process_packet_tir4(unsigned char data[], size_t *ptr, int pktsize, int lim
       have_frame = true;
       go_on = false;
     }else{
-      log_message("\t%02X%02X%02X%02X\n", data[*ptr], data[*ptr + 1],
-             data[*ptr + 2], data[*ptr + 3]);
+//      log_message("\t%02X%02X%02X%02X\n", data[*ptr], data[*ptr + 1],
+//             data[*ptr + 2], data[*ptr + 3]);
       assert((data[*ptr + 3] & 7) == 0);
       process_stripe_tir((unsigned char *)ui);
     }
@@ -251,9 +251,9 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
 
 
 
-int read_blobs_tir(plist *blob_list, image *img)
+int read_blobs_tir(struct bloblist_type *blt, int min, int max, image *img)
 {
-  assert(blob_list != NULL);
+  assert(blt != NULL);
   assert(img != NULL);
   p_img = img;
   static size_t size = 0;
@@ -263,6 +263,7 @@ int read_blobs_tir(plist *blob_list, image *img)
     if(ptr >= size){
       ptr = 0;
       if(!receive_data(packet, sizeof(packet), &size, 1000)){
+	log_message("Problem reading data from USB!\n");
         return -1;
       }
     }
@@ -272,7 +273,7 @@ int read_blobs_tir(plist *blob_list, image *img)
   }
   
   if(have_frame){
-    int res = stripes_to_blobs(blob_list);
+    int res = stripes_to_blobs(3, blt, min, max, img);
 /*    
     if(pic != NULL){
       static int fc = 0;

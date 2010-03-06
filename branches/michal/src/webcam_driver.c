@@ -379,6 +379,7 @@ int webcam_init(struct camera_control_block *ccb)
     close(fd);
     return -1;
   }
+  prepare_for_processing(ccb->pixel_width, ccb->pixel_height);
   if(webcam_wakeup() != 0){
     log_message("Couldn't start streaming!\n");
     close(fd);
@@ -511,7 +512,7 @@ int webcam_get_frame(struct camera_control_block *ccb, struct frame_type *f)
   //Convert YUYV format to bw image
   //FIXME!!! - this would work only with YUYV!
   unsigned char *source_buf = (buffers[buf.index]).start;
-  unsigned char *dest_buf = wc_info.bw_frame;
+  unsigned char *dest_buf = (f->bitmap != NULL) ? f->bitmap : wc_info.bw_frame;
   int cntr, cntr1;
   //int pts = 0;
   
@@ -526,19 +527,18 @@ int webcam_get_frame(struct camera_control_block *ccb, struct frame_type *f)
   
   //log_message("%d points found!\n", pts);
 
-  if(f->bitmap != NULL){
-    memcpy(f->bitmap, dest_buf, wc_info.w * wc_info.h);
-  }
-  
   if(-1 == ioctl(wc_info.fd, VIDIOC_QBUF, &buf)){
     log_message("Error queuing buffer!\n");
   }
   //log_message("Queued buffer %d\n", buf.index);
-  
-  if(search_for_blobs(wc_info.bw_frame, wc_info.w, wc_info.h, &(f->bloblist),
-                   wc_info.min_blob_pixels, wc_info.max_blob_pixels) != true){
-    return 0;
-  }
-  
+  image img = {
+    .bitmap = dest_buf,
+    .w = wc_info.w,
+    .h = wc_info.h,
+    .ratio = 1.0f
+  };
+  to_stripes(&img);
+  stripes_to_blobs(3, &(f->bloblist), wc_info.min_blob_pixels, 
+		   wc_info.max_blob_pixels, &img);
   return 0;
 }

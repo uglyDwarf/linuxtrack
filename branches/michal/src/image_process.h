@@ -4,9 +4,6 @@
 #include "cal.h"
 #include "list.h"
 
-int search_for_blobs(unsigned char *buf, int w, int h,
-                     struct bloblist_type *blobs, int min, int max);
-
 typedef struct {
   unsigned int vline;
   unsigned int hstart;
@@ -24,7 +21,8 @@ typedef struct {
 
 void prepare_for_processing(int w, int h);
 void to_stripes(image *img);
-int stripes_to_blobs(plist *blobs);
+int stripes_to_blobs(int num_blobs, struct bloblist_type *blt, 
+		     int min_pts, int max_pts, image *img);
 bool add_stripe(stripe_t *stripe, image *img);
 void draw_cross(image *img, int x, int y);
 

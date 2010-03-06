@@ -130,7 +130,6 @@ void LtrGuiForm::update()
   }
   
   label->setPixmap(pic->fromImage(*img));
-  label->repaint();
   flag = false;
 }
 

@@ -79,45 +79,9 @@ int tir_set_good(struct camera_control_block *ccb, bool arg)
   return 0;
 }
 
-int tir_blobs_to_bt(int num_blobs, plist blob_list, struct bloblist_type *blt,
-		    image *img)
-{
-  int min = get_int(min_blob);
-  int max = get_int(max_blob);
-
-  struct blob_type *bt = blt->blobs;
-  struct blob_type *b;
-  struct blob_type *cal_b;
-  iterator i;
-  int counter = 0;
-  int valid =0;
-  int w, h;
-  float hf;
-  get_res_tir(&w, &h, &hf);
-  init_iterator(blob_list, &i);
-  while((b = (struct blob_type*)get_next(&i)) != NULL){
-    if((b->score < min) || (b->score > max)){
-      continue;
-    }
-    ++valid;
-    if(counter < num_blobs){
-      cal_b = &(bt[counter]);
-      cal_b->x = ((w - 1) / 2.0) - b->x;
-      cal_b->y = ((h - 1) / 2.0) - (b->y * hf);
-      if(img->bitmap != NULL){
-	draw_cross(img, b->x, b->y);
-      }
-      cal_b->score = b->score;
-    }
-    ++counter;
-  }
-  blt->num_blobs = (valid > num_blobs) ? num_blobs : valid;
-  return 0;
-}
 
 int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 {
-  plist blob_list = NULL;
   unsigned int w,h;
   float hf;
   get_res_tir(&w, &h, &hf);
@@ -130,15 +94,7 @@ int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)
     .h = h,
     .ratio = hf
   };
-  if(read_blobs_tir(&blob_list, &img) < 0){
-    if(blob_list != NULL){
-      free_list(blob_list, true);
-    }
-    return -1;
-  }
-  int res = tir_blobs_to_bt(3, blob_list, &(f->bloblist), &img);
-  free_list(blob_list, true);
-  return res; 
+  return read_blobs_tir(&(f->bloblist), get_int(min_blob), get_int(max_blob), &img);
 }
 
 int tir_pause()
