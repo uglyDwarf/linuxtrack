@@ -7,6 +7,7 @@
 #include <cwiid.h>
 #include <unistd.h>
 #include "wiimote_driver.h"
+#include "image_process.h"
 #include "runloop.h"
 #include "utils.h"
 
@@ -103,39 +104,6 @@ int wiimote_wakeup() {
     return 0;
 }
 
-static void clip_coord(int *coord, int min,
-                       int max)
-{
-  int tmp = *coord;
-  tmp = (tmp < min) ? min : tmp;
-  tmp = (tmp > max) ? max : tmp;
-  *coord = tmp;
-}
-
-void draw_cross(struct frame_type *f, int x, int y, int size)
-{
-  int cntr;
-  int x_m = x - size;
-  int x_p = x + size;
-  int y_m = y - size;
-  int y_p = y + size;
-  clip_coord(&x_m, 0, f->width);
-  clip_coord(&x_p, 0, f->width);
-  clip_coord(&y_m, 0, f->height);
-  clip_coord(&y_p, 0, f->height);
-  
-  unsigned char *pt;
-  pt = f->bitmap + (f->width * y) + x_m;
-  for(cntr = x_m; cntr < x_p; ++cntr){
-    *(pt++) = 0xFF;
-  }
-  pt = f->bitmap + (f->width * y_m) + x;
-  for(cntr = y_m; cntr < y_p; ++cntr){
-    *pt = 0xFF;
-    pt += f->width;
-  }
-}
-
 /* read the usb, and process it into frames
  * a return value < 0 indicates error */
 int wiimote_get_frame(struct camera_control_block *ccb,
@@ -182,6 +150,18 @@ int wiimote_get_frame(struct camera_control_block *ccb,
         malloc(f->bloblist.num_blobs*sizeof(struct blob_type));
     assert(f->bloblist.blobs);
 
+    bool draw;
+    if(f->bitmap != NULL){
+      draw = true;
+    }else{
+      draw = false;
+    }
+    image img = {
+      .w = WIIMOTE_HORIZONTAL_RESOLUTION,
+      .h = WIIMOTE_VERTICAL_RESOLUTION,
+      .bitmap = f->bitmap,
+      .ratio = 1.0
+    };
     valid = 0;
     for (i=0; i<CWIID_IR_SRC_COUNT; i++) {
         if (state.ir_src[i].valid) {
@@ -189,8 +169,9 @@ int wiimote_get_frame(struct camera_control_block *ccb,
                 f->bloblist.blobs[valid].x = -1 * state.ir_src[i].pos[CWIID_X] + WIIMOTE_HORIZONTAL_RESOLUTION/2;
                 f->bloblist.blobs[valid].y = state.ir_src[i].pos[CWIID_Y] - WIIMOTE_VERTICAL_RESOLUTION/2;
                 f->bloblist.blobs[valid].score = state.ir_src[i].size;
-                if(f->bitmap != NULL){
-                  draw_cross(f, state.ir_src[i].pos[CWIID_X], state.ir_src[i].pos[CWIID_Y], state.ir_src[i].size);
+                if(draw){
+                  draw_square(&img, state.ir_src[i].pos[CWIID_X], state.ir_src[i].pos[CWIID_Y], 2*state.ir_src[i].size);
+                  draw_cross(&img, state.ir_src[i].pos[CWIID_X], state.ir_src[i].pos[CWIID_Y], (int)WIIMOTE_HORIZONTAL_RESOLUTION/100.0);
                 }
             }
             valid++;

@@ -63,15 +63,16 @@ static void draw_stripe(image *img, int x, int y, int x_end, unsigned char color
   }
 }
 
-void draw_cross(image *img, int x, int y)
+
+void draw_square(image *img, int x, int y, int size)
 {
   assert(img != NULL);
   assert(x >= 0);
   assert(y >= 0);
-  int x1 = (int)x - 5;
-  int x2 = (int)x + 5;
-  int y1 = (y * img->ratio) - 5;
-  int y2 = (y * img->ratio) + 5;
+  int x1 = (int)x - size;
+  int x2 = (int)x + size;
+  int y1 = (y * img->ratio) - size;
+  int y2 = (y * img->ratio) + size;
   
 //  clip_coord(&x, 0, img->w);
   clip_coord(&x1, 0, img->w);
@@ -79,16 +80,37 @@ void draw_cross(image *img, int x, int y)
   clip_coord(&x2, 0, img->w);
   clip_coord(&y2, 0, img->h);
   
-  draw_stripe(img, x1, y, x2, 0xFF);
-
-  unsigned char *ptr = img->bitmap + y1 * img->w + x;
-  int count = y2 - y1 + 1;
-  while(count > 0){
-    *ptr = 0xf0;
-    ptr += img->w;
-    --count;
+  while(y1 < y2){
+    draw_stripe(img, x1, y1, x2, 0xFF);
+    ++y1;
   }
 }
+
+
+void draw_cross(image *img, int x, int y, int size)
+{
+  int cntr;
+  int x_m = x - size;
+  int x_p = x + size;
+  int y_m = y - size;
+  int y_p = y + size;
+  clip_coord(&x_m, 0, img->w);
+  clip_coord(&x_p, 0, img->w);
+  clip_coord(&y_m, 0, img->h);
+  clip_coord(&y_p, 0, img->h);
+  
+  unsigned char *pt;
+  pt = img->bitmap + (img->w * y) + x_m;
+  for(cntr = x_m; cntr < x_p; ++cntr){
+    *(pt++) = 0xFF;
+  }
+  pt = img->bitmap + (img->w * y_m) + x;
+  for(cntr = y_m; cntr < y_p; ++cntr){
+    *pt = 0xFF;
+    pt += img->w;
+  }
+}
+
 
 
 
@@ -379,7 +401,7 @@ int stripes_to_blobs(int num_blobs, struct bloblist_type *blt,
       cal_b->x = ((img->w - 1) / 2.0) - x;
       cal_b->y = ((img->h - 1) / 2.0) - (y * img->ratio);
       if(img->bitmap != NULL){
-	draw_cross(img, x, y);
+	draw_cross(img, x, y, (int) img->w/100.0);
       }
       cal_b->score = pb->points;
     }

@@ -24,6 +24,7 @@ void to_stripes(image *img);
 int stripes_to_blobs(int num_blobs, struct bloblist_type *blt, 
 		     int min_pts, int max_pts, image *img);
 bool add_stripe(stripe_t *stripe, image *img);
-void draw_cross(image *img, int x, int y);
+void draw_cross(image *img, int x, int y, int size);
+void draw_square(image *img, int x, int y, int size);
 
 #endif
