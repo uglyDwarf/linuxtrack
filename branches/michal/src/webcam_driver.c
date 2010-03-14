@@ -154,9 +154,123 @@ int enum_webcams(char **ids[])
   }else{
     *ids = NULL;
   }
+  free_list(wc_list, false);
   return counter - 1;
 }
 
+int enum_webcams_cleanup(char **ids[])
+{
+  int i = 0;
+  while((*ids)[i] != NULL){
+    free((*ids)[i]);
+    ++i;
+  }
+  free(*ids);
+  *ids = NULL;
+  return 0;
+}
+
+
+int search_for_webcam(char *webcam_id);
+
+int enum_webcam_formats(char *id, webcam_formats *all_formats)
+{
+  int fd = search_for_webcam(id);
+  if(fd < 0){
+    return -1;
+  }
+  
+  int fmt_cntr = 0;
+  int sizes_cntr;
+  int ival_cntr;
+  int items = 0;
+  struct v4l2_fmtdesc fmt;
+  struct v4l2_frmsizeenum frm;
+  struct v4l2_frmivalenum ival;
+  plist fmt_strings = create_list();
+  plist formats = create_list();
+  
+  //Enumerate all available formats
+  while(1){
+    fmt.index = fmt_cntr;
+    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    if(ioctl(fd, VIDIOC_ENUM_FMT, &fmt) != 0){
+      break;
+    }
+    ++fmt_cntr;
+    add_element(fmt_strings, my_strdup((char *)fmt.description));
+    sizes_cntr = 0;
+    while(1){
+      frm.index = sizes_cntr++;
+      frm.pixel_format = fmt.pixelformat;
+      if(ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frm) != 0){
+	break;
+      }
+      if(frm.type == V4L2_FRMSIZE_TYPE_DISCRETE){
+	ival_cntr = 0;
+	while(1){
+	  ival.index = ival_cntr++;
+	  ival.pixel_format = fmt.pixelformat;
+	  ival.width = frm.discrete.width;
+	  ival.height = frm.discrete.height;
+	  if(ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &ival) != 0){
+	    break;
+	  }
+	  if(ival.type == V4L2_FRMIVAL_TYPE_DISCRETE){
+	    webcam_format *new_fmt = (webcam_format*)my_malloc(sizeof(webcam_format));
+	    new_fmt->i = fmt_cntr - 1;
+	    new_fmt->fourcc = fmt.pixelformat;
+	    new_fmt->w = frm.discrete.width;
+	    new_fmt->h = frm.discrete.height;
+	    new_fmt->fps_num = ival.discrete.numerator;
+	    new_fmt->fps_den = ival.discrete.denominator;
+	    add_element(formats, new_fmt);
+	    ++items;
+	  }
+	}
+      }
+    }
+  }
+  char **strs = (char **)my_malloc((fmt_cntr + 1) * sizeof(char *));
+  int cntr = 0;
+  iterator i;
+  char *desc;
+  init_iterator(fmt_strings, &i);
+  
+  while((desc = (char *)get_next(&i)) != NULL){
+    strs[cntr++] = desc;
+  }
+  strs[cntr] = NULL;
+  all_formats->fmt_strings = strs;
+
+  webcam_format *fmt_array = (webcam_format*)my_malloc(items * sizeof(webcam_format));
+  init_iterator(formats, &i);
+  webcam_format *wf;
+  cntr = 0;
+  while((wf = (webcam_format*)get_next(&i)) != NULL){
+    fmt_array[cntr++] = *wf;
+  }
+  all_formats->formats = fmt_array;
+  all_formats->entries = items;
+  
+  free_list(formats, true);
+  free_list(fmt_strings, false);
+  close(fd);
+  return items;
+}
+
+int enum_webcam_formats_cleanup(webcam_formats *all_formats)
+{
+  int j = 0;
+  while(all_formats->fmt_strings[j] != NULL){
+    free(all_formats->fmt_strings[j++]);
+  }
+  free(all_formats->fmt_strings);
+  all_formats->fmt_strings = NULL;
+  free(all_formats->formats);
+  all_formats->formats = NULL;
+  return 0;
+}
 
 
 int search_for_webcam(char *webcam_id)

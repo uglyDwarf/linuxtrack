@@ -1,4 +1,4 @@
-
+#include <linux/types.h>
 #include <webcam_driver.h>
 #include <utils.h>
 #include <string.h>
@@ -14,10 +14,36 @@ struct camera_control_block ccb;
 
 int main(int argc, char *argv[])
 {
+  char **webcams = NULL;
+  if(enum_webcams(&webcams) > 0){
+    int i = 0;
+    while(webcams[i] != NULL){
+      printf("Webcam with id:'%s'\n", webcams[i]);
+      webcam_formats fmts;
+      enum_webcam_formats(webcams[i], &fmts);
+      int j;
+      for(j = 0; j < fmts.entries; ++j){
+	printf("%s: %d x %d @ %f\n", fmts.fmt_strings[fmts.formats[j].i],
+	       fmts.formats[j].w, fmts.formats[j].h,
+	       (float)fmts.formats[j].fps_den / fmts.formats[j].fps_num);
+      }
+
+      enum_webcam_formats_cleanup(&fmts);
+      
+      ++i;
+    }
+    
+    enum_webcams_cleanup(&webcams);
+  }
+  
+  return 0;
+  
   if(!read_prefs(NULL, true)){
     log_message("Couldn't load preferences!\n");
     return -1;
   }
+  
+  
   ccb.device.category = webcam;
   ccb.device.device_id = "Live! Cam Optia";
 //  ccb.device.device_id = "USB2.0 1.3M UVC WebCam ";
