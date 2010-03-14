@@ -65,7 +65,28 @@ int webcam_suspend();
 
 
 
-int is_webcam(char *fname, char *webcam_id)
+char *get_webcam_id(int fd)
+{
+  struct v4l2_capability capability;
+
+  //Query device capabilities
+  int ioctl_res = ioctl(fd, VIDIOC_QUERYCAP, &capability);
+  if(ioctl_res == 0){
+    __u32 cap = capability.capabilities;
+    log_message("  Found V4L2 webcam: '%s'\n", 
+      		capability.card);
+    //Look for capabilities we need
+    if((cap & V4L2_CAP_VIDEO_CAPTURE) && 
+      (cap & V4L2_CAP_STREAMING)){
+      return my_strdup((char *)capability.card);
+    }else{
+      log_message("  Found V4L2 webcam but it doesn't support streaming:-(\n");
+    }
+  }
+  return NULL;
+}
+
+int is_our_webcam(char *fname, char *webcam_id)
 {
   int fd = open(fname, O_RDWR | O_NONBLOCK);
   if(fd == -1){
@@ -73,28 +94,69 @@ int is_webcam(char *fname, char *webcam_id)
     return -1;
   }
   
-  struct v4l2_capability capability;
-
-  //Query device capabilities
-  int ioctl_res = ioctl(fd, VIDIOC_QUERYCAP, &capability);
-  if(ioctl_res == 0){
-    __u32 cap = capability.capabilities;
-    log_message("  Found V4L2 webcam: '%s' at %s\n", 
-      		capability.card, fname);
-    //Look for capabilities we need
-    if((cap & V4L2_CAP_VIDEO_CAPTURE) && 
-      (cap & V4L2_CAP_STREAMING)){
-      //we like this device ;-)
-      if(strncasecmp((char *)capability.card, webcam_id, strlen(webcam_id)) == 0){
-        //this is the device we are looking for!
-        return fd;
-      }
-    }else{
-      log_message("  Found V4L2 webcam but it doesn't support streaming:-(\n");
-    }
+  char *current_id = get_webcam_id(fd);
+  if((current_id != NULL) && strncasecmp(current_id, webcam_id, strlen(webcam_id)) == 0){
+    //this is the device we are looking for!
+    free(current_id);
+    return fd;
+  }else{
+    free(current_id);
+    close(fd);
   }
   return -1;
 }
+
+int enum_webcams(char **ids[])
+{
+  assert(ids != NULL);
+  int counter = 1; //Already plus one!!!
+  plist wc_list = create_list();
+  char *id;
+  DIR *dev = opendir("/dev");
+  if(dev == NULL){
+    log_message("Can't open /dev for reading!\n");
+    return -1;
+  }
+  struct dirent *de;
+  //Get list of all wabcams
+  while((de = readdir(dev)) != NULL){
+    if(strncmp("video", de->d_name, 5) == 0){
+      char *fname;
+      asprintf(&fname, "/dev/%s", de->d_name);
+      
+      int fd = open(fname, O_RDWR | O_NONBLOCK);
+      if(fd == -1){
+	log_message("Can't open file '%s'!\n", fname);
+	return -1;
+      }
+      
+      id = get_webcam_id(fd);
+      if(id != NULL){
+	++counter;
+	add_element(wc_list, id); 
+      }
+      close(fd);
+      free(fname);
+    }
+  }
+  closedir(dev);
+  //Convert list to array
+  if(!is_empty(wc_list)){
+    *ids = (char **)my_malloc(counter * sizeof(char *));
+    iterator i;
+    int j = 0;
+    init_iterator(wc_list, &i);
+    while((id = (char *)get_next(&i)) != NULL){
+      (*ids)[j] = id;
+      ++j;
+    }
+    (*ids)[j] = NULL;
+  }else{
+    *ids = NULL;
+  }
+  return counter - 1;
+}
+
 
 
 int search_for_webcam(char *webcam_id)
@@ -114,7 +176,7 @@ int search_for_webcam(char *webcam_id)
     if(strncmp("video", de->d_name, 5) == 0){
       char *fname;
       asprintf(&fname, "/dev/%s", de->d_name);
-      if((wfd = is_webcam(fname, webcam_id)) != -1){
+      if((wfd = is_our_webcam(fname, webcam_id)) != -1){
         log_message("Found webcam '%s' (%s)\n", de->d_name, fname);
         free(fname);
         break;

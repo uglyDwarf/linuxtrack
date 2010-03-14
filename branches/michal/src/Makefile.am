@@ -6,7 +6,7 @@ else
   SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
 endif
 
-bin_PROGRAMS = lt_server lt_client  ltlib_test
+bin_PROGRAMS = lt_server lt_client
 
 lib_LTLIBRARIES = liblinuxtrack.la liblt.la
 
@@ -70,17 +70,6 @@ if XPLANE_PLUGIN
   xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib
   xlinuxtrack_la_LIBADD = -llt
 endif
-
-#pose_test_SOURCES = pose_test.c
-ltlib_test_SOURCES = ltlib_test.c 
-
-#pose_test_LDADD = -lm -lpthread -ldl -llt
-ltlib_test_LDADD = -lm -lpthread -ldl -llt
-
-#pose_test_CFLAGS = -m32 -fPIC
-ltlib_test_CFLAGS = -fPIC -m32
-#pose_test_LDFLAGS = -L/lib32 -L/usr/lib32
-ltlib_test_LDFLAGS = -fPIC -L/lib32 -L/usr/lib32
 
 AM_YFLAGS = -d
 AM_LFLAGS = -i

@@ -3,8 +3,8 @@
 #include <time.h>
 #include <unistd.h>
 #include <assert.h>
-#include "ltlib.h"
-#include "utils.h"
+#include <ltlib.h>
+#include <utils.h>
 
 /* int main(int argc, char **argv) { */
 /*   struct lt_configuration_type ltconf; */

@@ -1,11 +1,11 @@
 
-#include "webcam_driver.h"
-#include "utils.h"
-#include "string.h"
+#include <webcam_driver.h>
+#include <utils.h>
+#include <string.h>
 
-#include "cal.h"
-#include "pref.h"
-#include "pref_int.h"
+#include <cal.h>
+#include <pref.h>
+#include <pref_int.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -14,11 +14,14 @@ struct camera_control_block ccb;
 
 int main(int argc, char *argv[])
 {
+  if(!read_prefs(NULL, true)){
+    log_message("Couldn't load preferences!\n");
+    return -1;
+  }
   ccb.device.category = webcam;
   ccb.device.device_id = "Live! Cam Optia";
 //  ccb.device.device_id = "USB2.0 1.3M UVC WebCam ";
   ccb.mode = operational_3dot;
-  ccb.state = pre_init;
   if(webcam_init(&ccb)!= 0)
   {
     printf("Problem initializing webcam!\n");
@@ -26,13 +29,16 @@ int main(int argc, char *argv[])
   };
   printf("Init successfull! Res %d x %d\n", ccb.pixel_width, ccb.pixel_height);
   struct frame_type ft;
+  ft.bloblist.blobs = my_malloc(sizeof(struct blob_type) * 3);
+  ft.bloblist.num_blobs = 3;
+  ft.bitmap = NULL;
+  
   int i;
   
   printf("Reading frames: ");
   for(i = 0; i< 5; ++i){
     if(webcam_get_frame(&ccb, &ft) == 0){
       printf("."); 
-      frame_free(&ccb, &ft);
     }else{
       printf("Problem getting frame\n");
     }
@@ -48,10 +54,9 @@ int main(int argc, char *argv[])
     printf("Problem waking up!\n");
   }
   printf("Reading frames: ");
-  for(i = 0; i< 5000; ++i){
+  for(i = 0; i< 50; ++i){
     if(webcam_get_frame(&ccb, &ft) == 0){
       printf("."); 
-      frame_free(&ccb, &ft);
     }else{
       printf("Problem getting frame\n");
     }
@@ -59,6 +64,7 @@ int main(int argc, char *argv[])
   printf("\n");
   printf("Shutting down...\n");
   webcam_shutdown(&ccb);
+  frame_free(&ccb, &ft);
   free_prefs();
   printf("Webcam closed!\n");
   return 0;
