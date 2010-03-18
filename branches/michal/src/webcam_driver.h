@@ -1,7 +1,12 @@
 #ifndef WEBCAM_DRIVER__H
 #define WEBCAM_DRIVER__H
 
+#include <linux/types.h>
 #include "cal.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 int webcam_init(struct camera_control_block *ccb);
 int webcam_shutdown();
@@ -33,5 +38,8 @@ int enum_webcam_formats(char *id, webcam_formats *formats);
 int enum_webcam_formats_cleanup(webcam_formats *all_formats);
 int enum_webcams_cleanup(char **ids[]);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

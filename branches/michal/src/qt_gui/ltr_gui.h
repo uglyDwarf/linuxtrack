@@ -1,32 +1,23 @@
-#include "ui_ltr_gui.h"
+#ifndef LTR_GUI__H
+#define LTR_GUI__H
 
-#include <QThread>
+#include "ui_ltr.h"
 
-class CaptureThread : public QThread
+class LinuxtrackGui : public QWidget
 {
   Q_OBJECT
  public:
-  void run();
-  void signal_new_frame();
- signals:
-  void new_frame();  
+  LinuxtrackGui(QWidget *parent = 0);
+ private slots:
+  void on_QuitButton_pressed();
+  void on_WebcamIDs_currentIndexChanged(const QString &text);
+  void on_WebcamFormats_currentIndexChanged(const QString &text);
+  void on_WebcamResolutions_currentIndexChanged(const QString &text);
+  void on_DeviceSelector_currentIndexChanged(const QString &text);
+ private:
+  Ui::LinuxtrackMainForm ui;
+  void WebcamPrefsInit();
 };
 
-class LtrGuiForm : public QMainWindow
-{
-    Q_OBJECT
-  
-  public:
-    LtrGuiForm();
-  public slots:
-    void update();
-    
-  private slots:
-    void on_startButton_pressed();
-    void on_pauseButton_pressed();
-    void on_wakeButton_pressed();
-    void on_stopButton_pressed();
-    
-  private:
-    Ui::Ltr_gui ui;
-};
+
+#endif

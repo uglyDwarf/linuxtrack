@@ -10,15 +10,10 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <assert.h>
-#include <dlfcn.h>
 
 #include "cal.h"
-//#include "tir4_driver.h"
-//#include "tir_driver.h"
-//#include "wiimote_driver.h"
-//#include "webcam_driver.h"
 #include "utils.h"
-//#include "tracking.h"
+#include "dyn_load.h"
 
 
 dev_interface iface = {
@@ -28,6 +23,16 @@ dev_interface iface = {
   .device_wakeup = NULL,
   .device_get_state = NULL
 };
+
+static lib_fun_def_t functions[] = {
+  {"ltr_cal_run", (void*) &iface.device_run},
+  {"ltr_cal_shutdown", (void*) &iface.device_shutdown},
+  {"ltr_cal_suspend", (void*) &iface.device_suspend},
+  {"ltr_cal_wakeup", (void*) &iface.device_wakeup},
+  {"ltr_cal_get_state", (void*) &iface.device_get_state},
+  {NULL, NULL}
+};
+
 void *libhandle = NULL;
 
 /************************/
@@ -58,18 +63,9 @@ int cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
       break;
   }
   
-  libhandle = dlopen(libname, RTLD_NOW | RTLD_LOCAL);
-  if(libhandle == NULL){
-    printf("Couldn't load library %s - %s!\n", libname, dlerror());
+  if((libhandle = lt_load_library(libname, functions)) == NULL){
     return -1;
   }
-  dlerror(); //clear any existing error...
-  
-  *(void**) (&iface.device_run) = dlsym(libhandle, "ltr_cal_run");
-  *(void**) (&iface.device_shutdown) = dlsym(libhandle, "ltr_cal_shutdown");
-  *(void**) (&iface.device_suspend) = dlsym(libhandle, "ltr_cal_suspend");
-  *(void**) (&iface.device_wakeup) = dlsym(libhandle, "ltr_cal_wakeup");
-  *(void**) (&iface.device_get_state) = dlsym(libhandle, "ltr_cal_get_state");
   
   assert(iface.device_run != NULL);
   log_message("Running!\n");
@@ -80,7 +76,9 @@ int cal_shutdown()
 {
   assert(iface.device_shutdown != NULL);
   log_message("Closing!\n");
-  return (iface.device_shutdown)();
+  int res = (iface.device_shutdown)();
+  lt_unload_library(libhandle, functions);
+  return res;
 }
 
 int cal_suspend()
