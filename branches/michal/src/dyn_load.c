@@ -12,13 +12,15 @@ void *lt_load_library(char *lib_name, lib_fun_def_t *func_defs)
     return NULL;
   }
   dlerror(); //clear any existing error...
-  
+  log_message("Handle: %p\n", libhandle);
   while(func_defs->name != NULL){
     if((*(void **) (func_defs->ref) = dlsym(libhandle, func_defs->name)) == NULL){
       log_message("Error loding functions: %s\n", dlerror());
       dlclose(libhandle);
       return NULL;
     }
+    log_message("Loading func '%s' from '%s' => %p\n",
+		func_defs->name, lib_name, *(void **)func_defs->ref);
     ++func_defs;
   }
   return libhandle;

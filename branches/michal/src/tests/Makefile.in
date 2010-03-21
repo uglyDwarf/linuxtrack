@@ -34,7 +34,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = ltlib_test$(EXEEXT) webcam_driver_test$(EXEEXT)
+noinst_PROGRAMS = ltlib_test$(EXEEXT) webcam_driver_test$(EXEEXT) \
+	pref_test$(EXEEXT)
 subdir = src/tests
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -52,6 +53,12 @@ ltlib_test_DEPENDENCIES =
 ltlib_test_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ltlib_test_CFLAGS) \
 	$(CFLAGS) $(ltlib_test_LDFLAGS) $(LDFLAGS) -o $@
+am_pref_test_OBJECTS = pref_test-pref_test.$(OBJEXT)
+pref_test_OBJECTS = $(am_pref_test_OBJECTS)
+pref_test_DEPENDENCIES =
+pref_test_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(pref_test_CFLAGS) \
+	$(CFLAGS) $(pref_test_LDFLAGS) $(LDFLAGS) -o $@
 am_webcam_driver_test_OBJECTS =  \
 	webcam_driver_test-webcam_driver_test.$(OBJEXT) \
 	webcam_driver_test-webcam_driver.$(OBJEXT)
@@ -74,8 +81,10 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(ltlib_test_SOURCES) $(webcam_driver_test_SOURCES)
-DIST_SOURCES = $(ltlib_test_SOURCES) $(webcam_driver_test_SOURCES)
+SOURCES = $(ltlib_test_SOURCES) $(pref_test_SOURCES) \
+	$(webcam_driver_test_SOURCES)
+DIST_SOURCES = $(ltlib_test_SOURCES) $(pref_test_SOURCES) \
+	$(webcam_driver_test_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -202,18 +211,22 @@ top_srcdir = @top_srcdir@
 #pose_test_SOURCES = pose_test.c
 ltlib_test_SOURCES = ltlib_test.c 
 webcam_driver_test_SOURCES = webcam_driver_test.c ../webcam_driver.c
+pref_test_SOURCES = pref_test.c 
 
 #pose_test_LDADD = -lm -lpthread -ldl -llt
 ltlib_test_LDADD = -lm -lpthread -ldl -llt
 webcam_driver_test_LDADD = -lm -lpthread -ldl -llinuxtrack
+pref_test_LDADD = -lm -lpthread -ldl -llinuxtrack
 
 #pose_test_CFLAGS = -m32 -I..
 ltlib_test_CFLAGS = -m32 -I..
 webcam_driver_test_CFLAGS = -m32 -I..
+pref_test_CFLAGS = -m32 -I..
 
 #pose_test_LDFLAGS = -L/lib32 -L/usr/lib32 -L..
 ltlib_test_LDFLAGS = -L/lib32 -L/usr/lib32 -L..
 webcam_driver_test_LDFLAGS = -L/lib32 -L/usr/lib32  -L..
+pref_test_LDFLAGS = -L/lib32 -L/usr/lib32  -L..
 all: all-am
 
 .SUFFIXES:
@@ -260,6 +273,9 @@ clean-noinstPROGRAMS:
 ltlib_test$(EXEEXT): $(ltlib_test_OBJECTS) $(ltlib_test_DEPENDENCIES) 
 	@rm -f ltlib_test$(EXEEXT)
 	$(ltlib_test_LINK) $(ltlib_test_OBJECTS) $(ltlib_test_LDADD) $(LIBS)
+pref_test$(EXEEXT): $(pref_test_OBJECTS) $(pref_test_DEPENDENCIES) 
+	@rm -f pref_test$(EXEEXT)
+	$(pref_test_LINK) $(pref_test_OBJECTS) $(pref_test_LDADD) $(LIBS)
 webcam_driver_test$(EXEEXT): $(webcam_driver_test_OBJECTS) $(webcam_driver_test_DEPENDENCIES) 
 	@rm -f webcam_driver_test$(EXEEXT)
 	$(webcam_driver_test_LINK) $(webcam_driver_test_OBJECTS) $(webcam_driver_test_LDADD) $(LIBS)
@@ -271,6 +287,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib_test-ltlib_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_test-pref_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver_test-webcam_driver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver_test-webcam_driver_test.Po@am__quote@
 
@@ -308,6 +325,20 @@ ltlib_test-ltlib_test.obj: ltlib_test.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ltlib_test.c' object='ltlib_test-ltlib_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-ltlib_test.obj `if test -f 'ltlib_test.c'; then $(CYGPATH_W) 'ltlib_test.c'; else $(CYGPATH_W) '$(srcdir)/ltlib_test.c'; fi`
+
+pref_test-pref_test.o: pref_test.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-pref_test.o -MD -MP -MF $(DEPDIR)/pref_test-pref_test.Tpo -c -o pref_test-pref_test.o `test -f 'pref_test.c' || echo '$(srcdir)/'`pref_test.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-pref_test.Tpo $(DEPDIR)/pref_test-pref_test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pref_test.c' object='pref_test-pref_test.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_test.o `test -f 'pref_test.c' || echo '$(srcdir)/'`pref_test.c
+
+pref_test-pref_test.obj: pref_test.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-pref_test.obj -MD -MP -MF $(DEPDIR)/pref_test-pref_test.Tpo -c -o pref_test-pref_test.obj `if test -f 'pref_test.c'; then $(CYGPATH_W) 'pref_test.c'; else $(CYGPATH_W) '$(srcdir)/pref_test.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-pref_test.Tpo $(DEPDIR)/pref_test-pref_test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pref_test.c' object='pref_test-pref_test.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_test.obj `if test -f 'pref_test.c'; then $(CYGPATH_W) 'pref_test.c'; else $(CYGPATH_W) '$(srcdir)/pref_test.c'; fi`
 
 webcam_driver_test-webcam_driver_test.o: webcam_driver_test.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-webcam_driver_test.o -MD -MP -MF $(DEPDIR)/webcam_driver_test-webcam_driver_test.Tpo -c -o webcam_driver_test-webcam_driver_test.o `test -f 'webcam_driver_test.c' || echo '$(srcdir)/'`webcam_driver_test.c

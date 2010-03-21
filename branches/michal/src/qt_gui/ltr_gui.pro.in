@@ -9,12 +9,13 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += ltr_gui.h ltr_show.h
-FORMS += ltr_gui.ui
-SOURCES += main.cpp ltr_gui.cpp webcam_prefs.cpp ltr_show.cpp
+HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h webcam_prefs.h webcam_info.h
+FORMS += ltr_gui.ui dev_help.ui ltr.ui
+SOURCES += main.cpp ltr_gui.cpp webcam_prefs.cpp ltr_show.cpp ltr_dev_help.cpp \
+           webcam_info.cpp
 
 INCLUDEPATH += ..
-LIBS += -L@prefix@/lib -lm -lpthread -ldl -llinuxtrack -lwc
+LIBS += -L@prefix@/lib -lm -lpthread -ldl -llinuxtrack
 target.path = @prefix@/bin
 INSTALLS += target
 RESOURCES = ltr_rc.qrc

@@ -416,6 +416,27 @@ section_struct *find_section(char *section_name)
   return NULL;
 }
 
+
+void get_section_list(char **names[])
+{
+  assert(prefs_read_already);
+  assert(names != NULL);
+  
+  plist sections = create_list();
+  iterator i;
+  init_iterator(prefs, &i);
+  
+  pref_file_item *pfi;
+  while((pfi = (pref_file_item *)get_next(&i)) != NULL){
+    if(pfi->item_type == SECTION){
+      assert(pfi->section != NULL);
+      add_element(sections, my_strdup(pfi->section->name));
+    }
+  }
+  list2string_list(sections, names);
+  return;
+}
+
 key_val_struct *find_key(char *section_name, char *key_name)
 {
   assert(prefs_read_already);
@@ -561,7 +582,7 @@ bool dump_prefs(char *file_name)
 {
   FILE *of;
   if(file_name == NULL){
-    of = stderr;
+    of = stdout;
   }else{
     of = fopen(file_name, "w");
     if(of == NULL){
@@ -609,6 +630,9 @@ void free_section(section_struct *section)
       case SEC_COMMENT:
         free(sci->comment);
         break;
+      default:
+	assert(0);
+	break;
     }
     free(sci);
   }
@@ -630,6 +654,9 @@ void free_prefs()
       case PREF_COMMENT:
         free(pfi->comment);
         break;
+      default:
+	assert(0);
+	break;
     }
     free(pfi);
   }

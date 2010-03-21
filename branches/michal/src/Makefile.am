@@ -39,7 +39,7 @@ lt_client_LDADD = -lm -lpthread -ldl -llinuxtrack
 
 include_HEADERS = ltlib.h
 
-liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h dyn_load.c dyn_load.h
+liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
 liblt_la_LIBADD = -ldl
 
 liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\

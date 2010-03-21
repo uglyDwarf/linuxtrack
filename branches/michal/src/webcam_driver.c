@@ -141,33 +141,7 @@ int enum_webcams(char **ids[])
   }
   closedir(dev);
   //Convert list to array
-  if(!is_empty(wc_list)){
-    *ids = (char **)my_malloc(counter * sizeof(char *));
-    iterator i;
-    int j = 0;
-    init_iterator(wc_list, &i);
-    while((id = (char *)get_next(&i)) != NULL){
-      (*ids)[j] = id;
-      ++j;
-    }
-    (*ids)[j] = NULL;
-  }else{
-    *ids = NULL;
-  }
-  free_list(wc_list, false);
-  return counter - 1;
-}
-
-int enum_webcams_cleanup(char **ids[])
-{
-  int i = 0;
-  while((*ids)[i] != NULL){
-    free((*ids)[i]);
-    ++i;
-  }
-  free(*ids);
-  *ids = NULL;
-  return 0;
+  return list2string_list(wc_list, ids);
 }
 
 
@@ -184,9 +158,9 @@ int enum_webcam_formats(char *id, webcam_formats *all_formats)
   int sizes_cntr;
   int ival_cntr;
   int items = 0;
-  struct v4l2_fmtdesc fmt;
-  struct v4l2_frmsizeenum frm;
-  struct v4l2_frmivalenum ival;
+  struct v4l2_fmtdesc fmt = {0};
+  struct v4l2_frmsizeenum frm = {0};
+  struct v4l2_frmivalenum ival = {0};
   plist fmt_strings = create_list();
   plist formats = create_list();
   

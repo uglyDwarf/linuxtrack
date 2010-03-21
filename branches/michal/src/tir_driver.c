@@ -21,7 +21,6 @@ tracker_interface trck_iface = {
   .tracker_close = tir_close
 };
 
-
 pref_id min_blob = NULL;
 pref_id max_blob = NULL;
 char *storage_path = NULL;

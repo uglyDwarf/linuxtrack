@@ -63,10 +63,11 @@ int cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
       break;
   }
   
+  log_message("Loading library '%s'\n", libname);
   if((libhandle = lt_load_library(libname, functions)) == NULL){
     return -1;
   }
-  
+  log_message("run: %p\n", iface.device_run);
   assert(iface.device_run != NULL);
   log_message("Running!\n");
   return (iface.device_run)(ccb, cbk);

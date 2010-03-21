@@ -2,7 +2,6 @@
 #define LIST__H
 
 #include <stdbool.h>
-#include "utils.h"
 
 typedef struct list* plist;
 typedef struct iterator{

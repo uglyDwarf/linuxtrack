@@ -90,7 +90,7 @@ am_liblinuxtrack_la_OBJECTS = cal.lo list.lo dyn_load.lo math_utils.lo \
 	ltlib_client.lo ltlib_int.lo
 liblinuxtrack_la_OBJECTS = $(am_liblinuxtrack_la_OBJECTS)
 liblt_la_DEPENDENCIES =
-am_liblt_la_OBJECTS = ltlib.lo utils.lo dyn_load.lo
+am_liblt_la_OBJECTS = ltlib.lo utils.lo list.lo dyn_load.lo
 liblt_la_OBJECTS = $(am_liblt_la_OBJECTS)
 libtir1_la_DEPENDENCIES =
 am_libtir1_la_OBJECTS = libusb_ifc.lo tir_hw.lo tir_img.lo \
@@ -289,7 +289,7 @@ lt_server_LDADD = -lm -lpthread -ldl -llinuxtrack
 lt_client = lt_client.c
 lt_client_LDADD = -lm -lpthread -ldl -llinuxtrack 
 include_HEADERS = ltlib.h
-liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h dyn_load.c dyn_load.h
+liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
 liblt_la_LIBADD = -ldl
 liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \

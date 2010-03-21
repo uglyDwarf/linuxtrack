@@ -36,7 +36,6 @@ typedef struct{
 int enum_webcams(char **ids[]);
 int enum_webcam_formats(char *id, webcam_formats *formats);
 int enum_webcam_formats_cleanup(webcam_formats *all_formats);
-int enum_webcams_cleanup(char **ids[]);
 
 #ifdef __cplusplus
 }

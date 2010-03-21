@@ -3,20 +3,24 @@ if DARWIN
   DARWINFLAGS = -undefined dynamic_lookup
 endif
 
-noinst_PROGRAMS = ltlib_test webcam_driver_test
+noinst_PROGRAMS = ltlib_test webcam_driver_test pref_test
 
 #pose_test_SOURCES = pose_test.c
 ltlib_test_SOURCES = ltlib_test.c 
 webcam_driver_test_SOURCES = webcam_driver_test.c ../webcam_driver.c
+pref_test_SOURCES = pref_test.c 
 
 #pose_test_LDADD = -lm -lpthread -ldl -llt
 ltlib_test_LDADD = -lm -lpthread -ldl -llt
 webcam_driver_test_LDADD = -lm -lpthread -ldl -llinuxtrack
+pref_test_LDADD = -lm -lpthread -ldl -llinuxtrack
 
 #pose_test_CFLAGS = -m32 -I..
 ltlib_test_CFLAGS = -m32 -I..
 webcam_driver_test_CFLAGS = -m32 -I..
+pref_test_CFLAGS = -m32 -I..
 
 #pose_test_LDFLAGS = -L/lib32 -L/usr/lib32 -L..
 ltlib_test_LDFLAGS = -L/lib32 -L/usr/lib32 -L..
 webcam_driver_test_LDFLAGS = -L/lib32 -L/usr/lib32  -L..
+pref_test_LDFLAGS = -L/lib32 -L/usr/lib32  -L..

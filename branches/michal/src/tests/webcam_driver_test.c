@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     int i = 0;
     while(webcams[i] != NULL){
       printf("Webcam with id:'%s'\n", webcams[i]);
-      webcam_formats fmts;
+      webcam_formats fmts = {0};
       enum_webcam_formats(webcams[i], &fmts);
       int j;
       for(j = 0; j < fmts.entries; ++j){
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
       ++i;
     }
     
-    enum_webcams_cleanup(&webcams);
+    array_cleanup(&webcams);
   }
   
   return 0;

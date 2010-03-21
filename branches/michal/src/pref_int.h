@@ -56,6 +56,7 @@ typedef struct pref_struct{
   void *param;
 } pref_struct;
 
+void get_section_list(char **names[]);
 bool section_exists(char *section_name);
 bool key_exists(char *section_name, char *key_name);
 char *get_key(char *section_name, char *key_name);

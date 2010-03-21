@@ -5,12 +5,10 @@
 #include "utils.h"
 #include "runloop.h"
 
-enum request_t {CONTINUE, RUN, PAUSE, SHUTDOWN} request;
-enum cal_device_state_type tracker_state = STOPPED;
-pthread_cond_t state_cv = PTHREAD_COND_INITIALIZER;
-pthread_mutex_t state_mx = PTHREAD_MUTEX_INITIALIZER;
-
-
+static enum request_t {CONTINUE, RUN, PAUSE, SHUTDOWN} request;
+static enum cal_device_state_type tracker_state = STOPPED;
+static pthread_cond_t state_cv = PTHREAD_COND_INITIALIZER;
+static pthread_mutex_t state_mx = PTHREAD_MUTEX_INITIALIZER;
 
 int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
 {
@@ -21,6 +19,7 @@ int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   struct frame_type frame;
   bool stop_flag = false;
   
+  log_message("Tracker interface: %p\n", trck_iface);
   if((trck_iface.tracker_init)(ccb) != 0){
     return -1;
   }
