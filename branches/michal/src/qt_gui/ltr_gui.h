@@ -4,6 +4,7 @@
 #include "pref_int.h"
 #include "ui_ltr.h"
 #include "webcam_prefs.h"
+#include "wiimote_prefs.h"
 
 class LinuxtrackGui : public QWidget
 {
@@ -15,10 +16,12 @@ class LinuxtrackGui : public QWidget
 //  void on_WebcamIDs_currentIndexChanged(const QString &text);
 //  void on_WebcamFormats_currentIndexChanged(const QString &text);
 //  void on_WebcamResolutions_currentIndexChanged(const QString &text);
-  void on_DeviceSelector_currentIndexChanged(const QString &text);
+  void on_DeviceSelector_currentIndexChanged(int index);
+  void on_RefreshDevices_pressed();
  private:
   Ui::LinuxtrackMainForm ui;
   WebcamPrefs *wcp;
+  WiimotePrefs *wiip;
   pref_id dev_selector;
 };
 

@@ -1,38 +1,7 @@
 #include <iostream>
 #include "ltr_gui.h"
-
-
-char webcam_item_name[] = "Webcam";
-char wiimote_item_name[] = "Wiimote";
-char tir_item_name[] = "TrackIR";
-char tiro_item_name[] = "TrackIR (openusb)";
-
-
-static QString& getFirstDeviceSection(const QString& device)
-{
-    char **sections = NULL;
-    get_section_list(&sections);
-    char *name;
-    int i = 0;
-    while((name = sections[i]) != NULL){
-      char *dev_name;
-      if((dev_name = get_key(name, (char *)"Capture-device")) != NULL){
-	if(QString(dev_name) == device){
-	  break;
-	}
-      }
-      ++i;
-    }
-    QString *res;
-    if(name != NULL){
-      res = new QString(name);
-    }else{
-      res = new QString("");
-    }
-    array_cleanup(&sections);
-    return *res;
-}
-
+#include "ltr_gui_prefs.h"
+#include "prefs_link.h"
 
 LinuxtrackGui::LinuxtrackGui(QWidget *parent): QWidget(parent)
 {
@@ -42,30 +11,31 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent): QWidget(parent)
     //!!!
   }
   wcp = NULL;
-  ui.DeviceSelector->clear();
-  ui.DeviceSelector->addItem(wiimote_item_name);
-  ui.DeviceSelector->addItem(webcam_item_name);
-  ui.DeviceSelector->addItem(tir_item_name);
-  ui.DeviceSelector->addItem(tiro_item_name);
+  wiip = NULL;
+  on_RefreshDevices_pressed();
 }
 
 
-void LinuxtrackGui::on_DeviceSelector_currentIndexChanged(const QString &text)
+void LinuxtrackGui::on_DeviceSelector_currentIndexChanged(int index)
 {
-  if(text == webcam_item_name){
+  if(index < 0){
+    return;
+  }
+  QVariant v = ui.DeviceSelector->itemData(index);
+  PrefsLink pl = v.value<PrefsLink>();
+  if(pl.deviceType == WEBCAM){
     ui.DeviceSetupStack->setCurrentIndex(0);
     if(wcp == NULL){
       wcp = new WebcamPrefs(ui);
     }
-    wcp->Activate();
-  }else if(text == wiimote_item_name){
+    wcp->Activate(pl.ID);
+  }else if(pl.deviceType == WIIMOTE){
     ui.DeviceSetupStack->setCurrentIndex(1);
-    //WiimotePrefsInit();
-    QString &sec = getFirstDeviceSection("Wiimote");
-    if(sec != ""){
-      set_str(&dev_selector, sec.toAscii().data());
+    if(wiip == NULL){
+      wiip = new WiimotePrefs(ui);
     }
-  }else if(text == tir_item_name){
+    wiip->Activate(pl.ID);
+/*  }else if(text == tir_item_name){
     QString &sec = getFirstDeviceSection("Tir");
     if(sec != ""){
       set_str(&dev_selector, sec.toAscii().data());
@@ -76,10 +46,16 @@ void LinuxtrackGui::on_DeviceSelector_currentIndexChanged(const QString &text)
       set_str(&dev_selector, sec.toAscii().data());
     }else{
       std::cout<<"No such cestion!\n";
-    }
+    }*/
   }
 }
 
+void LinuxtrackGui::on_RefreshDevices_pressed()
+{
+  ui.DeviceSelector->clear();
+  WebcamPrefs::AddAvailableDevices(*(ui.DeviceSelector));
+  WiimotePrefs::AddAvailableDevices(*(ui.DeviceSelector));
+}
 
 void LinuxtrackGui::on_QuitButton_pressed()
 {
