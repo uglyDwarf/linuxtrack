@@ -70,7 +70,10 @@ int cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   log_message("run: %p\n", iface.device_run);
   assert(iface.device_run != NULL);
   log_message("Running!\n");
-  return (iface.device_run)(ccb, cbk);
+  int res = (iface.device_run)(ccb, cbk);
+  //Runloop blocks until shutdown is called
+  lt_unload_library(libhandle, functions);
+  return res;
 }
 
 int cal_shutdown()
@@ -78,7 +81,6 @@ int cal_shutdown()
   assert(iface.device_shutdown != NULL);
   log_message("Closing!\n");
   int res = (iface.device_shutdown)();
-  lt_unload_library(libhandle, functions);
   return res;
 }
 

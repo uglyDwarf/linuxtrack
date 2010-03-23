@@ -5,6 +5,8 @@
 #include "ui_ltr.h"
 #include "webcam_prefs.h"
 #include "wiimote_prefs.h"
+#include "ltr_show.h"
+#include "ltr_dev_help.h"
 
 class LinuxtrackGui : public QWidget
 {
@@ -20,6 +22,8 @@ class LinuxtrackGui : public QWidget
   void on_RefreshDevices_pressed();
  private:
   Ui::LinuxtrackMainForm ui;
+  LtrGuiForm showWindow;
+  LtrDevHelp helper;
   WebcamPrefs *wcp;
   WiimotePrefs *wiip;
   pref_id dev_selector;

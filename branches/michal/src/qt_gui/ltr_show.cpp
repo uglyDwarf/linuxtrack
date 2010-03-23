@@ -17,8 +17,10 @@ QLabel *label;
 QTimer *timer;
 
 unsigned char *bitmap = NULL;
-unsigned int w,h;
 bool flag;
+static unsigned char *qt_bitmap = NULL;
+static unsigned int w = 0;
+static unsigned int h = 0;
 
 extern "C" {
   int frame_callback(struct camera_control_block *ccb, struct frame_type *frame);
@@ -52,21 +54,30 @@ LtrGuiForm::LtrGuiForm()
   if(!read_prefs(NULL, false)){
     log_message("Couldn't load preferences!\n");
   }
-//     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-//     timer->start(50);
-     
  }
 
 int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 {
   static int cnt = 0;
+  
   cnt++;
   std::cout<<cnt<<". frame"<<std::endl;
   
-  if(bitmap == NULL){
+  if((w != frame->width) || (h != frame->height)){
     w = frame->width;
     h = frame->height;
+    if(bitmap != NULL){
+      free(bitmap);
+    }
     bitmap = (unsigned char *)my_malloc(frame->width * frame->height);
+    if(qt_bitmap != NULL){
+      free(qt_bitmap);
+    }
+    if(qt_bitmap != NULL){
+      
+    }
+    qt_bitmap = (unsigned char*)my_malloc(h * w * 3);
+    img = new QImage(qt_bitmap, w, h, w * 3, QImage::Format_RGB888);
   }
   frame->bitmap = bitmap;
   if(flag == false){
@@ -97,11 +108,11 @@ void LtrGuiForm::on_wakeButton_pressed()
   ui.statusbar->showMessage("Waking!");
 }
 
+
 void LtrGuiForm::on_stopButton_pressed()
 {
   cal_shutdown();
   ct->wait(2000);
-  
   ui.statusbar->showMessage("Stopping!");
 }
 
@@ -111,11 +122,6 @@ void LtrGuiForm::update()
   cnt++;
   ui.statusbar->showMessage(QString("").setNum(cnt) + ". frame");
   
-  static unsigned char *qt_bitmap = NULL;
-  if(qt_bitmap == NULL){
-    qt_bitmap = (unsigned char*)my_malloc(h * w * 3);
-    img = new QImage(qt_bitmap, w, h, w * 3, QImage::Format_RGB888);
-  }
   unsigned char *src, *dst;
   unsigned int pixcnt;
 

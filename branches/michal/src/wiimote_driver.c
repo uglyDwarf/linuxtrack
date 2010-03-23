@@ -143,8 +143,8 @@ int wiimote_get_frame(struct camera_control_block *ccb,
         }
     }
     
-    f->width = WIIMOTE_HORIZONTAL_RESOLUTION;
-    f->height = WIIMOTE_VERTICAL_RESOLUTION;
+    f->width = WIIMOTE_HORIZONTAL_RESOLUTION / 2;
+    f->height = WIIMOTE_VERTICAL_RESOLUTION / 2;
     f->bloblist.num_blobs = valid < required_blobnum ? valid : required_blobnum;
     f->bloblist.blobs = (struct blob_type *)
         malloc(f->bloblist.num_blobs*sizeof(struct blob_type));
@@ -157,8 +157,8 @@ int wiimote_get_frame(struct camera_control_block *ccb,
       draw = false;
     }
     image img = {
-      .w = WIIMOTE_HORIZONTAL_RESOLUTION,
-      .h = WIIMOTE_VERTICAL_RESOLUTION,
+      .w = WIIMOTE_HORIZONTAL_RESOLUTION / 2,
+      .h = WIIMOTE_VERTICAL_RESOLUTION / 2,
       .bitmap = f->bitmap,
       .ratio = 1.0
     };
@@ -170,8 +170,8 @@ int wiimote_get_frame(struct camera_control_block *ccb,
                 f->bloblist.blobs[valid].y = state.ir_src[i].pos[CWIID_Y] - WIIMOTE_VERTICAL_RESOLUTION/2;
                 f->bloblist.blobs[valid].score = state.ir_src[i].size;
                 if(draw){
-                  draw_square(&img, state.ir_src[i].pos[CWIID_X], state.ir_src[i].pos[CWIID_Y], 2*state.ir_src[i].size);
-                  draw_cross(&img, state.ir_src[i].pos[CWIID_X], state.ir_src[i].pos[CWIID_Y], (int)WIIMOTE_HORIZONTAL_RESOLUTION/100.0);
+                  draw_square(&img, state.ir_src[i].pos[CWIID_X] / 2, (WIIMOTE_VERTICAL_RESOLUTION - state.ir_src[i].pos[CWIID_Y]) / 2, 2*state.ir_src[i].size);
+                  draw_cross(&img, state.ir_src[i].pos[CWIID_X] / 2, (WIIMOTE_VERTICAL_RESOLUTION - state.ir_src[i].pos[CWIID_Y]) / 2, (int)WIIMOTE_HORIZONTAL_RESOLUTION/100.0);
                 }
             }
             valid++;

@@ -13,6 +13,8 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent): QWidget(parent)
   wcp = NULL;
   wiip = NULL;
   on_RefreshDevices_pressed();
+  showWindow.show();
+  helper.show();
 }
 
 
@@ -59,5 +61,7 @@ void LinuxtrackGui::on_RefreshDevices_pressed()
 
 void LinuxtrackGui::on_QuitButton_pressed()
 {
+  showWindow.close();
+  helper.close();
   close();
 }
