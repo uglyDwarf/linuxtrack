@@ -8,11 +8,12 @@
 #include "ltr_gui_prefs.h"
 
 static QString currentId = QString("None");
+static QString currentSection = QString();
 
 void WebcamPrefs::Connect()
 {
-  QObject::connect(gui.WebcamFormats, SIGNAL(currentIndexChanged(const QString &)),
-    this, SLOT(on_WebcamFormats_currentIndexChanged(const QString &)));
+  QObject::connect(gui.WebcamFormats, SIGNAL(activated(int)),
+    this, SLOT(on_WebcamFormats_activated(int)));
   QObject::connect(gui.WebcamResolutions, SIGNAL(currentIndexChanged(const QString &)),
     this, SLOT(on_WebcamResolutions_currentIndexChanged(const QString &)));
   QObject::connect(gui.WebcamThreshold, SIGNAL(valueChanged(int)),
@@ -26,15 +27,10 @@ void WebcamPrefs::Connect()
 WebcamPrefs::WebcamPrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
 {
   Connect();
-  if(!open_pref((char *)"Global", (char *)"Input", &dev_selector)){
-    //No input device....
-    //!!!
-  }
 }
 
 WebcamPrefs::~WebcamPrefs()
 {
-  close_pref(&dev_selector);
 }
 
 static bool res_n_fps2fields(const QString &str, int &w, int &h, float &fps)
@@ -52,13 +48,14 @@ static bool res_n_fps2fields(const QString &str, int &w, int &h, float &fps)
 
 WebcamInfo *wc_info = NULL;
 
-void WebcamPrefs::on_WebcamFormats_currentIndexChanged(const QString &text)
+void WebcamPrefs::on_WebcamFormats_activated(int index)
 {
   gui.WebcamResolutions->clear();
   if(currentId == "None"){
     return;
   }
-  gui.WebcamResolutions->addItems(wc_info->getResolutions(gui.WebcamFormats->currentIndex()));
+  PREF.setKeyVal(currentSection, (char *)"Pixel-format", wc_info->getFourcc(index));
+  gui.WebcamResolutions->addItems(wc_info->getResolutions(index));
 }
 
 void WebcamPrefs::on_WebcamResolutions_currentIndexChanged(const QString &text)
@@ -78,22 +75,14 @@ void WebcamPrefs::on_WebcamResolutions_currentIndexChanged(const QString &text)
   }
 }
 
-/*
-void WebcamPrefs::on_RefreshWebcams_pressed()
-{
-  gui.WebcamIDs->clear();
-  gui.WebcamIDs->addItem("None");
-  QStringList &webcams = WebcamInfo::EnumerateWebcams();
-  gui.WebcamIDs->addItems(webcams);
-  delete(&webcams);
-}
-*/
-
 void WebcamPrefs::Activate(const QString &ID)
 {
-  QString &sec = getFirstDeviceSection("Webcam");
-  if(sec != ""){
-    set_str(&dev_selector, sec.toAscii().data());
+  QString sec;
+  if(PREF.getFirstDeviceSection(QString("Webcam"), ID, sec)){
+    PREF.activateDevice(sec);
+    currentSection = sec;
+  }else{
+    //!!! Create default!!!
   }
   currentId = ID;
   gui.WebcamFormats->clear();
@@ -104,23 +93,44 @@ void WebcamPrefs::Activate(const QString &ID)
     }
     wc_info = new WebcamInfo(currentId);
     
+    
     gui.WebcamFormats->addItems(wc_info->getFormats());
+    QString fourcc, thres, bmin, bmax;
+    int index = 0;
+    if(PREF.getKeyVal(sec, (char *)"Pixel-format", fourcc)){
+      index = wc_info->findFourcc(fourcc);
+      gui.WebcamFormats->setCurrentIndex(index);
+    }
+    on_WebcamFormats_activated(index);
+    if(PREF.getKeyVal(sec, (char *)"Threshold", thres)){
+      gui.WebcamThreshold->setValue(thres.toInt());
+    }
+    if(PREF.getKeyVal(sec, (char *)"Max-blob", bmax)){
+      gui.WebcamMaxBlob->setValue(bmax.toInt());
+    }
+    if(PREF.getKeyVal(sec, (char *)"Min-blob", bmin)){
+      gui.WebcamMinBlob->setValue(bmin.toInt());
+    }
+    
   }
 }
 
 void WebcamPrefs::on_WebcamThreshold_valueChanged(int i)
 {
   std::cout<<"Threshold: "<<i<<std::endl;
+  PREF.setKeyVal(currentSection, (char *)"Threshold", QString::number(i));
 }
 
 void WebcamPrefs::on_WebcamMinBlob_valueChanged(int i)
 {
   std::cout<<"Min Blob: "<<i<<std::endl;
+  PREF.setKeyVal(currentSection, (char *)"Min-blob", QString::number(i));
 }
 
 void WebcamPrefs::on_WebcamMaxBlob_valueChanged(int i)
 {
   std::cout<<"Max Blob: "<<i<<std::endl;
+  PREF.setKeyVal(currentSection, (char *)"Max-blob", QString::number(i));
 }
 
 void WebcamPrefs::AddAvailableDevices(QComboBox &combo)

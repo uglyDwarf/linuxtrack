@@ -3,6 +3,8 @@
 #include "utils.h"
 #include "dyn_load.h"
 
+#include <iostream>
+
 typedef int (*enum_webcams_fun_t)(char **ids[]);
 typedef int (*enum_webcam_formats_fun_t)(char *id, webcam_formats *all_formats);
 typedef int (*enum_webcam_formats_cleanup_fun_t)(webcam_formats *all_formats);
@@ -82,10 +84,22 @@ QString WebcamInfo::getFourcc(int index)
   return QString(fcc1);
 }
 
+int WebcamInfo::findFourcc(const QString &fcc)
+{
+  for(int i = 0; i <= fmt_index; ++i){
+    if(getFourcc(i) == fcc){
+      return i;
+    }
+  }
+  return 0;
+}
+
+
 WebcamInfo::~WebcamInfo()
 {
   enum_webcam_formats_cleanup_fun(&fmts);
-  //lt_unload_library(libhandle, functions);
+  lt_unload_library(libhandle, functions);
+  libhandle = NULL;
 }
 
 QStringList& WebcamInfo::EnumerateWebcams()
@@ -105,7 +119,8 @@ QStringList& WebcamInfo::EnumerateWebcams()
     }
     array_cleanup(&ids);
   }
-  //lt_unload_library(libhandle, functions);
+  lt_unload_library(libhandle, functions);
+  libhandle = NULL;
   
   return *res;
 }

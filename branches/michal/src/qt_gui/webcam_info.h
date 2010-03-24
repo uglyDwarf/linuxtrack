@@ -13,6 +13,7 @@ class WebcamInfo{
   const QStringList& getFormats();
   const QStringList& getResolutions(int index);
   QString getFourcc(int index);
+  int findFourcc(const QString &fcc);
   ~WebcamInfo();
   static QStringList& EnumerateWebcams();
  private:

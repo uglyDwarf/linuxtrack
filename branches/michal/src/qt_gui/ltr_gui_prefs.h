@@ -3,7 +3,25 @@
 
 #include <QString>
 
-QString& getFirstDeviceSection(const QString& device);
+#define PREF PrefProxy::Pref()
+
+class PrefProxy{
+ private:
+  PrefProxy();
+  ~PrefProxy();
+  static PrefProxy *prf;
+ public:
+  static PrefProxy& Pref();
+  bool activateDevice(const QString &sectionName);
+  bool getKeyVal(const QString &sectionName, const QString &keyName, 
+		 QString &result);
+  bool setKeyVal(const QString &sectionName, const QString &keyName, 
+		 const QString &value);
+  bool getFirstDeviceSection(const QString &devType, QString &result);
+  bool getFirstDeviceSection(const QString &devType, 
+			     const QString &devId, QString &result);
+};
+
 
 
 #endif

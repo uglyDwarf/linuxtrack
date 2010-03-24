@@ -16,10 +16,9 @@ class WebcamPrefs : public QObject{
   static void AddAvailableDevices(QComboBox &combo);
  private:
   const Ui::LinuxtrackMainForm &gui;
-  pref_id dev_selector;
   void Connect();
  private slots:
-  void on_WebcamFormats_currentIndexChanged(const QString &text);
+  void on_WebcamFormats_activated(int index);
   void on_WebcamResolutions_currentIndexChanged(const QString &text);
   void on_WebcamThreshold_valueChanged(int i);
   void on_WebcamMinBlob_valueChanged(int i);

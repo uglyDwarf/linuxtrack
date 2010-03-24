@@ -17,7 +17,6 @@ class WiimotePrefs : public QObject{
   static void AddAvailableDevices(QComboBox &combo);
  private:
   const Ui::LinuxtrackMainForm &gui;
-  pref_id dev_selector;
   void Connect();
  private slots:
 };

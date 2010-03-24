@@ -51,9 +51,6 @@ LtrGuiForm::LtrGuiForm()
      label = new QLabel();
      ui.pix_box->addWidget(label);
      timer = new QTimer();
-  if(!read_prefs(NULL, false)){
-    log_message("Couldn't load preferences!\n");
-  }
  }
 
 int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
