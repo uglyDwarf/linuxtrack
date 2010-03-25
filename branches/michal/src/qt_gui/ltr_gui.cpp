@@ -19,6 +19,12 @@ LinuxtrackGui::~LinuxtrackGui()
   delete wiip;
 }
 
+void LinuxtrackGui::closeEvent(QCloseEvent *event)
+{
+  showWindow.close();
+  helper.close();
+  event->accept();
+}
 
 void LinuxtrackGui::on_DeviceSelector_currentIndexChanged(int index)
 {
@@ -45,7 +51,5 @@ void LinuxtrackGui::on_RefreshDevices_pressed()
 
 void LinuxtrackGui::on_QuitButton_pressed()
 {
-  showWindow.close();
-  helper.close();
   close();
 }

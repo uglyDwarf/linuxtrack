@@ -1,5 +1,7 @@
 #include "pref_int.h"
 #include "ltr_gui_prefs.h"
+#include "map"
+
 
 PrefProxy *PrefProxy::prf = NULL;
 
@@ -39,6 +41,22 @@ bool PrefProxy::activateDevice(const QString &sectionName)
   return true;
 }
 
+bool PrefProxy::createDevice(QString &sectionName)
+{
+  int i = 0;
+  QString newSecName = sectionName;
+  while(1){
+    if(!section_exists(newSecName.toAscii().data())){
+      break;
+    }
+    newSecName = QString("%1_%2").arg(sectionName).
+                                           arg(QString::number(i));
+  }
+  add_section(newSecName.toAscii().data());
+  sectionName = newSecName;
+  return true;
+}
+
 bool PrefProxy::getKeyVal(const QString &sectionName, const QString &keyName, 
 			  QString &result)
 {
@@ -51,6 +69,15 @@ bool PrefProxy::getKeyVal(const QString &sectionName, const QString &keyName,
     return false;
   }
 }
+
+bool PrefProxy::addKeyVal(const QString &sectionName, const QString &keyName, 
+			  const QString &value)
+{
+  return add_key(sectionName.toAscii().data(), keyName.toAscii().data(), 
+		 value.toAscii().data());
+}
+
+
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
 			  const QString &value)
@@ -69,56 +96,56 @@ bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName,
 
 bool PrefProxy::getFirstDeviceSection(const QString &devType, QString &result)
 {
-    char **sections = NULL;
-    get_section_list(&sections);
-    char *name;
-    int i = 0;
-    while((name = sections[i]) != NULL){
-      char *dev_name;
-      if((dev_name = get_key(name, (char *)"Capture-device")) != NULL){
-	if(QString(dev_name) == devType){
-	  break;
-	}
+  char **sections = NULL;
+  get_section_list(&sections);
+  char *name;
+  int i = 0;
+  while((name = sections[i]) != NULL){
+    char *dev_name;
+    if((dev_name = get_key(name, (char *)"Capture-device")) != NULL){
+      if(QString(dev_name) == devType){
+	break;
       }
-      ++i;
     }
-    bool res;
-    if(name != NULL){
-      result = QString(name);
-      res = true;
-    }else{
-      res = false;
-    }
-    array_cleanup(&sections);
-    return res;
+    ++i;
+  }
+  bool res;
+  if(name != NULL){
+    result = QString(name);
+    res = true;
+  }else{
+    res = false;
+  }
+  array_cleanup(&sections);
+  return res;
 }
 
 bool PrefProxy::getFirstDeviceSection(const QString &devType, 
 				      const QString &devId, QString &result)
 {
-    char **sections = NULL;
-    get_section_list(&sections);
-    char *name;
-    int i = 0;
-    while((name = sections[i]) != NULL){
-      char *dev_name = get_key(name, (char *)"Capture-device");
-      char *dev_id = get_key(name, (char *)"Capture-device-id");
-      if((dev_name != NULL) && (dev_id != NULL)){
-	if((QString(dev_name) == devType) && (QString(dev_id) == devId)){
-	  break;
-	}
+  char **sections = NULL;
+  get_section_list(&sections);
+  char *name;
+  int i = 0;
+  while((name = sections[i]) != NULL){
+    char *dev_name = get_key(name, (char *)"Capture-device");
+    char *dev_id = get_key(name, (char *)"Capture-device-id");
+    if((dev_name != NULL) && (dev_id != NULL)){
+      if((QString(dev_name) == devType) && (QString(dev_id) == devId)){
+	break;
       }
-      ++i;
     }
-    bool res;
-    if(name != NULL){
-      result = QString(name);
-      res = true;
-    }else{
-      res = false;
-    }
-    array_cleanup(&sections);
-    return res;
+    ++i;
+  }
+  bool res;
+  if(name != NULL){
+    result = QString(name);
+    res = true;
+  }else{
+    res = false;
+  }
+  array_cleanup(&sections);
+  return res;
 }
 
 

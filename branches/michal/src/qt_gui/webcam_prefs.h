@@ -19,7 +19,7 @@ class WebcamPrefs : public QObject{
   void Connect();
  private slots:
   void on_WebcamFormats_activated(int index);
-  void on_WebcamResolutions_currentIndexChanged(const QString &text);
+  void on_WebcamResolutions_activated(int index);
   void on_WebcamThreshold_valueChanged(int i);
   void on_WebcamMinBlob_valueChanged(int i);
   void on_WebcamMaxBlob_valueChanged(int i);

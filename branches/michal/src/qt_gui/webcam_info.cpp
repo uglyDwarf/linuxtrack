@@ -75,13 +75,18 @@ const QStringList& WebcamInfo::getResolutions(int index)
   }
 }
 
-QString WebcamInfo::getFourcc(int index)
+static QString U32_2_String(__u32 fourcc)
 {
-  char *fcc = (char *)&(fmt_descs[index][0]->fourcc);
+  char *fcc = (char *)&(fourcc);
   char fcc1[5];
   qstrncpy(fcc1, fcc, 5);
   fcc1[4] = '\0';
   return QString(fcc1);
+}
+
+QString WebcamInfo::getFourcc(int index)
+{
+  return U32_2_String(fmt_descs[index][0]->fourcc);
 }
 
 int WebcamInfo::findFourcc(const QString &fcc)
@@ -94,6 +99,63 @@ int WebcamInfo::findFourcc(const QString &fcc)
   return 0;
 }
 
+typedef struct{
+  int w, h;
+  int fps_num, fps_den;
+} res_struct;
+
+static bool decodeRes(const QString &res, const QString &fps, res_struct &decoded)
+{
+  const QRegExp &res_rexp = QRegExp("^\\s*(\\d+)\\s*[xX]\\s*(\\d+)\\s*$");
+  const QRegExp &fps_rexp = QRegExp("^(\\d+)\\s*/\\s*(\\d+)\\s*$");
+
+  if(res_rexp.indexIn(res) == -1){
+    return false;
+  }
+  if(fps_rexp.indexIn(fps) == -1){
+    return false;
+  }
+  decoded.w = res_rexp.cap(1).toInt();
+  decoded.h = res_rexp.cap(2).toInt();
+  decoded.fps_num = fps_rexp.cap(1).toInt();
+  decoded.fps_den = fps_rexp.cap(2).toInt();
+  return true;
+}
+
+int WebcamInfo::findRes(const QString &res, const QString &fps, 
+			const QString &fourcc)
+{
+  res_struct fmt;
+  if(!decodeRes(res, fps, fmt)){
+    return 0;
+  }
+  int index = findFourcc(fourcc);
+  QList<webcam_format*>::const_iterator i;
+  int counter = 0;
+  webcam_format* tested;
+  for(i = (fmt_descs[index]).begin(); i != (fmt_descs[index]).end(); ++i, ++counter){
+    tested = *i;
+    if((tested->w == fmt.w) && (tested->h == fmt.h) && 
+       (tested->fps_num == fmt.fps_den) && (tested->fps_den == fmt.fps_num)){
+      if(U32_2_String(tested->fourcc) == fourcc){
+	return counter;
+      }
+    }
+  }
+  return 0;
+}
+
+bool WebcamInfo::findFmtSpecs(int i_fmt, int i_res, QString &res, 
+			      QString &fps, QString &fmt)
+{
+  webcam_format* format = fmt_descs[i_fmt][i_res];
+  res = QString("%1 x %2").arg(QString::number(format->w))
+                          .arg(QString::number(format->h));
+  fps = QString("%1/%2").arg(QString::number(format->fps_den))
+                          .arg(QString::number(format->fps_num));
+  fmt = getFourcc(i_fmt);
+  return true;
+}
 
 WebcamInfo::~WebcamInfo()
 {

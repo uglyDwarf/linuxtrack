@@ -711,3 +711,16 @@ bool save_prefs()
   free(pfile);
   return true;
 }
+
+bool add_section(char *name)
+{
+  section_struct *new_section = (section_struct*)my_malloc(sizeof(section_struct));
+  new_section->name = my_strdup(name);
+  new_section->contents = create_list();
+  pref_file_item *item = 
+    (pref_file_item*)my_malloc(sizeof(pref_file_item));
+  item->item_type = SECTION;
+  item->section = new_section;
+  add_element(prefs, item);
+  return true;
+}

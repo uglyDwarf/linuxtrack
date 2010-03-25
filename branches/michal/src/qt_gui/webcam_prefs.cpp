@@ -14,8 +14,8 @@ void WebcamPrefs::Connect()
 {
   QObject::connect(gui.WebcamFormats, SIGNAL(activated(int)),
     this, SLOT(on_WebcamFormats_activated(int)));
-  QObject::connect(gui.WebcamResolutions, SIGNAL(currentIndexChanged(const QString &)),
-    this, SLOT(on_WebcamResolutions_currentIndexChanged(const QString &)));
+  QObject::connect(gui.WebcamResolutions, SIGNAL(activated(int)),
+    this, SLOT(on_WebcamResolutions_activated(int)));
   QObject::connect(gui.WebcamThreshold, SIGNAL(valueChanged(int)),
     this, SLOT(on_WebcamThreshold_valueChanged(int)));
   QObject::connect(gui.WebcamMinBlob, SIGNAL(valueChanged(int)),
@@ -33,18 +33,6 @@ WebcamPrefs::~WebcamPrefs()
 {
 }
 
-static bool res_n_fps2fields(const QString &str, int &w, int &h, float &fps)
-{
-  const QRegExp &rexp = QRegExp("^\\s*(\\d+)\\s*[xX]\\s*(\\d+)\\s*@\\s*(\\S+)\\s*$");
-  if(rexp.indexIn(str) == -1){
-    return false;
-  }
-  w = rexp.cap(1).toInt();
-  h = rexp.cap(2).toInt();
-  fps = rexp.cap(3).toFloat();
-  return true;
-}
-
 
 WebcamInfo *wc_info = NULL;
 
@@ -54,24 +42,32 @@ void WebcamPrefs::on_WebcamFormats_activated(int index)
   if(currentId == "None"){
     return;
   }
-  PREF.setKeyVal(currentSection, (char *)"Pixel-format", wc_info->getFourcc(index));
   gui.WebcamResolutions->addItems(wc_info->getResolutions(index));
+  int res_index = 0;
+  QString res, fps;
+  if(PREF.getKeyVal(currentSection, (char *)"Resolution", res) &&
+    PREF.getKeyVal(currentSection, (char *)"Fps", fps)){
+    res_index = wc_info->findRes(res, fps, wc_info->getFourcc(index));
+    gui.WebcamResolutions->setCurrentIndex(res_index);
+  }
+  on_WebcamResolutions_activated(res_index);
 }
 
-void WebcamPrefs::on_WebcamResolutions_currentIndexChanged(const QString &text)
+void WebcamPrefs::on_WebcamResolutions_activated(int index)
 {
+  std::cout<<"Going to do changes..."<<std::endl;
   if(gui.WebcamFormats->currentIndex() == -1){
     return;
   }
-  int w = 0;
-  int h = 0;
-  float fps = 0.0f;
-  const QString &fourcc = wc_info->getFourcc(gui.WebcamFormats->currentIndex());
-  if(res_n_fps2fields(text, w, h, fps)){
-    std::cout<<"Id: '" << currentId.toAscii().data() 
-             << "'" << std::endl;
-    std::cout<<"Chci >" << fourcc.toAscii().data() << w << " x " << h << 
-               " @ " << fps <<std::endl;
+  QString res, fps, fmt;
+  std::cout<<"Really going to do changes..."<<std::endl;
+  if(wc_info->findFmtSpecs(gui.WebcamFormats->currentIndex(), 
+                           index, res, fps, fmt)){
+    std::cout<<"Setting!"<< res.toAscii().data() << "  "<< 
+               fps.toAscii().data()<<std::endl;
+    PREF.setKeyVal(currentSection, (char *)"Pixel-format", fmt);
+    PREF.setKeyVal(currentSection, (char *)"Resolution", res);
+    PREF.setKeyVal(currentSection, (char *)"Fps", fps);
   }
 }
 
@@ -82,7 +78,21 @@ void WebcamPrefs::Activate(const QString &ID)
     PREF.activateDevice(sec);
     currentSection = sec;
   }else{
-    //!!! Create default!!!
+    sec = "Webcam";
+    if(PREF.createDevice(sec)){
+      PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"Webcam");
+      PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
+      PREF.addKeyVal(sec, (char *)"Pixel-format", (char *)"");
+      PREF.addKeyVal(sec, (char *)"Resolution", (char *)"");
+      PREF.addKeyVal(sec, (char *)"Fps", (char *)"");
+      PREF.addKeyVal(sec, (char *)"Threshold", QString::number(140));
+      PREF.addKeyVal(sec, (char *)"Min-blob", QString::number(4));
+      PREF.addKeyVal(sec, (char *)"Max-blob", QString::number(230));
+      PREF.activateDevice(sec);
+      currentSection = sec;
+    }else{
+      return;
+    }
   }
   currentId = ID;
   gui.WebcamFormats->clear();
@@ -95,13 +105,14 @@ void WebcamPrefs::Activate(const QString &ID)
     
     
     gui.WebcamFormats->addItems(wc_info->getFormats());
-    QString fourcc, thres, bmin, bmax;
-    int index = 0;
+    QString fourcc, thres, bmin, bmax, res, fps;
+    int fmt_index = 0;
     if(PREF.getKeyVal(sec, (char *)"Pixel-format", fourcc)){
-      index = wc_info->findFourcc(fourcc);
-      gui.WebcamFormats->setCurrentIndex(index);
+      fmt_index = wc_info->findFourcc(fourcc);
+      gui.WebcamFormats->setCurrentIndex(fmt_index);
     }
-    on_WebcamFormats_activated(index);
+    on_WebcamFormats_activated(fmt_index);
+    
     if(PREF.getKeyVal(sec, (char *)"Threshold", thres)){
       gui.WebcamThreshold->setValue(thres.toInt());
     }

@@ -608,6 +608,7 @@ int webcam_change_operating_mode(struct camera_control_block *ccb,
 
 int webcam_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 {
+  read_img_processing_prefs();
   f->bloblist.num_blobs = wc_info.expecting_blobs;
   f->width = wc_info.w;
   f->height = wc_info.h;

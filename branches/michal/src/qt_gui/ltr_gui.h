@@ -1,6 +1,8 @@
 #ifndef LTR_GUI__H
 #define LTR_GUI__H
 
+#include <QCloseEvent>
+
 #include "ui_ltr.h"
 #include "webcam_prefs.h"
 #include "wiimote_prefs.h"
@@ -13,6 +15,8 @@ class LinuxtrackGui : public QWidget
  public:
   LinuxtrackGui(QWidget *parent = 0);
   ~LinuxtrackGui();
+protected:
+     void closeEvent(QCloseEvent *event);
  private slots:
   void on_QuitButton_pressed();
 //  void on_WebcamIDs_currentIndexChanged(const QString &text);
