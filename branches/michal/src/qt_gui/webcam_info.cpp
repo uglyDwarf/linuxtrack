@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "dyn_load.h"
 
+#include <assert.h>
 #include <iostream>
 
 typedef int (*enum_webcams_fun_t)(char **ids[]);
@@ -18,25 +19,37 @@ static lib_fun_def_t functions[] = {
   {(char *)"enum_webcam_formats_cleanup", (void*) &enum_webcam_formats_cleanup_fun},
   {NULL, NULL}
 };
-static void *libhandle = NULL;
 
+/*
+ * Bastardized version of singleton pattern to take care of library 
+ * loading/unloading...
+ */
+class WebcamLibProxy{
+ private:
+  void *libhandle;
+  WebcamLibProxy();
+  ~WebcamLibProxy();
+  WebcamLibProxy(const WebcamLibProxy&){};
+  WebcamLibProxy & operator=(const WebcamLibProxy&);
+  static WebcamLibProxy wcl;
+};
 
-static bool load_webcam_lib()
-{
-  if(libhandle == NULL){
-    if((libhandle = lt_load_library((char *)"libwc.so", functions)) == NULL){
-      return false;
-    }
+WebcamLibProxy WebcamLibProxy::wcl;
+
+WebcamLibProxy::WebcamLibProxy(){
+  if((libhandle = lt_load_library((char *)"libwc.so", functions)) == NULL){
+    throw(0);
   }
-  return true;
 }
 
-
+WebcamLibProxy::~WebcamLibProxy(){
+  lt_unload_library(libhandle, functions);
+  libhandle = NULL;
+}
 
 WebcamInfo::WebcamInfo(const QString &id)
 {
   webcam_id = id;
-  load_webcam_lib();
   enum_webcam_formats_fun(webcam_id.toAscii().data(), &fmts);
   
   int j;
@@ -160,16 +173,11 @@ bool WebcamInfo::findFmtSpecs(int i_fmt, int i_res, QString &res,
 WebcamInfo::~WebcamInfo()
 {
   enum_webcam_formats_cleanup_fun(&fmts);
-  lt_unload_library(libhandle, functions);
-  libhandle = NULL;
 }
 
 QStringList& WebcamInfo::EnumerateWebcams()
 {
   QStringList *res = new QStringList();
-  if(!load_webcam_lib()){
-    return *res;
-  }
   char **ids = NULL;
   
   if(enum_webcams_fun(&ids) > 0){
@@ -181,8 +189,5 @@ QStringList& WebcamInfo::EnumerateWebcams()
     }
     array_cleanup(&ids);
   }
-  lt_unload_library(libhandle, functions);
-  libhandle = NULL;
-  
   return *res;
 }

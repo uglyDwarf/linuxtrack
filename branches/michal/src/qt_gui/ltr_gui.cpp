@@ -26,7 +26,7 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   event->accept();
 }
 
-void LinuxtrackGui::on_DeviceSelector_currentIndexChanged(int index)
+void LinuxtrackGui::on_DeviceSelector_activated(int index)
 {
   if(index < 0){
     return;
@@ -47,6 +47,7 @@ void LinuxtrackGui::on_RefreshDevices_pressed()
   ui.DeviceSelector->clear();
   WebcamPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   WiimotePrefs::AddAvailableDevices(*(ui.DeviceSelector));
+  on_DeviceSelector_activated(ui.DeviceSelector->currentIndex());
 }
 
 void LinuxtrackGui::on_QuitButton_pressed()

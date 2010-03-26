@@ -55,16 +55,12 @@ void WebcamPrefs::on_WebcamFormats_activated(int index)
 
 void WebcamPrefs::on_WebcamResolutions_activated(int index)
 {
-  std::cout<<"Going to do changes..."<<std::endl;
   if(gui.WebcamFormats->currentIndex() == -1){
     return;
   }
   QString res, fps, fmt;
-  std::cout<<"Really going to do changes..."<<std::endl;
   if(wc_info->findFmtSpecs(gui.WebcamFormats->currentIndex(), 
                            index, res, fps, fmt)){
-    std::cout<<"Setting!"<< res.toAscii().data() << "  "<< 
-               fps.toAscii().data()<<std::endl;
     PREF.setKeyVal(currentSection, (char *)"Pixel-format", fmt);
     PREF.setKeyVal(currentSection, (char *)"Resolution", res);
     PREF.setKeyVal(currentSection, (char *)"Fps", fps);
@@ -146,6 +142,13 @@ void WebcamPrefs::on_WebcamMaxBlob_valueChanged(int i)
 
 void WebcamPrefs::AddAvailableDevices(QComboBox &combo)
 {
+  QString id;
+  deviceType_t dt;
+  bool webcam_selected = false;
+  if(PREF.getActiveDevice(dt,id) && (dt == WEBCAM)){
+    webcam_selected = true;
+  }
+  
   QStringList &webcams = WebcamInfo::EnumerateWebcams();
   QStringList::iterator i;
   PrefsLink *pl;
@@ -154,6 +157,9 @@ void WebcamPrefs::AddAvailableDevices(QComboBox &combo)
     pl = new PrefsLink(WEBCAM, *i);
     v.setValue(*pl);
     combo.addItem(*i, v);
+    if(webcam_selected && (*i == id)){
+      combo.setCurrentIndex(combo.count() - 1);
+    }
   }
   delete(&webcams);
 }

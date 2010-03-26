@@ -19,6 +19,7 @@ class WiimotePrefs : public QObject{
   const Ui::LinuxtrackMainForm &gui;
   void Connect();
  private slots:
+  void indicationButtonStateChanged(int state);
 };
 
 

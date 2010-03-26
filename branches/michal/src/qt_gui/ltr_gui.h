@@ -22,7 +22,7 @@ protected:
 //  void on_WebcamIDs_currentIndexChanged(const QString &text);
 //  void on_WebcamFormats_currentIndexChanged(const QString &text);
 //  void on_WebcamResolutions_currentIndexChanged(const QString &text);
-  void on_DeviceSelector_currentIndexChanged(int index);
+  void on_DeviceSelector_activated(int index);
   void on_RefreshDevices_pressed();
  private:
   Ui::LinuxtrackMainForm ui;

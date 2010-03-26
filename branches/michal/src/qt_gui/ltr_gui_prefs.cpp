@@ -2,6 +2,7 @@
 #include "ltr_gui_prefs.h"
 #include "map"
 
+#include <iostream>
 
 PrefProxy *PrefProxy::prf = NULL;
 
@@ -148,4 +149,30 @@ bool PrefProxy::getFirstDeviceSection(const QString &devType,
   return res;
 }
 
+bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id)
+{
+  char *dev_section = get_key((char *)"Global", (char *)"Input");
+  if(dev_section == NULL){
+    return false;
+  }
+  char *dev_name = get_key(dev_section, (char *)"Capture-device");
+  char *dev_id = get_key(dev_section, (char *)"Capture-device-id");
+  if((dev_name == NULL) || (dev_id == NULL)){
+    return false;
+  }
+  QString dn = dev_name;
+  if(dn.compare((char *)"Webcam", Qt::CaseInsensitive) == 0){
+    devType = WEBCAM;
+  }else if(dn.compare((char *)"Wiimote", Qt::CaseInsensitive) == 0){
+    devType = WIIMOTE;
+  }else if(dn.compare((char *)"Tir", Qt::CaseInsensitive) == 0){
+    devType = TIR;
+  }else if(dn.compare((char *)"Tir_openusb", Qt::CaseInsensitive) == 0){
+    devType = TIR;
+  }else{
+    devType = NONE;
+  }
+  id = dev_id;
+  return true;
+}
 

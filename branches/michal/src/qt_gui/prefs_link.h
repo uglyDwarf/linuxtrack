@@ -2,6 +2,7 @@
 #define PREFS_LINK__H
 
 #include <QString>
+#include <QMetaType>
 
 typedef enum{
   NONE,

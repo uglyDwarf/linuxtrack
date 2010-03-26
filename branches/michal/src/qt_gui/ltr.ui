@@ -262,56 +262,56 @@
                      </widget>
                     </item>
                     <item row="1" column="1">
-                     <widget class="QCheckBox" name="checkBox">
+                     <widget class="QCheckBox" name="Wii_r1">
                       <property name="text">
                        <string/>
                       </property>
                      </widget>
                     </item>
                     <item row="2" column="1">
-                     <widget class="QCheckBox" name="checkBox_2">
+                     <widget class="QCheckBox" name="Wii_p1">
                       <property name="text">
                        <string/>
                       </property>
                      </widget>
                     </item>
                     <item row="1" column="2">
-                     <widget class="QCheckBox" name="checkBox_3">
+                     <widget class="QCheckBox" name="Wii_r2">
                       <property name="text">
                        <string/>
                       </property>
                      </widget>
                     </item>
                     <item row="2" column="2">
-                     <widget class="QCheckBox" name="checkBox_4">
+                     <widget class="QCheckBox" name="Wii_p2">
                       <property name="text">
                        <string/>
                       </property>
                      </widget>
                     </item>
                     <item row="1" column="3">
-                     <widget class="QCheckBox" name="checkBox_5">
+                     <widget class="QCheckBox" name="Wii_r3">
                       <property name="text">
                        <string/>
                       </property>
                      </widget>
                     </item>
                     <item row="2" column="3">
-                     <widget class="QCheckBox" name="checkBox_6">
+                     <widget class="QCheckBox" name="Wii_p3">
                       <property name="text">
                        <string/>
                       </property>
                      </widget>
                     </item>
                     <item row="1" column="4">
-                     <widget class="QCheckBox" name="checkBox_7">
+                     <widget class="QCheckBox" name="Wii_r4">
                       <property name="text">
                        <string/>
                       </property>
                      </widget>
                     </item>
                     <item row="2" column="4">
-                     <widget class="QCheckBox" name="checkBox_8">
+                     <widget class="QCheckBox" name="Wii_p4">
                       <property name="text">
                        <string/>
                       </property>

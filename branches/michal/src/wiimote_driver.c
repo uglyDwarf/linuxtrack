@@ -10,6 +10,8 @@
 #include "image_process.h"
 #include "runloop.h"
 #include "utils.h"
+#include "pref_int.h"
+#include "pref_global.h"
 
 /*************/
 /* interface */
@@ -38,6 +40,10 @@ cwiid_wiimote_t *gWiimote = NULL;
 
 int gStateCheckIn = STATE_CHECK_INTERVAL;
 
+pref_id running_indication = NULL;
+pref_id paused_indication = NULL;
+uint8_t running = CWIID_LED1_ON | CWIID_LED4_ON;
+uint8_t paused = CWIID_LED1_ON;
 /*******************************/
 /* private function prototypes */
 /*******************************/
@@ -52,12 +58,47 @@ bool wiimote_is_device_present(struct cal_device_type *cal_device) {
     return true;
 }
 
+void wiimote_refresh_indications(void *param)
+{
+  param = NULL;
+  if(running_indication != NULL){
+    char *ind = get_str(running_indication);
+    running = 0;
+    if(ind[0] == '1') running |= CWIID_LED1_ON;
+    if(ind[1] == '1') running |= CWIID_LED2_ON;
+    if(ind[2] == '1') running |= CWIID_LED3_ON;
+    if(ind[3] == '1') running |= CWIID_LED4_ON;
+  }
+  if(paused_indication != NULL){
+    char *ind = get_str(paused_indication);
+    paused = 0;
+    if(ind[0] == '1') paused |= CWIID_LED1_ON;
+    if(ind[1] == '1') paused |= CWIID_LED2_ON;
+    if(ind[2] == '1') paused |= CWIID_LED3_ON;
+    if(ind[3] == '1') paused |= CWIID_LED4_ON;
+  }
+}
+
+int wiimote_read_indications()
+{
+  char *sec = get_device_section();
+  open_pref_w_callback(sec, "Running-indication", &running_indication,
+     wiimote_refresh_indications, NULL);
+  open_pref_w_callback(sec, "Paused-indication", &paused_indication,
+     wiimote_refresh_indications, NULL);
+  wiimote_refresh_indications(NULL);
+  return 0;
+}
+
+
+
 /* call to init an uninitialized wiimote device 
  * typically called once at setup
  * turns the IR leds on
  * this function may block for up to 3 seconds 
  * a return value < 0 indicates error */
 int wiimote_init(struct camera_control_block *ccb) {
+    wiimote_read_indications();
     bdaddr_t bdaddr;
     
     bdaddr = *BDADDR_ANY;
@@ -68,7 +109,7 @@ int wiimote_init(struct camera_control_block *ccb) {
         printf("Wiimote not found\n");
         return -1;
     } else {
-        cwiid_set_led(gWiimote, CWIID_LED1_ON | CWIID_LED4_ON);
+        cwiid_set_led(gWiimote, running);
         cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS | CWIID_RPT_IR);
         log_message("Wiimote connected\n");
     }
@@ -89,7 +130,7 @@ int wiimote_shutdown() {
 /* turn off all the leds, and flush the queue 
  * a return value < 0 indicates error */
 int wiimote_suspend() {
-    cwiid_set_led(gWiimote, CWIID_LED1_ON);
+    cwiid_set_led(gWiimote, paused);
     cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS);
     return 0;
 }
@@ -99,7 +140,7 @@ int wiimote_suspend() {
  * IR leds will reactivate, but that is all
  * a return value < 0 indicates error */
 int wiimote_wakeup() {
-    cwiid_set_led(gWiimote, CWIID_LED1_ON | CWIID_LED4_ON);
+    cwiid_set_led(gWiimote, running);
     cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS | CWIID_RPT_IR);
     return 0;
 }

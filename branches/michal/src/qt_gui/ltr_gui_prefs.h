@@ -1,6 +1,7 @@
 #ifndef LTR_GUI_PREFS__H
 #define LTR_GUI_PREFS__H
 
+#include "prefs_link.h"
 #include <QString>
 
 #define PREF PrefProxy::Pref()
@@ -13,6 +14,7 @@ class PrefProxy{
  public:
   static PrefProxy& Pref();
   bool activateDevice(const QString &sectionName);
+  bool getActiveDevice(deviceType_t &devType, QString &id);
   bool getKeyVal(const QString &sectionName, const QString &keyName, 
 		 QString &result);
   bool setKeyVal(const QString &sectionName, const QString &keyName, 
