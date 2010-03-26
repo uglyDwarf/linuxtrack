@@ -41,7 +41,7 @@ extern plist prefs;
 typedef struct pref_data{
   char *section_name;
   char *key_name;
-  enum {NONE, STR, FLT, INT} data_type;
+  enum {NO_TYPE, STR, FLT, INT} data_type;
   union{
     char *string;
     float flt;

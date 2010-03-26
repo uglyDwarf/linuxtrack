@@ -8,6 +8,8 @@
 #include "tir_img.h"
 #include "usb_ifc.h"
 #include "utils.h"
+#include "pref_int.h"
+#include "tir.h"
 
 #define TIR_CONFIGURATION 1
 #define TIR_INTERFACE 0
@@ -58,6 +60,16 @@ typedef struct{
 
 
 unsigned char packet[4096];
+extern bool threshold_changed;
+extern bool status_brightness_changed;
+extern bool ir_led_brightness_changed;
+extern pref_id threshold;
+extern pref_id stat_bright;
+extern pref_id ir_bright;
+
+void switch_red(bool state);
+void switch_green(bool state);
+
 
 void set_status_brightness_tir(unsigned char b)
 {
@@ -290,8 +302,43 @@ bool set_threshold(unsigned int val)
   return send_data(pkt, sizeof(pkt));
 }
 
+static bool set_status_led_tir5(bool running)
+{
+  unsigned char pkt[] =  {0x19, 0x04, 0x10, 0x00, 0x00};
+  if(status_brightness_changed){
+    status_brightness_changed = false;
+    int new_brightness = get_int(stat_bright); 
+    if(new_brightness != 0){
+      set_status_brightness_tir(new_brightness);
+    }
+  }
+  pkt[3] = status_brightness;
+  if(running){
+    pkt[4] = 20;
+  }else{
+    pkt[4] = 33;
+  }
+  return send_data(pkt, sizeof(pkt));
+}
 
-// 22 both green, 33 both red
+static bool set_status_led_tir4(bool running)
+{
+  if(running){
+    switch_red(false);
+    switch_green(true);
+  }else{
+    switch_green(false);
+    switch_red(true);
+  }
+  return true;
+}
+
+bool set_status_led_tir(bool running)
+{
+  assert(tir_iface != NULL);
+  return tir_iface->set_status_led_tir(running);
+}
+
 static bool control_status_led_tir(bool status1, bool status2)
 {
   unsigned char pkt[] =  {0x19, 0x04, 0x10, 0x00, 0x00};
@@ -303,6 +350,13 @@ static bool control_status_led_tir(bool status1, bool status2)
 static bool control_ir_led_tir(bool ir)
 {
   unsigned char pkt[] =  {0x19, 0x09, 0x10, 0x00, 0x00};
+  if(ir_led_brightness_changed){
+    ir_led_brightness_changed = false;
+    int new_brightness = get_int(ir_bright); 
+    if(new_brightness != 0){
+      set_ir_brightness_tir(new_brightness);
+    }
+  }
   pkt[3] = ir ? ir_brightness : 0;
   pkt[4] = ir ? 0x01 : 0;
   return send_data(pkt, sizeof(pkt));
@@ -377,6 +431,7 @@ bool start_camera_tir4()
     turn_led_on_tir(TIR_LED_IR);
   }
   flush_fifo_tir();
+  set_status_led_tir4(true);
   return true;
 }
 
@@ -389,6 +444,7 @@ bool start_camera_tir5()
   }else{
     control_ir_led_tir(false);
   }
+  set_status_led_tir5(true);
   return true;
 }
 
@@ -448,8 +504,8 @@ bool init_camera_tir4(char data_path[], bool force_fw_load, bool p_ir_on)
     if(device == TIR5){
       send_data(Set_ir_brightness,sizeof(Set_ir_brightness));
       set_exposure(0x18F);
-      set_threshold(0x96);
     }
+    set_threshold(0x82);
   }else if(status.cfg_flag != 2){
     log_message("TIR configuration problem!\n");
     return false;
@@ -552,12 +608,16 @@ bool open_tir(char data_path[], bool force_fw_load, bool ir_on)
 
 bool pause_tir()
 {
-  return stop_camera_tir();
+  bool res = stop_camera_tir();
+  set_status_led_tir(false);
+  return res;
 }
 
 bool resume_tir()
 {
-  return start_camera_tir();
+  bool res = start_camera_tir();
+  set_status_led_tir(true);
+  return res;
 }
 
 bool close_camera_tir4(){
@@ -652,7 +712,8 @@ tir_interface tir4 = {
   .start_camera_tir = start_camera_tir4,
   .init_camera_tir = init_camera_tir4,
   .close_camera_tir = close_camera_tir4,
-  .get_res_tir = get_res_tir4
+  .get_res_tir = get_res_tir4,
+  .set_status_led_tir = set_status_led_tir4
 };
 
 tir_interface tir5 = {
@@ -660,7 +721,8 @@ tir_interface tir5 = {
   .start_camera_tir = start_camera_tir5,
   .init_camera_tir = init_camera_tir5,
   .close_camera_tir = close_camera_tir5,
-  .get_res_tir = get_res_tir5
+  .get_res_tir = get_res_tir5,
+  .set_status_led_tir = set_status_led_tir5
 };
 
 

@@ -129,7 +129,7 @@ bool open_pref_w_callback(char *section, char *key, pref_id *prf,
   o->section = o->prf.section_name;
   o->prf.key_name = my_strdup(key);
   o->key = o->prf.key_name;
-  o->prf.data_type = NONE;
+  o->prf.data_type = NO_TYPE;
   o->prf.refs = create_list();
   (*prf)->data = &(o->prf);
   add_element(o->prf.refs, *prf);
@@ -144,7 +144,7 @@ float get_flt(pref_id pref)
   assert(prf != NULL);
   char *section = prf->section_name;
   char *key = prf->key_name;
-  if(prf->data_type == NONE){
+  if(prf->data_type == NO_TYPE){
     prf->data_type = FLT;
     prf->flt = atof(get_key(section, key));
   }
@@ -159,7 +159,7 @@ int get_int(pref_id pref)
   assert(prf != NULL);
   char *section = prf->section_name;
   char *key = prf->key_name;
-  if(prf->data_type == NONE){
+  if(prf->data_type == NO_TYPE){
     prf->data_type = INT;
     prf->integer = atoi(get_key(section, key));
   }
@@ -174,7 +174,7 @@ char *get_str(pref_id pref)
   assert(prf != NULL);
   char *section = prf->section_name;
   char *key = prf->key_name;
-  if(prf->data_type == NONE){
+  if(prf->data_type == NO_TYPE){
     prf->data_type = STR;
     char *val = get_key(section, key);
     assert(val != NULL);
@@ -205,7 +205,7 @@ bool set_flt(pref_id *pref, float f)
   assert(prf != NULL);
   char *section = prf->section_name;
   char *key = prf->key_name;
-  if(prf->data_type == NONE){
+  if(prf->data_type == NO_TYPE){
     prf->data_type = FLT;
   }
   assert(prf->data_type == FLT);
@@ -227,7 +227,7 @@ bool set_int(pref_id *pref, int i)
   assert(prf != NULL);
   char *section = prf->section_name;
   char *key = prf->key_name;
-  if(prf->data_type == NONE){
+  if(prf->data_type == NO_TYPE){
     prf->data_type = INT;
   }
   assert(prf->data_type == INT);
@@ -250,7 +250,7 @@ bool set_str(pref_id *pref, char *str)
   assert(prf != NULL);
   char *section = prf->section_name;
   char *key = prf->key_name;
-  if(prf->data_type == NONE){
+  if(prf->data_type == NO_TYPE){
     prf->data_type = STR;
     has_payload = false;
   }

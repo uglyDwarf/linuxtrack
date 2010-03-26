@@ -3,6 +3,7 @@
 #include "tir.h"
 #include "tir_driver.h"
 #include "tir_img.h"
+#include "tir_hw.h"
 #include "list.h"
 #include "cal.h"
 #include <stdio.h>
@@ -23,8 +24,19 @@ tracker_interface trck_iface = {
 
 pref_id min_blob = NULL;
 pref_id max_blob = NULL;
+pref_id threshold = NULL;
+pref_id stat_bright = NULL;
+pref_id ir_bright = NULL;
 char *storage_path = NULL;
 
+bool threshold_changed = false;
+bool status_brightness_changed = false;
+bool ir_led_brightness_changed = false;
+
+void flag_pref_changed(void *flag_ptr)
+{
+  *(bool*)flag_ptr = true;
+}
 
 int tir_get_prefs()
 {
@@ -37,6 +49,18 @@ int tir_get_prefs()
   }
   if(!open_pref(dev_section, "Min-blob", &min_blob)){
     return -1;
+  }
+  if(open_pref_w_callback(dev_section, "Status-led-brightness", &stat_bright,
+                       flag_pref_changed, (void*)&status_brightness_changed)){
+    status_brightness_changed = true;
+  }
+  if(open_pref_w_callback(dev_section, "Ir-led-brightness", &ir_bright,
+                        flag_pref_changed, (void*)&ir_led_brightness_changed)){
+    ir_led_brightness_changed = true;
+  }
+  if(open_pref_w_callback(dev_section, "Threshold", &threshold,
+                        flag_pref_changed, (void*)&threshold_changed)){
+    threshold_changed = true;
   }
   storage_path = get_storage_path();
   
@@ -93,6 +117,13 @@ int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)
     .h = h,
     .ratio = hf
   };
+  if(threshold_changed){
+    threshold_changed = false;
+    int new_threshold = get_int(stat_bright);
+    if(new_threshold > 0){
+      set_threshold(new_threshold);
+    }
+  }
   return read_blobs_tir(&(f->bloblist), get_int(min_blob), get_int(max_blob), &img);
 }
 
