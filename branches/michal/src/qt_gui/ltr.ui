@@ -88,7 +88,7 @@
               <item>
                <widget class="QStackedWidget" name="DeviceSetupStack">
                 <property name="currentIndex">
-                 <number>2</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="page">
                  <layout class="QVBoxLayout" name="verticalLayout">
@@ -523,6 +523,12 @@
                       <property name="orientation">
                        <enum>Qt::Horizontal</enum>
                       </property>
+                      <property name="invertedAppearance">
+                       <bool>true</bool>
+                      </property>
+                      <property name="invertedControls">
+                       <bool>false</bool>
+                      </property>
                      </widget>
                     </item>
                    </layout>
@@ -547,8 +553,45 @@
                       <property name="pageStep">
                        <number>1</number>
                       </property>
+                      <property name="value">
+                       <number>7</number>
+                      </property>
                       <property name="orientation">
                        <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="invertedAppearance">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_20">
+                    <item>
+                     <spacer name="horizontalSpacer_10">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="label_47">
+                      <property name="text">
+                       <string>Signalize status</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QCheckBox" name="TirSignalizeStatus">
+                      <property name="text">
+                       <string/>
                       </property>
                      </widget>
                     </item>

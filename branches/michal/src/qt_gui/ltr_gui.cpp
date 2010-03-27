@@ -8,6 +8,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent): QWidget(parent)
   ui.setupUi(this);
   wcp = new WebcamPrefs(ui);
   wiip = new WiimotePrefs(ui);
+  tirp = new TirPrefs(ui);
   on_RefreshDevices_pressed();
   showWindow.show();
   helper.show();
@@ -17,6 +18,7 @@ LinuxtrackGui::~LinuxtrackGui()
 {
   delete wcp;
   delete wiip;
+  delete tirp;
 }
 
 void LinuxtrackGui::closeEvent(QCloseEvent *event)
@@ -39,6 +41,9 @@ void LinuxtrackGui::on_DeviceSelector_activated(int index)
   }else if(pl.deviceType == WIIMOTE){
     ui.DeviceSetupStack->setCurrentIndex(1);
     wiip->Activate(pl.ID);
+  }else if(pl.deviceType == TIR){
+    ui.DeviceSetupStack->setCurrentIndex(2);
+    tirp->Activate(pl.ID);
   }
 }
 
@@ -47,6 +52,7 @@ void LinuxtrackGui::on_RefreshDevices_pressed()
   ui.DeviceSelector->clear();
   WebcamPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   WiimotePrefs::AddAvailableDevices(*(ui.DeviceSelector));
+  TirPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   on_DeviceSelector_activated(ui.DeviceSelector->currentIndex());
 }
 

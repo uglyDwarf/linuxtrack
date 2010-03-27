@@ -27,11 +27,13 @@ pref_id max_blob = NULL;
 pref_id threshold = NULL;
 pref_id stat_bright = NULL;
 pref_id ir_bright = NULL;
+pref_id signals = NULL;
 char *storage_path = NULL;
 
 bool threshold_changed = false;
 bool status_brightness_changed = false;
 bool ir_led_brightness_changed = false;
+bool signal_flag = true;
 
 void flag_pref_changed(void *flag_ptr)
 {
@@ -62,6 +64,10 @@ int tir_get_prefs()
                         flag_pref_changed, (void*)&threshold_changed)){
     threshold_changed = true;
   }
+  if(!open_pref(dev_section, "Status-signals", &signals)){
+    return -1;
+  }
+  
   storage_path = get_storage_path();
   
   if(get_int(max_blob) == 0){
@@ -78,6 +84,10 @@ int tir_get_prefs()
       return -1;
     }
   }
+  char *tmp = get_str(signals);
+  if((tmp != NULL) && (strcasecmp(tmp, "off") == 0)){
+    signal_flag = false;
+  }
   return 0;
 }
 
@@ -86,7 +96,7 @@ int tir_init(struct camera_control_block *ccb)
   assert(ccb != NULL);
   assert((ccb->device.category == tir) || (ccb->device.category == tir_open));
   tir_get_prefs();
-  if(open_tir(storage_path, false, get_ir_on())){
+  if(open_tir(storage_path, false, !is_model_active())){
     float tf;
     get_res_tir(&(ccb->pixel_width), &(ccb->pixel_height), &tf);
     prepare_for_processing(ccb->pixel_width, ccb->pixel_height);
@@ -119,7 +129,7 @@ int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)
   };
   if(threshold_changed){
     threshold_changed = false;
-    int new_threshold = get_int(stat_bright);
+    int new_threshold = get_int(threshold);
     if(new_threshold > 0){
       set_threshold(new_threshold);
     }

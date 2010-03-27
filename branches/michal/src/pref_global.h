@@ -12,7 +12,7 @@ extern "C" {
 
 char *get_device_section();
 char *get_storage_path();
-bool get_ir_on();
+bool is_model_active();
 bool get_device(struct camera_control_block *ccb);
 bool get_pose_setup(reflector_model_type *rm, bool *changed);
 bool get_scale_factors(struct lt_scalefactors *sf);

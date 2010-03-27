@@ -6,6 +6,7 @@
 #include "ui_ltr.h"
 #include "webcam_prefs.h"
 #include "wiimote_prefs.h"
+#include "tir_prefs.h"
 #include "ltr_show.h"
 #include "ltr_dev_help.h"
 
@@ -30,6 +31,7 @@ protected:
   LtrDevHelp helper;
   WebcamPrefs *wcp;
   WiimotePrefs *wiip;
+  TirPrefs *tirp;
 };
 
 

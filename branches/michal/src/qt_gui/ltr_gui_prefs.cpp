@@ -95,6 +95,36 @@ bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName,
   return res;
 }
 
+bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
+                          const int &value)
+{
+  pref_id kv;
+  if(!open_pref(sectionName.toAscii().data(), keyName.toAscii().data(), &kv)){
+    return false;
+  }
+  bool res = true;
+  if(!set_int(&kv, value)){
+    res = false;
+  }
+  close_pref(&kv);
+  return res;
+}
+
+bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
+                          const float &value)
+{
+  pref_id kv;
+  if(!open_pref(sectionName.toAscii().data(), keyName.toAscii().data(), &kv)){
+    return false;
+  }
+  bool res = true;
+  if(!set_flt(&kv, value)){
+    res = false;
+  }
+  close_pref(&kv);
+  return res;
+}
+
 bool PrefProxy::getFirstDeviceSection(const QString &devType, QString &result)
 {
   char **sections = NULL;

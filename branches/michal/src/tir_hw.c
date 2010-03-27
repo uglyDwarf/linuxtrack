@@ -36,7 +36,7 @@ unsigned char unk_3[] =  {0x13, 0x01};
 unsigned char unk_1[] =  {0x17, 0x01};
 unsigned char unk_7[] =  {0x19, 0x05, 0x10, 0x10, 0x00};
 
-static bool ir_on = false;
+static bool ir_on = true;
 static unsigned char status_brightness = 3; //0 - highest, 3 lowest
 static unsigned char ir_brightness = 5; //5 - lowest, 7 - highest
 
@@ -63,6 +63,7 @@ unsigned char packet[4096];
 extern bool threshold_changed;
 extern bool status_brightness_changed;
 extern bool ir_led_brightness_changed;
+extern bool signal_flag;
 extern pref_id threshold;
 extern pref_id stat_bright;
 extern pref_id ir_bright;
@@ -336,7 +337,10 @@ static bool set_status_led_tir4(bool running)
 bool set_status_led_tir(bool running)
 {
   assert(tir_iface != NULL);
-  return tir_iface->set_status_led_tir(running);
+  if(signal_flag){
+    return tir_iface->set_status_led_tir(running);
+  }
+  return true;
 }
 
 static bool control_status_led_tir(bool status1, bool status2)
@@ -431,7 +435,8 @@ bool start_camera_tir4()
     turn_led_on_tir(TIR_LED_IR);
   }
   flush_fifo_tir();
-  set_status_led_tir4(true);
+  if(signal_flag) 
+    set_status_led_tir4(true);
   return true;
 }
 
@@ -444,7 +449,8 @@ bool start_camera_tir5()
   }else{
     control_ir_led_tir(false);
   }
-  set_status_led_tir5(true);
+  if(signal_flag) 
+    set_status_led_tir5(true);
   return true;
 }
 

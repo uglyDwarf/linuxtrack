@@ -19,6 +19,10 @@ class PrefProxy{
 		 QString &result);
   bool setKeyVal(const QString &sectionName, const QString &keyName, 
 		 const QString &value);
+  bool setKeyVal(const QString &sectionName, const QString &keyName, 
+                 const int &value);
+  bool setKeyVal(const QString &sectionName, const QString &keyName, 
+                 const float &value);
   bool getFirstDeviceSection(const QString &devType, QString &result);
   bool getFirstDeviceSection(const QString &devType, 
 			     const QString &devId, QString &result);

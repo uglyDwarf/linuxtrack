@@ -401,7 +401,7 @@ int stripes_to_blobs(int num_blobs, struct bloblist_type *blt,
       cal_b->x = ((img->w - 1) / 2.0) - x;
       cal_b->y = ((img->h - 1) / 2.0) - (y * img->ratio);
       if(img->bitmap != NULL){
-	draw_cross(img, x, y, (int) img->w/100.0);
+	draw_cross(img, x, y * img->ratio, (int) img->w/100.0);
       }
       cal_b->score = pb->points;
     }

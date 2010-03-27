@@ -2,6 +2,7 @@
 #include <iostream>
 #include <QByteArray>
 #include "ltr_gui.h"
+#include "webcam_prefs.h"
 #include "webcam_info.h"
 #include "ltr_gui_prefs.h"
 #include "pref_int.h"
@@ -125,19 +126,19 @@ void WebcamPrefs::Activate(const QString &ID)
 void WebcamPrefs::on_WebcamThreshold_valueChanged(int i)
 {
   std::cout<<"Threshold: "<<i<<std::endl;
-  PREF.setKeyVal(currentSection, (char *)"Threshold", QString::number(i));
+  PREF.setKeyVal(currentSection, (char *)"Threshold", i);
 }
 
 void WebcamPrefs::on_WebcamMinBlob_valueChanged(int i)
 {
   std::cout<<"Min Blob: "<<i<<std::endl;
-  PREF.setKeyVal(currentSection, (char *)"Min-blob", QString::number(i));
+  PREF.setKeyVal(currentSection, (char *)"Min-blob", i);
 }
 
 void WebcamPrefs::on_WebcamMaxBlob_valueChanged(int i)
 {
   std::cout<<"Max Blob: "<<i<<std::endl;
-  PREF.setKeyVal(currentSection, (char *)"Max-blob", QString::number(i));
+  PREF.setKeyVal(currentSection, (char *)"Max-blob", i);
 }
 
 void WebcamPrefs::AddAvailableDevices(QComboBox &combo)

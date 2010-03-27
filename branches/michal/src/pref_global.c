@@ -38,20 +38,6 @@ char *get_storage_path()
   return get_str(storage_path);
 }
 
-bool get_ir_on()
-{
-  static pref_id ir_on = NULL;
-  char *dev_sec = get_device_section();
-  if(ir_on == NULL){
-    if(!open_pref(dev_sec, "IR-LEDs", &ir_on)){
-      log_message("Unspecified if TIR should have IR LEDs on!\n");
-      return false;
-    }
-  }
-  
-  return strcasecmp(get_str(ir_on), "on") == 0 ? true : false;
-}
-
 bool model_section_changed = false;
 
 char *get_model_section()
@@ -72,6 +58,19 @@ char *get_model_section()
     name = get_str(model_section);
   }
   return name;
+}
+
+bool is_model_active()
+{
+  char *section = get_model_section();
+  pref_id active;
+  if(!open_pref(section, "Active", &active)){
+    log_message("Unspecified if model is active, assuming it is not...\n");
+    return false;
+  }
+  bool res = (strcasecmp(get_str(active), "yes") == 0) ? true : false;
+  close_pref(&active);
+  return res;
 }
 
 bool get_device(struct camera_control_block *ccb)
