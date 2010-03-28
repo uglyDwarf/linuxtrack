@@ -42,7 +42,7 @@ bool PrefProxy::activateDevice(const QString &sectionName)
   return true;
 }
 
-bool PrefProxy::createDevice(QString &sectionName)
+bool PrefProxy::createSection(QString &sectionName)
 {
   int i = 0;
   QString newSecName = sectionName;

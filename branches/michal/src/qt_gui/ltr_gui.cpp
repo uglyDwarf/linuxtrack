@@ -3,7 +3,7 @@
 #include "ltr_gui_prefs.h"
 #include "prefs_link.h"
 
-LinuxtrackGui::LinuxtrackGui(QWidget *parent): QWidget(parent)
+LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
 {
   ui.setupUi(this);
   wcp = new WebcamPrefs(ui);
@@ -60,3 +60,15 @@ void LinuxtrackGui::on_QuitButton_pressed()
 {
   close();
 }
+
+
+#include "ltr_model.h"
+ModelCreate *mcw = NULL;
+void LinuxtrackGui::on_CreateModelButton_pressed()
+{
+  if(mcw == NULL){
+    mcw = new ModelCreate();
+  }
+  mcw->show();
+}
+

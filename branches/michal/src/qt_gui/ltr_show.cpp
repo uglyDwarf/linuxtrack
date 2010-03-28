@@ -51,6 +51,9 @@ LtrGuiForm::LtrGuiForm()
      label = new QLabel();
      ui.pix_box->addWidget(label);
      timer = new QTimer();
+     ui.pauseButton->setDisabled(true);
+     ui.wakeButton->setDisabled(true);
+     ui.stopButton->setDisabled(true);
  }
 
 int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
@@ -91,18 +94,30 @@ void LtrGuiForm::on_startButton_pressed()
   connect(ct, SIGNAL(new_frame()), this, SLOT(update()));
   ct->start();
   ui.statusbar->showMessage("Starting!");
+  ui.startButton->setDisabled(true);
+  ui.pauseButton->setDisabled(false);
+  ui.wakeButton->setDisabled(true);
+  ui.stopButton->setDisabled(false);
 }
 
 void LtrGuiForm::on_pauseButton_pressed()
 {
   cal_suspend();
   ui.statusbar->showMessage("Paused!");
+  ui.startButton->setDisabled(true);
+  ui.pauseButton->setDisabled(true);
+  ui.wakeButton->setDisabled(false);
+  ui.stopButton->setDisabled(false);
 }
 
 void LtrGuiForm::on_wakeButton_pressed()
 {
   cal_wakeup();
   ui.statusbar->showMessage("Waking!");
+  ui.startButton->setDisabled(true);
+  ui.pauseButton->setDisabled(false);
+  ui.wakeButton->setDisabled(true);
+  ui.stopButton->setDisabled(false);
 }
 
 
@@ -111,6 +126,10 @@ void LtrGuiForm::on_stopButton_pressed()
   cal_shutdown();
   ct->wait(2000);
   ui.statusbar->showMessage("Stopping!");
+  ui.startButton->setDisabled(false);
+  ui.pauseButton->setDisabled(true);
+  ui.wakeButton->setDisabled(true);
+  ui.stopButton->setDisabled(true);
 }
 
 void LtrGuiForm::update()

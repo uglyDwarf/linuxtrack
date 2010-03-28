@@ -76,7 +76,7 @@ void WebcamPrefs::Activate(const QString &ID)
     currentSection = sec;
   }else{
     sec = "Webcam";
-    if(PREF.createDevice(sec)){
+    if(PREF.createSection(sec)){
       PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"Webcam");
       PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
       PREF.addKeyVal(sec, (char *)"Pixel-format", (char *)"");

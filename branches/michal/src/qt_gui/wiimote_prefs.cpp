@@ -26,7 +26,7 @@ void WiimotePrefs::Activate(const QString &ID)
     currentSection = sec;
   }else{
     sec = "Wiimote";
-    if(PREF.createDevice(sec)){
+    if(PREF.createSection(sec)){
       PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"Wiimote");
       PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
       PREF.addKeyVal(sec, (char *)"Running-indication", (char *)"0100");

@@ -41,7 +41,7 @@ void TirPrefs::Activate(const QString &ID)
     currentSection = sec;
   }else{
     sec = "TrackIR";
-    if(PREF.createDevice(sec)){
+    if(PREF.createSection(sec)){
       PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"Tir");
       PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
       PREF.addKeyVal(sec, (char *)"Threshold", QString::number(140));

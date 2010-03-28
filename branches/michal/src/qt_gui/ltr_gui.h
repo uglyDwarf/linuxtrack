@@ -20,9 +20,7 @@ protected:
      void closeEvent(QCloseEvent *event);
  private slots:
   void on_QuitButton_pressed();
-//  void on_WebcamIDs_currentIndexChanged(const QString &text);
-//  void on_WebcamFormats_currentIndexChanged(const QString &text);
-//  void on_WebcamResolutions_currentIndexChanged(const QString &text);
+  void on_CreateModelButton_pressed();
   void on_DeviceSelector_activated(int index);
   void on_RefreshDevices_pressed();
  private:

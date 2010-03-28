@@ -26,7 +26,7 @@ class PrefProxy{
   bool getFirstDeviceSection(const QString &devType, QString &result);
   bool getFirstDeviceSection(const QString &devType, 
 			     const QString &devId, QString &result);
-  bool createDevice(QString &sectionName);
+  bool createSection(QString &sectionName);
   bool addKeyVal(const QString &sectionName, const QString &keyName, 
 		 const QString &value);
 };
