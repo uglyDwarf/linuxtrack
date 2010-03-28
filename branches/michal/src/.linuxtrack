@@ -4,10 +4,10 @@ Input = TrackIR4
 #Input = TrackIR
 #Input = Webcamera
 #Input = Wii
-Model = Cap
+#Model = Cap
 #Comment previous and uncomment this if you use Clip...
 #Note that clip disables the TIR4 IR Illuminator LEDS
-#Model = Clip
+Model = Clip
 #Store-directory = /home/michal/lt_store
 
 

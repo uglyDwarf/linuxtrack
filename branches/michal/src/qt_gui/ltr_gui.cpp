@@ -9,6 +9,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
   wcp = new WebcamPrefs(ui);
   wiip = new WiimotePrefs(ui);
   tirp = new TirPrefs(ui);
+  me = new ModelEdit(ui);
   on_RefreshDevices_pressed();
   showWindow.show();
   helper.show();
@@ -19,6 +20,7 @@ LinuxtrackGui::~LinuxtrackGui()
   delete wcp;
   delete wiip;
   delete tirp;
+  delete me;
 }
 
 void LinuxtrackGui::closeEvent(QCloseEvent *event)
@@ -59,16 +61,5 @@ void LinuxtrackGui::on_RefreshDevices_pressed()
 void LinuxtrackGui::on_QuitButton_pressed()
 {
   close();
-}
-
-
-#include "ltr_model.h"
-ModelCreate *mcw = NULL;
-void LinuxtrackGui::on_CreateModelButton_pressed()
-{
-  if(mcw == NULL){
-    mcw = new ModelCreate();
-  }
-  mcw->show();
 }
 

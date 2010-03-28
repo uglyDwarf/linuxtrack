@@ -2,6 +2,7 @@
 #include "ltr_gui_prefs.h"
 #include "map"
 
+#include <QStringList>
 #include <iostream>
 
 PrefProxy *PrefProxy::prf = NULL;
@@ -125,6 +126,21 @@ bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName,
   return res;
 }
 
+bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
+                          const double &value)
+{
+  pref_id kv;
+  if(!open_pref(sectionName.toAscii().data(), keyName.toAscii().data(), &kv)){
+    return false;
+  }
+  bool res = true;
+  if(!set_flt(&kv, (float)value)){
+    res = false;
+  }
+  close_pref(&kv);
+  return res;
+}
+
 bool PrefProxy::getFirstDeviceSection(const QString &devType, QString &result)
 {
   char **sections = NULL;
@@ -204,5 +220,32 @@ bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id)
   }
   id = dev_id;
   return true;
+}
+
+bool PrefProxy::getActiveModel(QString &model)
+{
+  char *mod_section = get_key((char *)"Global", (char *)"Model");
+  if(mod_section == NULL){
+    return false;
+  }
+  model = mod_section;
+  return true;
+}
+
+bool PrefProxy::getModelList(QStringList &list)
+{
+  char **sections = NULL;
+  list.clear();
+  get_section_list(&sections);
+  char *name;
+  int i = 0;
+  while((name = sections[i]) != NULL){
+    char *model_type = get_key(name, (char *)"Model-type");
+    if(model_type != NULL){
+      list.append(name);
+    }
+    ++i;
+  }
+  return (list.size() != 0);
 }
 

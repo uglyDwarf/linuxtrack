@@ -9,6 +9,7 @@
 #include "tir_prefs.h"
 #include "ltr_show.h"
 #include "ltr_dev_help.h"
+#include "ltr_model.h"
 
 class LinuxtrackGui : public QWidget
 {
@@ -20,7 +21,6 @@ protected:
      void closeEvent(QCloseEvent *event);
  private slots:
   void on_QuitButton_pressed();
-  void on_CreateModelButton_pressed();
   void on_DeviceSelector_activated(int index);
   void on_RefreshDevices_pressed();
  private:
@@ -30,6 +30,7 @@ protected:
   WebcamPrefs *wcp;
   WiimotePrefs *wiip;
   TirPrefs *tirp;
+  ModelEdit *me;
 };
 
 

@@ -3,7 +3,7 @@
 
 #include "prefs_link.h"
 #include <QString>
-
+#include <QStringList>
 #define PREF PrefProxy::Pref()
 
 class PrefProxy{
@@ -15,6 +15,7 @@ class PrefProxy{
   static PrefProxy& Pref();
   bool activateDevice(const QString &sectionName);
   bool getActiveDevice(deviceType_t &devType, QString &id);
+  bool getActiveModel(QString &model);
   bool getKeyVal(const QString &sectionName, const QString &keyName, 
 		 QString &result);
   bool setKeyVal(const QString &sectionName, const QString &keyName, 
@@ -23,12 +24,15 @@ class PrefProxy{
                  const int &value);
   bool setKeyVal(const QString &sectionName, const QString &keyName, 
                  const float &value);
+  bool setKeyVal(const QString &sectionName, const QString &keyName, 
+                 const double &value);
   bool getFirstDeviceSection(const QString &devType, QString &result);
   bool getFirstDeviceSection(const QString &devType, 
 			     const QString &devId, QString &result);
   bool createSection(QString &sectionName);
   bool addKeyVal(const QString &sectionName, const QString &keyName, 
 		 const QString &value);
+  bool getModelList(QStringList &list);
 };
 
 
