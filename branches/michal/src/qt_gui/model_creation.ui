@@ -39,6 +39,13 @@
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_9">
           <item>
+           <widget class="QRadioButton" name="Model1Pt">
+            <property name="text">
+             <string>1 Point</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QRadioButton" name="Model3PtCap">
             <property name="text">
              <string>3 Point Cap</string>
@@ -61,7 +68,7 @@
        <item>
         <widget class="QStackedWidget" name="ModelStack">
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="page_3">
           <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -450,7 +457,93 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="page"/>
+         <widget class="QWidget" name="page">
+          <widget class="QWidget" name="">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>10</y>
+             <width>388</width>
+             <height>402</height>
+            </rect>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="minimumSize">
+               <size>
+                <width>200</width>
+                <height>400</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>200</width>
+                <height>400</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QFrame" name="frame">
+              <property name="minimumSize">
+               <size>
+                <width>180</width>
+                <height>400</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>180</width>
+                <height>400</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <widget class="QWidget" name="">
+               <property name="geometry">
+                <rect>
+                 <x>10</x>
+                 <y>10</y>
+                 <width>161</width>
+                 <height>381</height>
+                </rect>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_3">
+                <item>
+                 <widget class="QCheckBox" name="SinglePtLeds">
+                  <property name="text">
+                   <string>Model with LEDs</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </widget>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
         </widget>
        </item>
       </layout>
@@ -458,7 +551,7 @@
      <item>
       <widget class="QStackedWidget" name="ModelDescStack">
        <property name="currentIndex">
-        <number>0</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="page_5">
         <layout class="QHBoxLayout" name="horizontalLayout_10">
@@ -520,7 +613,27 @@ or similar.</string>
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="page_2"/>
+       <widget class="QWidget" name="page_2">
+        <widget class="QLabel" name="label_4">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>10</y>
+           <width>301</width>
+           <height>501</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Here you can select whether you single point
+is made of LED (or another light source),
+or reflective material.
+</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         </property>
+        </widget>
+       </widget>
       </widget>
      </item>
     </layout>

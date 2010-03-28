@@ -5,6 +5,7 @@
 ModelCreate::ModelCreate(QWidget *parent) : QWidget(parent)
 {
   ui.setupUi(this);
+  ui.Model3PtCap->click();
 }
 
 ModelCreate::~ModelCreate()
@@ -34,7 +35,7 @@ void ModelCreate::on_CreateButton_pressed()
         v = "no";
       }
       PREF.addKeyVal(sec, (char *)"Active", v);
-    }else{
+    }else if(ui.Model3PtClip->isChecked()){
       PREF.addKeyVal(sec, (char *)"Model-type", (char *)"Clip");
       PREF.addKeyVal(sec, (char *)"Clip-Y1", QString::number(ui.ClipA->value()));
       PREF.addKeyVal(sec, (char *)"Clip-Y2", 
@@ -48,6 +49,15 @@ void ModelCreate::on_CreateButton_pressed()
       
       QString v;
       if(ui.ClipLeds->checkState() == Qt::Checked){
+        v = "yes";
+      }else{
+        v = "no";
+      }
+      PREF.addKeyVal(sec, (char *)"Active", v);
+    }else{//1pt
+      PREF.addKeyVal(sec, (char *)"Model-type", (char *)"SinglePoint");
+      QString v;
+      if(ui.SinglePtLeds->checkState() == Qt::Checked){
         v = "yes";
       }else{
         v = "no";
@@ -71,6 +81,11 @@ void ModelCreate::on_Model3PtClip_pressed()
   ui.ModelDescStack->setCurrentIndex(1);
 }
 
+void ModelCreate::on_Model1Pt_pressed()
+{
+  ui.ModelStack->setCurrentIndex(2);
+  ui.ModelDescStack->setCurrentIndex(2);
+}
 
 ModelEdit::ModelEdit(const Ui::LinuxtrackMainForm &ui) : gui(ui)
 {
@@ -124,18 +139,72 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
   if(!PREF.getKeyVal(currentSection, (char *)"Model-type", type)){
     return;
   }
+  QString val;
   if(type.compare("Cap", Qt::CaseInsensitive) == 0){
     gui.ModelTypeLabel->setText("3 Point Cap");
     gui.ModelStack->setCurrentIndex(0);
     gui.ModelDescStack->setCurrentIndex(0);
+    if(PREF.getKeyVal(currentSection, "Cap-X", val))
+      gui.CapA->setValue(val.toFloat());
+    if(PREF.getKeyVal(currentSection, "Cap-Y", val))
+      gui.CapB->setValue(val.toFloat());
+    if(PREF.getKeyVal(currentSection, "Cap-Z", val))
+      gui.CapC->setValue(val.toFloat());
+    if(PREF.getKeyVal(currentSection, "Head-Y", val))
+      gui.CapHy->setValue(val.toFloat());
+    if(PREF.getKeyVal(currentSection, "Head-Z", val))
+      gui.CapHz->setValue(val.toFloat());
+    if(PREF.getKeyVal(currentSection, "Active", val)){
+      gui.CapLeds->setCheckState(
+        (val.compare("yes", Qt::CaseInsensitive) == 0) ? Qt::Checked : Qt::Unchecked);
+    }else{
+      gui.CapLeds->setCheckState(Qt::Unchecked);
+    }
   }else if(type.compare("Clip", Qt::CaseInsensitive) == 0){
     gui.ModelTypeLabel->setText("3 Point Clip");
     gui.ModelStack->setCurrentIndex(1);
     gui.ModelDescStack->setCurrentIndex(1);
+    float y1 = 40;
+    float y2 = 110;
+    float z1 = 30;
+    float z2 = 50;
+    if(PREF.getKeyVal(currentSection, "Clip-Y1", val))
+      y1 = val.toFloat();
+    if(PREF.getKeyVal(currentSection, "Clip-Y2", val))
+      y2 = val.toFloat();
+    if(PREF.getKeyVal(currentSection, "Clip-Z1", val))
+      z1 = val.toFloat();
+    if(PREF.getKeyVal(currentSection, "Clip-Z2", val))
+      z2 = val.toFloat();
+
+    gui.ClipA->setValue(z1);
+    gui.ClipB->setValue(y1);
+    gui.ClipC->setValue(y2-y1);
+    gui.ClipD->setValue(z1 + z2);
+    
+    if(PREF.getKeyVal(currentSection, "Head-X", val))
+      gui.ClipHx->setValue(val.toFloat());
+    if(PREF.getKeyVal(currentSection, "Head-Y", val))
+      gui.ClipHy->setValue(val.toFloat());
+    if(PREF.getKeyVal(currentSection, "Head-Z", val))
+      gui.ClipHz->setValue(val.toFloat());
+    if(PREF.getKeyVal(currentSection, "Active", val)){
+      gui.ClipLeds->setCheckState(
+        (val.compare("yes", Qt::CaseInsensitive) == 0) ? Qt::Checked : Qt::Unchecked);
+    }else{
+      gui.ClipLeds->setCheckState(Qt::Unchecked);
+    }
   }else{//1pt
     gui.ModelTypeLabel->setText("1 Point");
     gui.ModelStack->setCurrentIndex(2);
     gui.ModelDescStack->setCurrentIndex(2);
+    if(PREF.getKeyVal(currentSection, "Active", val)){
+      gui.SinglePtLeds->setCheckState(
+        (val.compare("yes", Qt::CaseInsensitive) == 0) ? Qt::Checked : Qt::Unchecked);
+    }else{
+      gui.SinglePtLeds->setCheckState(Qt::Unchecked);
+    }
+
   }
 }
 
@@ -214,6 +283,17 @@ void ModelEdit::on_ClipHz_valueChanged(double val)
 }
 
 void ModelEdit::on_ClipLeds_stateChanged(int state)
+{
+  QString v;
+  if(state == Qt::Checked){
+    v = "yes";
+  }else{
+    v = "no";
+  }
+  PREF.setKeyVal(currentSection, (char *)"Active", v);
+}
+
+void ModelEdit::on_SinglePtLeds_stateChanged(int state)
 {
   QString v;
   if(state == Qt::Checked){

@@ -19,6 +19,7 @@ class ModelCreate : public QWidget
   void on_CreateButton_pressed();
   void on_Model3PtCap_pressed();
   void on_Model3PtClip_pressed();
+  void on_Model1Pt_pressed();
   private:
   Ui::ModelCreation ui;
 };
@@ -46,6 +47,7 @@ class ModelEdit : public QWidget
   void on_ClipHy_valueChanged(double val);
   void on_ClipHz_valueChanged(double val);
   void on_ClipLeds_stateChanged(int state);
+  void on_SinglePtLeds_stateChanged(int state);
   void on_ModelCreated();
   void on_ModelSelector_activated(const QString &text);
   private:
