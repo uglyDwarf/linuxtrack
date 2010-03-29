@@ -66,7 +66,7 @@ void ModelCreate::on_CreateButton_pressed()
     }
   }
   close();
-  emit ModelCreated();
+  emit ModelCreated(sec);
 }
 
 void ModelCreate::on_Model3PtCap_pressed()
@@ -91,12 +91,14 @@ ModelEdit::ModelEdit(const Ui::LinuxtrackMainForm &ui) : gui(ui)
 {
   mcw = new ModelCreate();
   Connect();
-  on_ModelCreated();
+  on_ModelCreated("");
   QString str;
   if(PREF.getActiveModel(str)){
     currentSection = str;
     on_ModelSelector_activated(str);
-  }//else...!!!
+  }else{
+    gui.ModelStack->setCurrentIndex(3);
+  }
 }
 
 void ModelEdit::on_CreateModelButton_pressed()
@@ -104,7 +106,7 @@ void ModelEdit::on_CreateModelButton_pressed()
   mcw->show();
 }
 
-void ModelEdit::on_ModelCreated()
+void ModelEdit::on_ModelCreated(const QString &section)
 {
   QStringList list;
   gui.ModelSelector->clear();
@@ -114,6 +116,8 @@ void ModelEdit::on_ModelCreated()
   int i = list.indexOf(currentSection);
   if(i != -1){
     gui.ModelSelector->setCurrentIndex(i);
+  }else{
+    on_ModelSelector_activated(section);
   }
 }
 
@@ -126,8 +130,8 @@ void ModelEdit::Connect()
 {
   QObject::connect(gui.CreateModelButton, SIGNAL(pressed()),
     this, SLOT(on_CreateModelButton_pressed()));
-  QObject::connect(mcw, SIGNAL(ModelCreated()),
-    this, SLOT(on_ModelCreated()));
+  QObject::connect(mcw, SIGNAL(ModelCreated(const QString &)),
+    this, SLOT(on_ModelCreated(const QString &)));
   QObject::connect(gui.ModelSelector, SIGNAL(activated(const QString&)),
     this, SLOT(on_ModelSelector_activated(const QString&)));
 } 
@@ -204,8 +208,8 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
     }else{
       gui.SinglePtLeds->setCheckState(Qt::Unchecked);
     }
-
   }
+  PREF.activateModel(currentSection);
 }
 
 void ModelEdit::on_CapA_valueChanged(double val)

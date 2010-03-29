@@ -80,6 +80,7 @@ bool set_int(pref_id *prf, int i);
 bool set_str(pref_id *prf, char *str);
 
 bool read_prefs(char *file, bool force_read);
+bool new_prefs();
 bool save_prefs();
 bool close_pref(pref_id *prf);
 

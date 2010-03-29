@@ -120,7 +120,7 @@ void *delete_current(plist pl, iterator* i)
     current = i->elem->prev;
   }
   if(current == NULL){
-    log_message("Can't deternime which element to delete!\n");
+    log_message("Can't determine which element to delete!\n");
     return NULL; 
   }
   

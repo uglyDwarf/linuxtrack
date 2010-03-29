@@ -89,11 +89,6 @@ bool get_device(struct camera_control_block *ccb)
       ccb->device.category = tir;
       dev_ok = true;
     }
-    if(strcasecmp(dev_type, "Tir_openusb") == 0){
-      log_message("Device Type: Track IR OpenUsb\n");
-      ccb->device.category = tir_open;
-      dev_ok = true;
-    }
     if(strcasecmp(dev_type, "Tir4") == 0){
       log_message("Device Type: Track IR 4\n");
       ccb->device.category = tir4_camera;

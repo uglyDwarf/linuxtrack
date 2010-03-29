@@ -6,12 +6,24 @@
 
 typedef enum {NONE = 0, TIR4, TIR5} dev_found;
 
-extern bool init_usb();
-extern dev_found find_tir();
-extern bool prepare_device(unsigned int config, unsigned int interface, 
+#ifndef USB_IMPL_ONLY
+typedef bool (*init_usb_fun)();
+typedef dev_found (*find_tir_fun)();
+typedef bool (*prepare_device_fun)(unsigned int config, unsigned int interface, 
   unsigned int in_ep, unsigned int out_ep);
-extern bool send_data(unsigned char data[], size_t size);
-extern bool receive_data(unsigned char data[], size_t size, size_t *transferred,
+typedef bool (*send_data_fun)(unsigned char data[], size_t size);
+typedef bool (*receive_data_fun)(unsigned char data[], size_t size, size_t *transferred,
                          unsigned int timeout);
-extern void finish_usb(unsigned int interface);
+typedef void (*finish_usb_fun)(unsigned int interface);
+
+extern init_usb_fun init_usb;
+extern find_tir_fun find_tir;
+extern prepare_device_fun prepare_device;
+extern send_data_fun send_data;
+extern receive_data_fun receive_data;
+extern finish_usb_fun finish_usb;
+#endif
+
+
+
 #endif

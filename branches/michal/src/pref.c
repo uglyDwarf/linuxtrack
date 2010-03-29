@@ -396,6 +396,16 @@ bool read_prefs(char *file, bool force_read)
   return prefs_ok;
 }
 
+bool new_prefs()
+{
+  if(prefs_read_already){
+    free_prefs();
+  }
+  prefs = create_list();
+  prefs_read_already = true;
+  return true;
+}
+
 section_struct *find_section(char *section_name)
 {
   assert(prefs_read_already);
@@ -642,6 +652,7 @@ void free_section(section_struct *section)
 void free_prefs()
 {
   iterator i;
+  assert(prefs != NULL);
   init_iterator(prefs, &i);
   
   pref_file_item *pfi;

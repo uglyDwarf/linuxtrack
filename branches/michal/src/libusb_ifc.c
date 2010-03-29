@@ -1,12 +1,14 @@
 #include <libusb-1.0/libusb.h>
 #include <stdbool.h>
 #include <stdio.h>
+#define USB_IMPL_ONLY
 #include "usb_ifc.h"
 #include "utils.h"
 
 static libusb_context *usb_context = NULL;
 static libusb_device_handle *handle = NULL;
 static unsigned int in, out;
+
 
 bool init_usb()
 {
@@ -165,3 +167,4 @@ void finish_usb(unsigned int interface)
   libusb_close(handle);
   libusb_exit(usb_context);
 }
+

@@ -23,12 +23,13 @@ endif
 #endif
 
 if LIBZ
+lib_LTLIBRARIES += libtir.la
 if LIBUSB10
-  lib_LTLIBRARIES += libtir1.la 
+  lib_LTLIBRARIES += libltusb1.la 
 endif
 
 if OPENUSB
-  lib_LTLIBRARIES += libtir2.la 
+  lib_LTLIBRARIES += libltopenusb.la 
 endif
 endif
 
@@ -50,12 +51,14 @@ liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
 
 #libtir4_la_SOURCES = tir4_driver.c tir4_driver.h new_cal.c new_cal.h
 #libtir4_la_LIBADD = -lusb  -llinuxtrack
-libtir1_la_SOURCES = libusb_ifc.c tir.h tir_hw.c tir_hw.h \
+libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
-libtir1_la_LIBADD = -lz -lusb-1.0 -llinuxtrack
-libtir2_la_SOURCES = openusb_ifc.c tir.h tir_hw.c tir_hw.h \
-    tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
-libtir2_la_LIBADD = -lz -lopenusb -llinuxtrack
+libtir_la_LIBADD = -lz -llinuxtrack
+libltusb1_la_SOURCES = libusb_ifc.c usb_ifc.h
+libltusb1_la_LIBADD = -lusb-1.0 -llinuxtrack
+libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
+libltopenusb_la_LIBADD = -lopenusb -llinuxtrack
+
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
 libwii_la_LIBADD = -lcwiid -llinuxtrack
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h

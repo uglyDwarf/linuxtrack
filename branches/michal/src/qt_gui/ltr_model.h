@@ -2,6 +2,7 @@
 #define LTR_MODEL__H
 
 #include <QObject>
+#include <QString>
 #include "ui_model_creation.h"
 #include "ui_ltr.h"
 
@@ -13,7 +14,7 @@ class ModelCreate : public QWidget
   ~ModelCreate();
  protected:
  signals:
-  void ModelCreated();
+  void ModelCreated(const QString &section);
  private slots:
   void on_CancelButton_pressed();
   void on_CreateButton_pressed();
@@ -48,7 +49,7 @@ class ModelEdit : public QWidget
   void on_ClipHz_valueChanged(double val);
   void on_ClipLeds_stateChanged(int state);
   void on_SinglePtLeds_stateChanged(int state);
-  void on_ModelCreated();
+  void on_ModelCreated(const QString &section);
   void on_ModelSelector_activated(const QString &text);
   private:
   const Ui::LinuxtrackMainForm &gui;

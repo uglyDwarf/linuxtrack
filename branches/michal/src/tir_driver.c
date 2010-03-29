@@ -13,6 +13,8 @@
 #include "pref_global.h"
 #include "runloop.h"
 #include "image_process.h"
+#include "usb_ifc.h"
+#include "dyn_load.h"
 
 tracker_interface trck_iface = {
   .tracker_init = tir_init,
@@ -34,6 +36,25 @@ bool threshold_changed = false;
 bool status_brightness_changed = false;
 bool ir_led_brightness_changed = false;
 bool signal_flag = true;
+
+init_usb_fun init_usb = NULL;
+find_tir_fun find_tir = NULL;
+prepare_device_fun prepare_device = NULL;
+send_data_fun send_data = NULL;
+receive_data_fun receive_data = NULL;
+finish_usb_fun finish_usb = NULL;
+
+static lib_fun_def_t functions[] = {
+  {(char *)"init_usb", (void*) &init_usb},
+  {(char *)"find_tir", (void*) &find_tir},
+  {(char *)"prepare_device", (void*) &prepare_device},
+  {(char *)"send_data", (void*) &send_data},
+  {(char *)"receive_data", (void*) &receive_data},
+  {(char *)"finish_usb", (void*) &finish_usb},
+  {NULL, NULL}
+};
+static void *libhandle = NULL;
+
 
 void flag_pref_changed(void *flag_ptr)
 {
@@ -95,7 +116,13 @@ int tir_init(struct camera_control_block *ccb)
 {
   assert(ccb != NULL);
   assert((ccb->device.category == tir) || (ccb->device.category == tir_open));
-  tir_get_prefs();
+  if((libhandle = lt_load_library((char *)"libltusb1.so", functions)) == NULL){
+    return -1;
+  }
+  if(tir_get_prefs() != 0){
+    return -1;
+  }
+  log_message("Lib loaded, prefs read...\n");
   if(open_tir(storage_path, false, !is_model_active())){
     float tf;
     get_res_tir(&(ccb->pixel_width), &(ccb->pixel_height), &tf);
@@ -149,6 +176,9 @@ int tir_resume()
 
 int tir_close()
 {
-  return close_tir() ? 0 : -1;
+  int res = close_tir() ? 0 : -1;;
+  lt_unload_library(libhandle, functions);
+  libhandle = NULL;
+  return res;
 }
 

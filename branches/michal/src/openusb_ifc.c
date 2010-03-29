@@ -1,6 +1,7 @@
 #include <openusb.h>
 #include <stdbool.h>
 #include <stdio.h>
+#define USB_IMPL_ONLY
 #include "usb_ifc.h"
 #include "utils.h"
 

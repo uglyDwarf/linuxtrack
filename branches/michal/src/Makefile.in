@@ -44,9 +44,10 @@ bin_PROGRAMS = lt_server$(EXEEXT) lt_client$(EXEEXT)
 #if LIBUSB
 #  lib_LTLIBRARIES += libtir4.la 
 #endif
-@LIBUSB10_TRUE@@LIBZ_TRUE@am__append_3 = libtir1.la 
-@LIBZ_TRUE@@OPENUSB_TRUE@am__append_4 = libtir2.la 
-@XPLANE_PLUGIN_TRUE@am__append_5 = xlinuxtrack.la
+@LIBZ_TRUE@am__append_3 = libtir.la
+@LIBUSB10_TRUE@@LIBZ_TRUE@am__append_4 = libltusb1.la 
+@LIBZ_TRUE@@OPENUSB_TRUE@am__append_5 = libltopenusb.la 
+@XPLANE_PLUGIN_TRUE@am__append_6 = xlinuxtrack.la
 subdir = src
 DIST_COMMON = $(dist_data_DATA) $(include_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in pref_bison.c \
@@ -92,16 +93,18 @@ liblinuxtrack_la_OBJECTS = $(am_liblinuxtrack_la_OBJECTS)
 liblt_la_DEPENDENCIES =
 am_liblt_la_OBJECTS = ltlib.lo utils.lo list.lo dyn_load.lo
 liblt_la_OBJECTS = $(am_liblt_la_OBJECTS)
-libtir1_la_DEPENDENCIES =
-am_libtir1_la_OBJECTS = libusb_ifc.lo tir_hw.lo tir_img.lo \
-	tir_driver.lo runloop.lo
-libtir1_la_OBJECTS = $(am_libtir1_la_OBJECTS)
-@LIBUSB10_TRUE@@LIBZ_TRUE@am_libtir1_la_rpath = -rpath $(libdir)
-libtir2_la_DEPENDENCIES =
-am_libtir2_la_OBJECTS = openusb_ifc.lo tir_hw.lo tir_img.lo \
-	tir_driver.lo runloop.lo
-libtir2_la_OBJECTS = $(am_libtir2_la_OBJECTS)
-@LIBZ_TRUE@@OPENUSB_TRUE@am_libtir2_la_rpath = -rpath $(libdir)
+libltopenusb_la_DEPENDENCIES =
+am_libltopenusb_la_OBJECTS = openusb_ifc.lo
+libltopenusb_la_OBJECTS = $(am_libltopenusb_la_OBJECTS)
+@LIBZ_TRUE@@OPENUSB_TRUE@am_libltopenusb_la_rpath = -rpath $(libdir)
+libltusb1_la_DEPENDENCIES =
+am_libltusb1_la_OBJECTS = libusb_ifc.lo
+libltusb1_la_OBJECTS = $(am_libltusb1_la_OBJECTS)
+@LIBUSB10_TRUE@@LIBZ_TRUE@am_libltusb1_la_rpath = -rpath $(libdir)
+libtir_la_DEPENDENCIES =
+am_libtir_la_OBJECTS = tir_hw.lo tir_img.lo tir_driver.lo runloop.lo
+libtir_la_OBJECTS = $(am_libtir_la_OBJECTS)
+@LIBZ_TRUE@am_libtir_la_rpath = -rpath $(libdir)
 libwc_la_DEPENDENCIES =
 am_libwc_la_OBJECTS = webcam_driver.lo runloop.lo
 libwc_la_OBJECTS = $(am_libwc_la_OBJECTS)
@@ -147,12 +150,12 @@ YACCCOMPILE = $(YACC) $(YFLAGS) $(AM_YFLAGS)
 LTYACCCOMPILE = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=compile $(YACC) $(YFLAGS) $(AM_YFLAGS)
 SOURCES = $(liblinuxtrack_la_SOURCES) $(liblt_la_SOURCES) \
-	$(libtir1_la_SOURCES) $(libtir2_la_SOURCES) \
-	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
+	$(libltopenusb_la_SOURCES) $(libltusb1_la_SOURCES) \
+	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(xlinuxtrack_la_SOURCES) lt_client.c $(lt_server_SOURCES)
 DIST_SOURCES = $(liblinuxtrack_la_SOURCES) $(liblt_la_SOURCES) \
-	$(libtir1_la_SOURCES) $(libtir2_la_SOURCES) \
-	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
+	$(libltopenusb_la_SOURCES) $(libltusb1_la_SOURCES) \
+	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(am__xlinuxtrack_la_SOURCES_DIST) lt_client.c \
 	$(lt_server_SOURCES)
 DATA = $(dist_data_DATA)
@@ -283,7 +286,7 @@ top_srcdir = @top_srcdir@
 @DARWIN_TRUE@SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
 lib_LTLIBRARIES = liblinuxtrack.la liblt.la $(am__append_1) \
 	$(am__append_2) $(am__append_3) $(am__append_4) \
-	$(am__append_5)
+	$(am__append_5) $(am__append_6)
 lt_server_SOURCES = lt_server.c
 lt_server_LDADD = -lm -lpthread -ldl -llinuxtrack 
 lt_client = lt_client.c
@@ -300,14 +303,14 @@ liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
 
 #libtir4_la_SOURCES = tir4_driver.c tir4_driver.h new_cal.c new_cal.h
 #libtir4_la_LIBADD = -lusb  -llinuxtrack
-libtir1_la_SOURCES = libusb_ifc.c tir.h tir_hw.c tir_hw.h \
+libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
 
-libtir1_la_LIBADD = -lz -lusb-1.0 -llinuxtrack
-libtir2_la_SOURCES = openusb_ifc.c tir.h tir_hw.c tir_hw.h \
-    tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
-
-libtir2_la_LIBADD = -lz -lopenusb -llinuxtrack
+libtir_la_LIBADD = -lz -llinuxtrack
+libltusb1_la_SOURCES = libusb_ifc.c usb_ifc.h
+libltusb1_la_LIBADD = -lusb-1.0 -llinuxtrack
+libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
+libltopenusb_la_LIBADD = -lopenusb -llinuxtrack
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
 libwii_la_LIBADD = -lcwiid -llinuxtrack
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
@@ -395,10 +398,12 @@ liblinuxtrack.la: $(liblinuxtrack_la_OBJECTS) $(liblinuxtrack_la_DEPENDENCIES)
 	$(LINK) -rpath $(libdir) $(liblinuxtrack_la_OBJECTS) $(liblinuxtrack_la_LIBADD) $(LIBS)
 liblt.la: $(liblt_la_OBJECTS) $(liblt_la_DEPENDENCIES) 
 	$(LINK) -rpath $(libdir) $(liblt_la_OBJECTS) $(liblt_la_LIBADD) $(LIBS)
-libtir1.la: $(libtir1_la_OBJECTS) $(libtir1_la_DEPENDENCIES) 
-	$(LINK) $(am_libtir1_la_rpath) $(libtir1_la_OBJECTS) $(libtir1_la_LIBADD) $(LIBS)
-libtir2.la: $(libtir2_la_OBJECTS) $(libtir2_la_DEPENDENCIES) 
-	$(LINK) $(am_libtir2_la_rpath) $(libtir2_la_OBJECTS) $(libtir2_la_LIBADD) $(LIBS)
+libltopenusb.la: $(libltopenusb_la_OBJECTS) $(libltopenusb_la_DEPENDENCIES) 
+	$(LINK) $(am_libltopenusb_la_rpath) $(libltopenusb_la_OBJECTS) $(libltopenusb_la_LIBADD) $(LIBS)
+libltusb1.la: $(libltusb1_la_OBJECTS) $(libltusb1_la_DEPENDENCIES) 
+	$(LINK) $(am_libltusb1_la_rpath) $(libltusb1_la_OBJECTS) $(libltusb1_la_LIBADD) $(LIBS)
+libtir.la: $(libtir_la_OBJECTS) $(libtir_la_DEPENDENCIES) 
+	$(LINK) $(am_libtir_la_rpath) $(libtir_la_OBJECTS) $(libtir_la_LIBADD) $(LIBS)
 libwc.la: $(libwc_la_OBJECTS) $(libwc_la_DEPENDENCIES) 
 	$(LINK) $(am_libwc_la_rpath) $(libwc_la_OBJECTS) $(libwc_la_LIBADD) $(LIBS)
 libwii.la: $(libwii_la_OBJECTS) $(libwii_la_DEPENDENCIES) 

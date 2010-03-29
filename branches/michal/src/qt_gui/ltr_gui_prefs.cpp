@@ -10,9 +10,14 @@ PrefProxy *PrefProxy::prf = NULL;
 
 PrefProxy::PrefProxy()
 {
-  
   if(!read_prefs(NULL, false)){
     log_message("Couldn't load preferences!\n");
+    new_prefs();
+    QString global = "Global";
+    if(!createSection(global)){
+      log_message("Can't create prefs at all... That is too bad.\n");
+      exit(1);
+    }
   }
 }
 
@@ -36,14 +41,26 @@ bool PrefProxy::activateDevice(const QString &sectionName)
 {
   pref_id dev_selector;
   if(!open_pref((char *)"Global", (char *)"Input", &dev_selector)){
-    return false;
+    return addKeyVal((char *)"Global", (char *)"Input", sectionName);
   }
   set_str(&dev_selector, sectionName.toAscii().data());
   close_pref(&dev_selector);
   return true;
 }
 
-bool PrefProxy::createSection(QString &sectionName)
+bool PrefProxy::activateModel(const QString &sectionName)
+{
+  pref_id dev_selector;
+  if(!open_pref((char *)"Global", (char *)"Model", &dev_selector)){
+    return addKeyVal((char *)"Global", (char *)"Model", sectionName);
+  }
+  set_str(&dev_selector, sectionName.toAscii().data());
+  close_pref(&dev_selector);
+  return true;
+}
+
+bool PrefProxy::createSection(QString 
+&sectionName)
 {
   int i = 0;
   QString newSecName = sectionName;

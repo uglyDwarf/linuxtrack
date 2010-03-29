@@ -44,10 +44,7 @@ int cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   assert(ccb != NULL);
   switch (ccb->device.category) {
     case tir:
-      libname = "libtir1.so";
-      break;
-    case tir_open:
-      libname = "libtir2.so";
+      libname = "libtir.so";
       break;
     case tir4_camera:
       libname = "libtir4.so";
