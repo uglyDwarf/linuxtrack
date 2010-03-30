@@ -14,7 +14,7 @@ char* my_strdup(const char* s);
 void log_message(const char *format, ...);
 int my_ioctl(int d, int request, void *argp);
 void strlower(char *s);
-char *my_strcat(char *str1, char *str2);
+char *my_strcat(const char *str1, const char *str2);
 
 
 /*

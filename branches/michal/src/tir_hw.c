@@ -170,7 +170,7 @@ static bool read_rom_data_tir()
 
 
 
-static bool load_firmware(firmware_t *fw, char data_path[])
+static bool load_firmware(firmware_t *fw, const char data_path[])
 {
   assert(fw != NULL);
   assert(data_path != NULL);
@@ -461,7 +461,7 @@ bool start_camera_tir()
 }
 
 
-bool init_camera_tir4(char data_path[], bool force_fw_load, bool p_ir_on)
+bool init_camera_tir4(const char data_path[], bool force_fw_load, bool p_ir_on)
 {
   tir_status_t status;
   size_t t;
@@ -528,7 +528,7 @@ bool init_camera_tir4(char data_path[], bool force_fw_load, bool p_ir_on)
 
 
 
-bool init_camera_tir5(char data_path[], bool force_fw_load, bool p_ir_on)
+bool init_camera_tir5(const char data_path[], bool force_fw_load, bool p_ir_on)
 {
   tir_status_t status;
   ir_on = p_ir_on;
@@ -571,13 +571,13 @@ bool init_camera_tir5(char data_path[], bool force_fw_load, bool p_ir_on)
   return true;
 }
 
-bool init_camera_tir(char data_path[], bool force_fw_load, bool p_ir_on)
+bool init_camera_tir(const char data_path[], bool force_fw_load, bool p_ir_on)
 {
   assert(tir_iface != NULL);
   return tir_iface->init_camera_tir(data_path, force_fw_load, p_ir_on);
 }
 
-bool open_tir(char data_path[], bool force_fw_load, bool ir_on)
+bool open_tir(const char data_path[], bool force_fw_load, bool ir_on)
 {
   if(!init_usb()){
     log_message("Init failed!\n");

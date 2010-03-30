@@ -30,7 +30,7 @@ pref_id threshold = NULL;
 pref_id stat_bright = NULL;
 pref_id ir_bright = NULL;
 pref_id signals = NULL;
-char *storage_path = NULL;
+const char *storage_path = NULL;
 
 bool threshold_changed = false;
 bool status_brightness_changed = false;

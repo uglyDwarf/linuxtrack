@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-extern bool open_tir(char data_path[], bool force_fw_load, bool ir_on);
+extern bool open_tir(const char data_path[], bool force_fw_load, bool ir_on);
 extern bool pause_tir();
 extern bool resume_tir();
 extern bool read_frame();

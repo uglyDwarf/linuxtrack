@@ -64,7 +64,7 @@ libwii_la_LIBADD = -lcwiid -llinuxtrack
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_LIBADD = -llinuxtrack
 
-dist_data_DATA = .linuxtrack
+dist_pkgdata_DATA = .linuxtrack
 
 if XPLANE_PLUGIN
   lib_LTLIBRARIES += xlinuxtrack.la

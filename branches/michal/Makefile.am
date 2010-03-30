@@ -1,2 +1,2 @@
 SUBDIRS = src src/tests
-dist_data_DATA = README
+dist_pkgdata_DATA = README

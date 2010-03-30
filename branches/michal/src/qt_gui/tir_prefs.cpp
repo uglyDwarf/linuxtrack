@@ -4,6 +4,9 @@
 #include "pref_int.h"
 #include "ltr_gui_prefs.h"
 #include "tir_prefs.h"
+#include "pathconfig.h"
+
+#include <QFile>
 
 static QString currentId = QString("None");
 static QString currentSection = QString();
@@ -31,6 +34,17 @@ TirPrefs::TirPrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
 
 TirPrefs::~TirPrefs()
 {
+}
+
+static bool haveFirmware()
+{
+  QString data_path = DATA_PATH;
+  if(QFile::exists(data_path + "tir4.fw.gz") && 
+     QFile::exists(data_path + "tir5.fw.gz")){
+    return true;
+  }else{
+    return false;
+  }
 }
 
 void TirPrefs::Activate(const QString &ID)
@@ -77,6 +91,11 @@ void TirPrefs::Activate(const QString &ID)
     Qt::CheckState state = (sst.compare("on", Qt::CaseInsensitive) == 0) ? 
                             Qt::Checked : Qt::Unchecked;
     gui.TirSignalizeStatus->setCheckState(state);
+  }
+  if(haveFirmware()){
+    gui.TirFwLabel->setText("Firmware found!");
+  }else{
+    gui.TirFwLabel->setText("Firmware not found - TrackIr will not work!");
   }
 }
 

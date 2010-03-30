@@ -97,6 +97,7 @@ AM_CONDITIONAL(LIBZ, [test  "x$ac_cv_lib_z_gzopen" = xyes])
 AC_CONFIG_FILES([
  Makefile
  src/Makefile
+ src/pathconfig.h
  src/tests/Makefile
  src/qt_gui/ltr_gui.pro
 ])

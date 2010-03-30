@@ -370,25 +370,11 @@
                   <item>
                    <layout class="QVBoxLayout" name="verticalLayout_15">
                     <item>
-                     <widget class="QLabel" name="label_46">
+                     <widget class="QLabel" name="TirFwLabel">
                       <property name="text">
                        <string>TrackIr firmware path</string>
                       </property>
                      </widget>
-                    </item>
-                    <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_19">
-                      <item>
-                       <widget class="QLineEdit" name="TirFwPath"/>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="TirBrowseButton">
-                        <property name="text">
-                         <string>Browse</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
                     </item>
                    </layout>
                   </item>

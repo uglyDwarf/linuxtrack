@@ -7,6 +7,7 @@
 #include "pref_global.h"
 #include "utils.h"
 
+#include "pathconfig.h"
 
 void pref_change_callback(void *param)
 {
@@ -26,16 +27,9 @@ char *get_device_section()
   return get_str(dev_section);
 }
 
-char *get_storage_path()
+const char *get_storage_path()
 {
-  static pref_id storage_path = NULL;
-  if(storage_path == NULL){
-    if(!open_pref("Global", "Store-directory", &storage_path)){
-      log_message("Entry 'Store-directory' missing in 'Global' section!\n");
-      return ".";
-    }
-  }
-  return get_str(storage_path);
+  return DATA_PATH; 
 }
 
 bool model_section_changed = false;

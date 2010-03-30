@@ -12,7 +12,7 @@ void get_res_tir(unsigned int *w, unsigned int *h, float *hf);
 
 typedef bool (*stop_camera_tir_fun)();
 typedef bool (*start_camera_tir_fun)();
-typedef bool (*init_camera_tir_fun)(char data_path[], bool force_fw_load, bool p_ir_on);
+typedef bool (*init_camera_tir_fun)(const char data_path[], bool force_fw_load, bool p_ir_on);
 typedef void (*get_res_tir_fun)(unsigned int *w, unsigned int *h, float *hf);
 typedef bool (*close_camera_tir_fun)();
 typedef bool (*set_status_led_tir_fun)(bool state);

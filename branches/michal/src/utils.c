@@ -88,7 +88,7 @@ void strlower(char *s)
   }
 }
 
-char *my_strcat(char *str1, char *str2)
+char *my_strcat(const char *str1, const char *str2)
 {
   size_t len1 = strlen(str1);
   size_t sum = len1 + strlen(str2) + 1; //Count trainling null too
