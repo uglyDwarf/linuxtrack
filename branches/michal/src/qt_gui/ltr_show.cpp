@@ -9,12 +9,12 @@
 #include <utils.h>
 #include <pref_global.h>
 #include <pref_int.h>
+#include <tracking.h>
 #include <iostream>
 
 QImage *img;
 QPixmap *pic;
 QLabel *label;
-QTimer *timer;
 
 unsigned char *bitmap = NULL;
 bool flag;
@@ -35,6 +35,7 @@ void CaptureThread::run()
     log_message("Can't get device category!\n");
     return;
   }
+  init_tracking();
   ccb.mode = operational_3dot;
   ccb.diag = false;
   cal_run(&ccb, frame_callback);
@@ -50,18 +51,22 @@ LtrGuiForm::LtrGuiForm()
      ui.setupUi(this);
      label = new QLabel();
      ui.pix_box->addWidget(label);
-     timer = new QTimer();
      ui.pauseButton->setDisabled(true);
      ui.wakeButton->setDisabled(true);
      ui.stopButton->setDisabled(true);
+     glw = new Window();
+     ui.ogl_box->addWidget(glw);
  }
 
 int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 {
   static int cnt = 0;
+  if(cnt == 0){
+    recenter_tracking();
+  }
+  ++cnt;
   
-  cnt++;
-  std::cout<<cnt<<". frame"<<std::endl;
+  update_pose(frame);
   
   if((w != frame->width) || (h != frame->height)){
     w = frame->width;
@@ -72,9 +77,6 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
     bitmap = (unsigned char *)my_malloc(frame->width * frame->height);
     if(qt_bitmap != NULL){
       free(qt_bitmap);
-    }
-    if(qt_bitmap != NULL){
-      
     }
     qt_bitmap = (unsigned char*)my_malloc(h * w * 3);
     img = new QImage(qt_bitmap, w, h, w * 3, QImage::Format_RGB888);

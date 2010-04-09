@@ -47,7 +47,7 @@ liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
   pref_flex.l pref_global.c pref_global.h pref_int.h \
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
-  netcomm.c netcomm.h ltlib_client.c ltlib_client.h ltlib_int.c ltlib_int.h
+  ltlib_int.c ltlib_int.h
 
 #libtir4_la_SOURCES = tir4_driver.c tir4_driver.h new_cal.c new_cal.h
 #libtir4_la_LIBADD = -lusb  -llinuxtrack

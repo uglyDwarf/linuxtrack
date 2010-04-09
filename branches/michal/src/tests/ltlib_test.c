@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
   int retval;
 
   retval = lt_init(NULL);
-  usleep(15000000);
+  usleep(1500000);
   if (retval < 0) { 
     printf("Error %d detected! Aborting!\n", retval);
     return retval; 
@@ -51,10 +51,14 @@ int main(int argc, char **argv) {
     }
     log_message("heading: %f\tpitch: %f\troll: %f\n", heading, pitch, roll);
     log_message("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);
+    printf("heading: %f\tpitch: %f\troll: %f\n", heading, pitch, roll);
+    printf("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);
     usleep(9000);
   }
   lt_suspend();
-  sleep(2);
+  printf("Suspended\n");
+  sleep(5);
+  printf("Waking up\n");
   lt_wakeup();
   cntr = 0;
   while (++cntr < 100) {
@@ -67,6 +71,8 @@ int main(int argc, char **argv) {
     }
     log_message("heading: %f\tpitch: %f\troll: %f\n", heading, pitch, roll);
     log_message("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);
+    printf("heading: %f\tpitch: %f\troll: %f\n", heading, pitch, roll);
+    printf("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);
     usleep(9000);
   }
   lt_shutdown();

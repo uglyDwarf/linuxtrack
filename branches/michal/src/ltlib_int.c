@@ -1,11 +1,31 @@
 
 #include <stdarg.h>
+#include <pthread.h>
 #include "pref_global.h"
 #include "utils.h" 
 #include "pref_int.h"
-#include "ltlib_client.h"
 #include "cal.h"
 #include "tracking.h"
+
+static pthread_t cal_thread;
+
+static int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
+{
+  update_pose(frame);
+  return 0;
+}
+
+static struct camera_control_block ccb;
+
+static void *cal_thread_fun(void *param)
+{
+  if(get_device(&ccb)){
+    ccb.mode = operational_3dot;
+    ccb.diag = false;
+    cal_run(&ccb, frame_callback);
+  }
+  return NULL;
+}
 
 int lt_int_init(char *cust_section)
 {
@@ -18,7 +38,8 @@ int lt_int_init(char *cust_section)
     log_message("Couldn't initialize trcking!\n");
     return -1;
   }
-  return lt_client_init();
+  pthread_create(&cal_thread, NULL, cal_thread_fun, NULL);
+  return 0;
 }
 
 int lt_int_get_camera_update(float *heading,
@@ -43,17 +64,17 @@ int lt_int_get_camera_update(float *heading,
 
 int lt_int_suspend(void)
 {
-  return lt_client_suspend();
+  return cal_suspend();
 }
 
 int lt_int_wakeup(void)
 {
-  return lt_client_wakeup();
+  return cal_wakeup();
 }
 
 int lt_int_shutdown(void)
 {
-  return lt_client_close();
+  return cal_shutdown();
 }
 
 void lt_int_recenter(void)

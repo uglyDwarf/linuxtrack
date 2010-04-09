@@ -4,6 +4,7 @@
 #include <QTextStream>
 
 #include "objreader.h"
+#include "pathconfig.h"
 
 int cnt = 0;
 int vcnt = 0;
@@ -33,15 +34,16 @@ static void add_tris(int offset, int count, bool glass)
 }
 
 bool glass = false;
+static QRegExp vt_line("^\\s*VT\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s*$");
+static QRegExp idx10_line("^\\s*IDX10\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s*$");
+static QRegExp idx_line("^\\s*IDX\\s+(\\S+)\\s*$");
+static QRegExp tris_line("^\\s*TRIS\\s+(\\S+)\\s+(\\S+)\\s*$");
+static QRegExp texture_line("^\\s*TEXTURE\\s+(.*)\\s*$");
+static QRegExp glass_line("^\\s*GLASS\\s*$");
+
 
 static void process_line(const QString &line)
 {
-  QRegExp vt_line("^\\s*VT\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s*$");
-  QRegExp idx10_line("^\\s*IDX10\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s*$");
-  QRegExp idx_line("^\\s*IDX\\s+(\\S+)\\s*$");
-  QRegExp tris_line("^\\s*TRIS\\s+(\\S+)\\s+(\\S+)\\s*$");
-  QRegExp texture_line("^\\s*TEXTURE\\s+(.*)\\s*$");
-  QRegExp glass_line("^\\s*GLASS\\s*$");
   if(vt_line.indexIn(line) != -1){
     float x, y, z, nx, ny, nz, s, t;
     x = vt_line.cap(1).toFloat(); 
@@ -70,7 +72,9 @@ static void process_line(const QString &line)
     add_tris(tris_line.cap(1).toInt(), tris_line.cap(2).toInt(), glass);
     glass = false;
   }else if(texture_line.indexIn(line) != -1){
-    object.texture = texture_line.cap(1);
+    if(!texture_line.cap(1).isEmpty()){
+      object.texture = QString(DATA_PATH).append(texture_line.cap(1));
+    }
   }else if(glass_line.indexIn(line) != -1){
     glass = true;
   }
@@ -89,7 +93,7 @@ void read_obj()
   char *obj_list[] = {(char *)"xm8d_body.obj", (char *)"XM8_cockpit.obj", NULL};
   
   for(int i = 0; obj_list[i] != NULL; ++i){
-    QFile f((char *)obj_list[i]);
+    QFile f(QString(DATA_PATH).append((char *)obj_list[i]));
     obj_init(object); 
     cnt = 0;
     vcnt = 0;

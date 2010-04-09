@@ -15,17 +15,12 @@
      QSize sizeHint() const;
 
  public slots:
-     void setXRotation(int angle);
-     void setYRotation(int angle);
-     void setZRotation(int angle);
-     void setXTrans(int pos);
-     void setYTrans(int pos);
-     void setZTrans(int pos);
-
- signals:
-     void xRotationChanged(int angle);
-     void yRotationChanged(int angle);
-     void zRotationChanged(int angle);
+     void setXRotation(float angle);
+     void setYRotation(float angle);
+     void setZRotation(float angle);
+     void setXTrans(float pos);
+     void setYTrans(float pos);
+     void setZTrans(float pos);
 
  protected:
      void initializeGL();
@@ -39,9 +34,9 @@
      void normalizeAngle(int *angle);
 
      std::vector<GLuint> objects;
-     int xRot;
-     int yRot;
-     int zRot;
+     float xRot;
+     float yRot;
+     float zRot;
      float xTrans;
      float yTrans;
      float zTrans;

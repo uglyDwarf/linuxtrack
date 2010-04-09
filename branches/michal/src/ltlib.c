@@ -57,7 +57,8 @@ static char libname[] = "liblinuxtrack.so";
 int lt_init(char *cust_section)
 {
   if(fun_lt_int_init == NULL){
-    if((libhandle = lt_load_library(libname, functions)) != NULL){
+    if((libhandle = lt_load_library(libname, functions)) == NULL){
+      log_message("Problem loading library %s!\n", libname);
       return -1;
     }
   }

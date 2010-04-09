@@ -4,6 +4,10 @@
 #include <stdbool.h>
 #include "pref.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int lt_int_init(char *cust_section);
 int lt_int_shutdown(void);
 int lt_int_suspend(void);
@@ -27,6 +31,10 @@ bool lt_int_save_prefs(void);
 bool lt_int_close_pref(pref_id *prf);
 
 void lt_int_log_message(const char *format, ...);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

@@ -2,9 +2,8 @@
  #define WINDOW_H
 
  #include <QWidget>
-
- class QSlider;
-
+ #include <QTimer>
+ 
  class GLWidget;
 
  class Window : public QWidget
@@ -14,17 +13,11 @@
  public:
      Window();
 
+ private slots:
+  void update_pic();
  private:
-     QSlider *createSlider();
-     QSlider *createAngleSlider();
-
      GLWidget *glWidget;
-     QSlider *xSlider;
-     QSlider *ySlider;
-     QSlider *zSlider;
-     QSlider *txSlider;
-     QSlider *tySlider;
-     QSlider *tzSlider;
+     QTimer *timer;
  };
 
  #endif

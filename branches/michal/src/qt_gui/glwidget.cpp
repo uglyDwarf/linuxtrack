@@ -5,6 +5,7 @@
 #include "objreader.h"
  #include "glwidget.h"
 #include <iostream> 
+#include "pathconfig.h"
 
  GLWidget::GLWidget(QWidget *parent)
      : QGLWidget(parent)
@@ -39,49 +40,40 @@
      return QSize(400, 400);
  }
 
- void GLWidget::setXRotation(int angle)
+ void GLWidget::setXRotation(float angle)
  {
      if (angle != xRot) {
          xRot = angle;
-         emit xRotationChanged(angle);
-         updateGL();
      }
  }
 
- void GLWidget::setYRotation(int angle)
+ void GLWidget::setYRotation(float angle)
  {
      if (angle != yRot) {
          yRot = angle;
-         emit yRotationChanged(angle);
-         updateGL();
      }
  }
 
- void GLWidget::setZRotation(int angle)
+ void GLWidget::setZRotation(float angle)
  {
      if (angle != zRot) {
          zRot = angle;
-         emit zRotationChanged(angle);
-         updateGL();
      }
  }
 
- void GLWidget::setXTrans(int val)
+ void GLWidget::setXTrans(float val)
  {
-   xTrans = val / 100.0;
-   updateGL();
+   xTrans = val;
  }
 
- void GLWidget::setYTrans(int val)
+ void GLWidget::setYTrans(float val)
  {
-   yTrans = val / 100.0;
-   updateGL();
+   yTrans = val;
  }
 
- void GLWidget::setZTrans(int val)
+ void GLWidget::setZTrans(float val)
  {
-   zTrans = val / 100.0;
-   updateGL();
+   zTrans = val;
  }
 
  void GLWidget::initializeGL()
@@ -99,9 +91,9 @@
      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
      glLoadIdentity();
      
-     glRotated(xRot / 16.0, 1.0, 0.0, 0.0);
-     glRotated(yRot / 16.0, 0.0, 1.0, 0.0);
-     glRotated(zRot / 16.0, 0.0, 0.0, 1.0);
+     glRotated(xRot, 1.0, 0.0, 0.0);
+     glRotated(yRot, 0.0, 1.0, 0.0);
+     glRotated(zRot, 0.0, 0.0, 1.0);
      glTranslated(xTrans, yTrans, zTrans);
      
      glPushMatrix();
@@ -123,7 +115,6 @@
 
  void GLWidget::resizeGL(int width, int height)
  {
-     int side = qMin(width, height);
      glViewport(0, 0, width, height);
 
      glMatrixMode(GL_PROJECTION);
@@ -187,6 +178,7 @@ bool GLWidget::makeObjects()
          textured = true;
        }
        if(textured){
+	 std::cout<<obj.texture.toAscii().data()<<std::endl;
          texture = bindTexture(QPixmap(QString(obj.texture)), GL_TEXTURE_2D);
          glBindTexture(GL_TEXTURE_2D, texture);
        }

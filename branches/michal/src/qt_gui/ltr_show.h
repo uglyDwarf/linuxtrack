@@ -1,6 +1,7 @@
 #include "ui_ltr_gui.h"
 
 #include <QThread>
+#include "window.h"
 
 class CaptureThread : public QThread
 {
@@ -29,4 +30,5 @@ class LtrGuiForm : public QMainWindow
     
   private:
     Ui::Ltr_gui ui;
+    Window *glw;
 };
