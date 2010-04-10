@@ -11,11 +11,12 @@ INCLUDEPATH += .
 # Input
 HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h webcam_prefs.h webcam_info.h \
 	   ltr_gui_prefs.h wiimote_prefs.h prefs_link.h tir_prefs.h \
-           ltr_model.h window.h glwidget.h objreader.h
-FORMS += ltr_gui.ui dev_help.ui ltr.ui model_creation.ui
+           ltr_model.h window.h glwidget.h objreader.h scurve.h scview.h
+FORMS += ltr_gui.ui dev_help.ui ltr.ui model_creation.ui scurve.ui
 SOURCES += main.cpp ltr_gui.cpp webcam_prefs.cpp ltr_show.cpp ltr_dev_help.cpp \
            webcam_info.cpp ltr_gui_prefs.cpp wiimote_prefs.cpp tir_prefs.cpp \
-           ltr_model.cpp window.cpp glwidget.cpp objreader.cpp
+           ltr_model.cpp window.cpp glwidget.cpp objreader.cpp \
+           scurve.cpp scview.cpp
 
 INCLUDEPATH += ..
 LIBS += -L@prefix@/lib -lm -lpthread -ldl -llinuxtrack
