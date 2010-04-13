@@ -33,9 +33,9 @@ if OPENUSB
 endif
 endif
 
-lt_server_SOURCES = lt_server.c
+lt_server_SOURCES = lt_server.c netcomm.c netcomm.h
 lt_server_LDADD = -lm -lpthread -ldl -llinuxtrack 
-lt_client = lt_client.c
+lt_client_SOURCES = lt_client.c netcomm.c netcomm.h
 lt_client_LDADD = -lm -lpthread -ldl -llinuxtrack 
 
 include_HEADERS = ltlib.h

@@ -28,7 +28,7 @@ struct current_pose{
 };
 
 extern struct current_pose lt_current_pose;
-pthread_mutex_t pose_mutex;
+extern pthread_mutex_t pose_mutex;
 
 bool init_tracking();
 int update_pose(struct frame_type *frame);

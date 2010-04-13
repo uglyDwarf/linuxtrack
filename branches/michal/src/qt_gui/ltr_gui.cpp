@@ -10,6 +10,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
   wiip = new WiimotePrefs(ui);
   tirp = new TirPrefs(ui);
   me = new ModelEdit(ui);
+  sc = new ScpForm();
   on_RefreshDevices_pressed();
   showWindow.show();
   helper.show();
@@ -63,3 +64,7 @@ void LinuxtrackGui::on_QuitButton_pressed()
   close();
 }
 
+void LinuxtrackGui::on_EditSCButton_pressed()
+{
+  sc->show();
+}

@@ -123,10 +123,10 @@ xlinuxtrack_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(CFLAGS) $(xlinuxtrack_la_LDFLAGS) $(LDFLAGS) -o $@
 @XPLANE_PLUGIN_TRUE@am_xlinuxtrack_la_rpath = -rpath $(libdir)
 PROGRAMS = $(bin_PROGRAMS)
-lt_client_SOURCES = lt_client.c
-lt_client_OBJECTS = lt_client.$(OBJEXT)
+am_lt_client_OBJECTS = lt_client.$(OBJEXT) netcomm.$(OBJEXT)
+lt_client_OBJECTS = $(am_lt_client_OBJECTS)
 lt_client_DEPENDENCIES =
-am_lt_server_OBJECTS = lt_server.$(OBJEXT)
+am_lt_server_OBJECTS = lt_server.$(OBJEXT) netcomm.$(OBJEXT)
 lt_server_OBJECTS = $(am_lt_server_OBJECTS)
 lt_server_DEPENDENCIES =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -152,11 +152,12 @@ LTYACCCOMPILE = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 SOURCES = $(liblinuxtrack_la_SOURCES) $(liblt_la_SOURCES) \
 	$(libltopenusb_la_SOURCES) $(libltusb1_la_SOURCES) \
 	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
-	$(xlinuxtrack_la_SOURCES) lt_client.c $(lt_server_SOURCES)
+	$(xlinuxtrack_la_SOURCES) $(lt_client_SOURCES) \
+	$(lt_server_SOURCES)
 DIST_SOURCES = $(liblinuxtrack_la_SOURCES) $(liblt_la_SOURCES) \
 	$(libltopenusb_la_SOURCES) $(libltusb1_la_SOURCES) \
 	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
-	$(am__xlinuxtrack_la_SOURCES_DIST) lt_client.c \
+	$(am__xlinuxtrack_la_SOURCES_DIST) $(lt_client_SOURCES) \
 	$(lt_server_SOURCES)
 DATA = $(dist_pkgdata_DATA)
 HEADERS = $(include_HEADERS)
@@ -287,9 +288,9 @@ top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = liblinuxtrack.la liblt.la $(am__append_1) \
 	$(am__append_2) $(am__append_3) $(am__append_4) \
 	$(am__append_5) $(am__append_6)
-lt_server_SOURCES = lt_server.c
+lt_server_SOURCES = lt_server.c netcomm.c netcomm.h
 lt_server_LDADD = -lm -lpthread -ldl -llinuxtrack 
-lt_client = lt_client.c
+lt_client_SOURCES = lt_client.c netcomm.c netcomm.h
 lt_client_LDADD = -lm -lpthread -ldl -llinuxtrack 
 include_HEADERS = ltlib.h
 liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
@@ -478,6 +479,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib_int.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/math_utils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/netcomm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openusb_ifc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pose.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref.Plo@am__quote@

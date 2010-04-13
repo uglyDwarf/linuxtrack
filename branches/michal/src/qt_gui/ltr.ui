@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>755</width>
+    <width>763</width>
     <height>627</height>
    </rect>
   </property>
@@ -1346,78 +1346,132 @@ source), or reflective material.
                 <property name="title">
                  <string>Sensitivities</string>
                 </property>
-                <widget class="QWidget" name="formLayoutWidget">
-                 <property name="geometry">
-                  <rect>
-                   <x>10</x>
-                   <y>19</y>
-                   <width>171</width>
-                   <height>200</height>
-                  </rect>
-                 </property>
-                 <layout class="QFormLayout" name="formLayout">
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_6">
-                    <property name="text">
-                     <string>Pitch</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_7">
-                    <property name="text">
-                     <string>Yaw</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="label_8">
-                    <property name="text">
-                     <string>Roll</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox_3"/>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="label_9">
-                    <property name="text">
-                     <string>Sideways</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="0">
-                   <widget class="QLabel" name="label_10">
-                    <property name="text">
-                     <string>Vertical</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="0">
-                   <widget class="QLabel" name="label_11">
-                    <property name="text">
-                     <string>Back/forth</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="1">
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox_4"/>
-                  </item>
-                  <item row="3" column="1">
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox_5"/>
-                  </item>
-                  <item row="4" column="1">
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox_6"/>
-                  </item>
-                 </layout>
-                </widget>
+                <layout class="QHBoxLayout" name="horizontalLayout_19">
+                 <item>
+                  <layout class="QGridLayout" name="gridLayout_4">
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_46">
+                     <property name="text">
+                      <string>Pitch Up</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_13"/>
+                   </item>
+                   <item row="0" column="2">
+                    <widget class="QLabel" name="label_50">
+                     <property name="text">
+                      <string>Pitch Down</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="3">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_14"/>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="label_51">
+                     <property name="text">
+                      <string>Yaw Left</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_15"/>
+                   </item>
+                   <item row="1" column="2">
+                    <widget class="QLabel" name="label_52">
+                     <property name="text">
+                      <string>Yaw Right</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="3">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_16"/>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="label_53">
+                     <property name="text">
+                      <string>Tilt Left</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_17"/>
+                   </item>
+                   <item row="2" column="2">
+                    <widget class="QLabel" name="label_54">
+                     <property name="text">
+                      <string>Tilt Right</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="3">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_18"/>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="label_55">
+                     <property name="text">
+                      <string>Move Left</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_19"/>
+                   </item>
+                   <item row="3" column="2">
+                    <widget class="QLabel" name="label_56">
+                     <property name="text">
+                      <string>Move Right</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="3">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_20"/>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QLabel" name="label_57">
+                     <property name="text">
+                      <string>Move Up</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_21"/>
+                   </item>
+                   <item row="4" column="2">
+                    <widget class="QLabel" name="label_58">
+                     <property name="text">
+                      <string>Move Down</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="3">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_22"/>
+                   </item>
+                   <item row="5" column="0">
+                    <widget class="QLabel" name="label_59">
+                     <property name="text">
+                      <string>Move Back</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_23"/>
+                   </item>
+                   <item row="5" column="2">
+                    <widget class="QLabel" name="label_60">
+                     <property name="text">
+                      <string>Move forth</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="3">
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_24"/>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
                </widget>
               </item>
               <item>
@@ -1436,7 +1490,7 @@ source), or reflective material.
                  </spacer>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButton_3">
+                 <widget class="QPushButton" name="EditSCButton">
                   <property name="text">
                    <string>Edit sensitivity curves</string>
                   </property>

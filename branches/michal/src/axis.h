@@ -10,6 +10,7 @@ extern "C" {
 typedef struct{
   splines_def curves;
   float l_factor, r_factor;
+  float limits; //Input value limits - normalize into <-1;1>
 } axis_def;
 
 

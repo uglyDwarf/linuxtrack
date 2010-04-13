@@ -10,19 +10,20 @@
 #include "ltr_show.h"
 #include "ltr_dev_help.h"
 #include "ltr_model.h"
-
+#include "scp_form.h"
 class LinuxtrackGui : public QWidget
 {
   Q_OBJECT
  public:
   LinuxtrackGui(QWidget *parent = 0);
   ~LinuxtrackGui();
-protected:
-     void closeEvent(QCloseEvent *event);
+ protected:
+  void closeEvent(QCloseEvent *event);
  private slots:
   void on_QuitButton_pressed();
   void on_DeviceSelector_activated(int index);
   void on_RefreshDevices_pressed();
+  void on_EditSCButton_pressed();
  private:
   Ui::LinuxtrackMainForm ui;
   LtrGuiForm showWindow;
@@ -31,6 +32,7 @@ protected:
   WiimotePrefs *wiip;
   TirPrefs *tirp;
   ModelEdit *me;
+  ScpForm *sc;
 };
 
 

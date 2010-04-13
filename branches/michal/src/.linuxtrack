@@ -58,12 +58,48 @@ Capture-device-id = Wiimote
 
 [Default]
 Filter-factor = 5
-Pitch-multiplier = 3.0
-Yaw-multiplier = 3.0
-Roll-multiplier = 3.0
-Xtranslation-multiplier = 3.0
-Ytranslation-multiplier = 3.0
-Ztranslation-multiplier = 3.0
+
+Pitch-deadzone = 0.0
+Pitch-left-curvature = 0.5
+Pitch-right-curvature = 0.5
+Pitch-left-multiplier = 3.0
+Pitch-right-multiplier = 3.0
+Pitch-limits = 45
+
+Yaw-deadzone = 0.0
+Yaw-left-curvature = 0.5
+Yaw-right-curvature = 0.5
+Yaw-left-multiplier = 3.0
+Yaw-right-multiplier = 3.0
+Yaw-limits = 45
+
+Roll-deadzone = 0.0
+Roll-left-curvature = 0.5
+Roll-right-curvature = 0.5
+Roll-left-multiplier = 3.0
+Roll-right-multiplier = 3.0
+Roll-limits = 45
+
+Xtranslation-deadzone = 0.0
+Xtranslation-left-curvature = 0.5
+Xtranslation-right-curvature = 0.5
+Xtranslation-left-multiplier = 3.0
+Xtranslation-right-multiplier = 3.0
+Xtranslation-limits = 500
+
+Ytranslation-deadzone = 0.0
+Ytranslation-left-curvature = 0.5
+Ytranslation-right-curvature = 0.5
+Ytranslation-left-multiplier = 3.0
+Ytranslation-right-multiplier = 3.0
+Ytranslation-limits = 500
+
+Ztranslation-deadzone = 0.0
+Ztranslation-left-curvature = 0.5
+Ztranslation-right-curvature = 0.5
+Ztranslation-left-multiplier = 3.0
+Ztranslation-right-multiplier = 3.0
+Ztranslation-limits = 500
 
 [XPlane]
 Freeze-button = 3

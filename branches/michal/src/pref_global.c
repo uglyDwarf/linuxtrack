@@ -9,6 +9,9 @@
 
 #include "pathconfig.h"
 
+static plist opened_prefs = NULL;
+
+
 void pref_change_callback(void *param)
 {
   assert(param != NULL);
@@ -259,6 +262,7 @@ bool get_pose_setup(reflector_model_type *rm, bool *changed)
   return res;
 }
 
+
 bool get_scale_factors(struct lt_scalefactors *sf)
 {
   static pref_id pitch_m = NULL;
@@ -303,3 +307,67 @@ bool get_filter_factor(float *ff)
   *ff = get_flt(cff);
   return true;
 }
+
+typedef enum{
+  SENTRY1, DEADZONE, LCURV, RCURV, LMULT, RMULT, LIMITS, SENTRY_2
+}axis_fields;
+
+void set_axis_field(axis_def *axis, axis_fields field, float val)
+{
+  assert(axis != NULL);
+  switch(field){
+    case(DEADZONE):
+      axis->curves.dead_zone = val;
+      break;
+    case(LCURV):
+      axis->curves.l_curvature = val;
+      break;
+    case(RCURV):
+      axis->curves.r_curvature = val;
+      break;
+    case(LMULT):
+      axis->l_factor = val;
+      break;
+    case(RMULT):
+      axis->r_factor = val;
+      break;
+    case(LIMITS):
+      axis->limits = val;
+      break;
+    default:
+      assert(0);
+      break;
+  }
+}
+
+bool get_axis(const char *prefix, axis_def *axis, bool *change_flag)
+{
+  static const char *fields[] = {"-deadzone", 
+                                 "-left-curvature", "-right-curvature", 
+				 "-left-multiplier", "-right-multiplier",
+				 "-limits", NULL};
+  static const axis_fields af[] = {DEADZONE, LCURV, RCURV, LMULT, RMULT, LIMITS};
+  
+  pref_id tpid = NULL;
+  int i;
+  char *field_name = NULL;
+  
+  assert(prefix != NULL);
+  assert(axis != NULL);
+  //assert(change_flag != NULL);
+  
+  for(i = 0; fields[i] != NULL; ++i){
+    field_name = my_strcat(prefix, fields[i]);
+    if(open_pref(NULL, field_name, &tpid) != true){
+      log_message("Can't read '%s' pref!\n", field_name);
+      return false;
+    }
+    set_axis_field(axis, af[i], get_flt(tpid));
+    
+    close_pref(&tpid);
+    free(field_name);
+    field_name = NULL;
+  }
+  return true;
+}
+

@@ -30,7 +30,7 @@ bool prefs_read_already = false;
 char *pref_file = ".linuxtrack";
 char *def_section_name = "Default";
 char *custom_section_name = NULL;
-plist opened_prefs = NULL;
+static plist opened_prefs = NULL;
 
 struct opened{
   char *section;
