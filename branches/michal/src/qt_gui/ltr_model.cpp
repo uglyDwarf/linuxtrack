@@ -91,12 +91,13 @@ ModelEdit::ModelEdit(const Ui::LinuxtrackMainForm &ui) : gui(ui)
 {
   mcw = new ModelCreate();
   Connect();
-  on_ModelCreated("");
   QString str;
   if(PREF.getActiveModel(str)){
     currentSection = str;
+    on_ModelCreated(str);
     on_ModelSelector_activated(str);
   }else{
+    on_ModelCreated("");
     gui.ModelStack->setCurrentIndex(3);
   }
 }
@@ -117,7 +118,13 @@ void ModelEdit::on_ModelCreated(const QString &section)
   if(i != -1){
     gui.ModelSelector->setCurrentIndex(i);
   }else{
-    on_ModelSelector_activated(section);
+    i = list.indexOf(section);
+    if(i != -1){
+      gui.ModelSelector->setCurrentIndex(i);
+      on_ModelSelector_activated(section);
+    }else{
+      gui.ModelSelector->setCurrentIndex(-1);
+    }
   }
 }
 
