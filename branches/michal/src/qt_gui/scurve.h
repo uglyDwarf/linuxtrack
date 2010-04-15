@@ -13,8 +13,10 @@ class SCurve : public QWidget{
  public:
   SCurve(QString prefix, QString axis_name, QString left, QString right, QWidget *parent = 0);
   ~SCurve();
+  void movePoint(float new_x);
  signals:
   void changed();
+  float movePoint(float new_x, float new_y);
  private slots:
   void on_SCSymetrical_stateChanged(int state);
   void on_SCLeftFactor_valueChanged(double d);

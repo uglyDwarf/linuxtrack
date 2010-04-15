@@ -38,7 +38,7 @@ float spline_point(const splines *splns, float x)
   b = pts->x1;
   c = pts->x2;
   float tmp = c - 2 * b + a;
-  if(tmp == 0){ //simple linear
+  if(fabs(tmp) < 1e-3){ //simple linear
     return factor * (x - a) * ((pts->y2 - pts->y0) / (c - a));
   }else{
     float t = (sqrtf(tmp * x - a * c + b * b) - b + a) / tmp;

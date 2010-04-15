@@ -6,12 +6,13 @@
 #include <QWidget>
 
 class SCView : public QWidget
- {
+{
      Q_OBJECT
  public:
   SCView(const axis_def &a, QWidget *parent = 0);
   QSize sizeHint() const;
   QSize minimumSizeHint() const;
+  void movePoint(float new_x);
 
  public slots:
   void redraw();
@@ -20,7 +21,8 @@ class SCView : public QWidget
 
  private:
   const axis_def &axis;
- };
+  float px;
+};
 
 
 

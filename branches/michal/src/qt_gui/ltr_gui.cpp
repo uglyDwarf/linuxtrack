@@ -11,9 +11,12 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
   tirp = new TirPrefs(ui);
   me = new ModelEdit(ui);
   sc = new ScpForm();
+  helper = new LtrDevHelp(sc);
   on_RefreshDevices_pressed();
   showWindow.show();
-  helper.show();
+  helper->show();
+  
+  
 }
 
 LinuxtrackGui::~LinuxtrackGui()
@@ -22,12 +25,15 @@ LinuxtrackGui::~LinuxtrackGui()
   delete wiip;
   delete tirp;
   delete me;
+  delete sc;
+  delete helper;
 }
 
 void LinuxtrackGui::closeEvent(QCloseEvent *event)
 {
   showWindow.close();
-  helper.close();
+  helper->close();
+  sc->close();
   event->accept();
 }
 

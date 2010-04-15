@@ -27,7 +27,7 @@ class LinuxtrackGui : public QWidget
  private:
   Ui::LinuxtrackMainForm ui;
   LtrGuiForm showWindow;
-  LtrDevHelp helper;
+  LtrDevHelp *helper;
   WebcamPrefs *wcp;
   WiimotePrefs *wiip;
   TirPrefs *tirp;

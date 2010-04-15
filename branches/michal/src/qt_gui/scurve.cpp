@@ -113,4 +113,18 @@ void SCurve::on_SCInputLimits_valueChanged(double d)
   std::cout<<"Limits = "<<d<<std::endl;
   PREF.setKeyVal("Default", prefPrefix + "-limits", d);
   axis.limits = d;
+  emit changed();
 }
+
+void SCurve::movePoint(float new_x)
+{
+  float val = new_x / axis.limits;
+  if(val > 1.0f){
+    val = 1.0f;
+  }
+  if(val < -1.0f){
+    val = -1.0f;
+  }
+  view->movePoint(val);
+}
+

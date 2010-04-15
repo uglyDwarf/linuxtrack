@@ -26,3 +26,34 @@ void ScpForm::on_SCPCloseButton_pressed()
 {
   close();
 }
+
+void ScpForm::updatePitch(int newPitch)
+{
+  pitch->movePoint(newPitch);
+}
+
+void ScpForm::updateRoll(int newRoll)
+{
+  roll->movePoint(newRoll);
+}
+
+void ScpForm::updateYaw(int newYaw)
+{
+  yaw->movePoint(newYaw);
+}
+
+void ScpForm::updateX(int newX)
+{
+  x->movePoint(newX);
+}
+
+void ScpForm::updateY(int newY)
+{
+  y->movePoint(newY);
+}
+
+void ScpForm::updateZ(int newZ)
+{
+  x->movePoint(newZ);
+}
+
