@@ -2,6 +2,8 @@
 #include "spline.h"
 
 
+
+
 int curve2pts(const splines_def *curve, splines *pts)
 {
   pts->left.x0 = pts->right.x0 = curve->dead_zone;
@@ -14,7 +16,6 @@ int curve2pts(const splines_def *curve, splines *pts)
 
   pts->left.x2 = pts->right.x2 = 1.0f;
   pts->left.y2 = pts->right.y2 = 1.0f;
-  
   return 0;
 }
 

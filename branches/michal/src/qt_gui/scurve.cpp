@@ -25,19 +25,17 @@ SCurve::~SCurve()
 
 void SCurve::setup_gui()
 {
-  if((axis.l_factor == axis.r_factor) && 
-     (axis.curves.l_curvature == axis.curves.r_curvature)){
+  if(is_symetrical(&axis)){
     ui.SCSymetrical->setCheckState(Qt::Checked);
   }else{
     ui.SCSymetrical->setCheckState(Qt::Unchecked);
   }
   ui.SCLeftFactor->setValue(axis.l_factor);
-  ui.SCLeftCurv->setValue(axis.curves.l_curvature * 100);
+  ui.SCLeftCurv->setValue(axis.curve_defs.l_curvature * 100);
   ui.SCRightFactor->setValue(axis.r_factor);
-  ui.SCRightCurv->setValue(axis.curves.r_curvature * 100);
-  ui.SCDeadZone->setValue(axis.curves.dead_zone * 101.0);
+  ui.SCRightCurv->setValue(axis.curve_defs.r_curvature * 100);
+  ui.SCDeadZone->setValue(axis.curve_defs.dead_zone * 101.0);
   ui.SCInputLimits->setValue(axis.limits);
-  
 }
 
 void SCurve::on_SCSymetrical_stateChanged(int state)
@@ -84,7 +82,7 @@ void SCurve::on_SCLeftCurv_valueChanged(int value)
 {
   std::cout<<"LeftCurv = "<<value<<std::endl;
   PREF.setKeyVal("Default", prefPrefix + "-left-curvature", value / 100.0);
-  axis.curves.l_curvature = value / 100.0;
+  set_lcurv(&axis, value / 100.0);
   if(symetrical){
     ui.SCRightCurv->setValue(value);
   }else{
@@ -96,7 +94,7 @@ void SCurve::on_SCRightCurv_valueChanged(int value)
 {
   std::cout<<"RightCurv = "<<value<<std::endl;
   PREF.setKeyVal("Default", prefPrefix + "-right-curvature", value / 100.0);
-  axis.curves.r_curvature = value / 100.0;
+  set_rcurv(&axis, value / 100.0);
   emit changed();
 }
 
@@ -104,7 +102,7 @@ void SCurve::on_SCDeadZone_valueChanged(int value)
 {
   std::cout<<"DeadZone = "<<value<<std::endl;
   PREF.setKeyVal("Default", prefPrefix + "-deadzone", value / 101.0);
-  axis.curves.dead_zone = value / 101.0; //For DZ == 1.0 strange things happen...
+  set_deadzone(&axis, value / 101.0);
   emit changed();
 }
 
@@ -112,7 +110,7 @@ void SCurve::on_SCInputLimits_valueChanged(double d)
 {
   std::cout<<"Limits = "<<d<<std::endl;
   PREF.setKeyVal("Default", prefPrefix + "-limits", d);
-  axis.limits = d;
+  set_limits(&axis, d);
   emit changed();
 }
 

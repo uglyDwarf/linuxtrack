@@ -4,7 +4,7 @@
 #include <math.h>
 #include <iostream>
 
-SCView::SCView(const axis_def &a, QWidget *parent)
+SCView::SCView(axis_def &a, QWidget *parent)
   : QWidget(parent), axis(a), px(0.0)
 {  setBackgroundRole(QPalette::Base);
   setAutoFillBackground(true);
@@ -26,28 +26,21 @@ QSize SCView::minimumSizeHint() const
 }   
 
 
-static int spline(const axis_def *a, QPointF points[], int num_points)
+static int spline(axis_def *a, QPointF points[], int num_points)
 {
-  splines pts;
-  float x, fac;
-  curve2pts(&(a->curves), &pts);
+  float x;
   float k = 2.0f / (num_points - 1);
   for(int i = 0; i < num_points; ++i){
     x = -1.0f + k * i;
-    fac = ((x < 0.0f) ? a->l_factor : a->r_factor);
     points[i].rx() = x;
-    points[i].ry() =  fac * fabs(spline_point(&pts, x));
+    points[i].ry() =  fabs(val_on_axis(a, x * a->limits));
   }
   return 0;
 }
 
-static float spline(const axis_def *a, float x)
+static float spline(axis_def *a, float x)
 {
-  splines pts;
-  float fac;
-  curve2pts(&(a->curves), &pts);
-  fac = ((x < 0.0f) ? a->l_factor : a->r_factor); 
-  return fac * fabs(spline_point(&pts, x));
+  return fabs(val_on_axis(a, x));
 }
 
 
@@ -75,9 +68,7 @@ void SCView::paintEvent(QPaintEvent * /* event */)
   painter.drawPolyline(points, spline_points);
   painter.setPen(Qt::red);
   float nx = w + w * px;
-  float ny = h - fabs(spline(&axis, px) * (h / max_f));
-//  painter.drawLine(QLineF(nx - 5, ny - 5, nx + 5, ny + 5));
-//  painter.drawLine(QLineF(nx - 5, ny + 5, nx + 5, ny - 5));
+  float ny = h - fabs(spline(&axis, px * axis.limits) * (h / max_f));
   painter.drawLine(QLineF(nx, ny - 5, nx, ny + 5));
   painter.drawLine(QLineF(nx - 5, ny, nx + 5, ny));
   painter.end();

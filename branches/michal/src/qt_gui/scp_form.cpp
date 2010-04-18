@@ -1,5 +1,5 @@
 #include "scp_form.h"
-
+#include <iostream>
 ScpForm::ScpForm(QWidget *parent) :QWidget(parent)
 {
   ui.setupUi(this);
@@ -54,6 +54,6 @@ void ScpForm::updateY(int newY)
 
 void ScpForm::updateZ(int newZ)
 {
-  x->movePoint(newZ);
+  z->movePoint(newZ);
 }
 

@@ -9,7 +9,7 @@ class SCView : public QWidget
 {
      Q_OBJECT
  public:
-  SCView(const axis_def &a, QWidget *parent = 0);
+  SCView(axis_def &a, QWidget *parent = 0);
   QSize sizeHint() const;
   QSize minimumSizeHint() const;
   void movePoint(float new_x);
@@ -20,7 +20,7 @@ class SCView : public QWidget
   void paintEvent(QPaintEvent *event);
 
  private:
-  const axis_def &axis;
+  axis_def &axis;
   float px;
 };
 
