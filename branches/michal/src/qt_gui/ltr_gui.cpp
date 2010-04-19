@@ -11,6 +11,14 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
   tirp = new TirPrefs(ui);
   me = new ModelEdit(ui);
   sc = new ScpForm();
+  sc->setSlaves(ui.PitchUpSpin, ui.PitchDownSpin,
+                ui.TiltLeftSpin, ui.TiltRightSpin,
+                ui.YawLeftSpin, ui.YawRightSpin,
+                ui.MoveLeftSpin, ui.MoveRightSpin,
+                ui.MoveUpSpin, ui.MoveDownSpin,
+                ui.MoveBackSpin, ui.MoveForthSpin
+                );
+  
   helper = new LtrDevHelp(sc);
   on_RefreshDevices_pressed();
   showWindow.show();

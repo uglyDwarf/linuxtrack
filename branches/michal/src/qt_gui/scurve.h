@@ -14,6 +14,7 @@ class SCurve : public QWidget{
   SCurve(QString prefix, QString axis_name, QString left, QString right, QWidget *parent = 0);
   ~SCurve();
   void movePoint(float new_x);
+  void setSlaves(QDoubleSpinBox *l_spin, QDoubleSpinBox *r_spin);
  signals:
   void changed();
   float movePoint(float new_x, float new_y);

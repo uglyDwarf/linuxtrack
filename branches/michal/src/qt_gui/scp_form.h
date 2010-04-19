@@ -17,9 +17,15 @@ class ScpForm : public QWidget
   void updateX(int newX);
   void updateY(int newY);
   void updateZ(int newZ);
+  void setSlaves(QDoubleSpinBox *pitchLM, QDoubleSpinBox *pitchRM,
+                 QDoubleSpinBox *rollLM, QDoubleSpinBox *rollRM,
+                 QDoubleSpinBox *yawLM, QDoubleSpinBox *yawRM,
+                 QDoubleSpinBox *xLM, QDoubleSpinBox *xRM,
+                 QDoubleSpinBox *yLM, QDoubleSpinBox *yRM,
+                 QDoubleSpinBox *zLM, QDoubleSpinBox *zRM
+                 );
  private slots:
   void on_SCPCloseButton_pressed();
-  
  private:
   Ui::SCPForm ui;
   SCurve *yaw, *pitch, *roll;

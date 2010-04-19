@@ -39,6 +39,20 @@ void SCurve::setup_gui()
   ui.SCInputLimits->setValue(get_limits(axis));
 }
 
+void SCurve::setSlaves(QDoubleSpinBox *l_spin, QDoubleSpinBox *r_spin)
+{
+  QObject::connect(ui.SCLeftFactor, SIGNAL(valueChanged(double)), 
+                   l_spin, SLOT(setValue(double)));
+  QObject::connect(l_spin, SIGNAL(valueChanged(double)), 
+                   ui.SCLeftFactor, SLOT(setValue(double)));
+  l_spin->setValue(ui.SCLeftFactor->value());
+  QObject::connect(ui.SCRightFactor, SIGNAL(valueChanged(double)), 
+                   r_spin, SLOT(setValue(double)));
+  QObject::connect(r_spin, SIGNAL(valueChanged(double)), 
+                   ui.SCRightFactor, SLOT(setValue(double)));
+  r_spin->setValue(ui.SCRightFactor->value());
+}
+
 void SCurve::on_SCSymetrical_stateChanged(int state)
 {
   switch(state){

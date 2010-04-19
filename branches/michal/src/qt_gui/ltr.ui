@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="SensCurvesButton">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -1357,7 +1357,7 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="0" column="1">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_13"/>
+                    <widget class="QDoubleSpinBox" name="PitchUpSpin"/>
                    </item>
                    <item row="0" column="2">
                     <widget class="QLabel" name="label_50">
@@ -1367,7 +1367,7 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="0" column="3">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_14"/>
+                    <widget class="QDoubleSpinBox" name="PitchDownSpin"/>
                    </item>
                    <item row="1" column="0">
                     <widget class="QLabel" name="label_51">
@@ -1377,7 +1377,7 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="1" column="1">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_15"/>
+                    <widget class="QDoubleSpinBox" name="YawLeftSpin"/>
                    </item>
                    <item row="1" column="2">
                     <widget class="QLabel" name="label_52">
@@ -1387,7 +1387,7 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="1" column="3">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_16"/>
+                    <widget class="QDoubleSpinBox" name="YawRightSpin"/>
                    </item>
                    <item row="2" column="0">
                     <widget class="QLabel" name="label_53">
@@ -1397,7 +1397,7 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="2" column="1">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_17"/>
+                    <widget class="QDoubleSpinBox" name="TiltLeftSpin"/>
                    </item>
                    <item row="2" column="2">
                     <widget class="QLabel" name="label_54">
@@ -1407,7 +1407,7 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="2" column="3">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_18"/>
+                    <widget class="QDoubleSpinBox" name="TiltRightSpin"/>
                    </item>
                    <item row="3" column="0">
                     <widget class="QLabel" name="label_55">
@@ -1417,7 +1417,7 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="3" column="1">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_19"/>
+                    <widget class="QDoubleSpinBox" name="MoveLeftSpin"/>
                    </item>
                    <item row="3" column="2">
                     <widget class="QLabel" name="label_56">
@@ -1427,7 +1427,7 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="3" column="3">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_20"/>
+                    <widget class="QDoubleSpinBox" name="MoveRightSpin"/>
                    </item>
                    <item row="4" column="0">
                     <widget class="QLabel" name="label_57">
@@ -1437,7 +1437,7 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="4" column="1">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_21"/>
+                    <widget class="QDoubleSpinBox" name="MoveUpSpin"/>
                    </item>
                    <item row="4" column="2">
                     <widget class="QLabel" name="label_58">
@@ -1447,7 +1447,7 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="4" column="3">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_22"/>
+                    <widget class="QDoubleSpinBox" name="MoveDownSpin"/>
                    </item>
                    <item row="5" column="0">
                     <widget class="QLabel" name="label_59">
@@ -1457,7 +1457,7 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="5" column="1">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_23"/>
+                    <widget class="QDoubleSpinBox" name="MoveBackSpin"/>
                    </item>
                    <item row="5" column="2">
                     <widget class="QLabel" name="label_60">
@@ -1467,7 +1467,7 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="5" column="3">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_24"/>
+                    <widget class="QDoubleSpinBox" name="MoveForthSpin"/>
                    </item>
                   </layout>
                  </item>

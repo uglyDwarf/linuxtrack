@@ -11,6 +11,21 @@ ScpForm::ScpForm(QWidget *parent) :QWidget(parent)
   y = new SCurve("Ytranslation", "Up/down translation", "Up", "Down", ui.SCPY);
   z = new SCurve("Ztranslation", "Back/forth translation", "Back", "Forth", ui.SCPZ);
 }
+void ScpForm::setSlaves(QDoubleSpinBox *pitchLM, QDoubleSpinBox *pitchRM,
+                        QDoubleSpinBox *rollLM, QDoubleSpinBox *rollRM,
+                        QDoubleSpinBox *yawLM, QDoubleSpinBox *yawRM,
+                        QDoubleSpinBox *xLM, QDoubleSpinBox *xRM,
+                        QDoubleSpinBox *yLM, QDoubleSpinBox *yRM,
+                        QDoubleSpinBox *zLM, QDoubleSpinBox *zRM
+                        )
+{
+  pitch->setSlaves(pitchLM, pitchRM);
+  roll->setSlaves(rollLM, rollRM);
+  yaw->setSlaves(yawLM, yawRM);
+  x->setSlaves(xLM, xRM);
+  y->setSlaves(yLM, yRM);
+  z->setSlaves(zLM, zRM);
+}
 
 ScpForm::~ScpForm()
 {
