@@ -312,27 +312,27 @@ typedef enum{
   SENTRY1, DEADZONE, LCURV, RCURV, LMULT, RMULT, LIMITS, SENTRY_2
 }axis_fields;
 
-static void set_axis_field(axis_def *axis, axis_fields field, float val)
+static void set_axis_field(struct axis_def **axis, axis_fields field, float val)
 {
   assert(axis != NULL);
   switch(field){
     case(DEADZONE):
-      axis->curve_defs.dead_zone = val;
+      set_deadzone(*axis, val);
       break;
     case(LCURV):
-     axis->curve_defs.l_curvature = val;
+      set_lcurv(*axis, val);
       break;
     case(RCURV):
-      axis->curve_defs.r_curvature = val;
+      set_rcurv(*axis, val);
       break;
     case(LMULT):
-      axis->l_factor = val;
+      set_lmult(*axis, val);
       break;
     case(RMULT):
-      axis->r_factor = val;
+      set_rmult(*axis, val);
       break;
     case(LIMITS):
-      axis->limits = val;
+      set_limits(*axis, val);
       break;
     default:
       assert(0);
@@ -340,7 +340,7 @@ static void set_axis_field(axis_def *axis, axis_fields field, float val)
   }
 }
 
-bool get_axis(const char *prefix, axis_def *axis, bool *change_flag)
+bool get_axis(const char *prefix, struct axis_def **axis, bool *change_flag)
 {
   static const char *fields[] = {"-deadzone", 
                                  "-left-curvature", "-right-curvature", 
@@ -355,7 +355,7 @@ bool get_axis(const char *prefix, axis_def *axis, bool *change_flag)
   assert(prefix != NULL);
   assert(axis != NULL);
   //assert(change_flag != NULL);
-  
+  init_axis(axis);
   for(i = 0; fields[i] != NULL; ++i){
     field_name = my_strcat(prefix, fields[i]);
     if(open_pref(NULL, field_name, &tpid) != true){
@@ -368,7 +368,7 @@ bool get_axis(const char *prefix, axis_def *axis, bool *change_flag)
     free(field_name);
     field_name = NULL;
   }
-  curve2pts(&(axis->curve_defs), &(axis->curves));
+  val_on_axis(*axis, 0.0f);
   return true;
 }
 

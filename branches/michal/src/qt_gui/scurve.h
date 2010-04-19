@@ -6,7 +6,7 @@
 
 #include "ui_scurve.h"
 #include "scview.h"
-#include "spline.h"
+#include "axis.h"
 
 class SCurve : public QWidget{
   Q_OBJECT
@@ -29,7 +29,7 @@ class SCurve : public QWidget{
   void setup_gui();
   Ui::SCurveForm ui;
   bool symetrical;
-  axis_def axis;
+  struct axis_def *axis;
   QString prefPrefix;
   SCView *view;
 };
