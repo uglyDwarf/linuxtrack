@@ -178,7 +178,7 @@ bool GLWidget::makeObjects()
          textured = true;
        }
        if(textured){
-	 std::cout<<obj.texture.toAscii().data()<<std::endl;
+	 //std::cout<<obj.texture.toAscii().data()<<std::endl;
          texture = bindTexture(QPixmap(QString(obj.texture)), GL_TEXTURE_2D);
          glBindTexture(GL_TEXTURE_2D, texture);
        }

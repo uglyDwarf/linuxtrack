@@ -25,7 +25,11 @@ class LinuxtrackGui : public QWidget
   void on_RefreshDevices_pressed();
   void on_EditSCButton_pressed();
   void on_XplanePluginButton_pressed();
+  void on_FilterSlider_valueChanged(int value);
+  void on_Profiles_currentIndexChanged(const QString &text);
  private:
+  void initFilterFactor();
+  
   Ui::LinuxtrackMainForm ui;
   LtrGuiForm showWindow;
   LtrDevHelp *helper;
@@ -36,5 +40,19 @@ class LinuxtrackGui : public QWidget
   ScpForm *sc;
 };
 
+class Profiles{
+ private:
+  Profiles();
+  Profiles(const Profiles&);
+  static Profiles *profs;
+  QString current;
+  QStringList names;
+ public:
+  static Profiles& getProfiles();
+  void addProfile(const QString &name);
+  const QStringList &getProfileNames();
+  bool setCurrent(const QString &name);
+  const QString &getCurrent();
+};
 
 #endif

@@ -109,9 +109,9 @@ void read_obj()
     }
     f.close();
     object_table.push_back(object);
-    std::cout<< cnt <<" vertices processed!"<< std::endl;
-    std::cout<< vcnt <<" indexes processed!"<< std::endl;
-    std::cout<< tcnt <<" tris processed!"<< std::endl;
+//    std::cout<< cnt <<" vertices processed!"<< std::endl;
+//    std::cout<< vcnt <<" indexes processed!"<< std::endl;
+//    std::cout<< tcnt <<" tris processed!"<< std::endl;
   }
   
 }

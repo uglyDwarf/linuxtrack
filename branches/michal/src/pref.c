@@ -86,7 +86,7 @@ bool open_pref_w_callback(char *section, char *key, pref_id *prf,
   if(opened_prefs == NULL){
     opened_prefs = create_list();
   }
-  print_opened();
+  //print_opened();
   //Isn't it already opened?
   iterator i;
   init_iterator(opened_prefs, &i);
@@ -272,7 +272,7 @@ bool close_pref(pref_id *pref)
   assert(pref != NULL);
   pref_data *prf = (*pref)->data;
   assert(prf != NULL);
-  print_opened();
+  //print_opened();
   //Find pref in the list of opened prefs
   iterator i;
   init_iterator(opened_prefs, &i);

@@ -21,7 +21,8 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
                 ui.MoveUpSpin, ui.MoveDownSpin,
                 ui.MoveBackSpin, ui.MoveForthSpin
                 );
-  
+  initFilterFactor();
+  ui.Profiles->addItems(Profiles::getProfiles().getProfileNames());
   helper = new LtrDevHelp(sc);
   on_RefreshDevices_pressed();
   showWindow.show();
@@ -121,5 +122,67 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
   if(!QFile::link(sourceFile, destFile)){
     warnMessage(QString("Couldn't link ") + sourceFile + " to " + destFile);
   }
+}
+
+void LinuxtrackGui::initFilterFactor()
+{
+  QString val;
+  PREF.getKeyVal(Profiles::getProfiles().getCurrent(), "Filter-factor", val);
+  float f = val.toFloat();
+  ui.FilterSlider->setValue(f * 10);
+}
+
+void LinuxtrackGui::on_FilterSlider_valueChanged(int value)
+{
+  ui.FilterValue->setText(QString::number(value / 10.0f));
+  PREF.setKeyVal(Profiles::getProfiles().getCurrent(), "Filter-factor", value / 10.0f);
+}
+
+Profiles::Profiles()
+{
+  names.append("Default");
+  names.append("XPlane");
+  current = "Default";
+  //!!! add code looking for those sections!!!
+}
+
+Profiles *Profiles::profs = NULL;
+
+Profiles& Profiles::getProfiles()
+{
+  if(profs == NULL){
+    profs = new Profiles();
+  }
+  return *profs;
+}
+
+void Profiles::addProfile(const QString &name)
+{
+  names.append(name);
+}
+
+const QStringList &Profiles::getProfileNames()
+{
+  return names;
+}
+
+bool Profiles::setCurrent(const QString &name)
+{
+  if(!names.contains(name)){
+    return false;
+  }
+  current = name;
+  std::cout<<"Current profile: "<<name.toAscii().data()<<std::endl;
+  return true;
+}
+
+const QString &Profiles::getCurrent()
+{
+  return current;
+}
+
+void LinuxtrackGui::on_Profiles_currentIndexChanged(const QString &text)
+{
+  Profiles::getProfiles().setCurrent(text);
 }
 
