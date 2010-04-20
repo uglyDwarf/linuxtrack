@@ -11,13 +11,13 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Linuxtrack</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QTabWidget" name="SensCurvesButton">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -1321,6 +1321,9 @@ source), or reflective material.
                 </item>
                 <item row="0" column="1">
                  <widget class="QComboBox" name="comboBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="editable">
                    <bool>true</bool>
                   </property>
@@ -1328,6 +1331,9 @@ source), or reflective material.
                 </item>
                 <item row="1" column="1">
                  <widget class="QPushButton" name="pushButton_4">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="text">
                    <string>Delete</string>
                   </property>
@@ -1562,7 +1568,7 @@ source), or reflective material.
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
             <item>
-             <widget class="QPushButton" name="pushButton">
+             <widget class="QPushButton" name="XplanePluginButton">
               <property name="text">
                <string>Install Xplane plugin...</string>
               </property>
@@ -1570,6 +1576,9 @@ source), or reflective material.
             </item>
             <item>
              <widget class="QPushButton" name="pushButton_2">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Install Wine plugin...</string>
               </property>

@@ -24,6 +24,7 @@ class LinuxtrackGui : public QWidget
   void on_DeviceSelector_activated(int index);
   void on_RefreshDevices_pressed();
   void on_EditSCButton_pressed();
+  void on_XplanePluginButton_pressed();
  private:
   Ui::LinuxtrackMainForm ui;
   LtrGuiForm showWindow;

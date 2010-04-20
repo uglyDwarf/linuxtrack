@@ -18,6 +18,7 @@ class SCurve : public QWidget{
  signals:
   void changed();
   float movePoint(float new_x, float new_y);
+  void symetryChanged(bool symetrical);
  private slots:
   void on_SCSymetrical_stateChanged(int state);
   void on_SCLeftFactor_valueChanged(double d);

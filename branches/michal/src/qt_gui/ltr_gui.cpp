@@ -1,7 +1,10 @@
+#include <QFileDialog>
+#include <QMessageBox>
 #include <iostream>
 #include "ltr_gui.h"
 #include "ltr_gui_prefs.h"
 #include "prefs_link.h"
+#include "pathconfig.h"
 
 LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
 {
@@ -82,3 +85,41 @@ void LinuxtrackGui::on_EditSCButton_pressed()
 {
   sc->show();
 }
+
+static int warnMessage(const QString &message){
+ return QMessageBox::warning(NULL, "Linuxtrack",
+                                message, QMessageBox::Ok, QMessageBox::Ok);
+}
+
+void LinuxtrackGui::on_XplanePluginButton_pressed()
+{
+  QString fileName = QFileDialog::getOpenFileName(this,
+     "Find XPlane executable", "/", "All Files (*)");
+  QRegExp pathRexp("^(.*/)[^/]+$");
+  if(pathRexp.indexIn(fileName) == -1){
+    warnMessage(QString("Strange path... '" + fileName + "'"));
+    return;
+  }
+  QString sourceFile = QString(PREFIX) + "/lib/xlinuxtrack.so";
+  QString destPath = pathRexp.cap(1) + "/Resources/plugins";
+  if(!QFile::exists(destPath)){
+    warnMessage(QString("Wrong file specified!"));
+    return;
+  }
+  QString destFile = destPath + "/xlinuxtrack.xpl";
+  QString newName;
+  int counter = 0;
+  if(QFile::exists(destFile)){
+    do{
+      newName = QString("/xlinuxtrack.xpl.") + QString::number(counter++);
+    }while(QFile::exists(destPath + newName));
+    if(!QFile::rename(destFile, destPath + newName)){
+      warnMessage(QString("Couldn't rename ") + destFile + " to " + newName);
+      return;
+    }
+  }
+  if(!QFile::link(sourceFile, destFile)){
+    warnMessage(QString("Couldn't link ") + sourceFile + " to " + destFile);
+  }
+}
+

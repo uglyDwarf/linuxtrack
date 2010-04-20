@@ -50,7 +50,10 @@ void SCurve::setSlaves(QDoubleSpinBox *l_spin, QDoubleSpinBox *r_spin)
                    r_spin, SLOT(setValue(double)));
   QObject::connect(r_spin, SIGNAL(valueChanged(double)), 
                    ui.SCRightFactor, SLOT(setValue(double)));
+  QObject::connect(this, SIGNAL(symetryChanged(bool)), 
+                   r_spin, SLOT(setDisabled(bool)));
   r_spin->setValue(ui.SCRightFactor->value());
+  r_spin->setDisabled(symetrical);
 }
 
 void SCurve::on_SCSymetrical_stateChanged(int state)
@@ -71,6 +74,7 @@ void SCurve::on_SCSymetrical_stateChanged(int state)
     default:
       break;
   }
+  emit symetryChanged(symetrical);
 }
 
 void SCurve::on_SCLeftFactor_valueChanged(double d)
@@ -80,9 +84,8 @@ void SCurve::on_SCLeftFactor_valueChanged(double d)
   set_lmult(axis, d);
   if(symetrical){
     ui.SCRightFactor->setValue(d);
-  }else{
-    emit changed();
   }
+  emit changed();
 }
 
 void SCurve::on_SCRightFactor_valueChanged(double d)
@@ -90,6 +93,9 @@ void SCurve::on_SCRightFactor_valueChanged(double d)
   std::cout<<"RightFactor = "<<d<<std::endl;
   PREF.setKeyVal("Default", prefPrefix + "-right-multiplier", d);
   set_rmult(axis, d);
+  if(symetrical){
+    ui.SCLeftFactor->setValue(d);
+  }
   emit changed();
 }
 
