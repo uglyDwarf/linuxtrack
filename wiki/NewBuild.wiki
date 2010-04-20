@@ -1,0 +1,50 @@
+#summary How to build new version of linuxtrack with Qt GUI
+
+= Introduction =
+
+This page provides instructions how to build the new linuxtrack version.
+
+The new linuxtrack versinon has some changes in the build process. The main difference lies in the fact, that it needs to be installed.
+If you don't want to install it between your system binaries/libraries (which you shouldn't as it is development version), use --prefix option to specify destination directory.
+
+Also don't forget that installing it into the tree that is not in your search path will cause that system won't be able to find linuxtrack binaries.
+ 
+  
+== Building and installing linuxtrack ==
+
+Lets assume you checked out sources from the repository into 
+'/home/simmer/linux-track-read-only' and you intend to install it to '/home/simmer/ltr'
+
+{{{
+cd /home/simmer/linux-track-read-only
+./configure --prefix=/home/simmer/ltr
+make
+make install
+cd src/qt_gui
+qmake
+make
+make install
+}}}
+
+Now linuxtrack is installed along with the gui and you need to make it available...
+Add following to the .bashrc file (I assume your shell is bash)
+
+{{{
+export PATH=${PATH}:/home/simmer/ltr/bin
+export LD_LIBRARY_PATH=/home/simmer/ltr/lib
+}}}
+
+The first line makes linuxtrack binaries available, while the second one tells your system where to find linuxtrack libraries.
+If you use TrackIR, you have to download firmware:
+
+http://media.naturalpoint.com/software/external/bulk_config_data.tar.gz
+
+Copy its contents into '/home/simmer/ltr/share/linuxtrack/' directory.
+
+This should get you up and going...
+
+PS. If you see a funny behavior, you can try reseting locale
+{{{
+export LC_ALL=C
+}}}
+In my case - instead of decimal point it uses comma and number like 1.23 simply doesn't work is intended.
