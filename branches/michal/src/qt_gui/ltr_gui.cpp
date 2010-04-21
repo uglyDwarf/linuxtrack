@@ -1,5 +1,6 @@
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QInputDialog>
 #include <iostream>
 #include "ltr_gui.h"
 #include "ltr_gui_prefs.h"
@@ -21,14 +22,14 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
                 ui.MoveUpSpin, ui.MoveDownSpin,
                 ui.MoveBackSpin, ui.MoveForthSpin
                 );
+  QObject::connect(this, SIGNAL(customSectionChanged()), sc, SLOT(reinit()));
+
   initFilterFactor();
   ui.Profiles->addItems(Profiles::getProfiles().getProfileNames());
   helper = new LtrDevHelp(sc);
   on_RefreshDevices_pressed();
   showWindow.show();
   helper->show();
-  
-  
 }
 
 LinuxtrackGui::~LinuxtrackGui()
@@ -168,11 +169,10 @@ const QStringList &Profiles::getProfileNames()
 
 bool Profiles::setCurrent(const QString &name)
 {
-  if(!names.contains(name)){
+  if(!names.contains(name, Qt::CaseInsensitive)){
     return false;
   }
   current = name;
-  std::cout<<"Current profile: "<<name.toAscii().data()<<std::endl;
   return true;
 }
 
@@ -181,8 +181,45 @@ const QString &Profiles::getCurrent()
   return current;
 }
 
+int Profiles::isProfile(const QString &name)
+{
+  int i = -1;
+  if(names.contains(name, Qt::CaseInsensitive)){
+    for(i = 0; i < names.size(); ++i){
+      if(names[i].compare(name, Qt::CaseInsensitive) == 0){
+	break;
+      }
+    }
+  }
+  return i;
+}
+
 void LinuxtrackGui::on_Profiles_currentIndexChanged(const QString &text)
 {
   Profiles::getProfiles().setCurrent(text);
+  PREF.setCustomSection(text);
+  initFilterFactor();
+  emit customSectionChanged();
 }
 
+void LinuxtrackGui::on_CreateNewProfile_pressed()
+{
+  bool done;
+  QString newSec;
+  newSec = QInputDialog::getText(NULL, "New Secion Name:", 
+		        "Enter name of the new section:", 
+			QLineEdit::Normal, "", &done);
+  if(done && !newSec.isEmpty()){
+    int i = Profiles::getProfiles().isProfile(newSec);
+    if(i == -1){
+      PREF.createSection(newSec);
+      Profiles::getProfiles().addProfile(newSec);
+      ui.Profiles->clear();
+      const QStringList &sl = Profiles::getProfiles().getProfileNames();
+      ui.Profiles->addItems(sl);
+      ui.Profiles->setCurrentIndex(sl.size() - 1);
+    }else{
+      ui.Profiles->setCurrentIndex(i);
+    }
+  }
+}

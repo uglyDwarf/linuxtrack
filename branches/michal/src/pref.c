@@ -680,12 +680,17 @@ bool set_custom_section(char *name)
     if(section_exists(name) == true){
       custom_section_name = my_strdup(name);
       log_message("Custom section '%s' found!\n", name);
-      return true;
     }else{
       log_message("Attempted to set nonexistent section '%s'!\n", name);
+      return false;
     }
+  }else{
+    if(custom_section_name != NULL){
+      free(custom_section_name);
+    }
+    custom_section_name = NULL;
   }
-  return false;
+  return true;
 }
 
 bool save_prefs()

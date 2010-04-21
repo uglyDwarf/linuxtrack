@@ -1,5 +1,6 @@
 #include "scp_form.h"
 #include <iostream>
+
 ScpForm::ScpForm(QWidget *parent) :QWidget(parent)
 {
   ui.setupUi(this);
@@ -11,6 +12,17 @@ ScpForm::ScpForm(QWidget *parent) :QWidget(parent)
   y = new SCurve("Ytranslation", "Up/down translation", "Up", "Down", ui.SCPY);
   z = new SCurve("Ztranslation", "Back/forth translation", "Back", "Forth", ui.SCPZ);
 }
+
+void ScpForm::reinit()
+{
+  yaw->reinit();
+  pitch->reinit();
+  roll->reinit();
+  x->reinit();
+  y->reinit();
+  z->reinit();
+}
+
 void ScpForm::setSlaves(QDoubleSpinBox *pitchLM, QDoubleSpinBox *pitchRM,
                         QDoubleSpinBox *rollLM, QDoubleSpinBox *rollRM,
                         QDoubleSpinBox *yawLM, QDoubleSpinBox *yawRM,

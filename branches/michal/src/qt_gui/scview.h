@@ -12,7 +12,7 @@ class SCView : public QWidget
   QSize sizeHint() const;
   QSize minimumSizeHint() const;
   void movePoint(float new_x);
-
+  void changeAxis(struct axis_def *a);
  public slots:
   void redraw();
  protected:

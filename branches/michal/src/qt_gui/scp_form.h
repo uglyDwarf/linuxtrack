@@ -26,6 +26,7 @@ class ScpForm : public QWidget
                  );
  private slots:
   void on_SCPCloseButton_pressed();
+  void reinit();
  private:
   Ui::SCPForm ui;
   SCurve *yaw, *pitch, *roll;

@@ -6,7 +6,8 @@
 
 SCView::SCView(struct axis_def *a, QWidget *parent)
   : QWidget(parent), axis(a), px(0.0)
-{  setBackgroundRole(QPalette::Base);
+{  
+  setBackgroundRole(QPalette::Base);
   setAutoFillBackground(true);
 }
 
@@ -80,3 +81,7 @@ void SCView::movePoint(float new_x)
   redraw();
 }
 
+void SCView::changeAxis(struct axis_def *a)
+{
+  axis = a;
+}

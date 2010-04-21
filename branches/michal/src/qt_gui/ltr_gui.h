@@ -19,6 +19,8 @@ class LinuxtrackGui : public QWidget
   ~LinuxtrackGui();
  protected:
   void closeEvent(QCloseEvent *event);
+ signals:
+  void customSectionChanged();
  private slots:
   void on_QuitButton_pressed();
   void on_DeviceSelector_activated(int index);
@@ -27,6 +29,7 @@ class LinuxtrackGui : public QWidget
   void on_XplanePluginButton_pressed();
   void on_FilterSlider_valueChanged(int value);
   void on_Profiles_currentIndexChanged(const QString &text);
+  void on_CreateNewProfile_pressed();
  private:
   void initFilterFactor();
   
@@ -53,6 +56,7 @@ class Profiles{
   const QStringList &getProfileNames();
   bool setCurrent(const QString &name);
   const QString &getCurrent();
+  int isProfile(const QString &name);
 };
 
 #endif

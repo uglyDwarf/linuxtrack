@@ -21,14 +21,14 @@
        <property name="currentIndex">
         <number>0</number>
        </property>
-       <widget class="QWidget" name="SCPYaw">
-        <attribute name="title">
-         <string>Yaw</string>
-        </attribute>
-       </widget>
        <widget class="QWidget" name="SCPPitch">
         <attribute name="title">
          <string>Pitch</string>
+        </attribute>
+       </widget>
+       <widget class="QWidget" name="SCPYaw">
+        <attribute name="title">
+         <string>Yaw</string>
         </attribute>
        </widget>
        <widget class="QWidget" name="SCPRoll">

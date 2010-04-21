@@ -15,6 +15,7 @@ class SCurve : public QWidget{
   ~SCurve();
   void movePoint(float new_x);
   void setSlaves(QDoubleSpinBox *l_spin, QDoubleSpinBox *r_spin);
+  void reinit();
  signals:
   void changed();
   float movePoint(float new_x, float new_y);
@@ -34,6 +35,7 @@ class SCurve : public QWidget{
   struct axis_def *axis;
   QString prefPrefix;
   SCView *view;
+  bool first;
 };
 
 #endif

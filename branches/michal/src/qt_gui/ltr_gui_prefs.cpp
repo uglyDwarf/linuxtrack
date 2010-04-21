@@ -103,7 +103,7 @@ bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName,
 {
   pref_id kv;
   if(!open_pref(sectionName.toAscii().data(), keyName.toAscii().data(), &kv)){
-    return false;
+    return addKeyVal(sectionName, keyName, value);
   }
   bool res = true;
   if(!set_str(&kv, value.toAscii().data())){
@@ -118,7 +118,7 @@ bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName,
 {
   pref_id kv;
   if(!open_pref(sectionName.toAscii().data(), keyName.toAscii().data(), &kv)){
-    return false;
+    return addKeyVal(sectionName, keyName, QString::number(value));
   }
   bool res = true;
   if(!set_int(&kv, value)){
@@ -133,7 +133,7 @@ bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName,
 {
   pref_id kv;
   if(!open_pref(sectionName.toAscii().data(), keyName.toAscii().data(), &kv)){
-    return false;
+    return addKeyVal(sectionName, keyName, QString::number(value));
   }
   bool res = true;
   if(!set_flt(&kv, value)){
@@ -148,7 +148,7 @@ bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName,
 {
   pref_id kv;
   if(!open_pref(sectionName.toAscii().data(), keyName.toAscii().data(), &kv)){
-    return false;
+    return addKeyVal(sectionName, keyName, QString::number(value));
   }
   bool res = true;
   if(!set_flt(&kv, (float)value)){
@@ -266,3 +266,7 @@ bool PrefProxy::getModelList(QStringList &list)
   return (list.size() != 0);
 }
 
+bool PrefProxy::setCustomSection(const QString &name)
+{
+  return set_custom_section(name.toAscii().data());
+}

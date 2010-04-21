@@ -5,7 +5,7 @@
 #include "ltr_gui.h"
 
 SCurve::SCurve(QString prefix, QString axis_name, QString left_label, QString right_label, QWidget *parent)
-  : QWidget(parent), prefPrefix(prefix)
+  : QWidget(parent), symetrical(true), prefPrefix(prefix), view(NULL), first(true)
 {
   symetrical = true;
   ui.setupUi(this);
@@ -13,8 +13,8 @@ SCurve::SCurve(QString prefix, QString axis_name, QString left_label, QString ri
   ui.SCLeftLabel->setText(left_label);
   ui.SCRightLabel->setText(right_label);
   
-  get_axis(prefix.toAscii().data(), &axis, NULL);
-  setup_gui();
+  reinit();
+  first = false;
   view = new SCView(axis, ui.SCView);
   QObject::connect(this, SIGNAL(changed()), view, SLOT(update()));
 }
@@ -23,6 +23,19 @@ SCurve::~SCurve()
 {
   delete view;
   close_axis(&axis);
+}
+
+void SCurve::reinit()
+{
+  if(!first){
+    close_axis(&axis);
+  }
+  get_axis(prefPrefix.toAscii().data(), &axis, NULL);
+  if(!first){
+    view->changeAxis(axis);
+  }
+  setup_gui();
+  emit changed();
 }
 
 void SCurve::setup_gui()
