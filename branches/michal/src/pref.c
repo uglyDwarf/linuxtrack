@@ -677,9 +677,31 @@ void free_prefs()
 bool set_custom_section(char *name)
 {
   if(name != NULL){
-    if(section_exists(name) == true){
-      custom_section_name = my_strdup(name);
-      log_message("Custom section '%s' found!\n", name);
+    assert(prefs_read_already);
+    assert(name != NULL);
+    //Find section with given title...
+    iterator i;
+    init_iterator(prefs, &i);
+    char *title, *sec_name;
+    bool found = false;
+    pref_file_item *pfi;
+    while((pfi = (pref_file_item *)get_next(&i)) != NULL){
+      if(pfi->item_type == SECTION){
+        assert(pfi->section != NULL);
+        sec_name = pfi->section->name;
+        title = get_key(sec_name, "Title");
+        if(title != NULL){
+          if(strcasecmp(title, name) == 0){
+            found = true;
+            break;
+          }
+        }
+      }
+    }
+    
+    if(found){
+      custom_section_name = my_strdup(sec_name);
+      log_message("Custom section '%s' found!\n", sec_name);
     }else{
       log_message("Attempted to set nonexistent section '%s'!\n", name);
       return false;

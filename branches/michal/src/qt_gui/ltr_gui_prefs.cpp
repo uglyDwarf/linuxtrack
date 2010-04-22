@@ -69,7 +69,7 @@ bool PrefProxy::createSection(QString
       break;
     }
     newSecName = QString("%1_%2").arg(sectionName).
-                                           arg(QString::number(i));
+                                           arg(QString::number(++i));
   }
   add_section(newSecName.toAscii().data());
   sectionName = newSecName;
@@ -271,6 +271,23 @@ bool PrefProxy::getModelList(QStringList &list)
     char *model_type = get_key(name, (char *)"Model-type");
     if(model_type != NULL){
       list.append(name);
+    }
+    ++i;
+  }
+  return (list.size() != 0);
+}
+
+bool PrefProxy::getProfiles(QStringList &list)
+{
+  char **sections = NULL;
+  list.clear();
+  get_section_list(&sections);
+  char *name;
+  int i = 0;
+  while((name = sections[i]) != NULL){
+    char *title = get_key(name, (char *)"Title");
+    if(title != NULL){
+      list.append(title);
     }
     ++i;
   }

@@ -141,10 +141,9 @@ void LinuxtrackGui::on_FilterSlider_valueChanged(int value)
 
 Profiles::Profiles()
 {
-  names.append("Default");
-  names.append("XPlane");
+  PREF.getProfiles(names);
+  names.prepend("Default");
   current = "Default";
-  //!!! add code looking for those sections!!!
 }
 
 Profiles *Profiles::profs = NULL;
@@ -212,7 +211,9 @@ void LinuxtrackGui::on_CreateNewProfile_pressed()
   if(done && !newSec.isEmpty()){
     int i = Profiles::getProfiles().isProfile(newSec);
     if(i == -1){
-      PREF.createSection(newSec);
+      QString section_name = "Profile";
+      PREF.createSection(section_name);
+      PREF.addKeyVal(section_name, "Title", newSec);
       Profiles::getProfiles().addProfile(newSec);
       ui.Profiles->clear();
       const QStringList &sl = Profiles::getProfiles().getProfileNames();
