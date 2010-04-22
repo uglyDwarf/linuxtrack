@@ -296,5 +296,9 @@ bool PrefProxy::getProfiles(QStringList &list)
 
 bool PrefProxy::setCustomSection(const QString &name)
 {
-  return set_custom_section(name.toAscii().data());
+  if(name.compare("Default", Qt::CaseInsensitive) == 0){
+    return set_custom_section(NULL);
+  }else{
+    return set_custom_section(name.toAscii().data());
+  }
 }

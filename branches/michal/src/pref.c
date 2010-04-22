@@ -83,6 +83,14 @@ bool open_pref_w_callback(char *section, char *key, pref_id *prf,
 {
   assert(key != NULL);
   assert(prf != NULL);
+  if(section == NULL){
+    if(custom_section_name == NULL){
+      section = def_section_name;
+    }else{
+      section = custom_section_name;
+    }
+  }
+  
   if(opened_prefs == NULL){
     opened_prefs = create_list();
   }
@@ -100,7 +108,7 @@ bool open_pref_w_callback(char *section, char *key, pref_id *prf,
       }
     }
   }
-
+  
   if(matched){ //It is...
     *prf = (pref_struct*)my_malloc(sizeof(pref_struct));
     (*prf)->data = &(o->prf);
@@ -119,7 +127,6 @@ bool open_pref_w_callback(char *section, char *key, pref_id *prf,
   *prf = (pref_struct*)my_malloc(sizeof(pref_struct));
   (*prf)->cbk = cbk;
   (*prf)->param = param;
-
   o = (struct opened*)my_malloc(sizeof(struct opened));
   if(section != NULL){// Check it !!!
     o->prf.section_name = my_strdup(section);
@@ -189,7 +196,6 @@ void mark_pref_changed(pref_id *prf)
   assert(prf != NULL);
   iterator i;
   init_iterator((*prf)->data->refs, &i);
-  
   pref_struct* ref;
   while((ref = (pref_struct*)get_next(&i)) != NULL){
     if(ref->cbk != NULL){
@@ -299,7 +305,7 @@ bool close_pref(pref_id *pref)
   }
   
   assert(matched);
-  
+  if(o->prf.refs)
   delete_current(o->prf.refs, &j);
   
   if(is_empty(o->prf.refs)){

@@ -4,18 +4,19 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include "cal.h"
+#include "axis.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct lt_scalefactors {
-  float pitch_sf;
-  float yaw_sf;
-  float roll_sf;
-  float tx_sf;
-  float ty_sf;
-  float tz_sf;
+struct lt_axes {
+  struct axis_def *pitch_axis;
+  struct axis_def *yaw_axis;
+  struct axis_def *roll_axis;
+  struct axis_def *tx_axis;
+  struct axis_def *ty_axis;
+  struct axis_def *tz_axis;
 };
 
 struct current_pose{
@@ -28,6 +29,7 @@ struct current_pose{
 };
 
 extern struct current_pose lt_current_pose;
+extern struct current_pose lt_orig_pose;
 extern pthread_mutex_t pose_mutex;
 
 bool init_tracking();

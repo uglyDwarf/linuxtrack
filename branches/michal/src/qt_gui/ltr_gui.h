@@ -34,7 +34,7 @@ class LinuxtrackGui : public QWidget
   void initFilterFactor();
   
   Ui::LinuxtrackMainForm ui;
-  LtrGuiForm showWindow;
+  LtrGuiForm *showWindow;
   LtrDevHelp *helper;
   WebcamPrefs *wcp;
   WiimotePrefs *wiip;

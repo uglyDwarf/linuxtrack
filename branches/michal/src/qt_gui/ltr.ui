@@ -1363,7 +1363,11 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="0" column="1">
-                    <widget class="QDoubleSpinBox" name="PitchUpSpin"/>
+                    <widget class="QDoubleSpinBox" name="PitchUpSpin">
+                     <property name="maximum">
+                      <double>10000.000000000000000</double>
+                     </property>
+                    </widget>
                    </item>
                    <item row="0" column="2">
                     <widget class="QLabel" name="label_50">
@@ -1373,7 +1377,11 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="0" column="3">
-                    <widget class="QDoubleSpinBox" name="PitchDownSpin"/>
+                    <widget class="QDoubleSpinBox" name="PitchDownSpin">
+                     <property name="maximum">
+                      <double>10000.000000000000000</double>
+                     </property>
+                    </widget>
                    </item>
                    <item row="1" column="0">
                     <widget class="QLabel" name="label_51">
@@ -1383,7 +1391,11 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="1" column="1">
-                    <widget class="QDoubleSpinBox" name="YawLeftSpin"/>
+                    <widget class="QDoubleSpinBox" name="YawLeftSpin">
+                     <property name="maximum">
+                      <double>10000.000000000000000</double>
+                     </property>
+                    </widget>
                    </item>
                    <item row="1" column="2">
                     <widget class="QLabel" name="label_52">
@@ -1393,7 +1405,11 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="1" column="3">
-                    <widget class="QDoubleSpinBox" name="YawRightSpin"/>
+                    <widget class="QDoubleSpinBox" name="YawRightSpin">
+                     <property name="maximum">
+                      <double>10000.000000000000000</double>
+                     </property>
+                    </widget>
                    </item>
                    <item row="2" column="0">
                     <widget class="QLabel" name="label_53">
@@ -1403,7 +1419,11 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="2" column="1">
-                    <widget class="QDoubleSpinBox" name="TiltLeftSpin"/>
+                    <widget class="QDoubleSpinBox" name="TiltLeftSpin">
+                     <property name="maximum">
+                      <double>10000.000000000000000</double>
+                     </property>
+                    </widget>
                    </item>
                    <item row="2" column="2">
                     <widget class="QLabel" name="label_54">
@@ -1413,7 +1433,11 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="2" column="3">
-                    <widget class="QDoubleSpinBox" name="TiltRightSpin"/>
+                    <widget class="QDoubleSpinBox" name="TiltRightSpin">
+                     <property name="maximum">
+                      <double>10000.000000000000000</double>
+                     </property>
+                    </widget>
                    </item>
                    <item row="3" column="0">
                     <widget class="QLabel" name="label_55">
@@ -1423,7 +1447,11 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="3" column="1">
-                    <widget class="QDoubleSpinBox" name="MoveLeftSpin"/>
+                    <widget class="QDoubleSpinBox" name="MoveLeftSpin">
+                     <property name="maximum">
+                      <double>10000.000000000000000</double>
+                     </property>
+                    </widget>
                    </item>
                    <item row="3" column="2">
                     <widget class="QLabel" name="label_56">
@@ -1433,7 +1461,11 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="3" column="3">
-                    <widget class="QDoubleSpinBox" name="MoveRightSpin"/>
+                    <widget class="QDoubleSpinBox" name="MoveRightSpin">
+                     <property name="maximum">
+                      <double>10000.000000000000000</double>
+                     </property>
+                    </widget>
                    </item>
                    <item row="4" column="0">
                     <widget class="QLabel" name="label_57">
@@ -1443,7 +1475,11 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="4" column="1">
-                    <widget class="QDoubleSpinBox" name="MoveUpSpin"/>
+                    <widget class="QDoubleSpinBox" name="MoveUpSpin">
+                     <property name="maximum">
+                      <double>10000.000000000000000</double>
+                     </property>
+                    </widget>
                    </item>
                    <item row="4" column="2">
                     <widget class="QLabel" name="label_58">
@@ -1453,7 +1489,11 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="4" column="3">
-                    <widget class="QDoubleSpinBox" name="MoveDownSpin"/>
+                    <widget class="QDoubleSpinBox" name="MoveDownSpin">
+                     <property name="maximum">
+                      <double>10000.000000000000000</double>
+                     </property>
+                    </widget>
                    </item>
                    <item row="5" column="0">
                     <widget class="QLabel" name="label_59">
@@ -1463,7 +1503,11 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="5" column="1">
-                    <widget class="QDoubleSpinBox" name="MoveBackSpin"/>
+                    <widget class="QDoubleSpinBox" name="MoveBackSpin">
+                     <property name="maximum">
+                      <double>10000.000000000000000</double>
+                     </property>
+                    </widget>
                    </item>
                    <item row="5" column="2">
                     <widget class="QLabel" name="label_60">
@@ -1473,7 +1517,11 @@ source), or reflective material.
                     </widget>
                    </item>
                    <item row="5" column="3">
-                    <widget class="QDoubleSpinBox" name="MoveForthSpin"/>
+                    <widget class="QDoubleSpinBox" name="MoveForthSpin">
+                     <property name="maximum">
+                      <double>10000.000000000000000</double>
+                     </property>
+                    </widget>
                    </item>
                   </layout>
                  </item>

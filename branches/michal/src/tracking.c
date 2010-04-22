@@ -10,12 +10,14 @@ static float filterfactor=1.0;
 /* private Static members */
 /**************************/
 
-static struct lt_scalefactors scales = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+static struct lt_axes axes;
 static struct bloblist_type filtered_bloblist;
 static struct blob_type filtered_blobs[3];
 static bool first_frame = true;
 static bool recenter = false;
+static bool axes_changed = false;
 struct current_pose lt_current_pose;
+struct current_pose lt_orig_pose;
 
 /*******************************/
 /* private function prototypes */
@@ -58,12 +60,35 @@ bool check_pose()
   return true;
 }
 
+static bool get_axes()
+{
+  bool res = true;
+  res &= get_axis("Pitch", &(axes.pitch_axis), &axes_changed);
+  res &= get_axis("Yaw", &(axes.yaw_axis), &axes_changed);
+  res &= get_axis("Roll", &(axes.roll_axis), &axes_changed);
+  res &= get_axis("Xtranslation", &(axes.tx_axis), &axes_changed);
+  res &= get_axis("Ytranslation", &(axes.ty_axis), &axes_changed);
+  res &= get_axis("Ztranslation", &(axes.tz_axis), &axes_changed);
+  return res;
+}
+
+static void close_axes()
+{
+  close_axis(&(axes.pitch_axis));
+  close_axis(&(axes.yaw_axis));
+  close_axis(&(axes.roll_axis));
+  close_axis(&(axes.tx_axis));
+  close_axis(&(axes.ty_axis));
+  close_axis(&(axes.tz_axis));
+}
+
 bool init_tracking()
 {
   if(get_filter_factor(&filterfactor) != true){
     return false;
   }
-  if(get_scale_factors(&scales) != true){
+  if(!get_axes()){
+    log_message("Couldn't load axes definitions!\n");
     return false;
   }
 
@@ -186,15 +211,27 @@ int update_pose(struct frame_type *frame)
           filtered_translations);
   }
   
-  get_scale_factors(&scales);
   pthread_mutex_lock(&pose_mutex);
   
-  lt_current_pose.heading = clamp_angle(scales.yaw_sf * filtered_angles[0]);
-  lt_current_pose.pitch = clamp_angle(scales.pitch_sf * filtered_angles[1]);
-  lt_current_pose.roll = clamp_angle(scales.roll_sf * filtered_angles[2]);
-  lt_current_pose.tx = scales.tx_sf * filtered_translations[0];
-  lt_current_pose.ty = scales.ty_sf * filtered_translations[1];
-  lt_current_pose.tz = scales.tz_sf * filtered_translations[2];
+  lt_orig_pose.heading = filtered_angles[0];
+  lt_orig_pose.pitch = filtered_angles[1];
+  lt_orig_pose.roll = filtered_angles[2];
+  lt_orig_pose.tx = filtered_translations[0];
+  lt_orig_pose.ty = filtered_translations[1];
+  lt_orig_pose.tz = filtered_translations[2];
+  
+  if(axes_changed){
+    axes_changed = false;
+    close_axes();
+    get_axes();
+  }
+  
+  lt_current_pose.heading = clamp_angle(val_on_axis(axes.yaw_axis, filtered_angles[0]));
+  lt_current_pose.pitch = clamp_angle(val_on_axis(axes.pitch_axis, filtered_angles[1]));
+  lt_current_pose.roll = clamp_angle(val_on_axis(axes.roll_axis, filtered_angles[2]));
+  lt_current_pose.tx = val_on_axis(axes.tx_axis, filtered_translations[0]);
+  lt_current_pose.ty = val_on_axis(axes.ty_axis, filtered_translations[1]);
+  lt_current_pose.tz = val_on_axis(axes.tz_axis, filtered_translations[2]);
   
   rotate_translations(&lt_current_pose.heading, &lt_current_pose.pitch, 
                       &lt_current_pose.roll, &lt_current_pose.tx,

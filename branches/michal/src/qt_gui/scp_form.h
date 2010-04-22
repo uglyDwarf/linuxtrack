@@ -11,12 +11,12 @@ class ScpForm : public QWidget
  public:
   ScpForm(QWidget *parent = 0);
   ~ScpForm();
-  void updatePitch(int newPitch);
-  void updateRoll(int newRoll);
-  void updateYaw(int newYaw);
-  void updateX(int newX);
-  void updateY(int newY);
-  void updateZ(int newZ);
+  void updatePitch(float newPitch);
+  void updateRoll(float newRoll);
+  void updateYaw(float newYaw);
+  void updateX(float newX);
+  void updateY(float newY);
+  void updateZ(float newZ);
   void setSlaves(QDoubleSpinBox *pitchLM, QDoubleSpinBox *pitchRM,
                  QDoubleSpinBox *rollLM, QDoubleSpinBox *rollRM,
                  QDoubleSpinBox *yawLM, QDoubleSpinBox *yawRM,

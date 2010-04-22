@@ -3,6 +3,8 @@
 #include <QThread>
 #include "window.h"
 
+class ScpForm;
+
 class CaptureThread : public QThread
 {
   Q_OBJECT
@@ -18,17 +20,17 @@ class LtrGuiForm : public QMainWindow
     Q_OBJECT
   
   public:
-    LtrGuiForm();
+   LtrGuiForm(ScpForm *s);
   public slots:
-    void update();
+   void update();
     
   private slots:
-    void on_startButton_pressed();
-    void on_pauseButton_pressed();
-    void on_wakeButton_pressed();
-    void on_stopButton_pressed();
+   void on_startButton_pressed();
+   void on_pauseButton_pressed();
+   void on_wakeButton_pressed();
+   void on_stopButton_pressed();
     
   private:
-    Ui::Ltr_gui ui;
-    Window *glw;
+   Ui::Ltr_gui ui;
+   Window *glw;
 };

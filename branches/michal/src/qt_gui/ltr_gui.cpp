@@ -23,12 +23,12 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
                 ui.MoveBackSpin, ui.MoveForthSpin
                 );
   QObject::connect(this, SIGNAL(customSectionChanged()), sc, SLOT(reinit()));
-
+  showWindow = new LtrGuiForm(sc);
   initFilterFactor();
   ui.Profiles->addItems(Profiles::getProfiles().getProfileNames());
   helper = new LtrDevHelp(sc);
   on_RefreshDevices_pressed();
-  showWindow.show();
+  showWindow->show();
   helper->show();
 }
 
@@ -40,11 +40,12 @@ LinuxtrackGui::~LinuxtrackGui()
   delete me;
   delete sc;
   delete helper;
+  delete showWindow;
 }
 
 void LinuxtrackGui::closeEvent(QCloseEvent *event)
 {
-  showWindow.close();
+  showWindow->close();
   helper->close();
   sc->close();
   event->accept();

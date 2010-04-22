@@ -263,38 +263,6 @@ bool get_pose_setup(reflector_model_type *rm, bool *changed)
 }
 
 
-bool get_scale_factors(struct lt_scalefactors *sf)
-{
-  static pref_id pitch_m = NULL;
-  static pref_id yaw_m = NULL;
-  static pref_id roll_m = NULL;
-  static pref_id xm = NULL;
-  static pref_id ym = NULL;
-  static pref_id zm = NULL;
-  
-  if(pitch_m == NULL){
-    if((
-      open_pref(NULL, "Pitch-multiplier", &pitch_m) && 
-      open_pref(NULL, "Yaw-multiplier", &yaw_m) &&
-      open_pref(NULL, "Roll-multiplier", &roll_m) &&
-      open_pref(NULL, "Xtranslation-multiplier", &xm) &&
-      open_pref(NULL, "Ytranslation-multiplier", &ym) &&
-      open_pref(NULL, "Ztranslation-multiplier", &zm)
-      ) != true){
-      log_message("Can't read scale factor prefs!\n");
-      return false;
-    }
-    
-  }
-  sf->pitch_sf = get_flt(pitch_m);
-  sf->yaw_sf = get_flt(yaw_m);
-  sf->roll_sf = get_flt(roll_m);
-  sf->tx_sf = get_flt(xm);
-  sf->ty_sf = get_flt(ym);
-  sf->tz_sf = get_flt(zm);
-  return true; 
-}
-
 bool get_filter_factor(float *ff)
 {
   static pref_id cff = NULL;
@@ -358,13 +326,20 @@ bool get_axis(const char *prefix, struct axis_def **axis, bool *change_flag)
   init_axis(axis);
   for(i = 0; fields[i] != NULL; ++i){
     field_name = my_strcat(prefix, fields[i]);
-    if(open_pref(NULL, field_name, &tpid) != true){
-      log_message("Can't read '%s' pref!\n", field_name);
-      return false;
+    if(change_flag != NULL){
+      if(open_pref_w_callback(NULL, field_name, &tpid, pref_change_callback, change_flag) != true){
+        log_message("Can't read '%s' pref!\n", field_name);
+        return false;
+      }
+    }else{
+      if(open_pref(NULL, field_name, &tpid) != true){
+        log_message("Can't read '%s' pref!\n", field_name);
+        return false;
+      }
     }
     set_axis_field(axis, af[i], get_flt(tpid));
     
-    close_pref(&tpid);
+//    close_pref(&tpid);
     free(field_name);
     field_name = NULL;
   }

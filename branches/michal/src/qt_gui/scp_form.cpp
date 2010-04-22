@@ -54,32 +54,32 @@ void ScpForm::on_SCPCloseButton_pressed()
   close();
 }
 
-void ScpForm::updatePitch(int newPitch)
+void ScpForm::updatePitch(float newPitch)
 {
   pitch->movePoint(newPitch);
 }
 
-void ScpForm::updateRoll(int newRoll)
+void ScpForm::updateRoll(float newRoll)
 {
   roll->movePoint(newRoll);
 }
 
-void ScpForm::updateYaw(int newYaw)
+void ScpForm::updateYaw(float newYaw)
 {
   yaw->movePoint(newYaw);
 }
 
-void ScpForm::updateX(int newX)
+void ScpForm::updateX(float newX)
 {
   x->movePoint(newX);
 }
 
-void ScpForm::updateY(int newY)
+void ScpForm::updateY(float newY)
 {
   y->movePoint(newY);
 }
 
-void ScpForm::updateZ(int newZ)
+void ScpForm::updateZ(float newZ)
 {
   z->movePoint(newZ);
 }
