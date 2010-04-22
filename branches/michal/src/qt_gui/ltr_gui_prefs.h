@@ -18,7 +18,8 @@ class PrefProxy{
   bool activateModel(const QString &sectionName);
   bool getActiveModel(QString &model);
   bool getKeyVal(const QString &sectionName, const QString &keyName, 
-		 QString &result);
+                 QString &result);
+  bool getKeyVal(const QString &keyName, QString &result);
   bool setKeyVal(const QString &sectionName, const QString &keyName, 
 		 const QString &value);
   bool setKeyVal(const QString &sectionName, const QString &keyName, 

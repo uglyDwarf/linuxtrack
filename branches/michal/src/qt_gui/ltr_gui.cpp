@@ -128,7 +128,7 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
 void LinuxtrackGui::initFilterFactor()
 {
   QString val;
-  PREF.getKeyVal(Profiles::getProfiles().getCurrent(), "Filter-factor", val);
+  PREF.getKeyVal("Filter-factor", val);
   float f = val.toFloat();
   ui.FilterSlider->setValue(f * 10);
 }

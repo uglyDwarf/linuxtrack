@@ -89,6 +89,17 @@ bool PrefProxy::getKeyVal(const QString &sectionName, const QString &keyName,
   }
 }
 
+bool PrefProxy::getKeyVal(const QString &keyName, QString &result)
+{
+  char *val = get_key(NULL, keyName.toAscii().data());
+  if(val != NULL){
+    result = val;
+    return true;
+  }else{
+    return false;
+  }
+}
+
 bool PrefProxy::addKeyVal(const QString &sectionName, const QString &keyName, 
 			  const QString &value)
 {
