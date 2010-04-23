@@ -58,7 +58,18 @@ LtrGuiForm::LtrGuiForm(ScpForm *s)
      ui.stopButton->setDisabled(true);
      glw = new Window();
      ui.ogl_box->addWidget(glw);
+     state = STOPPED;
  }
+
+LtrGuiForm::~LtrGuiForm()
+{
+  if(state != STOPPED){
+    cal_shutdown();
+    ct->wait(1000);
+  }
+  delete glw;
+}
+
 
 int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 {
@@ -108,6 +119,7 @@ void LtrGuiForm::on_startButton_pressed()
   ui.pauseButton->setDisabled(false);
   ui.wakeButton->setDisabled(true);
   ui.stopButton->setDisabled(false);
+  state = RUNNING;
 }
 
 void LtrGuiForm::on_pauseButton_pressed()
@@ -118,6 +130,7 @@ void LtrGuiForm::on_pauseButton_pressed()
   ui.pauseButton->setDisabled(true);
   ui.wakeButton->setDisabled(false);
   ui.stopButton->setDisabled(false);
+  state = PAUSED;
 }
 
 void LtrGuiForm::on_wakeButton_pressed()
@@ -128,18 +141,20 @@ void LtrGuiForm::on_wakeButton_pressed()
   ui.pauseButton->setDisabled(false);
   ui.wakeButton->setDisabled(true);
   ui.stopButton->setDisabled(false);
+  state = RUNNING;
 }
 
 
 void LtrGuiForm::on_stopButton_pressed()
 {
   cal_shutdown();
-  ct->wait(2000);
+  ct->wait(1000);
   ui.statusbar->showMessage("Stopping!");
   ui.startButton->setDisabled(false);
   ui.pauseButton->setDisabled(true);
   ui.wakeButton->setDisabled(true);
   ui.stopButton->setDisabled(true);
+  state = STOPPED;
 }
 
 void LtrGuiForm::update()

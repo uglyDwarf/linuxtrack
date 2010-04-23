@@ -34,13 +34,13 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
 
 LinuxtrackGui::~LinuxtrackGui()
 {
+  delete showWindow;
   delete wcp;
   delete wiip;
   delete tirp;
   delete me;
   delete sc;
   delete helper;
-  delete showWindow;
 }
 
 void LinuxtrackGui::closeEvent(QCloseEvent *event)

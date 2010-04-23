@@ -21,6 +21,7 @@ class LtrGuiForm : public QMainWindow
   
   public:
    LtrGuiForm(ScpForm *s);
+   ~LtrGuiForm();
   public slots:
    void update();
     
@@ -33,4 +34,5 @@ class LtrGuiForm : public QMainWindow
   private:
    Ui::Ltr_gui ui;
    Window *glw;
+   enum {RUNNING, PAUSED, STOPPED} state;
 };
