@@ -122,6 +122,11 @@ void LtrGuiForm::on_startButton_pressed()
   state = RUNNING;
 }
 
+void LtrGuiForm::on_recenterButton_pressed()
+{
+  recenter_tracking();
+}
+
 void LtrGuiForm::on_pauseButton_pressed()
 {
   cal_suspend();

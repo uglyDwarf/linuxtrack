@@ -63,6 +63,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="recenterButton">
+          <property name="text">
+           <string>Recenter</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="pauseButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">

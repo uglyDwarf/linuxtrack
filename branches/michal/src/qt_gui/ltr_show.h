@@ -27,6 +27,7 @@ class LtrGuiForm : public QMainWindow
     
   private slots:
    void on_startButton_pressed();
+   void on_recenterButton_pressed();
    void on_pauseButton_pressed();
    void on_wakeButton_pressed();
    void on_stopButton_pressed();
