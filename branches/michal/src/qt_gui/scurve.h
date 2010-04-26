@@ -14,7 +14,7 @@ class SCurve : public QWidget{
   SCurve(QString prefix, QString axis_name, QString left, QString right, QWidget *parent = 0);
   ~SCurve();
   void movePoint(float new_x);
-  void setSlaves(QDoubleSpinBox *l_spin, QDoubleSpinBox *r_spin);
+  void setSlaves(QCheckBox *en, QDoubleSpinBox *l_spin, QDoubleSpinBox *r_spin);
   void reinit();
  signals:
   void changed();
@@ -28,6 +28,7 @@ class SCurve : public QWidget{
   void on_SCRightCurv_valueChanged(int value);
   void on_SCDeadZone_valueChanged(int value);
   void on_SCInputLimits_valueChanged(double d);
+  void setEnabled(int state);
  private:
   void setup_gui();
   Ui::SCurveForm ui;

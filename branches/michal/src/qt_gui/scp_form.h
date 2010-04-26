@@ -17,12 +17,12 @@ class ScpForm : public QWidget
   void updateX(float newX);
   void updateY(float newY);
   void updateZ(float newZ);
-  void setSlaves(QDoubleSpinBox *pitchLM, QDoubleSpinBox *pitchRM,
-                 QDoubleSpinBox *rollLM, QDoubleSpinBox *rollRM,
-                 QDoubleSpinBox *yawLM, QDoubleSpinBox *yawRM,
-                 QDoubleSpinBox *xLM, QDoubleSpinBox *xRM,
-                 QDoubleSpinBox *yLM, QDoubleSpinBox *yRM,
-                 QDoubleSpinBox *zLM, QDoubleSpinBox *zRM
+  void setSlaves(QCheckBox *pitchEn, QDoubleSpinBox *pitchLM, QDoubleSpinBox *pitchRM,
+                 QCheckBox *rollEn, QDoubleSpinBox *rollLM, QDoubleSpinBox *rollRM,
+                 QCheckBox *yawEn, QDoubleSpinBox *yawLM, QDoubleSpinBox *yawRM,
+                 QCheckBox *xEn, QDoubleSpinBox *xLM, QDoubleSpinBox *xRM,
+                 QCheckBox *yEn, QDoubleSpinBox *yLM, QDoubleSpinBox *yRM,
+                 QCheckBox *zEn, QDoubleSpinBox *zLM, QDoubleSpinBox *zRM
                  );
  private slots:
   void on_SCPCloseButton_pressed();

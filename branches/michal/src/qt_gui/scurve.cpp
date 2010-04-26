@@ -53,7 +53,7 @@ void SCurve::setup_gui()
   ui.SCInputLimits->setValue(get_limits(axis));
 }
 
-void SCurve::setSlaves(QDoubleSpinBox *l_spin, QDoubleSpinBox *r_spin)
+void SCurve::setSlaves(QCheckBox *en, QDoubleSpinBox *l_spin, QDoubleSpinBox *r_spin)
 {
   QObject::connect(ui.SCLeftFactor, SIGNAL(valueChanged(double)), 
                    l_spin, SLOT(setValue(double)));
@@ -66,8 +66,24 @@ void SCurve::setSlaves(QDoubleSpinBox *l_spin, QDoubleSpinBox *r_spin)
                    ui.SCRightFactor, SLOT(setValue(double)));
   QObject::connect(this, SIGNAL(symetryChanged(bool)), 
                    r_spin, SLOT(setDisabled(bool)));
+  QObject::connect(en, SIGNAL(stateChanged(int)), 
+                   this, SLOT(setEnabled(int)));
+  en->setCheckState(is_enabled(&axis) ? Qt::Checked : Qt::Unchecked);
   r_spin->setValue(ui.SCRightFactor->value());
   r_spin->setDisabled(symetrical);
+}
+
+void SCurve::setEnabled(int state)
+{
+  if(state == Qt::Checked){
+    std::cout<<"Enabling..."<<std::endl;
+    PREF.setKeyVal(Profiles::getProfiles().getCurrent(), prefPrefix + "-enabled", "yes");
+    enable_axis(&axis);
+  }else{
+    std::cout<<"Disabling..."<<std::endl;
+    PREF.setKeyVal(Profiles::getProfiles().getCurrent(), prefPrefix + "-enabled", "no");
+    disable_axis(&axis);
+  }
 }
 
 void SCurve::on_SCSymetrical_stateChanged(int state)

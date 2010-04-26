@@ -23,20 +23,20 @@ void ScpForm::reinit()
   z->reinit();
 }
 
-void ScpForm::setSlaves(QDoubleSpinBox *pitchLM, QDoubleSpinBox *pitchRM,
-                        QDoubleSpinBox *rollLM, QDoubleSpinBox *rollRM,
-                        QDoubleSpinBox *yawLM, QDoubleSpinBox *yawRM,
-                        QDoubleSpinBox *xLM, QDoubleSpinBox *xRM,
-                        QDoubleSpinBox *yLM, QDoubleSpinBox *yRM,
-                        QDoubleSpinBox *zLM, QDoubleSpinBox *zRM
+void ScpForm::setSlaves(QCheckBox *pitchEn, QDoubleSpinBox *pitchLM, QDoubleSpinBox *pitchRM,
+                        QCheckBox *rollEn, QDoubleSpinBox *rollLM, QDoubleSpinBox *rollRM,
+                        QCheckBox *yawEn, QDoubleSpinBox *yawLM, QDoubleSpinBox *yawRM,
+                        QCheckBox *xEn, QDoubleSpinBox *xLM, QDoubleSpinBox *xRM,
+                        QCheckBox *yEn, QDoubleSpinBox *yLM, QDoubleSpinBox *yRM,
+                        QCheckBox *zEn, QDoubleSpinBox *zLM, QDoubleSpinBox *zRM
                         )
 {
-  pitch->setSlaves(pitchLM, pitchRM);
-  roll->setSlaves(rollLM, rollRM);
-  yaw->setSlaves(yawLM, yawRM);
-  x->setSlaves(xLM, xRM);
-  y->setSlaves(yLM, yRM);
-  z->setSlaves(zLM, zRM);
+  pitch->setSlaves(pitchEn, pitchLM, pitchRM);
+  roll->setSlaves(rollEn, rollLM, rollRM);
+  yaw->setSlaves(yawEn, yawLM, yawRM);
+  x->setSlaves(xEn, xLM, xRM);
+  y->setSlaves(yEn, yLM, yRM);
+  z->setSlaves(zEn, zLM, zRM);
 }
 
 ScpForm::~ScpForm()

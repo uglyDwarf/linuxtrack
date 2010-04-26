@@ -310,7 +310,7 @@ static void set_axis_field(struct axis_def **axis, axis_fields field, float val)
 
 bool get_axis(const char *prefix, struct axis_def **axis, bool *change_flag)
 {
-  static const char *fields[] = {"-deadzone", 
+  static const char *fields[] = {"-deadzone",
                                  "-left-curvature", "-right-curvature", 
 				 "-left-multiplier", "-right-multiplier",
 				 "-limits", NULL};
@@ -342,6 +342,24 @@ bool get_axis(const char *prefix, struct axis_def **axis, bool *change_flag)
 //    close_pref(&tpid);
     free(field_name);
     field_name = NULL;
+  }
+  field_name = my_strcat(prefix, "-enabled");
+
+  if(change_flag != NULL){
+    if(open_pref_w_callback(NULL, field_name, &tpid, pref_change_callback, change_flag) != true){
+      log_message("Can't read '%s' pref!\n", field_name);
+      return false;
+    }
+  }else{
+    if(open_pref(NULL, field_name, &tpid) != true){
+      log_message("Can't read '%s' pref!\n", field_name);
+      return false;
+    }
+  }
+  if(strcasecmp(get_str(tpid), "Yes") == 0){
+    enable_axis(axis);
+  }else{
+    disable_axis(axis);
   }
   val_on_axis(*axis, 0.0f);
   return true;

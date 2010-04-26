@@ -4,6 +4,7 @@
 #include "utils.h"
 
 struct axis_def{
+  bool enabled;
   splines_def *curve_defs;
   splines *curves;
   bool valid;
@@ -17,6 +18,9 @@ float val_on_axis(struct axis_def *axis, float x)
   assert(axis->curve_defs != NULL);
   assert(axis->curves != NULL);
   
+  if(!axis->enabled){
+    return 0.0f;
+  }
   if(!(axis->valid)){
     curve2pts(axis->curve_defs, axis->curves);
   }
@@ -33,6 +37,21 @@ float val_on_axis(struct axis_def *axis, float x)
   }else{
     return y * axis->r_factor; 
   }
+}
+
+void enable_axis(struct axis_def **axis)
+{
+  (*axis)->enabled = true;
+}
+
+void disable_axis(struct axis_def **axis)
+{
+  (*axis)->enabled = false;
+}
+
+bool is_enabled(struct axis_def **axis)
+{
+  return (*axis)->enabled;
 }
 
 bool is_symetrical(const struct axis_def *axis)
@@ -181,6 +200,7 @@ void init_axis(struct axis_def **axis)
   (*axis) = (struct axis_def *)my_malloc(sizeof(struct axis_def));
   (*axis)->curve_defs = (splines_def *)my_malloc(sizeof(splines_def));
   (*axis)->curves = (splines *)my_malloc(sizeof(splines));
+  (*axis)->enabled = true;
 }
 
 void close_axis(struct axis_def **axis)
@@ -197,3 +217,4 @@ void close_axis(struct axis_def **axis)
   free(*axis);
   (*axis) = NULL;
 }
+
