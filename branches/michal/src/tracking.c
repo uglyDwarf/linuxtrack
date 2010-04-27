@@ -49,12 +49,11 @@ float clamp_angle(float angle);
 bool check_pose()
 {
   struct reflector_model_type rm;
-  bool changed;
-  if(get_pose_setup(&rm, &changed) == false){
-    log_message("Can't get pose setup!\n");
-    return false;
-  }
-  if(changed){
+  if(model_changed()){
+    if(get_model_setup(&rm) == false){
+      log_message("Can't get pose setup!\n");
+      return false;
+    }
     pose_init(rm);
   }
   return true;

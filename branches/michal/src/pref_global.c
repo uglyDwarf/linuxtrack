@@ -11,6 +11,12 @@
 
 static plist opened_prefs = NULL;
 
+static bool model_changed_flag = true;
+static bool model_type_changed = true;
+
+static pref_id dev_section = NULL;
+static pref_id model_section = NULL;
+static pref_id pref_model_type = NULL;
 
 void pref_change_callback(void *param)
 {
@@ -20,7 +26,6 @@ void pref_change_callback(void *param)
 
 char *get_device_section()
 {
-  static pref_id dev_section = NULL;
   if(dev_section == NULL){
     if(!open_pref("Global", "Input", &dev_section)){
       log_message("Entry 'Input' missing in 'Global' section!\n");
@@ -35,11 +40,10 @@ const char *get_storage_path()
   return DATA_PATH; 
 }
 
-bool model_section_changed = false;
+bool model_section_changed = true;
 
-char *get_model_section()
+static char *get_model_section()
 {
-  static pref_id model_section = NULL;
   static char *name;
   if(model_section == NULL){
     if(!open_pref_w_callback("Global", "Model", &model_section,
@@ -132,34 +136,27 @@ bool get_coord(char *coord_id, float *f)
   return true;
 }
 
-//FIXME Possible race condition!
-bool pose_changed = false;
-
 typedef enum {X, Y, Z, H_Y, H_Z} cap_index;
+static pref_id cap_prefs[] = {NULL, NULL, NULL, NULL, NULL};
 
 bool setup_cap(reflector_model_type *rm, char *model_section)
 {
   static char *ids[] = {"Cap-X", "Cap-Y", "Cap-Z", "Head-Y", "Head-Z"};
-  static pref_id prefs[] = {NULL, NULL, NULL, NULL, NULL};
-  static bool init_done = false;
-  
-  if(!init_done){
-    cap_index i;
-    for(i = X; i<= H_Z; ++i){
-      if(!open_pref_w_callback(model_section, ids[i], &(prefs[i]), 
-        pref_change_callback, (void *)&pose_changed)){
-        log_message("Couldn't setup Cap!\n");
-        return false;
-      }
+  log_message("Setting up Cap\n");
+  cap_index i;
+  for(i = X; i<= H_Z; ++i){
+    if(!open_pref_w_callback(model_section, ids[i], &(cap_prefs[i]), 
+      pref_change_callback, (void *)&model_changed_flag)){
+      log_message("Couldn't setup Cap!\n");
+      return false;
     }
   }
-  init_done = true;
   
-  float x = get_flt(prefs[X]);
-  float y = get_flt(prefs[Y]);
-  float z = get_flt(prefs[Z]);
-  float hy = get_flt(prefs[H_Y]);
-  float hz = get_flt(prefs[H_Z]);
+  float x = get_flt(cap_prefs[X]);
+  float y = get_flt(cap_prefs[Y]);
+  float z = get_flt(cap_prefs[Z]);
+  float hy = get_flt(cap_prefs[H_Y]);
+  float hz = get_flt(cap_prefs[H_Z]);
   
   rm->p1[0] = -x/2;
   rm->p1[1] = -y;
@@ -175,34 +172,30 @@ bool setup_cap(reflector_model_type *rm, char *model_section)
 }
 
 typedef enum {Y1, Y2, Z1, Z2, HX, HY, HZ} clip_index;
+static pref_id clip_prefs[] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
 bool setup_clip(reflector_model_type *rm, char *model_section)
 {
   log_message("Setting up Clip...\n");
   static char *ids[] = {"Clip-Y1", "Clip-Y2", "Clip-Z1", "Clip-Z2", 
   			"Head-X", "Head-Y", "Head-Z"};
-  static pref_id prefs[] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-  static bool init_done = false;
   
-  if(!init_done){
-    clip_index i;
-    for(i = Y1; i<= HZ; ++i){
-      if(!open_pref_w_callback(model_section, ids[i], &(prefs[i]),
-        pref_change_callback, (void *)&pose_changed)){
-        log_message("Couldn't setup Clip!\n");
-        return false;
-      }
+  clip_index i;
+  for(i = Y1; i<= HZ; ++i){
+    if(!open_pref_w_callback(model_section, ids[i], &(clip_prefs[i]),
+      pref_change_callback, (void *)&model_changed_flag)){
+      log_message("Couldn't setup Clip!\n");
+      return false;
     }
   }
-  init_done = true;
   
-  float y1 = get_flt(prefs[Y1]);
-  float y2 = get_flt(prefs[Y2]);
-  float z1 = get_flt(prefs[Z1]);
-  float z2 = get_flt(prefs[Z2]);
-  float hx = get_flt(prefs[HX]);
-  float hy = get_flt(prefs[HY]);
-  float hz = get_flt(prefs[HZ]);
+  float y1 = get_flt(clip_prefs[Y1]);
+  float y2 = get_flt(clip_prefs[Y2]);
+  float z1 = get_flt(clip_prefs[Z1]);
+  float z2 = get_flt(clip_prefs[Z2]);
+  float hx = get_flt(clip_prefs[HX]);
+  float hy = get_flt(clip_prefs[HY]);
+  float hz = get_flt(clip_prefs[HZ]);
 
   /*
   y1 is vertical dist of upper and middle point
@@ -225,28 +218,62 @@ bool setup_clip(reflector_model_type *rm, char *model_section)
   return true;
 }
 
-bool get_pose_setup(reflector_model_type *rm, bool *changed)
+void close_models()
+{
+  log_message("Closing models\n");
+  clip_index i;
+  for(i = Y1; i<= HZ; ++i){
+    if(clip_prefs[i] != NULL){
+      close_pref(&(clip_prefs[i]));
+      clip_prefs[i] = NULL;
+    }
+  }
+  cap_index j;
+  for(j = X; j<= H_Z; ++j){
+    if(cap_prefs[j] != NULL){
+      close_pref(&(cap_prefs[j]));
+      cap_prefs[j] = NULL;
+    }
+  }
+  log_message("Done.\n");
+}
+
+bool model_changed()
+{
+  return model_changed_flag;
+}
+
+bool get_model_setup(reflector_model_type *rm)
 {
   assert(rm != NULL);
-  assert(changed != NULL);
-  char *model_section = get_model_section();
-  if(model_section == NULL){
-    return false;
+  static char *model_section = NULL;
+  if(model_section_changed){
+    if(pref_model_type != NULL){
+      close_pref(&pref_model_type);
+      pref_model_type = NULL;
+    }
+    model_section = get_model_section();
+    if(model_section == NULL){
+      log_message("Can't find model section!\n");
+      return false;
+    }
   }
-  static pref_id pref_model_type = NULL;
+  assert(model_section != NULL);
   if(pref_model_type == NULL){
     if(!open_pref_w_callback(model_section, "Model-type", &pref_model_type,
-      pref_change_callback, (void *)&pose_changed)){
+      pref_change_callback, (void *)&model_type_changed)){
       log_message("Couldn't find Model-type!\n");
       return false;
     }
-    pose_changed = true;
+    model_type_changed = true;
+    model_changed_flag = true;
   }
-  *changed = false;
+  if(model_type_changed){
+    close_models();
+  }
   static bool res = false;
-  if(pose_changed){
-    pose_changed = false;
-    *changed = true;
+  if(model_changed_flag){
+    model_changed_flag = false;
     char *model_type = get_str(pref_model_type);
     assert(model_type != NULL);
 
@@ -322,7 +349,7 @@ bool get_axis(const char *prefix, struct axis_def **axis, bool *change_flag)
 
   assert(prefix != NULL);
   assert(axis != NULL);
-  //assert(change_flag != NULL);
+  
   init_axis(axis);
   for(i = 0; fields[i] != NULL; ++i){
     field_name = my_strcat(prefix, fields[i]);
@@ -339,7 +366,6 @@ bool get_axis(const char *prefix, struct axis_def **axis, bool *change_flag)
     }
     set_axis_field(axis, af[i], get_flt(tpid));
     
-//    close_pref(&tpid);
     free(field_name);
     field_name = NULL;
   }
@@ -356,7 +382,7 @@ bool get_axis(const char *prefix, struct axis_def **axis, bool *change_flag)
       return false;
     }
   }
-  if(strcasecmp(get_str(tpid), "Yes") == 0){
+  if(strcasecmp(get_str(tpid), "No") != 0){
     enable_axis(axis);
   }else{
     disable_axis(axis);

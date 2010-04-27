@@ -141,6 +141,37 @@ void ModelEdit::Connect()
     this, SLOT(on_ModelCreated(const QString &)));
   QObject::connect(gui.ModelSelector, SIGNAL(activated(const QString&)),
     this, SLOT(on_ModelSelector_activated(const QString&)));
+  
+  QObject::connect(gui.CapA, SIGNAL(valueChanged(double)),
+    this, SLOT(on_CapA_valueChanged(double)));
+  QObject::connect(gui.CapB, SIGNAL(valueChanged(double)),
+    this, SLOT(on_CapB_valueChanged(double)));
+  QObject::connect(gui.CapC, SIGNAL(valueChanged(double)),
+    this, SLOT(on_CapC_valueChanged(double)));
+  QObject::connect(gui.CapHy, SIGNAL(valueChanged(double)),
+    this, SLOT(on_CapHy_valueChanged(double)));
+  QObject::connect(gui.CapHz, SIGNAL(valueChanged(double)),
+    this, SLOT(on_CapHz_valueChanged(double)));
+
+  QObject::connect(gui.ClipA, SIGNAL(valueChanged(double)),
+    this, SLOT(on_ClipA_valueChanged(double)));
+  QObject::connect(gui.ClipB, SIGNAL(valueChanged(double)),
+    this, SLOT(on_ClipB_valueChanged(double)));
+  QObject::connect(gui.ClipC, SIGNAL(valueChanged(double)),
+    this, SLOT(on_ClipC_valueChanged(double)));
+  QObject::connect(gui.ClipD, SIGNAL(valueChanged(double)),
+    this, SLOT(on_ClipD_valueChanged(double)));
+  QObject::connect(gui.ClipHx, SIGNAL(valueChanged(double)),
+    this, SLOT(on_ClipHx_valueChanged(double)));
+  QObject::connect(gui.ClipHy, SIGNAL(valueChanged(double)),
+    this, SLOT(on_ClipHy_valueChanged(double)));
+  QObject::connect(gui.ClipHz, SIGNAL(valueChanged(double)),
+    this, SLOT(on_ClipHz_valueChanged(double)));
+  
+  QObject::connect(gui.CapLeds, SIGNAL(stateChanged(int)),
+    this, SLOT(on_CapLeds_stateChanged(int)));
+  QObject::connect(gui.ClipLeds, SIGNAL(stateChanged(int)),
+    this, SLOT(on_ClipLeds_stateChanged(int)));
 } 
 
 void ModelEdit::on_ModelSelector_activated(const QString &text)
