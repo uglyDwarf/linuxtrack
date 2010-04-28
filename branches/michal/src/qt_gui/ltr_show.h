@@ -4,24 +4,32 @@
 #include "window.h"
 
 class ScpForm;
+class LtrGuiForm;
 
 class CaptureThread : public QThread
 {
   Q_OBJECT
  public:
+  CaptureThread(LtrGuiForm *p);
+  void setRunning();
   void run();
   void signal_new_frame();
  signals:
   void new_frame();  
+ private:
+  LtrGuiForm *parent;
+  
 };
 
 class LtrGuiForm : public QMainWindow
 {
-    Q_OBJECT
-  
+   Q_OBJECT
   public:
    LtrGuiForm(ScpForm *s);
    ~LtrGuiForm();
+   void setStopped();
+   void setRunning();
+   void setPaused();
   public slots:
    void update();
     
@@ -35,5 +43,4 @@ class LtrGuiForm : public QMainWindow
   private:
    Ui::Ltr_gui ui;
    Window *glw;
-   enum {RUNNING, PAUSED, STOPPED} state;
 };

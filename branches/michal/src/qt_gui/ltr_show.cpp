@@ -12,6 +12,7 @@
 #include <tracking.h>
 #include <iostream>
 #include <scp_form.h>
+
 QImage *img;
 QPixmap *pic;
 QLabel *label;
@@ -23,11 +24,24 @@ static unsigned int w = 0;
 static unsigned int h = 0;
 static ScpForm *scp;
 
+static enum state{TRACKER_RUNNING, TRACKER_PAUSED, TRACKER_STOPPED} state;
+
+static bool should_start = false;
+
 extern "C" {
   int frame_callback(struct camera_control_block *ccb, struct frame_type *frame);
 }
 
-CaptureThread *ct;
+static CaptureThread *ct = NULL;
+
+CaptureThread::CaptureThread(LtrGuiForm *p): QThread(), parent(p)
+{
+}
+
+void CaptureThread::setRunning()
+{
+  parent->setRunning();
+}
 
 void CaptureThread::run()
 {
@@ -39,7 +53,9 @@ void CaptureThread::run()
   init_tracking();
   ccb.mode = operational_3dot;
   ccb.diag = false;
+  should_start = true;
   cal_run(&ccb, frame_callback);
+  parent->setStopped();
 }
 
 void CaptureThread::signal_new_frame()
@@ -48,23 +64,27 @@ void CaptureThread::signal_new_frame()
 }
 
 LtrGuiForm::LtrGuiForm(ScpForm *s)
- {
-     scp = s;
-     ui.setupUi(this);
-     label = new QLabel();
-     ui.pix_box->addWidget(label);
-     ui.pauseButton->setDisabled(true);
-     ui.wakeButton->setDisabled(true);
-     ui.stopButton->setDisabled(true);
-     glw = new Window();
-     ui.ogl_box->addWidget(glw);
-     state = STOPPED;
- }
+{
+  scp = s;
+  ui.setupUi(this);
+  label = new QLabel();
+  ui.pix_box->addWidget(label);
+  ui.pauseButton->setDisabled(true);
+  ui.wakeButton->setDisabled(true);
+  ui.stopButton->setDisabled(true);
+  glw = new Window();
+  ui.ogl_box->addWidget(glw);
+  ct = new CaptureThread(this);
+  connect(ct, SIGNAL(new_frame()), this, SLOT(update()));
+  setStopped();
+}
 
 LtrGuiForm::~LtrGuiForm()
 {
-  if(state != STOPPED){
-    cal_shutdown();
+  if(state != TRACKER_STOPPED){
+    if(cal_shutdown() == 0){
+      setStopped();
+    }
     ct->wait(1000);
   }
   delete glw;
@@ -74,6 +94,11 @@ LtrGuiForm::~LtrGuiForm()
 int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 {
   static int cnt = 0;
+  if((state != TRACKER_RUNNING) && (should_start)){
+    should_start = false;
+    ct->setRunning();
+  }
+  
   if(cnt == 0){
     recenter_tracking();
   }
@@ -111,15 +136,7 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 
 void LtrGuiForm::on_startButton_pressed()
 {
-  ct = new CaptureThread();
-  connect(ct, SIGNAL(new_frame()), this, SLOT(update()));
   ct->start();
-  ui.statusbar->showMessage("Starting!");
-  ui.startButton->setDisabled(true);
-  ui.pauseButton->setDisabled(false);
-  ui.wakeButton->setDisabled(true);
-  ui.stopButton->setDisabled(false);
-  state = RUNNING;
 }
 
 void LtrGuiForm::on_recenterButton_pressed()
@@ -129,37 +146,23 @@ void LtrGuiForm::on_recenterButton_pressed()
 
 void LtrGuiForm::on_pauseButton_pressed()
 {
-  cal_suspend();
-  ui.statusbar->showMessage("Paused!");
-  ui.startButton->setDisabled(true);
-  ui.pauseButton->setDisabled(true);
-  ui.wakeButton->setDisabled(false);
-  ui.stopButton->setDisabled(false);
-  state = PAUSED;
+  if(cal_suspend() == 0){
+    setPaused();
+  }
 }
 
 void LtrGuiForm::on_wakeButton_pressed()
 {
+  should_start = true;
   cal_wakeup();
-  ui.statusbar->showMessage("Waking!");
-  ui.startButton->setDisabled(true);
-  ui.pauseButton->setDisabled(false);
-  ui.wakeButton->setDisabled(true);
-  ui.stopButton->setDisabled(false);
-  state = RUNNING;
 }
 
 
 void LtrGuiForm::on_stopButton_pressed()
 {
-  cal_shutdown();
-  ct->wait(1000);
-  ui.statusbar->showMessage("Stopping!");
-  ui.startButton->setDisabled(false);
-  ui.pauseButton->setDisabled(true);
-  ui.wakeButton->setDisabled(true);
-  ui.stopButton->setDisabled(true);
-  state = STOPPED;
+  if(cal_shutdown() == 0){
+    ct->wait(1000);
+  }
 }
 
 void LtrGuiForm::update()
@@ -185,4 +188,33 @@ void LtrGuiForm::update()
   flag = false;
 }
 
+void LtrGuiForm::setStopped()
+{
+  state = TRACKER_STOPPED;
+  ui.startButton->setDisabled(false);
+  ui.pauseButton->setDisabled(true);
+  ui.wakeButton->setDisabled(true);
+  ui.stopButton->setDisabled(true);
+  ui.recenterButton->setDisabled(true);
+}
+
+void LtrGuiForm::setRunning()
+{
+  state = TRACKER_RUNNING;
+  ui.startButton->setDisabled(true);
+  ui.pauseButton->setDisabled(false);
+  ui.wakeButton->setDisabled(true);
+  ui.stopButton->setDisabled(false);
+  ui.recenterButton->setDisabled(false);
+}
+
+void LtrGuiForm::setPaused()
+{
+  state = TRACKER_PAUSED;
+  ui.startButton->setDisabled(true);
+  ui.pauseButton->setDisabled(true);
+  ui.wakeButton->setDisabled(false);
+  ui.stopButton->setDisabled(false);
+  ui.recenterButton->setDisabled(true);
+}
 
