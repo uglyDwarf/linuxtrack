@@ -86,8 +86,8 @@
      glEnable(GL_TEXTURE_2D);
  }
 
- void GLWidget::paintGL()
- {
+void GLWidget::paintGL()
+{
      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
      glLoadIdentity();
      
@@ -111,6 +111,27 @@
        glCallList(*i);
      }
      glPopMatrix();
+
+     glPushMatrix();
+     glTranslated(0.0, 5.0, -20.265);
+     for(i = objects.begin(); i != objects.end(); ++i){
+       glCallList(*i);
+     }
+     glPopMatrix();
+
+     glPushMatrix();
+     glTranslated(-10.0, 3.0, -5.265);
+     for(i = objects.begin(); i != objects.end(); ++i){
+       glCallList(*i);
+     }
+     glPopMatrix();
+
+     glPushMatrix();
+     glTranslated(10.0, 3.0, -5.265);
+     for(i = objects.begin(); i != objects.end(); ++i){
+       glCallList(*i);
+     }
+     glPopMatrix();
 }
 
  void GLWidget::resizeGL(int width, int height)
@@ -119,7 +140,7 @@
 
      glMatrixMode(GL_PROJECTION);
      glLoadIdentity();
-     gluPerspective(55.0, (double)width/height, 0.1, 10.0);
+     gluPerspective(55.0, (double)width/height, 0.1, 45.0);
      glMatrixMode(GL_MODELVIEW);
  }
 
