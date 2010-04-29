@@ -140,6 +140,11 @@ void LinuxtrackGui::on_FilterSlider_valueChanged(int value)
   PREF.setKeyVal(Profiles::getProfiles().getCurrent(), "Filter-factor", value / 10.0f);
 }
 
+void LinuxtrackGui::on_SaveButton_pressed()
+{
+  PREF.savePrefs();
+}
+
 Profiles::Profiles()
 {
   PREF.getProfiles(names);

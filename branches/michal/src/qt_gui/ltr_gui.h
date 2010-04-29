@@ -30,6 +30,7 @@ class LinuxtrackGui : public QWidget
   void on_FilterSlider_valueChanged(int value);
   void on_Profiles_currentIndexChanged(const QString &text);
   void on_CreateNewProfile_pressed();
+  void on_SaveButton_pressed();
  private:
   void initFilterFactor();
   

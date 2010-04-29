@@ -302,3 +302,10 @@ bool PrefProxy::setCustomSection(const QString &name)
     return set_custom_section(name.toAscii().data());
   }
 }
+
+bool PrefProxy::savePrefs()
+{
+  return save_prefs();
+}
+
+
