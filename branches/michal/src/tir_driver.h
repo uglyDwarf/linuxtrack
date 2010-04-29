@@ -4,11 +4,11 @@
 #include "cal.h"
 #include "tir.h"
 
-int tir_init(struct camera_control_block *ccb);
-int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f);
-int tir_pause();
-int tir_resume();
-int tir_close();
+int tracker_init(struct camera_control_block *ccb);
+int tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f);
+int tracker_pause();
+int tracker_resume();
+int tracker_close();
 
 #endif
 

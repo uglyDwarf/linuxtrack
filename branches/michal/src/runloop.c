@@ -19,8 +19,7 @@ int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   struct frame_type frame;
   bool stop_flag = false;
   
-  log_message("Tracker interface: %p\n", trck_iface);
-  if((trck_iface.tracker_init)(ccb) != 0){
+  if(tracker_init(ccb) != 0){
     return -1;
   }
   frame.bloblist.blobs = my_malloc(sizeof(struct blob_type) * 3);
@@ -38,13 +37,13 @@ int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
         switch(my_request){
           case PAUSE:
             tracker_state = PAUSED;
-            (trck_iface.tracker_pause)();
+            tracker_pause();
             break;
           case SHUTDOWN:
             stop_flag = true;
             break;
           default:
-            retval = (trck_iface.tracker_get_frame)(ccb, &frame);
+            retval = tracker_get_frame(ccb, &frame);
             if((retval == -1) || (cbk(ccb, &frame) < 0)){
               stop_flag = true;
             }
@@ -59,7 +58,7 @@ int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
         my_request = request;
         request = CONTINUE;
         pthread_mutex_unlock(&state_mx);
-        (trck_iface.tracker_resume)();
+        tracker_resume();
         switch(my_request){
           case RUN:
             tracker_state = RUNNING;
@@ -81,7 +80,7 @@ int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
     }
   }
   
-  (trck_iface.tracker_close)();
+  tracker_close();
   frame_free(ccb, &frame);
   return 0;
 }

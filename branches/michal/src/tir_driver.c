@@ -16,14 +16,6 @@
 #include "usb_ifc.h"
 #include "dyn_load.h"
 
-tracker_interface trck_iface = {
-  .tracker_init = tir_init,
-  .tracker_pause = tir_pause,
-  .tracker_get_frame = tir_get_frame,
-  .tracker_resume = tir_resume,
-  .tracker_close = tir_close
-};
-
 pref_id min_blob = NULL;
 pref_id max_blob = NULL;
 pref_id threshold = NULL;
@@ -112,7 +104,7 @@ int tir_get_prefs()
   return 0;
 }
 
-int tir_init(struct camera_control_block *ccb)
+int tracker_init(struct camera_control_block *ccb)
 {
   assert(ccb != NULL);
   assert((ccb->device.category == tir) || (ccb->device.category == tir_open));
@@ -133,14 +125,14 @@ int tir_init(struct camera_control_block *ccb)
   }
 }
 
-int tir_set_good(struct camera_control_block *ccb, bool arg)
+static int tir_set_good(struct camera_control_block *ccb, bool arg)
 {
   switch_green(arg);
   return 0;
 }
 
 
-int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)
+int tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 {
   unsigned int w,h;
   float hf;
@@ -164,17 +156,17 @@ int tir_get_frame(struct camera_control_block *ccb, struct frame_type *f)
   return read_blobs_tir(&(f->bloblist), get_int(min_blob), get_int(max_blob), &img);
 }
 
-int tir_pause()
+int tracker_pause()
 {
   return pause_tir() ? 0 : -1;
 }
 
-int tir_resume()
+int tracker_resume()
 {
   return resume_tir() ? 0 : -1;
 }
 
-int tir_close()
+int tracker_close()
 {
   int res = close_tir() ? 0 : -1;;
   lt_unload_library(libhandle, functions);

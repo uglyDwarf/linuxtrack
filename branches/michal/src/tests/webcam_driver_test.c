@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
   ccb.device.device_id = "Live! Cam Optia";
 //  ccb.device.device_id = "USB2.0 1.3M UVC WebCam ";
   ccb.mode = operational_3dot;
-  if(webcam_init(&ccb)!= 0)
+  if(tracker_init(&ccb)!= 0)
   {
     printf("Problem initializing webcam!\n");
     return 1;
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
   
   printf("Reading frames: ");
   for(i = 0; i< 5; ++i){
-    if(webcam_get_frame(&ccb, &ft) == 0){
+    if(tracker_get_frame(&ccb, &ft) == 0){
       printf("."); 
     }else{
       printf("Problem getting frame\n");
@@ -71,17 +71,17 @@ int main(int argc, char *argv[])
   }
   printf("\n");
   printf("Pausing for a second...\n");
-  if(webcam_suspend(&ccb) != 0){
+  if(tracker_suspend(&ccb) != 0){
     printf("Problem suspending!\n");
   }
   sleep(5);
   printf("Starting again...\n");
-  if(webcam_wakeup(&ccb) != 0){
+  if(tracker_wakeup(&ccb) != 0){
     printf("Problem waking up!\n");
   }
   printf("Reading frames: ");
   for(i = 0; i< 50; ++i){
-    if(webcam_get_frame(&ccb, &ft) == 0){
+    if(tracker_get_frame(&ccb, &ft) == 0){
       printf("."); 
     }else{
       printf("Problem getting frame\n");
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
   }
   printf("\n");
   printf("Shutting down...\n");
-  webcam_shutdown(&ccb);
+  tracker_shutdown(&ccb);
   frame_free(&ccb, &ft);
   free_prefs();
   printf("Webcam closed!\n");

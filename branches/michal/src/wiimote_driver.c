@@ -18,7 +18,7 @@
 /*************/
 
 
-
+/*
 tracker_interface trck_iface = {
   .tracker_init = wiimote_init,
   .tracker_pause = wiimote_suspend,
@@ -26,6 +26,7 @@ tracker_interface trck_iface = {
   .tracker_resume = wiimote_wakeup,
   .tracker_close = wiimote_shutdown
 };
+*/
 
 /*********************/
 /* private Constants */
@@ -52,13 +53,7 @@ uint8_t paused = CWIID_LED1_ON;
 /************************/
 /* function definitions */
 /************************/
-/* returns true if the wiimote device can be located on 
- * the usb bus */
-bool wiimote_is_device_present(struct cal_device_type *cal_device) {
-    return true;
-}
-
-void wiimote_refresh_indications(void *param)
+static void wiimote_refresh_indications(void *param)
 {
   param = NULL;
   if(running_indication != NULL){
@@ -79,7 +74,7 @@ void wiimote_refresh_indications(void *param)
   }
 }
 
-int wiimote_read_indications()
+static int wiimote_read_indications()
 {
   char *sec = get_device_section();
   open_pref_w_callback(sec, "Running-indication", &running_indication,
@@ -97,7 +92,7 @@ int wiimote_read_indications()
  * turns the IR leds on
  * this function may block for up to 3 seconds 
  * a return value < 0 indicates error */
-int wiimote_init(struct camera_control_block *ccb) {
+int tracker_init(struct camera_control_block *ccb) {
     wiimote_read_indications();
     bdaddr_t bdaddr;
     
@@ -122,14 +117,14 @@ int wiimote_init(struct camera_control_block *ccb) {
  * can be used to deactivate the wiimote;
  * must call init to restart
  * a return value < 0 indicates error */
-int wiimote_shutdown() {
+int tracker_close() {
     if (gWiimote) cwiid_close(gWiimote);
     return 0;
 }
 
 /* turn off all the leds, and flush the queue 
  * a return value < 0 indicates error */
-int wiimote_suspend() {
+int tracker_pause() {
     cwiid_set_led(gWiimote, paused);
     cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS);
     return 0;
@@ -139,7 +134,7 @@ int wiimote_suspend() {
  * camera device. 
  * IR leds will reactivate, but that is all
  * a return value < 0 indicates error */
-int wiimote_wakeup() {
+int tracker_resume() {
     cwiid_set_led(gWiimote, running);
     cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS | CWIID_RPT_IR);
     return 0;
@@ -147,7 +142,7 @@ int wiimote_wakeup() {
 
 /* read the usb, and process it into frames
  * a return value < 0 indicates error */
-int wiimote_get_frame(struct camera_control_block *ccb,
+int tracker_get_frame(struct camera_control_block *ccb,
                    struct frame_type *f)
 {
     struct cwiid_state state;

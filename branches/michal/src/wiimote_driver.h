@@ -20,16 +20,12 @@
 /******************************/
 /* public function prototypes */
 /******************************/
-/* returns true if the wiimote device can be located on 
- * the usb bus */
-bool wiimote_is_device_present(struct cal_device_type *cal_device);
-
 /* call to init an uninitialized wiimote device 
  * typically called once at setup
  * turns the IR leds on
  * this function may block for up to 3 seconds 
  * a return value < 0 indicates error */
-int wiimote_init(struct camera_control_block *ccb);
+int tracker_init(struct camera_control_block *ccb);
 
 /* call to shutdown the wiimote device 
  * typically called once at close
@@ -37,11 +33,11 @@ int wiimote_init(struct camera_control_block *ccb);
  * can be used to deactivate the wiimote;
  * must call init to restart
  * a return value < 0 indicates error */
-int wiimote_shutdown();
+int tracker_shutdown();
 
 /* turn off all the leds, and flush the queue 
  * a return value < 0 indicates error */
-int wiimote_suspend();
+int tracker_suspend();
 
 /* may only be called while suspended.  Used to change from 
  * operational mode mode to diagnostic mode and vice versa */
@@ -52,11 +48,11 @@ int wiimote_change_operating_mode(struct camera_control_block *ccb,
  * camera device. 
  * IR leds will reactivate, but that is all
  * a return value < 0 indicates error */
-int wiimote_wakeup();
+int tracker_wakeup();
 
 /* read the usb, and process it into frames
  * a return value < 0 indicates error */
-int wiimote_get_frame(struct camera_control_block *ccb,
+int tracker_get_frame(struct camera_control_block *ccb,
                    struct frame_type *f);
 
 #endif
