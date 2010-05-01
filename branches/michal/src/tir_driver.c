@@ -125,12 +125,13 @@ int tracker_init(struct camera_control_block *ccb)
   }
 }
 
+/*
 static int tir_set_good(struct camera_control_block *ccb, bool arg)
 {
   switch_green(arg);
   return 0;
 }
-
+*/
 
 int tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 {

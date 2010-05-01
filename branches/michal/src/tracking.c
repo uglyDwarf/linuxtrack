@@ -130,7 +130,69 @@ void rotate_translations(float *heading, float *pitch, float *roll,
 
 pthread_mutex_t pose_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-int update_pose(struct frame_type *frame)
+static int update_pose_1pt(struct frame_type *frame)
+{
+  static float filtered_x, filtered_y;
+  static float c_x, c_y;
+  bool recentering = false;
+  check_pose();
+  
+  if(recenter == true){
+    recenter = false;
+    recentering = true;
+    log_message("RECENTERING!\n");
+  } 
+  
+  get_filter_factor(&filterfactor);
+  
+  if(is_finite(frame->bloblist.blobs[0].x) && is_finite(frame->bloblist.blobs[0].y)){
+  }else{
+    return -1;
+  }
+
+  if (first_frame || recentering) {
+    filtered_x = frame->bloblist.blobs[0].x;
+    filtered_y = frame->bloblist.blobs[0].y;
+  }else{
+    filtered_x = nonlinfilt(frame->bloblist.blobs[0].x, filtered_x, filterfactor);
+    filtered_y = nonlinfilt(frame->bloblist.blobs[0].y, filtered_y, filterfactor);
+  }
+  if (first_frame) {
+    first_frame = false;
+  }
+  if(recentering){
+    c_x = filtered_x;
+    c_y = filtered_y;
+  }
+  
+  if(axes_changed){
+    axes_changed = false;
+    close_axes();
+    get_axes();
+  }
+  
+  pthread_mutex_lock(&pose_mutex);
+  
+  lt_orig_pose.heading = filtered_x - c_x;
+  lt_orig_pose.pitch = filtered_y - c_y;
+  lt_orig_pose.roll = 0.0f;
+  lt_orig_pose.tx = 0.0f;
+  lt_orig_pose.ty = 0.0f;
+  lt_orig_pose.tz = 0.0f;
+  
+  lt_current_pose.heading = clamp_angle(val_on_axis(axes.yaw_axis, filtered_x - c_x));
+  lt_current_pose.pitch = clamp_angle(val_on_axis(axes.pitch_axis, filtered_y - c_y));
+  lt_current_pose.roll = 0.0f;
+  lt_current_pose.tx = 0.0f;
+  lt_current_pose.ty = 0.0f;
+  lt_current_pose.tz = 0.0f;
+  
+  pthread_mutex_unlock(&pose_mutex);
+  return 0;
+
+}
+
+static int update_pose_3pt(struct frame_type *frame)
 {
   float raw_angles[3];
   float raw_translations[3];
@@ -210,6 +272,12 @@ int update_pose(struct frame_type *frame)
           filtered_translations);
   }
   
+  if(axes_changed){
+    axes_changed = false;
+    close_axes();
+    get_axes();
+  }
+  
   pthread_mutex_lock(&pose_mutex);
   
   lt_orig_pose.heading = filtered_angles[0];
@@ -218,12 +286,6 @@ int update_pose(struct frame_type *frame)
   lt_orig_pose.tx = filtered_translations[0];
   lt_orig_pose.ty = filtered_translations[1];
   lt_orig_pose.tz = filtered_translations[2];
-  
-  if(axes_changed){
-    axes_changed = false;
-    close_axes();
-    get_axes();
-  }
   
   lt_current_pose.heading = clamp_angle(val_on_axis(axes.yaw_axis, filtered_angles[0]));
   lt_current_pose.pitch = clamp_angle(val_on_axis(axes.pitch_axis, filtered_angles[1]));
@@ -237,6 +299,15 @@ int update_pose(struct frame_type *frame)
 		      &lt_current_pose.ty, &lt_current_pose.tz);
   pthread_mutex_unlock(&pose_mutex);
   return 0;
+}
+
+int update_pose(struct frame_type *frame)
+{
+  if(is_single_point()){
+    return update_pose_1pt(frame);
+  }else{
+    return update_pose_3pt(frame);
+  }
 }
 
 float expfilt(float x, 

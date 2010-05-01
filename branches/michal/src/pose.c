@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include "pose.h"
 #include "math_utils.h"
 #include "cal.h"
@@ -20,10 +21,24 @@ float model_base[3][3];
 float center_ref[3];
 float center_base[3][3];
 
-enum {M_CAP, M_CLIP} type;
+enum {M_CAP, M_CLIP, M_SINGLE} type;
 
 void pose_init(struct reflector_model_type rm)
 {
+  switch(rm.type){
+    case CAP:
+      type = M_CAP;
+      break;
+    case CLIP:
+      type = M_CLIP;
+      break;
+    case SINGLE:
+      type = M_SINGLE;
+      break;
+    default:
+      assert(0);
+      break;
+  }
   /* Physical dimensions */
   /* Camera looks in direction of Z axis */
   /* X axis goes then to the right */
@@ -80,16 +95,11 @@ void pose_init(struct reflector_model_type rm)
   float vec3[3];
   make_vec(ref, model_point0, vec3);
   matrix_times_vec(model_base, vec3, model_ref);
-  switch(rm.type){
-    case CAP:
-      type = M_CAP;
-      break;
-    case CLIP:
-      type = M_CLIP;
-      break;
-    default:
-      break;
-  }
+}
+
+bool is_single_point()
+{
+  return type == M_SINGLE;
 }
 
 float blob_dist(struct blob_type b0, struct blob_type b1)
@@ -230,7 +240,6 @@ void pose_sort_blobs(struct bloblist_type bl)
     }
   }
 }
-
 
 
 bool pose_process_blobs(struct bloblist_type blobs,

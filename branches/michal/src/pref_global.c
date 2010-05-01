@@ -281,6 +281,9 @@ bool get_model_setup(reflector_model_type *rm)
       res = setup_cap(rm, model_section);
     }else if(strcasecmp(model_type, "Clip") == 0){
       res = setup_clip(rm, model_section);
+    }else if(strcasecmp(model_type, "SinglePoint") == 0){
+      rm->type = SINGLE;
+      res = true;
     }else{
       log_message("Unknown modeltype specified in section %s\n", model_section);
       res = false;
