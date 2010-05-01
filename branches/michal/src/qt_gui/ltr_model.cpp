@@ -37,12 +37,12 @@ void ModelCreate::on_CreateButton_pressed()
       PREF.addKeyVal(sec, (char *)"Active", v);
     }else if(ui.Model3PtClip->isChecked()){
       PREF.addKeyVal(sec, (char *)"Model-type", (char *)"Clip");
-      PREF.addKeyVal(sec, (char *)"Clip-Y1", QString::number(ui.ClipA->value()));
+      PREF.addKeyVal(sec, (char *)"Clip-Y1", QString::number(ui.ClipB->value()));
       PREF.addKeyVal(sec, (char *)"Clip-Y2", 
-           QString::number(ui.ClipA->value() + ui.ClipB->value()));
-      PREF.addKeyVal(sec, (char *)"Clip-Z1", QString::number(ui.ClipC->value()));
+           QString::number(ui.ClipB->value() + ui.ClipC->value()));
+      PREF.addKeyVal(sec, (char *)"Clip-Z1", QString::number(ui.ClipA->value()));
       PREF.addKeyVal(sec, (char *)"Clip-Z2", 
-           QString::number(ui.ClipD->value() + ui.ClipA->value()));
+           QString::number(ui.ClipD->value() - ui.ClipA->value()));
       PREF.addKeyVal(sec, (char *)"Head-X", QString::number(ui.ClipHx->value()));
       PREF.addKeyVal(sec, (char *)"Head-Y", QString::number(ui.ClipHy->value()));
       PREF.addKeyVal(sec, (char *)"Head-Z", QString::number(ui.ClipHz->value()));

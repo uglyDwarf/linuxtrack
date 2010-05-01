@@ -54,6 +54,7 @@ bool check_pose()
       log_message("Can't get pose setup!\n");
       return false;
     }
+    log_message("Initializing model!\n");
     pose_init(rm);
   }
   return true;
@@ -98,6 +99,7 @@ bool init_tracking()
   filtered_bloblist.num_blobs = 3;
   filtered_bloblist.blobs = filtered_blobs;
   first_frame = true;
+  log_message("Tracking initialized!\n");
   return true;
 }
 

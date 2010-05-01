@@ -24,6 +24,12 @@ void pref_change_callback(void *param)
   *(bool*)param = true;
 }
 
+void model_changed_callback(void *param)
+{
+  assert(param != NULL);
+  *(bool*)param = true;
+}
+
 char *get_device_section()
 {
   if(dev_section == NULL){
@@ -47,7 +53,7 @@ static char *get_model_section()
   static char *name;
   if(model_section == NULL){
     if(!open_pref_w_callback("Global", "Model", &model_section,
-      pref_change_callback, (void*)&model_section_changed)){
+      model_changed_callback, (void*)&model_section_changed)){
       log_message("Entry 'Model' missing in 'Global' section!\n");
       return NULL;
     }
@@ -55,7 +61,6 @@ static char *get_model_section()
   }
   
   if(model_section_changed){
-    model_section_changed = false;
     name = get_str(model_section);
   }
   return name;
@@ -240,7 +245,7 @@ void close_models()
 
 bool model_changed()
 {
-  return model_changed_flag;
+  return model_section_changed || model_type_changed || model_changed_flag;
 }
 
 bool get_model_setup(reflector_model_type *rm)
@@ -248,6 +253,7 @@ bool get_model_setup(reflector_model_type *rm)
   assert(rm != NULL);
   static char *model_section = NULL;
   if(model_section_changed){
+    model_section_changed = false;
     if(pref_model_type != NULL){
       close_pref(&pref_model_type);
       pref_model_type = NULL;
@@ -269,6 +275,7 @@ bool get_model_setup(reflector_model_type *rm)
     model_changed_flag = true;
   }
   if(model_type_changed){
+    model_type_changed = false;
     close_models();
   }
   static bool res = false;
