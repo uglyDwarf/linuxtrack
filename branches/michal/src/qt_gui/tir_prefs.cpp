@@ -63,7 +63,7 @@ void TirPrefs::Activate(const QString &ID)
       PREF.addKeyVal(sec, (char *)"Max-blob", QString::number(230));
       PREF.addKeyVal(sec, (char *)"Status-led-brightness", QString::number(0));
       PREF.addKeyVal(sec, (char *)"Ir-led-brightness", QString::number(7));
-      PREF.addKeyVal(sec, (char *)"Status-signals", (char *)"yes");
+      PREF.addKeyVal(sec, (char *)"Status-signals", (char *)"on");
       PREF.activateDevice(sec);
       currentSection = sec;
     }else{

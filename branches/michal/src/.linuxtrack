@@ -1,106 +1,89 @@
-#Global section should contain global settings (eg. Capture device type)
 [Global]
-Input = TrackIR4
-#Input = TrackIR
-#Input = Webcamera
-#Input = Wii
-#Model = Cap
-#Comment previous and uncomment this if you use Clip...
-#Note that clip disables the TIR4 IR Illuminator LEDS
-Model = Clip
-#Store-directory = /home/michal/lt_store
+Model = NP TrackClip
 
+[Wiimote]
+Capture-device = Wiimote
+Capture-device-id = Wiimote
+Running-indication = 0100
+Paused-indication = 0010
 
-[Cap]
+[TrackIR]
+Capture-device = Tir
+Capture-device-id = Tir
+Threshold = 140
+Min-blob = 4
+Max-blob = 230
+Status-led-brightness = 0
+Ir-led-brightness = 7
+Status-signals = on
+
+[NP TrackClip]
 Model-type = Cap
-Cap-X = 70
-Cap-Y = 50
-Cap-Z = 92.5
+Cap-X = 54
+Cap-Y = 67
+Cap-Z = 96
 Head-Y = 100
 Head-Z = 90
+Active = no
 
-[Clip]
+[NP TrackClip Pro]
 Model-type = Clip
 Clip-Y1 = 40
 Clip-Y2 = 110
 Clip-Z1 = 30
 Clip-Z2 = 50
-#Change sign of Head-X, if your clip is on the right side
 Head-X = -100
 Head-Y = -100
 Head-Z = 50
-
-[TrackIR4]
-Capture-device = Tir4
-Capture-device-id = Track IR 4
-
-[TrackIR]
-Capture-device = Tir
-Capture-device-id = Track IR
-Max-blob = 1024
-Min-blob = 15
-IR-LEDs = off
-
-
-[Webcamera]
-Capture-device = Webcam
-Capture-device-id = Live! Cam Optia
-Resolution = 640 x 480
-Pixel-format = YUYV
-Fps = 30/1
-Threshold = 150
-Max-blob = 200
-Min-blob = 10
-
-[Wii]
-Capture-device = Wiimote
-Capture-device-id = Wiimote
+Active = yes
 
 [Default]
-Filter-factor = 5
+Filter-factor = 5.0
 
+Pitch-enabled = yes
 Pitch-deadzone = 0.0
 Pitch-left-curvature = 0.5
 Pitch-right-curvature = 0.5
-Pitch-left-multiplier = 3.0
-Pitch-right-multiplier = 3.0
-Pitch-limits = 45
+Pitch-left-multiplier = 90.0
+Pitch-right-multiplier = 90.0
+Pitch-limits = 45.0
 
+Yaw-enabled = yes
 Yaw-deadzone = 0.0
 Yaw-left-curvature = 0.5
 Yaw-right-curvature = 0.5
-Yaw-left-multiplier = 3.0
-Yaw-right-multiplier = 3.0
-Yaw-limits = 45
+Yaw-left-multiplier = 90.0
+Yaw-right-multiplier = 90.0
+Yaw-limits = 45.0
 
+Roll-enabled = yes
 Roll-deadzone = 0.0
 Roll-left-curvature = 0.5
 Roll-right-curvature = 0.5
-Roll-left-multiplier = 3.0
-Roll-right-multiplier = 3.0
-Roll-limits = 45
+Roll-left-multiplier = 45.0
+Roll-right-multiplier = 45.0
+Roll-limits = 45.0
 
+Xtranslation-enabled = yes
 Xtranslation-deadzone = 0.0
 Xtranslation-left-curvature = 0.5
 Xtranslation-right-curvature = 0.5
-Xtranslation-left-multiplier = 3.0
-Xtranslation-right-multiplier = 3.0
-Xtranslation-limits = 500
+Xtranslation-left-multiplier = 200.0
+Xtranslation-right-multiplier = 200.0
+Xtranslation-limits = 100.0
 
+Ytranslation-enabled = yes
 Ytranslation-deadzone = 0.0
 Ytranslation-left-curvature = 0.5
 Ytranslation-right-curvature = 0.5
-Ytranslation-left-multiplier = 3.0
-Ytranslation-right-multiplier = 3.0
-Ytranslation-limits = 500
+Ytranslation-left-multiplier = 200.0
+Ytranslation-right-multiplier = 200.0
+Ytranslation-limits = 100.0
 
+Ztranslation-enabled = yes
 Ztranslation-deadzone = 0.0
 Ztranslation-left-curvature = 0.5
 Ztranslation-right-curvature = 0.5
-Ztranslation-left-multiplier = 3.0
-Ztranslation-right-multiplier = 3.0
-Ztranslation-limits = 500
-
-[XPlane]
-Freeze-button = 3
-Recenter-button = 4
+Ztranslation-left-multiplier = 200.0
+Ztranslation-right-multiplier = 0.0
+Ztranslation-limits = 100.0

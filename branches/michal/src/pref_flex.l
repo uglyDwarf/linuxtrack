@@ -8,13 +8,13 @@
 %}
 %option noyywrap
 
-%x VALUE
+%x VALUE SEC_NAME
 
 KEY			[_a-zA-Z0-9-]+
 %%
 =[[:blank:]]*		{BEGIN(VALUE); return(TOKEN_EQ);}
-\[                      { return(TOKEN_LEFT_BRACKET);}  
-\]                      { return(TOKEN_RIGHT_BRACKET);}  
+\[                      {BEGIN(SEC_NAME); return(TOKEN_LEFT_BRACKET);}  
+\]                      {return(TOKEN_RIGHT_BRACKET);}  
 
 {KEY}			{
 			  yylval.str=my_strdup(yytext);
@@ -27,16 +27,21 @@ KEY			[_a-zA-Z0-9-]+
   
 [[:blank:]]		/* eat up whitespace */
 
-<VALUE>[^\n]*		{
-			  yylval.str=my_strdup(yytext);
-			  return(TOKEN_VALUE);
-			}
+<VALUE>[^\n]*           {
+                          yylval.str=my_strdup(yytext);
+                          return(TOKEN_VALUE);
+                        }
 
 
-<INITIAL,VALUE>\n	{
-			  line_num++;
+<INITIAL,VALUE>\n       {
+                          line_num++;
                           BEGIN(INITIAL);
-			}
+                        }
+<SEC_NAME>[^\]]*        {
+                          yylval.str=my_strdup(yytext);
+                          BEGIN(INITIAL);
+                          return(TOKEN_SECNAME);
+                        }
   
 .			log_message( "Unrecognized character: %s\n", yytext );
 %%

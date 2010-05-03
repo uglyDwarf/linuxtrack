@@ -12,10 +12,10 @@ extern "C" {
 void* my_malloc(size_t size);
 char* my_strdup(const char* s);
 void log_message(const char *format, ...);
+char *get_log_fname();
 int my_ioctl(int d, int request, void *argp);
 void strlower(char *s);
 char *my_strcat(const char *str1, const char *str2);
-
 
 /*
  * Creates array of strings out of list of strings.

@@ -18,16 +18,16 @@
 }
 
 
-
 %token TOKEN_COMMENT
 %token TOKEN_LEFT_BRACKET
 %token TOKEN_RIGHT_BRACKET
 %token TOKEN_KEY
 %token TOKEN_EQ
 %token TOKEN_VALUE
+%token TOKEN_SECNAME
 
 
-%type <str> TOKEN_COMMENT TOKEN_KEY TOKEN_VALUE
+%type <str> TOKEN_COMMENT TOKEN_KEY TOKEN_VALUE TOKEN_SECNAME
 
 %%
 input:		/* empty */
@@ -50,7 +50,7 @@ input:		/* empty */
                 | input key_val_pair
 ;
 
-section:	TOKEN_LEFT_BRACKET TOKEN_KEY TOKEN_RIGHT_BRACKET {
+section:	TOKEN_LEFT_BRACKET TOKEN_SECNAME TOKEN_RIGHT_BRACKET {
                   current_section = my_malloc(sizeof(section_struct));
                   current_section->name = $2;
                   current_section->contents = create_list();

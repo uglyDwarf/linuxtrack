@@ -44,7 +44,8 @@
      TOKEN_RIGHT_BRACKET = 260,
      TOKEN_KEY = 261,
      TOKEN_EQ = 262,
-     TOKEN_VALUE = 263
+     TOKEN_VALUE = 263,
+     TOKEN_SECNAME = 264
    };
 #endif
 /* Tokens.  */
@@ -54,6 +55,7 @@
 #define TOKEN_KEY 261
 #define TOKEN_EQ 262
 #define TOKEN_VALUE 263
+#define TOKEN_SECNAME 264
 
 
 
@@ -65,7 +67,7 @@ typedef union YYSTYPE
   char *str;
 }
 /* Line 1489 of yacc.c.  */
-#line 69 "pref_bison.h"
+#line 71 "pref_bison.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
