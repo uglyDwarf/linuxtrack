@@ -4,6 +4,8 @@
 
 int main(int argc, char *argv[])
 {
+  (void) argc;
+  (void) argv;
   if(read_prefs(NULL, true)){
     char **sections = NULL;
     get_section_list(&sections);

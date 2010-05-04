@@ -38,12 +38,13 @@ static bool is_tir(libusb_device *dev, unsigned int devid)
 
 dev_found find_tir(unsigned int devid)
 {
+  (void) devid;
   // discover devices
   libusb_device **list;
   libusb_device *found = NULL;
   dev_found dev = NONE;
-  size_t cnt = libusb_get_device_list(NULL, &list);
-  size_t i = 0;
+  ssize_t cnt = libusb_get_device_list(NULL, &list);
+  ssize_t i = 0;
   int err = 0;
   if (cnt < 0){
     log_message("Error enumerating devices!\n");
@@ -88,7 +89,7 @@ dev_found find_tir(unsigned int devid)
   }
 }
 
-static bool configure_tir(unsigned int config)
+static bool configure_tir(int config)
 {
   int cfg = -1;
   if(libusb_get_configuration(handle, &cfg)){
@@ -104,7 +105,7 @@ static bool configure_tir(unsigned int config)
   return true;
 }
 
-static bool claim_tir(unsigned int config, unsigned int interface)
+static bool claim_tir(int config, unsigned int interface)
 {
   if(libusb_claim_interface(handle, interface)){
     log_message("Couldn't claim interface!\n");

@@ -213,7 +213,7 @@ size_t encode_bloblist(struct bloblist_type *blobs, unsigned char *buffer)
   buffer[0] = (blobs->num_blobs) * sizeof(float);
   ++buffer;
   size_t cntr = 1;
-  int i;
+  unsigned int i;
   for(i = 0; i < blobs->num_blobs; ++i){
     encode_float(&((blobs->blobs)[i].x), buffer);
     //printf("%g => %02X %02X %02X %02X\n", ((blobs->blobs)[i].x), buffer[0], buffer[1], buffer[2], buffer[3]);
@@ -232,7 +232,7 @@ void decode_bloblist(struct bloblist_type *blobs, unsigned char *buffer)
   blobs->num_blobs = (data_size<=3) ? data_size : 3;
 //  printf("Got %d blobs!\n", blobs->num_blobs);
   ++buffer;
-  int i;
+  unsigned int i;
   for(i = 0; i < blobs->num_blobs; ++i){
     decode_float(buffer, &((blobs->blobs)[i].x));
     //printf("%g => %02X %02X %02X %02X\n", ((blobs->blobs)[i].x), buffer[0], buffer[1], buffer[2], buffer[3]); 

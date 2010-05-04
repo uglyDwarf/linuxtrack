@@ -93,6 +93,7 @@ static int wiimote_read_indications()
  * this function may block for up to 3 seconds 
  * a return value < 0 indicates error */
 int tracker_init(struct camera_control_block *ccb) {
+    (void) ccb;
     wiimote_read_indications();
     bdaddr_t bdaddr;
     
@@ -145,9 +146,10 @@ int tracker_resume() {
 int tracker_get_frame(struct camera_control_block *ccb,
                    struct frame_type *f)
 {
+  (void) ccb;
     struct cwiid_state state;
     unsigned int required_blobnum = 3;
-    int valid;
+    unsigned int valid;
     int i;
     
     //Otherwise the polling takes too much processor

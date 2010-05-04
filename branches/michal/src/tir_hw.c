@@ -530,6 +530,7 @@ bool init_camera_tir4(const char data_path[], bool force_fw_load, bool p_ir_on)
 
 bool init_camera_tir5(const char data_path[], bool force_fw_load, bool p_ir_on)
 {
+  (void) force_fw_load;
   tir_status_t status;
   ir_on = p_ir_on;
   

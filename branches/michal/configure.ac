@@ -8,7 +8,7 @@ AC_CONFIG_SRCDIR([src/tir4_driver.h])
 AC_CONFIG_HEADERS([config.h])
 
 AS_IF([test "$debug" != "no"],
-      [CFLAGS+=" -g -O0 -Wall "],
+      [CFLAGS+=" -g -O0 -Wall -Wextra"],
       [CFLAGS+=" -O3 "])
 CFLAGS+=" -m32 "
 

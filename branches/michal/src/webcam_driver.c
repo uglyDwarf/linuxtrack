@@ -35,7 +35,7 @@ typedef struct{
   int fd;
   int expecting_blobs;
   bool is_diag;
-  int buffers;
+  unsigned int buffers;
   int w;
   int h;
   unsigned char *bw_frame;
@@ -150,9 +150,9 @@ int enum_webcam_formats(char *id, webcam_formats *all_formats)
   int sizes_cntr;
   int ival_cntr;
   int items = 0;
-  struct v4l2_fmtdesc fmt = {0};
-  struct v4l2_frmsizeenum frm = {0};
-  struct v4l2_frmivalenum ival = {0};
+  struct v4l2_fmtdesc fmt;
+  struct v4l2_frmsizeenum frm;
+  struct v4l2_frmivalenum ival;
   plist fmt_strings = create_list();
   plist formats = create_list();
   
@@ -409,7 +409,7 @@ bool setup_streaming_buffers()
   memset(buffers, 0, sizeof(mmap_buffer) * wc_info.buffers);
   
   //initialize buffer structures... 
-  int cntr;
+  unsigned int cntr;
   for(cntr = 0; cntr < wc_info.buffers; ++cntr){
     struct v4l2_buffer buf;
     memset(&buf, 0, sizeof(buf));
@@ -447,7 +447,7 @@ bool release_buffers()
     log_message("Trying to release already released buffers...\n");
     return false;
   }
-  int cntr;
+  unsigned int cntr;
   for(cntr = 0; cntr < wc_info.buffers; ++cntr){
     if(-1 == munmap(buffers[cntr].start, buffers[cntr].length)){
       log_message("Munmap failed!\n");
@@ -543,7 +543,7 @@ int tracker_resume()
 {
   log_message("Queuing buffers...\n");
   enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  int cntr;
+  unsigned int cntr;
   for(cntr = 0; cntr < wc_info.buffers; ++cntr){
     struct v4l2_buffer buf;
     memset(&buf, 0, sizeof(buf));
@@ -600,6 +600,7 @@ int tracker_change_operating_mode(struct camera_control_block *ccb,
 
 int tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 {
+  (void) ccb;
   read_img_processing_prefs();
   f->bloblist.num_blobs = wc_info.expecting_blobs;
   f->width = wc_info.w;
@@ -656,7 +657,7 @@ int tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f)
   //FIXME!!! - this would work only with YUYV!
   unsigned char *source_buf = (buffers[buf.index]).start;
   unsigned char *dest_buf = (f->bitmap != NULL) ? f->bitmap : wc_info.bw_frame;
-  int cntr, cntr1;
+  unsigned int cntr, cntr1;
   //int pts = 0;
   
   for(cntr = cntr1 = 0; cntr < buf.bytesused; cntr += 2, cntr1++){

@@ -34,24 +34,11 @@ char* my_strdup(const char *s)
   return ptr;
 }
 
-static char logfile_name[] = "/tmp/linuxtrack.XXXXXX";
-static FILE *output_stream = NULL;
-
-char *get_log_fname()
-{
-  if(output_stream != NULL){
-    return logfile_name;
-  }else{
-    return NULL;
-  }
-}
-
 void log_message(const char *format, ...)
 {
+  static FILE *output_stream = NULL;
   if(output_stream == NULL){
-    int tmp = mkstemp(logfile_name);
-    close(tmp);
-    output_stream = freopen(logfile_name, "w", stderr);
+    output_stream = freopen("/tmp/linuxtrack.log", "w", stderr);
     if(output_stream == NULL){
       printf("Error opening logfile!\n");
       return;

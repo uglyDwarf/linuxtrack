@@ -28,7 +28,9 @@
 /*   return 0; */
 /* } */
 
-int main(int argc, char **argv) {
+int main(int argc, char *argv[]) {
+  (void) argc;
+  (void) argv;
   float heading, pitch, roll;
   float tx, ty, tz;
   int retval;

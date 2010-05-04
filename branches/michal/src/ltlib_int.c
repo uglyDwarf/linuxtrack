@@ -11,6 +11,7 @@ static pthread_t cal_thread;
 
 static int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 {
+  (void)ccb;
   update_pose(frame);
   return 0;
 }
@@ -19,10 +20,12 @@ static struct camera_control_block ccb;
 
 static void *cal_thread_fun(void *param)
 {
+  (void)param;
   if(get_device(&ccb)){
     ccb.mode = operational_3dot;
     ccb.diag = false;
     cal_run(&ccb, frame_callback);
+    close_prefs();
   }
   return NULL;
 }

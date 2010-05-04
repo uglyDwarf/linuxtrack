@@ -678,6 +678,7 @@ void free_prefs()
     free(pfi);
   }
   free_list(prefs, false);
+  prefs_read_already = false;
 }
 
 bool set_custom_section(char *name)

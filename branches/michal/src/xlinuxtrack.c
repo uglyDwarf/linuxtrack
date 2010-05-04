@@ -156,6 +156,8 @@ struct scrollerDef scArray[] = {
 
 void linuxTrackMenuHandler(void *inMenuRef, void *inItemRef)
 {
+  (void) inMenuRef;
+  (void) inItemRef;
   if(setupWindow == NULL){
     createSetupWindow(100, 600, 300, 370);
   }else{
@@ -214,6 +216,10 @@ int jmWindowHandler(XPWidgetMessage inMessage,
 			long inParam1,
 			long inParam2)
 {
+  (void) inWidget;
+  (void) inParam1;
+  (void) inParam2;
+
   if(inMessage == xpMsg_PushButtonPressed){
     //there is only one button
     jmRun = 0;
@@ -284,6 +290,8 @@ int setupWindowHandler(XPWidgetMessage inMessage,
 			long inParam1,
 			long inParam2)
 {
+  (void) inWidget;
+  (void) inParam2;
   if(inMessage == xpMessage_CloseButtonPushed){
     if(setupWindow != NULL){
       XPHideWidget(setupWindow);
@@ -535,6 +543,9 @@ PLUGIN_API void XPluginReceiveMessage(
                                       long			inMessage,
                                       void *			inParam)
 {
+  (void) inFromWho;
+  (void) inMessage;
+  (void) inParam;
 }
 
 void activate(void)
@@ -649,6 +660,10 @@ float	joystickCallback(
                                    int                  inCounter,    
                                    void *               inRefcon)
 {
+  (void) inElapsedSinceLastCall;
+  (void) inElapsedTimeSinceLastFlightLoop;
+  (void) inCounter;
+  (void) inRefcon;
 	if(jmRun != 0){
 	  int res = jmProcessJoy();
 	  if(res != -1){
@@ -677,6 +692,9 @@ int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
                           int                  inIsBefore,
                           void *               inRefcon)
 {
+  (void) inPhase;
+  (void) inIsBefore;
+  (void) inRefcon;
   float heading, pitch, roll;
   float tx, ty, tz;
   int retval;

@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="SensCurvesButton">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -648,7 +648,7 @@ Supported devices are:
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
-          <widget class="QFrame" name="frame">
+          <widget class="QFrame" name="frame000">
            <property name="frameShape">
             <enum>QFrame::StyledPanel</enum>
            </property>
@@ -677,7 +677,7 @@ Supported devices are:
             <item>
              <widget class="QLabel" name="ModelTypeLabel">
               <property name="text">
-               <string>TextLabel</string>
+               <string/>
               </property>
              </widget>
             </item>

@@ -9,14 +9,33 @@
 
 #include "pathconfig.h"
 
-static plist opened_prefs = NULL;
-
 static bool model_changed_flag = true;
 static bool model_type_changed = true;
 
 static pref_id dev_section = NULL;
 static pref_id model_section = NULL;
 static pref_id pref_model_type = NULL;
+static pref_id cff = NULL;
+
+void close_prefs()
+{
+  if(dev_section != NULL){
+    close_pref(&dev_section);
+    dev_section = NULL;
+  }
+  if(model_section != NULL){
+    close_pref(&model_section);
+    model_section = NULL;
+  }
+  if(pref_model_type != NULL){
+    close_pref(&pref_model_type);
+    pref_model_type = NULL;
+  }
+  if(cff != NULL){
+    close_pref(&cff);
+    cff = NULL;
+  }
+}
 
 void pref_change_callback(void *param)
 {
@@ -302,7 +321,6 @@ bool get_model_setup(reflector_model_type *rm)
 
 bool get_filter_factor(float *ff)
 {
-  static pref_id cff = NULL;
   if(cff == NULL){
     if(open_pref(NULL, "Filter-factor", &cff) != true){
       log_message("Can't read scale factor prefs!\n");

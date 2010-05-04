@@ -7,6 +7,8 @@
   extern int line_num;
 %}
 %option noyywrap
+%option nounput
+%option noinput
 
 %x VALUE SEC_NAME
 

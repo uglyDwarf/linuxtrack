@@ -135,6 +135,7 @@ static int tir_set_good(struct camera_control_block *ccb, bool arg)
 
 int tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 {
+  (void) ccb;
   unsigned int w,h;
   float hf;
   get_res_tir(&w, &h, &hf);

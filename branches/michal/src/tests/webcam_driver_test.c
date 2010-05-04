@@ -14,12 +14,14 @@ struct camera_control_block ccb;
 
 int main(int argc, char *argv[])
 {
+  (void) argc;
+  (void) argv;
   char **webcams = NULL;
   if(enum_webcams(&webcams) > 0){
     int i = 0;
     while(webcams[i] != NULL){
       printf("Webcam with id:'%s'\n", webcams[i]);
-      webcam_formats fmts = {0};
+      webcam_formats fmts;
       enum_webcam_formats(webcams[i], &fmts);
       int j;
       for(j = 0; j < fmts.entries; ++j){

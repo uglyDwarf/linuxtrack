@@ -124,6 +124,7 @@ bool receive_data(unsigned char data[], size_t size, size_t *transferred,
 
 void finish_usb(unsigned int interface)
 {
+  (void) interface;
   int32_t res;
   if((res = openusb_release_interface(devhandle, 0)) != OPENUSB_SUCCESS){
     log_message("Couldn't release interface! (%d)\n", res);

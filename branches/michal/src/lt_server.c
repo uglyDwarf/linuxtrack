@@ -32,6 +32,7 @@ int cfd;
 
 int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 {
+  (void) ccb;
   unsigned char msg[2048];
 /*  log_message("[%f,%f], [%f, %f], [%f, %f]\n", frame->bloblist.blobs[0].x, 
   frame->bloblist.blobs[0].y,  frame->bloblist.blobs[1].x,
@@ -62,6 +63,7 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 
 void* the_server_thing(void *param)
 {
+  (void) param;
   while(1){
     cfd = accept_connection(sfd);
     if(cfd == -1){

@@ -19,6 +19,8 @@ bool get_model_setup(reflector_model_type *rm);
 bool model_changed();
 bool get_filter_factor(float *ff);
 bool get_axis(const char *prefix, struct axis_def **axis, bool *change_flag);
+void close_prefs();
+
 #ifdef __cplusplus
 }
 #endif

@@ -77,7 +77,7 @@ bool check_paket_header_tir5(unsigned char data[])
 }
 
 
-bool process_packet_tir5(unsigned char data[], size_t *ptr, int pktsize, int limit)
+bool process_packet_tir5(unsigned char data[], size_t *ptr, unsigned int pktsize, int limit)
 {
   bool have_frame = false;
   unsigned int ps = 0;
@@ -127,7 +127,7 @@ bool process_packet_tir5(unsigned char data[], size_t *ptr, int pktsize, int lim
 }
 
 
-bool process_packet_tir4(unsigned char data[], size_t *ptr, int pktsize, int limit)
+bool process_packet_tir4(unsigned char data[], size_t *ptr, int pktsize, unsigned int limit)
 {
   unsigned int *ui;
   bool have_frame = false;
@@ -161,7 +161,7 @@ bool process_packet_tir4(unsigned char data[], size_t *ptr, int pktsize, int lim
 bool process_packet(unsigned char data[], size_t *ptr, size_t size)
 {
   static int type = -1;
-  static int limit = -1;
+  static unsigned int limit = -1;
   static int pktsize = 0;
   bool have_frame;
   

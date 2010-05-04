@@ -117,7 +117,7 @@ void blob_print(struct blob_type b)
 
 void bloblist_print(struct bloblist_type bl)
 {
-  int i;
+  unsigned int i;
 
   printf("-- start blob --\n");
   for (i=0;i<bl.num_blobs;i++) {

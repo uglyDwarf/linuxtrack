@@ -36,7 +36,7 @@ static stripe_array next = {
   .limit = 0,
 };
 
-static int current_vline = -2;
+static unsigned int current_vline = -2;
 
 
 static void clip_coord(int *coord, int min,
@@ -311,6 +311,7 @@ bool add_stripe(stripe_t *stripe, image *img)
 
 void prepare_for_processing(int w, int h)
 {
+  h = 0;
   if(current.ranges == NULL){
     current.ranges = (range*)my_malloc(sizeof(range) * ((w / 2) + 1));
     next.ranges = (range*)my_malloc(sizeof(range) * ((w / 2) + 1));
