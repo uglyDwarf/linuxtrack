@@ -1,6 +1,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QInputDialog>
+#include <QDir>
 #include <iostream>
 #include "ltr_gui.h"
 #include "ltr_gui_prefs.h"
@@ -9,6 +10,13 @@
 
 LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
 {
+  QString target = QDir::homePath() + "/.linuxtrack";
+  if(!QFile::exists(target)){
+    QString source = QString(PREFIX) + "/share/linuxtrack/.linuxtrack";
+    std::cout<<"Going to copy "<<source.toAscii().data();
+    std::cout<<" to "<<target.toAscii().data()<<std::endl;
+    QFile::copy(source, target);
+  }
   ui.setupUi(this);
   wcp = new WebcamPrefs(ui);
   wiip = new WiimotePrefs(ui);

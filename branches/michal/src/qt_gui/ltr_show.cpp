@@ -93,6 +93,7 @@ LtrGuiForm::~LtrGuiForm()
 
 int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 {
+  (void) ccb;
   static int cnt = 0;
   if((state != TRACKER_RUNNING) && (should_start)){
     should_start = false;
