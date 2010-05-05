@@ -23,6 +23,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
   tirp = new TirPrefs(ui);
   me = new ModelEdit(ui);
   sc = new ScpForm();
+  lv = new LogView();
   sc->setSlaves(ui.PitchEnable, ui.PitchUpSpin, ui.PitchDownSpin,
                 ui.RollEnable, ui.TiltLeftSpin, ui.TiltRightSpin,
                 ui.YawEnable, ui.YawLeftSpin, ui.YawRightSpin,
@@ -151,6 +152,11 @@ void LinuxtrackGui::on_FilterSlider_valueChanged(int value)
 void LinuxtrackGui::on_SaveButton_pressed()
 {
   PREF.savePrefs();
+}
+
+void LinuxtrackGui::on_ViewLogButton_pressed()
+{
+  lv->show();
 }
 
 Profiles::Profiles()

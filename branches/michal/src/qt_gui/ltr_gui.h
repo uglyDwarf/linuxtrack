@@ -11,6 +11,7 @@
 #include "ltr_dev_help.h"
 #include "ltr_model.h"
 #include "scp_form.h"
+#include "log_view.h"
 class LinuxtrackGui : public QWidget
 {
   Q_OBJECT
@@ -31,6 +32,7 @@ class LinuxtrackGui : public QWidget
   void on_Profiles_currentIndexChanged(const QString &text);
   void on_CreateNewProfile_pressed();
   void on_SaveButton_pressed();
+  void on_ViewLogButton_pressed();
  private:
   void initFilterFactor();
   
@@ -42,6 +44,7 @@ class LinuxtrackGui : public QWidget
   TirPrefs *tirp;
   ModelEdit *me;
   ScpForm *sc;
+  LogView *lv;
 };
 
 class Profiles{

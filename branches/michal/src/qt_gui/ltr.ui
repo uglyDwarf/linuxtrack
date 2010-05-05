@@ -1782,6 +1782,13 @@ and Wine plugin.
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_6">
      <item>
+      <widget class="QPushButton" name="ViewLogButton">
+       <property name="text">
+        <string>View logfile</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
