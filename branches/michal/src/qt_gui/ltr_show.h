@@ -11,7 +11,6 @@ class CaptureThread : public QThread
   Q_OBJECT
  public:
   CaptureThread(LtrGuiForm *p);
-  void setRunning();
   void run();
   void signal_new_frame();
  signals:
@@ -27,9 +26,6 @@ class LtrGuiForm : public QMainWindow
   public:
    LtrGuiForm(ScpForm *s);
    ~LtrGuiForm();
-   void setStopped();
-   void setRunning();
-   void setPaused();
   public slots:
    void update();
     
@@ -39,7 +35,11 @@ class LtrGuiForm : public QMainWindow
    void on_pauseButton_pressed();
    void on_wakeButton_pressed();
    void on_stopButton_pressed();
-    
+
+   void trackerStopped();
+   void trackerRunning();
+   void trackerPaused();
+
   private:
    Ui::Ltr_gui ui;
    Window *glw;

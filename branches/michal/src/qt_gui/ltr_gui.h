@@ -33,6 +33,8 @@ class LinuxtrackGui : public QWidget
   void on_CreateNewProfile_pressed();
   void on_SaveButton_pressed();
   void on_ViewLogButton_pressed();
+  void trackerStopped();
+  void trackerRunning();
  private:
   void initFilterFactor();
   

@@ -50,8 +50,6 @@ webcam_info wc_info;
 /* interface */
 /*************/
 
-int tracker_change_operating_mode(struct camera_control_block *ccb,
-                             enum cal_operating_mode newmode);
 int tracker_wakeup();
 int tracker_suspend();
 
@@ -499,7 +497,7 @@ int tracker_init(struct camera_control_block *ccb)
     return -1;
   }
   wc_info.fd = fd;
-  tracker_change_operating_mode(ccb, ccb->mode);
+  wc_info.expecting_blobs = 3;
   
   if(set_capture_format(ccb) != true){
     log_message("Couldn't set capture format!\n");
@@ -575,26 +573,6 @@ int tracker_pause()
   }
   log_message("Streaming stopped!\n");
   return 0;
-}
-
-int tracker_change_operating_mode(struct camera_control_block *ccb, 
-                             enum cal_operating_mode newmode)
-{
-  ccb->mode = newmode;
-  switch(ccb->mode){
-    case operational_1dot:
-      wc_info.is_diag = false;
-      wc_info.expecting_blobs = 1;
-      break;
-    case operational_3dot:
-      wc_info.is_diag = false;
-      wc_info.expecting_blobs = 3;
-      break;
-    default:
-      assert(0);
-      break;
-  } 
-  return 0;   
 }
 
 

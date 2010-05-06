@@ -11,8 +11,6 @@ extern "C" {
 int tracker_init(struct camera_control_block *ccb);
 int tracker_shutdown();
 int tracker_suspend();
-int tracker_change_operating_mode(struct camera_control_block *ccb, 
-                             enum cal_operating_mode newmode);
 int tracker_wakeup();
 int tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f);
 

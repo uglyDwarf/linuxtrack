@@ -39,11 +39,6 @@ int tracker_shutdown();
  * a return value < 0 indicates error */
 int tracker_suspend();
 
-/* may only be called while suspended.  Used to change from 
- * operational mode mode to diagnostic mode and vice versa */
-int wiimote_change_operating_mode(struct camera_control_block *ccb,
-                                enum cal_operating_mode newmode);
-
 /* unsuspend the currently suspended (and inited) 
  * camera device. 
  * IR leds will reactivate, but that is all

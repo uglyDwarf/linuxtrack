@@ -22,7 +22,6 @@ static void *cal_thread_fun(void *param)
 {
   (void)param;
   if(get_device(&ccb)){
-    ccb.mode = operational_3dot;
     ccb.diag = false;
     cal_run(&ccb, frame_callback);
     close_prefs();
@@ -83,6 +82,11 @@ int lt_int_shutdown(void)
 void lt_int_recenter(void)
 {
   recenter_tracking();
+}
+
+lt_state_type lt_get_tracking_state(void)
+{
+  return cal_get_state();
 }
 
 bool lt_int_create_pref(char *key)

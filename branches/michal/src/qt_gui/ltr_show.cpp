@@ -12,6 +12,7 @@
 #include <tracking.h>
 #include <iostream>
 #include <scp_form.h>
+#include <ltr_state.h>
 
 QImage *img;
 QPixmap *pic;
@@ -24,10 +25,6 @@ static unsigned int w = 0;
 static unsigned int h = 0;
 static ScpForm *scp;
 
-static enum state{TRACKER_RUNNING, TRACKER_PAUSED, TRACKER_STOPPED} state;
-
-static bool should_start = false;
-
 extern "C" {
   int frame_callback(struct camera_control_block *ccb, struct frame_type *frame);
 }
@@ -38,11 +35,6 @@ CaptureThread::CaptureThread(LtrGuiForm *p): QThread(), parent(p)
 {
 }
 
-void CaptureThread::setRunning()
-{
-  parent->setRunning();
-}
-
 void CaptureThread::run()
 {
   static struct camera_control_block ccb;
@@ -51,11 +43,8 @@ void CaptureThread::run()
     return;
   }
   init_tracking();
-  ccb.mode = operational_3dot;
   ccb.diag = false;
-  should_start = true;
   cal_run(&ccb, frame_callback);
-  parent->setStopped();
 }
 
 void CaptureThread::signal_new_frame()
@@ -76,17 +65,16 @@ LtrGuiForm::LtrGuiForm(ScpForm *s)
   ui.ogl_box->addWidget(glw);
   ct = new CaptureThread(this);
   connect(ct, SIGNAL(new_frame()), this, SLOT(update()));
-  setStopped();
+  
+  connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
+  connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
+  connect(&STATE, SIGNAL(trackerPaused()), this, SLOT(trackerPaused()));
 }
 
 LtrGuiForm::~LtrGuiForm()
 {
-  if(state != TRACKER_STOPPED){
-    if(cal_shutdown() == 0){
-      setStopped();
-    }
-    ct->wait(1000);
-  }
+  cal_shutdown();
+  ct->wait(1000);
   delete glw;
 }
 
@@ -95,10 +83,6 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 {
   (void) ccb;
   static int cnt = 0;
-  if((state != TRACKER_RUNNING) && (should_start)){
-    should_start = false;
-    ct->setRunning();
-  }
   
   if(cnt == 0){
     recenter_tracking();
@@ -147,14 +131,11 @@ void LtrGuiForm::on_recenterButton_pressed()
 
 void LtrGuiForm::on_pauseButton_pressed()
 {
-  if(cal_suspend() == 0){
-    setPaused();
-  }
+  cal_suspend();
 }
 
 void LtrGuiForm::on_wakeButton_pressed()
 {
-  should_start = true;
   cal_wakeup();
 }
 
@@ -189,9 +170,8 @@ void LtrGuiForm::update()
   flag = false;
 }
 
-void LtrGuiForm::setStopped()
+void LtrGuiForm::trackerStopped()
 {
-  state = TRACKER_STOPPED;
   ui.startButton->setDisabled(false);
   ui.pauseButton->setDisabled(true);
   ui.wakeButton->setDisabled(true);
@@ -199,9 +179,8 @@ void LtrGuiForm::setStopped()
   ui.recenterButton->setDisabled(true);
 }
 
-void LtrGuiForm::setRunning()
+void LtrGuiForm::trackerRunning()
 {
-  state = TRACKER_RUNNING;
   ui.startButton->setDisabled(true);
   ui.pauseButton->setDisabled(false);
   ui.wakeButton->setDisabled(true);
@@ -209,9 +188,8 @@ void LtrGuiForm::setRunning()
   ui.recenterButton->setDisabled(false);
 }
 
-void LtrGuiForm::setPaused()
+void LtrGuiForm::trackerPaused()
 {
-  state = TRACKER_PAUSED;
   ui.startButton->setDisabled(true);
   ui.pauseButton->setDisabled(true);
   ui.wakeButton->setDisabled(false);

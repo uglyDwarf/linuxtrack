@@ -6,7 +6,6 @@
 #include "runloop.h"
 
 static enum request_t {CONTINUE, RUN, PAUSE, SHUTDOWN} request;
-static enum cal_device_state_type tracker_state = STOPPED;
 static pthread_cond_t state_cv = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t state_mx = PTHREAD_MUTEX_INITIALIZER;
 
@@ -19,6 +18,7 @@ int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   struct frame_type frame;
   bool stop_flag = false;
   
+  cal_device_state = STOPPED;
   if(tracker_init(ccb) != 0){
     return -1;
   }
@@ -26,17 +26,17 @@ int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   frame.bloblist.num_blobs = 3;
   frame.bitmap = NULL;
   
-  tracker_state = RUNNING;
+  cal_device_state = RUNNING;
   while(1){
     pthread_mutex_lock(&state_mx);
     my_request = request;
     request = CONTINUE;
     pthread_mutex_unlock(&state_mx);
-    switch(tracker_state){
+    switch(cal_device_state){
       case RUNNING:
         switch(my_request){
           case PAUSE:
-            tracker_state = PAUSED;
+            cal_device_state = PAUSED;
             tracker_pause();
             break;
           case SHUTDOWN:
@@ -61,7 +61,7 @@ int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
         tracker_resume();
         switch(my_request){
           case RUN:
-            tracker_state = RUNNING;
+            cal_device_state = RUNNING;
             break;
           case SHUTDOWN:
             stop_flag = true;
@@ -82,6 +82,7 @@ int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   
   tracker_close();
   frame_free(ccb, &frame);
+  cal_device_state = STOPPED;
   return 0;
 }
 
@@ -107,10 +108,5 @@ int ltr_cal_suspend()
 int ltr_cal_wakeup()
 {
   return signal_request(RUN);
-}
-
-enum cal_device_state_type ltr_cal_get_state()
-{
-  return tracker_state;
 }
 

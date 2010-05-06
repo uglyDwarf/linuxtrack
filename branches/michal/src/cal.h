@@ -4,6 +4,7 @@
 #ifndef NEW_CAL__H
 #define NEW_CAL__H
 #include <stdbool.h>
+#include "ltlib.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,33 +47,17 @@ typedef enum cal_device_category_type {
   tir_open
 } cal_device_category_type;
 
-enum cal_device_state_type {
-  RUNNING,
-  PAUSED,
-  STOPPED
-};
+extern lt_state_type cal_device_state;
 
 struct cal_device_type {
   enum cal_device_category_type category;
   char *device_id;
 };
 
-enum cal_operating_mode {
-  /* operational_1dot reports frames with 1 or more blobs, and 
-   * only the first blob is populated.  The bitmap field 
-   * in the frames are NOT populated. */
-  operational_1dot, 
-  /* operational_3dot only reports frames with 3 or more blobs, 
-   * and only the first 3 blobs are populated.  The bitmap field 
-   * in the frames are NOT populated. */
-  operational_3dot
-};
-
 struct camera_control_block {
   struct cal_device_type device;
   unsigned int pixel_width;
   unsigned int pixel_height;
-  enum cal_operating_mode mode;
   bool diag;
   bool enable_IR_illuminator_LEDS; /* for tir4 */
 };
@@ -85,7 +70,6 @@ typedef int (*device_run_fun)(struct camera_control_block *ccb,
 typedef int (*device_shutdown_fun)();
 typedef int (*device_suspend_fun)();
 typedef int (*device_wakeup_fun)();
-typedef enum cal_device_state_type (*device_get_state_fun)();
 
 
 typedef struct {
@@ -93,7 +77,6 @@ typedef struct {
   device_shutdown_fun device_shutdown;
   device_suspend_fun device_suspend;
   device_wakeup_fun device_wakeup;
-  device_get_state_fun device_get_state;
 } dev_interface;
 
 
@@ -118,6 +101,8 @@ int cal_suspend();
  * camera device. 
  * a return value < 0 indicates error */
 int cal_wakeup();
+
+lt_state_type cal_get_state();
 
 /* frees the memory allocated to the given frame.  
  * For every frame populated, with cal_populate_frame,

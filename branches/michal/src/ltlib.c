@@ -16,6 +16,7 @@ static int (*fun_lt_int_get_camera_update)(float *heading,
                          float *tx,
                          float *ty,
                          float *tz) = NULL;
+static lt_state_type (*fun_lt_int_get_tracking_state)(void) = NULL;
 static bool (*fun_lt_int_open_pref)(char *key, pref_id *prf) = NULL;
 static bool (*fun_lt_int_create_pref)(char *key) = NULL;
 static float (*fun_lt_int_get_flt)(pref_id prf) = NULL;
@@ -37,6 +38,7 @@ static lib_fun_def_t functions[] = {
 {"lt_int_wakeup", (void*) &fun_lt_int_wakeup},
 {"lt_int_recenter", (void*) &fun_lt_int_recenter},
 {"lt_int_get_camera_update", (void*) &fun_lt_int_get_camera_update},
+{"lt_int_get_tracking_state", (void*) &fun_lt_int_get_tracking_state},
 {"lt_int_open_pref", (void*) &fun_lt_int_open_pref},
 {"lt_int_create_pref", (void*) &fun_lt_int_create_pref},
 {"lt_int_get_flt", (void*) &fun_lt_int_get_flt},
@@ -120,6 +122,16 @@ void lt_recenter(void)
     }
   }
   return fun_lt_int_recenter();
+}
+
+lt_state_type lt_get_tracking_state(void)
+{
+  if(fun_lt_int_get_tracking_state == NULL){
+    if((libhandle = lt_load_library(libname, functions)) != NULL){
+      return STOPPED;
+    }
+  }
+  return fun_lt_int_get_tracking_state();
 }
 
 bool lt_create_pref(char *key)

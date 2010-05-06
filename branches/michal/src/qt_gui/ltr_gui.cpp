@@ -7,6 +7,7 @@
 #include "ltr_gui_prefs.h"
 #include "prefs_link.h"
 #include "pathconfig.h"
+#include "ltr_state.h"
 
 LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
 {
@@ -32,6 +33,10 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
                 ui.ZEnable, ui.MoveBackSpin, ui.MoveForthSpin
                 );
   QObject::connect(this, SIGNAL(customSectionChanged()), sc, SLOT(reinit()));
+  
+  QObject::connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
+  QObject::connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
+  
   showWindow = new LtrGuiForm(sc);
   initFilterFactor();
   ui.Profiles->addItems(Profiles::getProfiles().getProfileNames());
@@ -157,6 +162,20 @@ void LinuxtrackGui::on_SaveButton_pressed()
 void LinuxtrackGui::on_ViewLogButton_pressed()
 {
   lv->show();
+}
+
+void LinuxtrackGui::trackerStopped()
+{
+  ui.DeviceSelector->setEnabled(true);
+  ui.ModelSelector->setEnabled(true);
+  ui.Profiles->setEnabled(true);
+}
+
+void LinuxtrackGui::trackerRunning()
+{
+  ui.DeviceSelector->setDisabled(true);
+  ui.ModelSelector->setDisabled(true);
+  ui.Profiles->setDisabled(true);
 }
 
 Profiles::Profiles()

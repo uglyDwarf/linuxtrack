@@ -170,7 +170,6 @@ int main(int argc, char *argv[])
       log_message("Can't get device category!\n");
       return 1;
     }
-    ccb.mode = operational_3dot;
     ccb.diag = false;
     cal_run(&ccb, frame_callback);
     pthread_mutex_lock(&state_mx);

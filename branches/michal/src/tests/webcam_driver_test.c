@@ -49,7 +49,6 @@ int main(int argc, char *argv[])
   ccb.device.category = webcam;
   ccb.device.device_id = "Live! Cam Optia";
 //  ccb.device.device_id = "USB2.0 1.3M UVC WebCam ";
-  ccb.mode = operational_3dot;
   if(tracker_init(&ccb)!= 0)
   {
     printf("Problem initializing webcam!\n");

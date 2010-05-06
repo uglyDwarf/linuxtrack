@@ -20,8 +20,7 @@ dev_interface iface = {
   .device_run = NULL,
   .device_shutdown = NULL,
   .device_suspend = NULL,
-  .device_wakeup = NULL,
-  .device_get_state = NULL
+  .device_wakeup = NULL
 };
 
 static lib_fun_def_t functions[] = {
@@ -29,11 +28,11 @@ static lib_fun_def_t functions[] = {
   {"ltr_cal_shutdown", (void*) &iface.device_shutdown},
   {"ltr_cal_suspend", (void*) &iface.device_suspend},
   {"ltr_cal_wakeup", (void*) &iface.device_wakeup},
-  {"ltr_cal_get_state", (void*) &iface.device_get_state},
   {NULL, NULL}
 };
 
 void *libhandle = NULL;
+lt_state_type cal_device_state = STOPPED;
 
 /************************/
 /* function definitions */
@@ -95,10 +94,9 @@ int cal_wakeup()
   return (iface.device_wakeup)();
 }
 
-enum cal_device_state_type cal_get_state()
+lt_state_type cal_get_state()
 {
-  assert(iface.device_get_state != NULL);
-  return (iface.device_get_state)();
+  return cal_device_state;
 }
 
 void frame_free(struct camera_control_block *ccb,

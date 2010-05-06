@@ -7,8 +7,18 @@
 extern "C" {
 #endif
 
+#ifndef PREF__H
+#define PREF__H
 typedef struct pref_struct *pref_id;
 typedef void (*pref_callback)(void *);
+#endif
+
+typedef enum {
+  RUNNING,
+  PAUSED,
+  STOPPED
+}lt_state_type;
+
 
 
 int lt_init(char *cust_section);
@@ -22,6 +32,7 @@ int lt_get_camera_update(float *heading,
                          float *tx,
                          float *ty,
                          float *tz);
+lt_state_type lt_get_tracking_state(void);
 bool lt_open_pref(char *key, pref_id *prf);
 bool lt_create_pref(char *key);
 float lt_get_flt(pref_id prf);
