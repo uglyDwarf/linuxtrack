@@ -1,3 +1,6 @@
+#ifndef LTR_SHOW__H
+#define LTR_SHOW__H
+
 #include "ui_ltr_gui.h"
 
 #include <QThread>
@@ -24,7 +27,8 @@ class LtrGuiForm : public QMainWindow
 {
    Q_OBJECT
   public:
-   LtrGuiForm(ScpForm *s);
+//   LtrGuiForm(ScpForm *s);
+   LtrGuiForm();
    ~LtrGuiForm();
   public slots:
    void update();
@@ -44,3 +48,5 @@ class LtrGuiForm : public QMainWindow
    Ui::Ltr_gui ui;
    Window *glw;
 };
+
+#endif

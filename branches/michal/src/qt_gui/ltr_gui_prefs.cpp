@@ -308,4 +308,13 @@ bool PrefProxy::savePrefs()
   return save_prefs();
 }
 
+QString PrefProxy::getCustomSectionName()
+{
+  const char *sec = get_custom_section_name();
+  if(sec == NULL){
+    return QString("Default");
+  }else{
+    return QString(sec);
+  }
+}
 

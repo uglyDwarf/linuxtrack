@@ -3,9 +3,10 @@
 #include "pref_global.h"
 #include "ltr_gui_prefs.h"
 #include "ltr_gui.h"
+#include "ltr_profiles.h"
 
-SCurve::SCurve(QString prefix, QString axis_name, QString left_label, QString right_label, QWidget *parent)
-  : QWidget(parent), symetrical(true), prefPrefix(prefix), view(NULL), first(true)
+SCurve::SCurve(Axes_t a, QString axis_name, QString left_label, QString right_label, QWidget *parent)
+  : QWidget(parent), axis(a), symetrical(true), view(NULL), first(true)
 {
   symetrical = true;
   ui.setupUi(this);
@@ -15,27 +16,13 @@ SCurve::SCurve(QString prefix, QString axis_name, QString left_label, QString ri
   
   reinit();
   first = false;
-  view = new SCView(axis, ui.SCView);
-  QObject::connect(this, SIGNAL(changed()), view, SLOT(update()));
+//  view = new SCView(axis, ui.SCView);
+//  QObject::connect(this, SIGNAL(changed()), view, SLOT(update()));
 }
 
 SCurve::~SCurve()
 {
   delete view;
-  close_axis(&axis);
-}
-
-void SCurve::reinit()
-{
-  if(!first){
-    close_axis(&axis);
-  }
-  get_axis(prefPrefix.toAscii().data(), &axis, NULL);
-  if(!first){
-    view->changeAxis(axis);
-  }
-  setup_gui();
-  emit changed();
 }
 
 void SCurve::setup_gui()
@@ -68,7 +55,7 @@ void SCurve::setSlaves(QCheckBox *en, QDoubleSpinBox *l_spin, QDoubleSpinBox *r_
                    r_spin, SLOT(setDisabled(bool)));
   QObject::connect(en, SIGNAL(stateChanged(int)), 
                    this, SLOT(setEnabled(int)));
-  en->setCheckState(is_enabled(&axis) ? Qt::Checked : Qt::Unchecked);
+  en->setCheckState(is_enabled(axis) ? Qt::Checked : Qt::Unchecked);
   r_spin->setValue(ui.SCRightFactor->value());
   r_spin->setDisabled(symetrical);
 }
@@ -77,12 +64,12 @@ void SCurve::setEnabled(int state)
 {
   if(state == Qt::Checked){
     std::cout<<"Enabling..."<<std::endl;
-    PREF.setKeyVal(Profiles::getProfiles().getCurrent(), prefPrefix + "-enabled", "yes");
-    enable_axis(&axis);
+    PREF.setKeyVal(Profile::getProfiles().getCurrent(), prefPrefix + "-enabled", "yes");
+    enable_axis(axis);
   }else{
     std::cout<<"Disabling..."<<std::endl;
-    PREF.setKeyVal(Profiles::getProfiles().getCurrent(), prefPrefix + "-enabled", "no");
-    disable_axis(&axis);
+    PREF.setKeyVal(Profile::getProfiles().getCurrent(), prefPrefix + "-enabled", "no");
+    disable_axis(axis);
   }
 }
 
@@ -110,8 +97,7 @@ void SCurve::on_SCSymetrical_stateChanged(int state)
 void SCurve::on_SCLeftFactor_valueChanged(double d)
 {
   std::cout<<"LeftFactor = "<<d<<std::endl;
-  PREF.setKeyVal(Profiles::getProfiles().getCurrent(), prefPrefix + "-left-multiplier", d);
-  set_lmult(axis, d);
+  AXES.changeLFactor(axis, d);
   if(symetrical){
     ui.SCRightFactor->setValue(d);
   }
@@ -121,8 +107,7 @@ void SCurve::on_SCLeftFactor_valueChanged(double d)
 void SCurve::on_SCRightFactor_valueChanged(double d)
 {
   std::cout<<"RightFactor = "<<d<<std::endl;
-  PREF.setKeyVal(Profiles::getProfiles().getCurrent(), prefPrefix + "-right-multiplier", d);
-  set_rmult(axis, d);
+  AXES.changeRFactor(axis, d);
   if(symetrical){
     ui.SCLeftFactor->setValue(d);
   }
@@ -132,8 +117,7 @@ void SCurve::on_SCRightFactor_valueChanged(double d)
 void SCurve::on_SCLeftCurv_valueChanged(int value)
 {
   std::cout<<"LeftCurv = "<<value<<std::endl;
-  PREF.setKeyVal(Profiles::getProfiles().getCurrent(), prefPrefix + "-left-curvature", value / 100.0);
-  set_lcurv(axis, value / 100.0);
+  AXES.changeLCurv(axis, value / 100.0);
   if(symetrical){
     ui.SCRightCurv->setValue(value);
   }else{
@@ -144,24 +128,21 @@ void SCurve::on_SCLeftCurv_valueChanged(int value)
 void SCurve::on_SCRightCurv_valueChanged(int value)
 {
   std::cout<<"RightCurv = "<<value<<std::endl;
-  PREF.setKeyVal(Profiles::getProfiles().getCurrent(), prefPrefix + "-right-curvature", value / 100.0);
-  set_rcurv(axis, value / 100.0);
+  AXES.changeRCurv(axis, value / 100.0);
   emit changed();
 }
 
 void SCurve::on_SCDeadZone_valueChanged(int value)
 {
   std::cout<<"DeadZone = "<<value<<std::endl;
-  PREF.setKeyVal(Profiles::getProfiles().getCurrent(), prefPrefix + "-deadzone", value / 101.0);
-  set_deadzone(axis, value / 101.0);
+  AXES.changeLimits(axis, value / 101.0);
   emit changed();
 }
 
 void SCurve::on_SCInputLimits_valueChanged(double d)
 {
   std::cout<<"Limits = "<<d<<std::endl;
-  PREF.setKeyVal(Profiles::getProfiles().getCurrent(), prefPrefix + "-limits", d);
-  set_limits(axis, d);
+  AXES.changeLimits(axis, d);
   emit changed();
 }
 

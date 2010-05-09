@@ -411,9 +411,9 @@ bool get_axis(const char *prefix, struct axis_def **axis, bool *change_flag)
     }
   }
   if(strcasecmp(get_str(tpid), "No") != 0){
-    enable_axis(axis);
+    enable_axis(*axis);
   }else{
-    disable_axis(axis);
+    disable_axis(*axis);
   }
   val_on_axis(*axis, 0.0f);
   return true;

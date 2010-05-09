@@ -1686,7 +1686,8 @@ source), or reflective material.
             <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="text">
-            <string>TextLabel</string>
+            <string>This pane allows you to create and edit
+tracking profiles for different applications.</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

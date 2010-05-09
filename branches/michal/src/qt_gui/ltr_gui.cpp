@@ -8,6 +8,7 @@
 #include "prefs_link.h"
 #include "pathconfig.h"
 #include "ltr_state.h"
+#include "ltr_profiles.h"
 
 LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
 {
@@ -23,8 +24,9 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
   wiip = new WiimotePrefs(ui);
   tirp = new TirPrefs(ui);
   me = new ModelEdit(ui);
-  sc = new ScpForm();
+//  sc = new ScpForm();
   lv = new LogView();
+/*  
   sc->setSlaves(ui.PitchEnable, ui.PitchUpSpin, ui.PitchDownSpin,
                 ui.RollEnable, ui.TiltLeftSpin, ui.TiltRightSpin,
                 ui.YawEnable, ui.YawLeftSpin, ui.YawRightSpin,
@@ -32,15 +34,20 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
                 ui.YEnable, ui.MoveUpSpin, ui.MoveDownSpin,
                 ui.ZEnable, ui.MoveBackSpin, ui.MoveForthSpin
                 );
-  QObject::connect(this, SIGNAL(customSectionChanged()), sc, SLOT(reinit()));
+*/
+//  QObject::connect(this, SIGNAL(customSectionChanged()), sc, SLOT(reinit()));
   
   QObject::connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
   QObject::connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
   
-  showWindow = new LtrGuiForm(sc);
-  initFilterFactor();
-  ui.Profiles->addItems(Profiles::getProfiles().getProfileNames());
-  helper = new LtrDevHelp(sc);
+  ffChanged(PROFILE.getCurrentProfile()->getFilterFactor());
+  QObject::connect(PROFILE.getCurrentProfile(), 
+                    SIGNAL(filterFactorChanged(float)),this, SLOT(ffChanged(float)));
+  
+//  showWindow = new LtrGuiForm(sc);
+  showWindow = new LtrGuiForm();
+  ui.Profiles->addItems(Profile::getProfiles().getProfileNames());
+  helper = new LtrDevHelp();
   on_RefreshDevices_pressed();
   showWindow->show();
   helper->show();
@@ -53,7 +60,7 @@ LinuxtrackGui::~LinuxtrackGui()
   delete wiip;
   delete tirp;
   delete me;
-  delete sc;
+//  delete sc;
   delete helper;
 }
 
@@ -61,7 +68,7 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
 {
   showWindow->close();
   helper->close();
-  sc->close();
+//  sc->close();
   event->accept();
 }
 
@@ -100,7 +107,7 @@ void LinuxtrackGui::on_QuitButton_pressed()
 
 void LinuxtrackGui::on_EditSCButton_pressed()
 {
-  sc->show();
+//  sc->show();
 }
 
 static int warnMessage(const QString &message){
@@ -140,18 +147,16 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
   }
 }
 
-void LinuxtrackGui::initFilterFactor()
+void LinuxtrackGui::ffChanged(float f)
 {
-  QString val;
-  PREF.getKeyVal("Filter-factor", val);
-  float f = val.toFloat();
-  ui.FilterSlider->setValue(f * 10);
+  ui.FilterValue->setText(QString::number(f));
+  ui.FilterSlider->setValue(f * 10 + 1);
 }
 
 void LinuxtrackGui::on_FilterSlider_valueChanged(int value)
 {
   ui.FilterValue->setText(QString::number(value / 10.0f));
-  PREF.setKeyVal(Profiles::getProfiles().getCurrent(), "Filter-factor", value / 10.0f);
+  PROFILE.getCurrentProfile()->setFilterFactor(value / 10.0f);
 }
 
 void LinuxtrackGui::on_SaveButton_pressed()
@@ -178,65 +183,9 @@ void LinuxtrackGui::trackerRunning()
   ui.Profiles->setDisabled(true);
 }
 
-Profiles::Profiles()
-{
-  PREF.getProfiles(names);
-  names.prepend("Default");
-  current = "Default";
-}
-
-Profiles *Profiles::profs = NULL;
-
-Profiles& Profiles::getProfiles()
-{
-  if(profs == NULL){
-    profs = new Profiles();
-  }
-  return *profs;
-}
-
-void Profiles::addProfile(const QString &name)
-{
-  names.append(name);
-}
-
-const QStringList &Profiles::getProfileNames()
-{
-  return names;
-}
-
-bool Profiles::setCurrent(const QString &name)
-{
-  if(!names.contains(name, Qt::CaseInsensitive)){
-    return false;
-  }
-  current = name;
-  return true;
-}
-
-const QString &Profiles::getCurrent()
-{
-  return current;
-}
-
-int Profiles::isProfile(const QString &name)
-{
-  int i = -1;
-  if(names.contains(name, Qt::CaseInsensitive)){
-    for(i = 0; i < names.size(); ++i){
-      if(names[i].compare(name, Qt::CaseInsensitive) == 0){
-	break;
-      }
-    }
-  }
-  return i;
-}
-
 void LinuxtrackGui::on_Profiles_currentIndexChanged(const QString &text)
 {
-  Profiles::getProfiles().setCurrent(text);
-  PREF.setCustomSection(text);
-  initFilterFactor();
+  PROFILE.setCurrent(text);
   emit customSectionChanged();
 }
 
@@ -248,14 +197,11 @@ void LinuxtrackGui::on_CreateNewProfile_pressed()
 		        "Enter name of the new section:", 
 			QLineEdit::Normal, "", &done);
   if(done && !newSec.isEmpty()){
-    int i = Profiles::getProfiles().isProfile(newSec);
+    int i = PROFILE.isProfile(newSec);
     if(i == -1){
-      QString section_name = "Profile";
-      PREF.createSection(section_name);
-      PREF.addKeyVal(section_name, "Title", newSec);
-      Profiles::getProfiles().addProfile(newSec);
+      PROFILE.addProfile(newSec);
       ui.Profiles->clear();
-      const QStringList &sl = Profiles::getProfiles().getProfileNames();
+      const QStringList &sl = Profile::getProfiles().getProfileNames();
       ui.Profiles->addItems(sl);
       ui.Profiles->setCurrentIndex(sl.size() - 1);
     }else{

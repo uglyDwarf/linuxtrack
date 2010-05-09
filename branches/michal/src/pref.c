@@ -722,6 +722,11 @@ bool set_custom_section(char *name)
   return true;
 }
 
+const char *get_custom_section_name()
+{
+  return custom_section_name;
+}
+
 bool save_prefs()
 {
   char *pfile = get_default_file_name();

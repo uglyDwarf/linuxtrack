@@ -39,19 +39,19 @@ float val_on_axis(struct axis_def *axis, float x)
   }
 }
 
-void enable_axis(struct axis_def **axis)
+void enable_axis(struct axis_def *axis)
 {
-  (*axis)->enabled = true;
+  axis->enabled = true;
 }
 
-void disable_axis(struct axis_def **axis)
+void disable_axis(struct axis_def *axis)
 {
-  (*axis)->enabled = false;
+  axis->enabled = false;
 }
 
-bool is_enabled(struct axis_def **axis)
+bool is_enabled(struct axis_def *axis)
 {
-  return (*axis)->enabled;
+  return axis->enabled;
 }
 
 bool is_symetrical(const struct axis_def *axis)

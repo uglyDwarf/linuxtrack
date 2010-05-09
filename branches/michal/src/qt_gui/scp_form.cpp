@@ -1,16 +1,17 @@
 #include "scp_form.h"
 #include <iostream>
+#include "ltr_axis.h"
 
 ScpForm::ScpForm(QWidget *parent) :QWidget(parent)
 {
   ui.setupUi(this);
-  yaw = new SCurve("Yaw", "Yaw - looking left/right", "Left", "Right", ui.SCPYaw);
-  pitch = new SCurve("Pitch", "Pitch - looking up/down", "Down", "Up", ui.SCPPitch);
-  roll = new SCurve("Roll", "Roll - tilting head left/right", 
+  yaw = new SCurve(YAW, "Yaw - looking left/right", "Left", "Right", ui.SCPYaw);
+  pitch = new SCurve(PITCH, "Pitch - looking up/down", "Down", "Up", ui.SCPPitch);
+  roll = new SCurve(ROLL, "Roll - tilting head left/right", 
 		    "Counter-clockwise", "Clockwise", ui.SCPRoll);
-  x = new SCurve("Xtranslation", "Sideways translation", "Left", "Right", ui.SCPX);
-  y = new SCurve("Ytranslation", "Up/down translation", "Down", "Up", ui.SCPY);
-  z = new SCurve("Ztranslation", "Back/forth translation", "Forth", "Back", ui.SCPZ);
+  x = new SCurve(XTR, "Sideways translation", "Left", "Right", ui.SCPX);
+  y = new SCurve(YTR, "Up/down translation", "Down", "Up", ui.SCPY);
+  z = new SCurve(ZTR, "Back/forth translation", "Forth", "Back", ui.SCPZ);
 }
 
 void ScpForm::reinit()

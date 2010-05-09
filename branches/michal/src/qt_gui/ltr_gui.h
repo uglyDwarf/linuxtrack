@@ -10,7 +10,7 @@
 #include "ltr_show.h"
 #include "ltr_dev_help.h"
 #include "ltr_model.h"
-#include "scp_form.h"
+//#include "scp_form.h"
 #include "log_view.h"
 class LinuxtrackGui : public QWidget
 {
@@ -35,9 +35,8 @@ class LinuxtrackGui : public QWidget
   void on_ViewLogButton_pressed();
   void trackerStopped();
   void trackerRunning();
+  void ffChanged(float f);
  private:
-  void initFilterFactor();
-  
   Ui::LinuxtrackMainForm ui;
   LtrGuiForm *showWindow;
   LtrDevHelp *helper;
@@ -45,24 +44,9 @@ class LinuxtrackGui : public QWidget
   WiimotePrefs *wiip;
   TirPrefs *tirp;
   ModelEdit *me;
-  ScpForm *sc;
+//  ScpForm *sc;
   LogView *lv;
 };
 
-class Profiles{
- private:
-  Profiles();
-  Profiles(const Profiles&);
-  static Profiles *profs;
-  QString current;
-  QStringList names;
- public:
-  static Profiles& getProfiles();
-  void addProfile(const QString &name);
-  const QStringList &getProfileNames();
-  bool setCurrent(const QString &name);
-  const QString &getCurrent();
-  int isProfile(const QString &name);
-};
 
 #endif

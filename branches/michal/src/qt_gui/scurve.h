@@ -7,11 +7,12 @@
 #include "ui_scurve.h"
 #include "scview.h"
 #include "axis.h"
+#include "ltr_axes.h"
 
 class SCurve : public QWidget{
   Q_OBJECT
  public:
-  SCurve(QString prefix, QString axis_name, QString left, QString right, QWidget *parent = 0);
+  SCurve(Axes_t a, QString axis_name, QString left, QString right, QWidget *parent = 0);
   ~SCurve();
   void movePoint(float new_x);
   void setSlaves(QCheckBox *en, QDoubleSpinBox *l_spin, QDoubleSpinBox *r_spin);
@@ -31,10 +32,9 @@ class SCurve : public QWidget{
   void setEnabled(int state);
  private:
   void setup_gui();
+  Axes_t axis;
   Ui::SCurveForm ui;
   bool symetrical;
-  struct axis_def *axis;
-  QString prefPrefix;
   SCView *view;
   bool first;
 };

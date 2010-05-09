@@ -68,6 +68,7 @@ bool dump_prefs(char *file_name);
 void free_prefs();
 
 bool set_custom_section(char *name);
+const char *get_custom_section_name();
 bool open_pref(char *section, char *key, pref_id *prf);
 bool open_pref_w_callback(char *section, char *key, pref_id *prf, 
                           pref_callback cbk,  void *param);
