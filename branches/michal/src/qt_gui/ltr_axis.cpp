@@ -25,12 +25,16 @@ void LtrAxis::reload()
 
 bool LtrAxis::changeEnabled(bool enabled)
 {
+  QString val;
   if(enabled){
     enable_axis(axis);
+    val = "yes";
   }else{
     disable_axis(axis);
+    val = "no";
   }
-  axisChanged(ENABLED);
+  PREF.setKeyVal(parent->getProfileName(), prefix + "-enabled", val);
+  emit axisChanged(ENABLED);
   return true; 
 }
 
@@ -39,7 +43,7 @@ bool LtrAxis::changeLFactor(float val)
   bool res = set_lmult(axis, val);
   if(res){
     PREF.setKeyVal(parent->getProfileName(), prefix + "-left-multiplier", val);
-    axisChanged(LFACTOR);
+    emit axisChanged(LFACTOR);
   }
   return res; 
 }
@@ -49,7 +53,7 @@ bool LtrAxis::changeRFactor(float val)
   bool res = set_rmult(axis, val);
   if(res){
     PREF.setKeyVal(parent->getProfileName(), prefix + "-right-multiplier", val);
-    axisChanged(RFACTOR);
+    emit axisChanged(RFACTOR);
   }
   return res; 
 }
@@ -59,7 +63,7 @@ bool LtrAxis::changeLCurv(float val)
   bool res = set_lcurv(axis, val);
   if(res){
     PREF.setKeyVal(parent->getProfileName(), prefix + "-left-curvature", val);
-    axisChanged(LCURV);
+    emit axisChanged(LCURV);
   }
   return res; 
 }
@@ -69,7 +73,7 @@ bool LtrAxis::changeRCurv(float val)
   bool res = set_rcurv(axis, val);
   if(res){
     PREF.setKeyVal(parent->getProfileName(), prefix + "-right-curvature", val);
-    axisChanged(RCURV);
+    emit axisChanged(RCURV);
   }
   return res; 
 }
@@ -79,7 +83,7 @@ bool LtrAxis::changeDZone(float val)
   bool res = set_deadzone(axis, val);
   if(res){
     PREF.setKeyVal(parent->getProfileName(), prefix + "-deadzone", val);
-    axisChanged(DZONE);
+    emit axisChanged(DZONE);
   }
   return res; 
 }
@@ -89,7 +93,7 @@ bool LtrAxis::changeLimits(float val)
   bool res = set_limits(axis, val);
   if(res){
     PREF.setKeyVal(parent->getProfileName(), prefix + "-limits", val);
-    axisChanged(LIMITS);
+    emit axisChanged(LIMITS);
   }
   return res; 
 }

@@ -8,7 +8,16 @@
 #include "prefs_link.h"
 #include "pathconfig.h"
 #include "ltr_state.h"
-#include "ltr_profiles.h"
+
+#include "webcam_prefs.h"
+#include "wiimote_prefs.h"
+#include "tir_prefs.h"
+#include "ltr_show.h"
+#include "ltr_dev_help.h"
+#include "ltr_model.h"
+#include "ltr_tracking.h"
+#include "log_view.h"
+
 
 LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
 {
@@ -24,6 +33,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
   wiip = new WiimotePrefs(ui);
   tirp = new TirPrefs(ui);
   me = new ModelEdit(ui);
+  track = new LtrTracking(ui);
 //  sc = new ScpForm();
   lv = new LogView();
 /*  
@@ -40,13 +50,8 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
   QObject::connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
   QObject::connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
   
-  ffChanged(PROFILE.getCurrentProfile()->getFilterFactor());
-  QObject::connect(PROFILE.getCurrentProfile(), 
-                    SIGNAL(filterFactorChanged(float)),this, SLOT(ffChanged(float)));
-  
 //  showWindow = new LtrGuiForm(sc);
   showWindow = new LtrGuiForm();
-  ui.Profiles->addItems(Profile::getProfiles().getProfileNames());
   helper = new LtrDevHelp();
   on_RefreshDevices_pressed();
   showWindow->show();
@@ -147,18 +152,6 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
   }
 }
 
-void LinuxtrackGui::ffChanged(float f)
-{
-  ui.FilterValue->setText(QString::number(f));
-  ui.FilterSlider->setValue(f * 10 + 1);
-}
-
-void LinuxtrackGui::on_FilterSlider_valueChanged(int value)
-{
-  ui.FilterValue->setText(QString::number(value / 10.0f));
-  PROFILE.getCurrentProfile()->setFilterFactor(value / 10.0f);
-}
-
 void LinuxtrackGui::on_SaveButton_pressed()
 {
   PREF.savePrefs();
@@ -183,29 +176,3 @@ void LinuxtrackGui::trackerRunning()
   ui.Profiles->setDisabled(true);
 }
 
-void LinuxtrackGui::on_Profiles_currentIndexChanged(const QString &text)
-{
-  PROFILE.setCurrent(text);
-  emit customSectionChanged();
-}
-
-void LinuxtrackGui::on_CreateNewProfile_pressed()
-{
-  bool done;
-  QString newSec;
-  newSec = QInputDialog::getText(NULL, "New Secion Name:", 
-		        "Enter name of the new section:", 
-			QLineEdit::Normal, "", &done);
-  if(done && !newSec.isEmpty()){
-    int i = PROFILE.isProfile(newSec);
-    if(i == -1){
-      PROFILE.addProfile(newSec);
-      ui.Profiles->clear();
-      const QStringList &sl = Profile::getProfiles().getProfileNames();
-      ui.Profiles->addItems(sl);
-      ui.Profiles->setCurrentIndex(sl.size() - 1);
-    }else{
-      ui.Profiles->setCurrentIndex(i);
-    }
-  }
-}
