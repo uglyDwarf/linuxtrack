@@ -38,39 +38,21 @@ typedef struct{
 
 extern plist prefs;
 
-typedef struct pref_data{
-  char *section_name;
-  char *key_name;
-  enum {NO_TYPE, STR, FLT, INT} data_type;
-  union{
-    char *string;
-    float flt;
-    int integer;
-  };
-  plist refs;
-} pref_data;
-
-typedef struct pref_struct{
-  pref_data *data;
-  pref_callback cbk;
-  void *param;
-} pref_struct;
-
 void get_section_list(char **names[]);
-bool section_exists(char *section_name);
-bool key_exists(char *section_name, char *key_name);
-char *get_key(char *section_name, char *key_name);
+bool section_exists(const char *section_name);
+bool key_exists(const char *section_name, const char *key_name);
+char *get_key(const char *section_name, const char *key_name);
 
-bool add_section(char *name);
-bool add_key(char *section_name, char *key_name, char *new_value);
-bool change_key(char *section_name, char *key_name, char *new_value);
+bool add_section(const char *name);
+bool add_key(const char *section_name, const char *key_name, const char *new_value);
+bool change_key(const char *section_name, const char *key_name, const char *new_value);
 bool dump_prefs(char *file_name);
 void free_prefs();
 
 bool set_custom_section(char *name);
 const char *get_custom_section_name();
-bool open_pref(char *section, char *key, pref_id *prf);
-bool open_pref_w_callback(char *section, char *key, pref_id *prf, 
+bool open_pref(const char *section, char *key, pref_id *prf);
+bool open_pref_w_callback(const char *section, char *key, pref_id *prf, 
                           pref_callback cbk,  void *param);
 float get_flt(pref_id prf);
 int get_int(pref_id prf);

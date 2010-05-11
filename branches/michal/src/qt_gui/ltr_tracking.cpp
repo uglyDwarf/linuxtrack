@@ -60,7 +60,7 @@ void LtrTracking::Connect()
 void LtrTracking::ffChanged(float f)
 {
   gui.FilterValue->setText(QString::number(f));
-  gui.FilterSlider->setValue(f * 10 + 1);
+  gui.FilterSlider->setValue(f * 10);
 }
 
 void LtrTracking::on_FilterSlider_valueChanged(int value)

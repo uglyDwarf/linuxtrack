@@ -322,7 +322,7 @@ bool get_model_setup(reflector_model_type *rm)
 bool get_filter_factor(float *ff)
 {
   if(cff == NULL){
-    if(open_pref(NULL, "Filter-factor", &cff) != true){
+    if(open_pref(get_custom_section_name(), "Filter-factor", &cff) != true){
       log_message("Can't read scale factor prefs!\n");
       return false;
     } 
@@ -379,15 +379,17 @@ bool get_axis(const char *prefix, struct axis_def **axis, bool *change_flag)
   assert(axis != NULL);
   
   init_axis(axis);
+  
   for(i = 0; fields[i] != NULL; ++i){
     field_name = my_strcat(prefix, fields[i]);
     if(change_flag != NULL){
-      if(open_pref_w_callback(NULL, field_name, &tpid, pref_change_callback, change_flag) != true){
+      if(open_pref_w_callback(get_custom_section_name(), field_name, &tpid, 
+	 pref_change_callback, change_flag) != true){
         log_message("Can't read '%s' pref!\n", field_name);
         return false;
       }
     }else{
-      if(open_pref(NULL, field_name, &tpid) != true){
+      if(open_pref(get_custom_section_name(), field_name, &tpid) != true){
         log_message("Can't read '%s' pref!\n", field_name);
         return false;
       }
@@ -400,12 +402,13 @@ bool get_axis(const char *prefix, struct axis_def **axis, bool *change_flag)
   field_name = my_strcat(prefix, "-enabled");
 
   if(change_flag != NULL){
-    if(open_pref_w_callback(NULL, field_name, &tpid, pref_change_callback, change_flag) != true){
+    if(open_pref_w_callback(get_custom_section_name(), field_name, &tpid, 
+       pref_change_callback, change_flag) != true){
       log_message("Can't read '%s' pref!\n", field_name);
       return false;
     }
   }else{
-    if(open_pref(NULL, field_name, &tpid) != true){
+    if(open_pref(get_custom_section_name(), field_name, &tpid) != true){
       log_message("Can't read '%s' pref!\n", field_name);
       return false;
     }

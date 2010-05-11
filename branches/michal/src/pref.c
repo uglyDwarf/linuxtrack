@@ -32,38 +32,31 @@ char *def_section_name = "Default";
 char *custom_section_name = NULL;
 static plist opened_prefs = NULL;
 
-struct opened{
-  char *section;
-  char *key;
-  pref_data prf;
-};
+typedef struct pref_data{
+  char *section_name;
+  char *key_name;
+  //means that the value is not in cust. sec. but in def.sec
+  bool defaulted; 
+  bool in_def_section;
+  bool invalid;
+  enum {NO_TYPE, STR, FLT, INT} data_type;
+  union{
+    char *string;
+    float flt;
+    int integer;
+  };
+  plist refs; //list of pref_struct*
+} pref_data;
+
+typedef struct pref_struct{
+  pref_data *data;
+  pref_callback cbk;
+  void *param;
+} pref_struct;
 
 
 
-bool name_match(char *n1, char *n2){
-  if(n1 == NULL){
-    if(n2 == NULL){
-      return true;
-    }else{
-      return false;
-    }
-  }else{
-    if(n2 == NULL){
-      return false;
-    }else{
-      if(strcmp(n1,n2) == 0){
-        return true;
-      }else{
-        return false;
-      }
-    }
-  }
-}
-
-
-
-
-bool open_pref(char *section, char *key, pref_id *prf)
+bool open_pref(const char *section, char *key, pref_id *prf)
 {
   return open_pref_w_callback(section, key, prf, NULL, NULL);
 }
@@ -72,130 +65,145 @@ void print_opened()
 {
   iterator i;
   init_iterator(opened_prefs, &i);
-  struct opened* o;
-  while((o = (struct opened*)get_next(&i)) != NULL){
-    printf("Opened: %s -> %s\n", o->section, o->key);
+  struct pref_data* opened;
+  while((opened = (struct pref_data*)get_next(&i)) != NULL){
+    printf("Opened: %s -> %s\n", opened->section_name, opened->key_name);
   }
 }
 
-bool open_pref_w_callback(char *section, char *key, pref_id *prf, 
+bool open_pref_w_callback(const char *section, char *key, pref_id *prf, 
                           pref_callback cbk,  void *param)
 {
   assert(key != NULL);
   assert(prf != NULL);
-  if(section == NULL){
-    if(custom_section_name == NULL){
-      section = def_section_name;
-    }else{
-      section = custom_section_name;
-    }
-  }
+  assert(section != NULL);
   
   if(opened_prefs == NULL){
     opened_prefs = create_list();
   }
-  //print_opened();
-  //Isn't it already opened?
+  
+  //Check, if such pref is not already opened
   iterator i;
   init_iterator(opened_prefs, &i);
-  struct opened* o;
+  struct pref_data *opened;
   bool matched = false;
-  while((o = (struct opened*)get_next(&i)) != NULL){
-    if(name_match(section, o->section)){
-      if(name_match(o->key, key)){
-        matched = true;
-        break;
-      }
+  while((opened = (struct pref_data*)get_next(&i)) != NULL){
+    if((strcasecmp(section, opened->section_name) == 0) &&
+       (strcasecmp(opened->key_name, key) == 0)){
+      matched = true;
+      break;
     }
   }
   
   if(matched){ //It is...
     *prf = (pref_struct*)my_malloc(sizeof(pref_struct));
-    (*prf)->data = &(o->prf);
+    (*prf)->data = opened;
     (*prf)->cbk = cbk;
     (*prf)->param = param;
-    add_element(o->prf.refs, *prf);
+    add_element(opened->refs, *prf);
     return true;
   }
   
-  if(get_key(section, key) == NULL){
-    log_message("Attempted to open nonexistent key '%s' in section '%s'!\n",
-                key, section);
-    return false;
+  opened = (struct pref_data*)my_malloc(sizeof(struct pref_data));
+  opened->section_name = my_strdup(section);
+  opened->key_name = my_strdup(key);
+  opened->data_type = NO_TYPE;
+  opened->refs = create_list();
+  if((get_key(section, key) == NULL) && 
+     (get_key(def_section_name, key) != NULL)){
+    opened->defaulted = true;
+  }else{
+    opened->defaulted = false;
   }
-  
+  if(strcasecmp(section, def_section_name) == 0){
+    opened->in_def_section = true;
+  }else{
+    opened->in_def_section = false;
+  }
+  opened->invalid = true;
   *prf = (pref_struct*)my_malloc(sizeof(pref_struct));
   (*prf)->cbk = cbk;
   (*prf)->param = param;
-  o = (struct opened*)my_malloc(sizeof(struct opened));
-  if(section != NULL){// Check it !!!
-    o->prf.section_name = my_strdup(section);
-  }else{
-    o->prf.section_name = NULL;
-  }
-  o->section = o->prf.section_name;
-  o->prf.key_name = my_strdup(key);
-  o->key = o->prf.key_name;
-  o->prf.data_type = NO_TYPE;
-  o->prf.refs = create_list();
-  (*prf)->data = &(o->prf);
-  add_element(o->prf.refs, *prf);
-  add_element(opened_prefs, o);
+  (*prf)->data = opened;
+  add_element(opened->refs, *prf);
+  add_element(opened_prefs, opened);
   return true;
+}
+
+
+char *get_pref_char(pref_id pref)
+{
+  assert(pref != NULL);
+  pref_data *prf = pref->data;
+  assert(prf != NULL);
+  char *section = prf->section_name;
+  char *key = prf->key_name;
+  char *res = get_key(section, key);
+  if(res != NULL){
+    return res;
+  }
+  res = get_key(def_section_name, key);
+  if(res == NULL){
+    log_message("Trying to read pref %s in section %s\n", section, key);
+  }
+  return res;
 }
 
 float get_flt(pref_id pref)
 {
-  assert(pref != NULL);
-  pref_data *prf = pref->data;
-  assert(prf != NULL);
-  char *section = prf->section_name;
-  char *key = prf->key_name;
-  if(prf->data_type == NO_TYPE){
-    prf->data_type = FLT;
-    prf->flt = atof(get_key(section, key));
+  if(pref->data->data_type == NO_TYPE){
+    pref->data->data_type = FLT;
   }
-  assert(prf->data_type == FLT);
-  return prf->flt;
+  assert(pref->data->data_type == FLT);
+  if(pref->data->invalid){
+    pref->data->invalid = false;
+    char *res = get_pref_char(pref);
+    if(res == NULL){
+      return 3333.4444f;
+    }
+    pref->data->flt = atof(res);
+  }
+  return pref->data->flt;
 }
 
 int get_int(pref_id pref)
 {
-  assert(pref != NULL);
-  pref_data *prf = pref->data;
-  assert(prf != NULL);
-  char *section = prf->section_name;
-  char *key = prf->key_name;
-  if(prf->data_type == NO_TYPE){
-    prf->data_type = INT;
-    prf->integer = atoi(get_key(section, key));
+  if(pref->data->data_type == NO_TYPE){
+    pref->data->data_type = INT;
   }
-  assert(prf->data_type == INT);
-  return prf->integer;
+  assert(pref->data->data_type == INT);
+  if(pref->data->invalid){
+    pref->data->invalid = false;
+    char *res = get_pref_char(pref);
+    if(res == NULL){
+      return 5555;
+    }
+    pref->data->integer = atoi(res);
+  }
+  return pref->data->integer;
 }
 
 char *get_str(pref_id pref)
 {
-  assert(pref != NULL);
-  pref_data *prf = pref->data;
-  assert(prf != NULL);
-  char *section = prf->section_name;
-  char *key = prf->key_name;
-  if(prf->data_type == NO_TYPE){
-    prf->data_type = STR;
-    char *val = get_key(section, key);
-    assert(val != NULL);
-    prf->string = my_strdup(val);
+  if(pref->data->data_type == NO_TYPE){
+    pref->data->data_type = STR;
   }
-  assert(prf->data_type == STR);
-  return prf->string;
+  assert(pref->data->data_type == STR);
+  if(pref->data->invalid){
+    pref->data->invalid = false;
+    char *res = get_pref_char(pref);
+    if(res == NULL){
+      return my_strdup("DEADBEEF");
+    }
+    pref->data->string = my_strdup(res);
+  }
+  return pref->data->string;
 }
 
-void mark_pref_changed(pref_id *prf)
+void notify_refs(plist refs)
 {
-  assert(prf != NULL);
   iterator i;
-  init_iterator((*prf)->data->refs, &i);
+  init_iterator(refs, &i);
   pref_struct* ref;
   while((ref = (pref_struct*)get_next(&i)) != NULL){
     if(ref->cbk != NULL){
@@ -203,6 +211,25 @@ void mark_pref_changed(pref_id *prf)
     }
   }
 }
+
+void mark_pref_changed(pref_id *prf)
+{
+  assert(prf != NULL);
+  notify_refs((*prf)->data->refs);
+  if((*prf)->data->in_def_section){
+    iterator j;
+    init_iterator(opened_prefs, &j);
+    struct pref_data *opened;
+    while((opened = (struct pref_data*)get_next(&j)) != NULL){
+      if((opened->defaulted) && 
+         (strcasecmp(opened->key_name, (*prf)->data->key_name) == 0)){
+	opened->invalid = true;
+        notify_refs(opened->refs);
+      }
+    }
+  }
+}
+
 
 bool set_flt(pref_id *pref, float f)
 {
@@ -282,10 +309,10 @@ bool close_pref(pref_id *pref)
   //Find pref in the list of opened prefs
   iterator i;
   init_iterator(opened_prefs, &i);
-  struct opened* o;
+  struct pref_data* opened;
   bool matched = false;
-  while((o = (struct opened*)get_next(&i)) != NULL){
-    if(&(o->prf) == prf){
+  while((opened = (struct pref_data*)get_next(&i)) != NULL){
+    if(opened == prf){
         matched = true;
         break;
     }
@@ -294,7 +321,7 @@ bool close_pref(pref_id *pref)
   assert(matched);
   
   iterator j;
-  init_iterator(o->prf.refs, &j);
+  init_iterator(opened->refs, &j);
   pref_struct *p;
   matched = false;
   while((p = (pref_struct*)get_next(&j)) != NULL){
@@ -305,11 +332,11 @@ bool close_pref(pref_id *pref)
   }
   
   assert(matched);
-  if(o->prf.refs)
-  delete_current(o->prf.refs, &j);
+  if(opened->refs)
+  delete_current(opened->refs, &j);
   
-  if(is_empty(o->prf.refs)){
-    free_list(o->prf.refs, false);
+  if(is_empty(opened->refs)){
+    free_list(opened->refs, false);
     if(prf->section_name != NULL){
       free(prf->section_name);
       prf->section_name = NULL;
@@ -319,9 +346,9 @@ bool close_pref(pref_id *pref)
     if(prf->data_type == STR){
       free(prf->string);
     }
-    o = (struct opened*)delete_current(opened_prefs, &i);
-    assert(o != NULL);
-    free(o);
+    opened = (struct pref_data*)delete_current(opened_prefs, &i);
+    assert(opened != NULL);
+    free(opened);
   }
   if(is_empty(opened_prefs)){
     free_list(opened_prefs, false);
@@ -412,7 +439,7 @@ bool new_prefs()
   return true;
 }
 
-section_struct *find_section(char *section_name)
+section_struct *find_section(const char *section_name)
 {
   assert(prefs_read_already);
   assert(section_name != NULL);
@@ -453,7 +480,7 @@ void get_section_list(char **names[])
   return;
 }
 
-key_val_struct *find_key(char *section_name, char *key_name)
+key_val_struct *find_key(const char *section_name, const char *key_name)
 {
   assert(prefs_read_already);
   assert(section_name != NULL);
@@ -479,7 +506,7 @@ key_val_struct *find_key(char *section_name, char *key_name)
   return NULL;
 }
 
-bool section_exists(char *section_name)
+bool section_exists(const char *section_name)
 {
   assert(prefs_read_already);
   if(find_section(section_name) != NULL){
@@ -489,7 +516,7 @@ bool section_exists(char *section_name)
   }
 }
 
-bool key_exists(char *section_name, char *key_name)
+bool key_exists(const char *section_name, const char *key_name)
 {
   assert(prefs_read_already);
   if(find_key(section_name, key_name) != NULL){
@@ -499,7 +526,7 @@ bool key_exists(char *section_name, char *key_name)
   }
 }
 
-char *get_key(char *section_name, char *key_name)
+char *get_key(const char *section_name, const char *key_name)
 {
   assert(prefs_read_already);
   key_val_struct *kv = NULL;
@@ -523,7 +550,7 @@ char *get_key(char *section_name, char *key_name)
 }
 
 
-bool add_key(char *section_name, char *key_name, char *new_value)
+bool add_key(const char *section_name, const char *key_name, const char *new_value)
 {
   assert(prefs_read_already);
   if(section_name == NULL){
@@ -547,7 +574,7 @@ bool add_key(char *section_name, char *key_name, char *new_value)
   return true;
 }
 
-bool change_key(char *section_name, char *key_name, char *new_value)
+bool change_key(const char *section_name, const char *key_name, const char *new_value)
 {
   assert(prefs_read_already);
   assert(key_name != NULL);
@@ -762,7 +789,7 @@ bool save_prefs()
   return true;
 }
 
-bool add_section(char *name)
+bool add_section(const char *name)
 {
   section_struct *new_section = (section_struct*)my_malloc(sizeof(section_struct));
   new_section->name = my_strdup(name);
