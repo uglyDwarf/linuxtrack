@@ -54,7 +54,31 @@ void LtrTracking::Connect()
                     this, SLOT(tyChanged(AxisElem_t)));
   QObject::connect(tz, SIGNAL(axisChanged(AxisElem_t)),
                     this, SLOT(tzChanged(AxisElem_t)));
-//  QObject::connect(, SIGNAL(), , SLOT());
+
+  QObject::connect(gui.PitchUpSpin, SIGNAL(valueChanged(double)),
+                    this, SLOT(on_PitchUpSpin_valueChanged(double)));
+  QObject::connect(gui.PitchDownSpin, SIGNAL(valueChanged(double)),
+                    this, SLOT(on_PitchDownSpin_valueChanged(double)));
+  QObject::connect(gui.YawLeftSpin, SIGNAL(valueChanged(double)),
+                    this, SLOT(on_YawLeftSpin_valueChanged(double)));
+  QObject::connect(gui.YawRightSpin, SIGNAL(valueChanged(double)),
+                    this, SLOT(on_YawRightSpin_valueChanged(double)));
+  QObject::connect(gui.TiltLeftSpin, SIGNAL(valueChanged(double)),
+                    this, SLOT(on_TiltLeftSpin_valueChanged(double)));
+  QObject::connect(gui.TiltRightSpin, SIGNAL(valueChanged(double)),
+                    this, SLOT(on_TiltRightSpin_valueChanged(double)));
+  QObject::connect(gui.MoveLeftSpin, SIGNAL(valueChanged(double)),
+                    this, SLOT(on_MoveLeftSpin_valueChanged(double)));
+  QObject::connect(gui.MoveRightSpin, SIGNAL(valueChanged(double)),
+                    this, SLOT(on_MoveRightSpin_valueChanged(double)));
+  QObject::connect(gui.MoveUpSpin, SIGNAL(valueChanged(double)),
+                    this, SLOT(on_MoveUpSpin_valueChanged(double)));
+  QObject::connect(gui.MoveDownSpin, SIGNAL(valueChanged(double)),
+                    this, SLOT(on_MoveDownSpin_valueChanged(double)));
+  QObject::connect(gui.MoveBackSpin, SIGNAL(valueChanged(double)),
+                    this, SLOT(on_MoveBackSpin_valueChanged(double)));
+  QObject::connect(gui.MoveForthSpin, SIGNAL(valueChanged(double)),
+                    this, SLOT(on_MoveForthSpin_valueChanged(double)));
 }
 
 void LtrTracking::ffChanged(float f)
@@ -135,6 +159,66 @@ void LtrTracking::on_ZEnable_stateChanged(int state)
   tz->changeEnabled((state2bool(state)));
 }
 
+void LtrTracking::on_PitchUpSpin_valueChanged(double d)
+{
+  pitch->changeLFactor(d);
+}
+
+void LtrTracking::on_PitchDownSpin_valueChanged(double d)
+{
+  pitch->changeRFactor(d);
+}
+
+void LtrTracking::on_YawLeftSpin_valueChanged(double d)
+{
+  yaw->changeLFactor(d);
+}
+
+void LtrTracking::on_YawRightSpin_valueChanged(double d)
+{
+  yaw->changeRFactor(d);
+}
+
+void LtrTracking::on_TiltLeftSpin_valueChanged(double d)
+{
+  roll->changeLFactor(d);
+}
+
+void LtrTracking::on_TiltRightSpin_valueChanged(double d)
+{
+  roll->changeRFactor(d);
+}
+
+void LtrTracking::on_MoveLeftSpin_valueChanged(double d)
+{
+  tx->changeLFactor(d);
+}
+
+void LtrTracking::on_MoveRightSpin_valueChanged(double d)
+{
+  tx->changeRFactor(d);
+}
+
+void LtrTracking::on_MoveUpSpin_valueChanged(double d)
+{
+  ty->changeLFactor(d);
+}
+
+void LtrTracking::on_MoveDownSpin_valueChanged(double d)
+{
+  ty->changeRFactor(d);
+}
+
+void LtrTracking::on_MoveBackSpin_valueChanged(double d)
+{
+  tz->changeLFactor(d);
+}
+
+void LtrTracking::on_MoveForthSpin_valueChanged(double d)
+{
+  tz->changeRFactor(d);
+}
+
 Qt::CheckState bool2state(bool v)
 {
   if(v){
@@ -150,8 +234,16 @@ void LtrTracking::pitchChanged(AxisElem_t what)
     case ENABLED:
       gui.PitchEnable->setCheckState(bool2state(pitch->getEnabled()));
       break;
+    case LFACTOR:
+      gui.PitchUpSpin->setValue(pitch->getLFactor());
+      break;
+    case RFACTOR:
+      gui.PitchDownSpin->setValue(pitch->getRFactor());
+      break;
     case RELOAD:
       gui.PitchEnable->setCheckState(bool2state(pitch->getEnabled()));
+      gui.PitchUpSpin->setValue(pitch->getLFactor());
+      gui.PitchDownSpin->setValue(pitch->getRFactor());
       break;
     default:
       break;
@@ -164,8 +256,16 @@ void LtrTracking::rollChanged(AxisElem_t what)
     case ENABLED:
       gui.RollEnable->setCheckState(bool2state(roll->getEnabled()));
       break;
+    case LFACTOR:
+      gui.TiltLeftSpin->setValue(roll->getLFactor());
+      break;
+    case RFACTOR:
+      gui.TiltRightSpin->setValue(roll->getRFactor());
+      break;
     case RELOAD:
       gui.RollEnable->setCheckState(bool2state(roll->getEnabled()));
+      gui.TiltLeftSpin->setValue(roll->getLFactor());
+      gui.TiltRightSpin->setValue(roll->getRFactor());
       break;
     default:
       break;
@@ -178,8 +278,16 @@ void LtrTracking::yawChanged(AxisElem_t what)
     case ENABLED:
       gui.YawEnable->setCheckState(bool2state(yaw->getEnabled()));
       break;
+    case LFACTOR:
+      gui.YawLeftSpin->setValue(yaw->getLFactor());
+      break;
+    case RFACTOR:
+      gui.YawRightSpin->setValue(yaw->getRFactor());
+      break;
     case RELOAD:
       gui.YawEnable->setCheckState(bool2state(yaw->getEnabled()));
+      gui.YawLeftSpin->setValue(yaw->getLFactor());
+      gui.YawRightSpin->setValue(yaw->getRFactor());
       break;
     default:
       break;
@@ -192,8 +300,16 @@ void LtrTracking::txChanged(AxisElem_t what)
     case ENABLED:
       gui.XEnable->setCheckState(bool2state(tx->getEnabled()));
       break;
+    case LFACTOR:
+      gui.MoveLeftSpin->setValue(tx->getLFactor());
+      break;
+    case RFACTOR:
+      gui.MoveRightSpin->setValue(tx->getRFactor());
+      break;
     case RELOAD:
       gui.XEnable->setCheckState(bool2state(tx->getEnabled()));
+      gui.MoveLeftSpin->setValue(tx->getLFactor());
+      gui.MoveRightSpin->setValue(tx->getRFactor());
       break;
     default:
       break;
@@ -206,8 +322,16 @@ void LtrTracking::tyChanged(AxisElem_t what)
     case ENABLED:
       gui.YEnable->setCheckState(bool2state(ty->getEnabled()));
       break;
+    case LFACTOR:
+      gui.MoveUpSpin->setValue(ty->getLFactor());
+      break;
+    case RFACTOR:
+      gui.MoveDownSpin->setValue(ty->getRFactor());
+      break;
     case RELOAD:
       gui.YEnable->setCheckState(bool2state(ty->getEnabled()));
+      gui.MoveUpSpin->setValue(ty->getLFactor());
+      gui.MoveDownSpin->setValue(ty->getRFactor());
       break;
     default:
       break;
@@ -220,8 +344,16 @@ void LtrTracking::tzChanged(AxisElem_t what)
     case ENABLED:
       gui.ZEnable->setCheckState(bool2state(tz->getEnabled()));
       break;
+    case LFACTOR:
+      gui.MoveBackSpin->setValue(tz->getLFactor());
+      break;
+    case RFACTOR:
+      gui.MoveForthSpin->setValue(tz->getRFactor());
+      break;
     case RELOAD:
       gui.ZEnable->setCheckState(bool2state(tz->getEnabled()));
+      gui.MoveBackSpin->setValue(tz->getLFactor());
+      gui.MoveForthSpin->setValue(tz->getRFactor());
       break;
     default:
       break;

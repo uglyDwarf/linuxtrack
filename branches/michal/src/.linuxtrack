@@ -38,6 +38,7 @@ Head-Z = 50
 Active = yes
 
 [Default]
+Title = Default
 Filter-factor = 5.0
 
 Pitch-enabled = yes

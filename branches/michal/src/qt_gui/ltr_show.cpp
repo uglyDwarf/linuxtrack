@@ -119,6 +119,7 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
     flag = true;
     ct->signal_new_frame();
   }
+
   return 0;
 }
 

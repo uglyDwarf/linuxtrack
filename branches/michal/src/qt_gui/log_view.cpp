@@ -1,5 +1,5 @@
 #include "log_view.h"
-
+#include "iostream"
 
 LogView::LogView(QWidget *parent) : QWidget(parent), watcher(parent)
 {
@@ -10,6 +10,8 @@ LogView::LogView(QWidget *parent) : QWidget(parent), watcher(parent)
   lf = new QFile("/tmp/linuxtrack.log");
   lf->open(QIODevice::ReadOnly);
   ts = new QTextStream(lf);
+  //to capture what happened up to this point...
+  fileChanged(""); 
 }
 
 void LogView::on_CloseButton_pressed()
@@ -21,7 +23,6 @@ void LogView::fileChanged(const QString &path)
 {
   (void) path;
   ts->seek(0);
-  
   ui.LogViewer->setPlainText("");
   ui.LogViewer->appendPlainText(ts->readAll());
 }

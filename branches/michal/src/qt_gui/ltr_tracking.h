@@ -26,6 +26,19 @@ class LtrTracking : public QObject
   void on_YEnable_stateChanged(int state);
   void on_ZEnable_stateChanged(int state);
   
+  void on_PitchUpSpin_valueChanged(double d);
+  void on_PitchDownSpin_valueChanged(double d);
+  void on_YawLeftSpin_valueChanged(double d);
+  void on_YawRightSpin_valueChanged(double d);
+  void on_TiltLeftSpin_valueChanged(double d);
+  void on_TiltRightSpin_valueChanged(double d);
+  void on_MoveLeftSpin_valueChanged(double d);
+  void on_MoveRightSpin_valueChanged(double d);
+  void on_MoveUpSpin_valueChanged(double d);
+  void on_MoveDownSpin_valueChanged(double d);
+  void on_MoveBackSpin_valueChanged(double d);
+  void on_MoveForthSpin_valueChanged(double d);
+  
   void pitchChanged(AxisElem_t what);
   void rollChanged(AxisElem_t what);
   void yawChanged(AxisElem_t what);
