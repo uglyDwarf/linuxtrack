@@ -4,8 +4,9 @@
 #include "ltr_gui_prefs.h"
 #include "ltr_gui.h"
 #include "ltr_profiles.h"
+#include "ltr_axis.h"
 
-SCurve::SCurve(Axes_t a, QString axis_name, QString left_label, QString right_label, QWidget *parent)
+SCurve::SCurve(LtrAxis *a, QString axis_name, QString left_label, QString right_label, QWidget *parent)
   : QWidget(parent), axis(a), symetrical(true), view(NULL), first(true)
 {
   symetrical = true;
@@ -13,11 +14,13 @@ SCurve::SCurve(Axes_t a, QString axis_name, QString left_label, QString right_la
   ui.SCTitle->setText(axis_name);
   ui.SCLeftLabel->setText(left_label);
   ui.SCRightLabel->setText(right_label);
+  QObject::connect(axis, SIGNAL(axisChanged(AxisElem_t)),
+                    this, SLOT(axisChanged(AxisElem_t)));
   
-  reinit();
   first = false;
-//  view = new SCView(axis, ui.SCView);
-//  QObject::connect(this, SIGNAL(changed()), view, SLOT(update()));
+  view = new SCView(axis, ui.SCView);
+  QObject::connect(this, SIGNAL(changed()), view, SLOT(update()));
+  axisChanged(RELOAD);
 }
 
 SCurve::~SCurve()
@@ -27,49 +30,27 @@ SCurve::~SCurve()
 
 void SCurve::setup_gui()
 {
-  if(is_symetrical(axis)){
+  if(axis->isSymetrical()){
     ui.SCSymetrical->setCheckState(Qt::Checked);
   }else{
     ui.SCSymetrical->setCheckState(Qt::Unchecked);
   }
-  ui.SCLeftFactor->setValue(get_lmult(axis));
-  ui.SCLeftCurv->setValue(get_lcurv(axis) * 100);
-  ui.SCRightFactor->setValue(get_rmult(axis));
-  ui.SCRightCurv->setValue(get_rcurv(axis) * 100);
-  ui.SCDeadZone->setValue(get_deadzone(axis) * 101.0);
-  ui.SCInputLimits->setValue(get_limits(axis));
-}
-
-void SCurve::setSlaves(QCheckBox *en, QDoubleSpinBox *l_spin, QDoubleSpinBox *r_spin)
-{
-  QObject::connect(ui.SCLeftFactor, SIGNAL(valueChanged(double)), 
-                   l_spin, SLOT(setValue(double)));
-  QObject::connect(l_spin, SIGNAL(valueChanged(double)), 
-                   ui.SCLeftFactor, SLOT(setValue(double)));
-  l_spin->setValue(ui.SCLeftFactor->value());
-  QObject::connect(ui.SCRightFactor, SIGNAL(valueChanged(double)), 
-                   r_spin, SLOT(setValue(double)));
-  QObject::connect(r_spin, SIGNAL(valueChanged(double)), 
-                   ui.SCRightFactor, SLOT(setValue(double)));
-  QObject::connect(this, SIGNAL(symetryChanged(bool)), 
-                   r_spin, SLOT(setDisabled(bool)));
-  QObject::connect(en, SIGNAL(stateChanged(int)), 
-                   this, SLOT(setEnabled(int)));
-  en->setCheckState(is_enabled(axis) ? Qt::Checked : Qt::Unchecked);
-  r_spin->setValue(ui.SCRightFactor->value());
-  r_spin->setDisabled(symetrical);
+  ui.SCLeftFactor->setValue(axis->getLFactor());
+  ui.SCLeftCurv->setValue(axis->getLCurv() * 100);
+  ui.SCRightFactor->setValue(axis->getRFactor());
+  ui.SCRightCurv->setValue(axis->getRCurv() * 100);
+  ui.SCDeadZone->setValue(axis->getDZone() * 101.0);
+  ui.SCInputLimits->setValue(axis->getLimits());
 }
 
 void SCurve::setEnabled(int state)
 {
   if(state == Qt::Checked){
     std::cout<<"Enabling..."<<std::endl;
-    PREF.setKeyVal(Profile::getProfiles().getCurrent(), prefPrefix + "-enabled", "yes");
-    enable_axis(axis);
+    axis->changeEnabled(true);
   }else{
     std::cout<<"Disabling..."<<std::endl;
-    PREF.setKeyVal(Profile::getProfiles().getCurrent(), prefPrefix + "-enabled", "no");
-    disable_axis(axis);
+    axis->changeEnabled(false);
   }
 }
 
@@ -91,13 +72,12 @@ void SCurve::on_SCSymetrical_stateChanged(int state)
     default:
       break;
   }
-  emit symetryChanged(symetrical);
 }
 
 void SCurve::on_SCLeftFactor_valueChanged(double d)
 {
   std::cout<<"LeftFactor = "<<d<<std::endl;
-  AXES.changeLFactor(axis, d);
+  axis->changeLFactor(d);
   if(symetrical){
     ui.SCRightFactor->setValue(d);
   }
@@ -107,7 +87,7 @@ void SCurve::on_SCLeftFactor_valueChanged(double d)
 void SCurve::on_SCRightFactor_valueChanged(double d)
 {
   std::cout<<"RightFactor = "<<d<<std::endl;
-  AXES.changeRFactor(axis, d);
+  axis->changeRFactor(d);
   if(symetrical){
     ui.SCLeftFactor->setValue(d);
   }
@@ -117,7 +97,7 @@ void SCurve::on_SCRightFactor_valueChanged(double d)
 void SCurve::on_SCLeftCurv_valueChanged(int value)
 {
   std::cout<<"LeftCurv = "<<value<<std::endl;
-  AXES.changeLCurv(axis, value / 100.0);
+  axis->changeLCurv(value / 100.0);
   if(symetrical){
     ui.SCRightCurv->setValue(value);
   }else{
@@ -128,27 +108,27 @@ void SCurve::on_SCLeftCurv_valueChanged(int value)
 void SCurve::on_SCRightCurv_valueChanged(int value)
 {
   std::cout<<"RightCurv = "<<value<<std::endl;
-  AXES.changeRCurv(axis, value / 100.0);
+  axis->changeRCurv(value / 100.0);
   emit changed();
 }
 
 void SCurve::on_SCDeadZone_valueChanged(int value)
 {
   std::cout<<"DeadZone = "<<value<<std::endl;
-  AXES.changeLimits(axis, value / 101.0);
+  axis->changeDZone(value / 101.0);
   emit changed();
 }
 
 void SCurve::on_SCInputLimits_valueChanged(double d)
 {
   std::cout<<"Limits = "<<d<<std::endl;
-  AXES.changeLimits(axis, d);
+  axis->changeLimits(d);
   emit changed();
 }
 
 void SCurve::movePoint(float new_x)
 {
-  float val = new_x / get_limits(axis);
+  float val = new_x / axis->getLimits();
   if(val > 1.0f){
     val = 1.0f;
   }
@@ -156,5 +136,41 @@ void SCurve::movePoint(float new_x)
     val = -1.0f;
   }
   view->movePoint(val);
+}
+
+
+void SCurve::axisChanged(AxisElem_t what)
+{
+  switch(what){
+    case LFACTOR:
+      ui.SCLeftFactor->setValue(axis->getLFactor());
+      break;
+    case RFACTOR:
+      ui.SCRightFactor->setValue(axis->getRFactor());
+      break;
+    case LCURV:
+      ui.SCLeftCurv->setValue(axis->getLCurv() * 100.0);
+      break;
+    case RCURV:
+      ui.SCRightCurv->setValue(axis->getRCurv() * 100.0);
+      break;
+    case DZONE:
+      ui.SCDeadZone->setValue(axis->getDZone());
+      break;
+    case LIMITS:
+      ui.SCInputLimits->setValue(axis->getLimits());
+      break;
+    case RELOAD:
+      ui.SCLeftFactor->setValue(axis->getLFactor());
+      ui.SCRightFactor->setValue(axis->getRFactor());
+      ui.SCLeftCurv->setValue(axis->getLCurv() * 100.0);
+      ui.SCRightCurv->setValue(axis->getRCurv() * 100.0);
+      ui.SCDeadZone->setValue(axis->getDZone());
+      ui.SCInputLimits->setValue(axis->getLimits());
+      break;
+    default:
+      break;
+  }
+  emit changed();
 }
 

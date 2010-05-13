@@ -17,7 +17,7 @@
 #include "ltr_model.h"
 #include "ltr_tracking.h"
 #include "log_view.h"
-
+#include "scp_form.h"
 
 LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
 {
@@ -34,17 +34,8 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
   tirp = new TirPrefs(ui);
   me = new ModelEdit(ui);
   track = new LtrTracking(ui);
-//  sc = new ScpForm();
+  sc = new ScpForm();
   lv = new LogView();
-/*  
-  sc->setSlaves(ui.PitchEnable, ui.PitchUpSpin, ui.PitchDownSpin,
-                ui.RollEnable, ui.TiltLeftSpin, ui.TiltRightSpin,
-                ui.YawEnable, ui.YawLeftSpin, ui.YawRightSpin,
-                ui.XEnable, ui.MoveLeftSpin, ui.MoveRightSpin,
-                ui.YEnable, ui.MoveUpSpin, ui.MoveDownSpin,
-                ui.ZEnable, ui.MoveBackSpin, ui.MoveForthSpin
-                );
-*/
 //  QObject::connect(this, SIGNAL(customSectionChanged()), sc, SLOT(reinit()));
   
   QObject::connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
@@ -65,7 +56,7 @@ LinuxtrackGui::~LinuxtrackGui()
   delete wiip;
   delete tirp;
   delete me;
-//  delete sc;
+  delete sc;
   delete helper;
 }
 
@@ -73,7 +64,7 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
 {
   showWindow->close();
   helper->close();
-//  sc->close();
+  sc->close();
   event->accept();
 }
 
@@ -112,7 +103,7 @@ void LinuxtrackGui::on_QuitButton_pressed()
 
 void LinuxtrackGui::on_EditSCButton_pressed()
 {
-//  sc->show();
+  sc->show();
 }
 
 static int warnMessage(const QString &message){

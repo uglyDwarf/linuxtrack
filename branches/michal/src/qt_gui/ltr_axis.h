@@ -33,6 +33,8 @@ class LtrAxis : public QWidget{
   float getDZone();
   float getLimits();
   float getValue(float val);
+  
+  bool isSymetrical();
  signals:
   void axisChanged(AxisElem_t what);
  private:

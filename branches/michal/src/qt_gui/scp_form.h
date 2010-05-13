@@ -17,16 +17,8 @@ class ScpForm : public QWidget
   void updateX(float newX);
   void updateY(float newY);
   void updateZ(float newZ);
-  void setSlaves(QCheckBox *pitchEn, QDoubleSpinBox *pitchLM, QDoubleSpinBox *pitchRM,
-                 QCheckBox *rollEn, QDoubleSpinBox *rollLM, QDoubleSpinBox *rollRM,
-                 QCheckBox *yawEn, QDoubleSpinBox *yawLM, QDoubleSpinBox *yawRM,
-                 QCheckBox *xEn, QDoubleSpinBox *xLM, QDoubleSpinBox *xRM,
-                 QCheckBox *yEn, QDoubleSpinBox *yLM, QDoubleSpinBox *yRM,
-                 QCheckBox *zEn, QDoubleSpinBox *zLM, QDoubleSpinBox *zRM
-                 );
  private slots:
   void on_SCPCloseButton_pressed();
-  void reinit();
  private:
   Ui::SCPForm ui;
   SCurve *yaw, *pitch, *roll;

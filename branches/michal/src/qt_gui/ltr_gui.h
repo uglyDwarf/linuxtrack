@@ -13,6 +13,7 @@ class TirPrefs;
 class ModelEdit;
 class LtrTracking;
 class LogView;
+class ScpForm;
 
 class LinuxtrackGui : public QWidget
 {
@@ -41,7 +42,7 @@ class LinuxtrackGui : public QWidget
   TirPrefs *tirp;
   ModelEdit *me;
   LtrTracking *track;
-//  ScpForm *sc;
+  ScpForm *sc;
   LogView *lv;
 };
 

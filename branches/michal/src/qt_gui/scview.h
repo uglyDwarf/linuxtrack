@@ -1,25 +1,25 @@
 #ifndef SCVIEW__H
 #define SCVIEW__H
 
-#include "axis.h"
 #include <QWidget>
+
+class LtrAxis;
 
 class SCView : public QWidget
 {
      Q_OBJECT
  public:
-  SCView(struct axis_def *a, QWidget *parent = 0);
+  SCView(LtrAxis *a, QWidget *parent = 0);
   QSize sizeHint() const;
   QSize minimumSizeHint() const;
   void movePoint(float new_x);
-  void changeAxis(struct axis_def *a);
  public slots:
   void redraw();
  protected:
   void paintEvent(QPaintEvent *event);
 
  private:
-  struct axis_def *axis;
+  LtrAxis *axis;
   float px;
 };
 

@@ -1,10 +1,11 @@
 #include <QPainter>
 
 #include "scview.h"
+#include "ltr_axis.h"
 #include <math.h>
 #include <iostream>
 
-SCView::SCView(struct axis_def *a, QWidget *parent)
+SCView::SCView(LtrAxis *a, QWidget *parent)
   : QWidget(parent), axis(a), px(0.0)
 {  
   setBackgroundRole(QPalette::Base);
@@ -27,21 +28,21 @@ QSize SCView::minimumSizeHint() const
 }   
 
 
-static int spline(struct axis_def *a, QPointF points[], int num_points)
+static int spline(LtrAxis *a, QPointF points[], int num_points)
 {
   float x;
   float k = 2.0f / (num_points - 1);
   for(int i = 0; i < num_points; ++i){
     x = -1.0f + k * i;
     points[i].rx() = x;
-    points[i].ry() =  fabs(val_on_axis(a, x * get_limits(a)));
+    points[i].ry() =  fabs(a->getValue(x * a->getLimits()));
   }
   return 0;
 }
 
-static float spline(struct axis_def *a, float x)
+static float spline(LtrAxis *a, float x)
 {
-  return fabs(val_on_axis(a, x));
+  return fabs(a->getValue(x));
 }
 
 
@@ -54,7 +55,8 @@ void SCView::paintEvent(QPaintEvent * /* event */)
   QSize sz = size();
   float h = sz.height() - 1;//Why, oh why?
   float w = floor((sz.width() / 2) - 1);
-  float max_f = (get_lmult(axis) > get_rmult(axis)) ? get_lmult(axis) : get_rmult(axis);
+  float max_f = (axis->getLFactor() > axis->getRFactor()) ? 
+                 axis->getLFactor() : axis->getRFactor();
   
   spline(axis, points, spline_points);
   float x,y;
@@ -69,7 +71,7 @@ void SCView::paintEvent(QPaintEvent * /* event */)
   painter.drawPolyline(points, spline_points);
   painter.setPen(Qt::red);
   float nx = w + w * px;
-  float ny = h - fabs(spline(axis, px * get_limits(axis)) * (h / max_f));
+  float ny = h - fabs(spline(axis, px * axis->getLimits()) * (h / max_f));
   painter.drawLine(QLineF(nx, ny - 5, nx, ny + 5));
   painter.drawLine(QLineF(nx - 5, ny, nx + 5, ny));
   painter.end();
@@ -81,7 +83,3 @@ void SCView::movePoint(float new_x)
   redraw();
 }
 
-void SCView::changeAxis(struct axis_def *a)
-{
-  axis = a;
-}

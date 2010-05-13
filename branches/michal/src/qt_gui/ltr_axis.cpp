@@ -137,3 +137,8 @@ float LtrAxis::getValue(float val)
 {
   return val_on_axis(axis, val);
 }
+
+bool LtrAxis::isSymetrical()
+{
+  return is_symetrical(axis);
+}

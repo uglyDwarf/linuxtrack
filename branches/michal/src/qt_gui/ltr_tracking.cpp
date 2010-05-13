@@ -219,7 +219,7 @@ void LtrTracking::on_MoveForthSpin_valueChanged(double d)
   tz->changeRFactor(d);
 }
 
-Qt::CheckState bool2state(bool v)
+static Qt::CheckState bool2state(bool v)
 {
   if(v){
     return Qt::Checked;
