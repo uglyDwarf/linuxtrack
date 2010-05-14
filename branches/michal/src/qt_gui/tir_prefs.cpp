@@ -152,6 +152,6 @@ void TirPrefs::on_TirIrBright_valueChanged(int i)
 void TirPrefs::on_TirSignalizeStatus_stateChanged(int state)
 {
   QString state_str = (state == Qt::Unchecked) ? "off" : "on";
-  std::cout<<"Signal: "<<state_str.toAscii().data()<<std::endl;
+  //std::cout<<"Signal: "<<state_str.toAscii().data()<<std::endl;
   PREF.setKeyVal(currentSection, (char *)"Status-signals", state_str);
 }
