@@ -121,31 +121,31 @@ void TirPrefs::AddAvailableDevices(QComboBox &combo)
 
 void TirPrefs::on_TirThreshold_valueChanged(int i)
 {
-  std::cout<<"Threshold: "<<i<<std::endl;
+  //std::cout<<"Threshold: "<<i<<std::endl;
   PREF.setKeyVal(currentSection, (char *)"Threshold", i);
 }
 
 void TirPrefs::on_TirMinBlob_valueChanged(int i)
 {
-  std::cout<<"Min Blob: "<<i<<std::endl;
+  //std::cout<<"Min Blob: "<<i<<std::endl;
   PREF.setKeyVal(currentSection, (char *)"Min-blob", i);
 }
 
 void TirPrefs::on_TirMaxBlob_valueChanged(int i)
 {
-  std::cout<<"Max Blob: "<<i<<std::endl;
+  //std::cout<<"Max Blob: "<<i<<std::endl;
   PREF.setKeyVal(currentSection, (char *)"Max-blob", i);
 }
 
 void TirPrefs::on_TirStatusBright_valueChanged(int i)
 {
-  std::cout<<"Status bright: "<<i<<std::endl;
+  //std::cout<<"Status bright: "<<i<<std::endl;
   PREF.setKeyVal(currentSection, (char *)"Status-led-brightness", i);
 }
 
 void TirPrefs::on_TirIrBright_valueChanged(int i)
 {
-  std::cout<<"Ir bright: "<<i<<std::endl;
+  //std::cout<<"Ir bright: "<<i<<std::endl;
   PREF.setKeyVal(currentSection, (char *)"Ir-led-brightness", i);
 }
 

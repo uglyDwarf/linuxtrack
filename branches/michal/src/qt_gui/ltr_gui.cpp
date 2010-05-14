@@ -41,8 +41,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
   QObject::connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
   QObject::connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
   
-//  showWindow = new LtrGuiForm(sc);
-  showWindow = new LtrGuiForm();
+  showWindow = new LtrGuiForm(sc);
   helper = new LtrDevHelp();
   on_RefreshDevices_pressed();
   showWindow->show();
@@ -65,6 +64,7 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   showWindow->close();
   helper->close();
   sc->close();
+  lv->close();
   event->accept();
 }
 

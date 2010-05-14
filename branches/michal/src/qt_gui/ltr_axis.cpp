@@ -80,6 +80,7 @@ bool LtrAxis::changeRCurv(float val)
 
 bool LtrAxis::changeDZone(float val)
 {
+  std::cout<<"Setting deadzone:"<<val<<std::endl;
   bool res = set_deadzone(axis, val);
   if(res){
     PREF.setKeyVal(parent->getProfileName(), prefix + "-deadzone", val);
@@ -125,6 +126,7 @@ float LtrAxis::getRCurv()
 
 float LtrAxis::getDZone()
 {
+  std::cout<<"Reporting deadzone:"<<get_deadzone(axis)<<std::endl;
   return get_deadzone(axis);
 }
 

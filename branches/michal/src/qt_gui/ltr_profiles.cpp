@@ -70,7 +70,7 @@ int Profile::isProfile(const QString &name)
 AppProfile::AppProfile(const QString &n, QWidget *parent) : QWidget(parent), name(n)
 {
   PREF.setCustomSection(name);
-  std::cout<<"Cust section: "<<name.toAscii().data()<<std::endl;
+  //std::cout<<"Cust section: "<<name.toAscii().data()<<std::endl;
   pitch = new LtrAxis(this, "Pitch");
   roll = new LtrAxis(this, "Roll");
   yaw = new LtrAxis(this, "Yaw");

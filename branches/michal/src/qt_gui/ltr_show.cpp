@@ -11,7 +11,7 @@
 #include <pref_int.h>
 #include <tracking.h>
 #include <iostream>
-//#include <scp_form.h>
+#include <scp_form.h>
 #include <ltr_state.h>
 
 QImage *img;
@@ -23,7 +23,7 @@ bool flag;
 static unsigned char *qt_bitmap = NULL;
 static unsigned int w = 0;
 static unsigned int h = 0;
-//static ScpForm *scp;s
+static ScpForm *scp;
 static bool running = false;
 
 extern "C" {
@@ -53,10 +53,9 @@ void CaptureThread::signal_new_frame()
   emit new_frame();
 }
 
-//LtrGuiForm::LtrGuiForm(ScpForm *s)
-LtrGuiForm::LtrGuiForm()
+LtrGuiForm::LtrGuiForm(ScpForm *s)
 {
-//  scp = s;
+  scp = s;
   ui.setupUi(this);
   label = new QLabel();
   ui.pix_box->addWidget(label);
@@ -94,12 +93,12 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
   ++cnt;
   
   update_pose(frame);
-//  scp->updatePitch(lt_orig_pose.pitch);
-//  scp->updateRoll(lt_orig_pose.roll);
-//  scp->updateYaw(lt_orig_pose.heading);
-//  scp->updateX(lt_orig_pose.tx);
-//  scp->updateY(lt_orig_pose.ty);
-//  scp->updateZ(lt_orig_pose.tz);
+  scp->updatePitch(lt_orig_pose.pitch);
+  scp->updateRoll(lt_orig_pose.roll);
+  scp->updateYaw(lt_orig_pose.heading);
+  scp->updateX(lt_orig_pose.tx);
+  scp->updateY(lt_orig_pose.ty);
+  scp->updateZ(lt_orig_pose.tz);
   
   if((w != frame->width) || (h != frame->height)){
     w = frame->width;

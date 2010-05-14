@@ -27,8 +27,7 @@ class LtrGuiForm : public QMainWindow
 {
    Q_OBJECT
   public:
-//   LtrGuiForm(ScpForm *s);
-   LtrGuiForm();
+   LtrGuiForm(ScpForm *s);
    ~LtrGuiForm();
   public slots:
    void update();
@@ -46,6 +45,7 @@ class LtrGuiForm : public QMainWindow
 
   private:
    Ui::Ltr_gui ui;
+   ScpForm *sens;
    Window *glw;
 };
 

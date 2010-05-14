@@ -5,6 +5,7 @@
 #include "ltr_gui.h"
 #include "ltr_profiles.h"
 #include "ltr_axis.h"
+#include <math.h>
 
 SCurve::SCurve(LtrAxis *a, QString axis_name, QString left_label, QString right_label, QWidget *parent)
   : QWidget(parent), axis(a), symetrical(true), view(NULL), first(true)
@@ -39,17 +40,17 @@ void SCurve::setup_gui()
   ui.SCLeftCurv->setValue(axis->getLCurv() * 100);
   ui.SCRightFactor->setValue(axis->getRFactor());
   ui.SCRightCurv->setValue(axis->getRCurv() * 100);
-  ui.SCDeadZone->setValue(axis->getDZone() * 101.0);
+  ui.SCDeadZone->setValue(axis->getDZone() * 101);
   ui.SCInputLimits->setValue(axis->getLimits());
 }
 
 void SCurve::setEnabled(int state)
 {
   if(state == Qt::Checked){
-    std::cout<<"Enabling..."<<std::endl;
+    //std::cout<<"Enabling..."<<std::endl;
     axis->changeEnabled(true);
   }else{
-    std::cout<<"Disabling..."<<std::endl;
+    //std::cout<<"Disabling..."<<std::endl;
     axis->changeEnabled(false);
   }
 }
@@ -76,7 +77,7 @@ void SCurve::on_SCSymetrical_stateChanged(int state)
 
 void SCurve::on_SCLeftFactor_valueChanged(double d)
 {
-  std::cout<<"LeftFactor = "<<d<<std::endl;
+  //std::cout<<"LeftFactor = "<<d<<std::endl;
   axis->changeLFactor(d);
   if(symetrical){
     ui.SCRightFactor->setValue(d);
@@ -86,7 +87,7 @@ void SCurve::on_SCLeftFactor_valueChanged(double d)
 
 void SCurve::on_SCRightFactor_valueChanged(double d)
 {
-  std::cout<<"RightFactor = "<<d<<std::endl;
+  //std::cout<<"RightFactor = "<<d<<std::endl;
   axis->changeRFactor(d);
   if(symetrical){
     ui.SCLeftFactor->setValue(d);
@@ -96,7 +97,7 @@ void SCurve::on_SCRightFactor_valueChanged(double d)
 
 void SCurve::on_SCLeftCurv_valueChanged(int value)
 {
-  std::cout<<"LeftCurv = "<<value<<std::endl;
+  //std::cout<<"LeftCurv = "<<value<<std::endl;
   axis->changeLCurv(value / 100.0);
   if(symetrical){
     ui.SCRightCurv->setValue(value);
@@ -107,21 +108,21 @@ void SCurve::on_SCLeftCurv_valueChanged(int value)
 
 void SCurve::on_SCRightCurv_valueChanged(int value)
 {
-  std::cout<<"RightCurv = "<<value<<std::endl;
+  //std::cout<<"RightCurv = "<<value<<std::endl;
   axis->changeRCurv(value / 100.0);
   emit changed();
 }
 
 void SCurve::on_SCDeadZone_valueChanged(int value)
 {
-  std::cout<<"DeadZone = "<<value<<std::endl;
+  //std::cout<<"DeadZone = "<<value<<std::endl;
   axis->changeDZone(value / 101.0);
   emit changed();
 }
 
 void SCurve::on_SCInputLimits_valueChanged(double d)
 {
-  std::cout<<"Limits = "<<d<<std::endl;
+  //std::cout<<"Limits = "<<d<<std::endl;
   axis->changeLimits(d);
   emit changed();
 }
@@ -149,13 +150,13 @@ void SCurve::axisChanged(AxisElem_t what)
       ui.SCRightFactor->setValue(axis->getRFactor());
       break;
     case LCURV:
-      ui.SCLeftCurv->setValue(axis->getLCurv() * 100.0);
+      ui.SCLeftCurv->setValue(round(axis->getLCurv() * 100.0));
       break;
     case RCURV:
-      ui.SCRightCurv->setValue(axis->getRCurv() * 100.0);
+      ui.SCRightCurv->setValue(round(axis->getRCurv() * 100.0));
       break;
     case DZONE:
-      ui.SCDeadZone->setValue(axis->getDZone());
+      ui.SCDeadZone->setValue(round(axis->getDZone() * 101.0));
       break;
     case LIMITS:
       ui.SCInputLimits->setValue(axis->getLimits());
@@ -163,9 +164,9 @@ void SCurve::axisChanged(AxisElem_t what)
     case RELOAD:
       ui.SCLeftFactor->setValue(axis->getLFactor());
       ui.SCRightFactor->setValue(axis->getRFactor());
-      ui.SCLeftCurv->setValue(axis->getLCurv() * 100.0);
-      ui.SCRightCurv->setValue(axis->getRCurv() * 100.0);
-      ui.SCDeadZone->setValue(axis->getDZone());
+      ui.SCLeftCurv->setValue(round(axis->getLCurv() * 100.0));
+      ui.SCRightCurv->setValue(round(axis->getRCurv() * 100.0));
+      ui.SCDeadZone->setValue(round(axis->getDZone() * 101.0));
       ui.SCInputLimits->setValue(axis->getLimits());
       break;
     default:

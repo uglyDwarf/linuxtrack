@@ -125,19 +125,19 @@ void WebcamPrefs::Activate(const QString &ID)
 
 void WebcamPrefs::on_WebcamThreshold_valueChanged(int i)
 {
-  std::cout<<"Threshold: "<<i<<std::endl;
+  //std::cout<<"Threshold: "<<i<<std::endl;
   PREF.setKeyVal(currentSection, (char *)"Threshold", i);
 }
 
 void WebcamPrefs::on_WebcamMinBlob_valueChanged(int i)
 {
-  std::cout<<"Min Blob: "<<i<<std::endl;
+  //std::cout<<"Min Blob: "<<i<<std::endl;
   PREF.setKeyVal(currentSection, (char *)"Min-blob", i);
 }
 
 void WebcamPrefs::on_WebcamMaxBlob_valueChanged(int i)
 {
-  std::cout<<"Max Blob: "<<i<<std::endl;
+  //std::cout<<"Max Blob: "<<i<<std::endl;
   PREF.setKeyVal(currentSection, (char *)"Max-blob", i);
 }
 
