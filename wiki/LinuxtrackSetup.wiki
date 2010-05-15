@@ -36,4 +36,24 @@ Then if you use TrackIR 5, you can set Status LED brightness and IR LEDs brightn
 Checkbox *Signalize status* allows you to turn on/off signalization of the tracker state (running/paused/stopped).
 
 == Model setup ==
- 
+*Model Setup* tab allows you to set which model you intend to use. You can either choose one of predefined models or you can create your own model. You can also tweak dimensions of your model.
+
+When creating new model, press button *Create New* and start by filling in you model's name. Then select what type of model you want to create - three point cap, three point clip or single point.
+Finally measure dimensions of your model and select whether it is active (uses LEDs) or passive (reflective). Hx, Hy and Hz values can be approximate, you can tweak them later.
+
+== Tracking setup ==
+*Tracking setup* tab manages profiles and tracking parameters.
+You can set which profile you want to edit or you can create new one.
+
+In the sensitivities part of this tab you can disable each axis and also set sensitivities for them. If this is not enough, press *Edit sensitivity curves* button...
+
+In the newly opened dialogue user can set response for each axis in a more detailed way.
+*Input Limits* sets maximum angle/movement of your real head to get maximal response.
+You can select how curved the sensitivity curve should be by moving the *Curvature* slider; *Mult. Factor* sets how much your simulated can turn/move.
+*Dead Zone* slider can make the axis insensitive around the center.
+Checkbox *Symetrical* does exactly what its name says...
+
+Last thing to set in the *Tracking setup* tab is the *Filter Factor* slider. By moving this slider right, tracking will be smoother, but a little bit laggier. Moving it to the left makes tracking less laggy, but possibly more jumpy.
+
+
+
