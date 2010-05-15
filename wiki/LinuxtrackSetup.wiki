@@ -55,5 +55,25 @@ Checkbox *Symetrical* does exactly what its name says...
 
 Last thing to set in the *Tracking setup* tab is the *Filter Factor* slider. By moving this slider right, tracking will be smoother, but a little bit laggier. Moving it to the left makes tracking less laggy, but possibly more jumpy.
 
+== Tweaking H values ==
+The Hx, Hy and Hz values you saw in the *Model Setup* tab are needed to minimize simulated head movement while turning your real head.
 
+=== Three point Cap setup tweaking ===
+When using three point Cap, you have to set only Hy and Hz.
+Lets start by Setting Hz. Start tracking, go to the *Tracking setup* and disable all axes except Move Left/Right... Look to the center of the screen, press *Recenter* button and now try to look left and right. If the picture moves left or right, Hz is not correct.
+If the picture moves left, when you look right, Hz is too high and vice versa.
+Now tweak the Hz value until the movement is almost unnoticeable.
 
+Now to the Hy... 
+Disable all axes but Move back/forth and try to look up and down again...
+If the simulated head moves forth while you look up, the Hy is too high and vice versa.
+Again tweak the value to get the smallest movement possible.
+
+=== Three pont Clip tweaking ===
+With clip model you have to select all three offsets.
+Hy and Hz are set up the same way 
+
+To setup Hx correctly do the following:
+disable all axes except Move back/forth and turn your head left/right. If your simulated head moves forth, when you look to the side where your clip is, then Hx is too high.
+
+*Now you can turn all axes on and enjoy the linuxtrack!*
