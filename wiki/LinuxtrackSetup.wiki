@@ -1,0 +1,39 @@
+#summary How to setup linuxtrack
+= Introduction =
+
+This page provides sommary of the steps needed to setup linuxtrack.
+
+
+= Details =
+
+== Setup tracking device ==
+Select *Device setup* tab (if not already selected) and in *Tracking device* combo select the tracking device you intend to use.
+
+=== Webcam setup ===
+If the webcam you want to use was not attached to the system when linuxtrack GUI started, attach it and press *Refresh* button. The webcam should appear in the *Tracking device* combo.
+
+The next thing to do is to select the pixel format(only formats supported by the device are shown!). Please note, that for the moment only YUYV format is supported by the tracker!
+
+Then select desired resolution and framerate - the higher resolution and framerate the better, but higher CPU usage too...
+
+The threshold should be setup according to the *Camera view* in the *Tracking window*.
+Start the tracking by pressing the *Start* button in the *Tracking window* and make sure that camera sees only lights from your model...
+If there are more lights, try to remove them by setting higher threshold (or remove them physically). On the other hand, if the lights disappear when you turn your head, try lowering the threshold.
+
+*Min. blob* and *Max. blob* spinboxes are specifying lower and upper limits for number of pixels in the blob (a light that camera sees). This way you can ignore lights that are too small or too big, although it is always better to get rid of all unwanted light sources that can confise the tracking.
+
+=== Wiimote setup ===
+If you select wiimote as your tracking device, you can specify which LEDs should be turned on in which mode - this can be useful when you are unsure if tracker is running or paused. On the other hand, to maximize life of batteries in the wiimote, it is better to have those LEDs turned of all the time.
+
+=== TrackIR setup ===
+To be able to use TrackIR device, you have to download its firmware first - please read instructions concerning linuxtrack installation if you do not have it installed already.
+If the firmware is in the correct place, you'll see "Firmware found!" message there.
+
+The next thing is setup of *threshold*, *min. blob* and *max. blob* - please refer to the webcam setup above.
+
+Then if you use TrackIR 5, you can set Status LED brightness and IR LEDs brightness.
+
+Checkbox *Signalize status* allows you to turn on/off signalization of the tracker state (running/paused/stopped).
+
+== Model setup ==
+ 
