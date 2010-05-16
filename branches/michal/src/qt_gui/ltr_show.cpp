@@ -3,6 +3,7 @@
 #include <QLabel>
 #include <QTimer>
 #include <QThread>
+#include <QPainter>
 #include <iostream>
 #include <ltr_show.h>
 #include <cal.h>
@@ -13,18 +14,23 @@
 #include <iostream>
 #include <scp_form.h>
 #include <ltr_state.h>
+#include <string.h>
 
-QImage *img;
+QImage *img0;
+QImage *img1;
 QPixmap *pic;
-QLabel *label;
+QWidget *label;
+QVector<QRgb> colors;
 
 unsigned char *bitmap = NULL;
-bool flag;
 static unsigned char *qt_bitmap = NULL;
+static unsigned char *buffer0 = NULL;
+static unsigned char *buffer1 = NULL;
 static unsigned int w = 0;
 static unsigned int h = 0;
 static ScpForm *scp;
 static bool running = false;
+static int cnt = 0;
 
 extern "C" {
   int frame_callback(struct camera_control_block *ccb, struct frame_type *frame);
@@ -53,11 +59,13 @@ void CaptureThread::signal_new_frame()
   emit new_frame();
 }
 
-LtrGuiForm::LtrGuiForm(ScpForm *s)
+LtrGuiForm::LtrGuiForm(ScpForm *s) : cv(NULL)
 {
   scp = s;
   ui.setupUi(this);
-  label = new QLabel();
+//  label = new QLabel();
+  label = new QWidget();
+  cv = new CameraView(label);
   ui.pix_box->addWidget(label);
   ui.pauseButton->setDisabled(true);
   ui.wakeButton->setDisabled(true);
@@ -65,7 +73,10 @@ LtrGuiForm::LtrGuiForm(ScpForm *s)
   glw = new Window();
   ui.ogl_box->addWidget(glw);
   ct = new CaptureThread(this);
-  connect(ct, SIGNAL(new_frame()), this, SLOT(update()));
+  timer = new QTimer(this);
+  connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+  timer->start(50);
+//  connect(ct, SIGNAL(new_frame()), this, SLOT(update()));
   
   connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
   connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
@@ -85,7 +96,6 @@ LtrGuiForm::~LtrGuiForm()
 int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 {
   (void) ccb;
-  static int cnt = 0;
   
   if(cnt == 0){
     recenter_tracking();
@@ -103,22 +113,31 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
   if((w != frame->width) || (h != frame->height)){
     w = frame->width;
     h = frame->height;
-    if(bitmap != NULL){
-      free(bitmap);
+    if(buffer0 != NULL){
+      free(buffer0);
     }
-    bitmap = (unsigned char *)my_malloc(frame->width * frame->height);
-    if(qt_bitmap != NULL){
-      free(qt_bitmap);
+    if(buffer1 != NULL){
+      free(buffer1);
     }
-    qt_bitmap = (unsigned char*)my_malloc(h * w * 3);
-    img = new QImage(qt_bitmap, w, h, w * 3, QImage::Format_RGB888);
+    buffer0 = (unsigned char*)my_malloc(h * w);
+    memset(buffer0, 0, h * w);
+    buffer1 = (unsigned char*)my_malloc(h * w);
+    memset(buffer1, 200, h * w);
+    img0 = new QImage(buffer0, w, h, w, QImage::Format_Indexed8);
+    img1 = new QImage(buffer1, w, h, w, QImage::Format_Indexed8);
+    qt_bitmap = buffer0;
+    colors.clear();
+    for(int col = 0; col < 256; ++col){
+      colors.push_back(qRgb(col, col, col));
+    }
+    img0->setColorTable(colors);
+    img1->setColorTable(colors);
   }
-  frame->bitmap = bitmap;
-  if(flag == false){
-    flag = true;
-    ct->signal_new_frame();
+  if(bitmap != NULL){
+    qt_bitmap = bitmap;
+    bitmap = NULL;
   }
-
+  frame->bitmap = qt_bitmap;
   return 0;
 }
 
@@ -153,25 +172,20 @@ void LtrGuiForm::on_stopButton_pressed()
 
 void LtrGuiForm::update()
 {
-  static int cnt = 0;
-  cnt++;
   ui.statusbar->showMessage(QString("").setNum(cnt) + ". frame");
-  
-  unsigned char *src, *dst;
-  unsigned int pixcnt;
 
-  src = bitmap;
-  dst = qt_bitmap;
-  for(pixcnt = 0; pixcnt < w * h; ++pixcnt){
-    *(dst++) = *src;
-    *(dst++) = *src;
-    *(dst++) = *src;
-    *src = 0;
-    src++;
+  if(qt_bitmap == NULL){
+    return;
   }
-  
-  label->setPixmap(pic->fromImage(*img));
-  flag = false;
+  if(qt_bitmap != buffer0){
+    cv->redraw(img1);
+    memset(buffer0, 0,  h * w);
+    bitmap = buffer0;
+  }else{
+    cv->redraw(img0);
+    memset(buffer1, 0, h * w);
+    bitmap = buffer1;
+  }
 }
 
 void LtrGuiForm::trackerStopped()
@@ -204,3 +218,27 @@ void LtrGuiForm::trackerPaused()
   ui.recenterButton->setDisabled(true);
 }
 
+CameraView::CameraView(QWidget *parent)
+  : QWidget(parent), image(NULL)
+{  
+  setBackgroundRole(QPalette::Base);
+  setAutoFillBackground(true);
+}
+
+void CameraView::redraw(QImage *img)
+{
+  image = img;
+  if(size() != img->size()){
+    resize(img->size());
+  }
+  update();
+}
+
+void CameraView::paintEvent(QPaintEvent * /* event */)
+{
+  if(image != NULL){
+    QPainter painter(this);
+    painter.drawImage(QPoint(0, 0), *image);
+    painter.end();
+  }
+}

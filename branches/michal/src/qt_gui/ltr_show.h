@@ -23,6 +23,19 @@ class CaptureThread : public QThread
   
 };
 
+class CameraView : public QWidget
+{
+  Q_OBJECT
+ public:
+  CameraView(QWidget *parent = 0);
+// public slots:
+  void redraw(QImage *img);
+ protected:
+  void paintEvent(QPaintEvent *event);
+ private:
+  QImage *image;
+};
+
 class LtrGuiForm : public QMainWindow
 {
    Q_OBJECT
@@ -47,6 +60,8 @@ class LtrGuiForm : public QMainWindow
    Ui::Ltr_gui ui;
    ScpForm *sens;
    Window *glw;
+   QTimer *timer;
+   CameraView *cv;
 };
 
 #endif
