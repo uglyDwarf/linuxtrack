@@ -13,8 +13,13 @@
 
      timer = new QTimer(this);
      connect(timer, SIGNAL(timeout()), this, SLOT(update_pic()));
-     timer->start(20);
+     connect(glWidget, SIGNAL(ready()), this, SLOT(start_widget()));
  }
+
+void Window::start_widget()
+{
+     timer->start(20);
+}
 
 void Window::update_pic()
 {

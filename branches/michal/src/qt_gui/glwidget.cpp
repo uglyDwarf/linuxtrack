@@ -7,8 +7,24 @@
 #include <iostream> 
 #include "pathconfig.h"
 
- GLWidget::GLWidget(QWidget *parent)
-     : QGLWidget(parent)
+ReaderThread::ReaderThread(): QThread()
+{
+}
+
+void ReaderThread::run()
+{
+     read_obj();
+     emit done();
+}
+
+
+void GLWidget::objectsRead()
+{
+  emit ready();
+}
+
+GLWidget::GLWidget(QWidget *parent)
+     : QGLWidget(parent), rt(new ReaderThread())
  {
      xRot = 0;
      yRot = 0;
@@ -16,9 +32,10 @@
      xTrans = 0;
      yTrans = 0;
      zTrans = 0;
-     trolltechGreen = QColor::fromCmykF(0.40, 0.0, 1.0, 0.0);
      trolltechPurple = QColor::fromCmykF(0.39, 0.39, 0.0, 0.0);
-     read_obj();
+     
+     connect(rt, SIGNAL(done()), this, SLOT(objectsRead()));
+     rt->start();
  }
 
  GLWidget::~GLWidget()
@@ -28,6 +45,7 @@
      for(i = objects.begin(); i != objects.end(); ++i){
        glDeleteLists(*i, 1);
      }
+     delete rt;
  }
 
  QSize GLWidget::minimumSizeHint() const
@@ -144,25 +162,6 @@ void GLWidget::paintGL()
      glMatrixMode(GL_MODELVIEW);
  }
 
- void GLWidget::mousePressEvent(QMouseEvent *event)
- {
-     lastPos = event->pos();
- }
-
- void GLWidget::mouseMoveEvent(QMouseEvent *event)
- {
-     int dx = event->x() - lastPos.x();
-     int dy = event->y() - lastPos.y();
-
-     if (event->buttons() & Qt::LeftButton) {
-         setXRotation(xRot + 8 * dy);
-         setYRotation(yRot + 8 * dx);
-     } else if (event->buttons() & Qt::RightButton) {
-         setXRotation(xRot + 8 * dy);
-         setZRotation(zRot + 8 * dx);
-     }
-     lastPos = event->pos();
- }
 
 bool textured;
 object_t obj;
@@ -230,3 +229,5 @@ bool GLWidget::makeObjects()
      
      return true;
  }
+
+

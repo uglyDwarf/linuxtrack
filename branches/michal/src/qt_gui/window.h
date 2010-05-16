@@ -15,6 +15,7 @@
 
  private slots:
   void update_pic();
+  void start_widget();
  private:
      GLWidget *glWidget;
      QTimer *timer;

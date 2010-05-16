@@ -2,6 +2,19 @@
  #define GLWIDGET_H
 
  #include <QGLWidget>
+ #include <QThread>
+
+class ReaderThread : public QThread
+{
+  Q_OBJECT
+ public:
+  ReaderThread();
+  void run();
+ signals:
+  void done();  
+ private:
+};
+
 
  class GLWidget : public QGLWidget
  {
@@ -13,7 +26,8 @@
 
      QSize minimumSizeHint() const;
      QSize sizeHint() const;
-
+ signals:
+     void ready();
  public slots:
      void setXRotation(float angle);
      void setYRotation(float angle);
@@ -21,13 +35,11 @@
      void setXTrans(float pos);
      void setYTrans(float pos);
      void setZTrans(float pos);
-
+     void objectsRead();
  protected:
      void initializeGL();
      void paintGL();
      void resizeGL(int width, int height);
-     void mousePressEvent(QMouseEvent *event);
-     void mouseMoveEvent(QMouseEvent *event);
 
  private:
      bool makeObjects();
@@ -41,9 +53,9 @@
      float yTrans;
      float zTrans;
      
-     QPoint lastPos;
-     QColor trolltechGreen;
      QColor trolltechPurple;
+     
+     ReaderThread *rt;
  };
 
  #endif
