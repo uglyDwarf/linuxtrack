@@ -68,3 +68,13 @@ Ztranslation-multiplier = 3.0
 [XPlane]
 Freeze-button = 3
 Recenter-button = 4
+
+[LTserver]
+server-hostname           = 127.0.0.1
+server-port               = 12013
+# recenter-joy-device       = /dev/js0
+recenter-joy-device       = /dev/input/js0
+# recenter-event-type     = BUTTON
+recenter-joy-event-type   = AXIS
+recenter-joy-event-number = 8
+recenter-joy-event-value  = -32767

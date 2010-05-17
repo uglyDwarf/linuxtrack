@@ -1,7 +1,6 @@
 #include "utils.h"
 
 #include <stdio.h>
-#include <stdarg.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/ioctl.h>
@@ -33,11 +32,10 @@ char* my_strdup(const char *s)
 }
 
 
-void log_message(const char *format, ...)
+// varargs version for calling from another varargs function
+void vlog_message(const char *format, va_list ap) 
 {
   static FILE *output_stream = NULL;
-  
-  
   if(output_stream == NULL){
     output_stream = freopen("./lt_log.txt", "w", stderr);
     if(output_stream == NULL){
@@ -51,10 +49,15 @@ void log_message(const char *format, ...)
   strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", ts);
   
   fprintf(stderr, "[%s] ", buf);
-  va_list ap;
-  va_start(ap,format);
   vfprintf(stderr, format, ap);
   fflush(stderr);
+}
+
+void log_message(const char *format, ...)
+{
+  va_list ap;
+  va_start(ap,format);
+  vlog_message(format, ap);
   va_end(ap);
 }
 

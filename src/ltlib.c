@@ -75,7 +75,7 @@ int lt_init(struct lt_configuration_type config, char *cust_section)
 {
   
   set_custom_section(cust_section);
-  
+
   if(get_filter_factor(&filterfactor) != true){
     return -1;
   }
@@ -373,6 +373,6 @@ void lt_log_message(const char *format, ...)
 {
   va_list ap;
   va_start(ap,format);
-  log_message(format, ap);
+  vlog_message(format, ap);
   va_end(ap);
 }

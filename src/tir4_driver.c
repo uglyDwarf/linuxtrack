@@ -467,7 +467,9 @@ int tir4_claim(void)
   int ret;
   ret = usb_claim_interface(tir4_handle, TIR_INTERFACE_ID);
   if (ret < 0) {
-    log_message("TIR4: Unable to claim the TIR4 device.\nThis is most likely a permissions problem.\nRunning this app sudo may be a quick fix.\n");
+    log_message("TIR4: Unable to claim the TIR4 device. Either:\n");
+    log_message("  a) The device is already open.  Or\n");
+    log_message("  b) There is a permissions problem opening the USB.  Check your udev rules.\n");
     return CAL_PROBABLE_PERMISSIONS_ERR;
   }
   return 0;
@@ -734,7 +736,7 @@ void msgproc_add_byte(uint8_t b, struct camera_control_block *ccb)
     else {
       /* maybe we're off by one?
        * drop one and try again */
-      log_message("TIR4: Debug: Warning USB bad packet data: 0x%02x\n", msgproc_msglen);
+      log_message("TIR4: Debug: USB bad packet data: 0x%02x (some are typical at startup and may be ignored)\n", msgproc_msglen);
       msgproc_msglen = b;
       msgproc_state = awaiting_header_byte1;
     }
@@ -1508,7 +1510,7 @@ void framelist_flush(struct camera_control_block *ccb,
                      struct framelist_type *fl)
 {
   struct framelist_iter *fli, *nextfli;
-  struct frame_type *f;
+  struct frame_type *f = NULL;
   fli = framelist_get_iter(fl);
   while (!framelist_iter_complete(fli)) {
     nextfli = framelist_iter_next(fli);

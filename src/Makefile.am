@@ -6,7 +6,7 @@ else
   SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
 endif
 
-bin_PROGRAMS = pose_test ltlib_test
+bin_PROGRAMS = pose_test ltlib_test ltserver ltserver_testclient
 
 liblinuxtrack_a_SOURCES = cal.c cal.h list.c list.h ltlib.c ltlib.h \
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
@@ -64,14 +64,20 @@ endif
 
 pose_test_SOURCES = pose_test.c
 ltlib_test_SOURCES = ltlib_test.c 
+ltserver_SOURCES = ltserver.c 
+ltserver_testclient_SOURCES = ltserver_testclient.c 
 
 pose_test_LDADD = liblinuxtrack.a
 ltlib_test_LDADD = liblinuxtrack.a 
+ltserver_LDADD = liblinuxtrack.a 
 
 pose_test_CFLAGS = -m32 -fPIC
 ltlib_test_CFLAGS = -fPIC -m32
+ltserver_CFLAGS = -fPIC -m32
+ltserver_testclient_CFLAGS = -fPIC -m32
 pose_test_LDFLAGS = -L/lib32 -L/usr/lib32 $(CWIIDFLAGS)
 ltlib_test_LDFLAGS = -fPIC -L/lib32 -L/usr/lib32 $(CWIIDFLAGS)
+ltserver_testclient_LDFLAGS = -fPIC -L/lib32 -L/usr/lib32 $(CWIIDFLAGS)
 
 AM_YFLAGS = -d
 AM_LFLAGS = -i

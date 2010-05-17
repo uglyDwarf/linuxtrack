@@ -64,7 +64,7 @@ bool name_match(char *n1, char *n2){
 bool open_pref(char *section, char *key, pref_id *prf)
 {
 
-  printf("Request to open %s\n", key);
+  log_message("Request to open %s\n", key);
   if(opened_prefs == NULL){
     opened_prefs = create_list();
   }
@@ -91,7 +91,7 @@ bool open_pref(char *section, char *key, pref_id *prf)
     return true;
   }
   
-  printf("Creating new...\n");
+  log_message("Creating new...\n");
   if(get_key(section, key) == NULL){
     return false;
   }
@@ -298,7 +298,7 @@ bool set_str(pref_id *pref, char *str)
 
 bool close_pref(pref_id *pref)
 {
-  printf("Closing pref!\n");
+  log_message("Closing pref!\n");
   if(pref == NULL){
     log_message("Trying to close null pref.\n");
   }
@@ -475,7 +475,7 @@ char *get_key(char *section_name, char *key_name)
   if(read_prefs_on_init() == false){
     return NULL;
   }
-  printf("Getkey %s %s\n", section_name!=NULL?section_name:"NULL", key_name);
+  log_message("Getkey %s %s\n", section_name!=NULL?section_name:"NULL", key_name);
   key_val_struct *kv = NULL;
   if(section_name != NULL){
     kv = find_key(section_name, key_name);
@@ -710,26 +710,26 @@ bool save_prefs()
 int main(int argc, char *argv[])
 {
   set_custom_section("XPlane");
-  printf("Device type: %s\n", get_key("Global", "Capture-device"));
-  printf("Head ref [0, %s, %s]\n", get_key("Global", "Head-Y"), 
+  log_message("Device type: %s\n", get_key("Global", "Capture-device"));
+  log_message("Head ref [0, %s, %s]\n", get_key("Global", "Head-Y"), 
   	get_key("Global", "Head-Z"));
   dump_prefs("pref1.dmp");
   change_key("Global", "Head-Y", "333");
   change_key("Global", "Head-Z", "444");
-  printf("Head ref [0, %s, %s]\n", get_key("Global", "Head-Y"), 
+  log_message("Head ref [0, %s, %s]\n", get_key("Global", "Head-Y"), 
   	get_key("Global", "Head-Z"));
   
   pref_id ff, fb, fc;
   if(open_pref(NULL, "Filter-factor", &ff)){
-    printf("Pref OK... %f\n", get_flt(ff));
+    log_message("Pref OK... %f\n", get_flt(ff));
     if(set_flt(&ff, 3.14))
-      printf("Pref OK... %f\n", get_flt(ff));
+      log_message("Pref OK... %f\n", get_flt(ff));
     close_pref(&ff);
   }
   if(open_pref(NULL, "Recenter-button", &fb)){
-    printf("Pref OK... %d\n", get_int(fb));
+    log_message("Pref OK... %d\n", get_int(fb));
     if(set_int(&fb, 14))
-      printf("Pref OK... %d\n", get_int(fb));
+      log_message("Pref OK... %d\n", get_int(fb));
     close_pref(&fb);
   }
   dump_prefs("pref2.dmp");
