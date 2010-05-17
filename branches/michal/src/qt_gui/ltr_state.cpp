@@ -1,6 +1,6 @@
 
 #include "ltr_state.h"
-#include <ltlib.h>
+#include <ltlib_int.h>
 
 TrackerState *TrackerState::ts = NULL;
 
@@ -27,7 +27,7 @@ TrackerState::~TrackerState()
 void TrackerState::pollState()
 {
   static lt_state_type last_state = STOPPED;
-  lt_state_type current_state = lt_get_tracking_state();
+  lt_state_type current_state = lt_int_get_tracking_state();
   if(last_state != current_state){
     switch(current_state){
       case STOPPED:

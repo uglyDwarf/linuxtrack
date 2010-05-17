@@ -62,5 +62,13 @@ void *delete_current(plist pl, iterator* i);
  */
 void free_list(plist list_ptr, bool free_payload);
 
+/*
+ * Creates array of strings out of list of strings.
+ * Counts on the fact that list elements are strings
+ * The list is freed at the end (just the list, the array inherits those strings)
+ */
+int list2string_list(plist l, char **ids[]);
+void array_cleanup(char **ids[]);
+
 #endif
 

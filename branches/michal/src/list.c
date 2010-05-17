@@ -161,3 +161,41 @@ void free_list(plist list_ptr, bool free_payload)
   free(list_ptr);
 }
 
+int list2string_list(plist l, char **ids[])
+{
+  int j;
+  iterator i;
+  char *id;
+  if(!is_empty(l)){
+    j = 1;
+    init_iterator(l, &i);
+    while((id = (char *)get_next(&i)) != NULL){
+      ++j;
+    }
+  }else{
+    j = 1;
+  }
+  *ids = (char **)my_malloc(j * sizeof(char *));
+  j = 0;
+  init_iterator(l, &i);
+  while((id = (char *)get_next(&i)) != NULL){
+    (*ids)[j] = id;
+    ++j;
+  }
+  (*ids)[j] = NULL;
+  free_list(l, false);
+  return j;
+}
+
+void array_cleanup(char **ids[])
+{
+  int i = 0;
+  while((*ids)[i] != NULL){
+    free((*ids)[i]);
+    ++i;
+  }
+  free(*ids);
+  *ids = NULL;
+  return;
+}
+

@@ -10,8 +10,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdbool.h>
-#include <math_utils.h>
 #include "ltlib.h"
+#include "xlinuxtrack_pref.h"
 
 XPLMHotKeyID		gFreezeKey = NULL;
 XPLMHotKeyID		gTrackKey = NULL;
@@ -71,6 +71,15 @@ float	joystickCallback(
                                    int                  inCounter,    
                                    void *               inRefcon);
 
+bool is_finite(float f)
+{
+  if(finite(f) != 0){
+    return true;
+  }else{
+    return false;
+  }
+}
+
 bool createSetupWindow(int x, int y, int w, int h);
 
 struct buttonDef{
@@ -78,81 +87,24 @@ struct buttonDef{
   XPWidgetID text;
   XPWidgetID button;
   char *prefName;
-  pref_id pref;
+  enum pref_id id;
 };
 
 struct buttonDef btArray[] = {
   {
     .caption = "Start/Stop tracking:",
-    .prefName = "Recenter-button"
+    .prefName = "Recenter-button",
+    .id = START_STOP
   },
   {
     .caption = "Tracking freeze:",
-    .prefName = "Freeze-button"
+    .prefName = "Freeze-button",
+    .id = PAUSE
   }
 };
 
-struct scrollerDef{
-  char *caption;
-  float min;
-  float max;
-  XPWidgetID text;
-  XPWidgetID scroller;
-  int dx;
-  int dy;
-  int w;
-  char *prefName;
-  pref_id pref;
-};
-
-struct scrollerDef scArray[] = {
-  {.caption = "Pitch sensitivity", 
-   .min = 0.0,
-   .max = 10.0,
-   .dx = 20, 
-   .dy = 50,
-   .w = 160,
-   .prefName = "Pitch-multiplier"},
-  {.caption = "Yaw sensitivity", 
-   .min = 0.0,
-   .max = 10.0,
-   .dx = 0, 
-   .dy = 30,
-   .w = 160,
-   .prefName = "Yaw-multiplier"},
-  {.caption = "X-translation sensitivity", 
-   .min = 0.0,
-   .max = 10.0,
-   .dx = 0, 
-   .dy = 30,
-   .w = 160,
-   .prefName = "Xtranslation-multiplier"},
-  {.caption = "Y-translation sensitivity", 
-   .min = 0.0,
-   .max = 10.0,
-   .dx = 0, 
-   .dy = 30,
-   .w = 160,
-   .prefName = "Ytranslation-multiplier"},
-  {.caption = "Z-translation sensitivity", 
-   .min = 0.0,
-   .max = 10.0,
-   .dx = 0, 
-   .dy = 30,
-   .w = 160,
-   .prefName = "Ztranslation-multiplier"},
-  {.caption = "Filter factor", 
-   .min = 0.0,
-   .max = 50.0,
-   .dx = 0, 
-   .dy = 30,
-   .w = 160,
-   .prefName = "Filter-factor"}
-};
-
-
-
-
+struct pref *prefs = NULL;
+char *pref_fname = NULL;
 
 void linuxTrackMenuHandler(void *inMenuRef, void *inItemRef)
 {
@@ -197,7 +149,7 @@ bool updateButtonCaption(int index, int button)
     return true;
   }
   
-  lt_set_int(&(btArray[index].pref), button);
+  set_pref(prefs, btArray[index].id, button);
   switch(index){
     case 0:
       recenter_button = button;
@@ -271,20 +223,6 @@ int joyMapDialog(char *caption)
   return 0;
 }
 
-bool updateScrollerCaption(int i)
-{
-  struct scrollerDef *sc = &(scArray[i]);
-  long pos = XPGetWidgetProperty(sc->scroller, 
-               xpProperty_ScrollBarSliderPosition, NULL);
-  float val = sc->min + (sc->max - sc->min) * pos / 100.0;
-  sprintf(text, "%s = %g", sc->caption, val);
-  XPSetWidgetDescriptor(sc->text, text);
-  lt_set_flt(&(scArray[i].pref), val);
-  return true;
-}
-
-
-
 int setupWindowHandler(XPWidgetMessage inMessage,
 			XPWidgetID inWidget,
 			long inParam1,
@@ -308,81 +246,10 @@ int setupWindowHandler(XPWidgetMessage inMessage,
       joyMapDialog("Remap joystick button for Tracking freeze");
     }
     if(inParam1 == (long)saveButton){
-      lt_save_prefs();
+      save_pref(pref_fname, prefs);
     }
   }
-  if(inMessage == xpMsg_ScrollBarSliderPositionChanged){
-    int i;
-    for(i = 0; i < 6; ++i){
-      if(inParam1 == (long)scArray[i].scroller){
-        updateScrollerCaption(i);
-	break;
-      }
-    }
-  }
-  
   return 0;
-}
-
-bool setupScrollers(XPWidgetID *window, int x, int y)
-{
-  int i;
-  int px = x;
-  int py = y;
-  int w;
-  XPWidgetID sc;
-  
-  for(i = 0; i < 6; ++i){
-    px += scArray[i].dx;
-    py -= scArray[i].dy;
-    w = scArray[i].w;
-    
-    sc = scArray[i].scroller = XPCreateWidget(px, py, px + w, py - 10 , 1, 
-  				  scArray[i].caption, 0, *window,
-  				  xpWidgetClass_ScrollBar 
-    );
-    XPSetWidgetProperty(sc, xpProperty_ScrollBarType, xpScrollBarTypeSlider);
-    XPSetWidgetProperty(sc, xpProperty_ScrollBarMin, 0);
-    XPSetWidgetProperty(sc, xpProperty_ScrollBarMax, 100);
-    XPSetWidgetProperty(sc, xpProperty_ScrollBarPageAmount, 10);
-    
-    if(!lt_open_pref(scArray[i].prefName, &(scArray[i].pref))){
-      scArray[i].pref = NULL;
-    }
-    
-    
-    float prf = lt_get_flt(scArray[i].pref);
-    long pos = 100 * (prf - scArray[i].min) / (scArray[i].max - scArray[i].min);
-    if(pos > 100){
-      pos = 100;
-    }else if(pos < 0){
-      pos = 0;
-    }
-    XPSetWidgetProperty(sc, xpProperty_ScrollBarSliderPosition, pos);
-    
-    scArray[i].text = XPCreateWidget(px, py + 18, px + w, py + 5 ,
-    				 1, scArray[i].caption, 0, *window,
-  				  xpWidgetClass_Caption);
-    updateScrollerCaption(i);
-  }
-  return true;
-}
-
-bool get_pref(char *name, pref_id *prf)
-{
-  if(!lt_open_pref(name, prf)){
-    if(lt_create_pref(name)){
-      if(!lt_open_pref(name, prf)){
-        prf = NULL;
-        lt_log_message("Couldn't open newly created pref '%s'!\n", 
-	            name);
-      }
-    }else{
-      *prf = NULL;
-      lt_log_message("Couldn't create pref '%s'!\n", name);
-    }
-  }
-  return true;
 }
 
 bool createSetupWindow(int x, int y, int w, int h)
@@ -421,14 +288,12 @@ bool createSetupWindow(int x, int y, int w, int h)
   btArray[0].text = XPCreateWidget(x+20, y2 + 120, x2 -140, y2 + 100 ,
     				 1, btArray[0].caption,
 				 0, setupWindow, xpWidgetClass_Caption);
-  get_pref(btArray[0].prefName, &(btArray[0].pref));
   btArray[1].button = XPCreateWidget(x2-120, y2+90, x2-20, y2+70, 1, 
   				"Remap", 0, setupWindow,
   				xpWidgetClass_Button);
   btArray[1].text = XPCreateWidget(x+20, y2 + 90, x2 -140, y2 + 70 ,
     				 1, btArray[1].caption,
 				 0, setupWindow, xpWidgetClass_Caption);
-  get_pref(btArray[1].prefName, &(btArray[1].pref));
   saveButton = XPCreateWidget(x+20, y2+30, x2-20, y2+10, 1, 
   				"Save preferences", 0, setupWindow,
   				xpWidgetClass_Button);
@@ -437,8 +302,6 @@ bool createSetupWindow(int x, int y, int w, int h)
   XPSetWidgetProperty(saveButton, xpProperty_ButtonType, xpPushButton);
   updateButtonCaption(0, recenter_button);
   updateButtonCaption(1, freeze_button);
-
-  setupScrollers(&setupWindow, x, y);
 
   XPAddWidgetCallback(setupWindow, setupWindowHandler);
   return true;
@@ -454,6 +317,16 @@ PLUGIN_API int XPluginStart(
   strcpy(outSig, "linuxtrack.camera");
   strcpy(outDesc, "A plugin that controls view using your webcam.");
 
+  pref_fname = get_pref_file_name();
+  prefs = new_pref();
+  read_pref(pref_fname, prefs);
+  
+  if(!is_pref_valid(prefs)){
+    log_message("Invalid pref definitions!\n");
+  }
+  freeze_button = get_pref(prefs, START_STOP);
+  recenter_button = get_pref(prefs, PAUSE);
+  
   /* Register our hot key for the new view. */
   gTrackKey = XPLMRegisterHotKey(XPLM_VK_F8, xplm_DownFlag, 
                          "3D linuxTrack view",
@@ -488,29 +361,14 @@ PLUGIN_API int XPluginStart(
      (head_psi==NULL)||(head_the==NULL)||(joy_buttons==NULL)){
     return(0);
   }
-  if(lt_init("XPlane")!=0){
+  if(lt_init("Default")!=0){
     return(0);
   }
-  lt_suspend();
+  
   XPLMRegisterFlightLoopCallback(		
 	joystickCallback,	/* Callback */
 	-1.0,					/* Interval */
 	NULL);					/* refcon not used. */
-  pref_id frb, rcb;
-  if(lt_open_pref("Freeze-button", &frb)){
-    freeze_button = lt_get_int(frb);
-    lt_close_pref(&frb);
-  }else{
-    freeze_button = -1;
-    lt_log_message("Couldn't find Freeze-buton definition!\n");
-  }
-  if(lt_open_pref("Recenter-button", &rcb)){
-    recenter_button = lt_get_int(rcb);
-    lt_close_pref(&rcb);
-  }else{
-    recenter_button = -1;
-    lt_log_message("Couldn't find Recenter-buton definition!\n");
-  }
   int index = XPLMAppendMenuItem(XPLMFindPluginsMenu(), "LinuxTrack", NULL, 1);
 
 
@@ -527,6 +385,8 @@ PLUGIN_API void	XPluginStop(void)
   XPLMUnregisterHotKey(gFreezeKey);
   XPLMUnregisterFlightLoopCallback(joystickCallback, NULL);
   lt_shutdown();
+  free(prefs);
+  free(pref_fname);
 }
 
 PLUGIN_API void XPluginDisable(void)

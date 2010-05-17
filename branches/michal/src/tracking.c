@@ -239,8 +239,8 @@ static int update_pose_3pt(struct frame_type *frame)
   if (first_frame) {
     first_frame = false;
   }
-      
-/*  log_message("[%f,%f], [%f, %f], [%f, %f]\n", filtered_bloblist.blobs[0].x, 
+/*  
+  log_message("[%f,%f], [%f, %f], [%f, %f]\n", filtered_bloblist.blobs[0].x, 
   filtered_bloblist.blobs[0].y,  filtered_bloblist.blobs[1].x,
   filtered_bloblist.blobs[1].y, filtered_bloblist.blobs[2].x,
   filtered_bloblist.blobs[2].y);
@@ -281,7 +281,6 @@ static int update_pose_3pt(struct frame_type *frame)
   }
   
   pthread_mutex_lock(&pose_mutex);
-  
   lt_orig_pose.heading = filtered_angles[0];
   lt_orig_pose.pitch = filtered_angles[1];
   lt_orig_pose.roll = filtered_angles[2];
@@ -300,6 +299,11 @@ static int update_pose_3pt(struct frame_type *frame)
                       &lt_current_pose.roll, &lt_current_pose.tx,
 		      &lt_current_pose.ty, &lt_current_pose.tz);
   pthread_mutex_unlock(&pose_mutex);
+/*
+  log_message("%f  %f  %f\n%f  %f  %f\n\n", 
+	      lt_current_pose.heading, lt_current_pose.pitch,lt_current_pose.roll,
+	      lt_current_pose.tx,lt_current_pose.ty,lt_current_pose.tz);
+*/
   return 0;
 }
 

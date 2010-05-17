@@ -31,11 +31,11 @@ static void *cal_thread_fun(void *param)
 
 int lt_int_init(char *cust_section)
 {
-  set_custom_section(cust_section);
   if(!read_prefs(NULL, false)){
     log_message("Couldn't load preferences!\n");
     return -1;
   }
+  set_custom_section(cust_section);
   if(!init_tracking()){
     log_message("Couldn't initialize trcking!\n");
     return -1;
@@ -84,59 +84,9 @@ void lt_int_recenter(void)
   recenter_tracking();
 }
 
-lt_state_type lt_get_tracking_state(void)
+lt_state_type lt_int_get_tracking_state(void)
 {
   return cal_get_state();
-}
-
-bool lt_int_create_pref(char *key)
-{
-  return add_key(NULL, key, "");
-}
-
-bool lt_int_open_pref(char *key, pref_id *prf)
-{
-  return open_pref(NULL, key, prf);
-}
-
-float lt_int_get_flt(pref_id prf)
-{
-  return get_flt(prf);
-}
-
-int lt_int_get_int(pref_id prf)
-{
-  return get_int(prf);
-}
-
-char *lt_int_get_str(pref_id prf)
-{
-  return get_str(prf);
-}
-
-bool lt_int_set_flt(pref_id *prf, float f)
-{
-  return set_flt(prf, f);
-}
-
-bool lt_int_set_int(pref_id *prf, int i)
-{
-  return set_int(prf, i);
-}
-
-bool lt_int_set_str(pref_id *prf, char *str)
-{
-  return set_str(prf, str);
-}
-
-bool lt_int_save_prefs()
-{
-  return save_prefs();
-}
-
-bool lt_int_close_pref(pref_id *prf)
-{
-  return close_pref(prf);
 }
 
 void lt_int_log_message(const char *format, ...)

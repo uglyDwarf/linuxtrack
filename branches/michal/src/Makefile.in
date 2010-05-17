@@ -115,9 +115,12 @@ am_libwii_la_OBJECTS = wiimote_driver.lo runloop.lo
 libwii_la_OBJECTS = $(am_libwii_la_OBJECTS)
 @CWIID_TRUE@am_libwii_la_rpath = -rpath $(libdir)
 xlinuxtrack_la_DEPENDENCIES =
-am__xlinuxtrack_la_SOURCES_DIST = xlinuxtrack.c
+am__xlinuxtrack_la_SOURCES_DIST = xlinuxtrack.c xlinuxtrack_pref.c \
+	xlinuxtrack_pref.h utils.c utils.h
 @XPLANE_PLUGIN_TRUE@am_xlinuxtrack_la_OBJECTS =  \
-@XPLANE_PLUGIN_TRUE@	xlinuxtrack_la-xlinuxtrack.lo
+@XPLANE_PLUGIN_TRUE@	xlinuxtrack_la-xlinuxtrack.lo \
+@XPLANE_PLUGIN_TRUE@	xlinuxtrack_la-xlinuxtrack_pref.lo \
+@XPLANE_PLUGIN_TRUE@	xlinuxtrack_la-utils.lo
 xlinuxtrack_la_OBJECTS = $(am_xlinuxtrack_la_OBJECTS)
 xlinuxtrack_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(xlinuxtrack_la_CFLAGS) \
@@ -318,10 +321,12 @@ libwii_la_LIBADD = -lcwiid -llinuxtrack
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_LIBADD = -llinuxtrack
 dist_pkgdata_DATA = .linuxtrack
-@XPLANE_PLUGIN_TRUE@xlinuxtrack_la_SOURCES = xlinuxtrack.c
+@XPLANE_PLUGIN_TRUE@xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
+@XPLANE_PLUGIN_TRUE@			    utils.c utils.h
+
 @XPLANE_PLUGIN_TRUE@xlinuxtrack_la_CFLAGS = -I../${XPLANE_SDK}/CHeaders/XPLM -I../${XPLANE_SDK}/CHeaders/Widgets -I../${XPLANE_SDK}/CHeaders/Wrappers $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS)
 @XPLANE_PLUGIN_TRUE@xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib
-@XPLANE_PLUGIN_TRUE@xlinuxtrack_la_LIBADD = -llt
+@XPLANE_PLUGIN_TRUE@xlinuxtrack_la_LIBADD = -llt -lm
 AM_YFLAGS = -d
 AM_LFLAGS = -i
 BUILT_SOURCES = pref_flex.c pref_bison.c pref_bison.h
@@ -497,7 +502,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wiimote_driver.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_la-utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_la-xlinuxtrack.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xlinuxtrack_la-xlinuxtrack_pref.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -526,6 +533,20 @@ xlinuxtrack_la-xlinuxtrack.lo: xlinuxtrack.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='xlinuxtrack.c' object='xlinuxtrack_la-xlinuxtrack.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_la_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_la-xlinuxtrack.lo `test -f 'xlinuxtrack.c' || echo '$(srcdir)/'`xlinuxtrack.c
+
+xlinuxtrack_la-xlinuxtrack_pref.lo: xlinuxtrack_pref.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_la_CFLAGS) $(CFLAGS) -MT xlinuxtrack_la-xlinuxtrack_pref.lo -MD -MP -MF $(DEPDIR)/xlinuxtrack_la-xlinuxtrack_pref.Tpo -c -o xlinuxtrack_la-xlinuxtrack_pref.lo `test -f 'xlinuxtrack_pref.c' || echo '$(srcdir)/'`xlinuxtrack_pref.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/xlinuxtrack_la-xlinuxtrack_pref.Tpo $(DEPDIR)/xlinuxtrack_la-xlinuxtrack_pref.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='xlinuxtrack_pref.c' object='xlinuxtrack_la-xlinuxtrack_pref.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_la_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_la-xlinuxtrack_pref.lo `test -f 'xlinuxtrack_pref.c' || echo '$(srcdir)/'`xlinuxtrack_pref.c
+
+xlinuxtrack_la-utils.lo: utils.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_la_CFLAGS) $(CFLAGS) -MT xlinuxtrack_la-utils.lo -MD -MP -MF $(DEPDIR)/xlinuxtrack_la-utils.Tpo -c -o xlinuxtrack_la-utils.lo `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/xlinuxtrack_la-utils.Tpo $(DEPDIR)/xlinuxtrack_la-utils.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='utils.c' object='xlinuxtrack_la-utils.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_la_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_la-utils.lo `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
 
 .l.c:
 	$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ -- $(LEXCOMPILE)
