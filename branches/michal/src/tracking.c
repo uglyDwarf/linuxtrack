@@ -173,7 +173,7 @@ static int update_pose_1pt(struct frame_type *frame)
     get_axes();
   }
   
-  pthread_mutex_lock(&pose_mutex);
+//  pthread_mutex_lock(&pose_mutex);
   
   lt_orig_pose.heading = filtered_x - c_x;
   lt_orig_pose.pitch = filtered_y - c_y;
@@ -189,7 +189,7 @@ static int update_pose_1pt(struct frame_type *frame)
   lt_current_pose.ty = 0.0f;
   lt_current_pose.tz = 0.0f;
   
-  pthread_mutex_unlock(&pose_mutex);
+//  pthread_mutex_unlock(&pose_mutex);
   return 0;
 
 }
@@ -236,9 +236,6 @@ static int update_pose_3pt(struct frame_type *frame)
                                               filterfactor);
     }
   }
-  if (first_frame) {
-    first_frame = false;
-  }
 /*  
   log_message("[%f,%f], [%f, %f], [%f, %f]\n", filtered_bloblist.blobs[0].x, 
   filtered_bloblist.blobs[0].y,  filtered_bloblist.blobs[1].x,
@@ -272,6 +269,9 @@ static int update_pose_3pt(struct frame_type *frame)
     nonlinfilt_vec(raw_angles, filtered_angles, filterfactor, filtered_angles);
     nonlinfilt_vec(raw_translations, filtered_translations, filterfactor, 
           filtered_translations);
+  }
+  if (first_frame) {
+    first_frame = false;
   }
   
   if(axes_changed){

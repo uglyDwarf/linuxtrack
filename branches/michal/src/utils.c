@@ -36,6 +36,14 @@ char* my_strdup(const char *s)
 
 void log_message(const char *format, ...)
 {
+  va_list ap;
+  va_start(ap,format);
+  valog_message(format, ap);
+  va_end(ap);
+}
+
+void valog_message(const char *format, va_list va)
+{
   static FILE *output_stream = NULL;
   if(output_stream == NULL){
     output_stream = freopen("/tmp/linuxtrack.log", "w", stderr);
@@ -50,12 +58,10 @@ void log_message(const char *format, ...)
   strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", ts);
   
   fprintf(stderr, "[%s] ", buf);
-  va_list ap;
-  va_start(ap,format);
-  vfprintf(stderr, format, ap);
+  vfprintf(stderr, format, va);
   fflush(stderr);
-  va_end(ap);
 }
+
 
 int my_ioctl(int d, int request, void *argp)
 {

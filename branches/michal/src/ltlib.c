@@ -17,7 +17,6 @@ static int (*fun_lt_int_get_camera_update)(float *heading,
                          float *ty,
                          float *tz) = NULL;
 static lt_state_type (*fun_lt_int_get_tracking_state)(void) = NULL;
-static void (*fun_lt_int_log_message)(const char *format, ...) = NULL;
 
 
 static lib_fun_def_t functions[] = {
@@ -28,7 +27,6 @@ static lib_fun_def_t functions[] = {
 {"lt_int_recenter", (void*) &fun_lt_int_recenter},
 {"lt_int_get_camera_update", (void*) &fun_lt_int_get_camera_update},
 {"lt_int_get_tracking_state", (void*) &fun_lt_int_get_tracking_state},
-{"lt_int_log_message", (void*) &fun_lt_int_log_message},
 {NULL, NULL}
 };
 
@@ -115,13 +113,8 @@ lt_state_type lt_get_tracking_state(void)
 
 void lt_log_message(const char *format, ...)
 {
-  if(fun_lt_int_log_message == NULL){
-    if((libhandle = lt_load_library(libname, functions)) != NULL){
-      return;
-    }
-  }
   va_list ap;
   va_start(ap,format);
-  fun_lt_int_log_message(format, ap);
+  valog_message(format, ap);
   va_end(ap);
 }

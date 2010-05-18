@@ -3,6 +3,10 @@
 
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct list* plist;
 typedef struct iterator{
   struct list_element *elem;
@@ -69,6 +73,10 @@ void free_list(plist list_ptr, bool free_payload);
  */
 int list2string_list(plist l, char **ids[]);
 void array_cleanup(char **ids[]);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

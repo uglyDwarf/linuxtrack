@@ -61,9 +61,16 @@ bool active_flag = false;
 
 void	MyHotKeyCallback(void *               inRefcon);    
 
+/*
 int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
                           int                  inIsBefore,
                           void *               inRefcon);
+*/
+float AircraftDrawCallback(          float                inElapsedSinceLastCall,
+                                   float                inElapsedTimeSinceLastFlightLoop,
+                                   int                  inCounter,
+                                   void *               inRefcon);    
+
 
 float	joystickCallback(
                                    float                inElapsedSinceLastCall,    
@@ -415,10 +422,9 @@ void activate(void)
 	  freeze = false;
           lt_recenter();
 	  XPLMCommandKeyStroke(xplm_key_forward);
-          XPLMRegisterDrawCallback(
+          XPLMRegisterFlightLoopCallback(
                              AircraftDrawCallback,
-                             xplm_Phase_LastCockpit,
-                             0,
+                             -1,
                              NULL);
 	  lt_wakeup();
 }
@@ -426,10 +432,8 @@ void activate(void)
 void deactivate(void)
 {
 	  active_flag=false;
-	  XPLMUnregisterDrawCallback(
+	  XPLMUnregisterFlightLoopCallback(
                                AircraftDrawCallback,
-                               xplm_Phase_LastCockpit,
-                               0,
                                NULL);
                                
           XPLMSetDataf(head_x,base_x);
@@ -548,13 +552,15 @@ float	joystickCallback(
 
 
 
-int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
-                          int                  inIsBefore,
-                          void *               inRefcon)
+float	AircraftDrawCallback(float                inElapsedSinceLastCall,
+                             float                inElapsedTimeSinceLastFlightLoop,
+                             int                  inCounter,
+                             void *               inRefcon)    
 {
-  (void) inPhase;
-  (void) inIsBefore;
-  (void) inRefcon;
+  (void)inElapsedSinceLastCall;
+  (void)inElapsedTimeSinceLastFlightLoop;
+  (void)inCounter;
+  (void)inRefcon;
   float heading, pitch, roll;
   float tx, ty, tz;
   int retval;
@@ -564,25 +570,18 @@ int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
 
   if (retval < 0) {
     printf("xlinuxtrack: Error code %d detected!\n", retval);
-    return 1;
-  }
-  if(is_finite(heading) && is_finite(pitch) && is_finite(roll) &&
-     is_finite(tx) && is_finite(ty) && is_finite(tz)){
-    // Empty
-  }else{
-    lt_log_message("Bad values!\n");
-    return 1;
+    return -1;
   }
 
   if(freeze == true){
-    return 1;
+    return -1;
   }
   
   tx *= 1e-3;
   ty *= 1e-3;
   tz *= 1e-3;
-/*   printf("heading: %f\tpitch: %f\n", heading, pitch); */ 
-/*   printf("tx: %f\ty: %f\tz: %f\n", tx, ty, tz); */
+  // lt_log_message("heading: %f\tpitch: %f\n", heading, pitch); 
+  // lt_log_message("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);
 
   /* Fill out the camera position info. */
   /* FIXME: not doing translation */
@@ -600,7 +599,7 @@ int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
   XPLMSetDataf(head_z,base_z + tz);
   XPLMSetDataf(head_psi,heading);
   XPLMSetDataf(head_the,pitch);
-	return 1;
+	return -1;
 }                                   
 
 //positive x moves us to the right (meters?)

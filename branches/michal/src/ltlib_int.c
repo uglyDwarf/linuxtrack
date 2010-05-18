@@ -93,6 +93,6 @@ void lt_int_log_message(const char *format, ...)
 {
   va_list ap;
   va_start(ap,format);
-  log_message(format, ap);
+  valog_message(format, ap);
   va_end(ap);
 }

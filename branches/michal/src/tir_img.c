@@ -9,6 +9,7 @@
 
 static int pkt_no = 0;
 static image *p_img = NULL;
+static unsigned int current_line = 0;
 
 static bool process_stripe_tir(unsigned char p_stripe[])
 {
@@ -42,6 +43,21 @@ static bool process_stripe_tir(unsigned char p_stripe[])
       log_message("Couldn't add stripe!\n");
     }
   return true;
+}
+
+static bool is_next_frame_tir(unsigned char p_stripe[])
+{
+  unsigned int vline = p_stripe[0];
+  bool res;
+  if(p_stripe[3] & 0x20)
+    vline |= 0x100;
+  if(vline < current_line){
+    res = true;
+  }else{
+    res = false;
+  }
+  current_line = vline;
+  return res;
 }
 
 static bool process_stripe_tir5(unsigned char payload[])
@@ -136,6 +152,13 @@ bool process_packet_tir4(unsigned char data[], size_t *ptr, int pktsize, unsigne
   bool go_on = true;
   do{
     if(*ui == 0){
+      current_line = 0;
+      have_frame = true;
+      go_on = false;
+      ++ui;
+      (*ptr) += 4;
+    }else if(is_next_frame_tir((unsigned char *)ui)){
+      log_message("Have frame!!!!!!\n");
       have_frame = true;
       go_on = false;
     }else{
@@ -143,9 +166,9 @@ bool process_packet_tir4(unsigned char data[], size_t *ptr, int pktsize, unsigne
 //             data[*ptr + 2], data[*ptr + 3]);
       assert((data[*ptr + 3] & 7) == 0);
       process_stripe_tir((unsigned char *)ui);
+      ++ui;
+      (*ptr) += 4;
     }
-    ++ui;
-    (*ptr) += 4;
     if(*ptr >= limit){
 //      log_message(">>>  size %d, limit %d, ptr %d\n", pktsize, limit, *ptr);
       go_on = false;
