@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
   float tx, ty, tz;
   int retval;
 
-  retval = lt_init(NULL);
+  retval = lt_init("default");
   usleep(1500000);
   if (retval < 0) { 
     printf("Error %d detected! Aborting!\n", retval);

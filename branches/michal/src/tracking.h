@@ -28,13 +28,17 @@ struct current_pose{
   float tz;
 };
 
-extern struct current_pose lt_current_pose;
 extern struct current_pose lt_orig_pose;
-extern pthread_mutex_t pose_mutex;
 
 bool init_tracking();
 int update_pose(struct frame_type *frame);
 int recenter_tracking();
+int get_camera_update(float *heading,
+                      float *pitch,
+                      float *roll,
+                      float *tx,
+                      float *ty,
+                      float *tz);
 
 #ifdef __cplusplus
 }

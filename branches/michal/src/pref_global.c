@@ -79,9 +79,9 @@ static char *get_model_section()
     model_section_changed = true;
   }
   
-  if(model_section_changed){
+//  if(model_section_changed){
     name = get_str(model_section);
-  }
+//  }
   return name;
 }
 

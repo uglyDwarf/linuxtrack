@@ -334,15 +334,21 @@ int pose_compute_camera_update(struct transform trans,
                                float *ty,
                                float *tz)
 {
-  *tx = trans.tr[0];
-  *ty = trans.tr[1];
-  *tz = trans.tr[2];
-  matrix_to_euler(trans.rot, pitch, yaw, roll);
-  /* convert to degrees */
-  (*pitch) *= 180.0/M_PI;
-  (*yaw)   *= 180.0/M_PI;
-  (*roll)  *= 180.0/M_PI;
-  return 0;
+  float p, y, r;
+  matrix_to_euler(trans.rot, &p, &y, &r);
+  if(is_finite(trans.tr[0]) && is_finite(trans.tr[1]) && is_finite(trans.tr[2]) 
+                               && is_finite(p) && is_finite(y) &&is_finite(r)){
+
+    *tx = trans.tr[0];
+    *ty = trans.tr[1];
+    *tz = trans.tr[2];
+    /* convert to degrees */
+    (*pitch) = p * 180.0f /M_PI;
+    (*yaw)   = y * 180.0f /M_PI;
+    (*roll)  = r * 180.0f /M_PI;
+    return 0;
+  }
+  return -1;
 }
 
 /*

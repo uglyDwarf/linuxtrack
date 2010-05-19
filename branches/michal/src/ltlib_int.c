@@ -1,6 +1,5 @@
 
 #include <stdarg.h>
-#include <pthread.h>
 #include "pref_global.h"
 #include "utils.h" 
 #include "pref_int.h"
@@ -51,17 +50,7 @@ int lt_int_get_camera_update(float *heading,
                          float *ty,
                          float *tz)
 {
-  pthread_mutex_lock(&pose_mutex);
-  
-  *heading = lt_current_pose.heading;
-  *pitch = lt_current_pose.pitch;
-  *roll = lt_current_pose.roll;
-  *tx = lt_current_pose.tx;
-  *ty = lt_current_pose.ty;
-  *tz = lt_current_pose.tz;
-  
-  pthread_mutex_unlock(&pose_mutex);
-  return 0;
+  return get_camera_update(heading, pitch,roll, tx, ty, tz);
 }
 
 int lt_int_suspend(void)

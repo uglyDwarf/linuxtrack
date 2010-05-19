@@ -27,6 +27,7 @@ int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   frame.bitmap = NULL;
   
   cal_device_state = RUNNING;
+  request = PAUSE;
   while(1){
     pthread_mutex_lock(&state_mx);
     my_request = request;
