@@ -1,4 +1,5 @@
 #include "xlinuxtrack_pref.h"
+#include <ltlib.h>
 #include <assert.h>
 
 struct pref{
@@ -124,6 +125,7 @@ int get_pref(struct pref *p, enum pref_id id)
       return p->pause;
       break;
     default:
+      lt_log_message("XLinuxtrack_pref: wrong pref ID: %d\n", id);
       return -1;
       break;
   }

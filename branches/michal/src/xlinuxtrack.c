@@ -45,7 +45,7 @@ int			recenter_button = -1;
 
 float			debounce_time = 0.01;
 
-int button_array_size = 0;
+int button_array_size = -1;
 int pos_init_flag = 0;
 bool freeze = false;
 
@@ -110,7 +110,7 @@ struct buttonDef btArray[] = {
   }
 };
 
-struct pref *prefs = NULL;
+struct pref *xltrprefs = NULL;
 char *pref_fname = NULL;
 
 void linuxTrackMenuHandler(void *inMenuRef, void *inItemRef)
@@ -145,6 +145,10 @@ bool updateButtonCaption(int index, int button)
   if(index < 0){
     return false;
   }
+  if((button < 0) || (button > button_array_size)){
+    lt_log_message("Xlinuxtrack: wrong button number! %d \n", button);
+    return true;
+  }
   if(button >= 0){
     sprintf(text, "%s button %d", btArray[index].caption, button);
   }else{
@@ -152,11 +156,7 @@ bool updateButtonCaption(int index, int button)
   }
   XPSetWidgetDescriptor(btArray[index].text, text);
   
-  if(button < 0){
-    return true;
-  }
-  
-  set_pref(prefs, btArray[index].id, button);
+  set_pref(xltrprefs, btArray[index].id, button);
   switch(index){
     case 0:
       recenter_button = button;
@@ -253,7 +253,7 @@ int setupWindowHandler(XPWidgetMessage inMessage,
       joyMapDialog("Remap joystick button for Tracking freeze");
     }
     if(inParam1 == (long)saveButton){
-      save_pref(pref_fname, prefs);
+      save_pref(pref_fname, xltrprefs);
     }
   }
   return 0;
@@ -324,15 +324,37 @@ PLUGIN_API int XPluginStart(
   strcpy(outSig, "linuxtrack.camera");
   strcpy(outDesc, "A plugin that controls view using your webcam.");
 
-  pref_fname = get_pref_file_name();
-  prefs = new_pref();
-  read_pref(pref_fname, prefs);
-  
-  if(!is_pref_valid(prefs)){
-    log_message("Invalid pref definitions!\n");
+  int xplane_ver;
+  int sdk_ver;
+  XPLMHostApplicationID app_id;
+  XPLMGetVersions(&xplane_ver, &sdk_ver, &app_id);
+  if(xplane_ver < 850){
+    button_array_size = 64;
+  }else if(xplane_ver < 900){
+    button_array_size = 160;
+  }else{
+    button_array_size = 1520;
   }
-  freeze_button = get_pref(prefs, START_STOP);
-  recenter_button = get_pref(prefs, PAUSE);
+  lt_log_message("%d joystick buttons\n", button_array_size);
+  
+  pref_fname = get_pref_file_name();
+  xltrprefs = new_pref();
+  read_pref(pref_fname, xltrprefs);
+  
+  if(!is_pref_valid(xltrprefs)){
+    lt_log_message("Invalid pref definitions!\n");
+  }
+  freeze_button = get_pref(xltrprefs, START_STOP);
+  recenter_button = get_pref(xltrprefs, PAUSE);
+  
+  if(freeze_button > button_array_size){
+    lt_log_message("Freeze button number too big! %d\n", freeze_button);
+    freeze_button = -1;
+  }
+  if(recenter_button > button_array_size){
+    lt_log_message("Recenter button number too big! %d\n", recenter_button);
+    recenter_button = -1;
+  }
   
   /* Register our hot key for the new view. */
   gTrackKey = XPLMRegisterHotKey(XPLM_VK_F8, xplm_DownFlag, 
@@ -351,18 +373,6 @@ PLUGIN_API int XPluginStart(
   head_the = XPLMFindDataRef("sim/graphics/view/pilots_head_the");
   joy_buttons = XPLMFindDataRef("sim/joystick/joystick_button_values");
   
-  int xplane_ver;
-  int sdk_ver;
-  XPLMHostApplicationID app_id;
-  XPLMGetVersions(&xplane_ver, &sdk_ver, &app_id);
-  if(xplane_ver < 850){
-    button_array_size = 64;
-  }else if(xplane_ver < 900){
-    button_array_size = 160;
-  }else{
-    button_array_size = 1520;
-  }
-  printf("%d joystick buttons\n", button_array_size);
   
   if((head_x==NULL)||(head_y==NULL)||(head_z==NULL)||
      (head_psi==NULL)||(head_the==NULL)||(joy_buttons==NULL)){
@@ -391,8 +401,9 @@ PLUGIN_API void	XPluginStop(void)
   XPLMUnregisterHotKey(gTrackKey);
   XPLMUnregisterHotKey(gFreezeKey);
   XPLMUnregisterFlightLoopCallback(joystickCallback, NULL);
+  XPLMUnregisterFlightLoopCallback(AircraftDrawCallback, NULL);
   lt_shutdown();
-  free(prefs);
+  free(xltrprefs);
   free(pref_fname);
 }
 
@@ -510,10 +521,10 @@ void process_joy()
   
   XPLMGetDatavi(joy_buttons, buttons, 0, 1520);
   
-  if(freeze_button != -1){
+  if((freeze_button > 0) && (freeze_button < button_array_size)){
     joy_fsm(buttons[freeze_button], &freeze_state, &freeze_ts, &freeze);
   }
-  if(recenter_button != -1){
+  if((recenter_button > 0) && (recenter_button < button_array_size)){
     joy_fsm(buttons[recenter_button], &recenter_state, &recenter_ts, &active_flag);
   }
 }
@@ -580,12 +591,6 @@ float	AircraftDrawCallback(float                inElapsedSinceLastCall,
   tx *= 1e-3;
   ty *= 1e-3;
   tz *= 1e-3;
-  // lt_log_message("heading: %f\tpitch: %f\n", heading, pitch); 
-  // lt_log_message("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);
-
-  /* Fill out the camera position info. */
-  /* FIXME: not doing translation */
-  /* FIXME: not roll, is this even possible? */
 
   if(pos_init_flag == 1){
     pos_init_flag = 0;
