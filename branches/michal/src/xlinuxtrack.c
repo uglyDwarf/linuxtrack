@@ -62,11 +62,11 @@ bool active_flag = false;
 void	MyHotKeyCallback(void *               inRefcon);    
 
 /*
-int	AircraftDrawCallback(	XPLMDrawingPhase     inPhase,
+int	LtrAircraftDrawCallback(	XPLMDrawingPhase     inPhase,
                           int                  inIsBefore,
                           void *               inRefcon);
 */
-float AircraftDrawCallback(          float                inElapsedSinceLastCall,
+float LtrAircraftDrawCallback(          float                inElapsedSinceLastCall,
                                    float                inElapsedTimeSinceLastFlightLoop,
                                    int                  inCounter,
                                    void *               inRefcon);    
@@ -401,7 +401,7 @@ PLUGIN_API void	XPluginStop(void)
   XPLMUnregisterHotKey(gTrackKey);
   XPLMUnregisterHotKey(gFreezeKey);
   XPLMUnregisterFlightLoopCallback(joystickCallback, NULL);
-  XPLMUnregisterFlightLoopCallback(AircraftDrawCallback, NULL);
+  XPLMUnregisterFlightLoopCallback(LtrAircraftDrawCallback, NULL);
   lt_shutdown();
   free(xltrprefs);
   free(pref_fname);
@@ -434,7 +434,7 @@ void activate(void)
           lt_recenter();
 	  XPLMCommandKeyStroke(xplm_key_forward);
           XPLMRegisterFlightLoopCallback(
-                             AircraftDrawCallback,
+                             LtrAircraftDrawCallback,
                              -1,
                              NULL);
 	  lt_wakeup();
@@ -444,7 +444,7 @@ void deactivate(void)
 {
 	  active_flag=false;
 	  XPLMUnregisterFlightLoopCallback(
-                               AircraftDrawCallback,
+                               LtrAircraftDrawCallback,
                                NULL);
                                
           XPLMSetDataf(head_x,base_x);
@@ -563,7 +563,7 @@ float	joystickCallback(
 
 
 
-float	AircraftDrawCallback(float                inElapsedSinceLastCall,
+float	LtrAircraftDrawCallback(float                inElapsedSinceLastCall,
                              float                inElapsedTimeSinceLastFlightLoop,
                              int                  inCounter,
                              void *               inRefcon)    
