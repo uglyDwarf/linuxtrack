@@ -5,11 +5,6 @@
 #include <stdbool.h>
 /* for joystick */
 #include <linux/joystick.h>
-/* for network */
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 
 #define LTSERVER_VERSION 0x400
 
@@ -33,20 +28,14 @@ typedef struct {
   struct js_event  recenter_event;
 } ltserver_joy_ctrl_blk_t;
 
-typedef struct {
-  int                 sd;
-  struct  sockaddr_in server_addr;
-  struct  sockaddr_in client_addr;
-} ltserver_net_ctrl_blk_t;
-
 int ltserver_init_linuxtrack(void);
 
 int ltserver_init_joystick(ltserver_joy_ctrl_blk_t *pjoy);
 
-int ltserver_init_network(ltserver_net_ctrl_blk_t *pnet);
+int ltserver_init_network(ltcomm_net_ctrl_blk_t *pnet);
 
-int ltserver_get_network_message(ltserver_net_ctrl_blk_t     *pnet,
-                                 npcomm_client_request_msg_t *msg);
+int ltserver_get_network_message(ltcomm_net_ctrl_blk_t       *pnet,
+                                 ltcomm_client_request_msg_t *msg);
 
 int ltserver_check_for_recenter_request(ltserver_joy_ctrl_blk_t *pjoy,
                                         bool                    *recenter_requested);

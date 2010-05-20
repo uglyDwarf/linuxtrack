@@ -137,7 +137,7 @@ int ltserver_init_joystick(ltserver_joy_ctrl_blk_t *pjoy)
   return 0;
 }
 
-int ltserver_init_network(ltserver_net_ctrl_blk_t *pnet)
+int ltserver_init_network(ltcomm_net_ctrl_blk_t *pnet)
 {
   pref_id  net_hostname_pref;
   char    *hostname;
@@ -209,12 +209,12 @@ int ltserver_check_for_recenter_request(ltserver_joy_ctrl_blk_t *pjoy,
   *recenter_requested = false;
 
   // basically, flush out events till we hit the max reads,
-  //   no data is read, or we hit our target event
+  //   no data is                                    read, or we hit our target event
   // the intent is to flush all the non-recenter events
   while (i<LTSERVER_JOY_EVENT_FLUSHDEPTH){
     if (read(pjoy->fd, &js, sizeof(struct js_event)) == -1) {
       if (errno == EAGAIN) {
-        // this just means no data read, drop out early
+        // this just means no data                   read, drop out early
         return 0;
       }
       else {
@@ -237,10 +237,10 @@ int ltserver_check_for_recenter_request(ltserver_joy_ctrl_blk_t *pjoy,
   return 0;
 }
 
-int ltserver_send_msg(ltserver_net_ctrl_blk_t   *pnet,
-                      npcomm_server_reply_msg_t *msg)
+int ltserver_send_msg(ltcomm_net_ctrl_blk_t     *pnet,
+                      ltcomm_server_reply_msg_t *msg)
 {
-  if (sendto(pnet->sd, (void *) msg, sizeof(npcomm_server_reply_msg_t), 0,
+  if (sendto(pnet->sd, (void *) msg, sizeof(ltcomm_server_reply_msg_t), 0,
              (struct sockaddr *) &(pnet->client_addr),
              sizeof(pnet->client_addr)) == -1) {
     lt_log_message("Network sendto failed: id=%d, \n", msg->id);
@@ -251,58 +251,58 @@ int ltserver_send_msg(ltserver_net_ctrl_blk_t   *pnet,
   return 0;
 }
 
-int ltserver_send_nack(ltserver_net_ctrl_blk_t *pnet,
-                       uint16_t                 err)
+int ltserver_send_nack(ltcomm_net_ctrl_blk_t *pnet,
+                       uint16_t               err)
 {
-  npcomm_server_reply_msg_t msg;
+  ltcomm_server_reply_msg_t msg;
   msg.id                = LTCOMM_SID_NACK;
-  msg.body.nondata_body = err;
+  msg.body.error_body = err;
   return ltserver_send_msg(pnet, &msg);
 }
 
-int ltserver_send_ack(ltserver_net_ctrl_blk_t *pnet)
+int ltserver_send_ack(ltcomm_net_ctrl_blk_t *pnet)
 {
-  npcomm_server_reply_msg_t msg;
+  ltcomm_server_reply_msg_t msg;
   msg.id                = LTCOMM_SID_ACK;
-  msg.body.nondata_body = 0;
+  msg.body.error_body = 0;
   return ltserver_send_msg(pnet, &msg);
 }
 
-int ltserver_send_data_reply(ltserver_net_ctrl_blk_t  *pnet,
-                             npcomm_get_data_coords_t  data)
+int ltserver_send_data_reply(ltcomm_net_ctrl_blk_t    *pnet,
+                             ltcomm_get_data_coords_t  data)
 {
-  npcomm_server_reply_msg_t msg;
+  ltcomm_server_reply_msg_t msg;
   msg.id                 = LTCOMM_SID_DATA_REPLY;
-  msg.body.get_data_body = data;
+  msg.body.data_body = data;
   return ltserver_send_msg(pnet, &msg);
 }
 
-int ltserver_send_version_reply(ltserver_net_ctrl_blk_t *pnet,
-                                uint16_t                 version)
+int ltserver_send_version_reply(ltcomm_net_ctrl_blk_t *pnet,
+                                uint16_t               version)
 {
-  npcomm_server_reply_msg_t msg;
+  ltcomm_server_reply_msg_t msg;
   msg.id                = LTCOMM_SID_VERSION_REPLY;
-  msg.body.nondata_body = version;
+  msg.body.version_body = version;
   return ltserver_send_msg(pnet, &msg);
 }
 
-int ltserver_send_param_reply(ltserver_net_ctrl_blk_t *pnet,
-                              uint16_t                 param)
+int ltserver_send_param_reply(ltcomm_net_ctrl_blk_t *pnet,
+                              uint16_t               param)
 {
-  npcomm_server_reply_msg_t msg;
+  ltcomm_server_reply_msg_t msg;
   msg.id                = LTCOMM_SID_PARAM_REPLY;
-  msg.body.nondata_body = param;
+  msg.body.param_body = param;
   return ltserver_send_msg(pnet, &msg);
 }
 
-int ltserver_get_network_message(ltserver_net_ctrl_blk_t     *pnet,
-                                 npcomm_client_request_msg_t *msg)
+int ltserver_get_network_message(ltcomm_net_ctrl_blk_t       *pnet,
+                                 ltcomm_client_request_msg_t *msg)
 {
   int  client_slen   = sizeof(struct sockaddr_in);
   bool got_valid_msg = false;
 
   while (!got_valid_msg) {
-    if (recvfrom(pnet->sd, msg, sizeof(npcomm_client_request_msg_t), 0,
+    if (recvfrom(pnet->sd, msg, sizeof(ltcomm_client_request_msg_t), 0,
                  (struct sockaddr *)&(pnet->client_addr),
                  (socklen_t * )&client_slen) == -1) {
       lt_log_message("Network recvfrom failed\n");
@@ -347,7 +347,7 @@ int main(void)
   }
 
   /*** network *****************************************************************/
-  ltserver_net_ctrl_blk_t net;
+  ltcomm_net_ctrl_blk_t net;
   if (ltserver_init_network(&net) != 0) {
     lt_log_message("Unable to initialize network!\n");
     exit(1);
@@ -371,9 +371,9 @@ int main(void)
   bool                        terminate          = false;
   bool                        running            = false;
   bool                        recenter_requested = false;
-  npcomm_client_request_msg_t cmsg;
+  ltcomm_client_request_msg_t cmsg;
   int                         ltretval;
-  npcomm_get_data_coords_t    dc;
+  ltcomm_get_data_coords_t    dc;
 
   while (!terminate) {
     /* network update */
@@ -431,6 +431,9 @@ int main(void)
         ltserver_send_ack(&net);
         break;
       case LTCOMM_CID_TERMINATE:
+        lt_log_message("Terminate: Host: %s\tPort: %d\n",
+                       inet_ntoa(net.client_addr.sin_addr),
+                       ntohs(net.client_addr.sin_port));
         ltserver_send_ack(&net);
         terminate = true;
         break;
