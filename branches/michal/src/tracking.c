@@ -16,45 +16,45 @@ static struct blob_type filtered_blobs[3];
 static bool first_frame = true;
 static bool recenter = false;
 static bool axes_changed = false;
-struct current_pose lt_orig_pose;
+struct current_pose ltr_int_orig_pose;
 
 /*******************************/
 /* private function prototypes */
 /*******************************/
-float expfilt(float x, 
+/*static float expfilt(float x, 
               float y_minus_1,
               float filtfactor);
 
-void expfilt_vec(float x[3], 
+static void expfilt_vec(float x[3], 
+              float y_minus_1[3],
+              float filtfactor,
+              float res[3]);
+*/
+static float nonlinfilt(float x, 
+              float y_minus_1,
+              float filtfactor);
+
+static void nonlinfilt_vec(float x[3], 
               float y_minus_1[3],
               float filtfactor,
               float res[3]);
 
-float nonlinfilt(float x, 
-              float y_minus_1,
-              float filtfactor);
-
-void nonlinfilt_vec(float x[3], 
-              float y_minus_1[3],
-              float filtfactor,
-              float res[3]);
-
-float clamp_angle(float angle);
+static float clamp_angle(float angle);
 
 /************************/
 /* function definitions */
 /************************/
 
-bool check_pose()
+bool ltr_int_check_pose()
 {
   struct reflector_model_type rm;
-  if(model_changed()){
-    if(get_model_setup(&rm) == false){
-      log_message("Can't get pose setup!\n");
+  if(ltr_int_model_changed()){
+    if(ltr_int_get_model_setup(&rm) == false){
+      ltr_int_log_message("Can't get pose setup!\n");
       return false;
     }
-    log_message("Initializing model!\n");
-    pose_init(rm);
+    ltr_int_log_message("Initializing model!\n");
+    ltr_int_pose_init(rm);
   }
   return true;
 }
@@ -62,50 +62,50 @@ bool check_pose()
 static bool get_axes()
 {
   bool res = true;
-  res &= get_axis("Pitch", &(axes.pitch_axis), &axes_changed);
-  res &= get_axis("Yaw", &(axes.yaw_axis), &axes_changed);
-  res &= get_axis("Roll", &(axes.roll_axis), &axes_changed);
-  res &= get_axis("Xtranslation", &(axes.tx_axis), &axes_changed);
-  res &= get_axis("Ytranslation", &(axes.ty_axis), &axes_changed);
-  res &= get_axis("Ztranslation", &(axes.tz_axis), &axes_changed);
+  res &= ltr_int_get_axis("Pitch", &(axes.pitch_axis), &axes_changed);
+  res &= ltr_int_get_axis("Yaw", &(axes.yaw_axis), &axes_changed);
+  res &= ltr_int_get_axis("Roll", &(axes.roll_axis), &axes_changed);
+  res &= ltr_int_get_axis("Xtranslation", &(axes.tx_axis), &axes_changed);
+  res &= ltr_int_get_axis("Ytranslation", &(axes.ty_axis), &axes_changed);
+  res &= ltr_int_get_axis("Ztranslation", &(axes.tz_axis), &axes_changed);
   return res;
 }
 
 static void close_axes()
 {
-  close_axis(&(axes.pitch_axis));
-  close_axis(&(axes.yaw_axis));
-  close_axis(&(axes.roll_axis));
-  close_axis(&(axes.tx_axis));
-  close_axis(&(axes.ty_axis));
-  close_axis(&(axes.tz_axis));
+  ltr_int_close_axis(&(axes.pitch_axis));
+  ltr_int_close_axis(&(axes.yaw_axis));
+  ltr_int_close_axis(&(axes.roll_axis));
+  ltr_int_close_axis(&(axes.tx_axis));
+  ltr_int_close_axis(&(axes.ty_axis));
+  ltr_int_close_axis(&(axes.tz_axis));
 }
 
-bool tracking_initialized = false;
+static bool tracking_initialized = false;
 
-bool init_tracking()
+bool ltr_int_init_tracking()
 {
-  if(get_filter_factor(&filterfactor) != true){
+  if(ltr_int_get_filter_factor(&filterfactor) != true){
     return false;
   }
   if(!get_axes()){
-    log_message("Couldn't load axes definitions!\n");
+    ltr_int_log_message("Couldn't load axes definitions!\n");
     return false;
   }
 
-  if(check_pose() == false){
-    log_message("Can't get pose setup!\n");
+  if(ltr_int_check_pose() == false){
+    ltr_int_log_message("Can't get pose setup!\n");
     return false;
   }
   filtered_bloblist.num_blobs = 3;
   filtered_bloblist.blobs = filtered_blobs;
   first_frame = true;
-  log_message("Tracking initialized!\n");
+  ltr_int_log_message("Tracking initialized!\n");
   tracking_initialized = true;
   return true;
 }
 
-int recenter_tracking()
+int ltr_int_recenter_tracking()
 {
   recenter = true;
   return 0;
@@ -114,7 +114,7 @@ int recenter_tracking()
 //Purpose of this procedure is to modify translations to work more
 //intuitively - if I rotate my head right and move it to the left,
 //it should move view left, not back
-void rotate_translations(float *heading, float *pitch, float *roll, 
+static void rotate_translations(float *heading, float *pitch, float *roll, 
                          float *tx, float *ty, float *tz)
 {
   float tm[3][3];
@@ -122,17 +122,17 @@ void rotate_translations(float *heading, float *pitch, float *roll,
   float p = *pitch / k;
   float y = *heading / k;
   float r = *roll / k;
-  euler_to_matrix(p, y, r, tm);
+  ltr_int_euler_to_matrix(p, y, r, tm);
   float tr[3] = {*tx, *ty, *tz};
   float res[3];
-  transpose_in_place(tm);
-  matrix_times_vec(tm, tr, res);
+  ltr_int_transpose_in_place(tm);
+  ltr_int_matrix_times_vec(tm, tr, res);
   *tx = res[0];
   *ty = res[1];
   *tz = res[2];
 }
 
-pthread_mutex_t pose_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t pose_mutex = PTHREAD_MUTEX_INITIALIZER;
 static float raw_angles[3] = {0.0f, 0.0f, 0.0f};
 static float raw_translations[3] = {0.0f, 0.0f, 0.0f};
 
@@ -142,10 +142,10 @@ static int update_pose_1pt(struct frame_type *frame)
   static float c_y = 0.0f;
   bool recentering = false;
   
-  check_pose();
+  ltr_int_check_pose();
   
   
-  if(is_finite(frame->bloblist.blobs[0].x) && is_finite(frame->bloblist.blobs[0].y)){
+  if(ltr_int_is_finite(frame->bloblist.blobs[0].x) && ltr_int_is_finite(frame->bloblist.blobs[0].y)){
   }else{
     return -1;
   }
@@ -175,14 +175,14 @@ static int update_pose_3pt(struct frame_type *frame)
   struct transform t;
   bool recentering = false;
   
-  check_pose();
+  ltr_int_check_pose();
 
   if(frame->bloblist.num_blobs != 3){
     return -1;
   }
-  if(is_finite(frame->bloblist.blobs[0].x) && is_finite(frame->bloblist.blobs[0].y) &&
-      is_finite(frame->bloblist.blobs[1].x) && is_finite(frame->bloblist.blobs[1].y) &&
-      is_finite(frame->bloblist.blobs[2].x) && is_finite(frame->bloblist.blobs[2].y)){
+  if(ltr_int_is_finite(frame->bloblist.blobs[0].x) && ltr_int_is_finite(frame->bloblist.blobs[0].y) &&
+      ltr_int_is_finite(frame->bloblist.blobs[1].x) && ltr_int_is_finite(frame->bloblist.blobs[1].y) &&
+      ltr_int_is_finite(frame->bloblist.blobs[2].x) && ltr_int_is_finite(frame->bloblist.blobs[2].y)){
   }else{
     return -1;
   }
@@ -191,10 +191,10 @@ static int update_pose_3pt(struct frame_type *frame)
     recentering = true;
   } 
   
-  pose_sort_blobs(frame->bloblist);
-  pose_process_blobs(frame->bloblist, &t, recentering);
+  ltr_int_pose_sort_blobs(frame->bloblist);
+  ltr_int_pose_process_blobs(frame->bloblist, &t, recentering);
 /*     transform_print(t); */
-  return pose_compute_camera_update(t,
+  return ltr_int_pose_compute_camera_update(t,
 			      &raw_angles[0], //heading
 			      &raw_angles[1], //pitch
 			      &raw_angles[2], //roll
@@ -203,16 +203,16 @@ static int update_pose_3pt(struct frame_type *frame)
 			      &raw_translations[2]);//tz
 }
 
-int update_pose(struct frame_type *frame)
+int ltr_int_update_pose(struct frame_type *frame)
 {
-  if(is_single_point()){
+  if(ltr_int_is_single_point()){
     return update_pose_1pt(frame);
   }else{
     return update_pose_3pt(frame);
   }
 }
 
-int get_camera_update(float *heading,
+int ltr_int_tracking_get_camera(float *heading,
                       float *pitch,
                       float *roll,
                       float *tx,
@@ -223,10 +223,10 @@ int get_camera_update(float *heading,
   static float filtered_translations[3] = {0.0f, 0.0f, 0.0f};
   
   if(!tracking_initialized){
-    init_tracking();
+    ltr_int_init_tracking();
   }
   
-  get_filter_factor(&filterfactor);
+  ltr_int_get_filter_factor(&filterfactor);
   nonlinfilt_vec(raw_angles, filtered_angles, filterfactor, filtered_angles);
   nonlinfilt_vec(raw_translations, filtered_translations, filterfactor, 
         filtered_translations);
@@ -238,19 +238,19 @@ int get_camera_update(float *heading,
   }
   
   pthread_mutex_lock(&pose_mutex);
-  lt_orig_pose.heading = filtered_angles[0];
-  lt_orig_pose.pitch = filtered_angles[1];
-  lt_orig_pose.roll = filtered_angles[2];
-  lt_orig_pose.tx = filtered_translations[0];
-  lt_orig_pose.ty = filtered_translations[1];
-  lt_orig_pose.tz = filtered_translations[2];
+  ltr_int_orig_pose.heading = filtered_angles[0];
+  ltr_int_orig_pose.pitch = filtered_angles[1];
+  ltr_int_orig_pose.roll = filtered_angles[2];
+  ltr_int_orig_pose.tx = filtered_translations[0];
+  ltr_int_orig_pose.ty = filtered_translations[1];
+  ltr_int_orig_pose.tz = filtered_translations[2];
   
-  *heading = clamp_angle(val_on_axis(axes.yaw_axis, filtered_angles[0]));
-  *pitch = clamp_angle(val_on_axis(axes.pitch_axis, filtered_angles[1]));
-  *roll = clamp_angle(val_on_axis(axes.roll_axis, filtered_angles[2]));
-  *tx = val_on_axis(axes.tx_axis, filtered_translations[0]);
-  *ty = val_on_axis(axes.ty_axis, filtered_translations[1]);
-  *tz = val_on_axis(axes.tz_axis, filtered_translations[2]);
+  *heading = clamp_angle(ltr_int_val_on_axis(axes.yaw_axis, filtered_angles[0]));
+  *pitch = clamp_angle(ltr_int_val_on_axis(axes.pitch_axis, filtered_angles[1]));
+  *roll = clamp_angle(ltr_int_val_on_axis(axes.roll_axis, filtered_angles[2]));
+  *tx = ltr_int_val_on_axis(axes.tx_axis, filtered_translations[0]);
+  *ty = ltr_int_val_on_axis(axes.ty_axis, filtered_translations[1]);
+  *tz = ltr_int_val_on_axis(axes.tz_axis, filtered_translations[2]);
   
   rotate_translations(heading, pitch, roll, tx, ty, tz);
   
@@ -264,7 +264,7 @@ int get_camera_update(float *heading,
 }
 
 
-
+/*
 float expfilt(float x, 
               float y_minus_1,
               float filterfactor) 
@@ -285,7 +285,7 @@ void expfilt_vec(float x[3],
   res[1] = expfilt(x[1], y_minus_1[1], filterfactor);
   res[2] = expfilt(x[2], y_minus_1[2], filterfactor);
 }
-
+*/
 
 float nonlinfilt(float x, 
               float y_minus_1,

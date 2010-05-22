@@ -7,19 +7,19 @@
 LtrAxis::LtrAxis(const AppProfile* tmp_parent ,const QString &p) : 
   parent(tmp_parent), prefix(p)
 {
-  get_axis(prefix.toAscii().data(), &axis, NULL);
+  ltr_int_get_axis(prefix.toAscii().data(), &axis, NULL);
   emit axisChanged(RELOAD);
 }
 
 LtrAxis::~LtrAxis()
 {
-  close_axis(&axis);
+  ltr_int_close_axis(&axis);
 }
 
 void LtrAxis::reload()
 {
-  close_axis(&axis);
-  get_axis(prefix.toAscii().data(), &axis, NULL);
+  ltr_int_close_axis(&axis);
+  ltr_int_get_axis(prefix.toAscii().data(), &axis, NULL);
   emit axisChanged(RELOAD);
 }
 
@@ -27,10 +27,10 @@ bool LtrAxis::changeEnabled(bool enabled)
 {
   QString val;
   if(enabled){
-    enable_axis(axis);
+    ltr_int_enable_axis(axis);
     val = "yes";
   }else{
-    disable_axis(axis);
+    ltr_int_disable_axis(axis);
     val = "no";
   }
   PREF.setKeyVal(parent->getProfileName(), prefix + "-enabled", val);
@@ -40,7 +40,7 @@ bool LtrAxis::changeEnabled(bool enabled)
 
 bool LtrAxis::changeLFactor(float val)
 {
-  bool res = set_lmult(axis, val);
+  bool res = ltr_int_set_lmult(axis, val);
   if(res){
     PREF.setKeyVal(parent->getProfileName(), prefix + "-left-multiplier", val);
     emit axisChanged(LFACTOR);
@@ -50,7 +50,7 @@ bool LtrAxis::changeLFactor(float val)
 
 bool LtrAxis::changeRFactor(float val)
 {
-  bool res = set_rmult(axis, val);
+  bool res = ltr_int_set_rmult(axis, val);
   if(res){
     PREF.setKeyVal(parent->getProfileName(), prefix + "-right-multiplier", val);
     emit axisChanged(RFACTOR);
@@ -60,7 +60,7 @@ bool LtrAxis::changeRFactor(float val)
 
 bool LtrAxis::changeLCurv(float val)
 {
-  bool res = set_lcurv(axis, val);
+  bool res = ltr_int_set_lcurv(axis, val);
   if(res){
     PREF.setKeyVal(parent->getProfileName(), prefix + "-left-curvature", val);
     emit axisChanged(LCURV);
@@ -70,7 +70,7 @@ bool LtrAxis::changeLCurv(float val)
 
 bool LtrAxis::changeRCurv(float val)
 {
-  bool res = set_rcurv(axis, val);
+  bool res = ltr_int_set_rcurv(axis, val);
   if(res){
     PREF.setKeyVal(parent->getProfileName(), prefix + "-right-curvature", val);
     emit axisChanged(RCURV);
@@ -80,7 +80,7 @@ bool LtrAxis::changeRCurv(float val)
 
 bool LtrAxis::changeDZone(float val)
 {
-  bool res = set_deadzone(axis, val);
+  bool res = ltr_int_set_deadzone(axis, val);
   if(res){
     PREF.setKeyVal(parent->getProfileName(), prefix + "-deadzone", val);
     emit axisChanged(DZONE);
@@ -90,7 +90,7 @@ bool LtrAxis::changeDZone(float val)
 
 bool LtrAxis::changeLimits(float val)
 {
-  bool res = set_limits(axis, val);
+  bool res = ltr_int_set_limits(axis, val);
   if(res){
     PREF.setKeyVal(parent->getProfileName(), prefix + "-limits", val);
     emit axisChanged(LIMITS);
@@ -100,45 +100,45 @@ bool LtrAxis::changeLimits(float val)
 
 bool LtrAxis::getEnabled()
 {
-  return is_enabled(axis);
+  return ltr_int_is_enabled(axis);
 }
 
 float LtrAxis::getLFactor()
 {
-  return get_lmult(axis);
+  return ltr_int_get_lmult(axis);
 }
 
 float LtrAxis::getRFactor()
 {
-  return get_rmult(axis);
+  return ltr_int_get_rmult(axis);
 }
 
 float LtrAxis::getLCurv()
 {
-  return get_lcurv(axis);
+  return ltr_int_get_lcurv(axis);
 }
 
 float LtrAxis::getRCurv()
 {
-  return get_rcurv(axis);
+  return ltr_int_get_rcurv(axis);
 }
 
 float LtrAxis::getDZone()
 {
-  return get_deadzone(axis);
+  return ltr_int_get_deadzone(axis);
 }
 
 float LtrAxis::getLimits()
 {
-  return get_limits(axis);
+  return ltr_int_get_limits(axis);
 }
 
 float LtrAxis::getValue(float val)
 {
-  return val_on_axis(axis, val);
+  return ltr_int_val_on_axis(axis, val);
 }
 
 bool LtrAxis::isSymetrical()
 {
-  return is_symetrical(axis);
+  return ltr_int_is_symetrical(axis);
 }

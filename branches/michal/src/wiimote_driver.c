@@ -13,21 +13,6 @@
 #include "pref_int.h"
 #include "pref_global.h"
 
-/*************/
-/* interface */
-/*************/
-
-
-/*
-tracker_interface trck_iface = {
-  .tracker_init = wiimote_init,
-  .tracker_pause = wiimote_suspend,
-  .tracker_get_frame = wiimote_get_frame,
-  .tracker_resume = wiimote_wakeup,
-  .tracker_close = wiimote_shutdown
-};
-*/
-
 /*********************/
 /* private Constants */
 /*********************/
@@ -37,14 +22,14 @@ tracker_interface trck_iface = {
 /* private data types */
 /**********************/
 // Wiimote handler
-cwiid_wiimote_t *gWiimote = NULL;
+static cwiid_wiimote_t *gWiimote = NULL;
 
-int gStateCheckIn = STATE_CHECK_INTERVAL;
+static int gStateCheckIn = STATE_CHECK_INTERVAL;
 
-pref_id running_indication = NULL;
-pref_id paused_indication = NULL;
-uint8_t running = CWIID_LED1_ON | CWIID_LED4_ON;
-uint8_t paused = CWIID_LED1_ON;
+static pref_id running_indication = NULL;
+static pref_id paused_indication = NULL;
+static uint8_t running = CWIID_LED1_ON | CWIID_LED4_ON;
+static uint8_t paused = CWIID_LED1_ON;
 /*******************************/
 /* private function prototypes */
 /*******************************/
@@ -92,7 +77,7 @@ static int wiimote_read_indications()
  * turns the IR leds on
  * this function may block for up to 3 seconds 
  * a return value < 0 indicates error */
-int tracker_init(struct camera_control_block *ccb) {
+int ltr_int_tracker_init(struct camera_control_block *ccb) {
     (void) ccb;
     wiimote_read_indications();
     bdaddr_t bdaddr;
@@ -118,14 +103,14 @@ int tracker_init(struct camera_control_block *ccb) {
  * can be used to deactivate the wiimote;
  * must call init to restart
  * a return value < 0 indicates error */
-int tracker_close() {
+int ltr_int_tracker_close() {
     if (gWiimote) cwiid_close(gWiimote);
     return 0;
 }
 
 /* turn off all the leds, and flush the queue 
  * a return value < 0 indicates error */
-int tracker_pause() {
+int ltr_int_tracker_pause() {
     cwiid_set_led(gWiimote, paused);
     cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS);
     return 0;
@@ -135,7 +120,7 @@ int tracker_pause() {
  * camera device. 
  * IR leds will reactivate, but that is all
  * a return value < 0 indicates error */
-int tracker_resume() {
+int ltr_int_tracker_resume() {
     cwiid_set_led(gWiimote, running);
     cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS | CWIID_RPT_IR);
     return 0;
@@ -143,7 +128,7 @@ int tracker_resume() {
 
 /* read the usb, and process it into frames
  * a return value < 0 indicates error */
-int tracker_get_frame(struct camera_control_block *ccb,
+int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
                    struct frame_type *f)
 {
   (void) ccb;

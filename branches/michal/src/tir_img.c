@@ -39,8 +39,8 @@ static bool process_stripe_tir(unsigned char p_stripe[])
     stripe.sum = stripe.hstop - stripe.hstart + 1;
     stripe.sum_x = (unsigned int)(stripe.sum * (stripe.sum - 1) / 2.0);
     stripe.points = stripe.sum;
-    if(!add_stripe(&stripe, p_img)){
-      log_message("Couldn't add stripe!\n");
+    if(!ltr_int_add_stripe(&stripe, p_img)){
+      ltr_int_log_message("Couldn't add stripe!\n");
     }
   return true;
 }
@@ -76,16 +76,16 @@ static bool process_stripe_tir5(unsigned char payload[])
 		    ((unsigned int)payload[6]) >>7;
     stripe.sum = (((unsigned int)payload[6]) & 0x7F) << 8 |
                    ((unsigned int)payload[7]);
-    if(!add_stripe(&stripe, p_img)){
-      log_message("Couldn't add stripe!\n");
+    if(!ltr_int_add_stripe(&stripe, p_img)){
+      ltr_int_log_message("Couldn't add stripe!\n");
     }
   return true;
 }
 
-bool check_paket_header_tir5(unsigned char data[])
+static bool check_paket_header_tir5(unsigned char data[])
 {
   if((data[0] ^ data[1] ^ data[2] ^ data[3]) != 0xAA){
-    log_message("Bad packet header!\n");
+    ltr_int_log_message("Bad packet header!\n");
     return false;
   }else{
     return true;
@@ -93,7 +93,7 @@ bool check_paket_header_tir5(unsigned char data[])
 }
 
 
-bool process_packet_tir5(unsigned char data[], size_t *ptr, unsigned int pktsize, int limit)
+static bool process_packet_tir5(unsigned char data[], size_t *ptr, unsigned int pktsize, int limit)
 {
   bool have_frame = false;
   unsigned int ps = 0;
@@ -101,7 +101,7 @@ bool process_packet_tir5(unsigned char data[], size_t *ptr, unsigned int pktsize
 
   if((type == 0) || (type == 5)){
     if(!check_paket_header_tir5(&(data[*ptr]))){
-      log_message("Bad packet header!\n");
+      ltr_int_log_message("Bad packet header!\n");
       assert(0);
       return false;
     }
@@ -110,7 +110,7 @@ bool process_packet_tir5(unsigned char data[], size_t *ptr, unsigned int pktsize
     ps = (ps << 8) + data[limit - 2];
     ps = (ps << 8) + data[limit - 1];
     if(ps != (pktsize - 8)){
-      log_message("Bad packet size! %d x %d\n", ps, pktsize - 8);
+      ltr_int_log_message("Bad packet size! %d x %d\n", ps, pktsize - 8);
 //      assert(0);
       return false;
     }
@@ -143,7 +143,7 @@ bool process_packet_tir5(unsigned char data[], size_t *ptr, unsigned int pktsize
 }
 
 
-bool process_packet_tir4(unsigned char data[], size_t *ptr, int pktsize, unsigned int limit)
+static bool process_packet_tir4(unsigned char data[], size_t *ptr, int pktsize, unsigned int limit)
 {
   unsigned int *ui;
   bool have_frame = false;
@@ -158,7 +158,7 @@ bool process_packet_tir4(unsigned char data[], size_t *ptr, int pktsize, unsigne
       ++ui;
       (*ptr) += 4;
     }else if(is_next_frame_tir((unsigned char *)ui)){
-      log_message("Have frame!!!!!!\n");
+      ltr_int_log_message("Have frame!!!!!!\n");
       have_frame = true;
       go_on = false;
     }else{
@@ -215,7 +215,7 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
           }
           break;
         default:
-          log_message("ERROR!!! ('%02X %02X')\n", data[*ptr], data[*ptr + 1]);
+          ltr_int_log_message("ERROR!!! ('%02X %02X')\n", data[*ptr], data[*ptr + 1]);
 /*	  printf("Error at %d\n", *ptr);
 	  int counter;
 	  for(counter = 0; counter < size+2; ++counter){
@@ -274,7 +274,7 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
 
 
 
-int read_blobs_tir(struct bloblist_type *blt, int min, int max, image *img)
+int ltr_int_read_blobs_tir(struct bloblist_type *blt, int min, int max, image *img)
 {
   assert(blt != NULL);
   assert(img != NULL);
@@ -285,18 +285,18 @@ int read_blobs_tir(struct bloblist_type *blt, int min, int max, image *img)
   while(1){
     if(ptr >= size){
       ptr = 0;
-      if(!receive_data(packet, sizeof(packet), &size, 1000)){
-	log_message("Problem reading data from USB!\n");
+      if(!ltr_int_receive_data(ltr_int_packet, sizeof(ltr_int_packet), &size, 1000)){
+	ltr_int_log_message("Problem reading data from USB!\n");
         return -1;
       }
     }
-    if((have_frame = process_packet(packet, &ptr, size)) == true){
+    if((have_frame = process_packet(ltr_int_packet, &ptr, size)) == true){
       break;
     }
   }
   
   if(have_frame){
-    int res = stripes_to_blobs(3, blt, min, max, img);
+    int res = ltr_int_stripes_to_blobs(3, blt, min, max, img);
 /*    
     if(pic != NULL){
       static int fc = 0;

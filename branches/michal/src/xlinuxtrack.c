@@ -13,81 +13,61 @@
 #include "ltlib.h"
 #include "xlinuxtrack_pref.h"
 
-XPLMHotKeyID		gFreezeKey = NULL;
-XPLMHotKeyID		gTrackKey = NULL;
+static XPLMHotKeyID		gFreezeKey = NULL;
+static XPLMHotKeyID		gTrackKey = NULL;
 
-XPLMDataRef		head_x = NULL;
-XPLMDataRef		head_y = NULL;
-XPLMDataRef		head_z = NULL;
-XPLMDataRef		head_psi = NULL;
-XPLMDataRef		head_the = NULL;
+static XPLMDataRef		head_x = NULL;
+static XPLMDataRef		head_y = NULL;
+static XPLMDataRef		head_z = NULL;
+static XPLMDataRef		head_psi = NULL;
+static XPLMDataRef		head_the = NULL;
 
-XPWidgetID		setupWindow = NULL;
-XPWidgetID		mapText = NULL;
-XPWidgetID		saveButton = NULL;
+static XPWidgetID		setupWindow = NULL;
+static XPWidgetID		mapText = NULL;
+static XPWidgetID		saveButton = NULL;
 			
-XPLMMenuID		setupMenu = NULL;
+static XPLMMenuID		setupMenu = NULL;
 			
-XPWidgetID		jmWindow;
-XPWidgetID		jmText;
-XPWidgetID		jmButton;
-int			jmWindowOpened = 0;
-int			jmRun = 0;
+static XPWidgetID		jmWindow;
+static XPWidgetID		jmText;
+static XPWidgetID		jmButton;
+static int			jmWindowOpened = 0;
+static int			jmRun = 0;
 
-XPLMDataRef		joy_buttons = NULL;
-int 			buttons[1520];
+static XPLMDataRef		joy_buttons = NULL;
+static int 			buttons[1520];
 
-int 			buttonIndex = -1;
-char			text[150];
+static int 			buttonIndex = -1;
+static char			text[150];
 
-int 			freeze_button = -1;
-int			recenter_button = -1;
+static int 			freeze_button = -1;
+static int			recenter_button = -1;
 
-float			debounce_time = 0.01;
+static float			debounce_time = 0.01;
 
-int button_array_size = -1;
-int pos_init_flag = 0;
-bool freeze = false;
+static int button_array_size = -1;
+static int pos_init_flag = 0;
+static bool freeze = false;
 
-float base_x;
-float base_y;
-float base_z;
-bool active_flag = false;
-
-
+static float base_x;
+static float base_y;
+static float base_z;
+static bool active_flag = false;
 
 
+static void MyHotKeyCallback(void *inRefcon);    
+static float LtrAircraftDrawCallback(float inElapsedSinceLastCall,
+			             float inElapsedTimeSinceLastFlightLoop,
+				     int   inCounter,
+				     void *inRefcon);    
 
 
-void	MyHotKeyCallback(void *               inRefcon);    
+static float joystickCallback(float inElapsedSinceLastCall,    
+			      float inElapsedTimeSinceLastFlightLoop,    
+			      int   inCounter,    
+			      void *inRefcon);
 
-/*
-int	LtrAircraftDrawCallback(	XPLMDrawingPhase     inPhase,
-                          int                  inIsBefore,
-                          void *               inRefcon);
-*/
-float LtrAircraftDrawCallback(          float                inElapsedSinceLastCall,
-                                   float                inElapsedTimeSinceLastFlightLoop,
-                                   int                  inCounter,
-                                   void *               inRefcon);    
-
-
-float	joystickCallback(
-                                   float                inElapsedSinceLastCall,    
-                                   float                inElapsedTimeSinceLastFlightLoop,    
-                                   int                  inCounter,    
-                                   void *               inRefcon);
-
-bool is_finite(float f)
-{
-  if(finite(f) != 0){
-    return true;
-  }else{
-    return false;
-  }
-}
-
-bool createSetupWindow(int x, int y, int w, int h);
+static bool createSetupWindow(int x, int y, int w, int h);
 
 struct buttonDef{
   char *caption;
@@ -97,7 +77,7 @@ struct buttonDef{
   enum pref_id id;
 };
 
-struct buttonDef btArray[] = {
+static struct buttonDef btArray[] = {
   {
     .caption = "Start/Stop tracking:",
     .prefName = "Recenter-button",
@@ -110,10 +90,10 @@ struct buttonDef btArray[] = {
   }
 };
 
-struct pref *xltrprefs = NULL;
-char *pref_fname = NULL;
+static struct pref *xltrprefs = NULL;
+static char *pref_fname = NULL;
 
-void linuxTrackMenuHandler(void *inMenuRef, void *inItemRef)
+static void linuxTrackMenuHandler(void *inMenuRef, void *inItemRef)
 {
   (void) inMenuRef;
   (void) inItemRef;
@@ -127,7 +107,7 @@ void linuxTrackMenuHandler(void *inMenuRef, void *inItemRef)
   return;
 }
 
-int jmProcessJoy()
+static int jmProcessJoy()
 {
   int new_buttons[1520];
   int i = 0;
@@ -140,13 +120,13 @@ int jmProcessJoy()
   return -1.0;
 }
 
-bool updateButtonCaption(int index, int button)
+static bool updateButtonCaption(int index, int button)
 {
   if(index < 0){
     return false;
   }
   if((button < 0) || (button > button_array_size)){
-    lt_log_message("Xlinuxtrack: wrong button number! %d \n", button);
+    ltr_log_message("Xlinuxtrack: wrong button number! %d \n", button);
     return true;
   }
   if(button >= 0){
@@ -156,7 +136,7 @@ bool updateButtonCaption(int index, int button)
   }
   XPSetWidgetDescriptor(btArray[index].text, text);
   
-  set_pref(xltrprefs, btArray[index].id, button);
+  xltr_set_pref(xltrprefs, btArray[index].id, button);
   switch(index){
     case 0:
       recenter_button = button;
@@ -170,7 +150,7 @@ bool updateButtonCaption(int index, int button)
   return true;
 }
 
-int jmWindowHandler(XPWidgetMessage inMessage,
+static int jmWindowHandler(XPWidgetMessage inMessage,
 			XPWidgetID inWidget,
 			long inParam1,
 			long inParam2)
@@ -192,7 +172,7 @@ int jmWindowHandler(XPWidgetMessage inMessage,
   return 0;
 }
 
-int joyMapDialog(char *caption)
+static int joyMapDialog(char *caption)
 {
   if(jmWindowOpened != 0){
     return -1;
@@ -230,7 +210,7 @@ int joyMapDialog(char *caption)
   return 0;
 }
 
-int setupWindowHandler(XPWidgetMessage inMessage,
+static int setupWindowHandler(XPWidgetMessage inMessage,
 			XPWidgetID inWidget,
 			long inParam1,
 			long inParam2)
@@ -253,13 +233,13 @@ int setupWindowHandler(XPWidgetMessage inMessage,
       joyMapDialog("Remap joystick button for Tracking freeze");
     }
     if(inParam1 == (long)saveButton){
-      save_pref(pref_fname, xltrprefs);
+      xltr_save_pref(pref_fname, xltrprefs);
     }
   }
   return 0;
 }
 
-bool createSetupWindow(int x, int y, int w, int h)
+static bool createSetupWindow(int x, int y, int w, int h)
 {
   int x2 = x + w;
   int y2 = y - h;
@@ -315,10 +295,9 @@ bool createSetupWindow(int x, int y, int w, int h)
 }
 
 
-PLUGIN_API int XPluginStart(
-                            char *		outName,
-                            char *		outSig,
-                            char *		outDesc)
+PLUGIN_API int XPluginStart(char *outName,
+                            char *outSig,
+                            char *outDesc)
 {
   strcpy(outName, "linuxTrack");
   strcpy(outSig, "linuxtrack.camera");
@@ -335,24 +314,24 @@ PLUGIN_API int XPluginStart(
   }else{
     button_array_size = 1520;
   }
-  lt_log_message("%d joystick buttons\n", button_array_size);
+  ltr_log_message("%d joystick buttons\n", button_array_size);
   
-  pref_fname = get_pref_file_name();
-  xltrprefs = new_pref();
-  read_pref(pref_fname, xltrprefs);
+  pref_fname = xltr_get_pref_file_name();
+  xltrprefs = xltr_new_pref();
+  xltr_read_pref(pref_fname, xltrprefs);
   
-  if(!is_pref_valid(xltrprefs)){
-    lt_log_message("Invalid pref definitions!\n");
+  if(!xltr_is_pref_valid(xltrprefs)){
+    ltr_log_message("Invalid pref definitions!\n");
   }
-  freeze_button = get_pref(xltrprefs, START_STOP);
-  recenter_button = get_pref(xltrprefs, PAUSE);
+  freeze_button = xltr_get_pref(xltrprefs, START_STOP);
+  recenter_button = xltr_get_pref(xltrprefs, PAUSE);
   
   if(freeze_button > button_array_size){
-    lt_log_message("Freeze button number too big! %d\n", freeze_button);
+    ltr_log_message("Freeze button number too big! %d\n", freeze_button);
     freeze_button = -1;
   }
   if(recenter_button > button_array_size){
-    lt_log_message("Recenter button number too big! %d\n", recenter_button);
+    ltr_log_message("Recenter button number too big! %d\n", recenter_button);
     recenter_button = -1;
   }
   
@@ -378,7 +357,7 @@ PLUGIN_API int XPluginStart(
      (head_psi==NULL)||(head_the==NULL)||(joy_buttons==NULL)){
     return(0);
   }
-  if(lt_init("Default")!=0){
+  if(ltr_init("Default")!=0){
     return(0);
   }
   
@@ -402,7 +381,7 @@ PLUGIN_API void	XPluginStop(void)
   XPLMUnregisterHotKey(gFreezeKey);
   XPLMUnregisterFlightLoopCallback(joystickCallback, NULL);
   XPLMUnregisterFlightLoopCallback(LtrAircraftDrawCallback, NULL);
-  lt_shutdown();
+  ltr_shutdown();
   free(xltrprefs);
   free(pref_fname);
 }
@@ -416,31 +395,30 @@ PLUGIN_API int XPluginEnable(void)
 	return 1;
 }
 
-PLUGIN_API void XPluginReceiveMessage(
-                                      XPLMPluginID	inFromWho,
-                                      long			inMessage,
-                                      void *			inParam)
+PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFromWho,
+                                      long inMessage,
+                                      void *inParam)
 {
   (void) inFromWho;
   (void) inMessage;
   (void) inParam;
 }
 
-void activate(void)
+static void activate(void)
 {
 	  active_flag=true;
           pos_init_flag = 1;
 	  freeze = false;
-          lt_recenter();
+          ltr_recenter();
 	  XPLMCommandKeyStroke(xplm_key_forward);
           XPLMRegisterFlightLoopCallback(
                              LtrAircraftDrawCallback,
                              -1,
                              NULL);
-	  lt_wakeup();
+	  ltr_wakeup();
 }
 
-void deactivate(void)
+static void deactivate(void)
 {
 	  active_flag=false;
 	  XPLMUnregisterFlightLoopCallback(
@@ -452,10 +430,10 @@ void deactivate(void)
           XPLMSetDataf(head_z,base_z);
 	  XPLMSetDataf(head_psi,0.0f);
 	  XPLMSetDataf(head_the,0.0f);
-	  lt_suspend();
+	  ltr_suspend();
 }
 
-void	MyHotKeyCallback(void *               inRefcon)
+static void	MyHotKeyCallback(void *inRefcon)
 {
   switch((int)inRefcon){
     case 0:
@@ -471,7 +449,7 @@ void	MyHotKeyCallback(void *               inRefcon)
   }
 }
 
-void joy_fsm(int button, int *state, float *ts, bool *flag)
+static void joy_fsm(int button, int *state, float *ts, bool *flag)
 {
   switch(*state){
     case 1: //Waiting for button to be pressed
@@ -506,13 +484,13 @@ void joy_fsm(int button, int *state, float *ts, bool *flag)
       }
       break;
     default:
-      lt_log_message("Joystick button processing got into wrong state (%d)!\n", *state);
+      ltr_log_message("Joystick button processing got into wrong state (%d)!\n", *state);
       *state = 1;
       break;
   }
 }
 
-void process_joy()
+static void process_joy()
 {
   static float freeze_ts;
   static float recenter_ts;
@@ -529,11 +507,10 @@ void process_joy()
   }
 }
 
-float	joystickCallback(
-                                   float                inElapsedSinceLastCall,    
-                                   float                inElapsedTimeSinceLastFlightLoop,    
-                                   int                  inCounter,    
-                                   void *               inRefcon)
+static float joystickCallback(float inElapsedSinceLastCall,    
+                              float inElapsedTimeSinceLastFlightLoop,    
+                              int   inCounter,    
+                              void *inRefcon)
 {
   (void) inElapsedSinceLastCall;
   (void) inElapsedTimeSinceLastFlightLoop;
@@ -563,10 +540,10 @@ float	joystickCallback(
 
 
 
-float	LtrAircraftDrawCallback(float                inElapsedSinceLastCall,
-                             float                inElapsedTimeSinceLastFlightLoop,
-                             int                  inCounter,
-                             void *               inRefcon)    
+static float LtrAircraftDrawCallback(float inElapsedSinceLastCall,
+                                     float inElapsedTimeSinceLastFlightLoop,
+                                     int   inCounter,
+                                     void *inRefcon)    
 {
   (void)inElapsedSinceLastCall;
   (void)inElapsedTimeSinceLastFlightLoop;
@@ -576,7 +553,7 @@ float	LtrAircraftDrawCallback(float                inElapsedSinceLastCall,
   float tx, ty, tz;
   int retval;
   
-  retval = lt_get_camera_update(&heading,&pitch,&roll,
+  retval = ltr_get_camera_update(&heading,&pitch,&roll,
                                 &tx, &ty, &tz);
 
   if (retval < 0) {

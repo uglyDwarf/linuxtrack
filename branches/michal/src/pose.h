@@ -44,21 +44,21 @@ struct transform{
   float rot[3][3];
 };
 
-void pose_init(struct reflector_model_type rm);
+void ltr_int_pose_init(struct reflector_model_type rm);
 
-void pose_sort_blobs(struct bloblist_type bl);
+void ltr_int_pose_sort_blobs(struct bloblist_type bl);
 
-bool pose_process_blobs(struct bloblist_type blobs, 
+bool ltr_int_pose_process_blobs(struct bloblist_type blobs, 
                         struct transform *trans,
                         bool centering);
-bool is_single_point();                        
-int pose_compute_camera_update(struct transform trans,
+bool ltr_int_is_single_point();                        
+int ltr_int_pose_compute_camera_update(struct transform trans,
                                float *yaw,
                                float *pitch,
                                float *roll,
                                float *tx,
                                float *ty,
                                float *tz);
-void transform_print(struct transform trans);
+void ltr_int_transform_print(struct transform trans);
 
 #endif

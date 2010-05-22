@@ -19,12 +19,12 @@ typedef struct {
   float ratio;
 } image;
 
-void prepare_for_processing(int w, int h);
-void to_stripes(image *img);
-int stripes_to_blobs(int num_blobs, struct bloblist_type *blt, 
+void ltr_int_prepare_for_processing(int w, int h);
+void ltr_int_to_stripes(image *img);
+int ltr_int_stripes_to_blobs(int num_blobs, struct bloblist_type *blt, 
 		     int min_pts, int max_pts, image *img);
-bool add_stripe(stripe_t *stripe, image *img);
-void draw_cross(image *img, int x, int y, int size);
-void draw_square(image *img, int x, int y, int size);
+bool ltr_int_add_stripe(stripe_t *stripe, image *img);
+void ltr_int_draw_cross(image *img, int x, int y, int size);
+void ltr_int_draw_square(image *img, int x, int y, int size);
 
 #endif

@@ -6,9 +6,9 @@
 #define TIR_LED_BLUE   0x40
 #define TIR_LED_IR     0x80
 
-unsigned char packet[4096];
+unsigned char ltr_int_packet[4096];
 
-void get_res_tir(unsigned int *w, unsigned int *h, float *hf);
+void ltr_int_get_res_tir(unsigned int *w, unsigned int *h, float *hf);
 
 typedef bool (*stop_camera_tir_fun)();
 typedef bool (*start_camera_tir_fun)();
@@ -26,10 +26,15 @@ typedef struct {
   set_status_led_tir_fun set_status_led_tir;
 } tir_interface;
 
-extern tir_interface tir4;
-extern tir_interface tir5;
+//extern tir_interface tir4;
+//extern tir_interface tir5;
 
-bool set_threshold(unsigned int val);
+bool ltr_int_set_threshold(unsigned int val);
+bool ltr_int_open_tir(const char data_path[], bool force_fw_load, bool ir_on);
+void ltr_int_get_res_tir();
+bool ltr_int_pause_tir();
+bool ltr_int_resume_tir();
+bool ltr_int_close_tir();
 
 #endif
 

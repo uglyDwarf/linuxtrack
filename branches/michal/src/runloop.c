@@ -9,7 +9,7 @@ static enum request_t {CONTINUE, RUN, PAUSE, SHUTDOWN} request;
 static pthread_cond_t state_cv = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t state_mx = PTHREAD_MUTEX_INITIALIZER;
 
-int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
+int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
 {
   assert(ccb != NULL);
   assert(cbk != NULL);
@@ -18,33 +18,33 @@ int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   struct frame_type frame;
   bool stop_flag = false;
   
-  cal_device_state = STOPPED;
-  if(tracker_init(ccb) != 0){
+  ltr_int_cal_device_state = STOPPED;
+  if(ltr_int_tracker_init(ccb) != 0){
     return -1;
   }
-  frame.bloblist.blobs = my_malloc(sizeof(struct blob_type) * 3);
+  frame.bloblist.blobs = ltr_int_my_malloc(sizeof(struct blob_type) * 3);
   frame.bloblist.num_blobs = 3;
   frame.bitmap = NULL;
   
-  cal_device_state = RUNNING;
+  ltr_int_cal_device_state = RUNNING;
   request = PAUSE;
   while(1){
     pthread_mutex_lock(&state_mx);
     my_request = request;
     request = CONTINUE;
     pthread_mutex_unlock(&state_mx);
-    switch(cal_device_state){
+    switch(ltr_int_cal_device_state){
       case RUNNING:
         switch(my_request){
           case PAUSE:
-            cal_device_state = PAUSED;
-            tracker_pause();
+            ltr_int_cal_device_state = PAUSED;
+            ltr_int_tracker_pause();
             break;
           case SHUTDOWN:
             stop_flag = true;
             break;
           default:
-            retval = tracker_get_frame(ccb, &frame);
+            retval = ltr_int_tracker_get_frame(ccb, &frame);
             if((retval == -1) || (cbk(ccb, &frame) < 0)){
               stop_flag = true;
             }
@@ -59,10 +59,10 @@ int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
         my_request = request;
         request = CONTINUE;
         pthread_mutex_unlock(&state_mx);
-        tracker_resume();
+        ltr_int_tracker_resume();
         switch(my_request){
           case RUN:
-            cal_device_state = RUNNING;
+            ltr_int_cal_device_state = RUNNING;
             break;
           case SHUTDOWN:
             stop_flag = true;
@@ -81,9 +81,9 @@ int ltr_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
     }
   }
   
-  tracker_close();
-  frame_free(ccb, &frame);
-  cal_device_state = STOPPED;
+  ltr_int_tracker_close();
+  ltr_int_frame_free(ccb, &frame);
+  ltr_int_cal_device_state = STOPPED;
   return 0;
 }
 
@@ -96,17 +96,17 @@ int signal_request(enum request_t req)
   return 0;
 }
 
-int ltr_cal_shutdown()
+int ltr_int_rl_shutdown()
 {
   return signal_request(SHUTDOWN);
 }
 
-int ltr_cal_suspend()
+int ltr_int_rl_suspend()
 {
   return signal_request(PAUSE);
 }
 
-int ltr_cal_wakeup()
+int ltr_int_rl_wakeup()
 {
   return signal_request(RUN);
 }

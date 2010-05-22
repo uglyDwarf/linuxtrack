@@ -769,7 +769,7 @@ case 4:
 YY_RULE_SETUP
 #line 21 "pref_flex.l"
 {
-			  yylval.str=my_strdup(yytext);
+			  yylval.str=ltr_int_my_strdup(yytext);
 			  return(TOKEN_KEY);
 			}
 	YY_BREAK
@@ -777,7 +777,7 @@ case 5:
 YY_RULE_SETUP
 #line 25 "pref_flex.l"
 {
-			  yylval.str=my_strdup(yytext);
+			  yylval.str=ltr_int_my_strdup(yytext);
 			  return(TOKEN_COMMENT);
 			}
 	YY_BREAK
@@ -790,7 +790,7 @@ case 7:
 YY_RULE_SETUP
 #line 32 "pref_flex.l"
 {
-                          yylval.str=my_strdup(yytext);
+                          yylval.str=ltr_int_my_strdup(yytext);
                           return(TOKEN_VALUE);
                         }
 	YY_BREAK
@@ -808,7 +808,7 @@ case 9:
 YY_RULE_SETUP
 #line 42 "pref_flex.l"
 {
-                          yylval.str=my_strdup(yytext);
+                          yylval.str=ltr_int_my_strdup(yytext);
                           BEGIN(INITIAL);
                           return(TOKEN_SECNAME);
                         }
@@ -816,7 +816,7 @@ YY_RULE_SETUP
 case 10:
 YY_RULE_SETUP
 #line 48 "pref_flex.l"
-log_message( "Unrecognized character: %s\n", yytext );
+ltr_int_log_message( "Unrecognized character: %s\n", yytext );
 	YY_BREAK
 case 11:
 YY_RULE_SETUP

@@ -28,12 +28,12 @@ struct current_pose{
   float tz;
 };
 
-extern struct current_pose lt_orig_pose;
+extern struct current_pose ltr_int_orig_pose;
 
-bool init_tracking();
-int update_pose(struct frame_type *frame);
-int recenter_tracking();
-int get_camera_update(float *heading,
+bool ltr_int_init_tracking();
+int ltr_int_update_pose(struct frame_type *frame);
+int ltr_int_recenter_tracking();
+int ltr_int_tracking_get_camera(float *heading,
                       float *pitch,
                       float *roll,
                       float *tx,

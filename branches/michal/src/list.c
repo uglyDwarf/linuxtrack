@@ -14,14 +14,14 @@ typedef struct list{
 } list; 
 
 
-plist create_list()
+plist ltr_int_create_list()
 {
-  plist new_list = my_malloc(sizeof(list));
+  plist new_list = ltr_int_my_malloc(sizeof(list));
   new_list->head = new_list->tail = NULL;
   return(new_list);
 }
 
-bool is_empty(plist l)
+bool ltr_int_is_empty(plist l)
 {
   if(l->head == NULL){
     return true;
@@ -30,9 +30,9 @@ bool is_empty(plist l)
   }
 }
 
-void add_element(plist pl, void *payload)
+void ltr_int_add_element(plist pl, void *payload)
 {
-  list_element* new_elem = my_malloc(sizeof(list_element));
+  list_element* new_elem = ltr_int_my_malloc(sizeof(list_element));
   new_elem->prev = NULL;
   new_elem->next = NULL;
   new_elem->payload = payload;
@@ -50,7 +50,7 @@ void add_element(plist pl, void *payload)
   }
 }
 
-void init_iterator(plist l, iterator *i)
+void ltr_int_init_iterator(plist l, iterator *i)
 {
   assert(l != NULL);
   assert(i != NULL);
@@ -58,7 +58,7 @@ void init_iterator(plist l, iterator *i)
   i->elem = l->head;
 }
 
-void init_rev_iterator(plist l, iterator *i)
+void ltr_int_init_rev_iterator(plist l, iterator *i)
 {
   assert(l != NULL);
   assert(i != NULL);
@@ -66,7 +66,7 @@ void init_rev_iterator(plist l, iterator *i)
   i->elem = l->tail;
 }
 
-void* get_next(iterator* i)
+void* ltr_int_get_next(iterator* i)
 {
   assert(i != NULL);
   assert(i->parent != NULL);
@@ -78,7 +78,7 @@ void* get_next(iterator* i)
   return(payload);
 }
 
-void* get_prev(iterator* i)
+void* ltr_int_get_prev(iterator* i)
 {
   assert(i != NULL);
   assert(i->parent != NULL);
@@ -90,7 +90,7 @@ void* get_prev(iterator* i)
   return(payload);
 }
 
-void* get_current(iterator* i)
+void* ltr_int_get_current(iterator* i)
 {
   assert(i != NULL);
   assert(i->parent != NULL);
@@ -101,13 +101,13 @@ void* get_current(iterator* i)
   return(payload);
 }
 
-void *delete_current(plist pl, iterator* i)
+void *ltr_int_delete_current(plist pl, iterator* i)
 {
   assert(i != NULL);
   assert(i->parent != NULL);
   assert(i->parent == pl);
-  if(is_empty(pl)){
-    log_message("Attempted to delete from empty list!\n");
+  if(ltr_int_is_empty(pl)){
+    ltr_int_log_message("Attempted to delete from empty list!\n");
     return NULL;
   }
   //iterator is already one element farther
@@ -120,7 +120,7 @@ void *delete_current(plist pl, iterator* i)
     current = i->elem->prev;
   }
   if(current == NULL){
-    log_message("Can't determine which element to delete!\n");
+    ltr_int_log_message("Can't determine which element to delete!\n");
     return NULL; 
   }
   
@@ -143,7 +143,7 @@ void *delete_current(plist pl, iterator* i)
   return payload;
 }
 
-void free_list(plist list_ptr, bool free_payload)
+void ltr_int_free_list(plist list_ptr, bool free_payload)
 {
   list_element* elem;
   assert(list_ptr != NULL);
@@ -161,33 +161,33 @@ void free_list(plist list_ptr, bool free_payload)
   free(list_ptr);
 }
 
-int list2string_list(plist l, char **ids[])
+int ltr_int_list2string_list(plist l, char **ids[])
 {
   int j;
   iterator i;
   char *id;
-  if(!is_empty(l)){
+  if(!ltr_int_is_empty(l)){
     j = 1;
-    init_iterator(l, &i);
-    while((id = (char *)get_next(&i)) != NULL){
+    ltr_int_init_iterator(l, &i);
+    while((id = (char *)ltr_int_get_next(&i)) != NULL){
       ++j;
     }
   }else{
     j = 1;
   }
-  *ids = (char **)my_malloc(j * sizeof(char *));
+  *ids = (char **)ltr_int_my_malloc(j * sizeof(char *));
   j = 0;
-  init_iterator(l, &i);
-  while((id = (char *)get_next(&i)) != NULL){
+  ltr_int_init_iterator(l, &i);
+  while((id = (char *)ltr_int_get_next(&i)) != NULL){
     (*ids)[j] = id;
     ++j;
   }
   (*ids)[j] = NULL;
-  free_list(l, false);
+  ltr_int_free_list(l, false);
   return j;
 }
 
-void array_cleanup(char **ids[])
+void ltr_int_array_cleanup(char **ids[])
 {
   int i = 0;
   while((*ids)[i] != NULL){

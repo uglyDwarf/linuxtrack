@@ -26,8 +26,8 @@ TrackerState::~TrackerState()
 
 void TrackerState::pollState()
 {
-  static lt_state_type last_state = STOPPED;
-  lt_state_type current_state = lt_int_get_tracking_state();
+  static ltr_state_type last_state = STOPPED;
+  ltr_state_type current_state = ltr_int_get_tracking_state();
   if(last_state != current_state){
     switch(current_state){
       case STOPPED:

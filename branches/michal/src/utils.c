@@ -13,36 +13,36 @@
 #define IOCTL_RETRY_COUNT 5
 
 
-void* my_malloc(size_t size)
+void* ltr_int_my_malloc(size_t size)
 {
   void *ptr = malloc(size);
   if(ptr == NULL){
-    log_message("Can't malloc memory! %s\n", strerror(errno));
+    ltr_int_log_message("Can't malloc memory! %s\n", strerror(errno));
     assert(0);
     exit(1);
   }
   return ptr;
 }
 
-char* my_strdup(const char *s)
+char* ltr_int_my_strdup(const char *s)
 {
   char *ptr = strdup(s);
   if(ptr == NULL){
-    log_message("Can't strdup! %s\n", strerror(errno));
+    ltr_int_log_message("Can't strdup! %s\n", strerror(errno));
     exit(1);
   }
   return ptr;
 }
 
-void log_message(const char *format, ...)
+void ltr_int_log_message(const char *format, ...)
 {
   va_list ap;
   va_start(ap,format);
-  valog_message(format, ap);
+  ltr_int_valog_message(format, ap);
   va_end(ap);
 }
 
-void valog_message(const char *format, va_list va)
+void ltr_int_valog_message(const char *format, va_list va)
 {
   static FILE *output_stream = NULL;
   if(output_stream == NULL){
@@ -63,7 +63,7 @@ void valog_message(const char *format, va_list va)
 }
 
 
-int my_ioctl(int d, int request, void *argp)
+int ltr_int_my_ioctl(int d, int request, void *argp)
 {
   int cntr = 0;
   int res;
@@ -83,7 +83,7 @@ int my_ioctl(int d, int request, void *argp)
   return res;
 }
 
-void strlower(char *s)
+void ltr_int_strlower(char *s)
 {
   while (*s != '\0') {
     *s = tolower(*s);
@@ -91,11 +91,11 @@ void strlower(char *s)
   }
 }
 
-char *my_strcat(const char *str1, const char *str2)
+char *ltr_int_my_strcat(const char *str1, const char *str2)
 {
   size_t len1 = strlen(str1);
   size_t sum = len1 + strlen(str2) + 1; //Count trainling null too
-  char *res = (char*)my_malloc(sum);
+  char *res = (char*)ltr_int_my_malloc(sum);
   strcpy(res, str1);
   strcpy(res + len1, str2);
   return res;

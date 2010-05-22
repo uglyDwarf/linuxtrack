@@ -4,7 +4,7 @@
 
 
 
-int curve2pts(const splines_def *curve, splines *pts)
+int ltr_int_curve2pts(const splines_def *curve, splines *pts)
 {
   pts->left.x0 = pts->right.x0 = curve->dead_zone;
   pts->left.y0 = pts->right.y0 = 0.0f;
@@ -19,7 +19,7 @@ int curve2pts(const splines_def *curve, splines *pts)
   return 0;
 }
 
-float spline_point(const splines *splns, float x)
+float ltr_int_spline_point(const splines *splns, float x)
 {
   const spline_pts *pts;
   float a, b, c;

@@ -127,14 +127,9 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
     return;
   }
   QString destFile = destPath + "/xlinuxtrack.xpl";
-  QString newName;
-  int counter = 0;
   if(QFile::exists(destFile)){
-    do{
-      newName = QString("/xlinuxtrack.xpl.") + QString::number(counter++);
-    }while(QFile::exists(destPath + newName));
-    if(!QFile::rename(destFile, destPath + newName)){
-      warnMessage(QString("Couldn't rename ") + destFile + " to " + newName);
+    if(!QFile::remove(destFile)){
+      warnMessage(QString("Couldn't remove ") + destFile + "!");
       return;
     }
   }

@@ -36,37 +36,37 @@ typedef struct{
   };
 } pref_file_item;
 
-extern plist prefs;
+extern plist ltr_int_prefs;
 
-void get_section_list(char **names[]);
-bool section_exists(const char *section_name);
-bool key_exists(const char *section_name, const char *key_name);
-char *get_key(const char *section_name, const char *key_name);
+void ltr_int_get_section_list(char **names[]);
+bool ltr_int_section_exists(const char *section_name);
+bool ltr_int_key_exists(const char *section_name, const char *key_name);
+char *ltr_int_get_key(const char *section_name, const char *key_name);
 
-bool add_section(const char *name);
-bool add_key(const char *section_name, const char *key_name, const char *new_value);
-bool change_key(const char *section_name, const char *key_name, const char *new_value);
-bool dump_prefs(char *file_name);
-void free_prefs();
+bool ltr_int_add_section(const char *name);
+bool ltr_int_add_key(const char *section_name, const char *key_name, const char *new_value);
+bool ltr_int_change_key(const char *section_name, const char *key_name, const char *new_value);
+bool ltr_int_dump_prefs(char *file_name);
+void ltr_int_free_prefs();
 
-bool set_custom_section(char *name);
-const char *get_custom_section_name();
-bool open_pref(const char *section, char *key, pref_id *prf);
-bool open_pref_w_callback(const char *section, char *key, pref_id *prf, 
+bool ltr_int_set_custom_section(char *name);
+const char *ltr_int_get_custom_section_name();
+bool ltr_int_open_pref(const char *section, char *key, pref_id *prf);
+bool ltr_int_open_pref_w_callback(const char *section, char *key, pref_id *prf, 
                           pref_callback cbk,  void *param);
-float get_flt(pref_id prf);
-int get_int(pref_id prf);
-char *get_str(pref_id prf);
+float ltr_int_get_flt(pref_id prf);
+int ltr_int_get_int(pref_id prf);
+char *ltr_int_get_str(pref_id prf);
 
-bool set_flt(pref_id *prf, float f);
-bool set_int(pref_id *prf, int i);
-bool set_str(pref_id *prf, char *str);
+bool ltr_int_set_flt(pref_id *prf, float f);
+bool ltr_int_set_int(pref_id *prf, int i);
+bool ltr_int_set_str(pref_id *prf, char *str);
 
-bool read_prefs(char *file, bool force_read);
-bool new_prefs();
-bool save_prefs();
-bool close_pref(pref_id *prf);
-void print_opened();
+bool ltr_int_read_prefs(char *file, bool force_read);
+bool ltr_int_new_prefs();
+bool ltr_int_save_prefs();
+bool ltr_int_close_pref(pref_id *prf);
+void ltr_int_print_opened();
 
 #ifdef __cplusplus
 }

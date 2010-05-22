@@ -12,25 +12,24 @@ typedef struct bez_def {
   float ay, by, cy;
 } bez_def;
 
-void make_vec(float pt1[3],float pt2[3],float res[3]);
-float vec_size(float vec[3]);
-float dot_product(float vec1[3],float vec2[3]);
-void cross_product(float vec1[3],float vec2[3],float res[3]);
-void mul_matrix(float m1[3][3], float m2[3][3], float res[3][3]);
-void mul_vec(float vec[3],float c,float res[3]);
-void matrix_times_vec(float m[3][3], float vec[3],float res[3]);
-void make_base(float vec1[3],float vec2[3],float res[3][3]);
-void print_matrix(float matrix[3][3], char *name);
-void print_vec(float vec[3], char *name);
-void transpose(float matrix[3][3], float trans[3][3]);
-void transpose_in_place(float matrix[3][3]);
-float sqr(float f);
-void matrix_to_euler(float matrix[3][3], float *pitch, float *yaw, float *roll);
-void euler_to_matrix(float pitch, float yaw, float roll, float matrix[3][3]);
-void add_vecs(float vec1[3],float vec2[3],float res[3]);
-bool make_bez(float deadzone, float k, bez_def *b);
-float bezier(float x, bez_def *b);
-
-bool is_finite(float f);
+void ltr_int_make_vec(float pt1[3],float pt2[3],float res[3]);
+float ltr_int_vec_size(float vec[3]);
+float ltr_int_dot_product(float vec1[3],float vec2[3]);
+void ltr_int_cross_product(float vec1[3],float vec2[3],float res[3]);
+void ltr_int_mul_matrix(float m1[3][3], float m2[3][3], float res[3][3]);
+void ltr_int_mul_vec(float vec[3],float c,float res[3]);
+void ltr_int_matrix_times_vec(float m[3][3], float vec[3],float res[3]);
+void ltr_int_make_base(float vec1[3],float vec2[3],float res[3][3]);
+void ltr_int_print_matrix(float matrix[3][3], char *name);
+void ltr_int_print_vec(float vec[3], char *name);
+void ltr_int_transpose(float matrix[3][3], float trans[3][3]);
+void ltr_int_transpose_in_place(float matrix[3][3]);
+float ltr_int_sqr(float f);
+void ltr_int_matrix_to_euler(float matrix[3][3], float *pitch, float *yaw, float *roll);
+void ltr_int_euler_to_matrix(float pitch, float yaw, float roll, float matrix[3][3]);
+void ltr_int_add_vecs(float vec1[3],float vec2[3],float res[3]);
+bool ltr_int_make_bez(float deadzone, float k, bez_def *b);
+float ltr_int_bezier(float x, bez_def *b);
+bool ltr_int_is_finite(float f);
 
 #endif

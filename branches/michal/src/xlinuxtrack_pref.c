@@ -9,28 +9,28 @@ struct pref{
 
 static char *pref_file = ".xplaneltr";
 
-char *get_pref_file_name()
+char *xltr_get_pref_file_name()
 {
   char *home = getenv("HOME");
   if(home == NULL){
-    log_message("Please set HOME variable!\n");
+    ltr_int_log_message("Please set HOME variable!\n");
     return NULL;
   }
-  char *pref_path = (char *)my_malloc(strlen(home) 
+  char *pref_path = (char *)ltr_int_my_malloc(strlen(home) 
                     + strlen(pref_file) + 2);
   sprintf(pref_path, "%s/%s", home, pref_file);
   return pref_path;
 }
 
 
-void print_pref(struct pref *p)
+void xltr_print_pref(struct pref *p)
 {
   assert(p != NULL);
-  printf("Start/Stop %d\n", get_pref(p, START_STOP));
-  printf("Pause %d\n", get_pref(p, PAUSE));
+  printf("Start/Stop %d\n", xltr_get_pref(p, START_STOP));
+  printf("Pause %d\n", xltr_get_pref(p, PAUSE));
 }
 
-bool read_pref(char *fname, struct pref *p)
+bool xltr_read_pref(char *fname, struct pref *p)
 {
   assert(fname != NULL);
   assert(p != NULL);
@@ -39,7 +39,7 @@ bool read_pref(char *fname, struct pref *p)
   int res;
   FILE *f = fopen(fname, "r");
   
-  reset_pref(p);
+  xltr_reset_pref(p);
   
   if(f == NULL){
     return false;
@@ -48,18 +48,18 @@ bool read_pref(char *fname, struct pref *p)
   while(!feof(f)){
     res = fscanf(f, "%1000s %d", id, &val);
     if(strcasecmp(id, "start/stop")){
-      set_pref(p, START_STOP, val);
+      xltr_set_pref(p, START_STOP, val);
     }
     if(strcasecmp(id, "pause")){
-      set_pref(p, PAUSE, val);
+      xltr_set_pref(p, PAUSE, val);
     }
   }
   fclose(f);
   
-  return is_pref_valid(p);
+  return xltr_is_pref_valid(p);
 }
 
-bool save_pref(char *fname, struct pref *p)
+bool xltr_save_pref(char *fname, struct pref *p)
 {
   assert(fname != NULL);
   assert(p != NULL);
@@ -69,11 +69,11 @@ bool save_pref(char *fname, struct pref *p)
     return false;
   }
   
-  if(fprintf(f, "Start/Stop	%d\n", get_pref(p, START_STOP)) < 0){
+  if(fprintf(f, "Start/Stop	%d\n", xltr_get_pref(p, START_STOP)) < 0){
     return false;
   }
   
-  if(fprintf(f, "Pause		%d\n", get_pref(p, PAUSE)) < 0){
+  if(fprintf(f, "Pause		%d\n", xltr_get_pref(p, PAUSE)) < 0){
     return false;
   }
   fflush(f);
@@ -81,14 +81,14 @@ bool save_pref(char *fname, struct pref *p)
   return true;
 }
 
-void reset_pref(struct pref *p)
+void xltr_reset_pref(struct pref *p)
 {
   assert(p != NULL);
   p->start_stop = -1;
   p->pause = -1;
 }
 
-bool is_pref_valid(struct pref *p)
+bool xltr_is_pref_valid(struct pref *p)
 {
   assert(p != NULL);
   if((p->start_stop == -1) || (p->pause == -1)){
@@ -97,7 +97,7 @@ bool is_pref_valid(struct pref *p)
   return true;
 }
 
-bool set_pref(struct pref *p, enum pref_id id, int val)
+bool xltr_set_pref(struct pref *p, enum pref_id id, int val)
 {
   assert(p != NULL);
   switch(id){
@@ -114,7 +114,7 @@ bool set_pref(struct pref *p, enum pref_id id, int val)
   return true;
 }
 
-int get_pref(struct pref *p, enum pref_id id)
+int xltr_get_pref(struct pref *p, enum pref_id id)
 {
   assert(p != NULL);
   switch(id){
@@ -125,15 +125,15 @@ int get_pref(struct pref *p, enum pref_id id)
       return p->pause;
       break;
     default:
-      lt_log_message("XLinuxtrack_pref: wrong pref ID: %d\n", id);
+      ltr_int_log_message("XLinuxtrack_pref: wrong pref ID: %d\n", id);
       return -1;
       break;
   }
 }
 
-struct pref *new_pref()
+struct pref *xltr_new_pref()
 {
-  struct pref *p = my_malloc(sizeof(struct pref));
-  reset_pref(p);
+  struct pref *p = ltr_int_my_malloc(sizeof(struct pref));
+  xltr_reset_pref(p);
   return p;
 }

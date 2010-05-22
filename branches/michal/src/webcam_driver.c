@@ -28,7 +28,7 @@ typedef struct {
         size_t length;
 } mmap_buffer;
 
-mmap_buffer *buffers = NULL;
+static mmap_buffer *buffers = NULL;
 
 
 typedef struct{
@@ -44,18 +44,18 @@ typedef struct{
   int max_blob_pixels;
 } webcam_info;
 
-webcam_info wc_info;
+static webcam_info wc_info;
 
 /*************/
 /* interface */
 /*************/
 
-int tracker_wakeup();
-int tracker_suspend();
+int ltr_int_tracker_wakeup();
+int ltr_int_tracker_suspend();
 
 
 
-char *get_webcam_id(int fd)
+static char *get_webcam_id(int fd)
 {
   struct v4l2_capability capability;
 
@@ -63,24 +63,24 @@ char *get_webcam_id(int fd)
   int ioctl_res = ioctl(fd, VIDIOC_QUERYCAP, &capability);
   if(ioctl_res == 0){
     __u32 cap = capability.capabilities;
-    log_message("  Found V4L2 webcam: '%s'\n", 
+    ltr_int_log_message("  Found V4L2 webcam: '%s'\n", 
       		capability.card);
     //Look for capabilities we need
     if((cap & V4L2_CAP_VIDEO_CAPTURE) && 
       (cap & V4L2_CAP_STREAMING)){
-      return my_strdup((char *)capability.card);
+      return ltr_int_my_strdup((char *)capability.card);
     }else{
-      log_message("  Found V4L2 webcam but it doesn't support streaming:-(\n");
+      ltr_int_log_message("  Found V4L2 webcam but it doesn't support streaming:-(\n");
     }
   }
   return NULL;
 }
 
-int is_our_webcam(char *fname, char *webcam_id)
+static int is_our_webcam(char *fname, char *webcam_id)
 {
   int fd = open(fname, O_RDWR | O_NONBLOCK);
   if(fd == -1){
-    log_message("Can't open file '%s'!\n", fname);
+    ltr_int_log_message("Can't open file '%s'!\n", fname);
     return -1;
   }
   
@@ -96,15 +96,15 @@ int is_our_webcam(char *fname, char *webcam_id)
   return -1;
 }
 
-int enum_webcams(char **ids[])
+int ltr_int_enum_webcams(char **ids[])
 {
   assert(ids != NULL);
   int counter = 1; //Already plus one!!!
-  plist wc_list = create_list();
+  plist wc_list = ltr_int_create_list();
   char *id;
   DIR *dev = opendir("/dev");
   if(dev == NULL){
-    log_message("Can't open /dev for reading!\n");
+    ltr_int_log_message("Can't open /dev for reading!\n");
     return -1;
   }
   struct dirent *de;
@@ -116,14 +116,14 @@ int enum_webcams(char **ids[])
       
       int fd = open(fname, O_RDWR | O_NONBLOCK);
       if(fd == -1){
-	log_message("Can't open file '%s'!\n", fname);
+	ltr_int_log_message("Can't open file '%s'!\n", fname);
 	return -1;
       }
       
       id = get_webcam_id(fd);
       if(id != NULL){
 	++counter;
-	add_element(wc_list, id); 
+	ltr_int_add_element(wc_list, id); 
       }
       close(fd);
       free(fname);
@@ -131,13 +131,13 @@ int enum_webcams(char **ids[])
   }
   closedir(dev);
   //Convert list to array
-  return list2string_list(wc_list, ids);
+  return ltr_int_list2string_list(wc_list, ids);
 }
 
 
-int search_for_webcam(char *webcam_id);
+static int search_for_webcam(char *webcam_id);
 
-int enum_webcam_formats(char *id, webcam_formats *all_formats)
+int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
 {
   int fd = search_for_webcam(id);
   if(fd < 0){
@@ -151,8 +151,8 @@ int enum_webcam_formats(char *id, webcam_formats *all_formats)
   struct v4l2_fmtdesc fmt;
   struct v4l2_frmsizeenum frm;
   struct v4l2_frmivalenum ival;
-  plist fmt_strings = create_list();
-  plist formats = create_list();
+  plist fmt_strings = ltr_int_create_list();
+  plist formats = ltr_int_create_list();
   
   //Enumerate all available formats
   while(1){
@@ -162,7 +162,7 @@ int enum_webcam_formats(char *id, webcam_formats *all_formats)
       break;
     }
     ++fmt_cntr;
-    add_element(fmt_strings, my_strdup((char *)fmt.description));
+    ltr_int_add_element(fmt_strings, ltr_int_my_strdup((char *)fmt.description));
     sizes_cntr = 0;
     while(1){
       frm.index = sizes_cntr++;
@@ -181,49 +181,49 @@ int enum_webcam_formats(char *id, webcam_formats *all_formats)
 	    break;
 	  }
 	  if(ival.type == V4L2_FRMIVAL_TYPE_DISCRETE){
-	    webcam_format *new_fmt = (webcam_format*)my_malloc(sizeof(webcam_format));
+	    webcam_format *new_fmt = (webcam_format*)ltr_int_my_malloc(sizeof(webcam_format));
 	    new_fmt->i = fmt_cntr - 1;
 	    new_fmt->fourcc = fmt.pixelformat;
 	    new_fmt->w = frm.discrete.width;
 	    new_fmt->h = frm.discrete.height;
 	    new_fmt->fps_num = ival.discrete.numerator;
 	    new_fmt->fps_den = ival.discrete.denominator;
-	    add_element(formats, new_fmt);
+	    ltr_int_add_element(formats, new_fmt);
 	    ++items;
 	  }
 	}
       }
     }
   }
-  char **strs = (char **)my_malloc((fmt_cntr + 1) * sizeof(char *));
+  char **strs = (char **)ltr_int_my_malloc((fmt_cntr + 1) * sizeof(char *));
   int cntr = 0;
   iterator i;
   char *desc;
-  init_iterator(fmt_strings, &i);
+  ltr_int_init_iterator(fmt_strings, &i);
   
-  while((desc = (char *)get_next(&i)) != NULL){
+  while((desc = (char *)ltr_int_get_next(&i)) != NULL){
     strs[cntr++] = desc;
   }
   strs[cntr] = NULL;
   all_formats->fmt_strings = strs;
 
-  webcam_format *fmt_array = (webcam_format*)my_malloc(items * sizeof(webcam_format));
-  init_iterator(formats, &i);
+  webcam_format *fmt_array = (webcam_format*)ltr_int_my_malloc(items * sizeof(webcam_format));
+  ltr_int_init_iterator(formats, &i);
   webcam_format *wf;
   cntr = 0;
-  while((wf = (webcam_format*)get_next(&i)) != NULL){
+  while((wf = (webcam_format*)ltr_int_get_next(&i)) != NULL){
     fmt_array[cntr++] = *wf;
   }
   all_formats->formats = fmt_array;
   all_formats->entries = items;
   
-  free_list(formats, true);
-  free_list(fmt_strings, false);
+  ltr_int_free_list(formats, true);
+  ltr_int_free_list(fmt_strings, false);
   close(fd);
   return items;
 }
 
-int enum_webcam_formats_cleanup(webcam_formats *all_formats)
+int ltr_int_enum_webcam_formats_cleanup(webcam_formats *all_formats)
 {
   int j = 0;
   while(all_formats->fmt_strings[j] != NULL){
@@ -240,13 +240,13 @@ int enum_webcam_formats_cleanup(webcam_formats *all_formats)
 int search_for_webcam(char *webcam_id)
 {
   if(webcam_id == NULL){
-    log_message("Please spacify webcam Id!\n");
+    ltr_int_log_message("Please spacify webcam Id!\n");
     return -1;
   }
   DIR *dev = opendir("/dev");
   int wfd = -1;
   if(dev == NULL){
-    log_message("Can't open /dev for reading!\n");
+    ltr_int_log_message("Can't open /dev for reading!\n");
     return -1;
   }
   struct dirent *de;
@@ -255,7 +255,7 @@ int search_for_webcam(char *webcam_id)
       char *fname;
       asprintf(&fname, "/dev/%s", de->d_name);
       if((wfd = is_our_webcam(fname, webcam_id)) != -1){
-        log_message("Found webcam '%s' (%s)\n", de->d_name, fname);
+        ltr_int_log_message("Found webcam '%s' (%s)\n", de->d_name, fname);
         free(fname);
         break;
       }
@@ -268,28 +268,28 @@ int search_for_webcam(char *webcam_id)
 
 
 
-bool read_pref_format(struct v4l2_format *fmt)
+static bool read_pref_format(struct v4l2_format *fmt)
 {
   memset(fmt, 0, sizeof(struct v4l2_format));
   
-  char *dev_section = get_device_section();
+  char *dev_section = ltr_int_get_device_section();
   if(dev_section == NULL){
     return false;
   }
-  char *res = get_key(dev_section, "Resolution");
+  char *res = ltr_int_get_key(dev_section, "Resolution");
   if(res == NULL){
-    log_message("No resolution specified!\n");
+    ltr_int_log_message("No resolution specified!\n");
     return false;
   }
-  char *pix = get_key(dev_section, "Pixel-format");
+  char *pix = ltr_int_get_key(dev_section, "Pixel-format");
   if(pix == NULL){
-    log_message("No pixel format specified!\n");
+    ltr_int_log_message("No pixel format specified!\n");
     return false;
   }
   
   int x, y;
   if(sscanf(res, "%d x %d", &x, &y)!= 2){
-    log_message("I don't understand resolution specified as '%s'!\n", res);
+    ltr_int_log_message("I don't understand resolution specified as '%s'!\n", res);
     return false;
   } 
   
@@ -303,7 +303,7 @@ bool read_pref_format(struct v4l2_format *fmt)
 }
 
 
-bool set_capture_format(struct camera_control_block *ccb)
+static bool set_capture_format(struct camera_control_block *ccb)
 {
   struct v4l2_format fmt;
   if(read_pref_format(&fmt) != true){
@@ -313,35 +313,35 @@ bool set_capture_format(struct camera_control_block *ccb)
   if(0 != ioctl(wc_info.fd, VIDIOC_S_FMT, &fmt)){
     switch(errno){
       case EBUSY:
-        log_message("Can't switch formats right now!\n");
+        ltr_int_log_message("Can't switch formats right now!\n");
         break;
       case EINVAL:
-        log_message("Using wrong data to switch formats!\n");
+        ltr_int_log_message("Using wrong data to switch formats!\n");
         break;
     }
     return false;
   }
   ccb->pixel_width = wc_info.w = fmt.fmt.pix.width;
   ccb->pixel_height = wc_info.h = fmt.fmt.pix.height;
-  wc_info.bw_frame = (unsigned char *)my_malloc(wc_info.w * wc_info.h);
-  log_message("Switch of the format successfull!\n");
+  wc_info.bw_frame = (unsigned char *)ltr_int_my_malloc(wc_info.w * wc_info.h);
+  ltr_int_log_message("Switch of the format successfull!\n");
   return true;
 }
 
-bool set_stream_params()
+static bool set_stream_params()
 {
-  char *dev_section = get_device_section();
+  char *dev_section = ltr_int_get_device_section();
   if(dev_section == NULL){
     return false;
   }
-  char *fps = get_key(dev_section, "Fps");
+  char *fps = ltr_int_get_key(dev_section, "Fps");
   if(fps == NULL){
-    log_message("No framerate specified!\n");
+    ltr_int_log_message("No framerate specified!\n");
     return false;
   }
   int num, den;
   if(sscanf(fps, "%d/%d", &num, &den)!= 2){
-    log_message("I don't understand fps specified as '%s'!\n", fps);
+    ltr_int_log_message("I don't understand fps specified as '%s'!\n", fps);
     return false;
   } 
 
@@ -353,7 +353,7 @@ bool set_stream_params()
   sp.parm.capture.timeperframe.denominator = num;
 
   if(-1 == ioctl(wc_info.fd, VIDIOC_S_PARM, &sp)){
-    log_message("Stream parameters setup failed! (%s)\n", strerror(errno));
+    ltr_int_log_message("Stream parameters setup failed! (%s)\n", strerror(errno));
     return false;
   }
   return true;
@@ -366,7 +366,7 @@ bool set_stream_params()
  *
  * Returns number of buffers granted
  */
-int request_streaming_buffers()
+static int request_streaming_buffers()
 {
   struct v4l2_requestbuffers reqb;
   memset(&reqb, 0, sizeof(reqb));
@@ -376,14 +376,14 @@ int request_streaming_buffers()
   
   //request buffers from driver
   if(0 != ioctl(wc_info.fd, VIDIOC_REQBUFS, &reqb)){
-    log_message("Couldn't get streaming buffers! (%s)\n", strerror(errno));
+    ltr_int_log_message("Couldn't get streaming buffers! (%s)\n", strerror(errno));
     return 0;
   }
   if(reqb.count < NUM_OF_BUFFERS){
-    log_message("Got fewer buffers than expected! (%d instead of %d)\n",
+    ltr_int_log_message("Got fewer buffers than expected! (%d instead of %d)\n",
                 reqb.count, NUM_OF_BUFFERS);
   }else{
-    log_message("Got %d buffers...\n", reqb.count);
+    ltr_int_log_message("Got %d buffers...\n", reqb.count);
   }
   return reqb.count;
 }
@@ -394,16 +394,16 @@ int request_streaming_buffers()
  * 
  * Returns TRUE on success, FALSE otherwise
  */
-bool setup_streaming_buffers()
+static bool setup_streaming_buffers()
 {
-  log_message("Setting up buffers for streaming...\n");
+  ltr_int_log_message("Setting up buffers for streaming...\n");
   wc_info.buffers = request_streaming_buffers();
   if(0 == wc_info.buffers){
-      log_message("Request for buffers failed...\n");
+      ltr_int_log_message("Request for buffers failed...\n");
       return false;
   }
   //alloc memory for array of buffers
-  buffers = my_malloc(wc_info.buffers * sizeof(mmap_buffer));
+  buffers = ltr_int_my_malloc(wc_info.buffers * sizeof(mmap_buffer));
   memset(buffers, 0, sizeof(mmap_buffer) * wc_info.buffers);
   
   //initialize buffer structures... 
@@ -417,7 +417,7 @@ bool setup_streaming_buffers()
     buf.index = cntr;
 
     if(0 != ioctl(wc_info.fd, VIDIOC_QUERYBUF, &buf)){
-      log_message("Request for buffer failed...\n");
+      ltr_int_log_message("Request for buffer failed...\n");
       return false;
     }
     
@@ -425,11 +425,11 @@ bool setup_streaming_buffers()
     buffers[cntr].start = mmap(NULL, buf.length, PROT_READ | PROT_WRITE,
       MAP_SHARED, wc_info.fd, buf.m.offset);
     if(MAP_FAILED == buffers[cntr].start){
-      log_message("Mmap failed...\n");
+      ltr_int_log_message("Mmap failed...\n");
       return false;
     }
   }
-  log_message("Mmap setup successfull!\n");
+  ltr_int_log_message("Mmap setup successfull!\n");
   return true;
 }
 
@@ -439,43 +439,43 @@ bool setup_streaming_buffers()
  *  
  * Returns TRUE on success, FALSE otherwise
  */
-bool release_buffers()
+static bool release_buffers()
 {
   if(NULL == buffers){
-    log_message("Trying to release already released buffers...\n");
+    ltr_int_log_message("Trying to release already released buffers...\n");
     return false;
   }
   unsigned int cntr;
   for(cntr = 0; cntr < wc_info.buffers; ++cntr){
     if(-1 == munmap(buffers[cntr].start, buffers[cntr].length)){
-      log_message("Munmap failed!\n");
+      ltr_int_log_message("Munmap failed!\n");
     }
   }
   free(buffers);
   buffers = NULL;
-  log_message("Buffers unmapped!\n");
+  ltr_int_log_message("Buffers unmapped!\n");
   return true;
 }
 
-bool read_img_processing_prefs()
+static bool read_img_processing_prefs()
 {
-  char *dev_section = get_device_section();
+  char *dev_section = ltr_int_get_device_section();
   if(dev_section == NULL){
     return false;
   }
-  char *thres = get_key(dev_section, "Threshold");
+  char *thres = ltr_int_get_key(dev_section, "Threshold");
   if(thres == NULL){
-    log_message("No threshold specified!\n");
+    ltr_int_log_message("No threshold specified!\n");
     return false;
   }
-  char *max = get_key(dev_section, "Max-blob");
+  char *max = ltr_int_get_key(dev_section, "Max-blob");
   if(max == NULL){
-    log_message("No maximal pixel count for blob specified!\n");
+    ltr_int_log_message("No maximal pixel count for blob specified!\n");
     return false;
   }
-  char *min = get_key(dev_section, "Min-blob");
+  char *min = ltr_int_get_key(dev_section, "Min-blob");
   if(min == NULL){
-    log_message("No minimal pixel count for blob specified!\n");
+    ltr_int_log_message("No minimal pixel count for blob specified!\n");
     return false;
   }
   wc_info.threshold = (unsigned int)atoi(thres);
@@ -487,7 +487,7 @@ bool read_img_processing_prefs()
 /*
  * I'm going to actively ignore resolution and I'll set it from prefs...
  */
-int tracker_init(struct camera_control_block *ccb)
+int ltr_int_tracker_init(struct camera_control_block *ccb)
 {
   assert(ccb != NULL);
   assert(ccb->device.category == webcam);
@@ -500,46 +500,46 @@ int tracker_init(struct camera_control_block *ccb)
   wc_info.expecting_blobs = 3;
   
   if(set_capture_format(ccb) != true){
-    log_message("Couldn't set capture format!\n");
+    ltr_int_log_message("Couldn't set capture format!\n");
     close(fd);
     return -1;
   }
   if(set_stream_params() != true){
-    log_message("Couldn't set stream parameters!\n");
+    ltr_int_log_message("Couldn't set stream parameters!\n");
     close(fd);
     return -1;
   }
   if(setup_streaming_buffers() != true){
-    log_message("Couldn't initialize mmap!\n");
+    ltr_int_log_message("Couldn't initialize mmap!\n");
     close(fd);
     return -1;
   }
   if(read_img_processing_prefs() != true){
-    log_message("Couldn't initialize mmap!\n");
+    ltr_int_log_message("Couldn't initialize mmap!\n");
     close(fd);
     return -1;
   }
-  prepare_for_processing(ccb->pixel_width, ccb->pixel_height);
-  if(tracker_resume() != 0){
-    log_message("Couldn't start streaming!\n");
+  ltr_int_prepare_for_processing(ccb->pixel_width, ccb->pixel_height);
+  if(ltr_int_tracker_resume() != 0){
+    ltr_int_log_message("Couldn't start streaming!\n");
     close(fd);
     return -1;
   }
   return 0;
 }
 
-int tracker_close()
+int ltr_int_tracker_close()
 {
-  log_message("Webcam shutting down!\n");
+  ltr_int_log_message("Webcam shutting down!\n");
   release_buffers();
   free(wc_info.bw_frame);
   close(wc_info.fd);
   return 0;
 }
 
-int tracker_resume()
+int ltr_int_tracker_resume()
 {
-  log_message("Queuing buffers...\n");
+  ltr_int_log_message("Queuing buffers...\n");
   enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   unsigned int cntr;
   for(cntr = 0; cntr < wc_info.buffers; ++cntr){
@@ -551,32 +551,32 @@ int tracker_resume()
     buf.index = cntr;
 
     if(0 != ioctl(wc_info.fd, VIDIOC_QBUF, &buf)){
-      log_message("Queuing of buffer failed...\n");
+      ltr_int_log_message("Queuing of buffer failed...\n");
       return -1;
     }
   }
-  log_message("Buffers queued, starting to stream!\n");
+  ltr_int_log_message("Buffers queued, starting to stream!\n");
   
   if(-1 == ioctl(wc_info.fd, VIDIOC_STREAMON, &type)){
-    log_message("Start of streaming failed!\n");
+    ltr_int_log_message("Start of streaming failed!\n");
     return -1;
   }
   return 0;
 }
 
-int tracker_pause()
+int ltr_int_tracker_pause()
 {
   enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if(-1 == ioctl(wc_info.fd, VIDIOC_STREAMOFF, &type)){
-    log_message("Problem stopping streaming!\n");
+    ltr_int_log_message("Problem stopping streaming!\n");
     return -1;
   }
-  log_message("Streaming stopped!\n");
+  ltr_int_log_message("Streaming stopped!\n");
   return 0;
 }
 
 
-int tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f)
+int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 {
   (void) ccb;
   read_img_processing_prefs();
@@ -603,18 +603,18 @@ int tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f)
         break;
       }else{
         if((pfd.revents && POLLERR) != 0){
-          log_message("Poll returned error (%s)!\n", strerror(errno));
+          ltr_int_log_message("Poll returned error (%s)!\n", strerror(errno));
 	}else{
-	  log_message("Poll returned unexpected event! (%X)\n",pfd.revents);
+	  ltr_int_log_message("Poll returned unexpected event! (%X)\n",pfd.revents);
 	}
       }
     }else if(res == -1){
-      log_message("Poll returned error! (%s)", strerror(errno));
+      ltr_int_log_message("Poll returned error! (%s)", strerror(errno));
       return -1;
     }else if(res == 0){
-      log_message("Poll timed out!\n");
+      ltr_int_log_message("Poll timed out!\n");
     }else{
-      log_message("Poll returned unexpected value %d!\n", res);
+      ltr_int_log_message("Poll returned unexpected value %d!\n", res);
       return -1;
     }
   };
@@ -625,7 +625,7 @@ int tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f)
         continue;
         break;
       default:
-        log_message("Problem dequeing buffer! (%s)\n", strerror(errno));
+        ltr_int_log_message("Problem dequeing buffer! (%s)\n", strerror(errno));
         return -1;
     }
   }
@@ -647,20 +647,20 @@ int tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f)
     }
   }
   
-  //log_message("%d points found!\n", pts);
+  //ltr_int_log_message("%d points found!\n", pts);
 
   if(-1 == ioctl(wc_info.fd, VIDIOC_QBUF, &buf)){
-    log_message("Error queuing buffer!\n");
+    ltr_int_log_message("Error queuing buffer!\n");
   }
-  //log_message("Queued buffer %d\n", buf.index);
+  //ltr_int_log_message("Queued buffer %d\n", buf.index);
   image img = {
     .bitmap = dest_buf,
     .w = wc_info.w,
     .h = wc_info.h,
     .ratio = 1.0f
   };
-  to_stripes(&img);
-  stripes_to_blobs(3, &(f->bloblist), wc_info.min_blob_pixels, 
+  ltr_int_to_stripes(&img);
+  ltr_int_stripes_to_blobs(3, &(f->bloblist), wc_info.min_blob_pixels, 
 		   wc_info.max_blob_pixels, &img);
   return 0;
 }

@@ -22,10 +22,10 @@ typedef struct{
 }splines;
 
 //Converts curve definition to spline points
-int curve2pts(const splines_def *curve, splines *pts);
+int ltr_int_curve2pts(const splines_def *curve, splines *pts);
 
 //Make sure x belongs to <-1; 1>!
-float spline_point(const splines *pts, float x);
+float ltr_int_spline_point(const splines *pts, float x);
 
 #ifdef __cplusplus
 }

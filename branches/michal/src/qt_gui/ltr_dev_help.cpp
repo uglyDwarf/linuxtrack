@@ -8,5 +8,5 @@ LtrDevHelp::LtrDevHelp(QWidget *parent) : QWidget(parent)
 
 void LtrDevHelp::on_DumpPrefsButton_pressed()
 {
-  dump_prefs(NULL);
+  ltr_int_dump_prefs(NULL);
 }

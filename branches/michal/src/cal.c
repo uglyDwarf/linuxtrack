@@ -24,20 +24,20 @@ dev_interface iface = {
 };
 
 static lib_fun_def_t functions[] = {
-  {"ltr_cal_run", (void*) &iface.device_run},
-  {"ltr_cal_shutdown", (void*) &iface.device_shutdown},
-  {"ltr_cal_suspend", (void*) &iface.device_suspend},
-  {"ltr_cal_wakeup", (void*) &iface.device_wakeup},
+  {"ltr_int_rl_run", (void*) &iface.device_run},
+  {"ltr_int_rl_shutdown", (void*) &iface.device_shutdown},
+  {"ltr_int_rl_suspend", (void*) &iface.device_suspend},
+  {"ltr_int_rl_wakeup", (void*) &iface.device_wakeup},
   {NULL, NULL}
 };
 
-void *libhandle = NULL;
-lt_state_type cal_device_state = STOPPED;
+static void *libhandle = NULL;
+ltr_state_type ltr_int_cal_device_state = STOPPED;
 
 /************************/
 /* function definitions */
 /************************/
-int cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
+int ltr_int_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
 {
   char *libname = NULL;
   assert(ccb != NULL);
@@ -59,47 +59,47 @@ int cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
       break;
   }
   
-  log_message("Loading library '%s'\n", libname);
-  if((libhandle = lt_load_library(libname, functions)) == NULL){
+  ltr_int_log_message("Loading library '%s'\n", libname);
+  if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
     return -1;
   }
-  log_message("run: %p\n", iface.device_run);
+  ltr_int_log_message("run: %p\n", iface.device_run);
   assert(iface.device_run != NULL);
-  log_message("Running!\n");
+  ltr_int_log_message("Running!\n");
   int res = (iface.device_run)(ccb, cbk);
   //Runloop blocks until shutdown is called
-  lt_unload_library(libhandle, functions);
+  ltr_int_unload_library(libhandle, functions);
   return res;
 }
 
-int cal_shutdown()
+int ltr_int_cal_shutdown()
 {
   assert(iface.device_shutdown != NULL);
-  log_message("Closing!\n");
+  ltr_int_log_message("Closing!\n");
   int res = (iface.device_shutdown)();
   return res;
 }
 
-int cal_suspend()
+int ltr_int_cal_suspend()
 {
   assert(iface.device_suspend != NULL);
-  log_message("Suspending!\n");
+  ltr_int_log_message("Suspending!\n");
   return (iface.device_suspend)();
 }
 
-int cal_wakeup()
+int ltr_int_cal_wakeup()
 {
   assert(iface.device_wakeup != NULL);
-  log_message("Waking!\n");
+  ltr_int_log_message("Waking!\n");
   return (iface.device_wakeup)();
 }
 
-lt_state_type cal_get_state()
+ltr_state_type ltr_int_cal_get_state()
 {
-  return cal_device_state;
+  return ltr_int_cal_device_state;
 }
 
-void frame_free(struct camera_control_block *ccb,
+void ltr_int_frame_free(struct camera_control_block *ccb,
                 struct frame_type *f)
 {
   assert(ccb != NULL);
@@ -108,12 +108,12 @@ void frame_free(struct camera_control_block *ccb,
   f->bloblist.blobs = NULL;
 }
 
-void blob_print(struct blob_type b)
+static void blob_print(struct blob_type b)
 {
   printf("x: %f\ty: %f\tscore: %d\n", b.x,b.y,b.score);
 }
 
-void bloblist_print(struct bloblist_type bl)
+static void bloblist_print(struct bloblist_type bl)
 {
   unsigned int i;
 
@@ -124,7 +124,7 @@ void bloblist_print(struct bloblist_type bl)
   printf("-- end blob --\n");
 }
 
-void frame_print(struct frame_type f)
+void ltr_int_frame_print(struct frame_type f)
 {
   printf("-- start frame --\n");
   printf("num blobs: %d\n", f.bloblist.num_blobs);

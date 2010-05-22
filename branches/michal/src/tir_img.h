@@ -4,6 +4,6 @@
 #include "list.h"
 #include "image_process.h"
 
-int read_blobs_tir(struct bloblist_type *blt, int min, int max, image *img);
+int ltr_int_read_blobs_tir(struct bloblist_type *blt, int min, int max, image *img);
 
 #endif

@@ -64,7 +64,7 @@ static void draw_stripe(image *img, int x, int y, int x_end, unsigned char color
 }
 
 
-void draw_square(image *img, int x, int y, int size)
+void ltr_int_draw_square(image *img, int x, int y, int size)
 {
   assert(img != NULL);
   assert(x >= 0);
@@ -87,7 +87,7 @@ void draw_square(image *img, int x, int y, int size)
 }
 
 
-void draw_cross(image *img, int x, int y, int size)
+void ltr_int_draw_cross(image *img, int x, int y, int size)
 {
   int cntr;
   int x_m = x - size;
@@ -113,15 +113,17 @@ void draw_cross(image *img, int x, int y, int size)
 
 
 
-
-struct blob_type* new_blob(float x, float y, int score)
+/*
+static struct blob_type* new_blob(float x, float y, int score)
 {
-  struct blob_type *tmp = (struct blob_type*)my_malloc(sizeof(struct blob_type));
+  struct blob_type *tmp = 
+    (struct blob_type*)ltr_int_my_malloc(sizeof(struct blob_type));
   tmp->x = x;
   tmp->y = y;
   tmp->score = score;
   return tmp;
 }
+*/
 
 static bool stripe_in_range(stripe_t *stripe, range *rng)
 {
@@ -155,7 +157,7 @@ static void merge_preblobs(preblob_t *b1, preblob_t *b2)
   b1->points += b2->points;
 }
 
-void add_stripe_to_preblob(preblob_t *pb, stripe_t *stripe)
+static void add_stripe_to_preblob(preblob_t *pb, stripe_t *stripe)
 {
 #ifdef DBG_MSG
   printf("Adding stripe to blob %p\n",pb);
@@ -166,9 +168,9 @@ void add_stripe_to_preblob(preblob_t *pb, stripe_t *stripe)
   pb->points += stripe->points;
 }
 
-preblob_t* preblob_from_stripe(stripe_t *stripe)
+static preblob_t* preblob_from_stripe(stripe_t *stripe)
 {
-  preblob_t *pb = (preblob_t*)my_malloc(sizeof(preblob_t));
+  preblob_t *pb = (preblob_t*)ltr_int_my_malloc(sizeof(preblob_t));
   pb->sum_x = ((float)stripe->sum * stripe->hstart) + stripe->sum_x;
   pb->sum_y = (float)stripe->sum * stripe->vline;
   pb->sum = stripe->sum;
@@ -181,10 +183,10 @@ preblob_t* preblob_from_stripe(stripe_t *stripe)
   return pb;
 }
 
-bool store_preblobs(bool all)
+static bool store_preblobs(bool all)
 {
   if(preblobs == NULL){
-    preblobs = create_list();
+    preblobs = ltr_int_create_list();
   }
   int i;
   for(i = 0; i < current.limit; ++i){
@@ -198,7 +200,7 @@ bool store_preblobs(bool all)
 	printf("Added!");
 #endif
         current.ranges[i].pb->added = true;
-        add_element(preblobs, current.ranges[i].pb);
+        ltr_int_add_element(preblobs, current.ranges[i].pb);
       }
     }
 #ifdef DBG_MSG
@@ -216,7 +218,7 @@ bool store_preblobs(bool all)
 	printf("Added!\n");
 #endif
         next.ranges[i].pb->added = true;
-        add_element(preblobs, next.ranges[i].pb);
+        ltr_int_add_element(preblobs, next.ranges[i].pb);
       }
     }
 #ifdef DBG_MSG
@@ -226,7 +228,7 @@ bool store_preblobs(bool all)
   return true;
 }
 
-bool add_stripe(stripe_t *stripe, image *img)
+bool ltr_int_add_stripe(stripe_t *stripe, image *img)
 {
   assert(current.ranges != NULL);
   assert(stripe != NULL);
@@ -309,16 +311,16 @@ bool add_stripe(stripe_t *stripe, image *img)
   return true;
 }
 
-void prepare_for_processing(int w, int h)
+void ltr_int_prepare_for_processing(int w, int h)
 {
   h = 0;
   if(current.ranges == NULL){
-    current.ranges = (range*)my_malloc(sizeof(range) * ((w / 2) + 1));
-    next.ranges = (range*)my_malloc(sizeof(range) * ((w / 2) + 1));
+    current.ranges = (range*)ltr_int_my_malloc(sizeof(range) * ((w / 2) + 1));
+    next.ranges = (range*)ltr_int_my_malloc(sizeof(range) * ((w / 2) + 1));
   }
 }
 
-void to_stripes(image *img)
+void ltr_int_to_stripes(image *img)
 {
   assert(img != NULL);
   int x, y;
@@ -355,7 +357,7 @@ void to_stripes(image *img)
           //printf("Stripe: y: %1d, from %1d to %1d, %1d points;\n", 
           //       stripe.vline, stripe.hstart, stripe.hstop, stripe.points);
           //printf("sum: %6d, sum_x: %6d\n", stripe.sum, stripe.sum_x);
-          add_stripe(&stripe, img);
+          ltr_int_add_stripe(&stripe, img);
         }
       }
       ptr++;
@@ -366,14 +368,14 @@ void to_stripes(image *img)
       //printf("Stripe: y: %1d, from %1d to %1d, %1d points;\n", 
       //       stripe.vline, stripe.hstart, stripe.hstop, stripe.points);
       //printf("sum: %6d, sum_x: %6d\n", stripe.sum, stripe.sum_x);
-      add_stripe(&stripe, img);
+      ltr_int_add_stripe(&stripe, img);
       in_stripe = false;
     }
   }
   //printf("\n");
 }
 
-int stripes_to_blobs(int num_blobs, struct bloblist_type *blt, 
+int ltr_int_stripes_to_blobs(int num_blobs, struct bloblist_type *blt, 
 		     int min_pts, int max_pts, image *img)
 {
   store_preblobs(true);
@@ -388,8 +390,8 @@ int stripes_to_blobs(int num_blobs, struct bloblist_type *blt,
   iterator i;
   struct blob_type *cal_b;
   preblob_t *pb;
-  init_iterator(preblobs, &i);
-  while((pb = (preblob_t*)get_next(&i)) != NULL){
+  ltr_int_init_iterator(preblobs, &i);
+  while((pb = (preblob_t*)ltr_int_get_next(&i)) != NULL){
     if((pb->points < min_pts) || (pb->points > max_pts)){
       continue;
     }
@@ -402,13 +404,13 @@ int stripes_to_blobs(int num_blobs, struct bloblist_type *blt,
       cal_b->x = ((img->w - 1) / 2.0) - x;
       cal_b->y = ((img->h - 1) / 2.0) - (y * img->ratio);
       if(img->bitmap != NULL){
-	draw_cross(img, x, y * img->ratio, (int) img->w/100.0);
+	ltr_int_draw_cross(img, x, y * img->ratio, (int) img->w/100.0);
       }
       cal_b->score = pb->points;
     }
     ++counter;
   }
-  free_list(preblobs, true);
+  ltr_int_free_list(preblobs, true);
   preblobs = NULL;
   blt->num_blobs = (valid > num_blobs) ? num_blobs : valid;
   return 0;

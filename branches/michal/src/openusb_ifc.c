@@ -10,10 +10,10 @@ static openusb_dev_handle_t devhandle;
 static unsigned int in, out;
 
 
-bool init_usb()
+bool ltr_int_init_usb()
 {
   if(openusb_init(0, &handle) != OPENUSB_SUCCESS){
-    log_message("Problem initializing library!\n");
+    ltr_int_log_message("Problem initializing library!\n");
     return false;
   }
   openusb_set_debug(handle, 0, 0, NULL);
@@ -21,7 +21,7 @@ bool init_usb()
   return true;
 }
 
-dev_found find_tir()
+dev_found ltr_int_find_tir()
 {
   openusb_devid_t *devlist = NULL;
   uint32_t devs = 0;
@@ -36,18 +36,18 @@ dev_found find_tir()
       == OPENUSB_SUCCESS){
       dev = TIR4;
     }else{
-      log_message("Couldn't find Track IR!\n");
+      ltr_int_log_message("Couldn't find Track IR!\n");
       return NONE;
     }
   }
   
   if(openusb_open_device(handle, devlist[0], USB_INIT_DEFAULT, &devhandle) 
     != OPENUSB_SUCCESS){
-    log_message("Open device handle failed!\n");
+    ltr_int_log_message("Open device handle failed!\n");
     return NONE;
   }
   if(openusb_reset(devhandle) != OPENUSB_SUCCESS){
-    log_message("Couldn't reset dev!\n");
+    ltr_int_log_message("Couldn't reset dev!\n");
     return NONE;
   }
   openusb_free_devid_list(devlist);
@@ -57,7 +57,7 @@ dev_found find_tir()
 static bool configure_tir(unsigned int config)
 {
   if(openusb_set_configuration(devhandle, config) != OPENUSB_SUCCESS){
-    log_message("Couldn't set configuration!\n");
+    ltr_int_log_message("Couldn't set configuration!\n");
     return false;
   }
   return true;
@@ -66,13 +66,13 @@ static bool configure_tir(unsigned int config)
 static bool claim_tir(unsigned int interface)
 {
   if(openusb_claim_interface(devhandle, interface, USB_INIT_DEFAULT)){
-    log_message("Couldn't set interface!\n");
+    ltr_int_log_message("Couldn't set interface!\n");
     return false;
   }
   return true;
 }
 
-bool prepare_device(unsigned int config, unsigned int interface, 
+bool ltr_int_prepare_device(unsigned int config, unsigned int interface, 
   unsigned int in_ep, unsigned int out_ep)
 {
   in = in_ep;
@@ -80,7 +80,7 @@ bool prepare_device(unsigned int config, unsigned int interface,
   return configure_tir(config) && claim_tir(interface);
 }
 
-bool send_data(unsigned char data[], size_t size)
+bool ltr_int_send_data(unsigned char data[], size_t size)
 {
   int32_t res;
   struct openusb_bulk_request br = {
@@ -92,13 +92,13 @@ bool send_data(unsigned char data[], size_t size)
   };
   
   if((res = openusb_bulk_xfer(devhandle, 0, out, &br)) != OPENUSB_SUCCESS){
-    log_message("Can't send message!\n");
+    ltr_int_log_message("Can't send message!\n");
     return false;
   }
   return true;
 }
 
-bool receive_data(unsigned char data[], size_t size, size_t *transferred, 
+bool ltr_int_receive_data(unsigned char data[], size_t size, size_t *transferred, 
                   unsigned int timeout)
 {
   int32_t res;
@@ -114,7 +114,7 @@ bool receive_data(unsigned char data[], size_t size, size_t *transferred,
   };
   if((res = openusb_bulk_xfer(devhandle, 0, in, &br)) != OPENUSB_SUCCESS){
     if(res != OPENUSB_IO_TIMEOUT){
-      log_message("Can't receive message! (%d)\n", res);
+      ltr_int_log_message("Can't receive message! (%d)\n", res);
       return false;
     }
   }
@@ -122,12 +122,12 @@ bool receive_data(unsigned char data[], size_t size, size_t *transferred,
   return true;
 }
 
-void finish_usb(unsigned int interface)
+void ltr_int_finish_usb(unsigned int interface)
 {
   (void) interface;
   int32_t res;
   if((res = openusb_release_interface(devhandle, 0)) != OPENUSB_SUCCESS){
-    log_message("Couldn't release interface! (%d)\n", res);
+    ltr_int_log_message("Couldn't release interface! (%d)\n", res);
   }
   openusb_close_device(devhandle);
   openusb_fini(handle);

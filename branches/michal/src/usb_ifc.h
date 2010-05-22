@@ -16,12 +16,12 @@ typedef bool (*receive_data_fun)(unsigned char data[], size_t size, size_t *tran
                          unsigned int timeout);
 typedef void (*finish_usb_fun)(unsigned int interface);
 
-extern init_usb_fun init_usb;
-extern find_tir_fun find_tir;
-extern prepare_device_fun prepare_device;
-extern send_data_fun send_data;
-extern receive_data_fun receive_data;
-extern finish_usb_fun finish_usb;
+extern init_usb_fun ltr_int_init_usb;
+extern find_tir_fun ltr_int_find_tir;
+extern prepare_device_fun ltr_int_prepare_device;
+extern send_data_fun ltr_int_send_data;
+extern receive_data_fun ltr_int_receive_data;
+extern finish_usb_fun ltr_int_finish_usb;
 #endif
 
 

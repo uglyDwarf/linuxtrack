@@ -6,24 +6,24 @@
 #include "cal.h"
 #include "utils.h"
 
-float model_dist = 1000.0;
+static float model_dist = 1000.0;
 /* Focal length */
-float internal_focal_depth;
+static float internal_focal_depth;
 
-float model_point0[3];
-float model_point1[3];
-float model_point2[3];
+static float model_point0[3];
+static float model_point1[3];
+static float model_point2[3];
 
-float model_ref[3];
+static float model_ref[3];
 
-float model_base[3][3];
+static float model_base[3][3];
 
-float center_ref[3];
-float center_base[3][3];
+static float center_ref[3];
+static float center_base[3][3];
 
-enum {M_CAP, M_CLIP, M_SINGLE} type;
+static enum {M_CAP, M_CLIP, M_SINGLE} type;
 
-void pose_init(struct reflector_model_type rm)
+void ltr_int_pose_init(struct reflector_model_type rm)
 {
   switch(rm.type){
     case CAP:
@@ -84,40 +84,40 @@ void pose_init(struct reflector_model_type rm)
   /* Out of model points create orthonormal base */
   float vec1[3];
   float vec2[3];
-  make_vec(model_point1, model_point0, vec1);
-  make_vec(model_point2, model_point0, vec2);
-  make_base(vec1, vec2, model_base);
+  ltr_int_make_vec(model_point1, model_point0, vec1);
+  ltr_int_make_vec(model_point2, model_point0, vec2);
+  ltr_int_make_base(vec1, vec2, model_base);
 
 //for testing purposes
-  make_base(vec1, vec2, center_base);
+  ltr_int_make_base(vec1, vec2, center_base);
   /* Convert reference point to model base coordinates */
 //  float ref_pt[3];
   float vec3[3];
-  make_vec(ref, model_point0, vec3);
-  matrix_times_vec(model_base, vec3, model_ref);
+  ltr_int_make_vec(ref, model_point0, vec3);
+  ltr_int_matrix_times_vec(model_base, vec3, model_ref);
 }
 
-bool is_single_point()
+bool ltr_int_is_single_point()
 {
   return type == M_SINGLE;
 }
 
-float blob_dist(struct blob_type b0, struct blob_type b1)
+static float blob_dist(struct blob_type b0, struct blob_type b1)
 {
-  return sqrt(sqr(b1.x-b0.x) + sqr(b1.y-b0.y));
+  return sqrt(ltr_int_sqr(b1.x-b0.x) + ltr_int_sqr(b1.y-b0.y));
 }
 
-void alter_pose(struct bloblist_type blobs, float points[3][3], bool centering)
+static void alter_pose(struct bloblist_type blobs, float points[3][3], bool centering)
 {
   float R01, R02, R12, d01, d02, d12, a, b, c, s, h1, h2, sigma;
   float tmp[3];
 
-  make_vec(model_point0, model_point1, tmp);
-  R01 = vec_size(tmp);
-  make_vec(model_point0, model_point2, tmp);
-  R02 = vec_size(tmp);
-  make_vec(model_point1, model_point2, tmp);
-  R12 = vec_size(tmp);
+  ltr_int_make_vec(model_point0, model_point1, tmp);
+  R01 = ltr_int_vec_size(tmp);
+  ltr_int_make_vec(model_point0, model_point2, tmp);
+  R02 = ltr_int_vec_size(tmp);
+  ltr_int_make_vec(model_point1, model_point2, tmp);
+  R12 = ltr_int_vec_size(tmp);
 
   d01 = blob_dist(blobs.blobs[0], blobs.blobs[1]);
   d02 = blob_dist(blobs.blobs[0], blobs.blobs[2]);
@@ -126,24 +126,24 @@ void alter_pose(struct bloblist_type blobs, float points[3][3], bool centering)
   a = (R01 + R02+ R12) * (-R01 + R02 + R12)
     * (R01 - R02 + R12) * (R01 + R02 - R12);
 
-  b = sqr(d01) * (-sqr(R01) + sqr(R02) + sqr(R12))
-    + sqr(d02) * (sqr(R01) - sqr(R02) + sqr(R12))
-    + sqr(d12) * (sqr(R01) + sqr(R02) - sqr(R12));
+  b = ltr_int_sqr(d01) * (-ltr_int_sqr(R01) + ltr_int_sqr(R02) + ltr_int_sqr(R12))
+    + ltr_int_sqr(d02) * (ltr_int_sqr(R01) - ltr_int_sqr(R02) + ltr_int_sqr(R12))
+    + ltr_int_sqr(d12) * (ltr_int_sqr(R01) + ltr_int_sqr(R02) - ltr_int_sqr(R12));
 
   c = (d01 + d02+ d12) * (-d01 + d02 + d12)
     * (d01 - d02 + d12) * (d01 + d02 - d12);
 
-  s = sqrt((b + sqrt(sqr(b) - a * c)) / a);
+  s = sqrt((b + sqrt(ltr_int_sqr(b) - a * c)) / a);
 
-  if((sqr(d01) + sqr(d02) - sqr(d12))
-      <= (sqr(s) * (sqr(R01) + sqr(R02) - sqr(R12)))){
+  if((ltr_int_sqr(d01) + ltr_int_sqr(d02) - ltr_int_sqr(d12))
+      <= (ltr_int_sqr(s) * (ltr_int_sqr(R01) + ltr_int_sqr(R02) - ltr_int_sqr(R12)))){
     sigma = 1;
   }else{
     sigma = -1;
   }
 
-  h1 = ((type == M_CAP)? -1 : 1) * sqrt(sqr(s * R01) - sqr(d01));
-  h2 = ((type == M_CAP)? -1 : 1) * sigma * sqrt(sqr(s * R02) - sqr(d02));
+  h1 = ((type == M_CAP)? -1 : 1) * sqrt(ltr_int_sqr(s * R01) - ltr_int_sqr(d01));
+  h2 = ((type == M_CAP)? -1 : 1) * sigma * sqrt(ltr_int_sqr(s * R02) - ltr_int_sqr(d02));
 
   if(centering){
     internal_focal_depth = model_dist * s;
@@ -164,13 +164,13 @@ void alter_pose(struct bloblist_type blobs, float points[3][3], bool centering)
 /*   print_matrix(points, "alter92_result"); */
 }
 
-void get_translation(float base[3][3], float ref[3], float origin[3],
+static void get_translation(float base[3][3], float ref[3], float origin[3],
                      float trans[3], bool do_center){
 //  float tmp[3];
   float t_base[3][3];
   float new_ref[3];
-  transpose(base, t_base);
-  matrix_times_vec(t_base, ref, new_ref);
+  ltr_int_transpose(base, t_base);
+  ltr_int_matrix_times_vec(t_base, ref, new_ref);
   new_ref[0] += origin[0];
   new_ref[1] += origin[1];
   new_ref[2] += origin[2];
@@ -186,13 +186,13 @@ void get_translation(float base[3][3], float ref[3], float origin[3],
   trans[2] = new_ref[2] - center_ref[2];
 }
 
-void get_transform(float new_base[3][3], float rot[3][3]){
+static void get_transform(float new_base[3][3], float rot[3][3]){
   float center_base_t[3][3];
-  transpose(center_base, center_base_t);
-  mul_matrix(center_base_t, new_base, rot);
+  ltr_int_transpose(center_base, center_base_t);
+  ltr_int_mul_matrix(center_base_t, new_base, rot);
 }
 
-void pose_sort_blobs(struct bloblist_type bl)
+void ltr_int_pose_sort_blobs(struct bloblist_type bl)
 {
   struct blob_type tmp_blob;
   int topmost_blob_index;
@@ -242,7 +242,7 @@ void pose_sort_blobs(struct bloblist_type bl)
 }
 
 
-bool pose_process_blobs(struct bloblist_type blobs,
+bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
                         struct transform *trans, bool centering)
 {
 
@@ -282,13 +282,13 @@ bool pose_process_blobs(struct bloblist_type blobs,
   float new_base[3][3];
   float vec1[3];
   float vec2[3];
-  transpose_in_place(points);
+  ltr_int_transpose_in_place(points);
 //  print_matrix(points, "Alter");
-  make_vec(points[1], points[0], vec1);
-  make_vec(points[2], points[0], vec2);
+  ltr_int_make_vec(points[1], points[0], vec1);
+  ltr_int_make_vec(points[2], points[0], vec2);
 //  print_vec(vec1, "vec1");
 //  print_vec(vec2, "vec2");
-  make_base(vec1, vec2, new_base);
+  ltr_int_make_base(vec1, vec2, new_base);
   if(centering == true){
     /*log_message("Center:\n");
     log_message("[%g, %g]\n", blobs.blobs[0].x, blobs.blobs[0].y);
@@ -316,17 +316,17 @@ void transform_print(struct transform trans)
 {
   float ypr[3]; /* yaw, pitch, roll;*/
   printf("***** Transform **************\n");
-  print_vec(trans.tr, "translation");
-  print_matrix(trans.rot, "rotation");
-  matrix_to_euler(trans.rot, &(ypr[1]), &(ypr[0]), &(ypr[2]));
+  ltr_int_print_vec(trans.tr, "translation");
+  ltr_int_print_matrix(trans.rot, "rotation");
+  ltr_int_matrix_to_euler(trans.rot, &(ypr[1]), &(ypr[0]), &(ypr[2]));
   ypr[0] *= 180.0/M_PI;
   ypr[1] *= 180.0/M_PI;
   ypr[2] *= 180.0/M_PI;
-  print_vec(ypr, "angles");
+  ltr_int_print_vec(ypr, "angles");
   printf("******************************\n");
 }
 
-int pose_compute_camera_update(struct transform trans,
+int ltr_int_pose_compute_camera_update(struct transform trans,
                                float *yaw,
                                float *pitch,
                                float *roll,
@@ -335,9 +335,10 @@ int pose_compute_camera_update(struct transform trans,
                                float *tz)
 {
   float p, y, r;
-  matrix_to_euler(trans.rot, &p, &y, &r);
-  if(is_finite(trans.tr[0]) && is_finite(trans.tr[1]) && is_finite(trans.tr[2]) 
-                               && is_finite(p) && is_finite(y) &&is_finite(r)){
+  ltr_int_matrix_to_euler(trans.rot, &p, &y, &r);
+  if(ltr_int_is_finite(trans.tr[0]) && ltr_int_is_finite(trans.tr[1]) 
+     && ltr_int_is_finite(trans.tr[2]) && ltr_int_is_finite(p) 
+     && ltr_int_is_finite(y) && ltr_int_is_finite(r)){
 
     *tx = trans.tr[0];
     *ty = trans.tr[1];

@@ -19,18 +19,18 @@ KEY			[_a-zA-Z0-9-]+
 \]                      {return(TOKEN_RIGHT_BRACKET);}  
 
 {KEY}			{
-			  yylval.str=my_strdup(yytext);
+			  yylval.str=ltr_int_my_strdup(yytext);
 			  return(TOKEN_KEY);
 			}
 #.*			{
-			  yylval.str=my_strdup(yytext);
+			  yylval.str=ltr_int_my_strdup(yytext);
 			  return(TOKEN_COMMENT);
 			}
   
 [[:blank:]]		/* eat up whitespace */
 
 <VALUE>[^\n]*           {
-                          yylval.str=my_strdup(yytext);
+                          yylval.str=ltr_int_my_strdup(yytext);
                           return(TOKEN_VALUE);
                         }
 
@@ -40,11 +40,11 @@ KEY			[_a-zA-Z0-9-]+
                           BEGIN(INITIAL);
                         }
 <SEC_NAME>[^\]]*        {
-                          yylval.str=my_strdup(yytext);
+                          yylval.str=ltr_int_my_strdup(yytext);
                           BEGIN(INITIAL);
                           return(TOKEN_SECNAME);
                         }
   
-.			log_message( "Unrecognized character: %s\n", yytext );
+.			ltr_int_log_message( "Unrecognized character: %s\n", yytext );
 %%
 

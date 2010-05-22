@@ -45,13 +45,13 @@ CaptureThread::CaptureThread(LtrGuiForm *p): QThread(), parent(p)
 void CaptureThread::run()
 {
   static struct camera_control_block ccb;
-  if(get_device(&ccb) == false){
-    log_message("Can't get device category!\n");
+  if(ltr_int_get_device(&ccb) == false){
+    ltr_int_log_message("Can't get device category!\n");
     return;
   }
-  init_tracking();
+  ltr_int_init_tracking();
   ccb.diag = false;
-  cal_run(&ccb, frame_callback);
+  ltr_int_cal_run(&ccb, frame_callback);
 }
 
 void CaptureThread::signal_new_frame()
@@ -86,7 +86,7 @@ LtrGuiForm::LtrGuiForm(ScpForm *s) : cv(NULL)
 LtrGuiForm::~LtrGuiForm()
 {
   if(running){
-    cal_shutdown();
+    ltr_int_cal_shutdown();
     ct->wait(1000);
   }
   delete glw;
@@ -98,17 +98,17 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
   (void) ccb;
   
   if(cnt == 0){
-    recenter_tracking();
+    ltr_int_recenter_tracking();
   }
   ++cnt;
   
-  update_pose(frame);
-  scp->updatePitch(lt_orig_pose.pitch);
-  scp->updateRoll(lt_orig_pose.roll);
-  scp->updateYaw(lt_orig_pose.heading);
-  scp->updateX(lt_orig_pose.tx);
-  scp->updateY(lt_orig_pose.ty);
-  scp->updateZ(lt_orig_pose.tz);
+  ltr_int_update_pose(frame);
+  scp->updatePitch(ltr_int_orig_pose.pitch);
+  scp->updateRoll(ltr_int_orig_pose.roll);
+  scp->updateYaw(ltr_int_orig_pose.heading);
+  scp->updateX(ltr_int_orig_pose.tx);
+  scp->updateY(ltr_int_orig_pose.ty);
+  scp->updateZ(ltr_int_orig_pose.tz);
   
   if((w != frame->width) || (h != frame->height)){
     w = frame->width;
@@ -119,9 +119,9 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
     if(buffer1 != NULL){
       free(buffer1);
     }
-    buffer0 = (unsigned char*)my_malloc(h * w);
+    buffer0 = (unsigned char*)ltr_int_my_malloc(h * w);
     memset(buffer0, 0, h * w);
-    buffer1 = (unsigned char*)my_malloc(h * w);
+    buffer1 = (unsigned char*)ltr_int_my_malloc(h * w);
     memset(buffer1, 200, h * w);
     img0 = new QImage(buffer0, w, h, w, QImage::Format_Indexed8);
     img1 = new QImage(buffer1, w, h, w, QImage::Format_Indexed8);
@@ -149,23 +149,23 @@ void LtrGuiForm::on_startButton_pressed()
 
 void LtrGuiForm::on_recenterButton_pressed()
 {
-  recenter_tracking();
+  ltr_int_recenter_tracking();
 }
 
 void LtrGuiForm::on_pauseButton_pressed()
 {
-  cal_suspend();
+  ltr_int_cal_suspend();
 }
 
 void LtrGuiForm::on_wakeButton_pressed()
 {
-  cal_wakeup();
+  ltr_int_cal_wakeup();
 }
 
 
 void LtrGuiForm::on_stopButton_pressed()
 {
-  if(cal_shutdown() == 0){
+  if(ltr_int_cal_shutdown() == 0){
     ct->wait(1000);
   }
 }

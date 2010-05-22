@@ -12,23 +12,23 @@ typedef enum {
   RUNNING,
   PAUSED,
   STOPPED
-}lt_state_type;
+}ltr_state_type;
 
 
 
-int lt_init(char *cust_section);
-int lt_shutdown(void);
-int lt_suspend(void);
-int lt_wakeup(void);
-void lt_recenter(void);
-int lt_get_camera_update(float *heading,
+int ltr_init(char *cust_section);
+int ltr_shutdown(void);
+int ltr_suspend(void);
+int ltr_wakeup(void);
+void ltr_recenter(void);
+int ltr_get_camera_update(float *heading,
                          float *pitch,
                          float *roll,
                          float *tx,
                          float *ty,
                          float *tz);
-lt_state_type lt_get_tracking_state(void);
-void lt_log_message(const char *format, ...);
+ltr_state_type ltr_get_tracking_state(void);
+void ltr_log_message(const char *format, ...);
 
 #ifdef __cplusplus
 }

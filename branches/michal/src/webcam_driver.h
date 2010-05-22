@@ -8,13 +8,13 @@
 extern "C" {
 #endif
 
-int tracker_init(struct camera_control_block *ccb);
-int tracker_shutdown();
-int tracker_suspend();
-int tracker_wakeup();
-int tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f);
+int ltr_int_tracker_init(struct camera_control_block *ccb);
+int ltr_int_tracker_shutdown();
+int ltr_int_tracker_suspend();
+int ltr_int_tracker_wakeup();
+int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f);
 
-extern dev_interface webcam_interface;
+extern dev_interface ltr_int_webcam_interface;
 
 
 typedef struct{
@@ -31,9 +31,9 @@ typedef struct{
   int entries;
 } webcam_formats;
 
-int enum_webcams(char **ids[]);
-int enum_webcam_formats(char *id, webcam_formats *formats);
-int enum_webcam_formats_cleanup(webcam_formats *all_formats);
+int ltr_int_enum_webcams(char **ids[]);
+int ltr_int_enum_webcam_formats(char *id, webcam_formats *formats);
+int ltr_int_enum_webcam_formats_cleanup(webcam_formats *all_formats);
 
 #ifdef __cplusplus
 }

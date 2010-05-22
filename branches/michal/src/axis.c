@@ -12,7 +12,7 @@ struct axis_def{
   float limits; //Input value limits - normalize into <-1;1>
 };
 
-float val_on_axis(struct axis_def *axis, float x)
+float ltr_int_val_on_axis(struct axis_def *axis, float x)
 {
   assert(axis != NULL);
   assert(axis->curve_defs != NULL);
@@ -22,7 +22,7 @@ float val_on_axis(struct axis_def *axis, float x)
     return 0.0f;
   }
   if(!(axis->valid)){
-    curve2pts(axis->curve_defs, axis->curves);
+    ltr_int_curve2pts(axis->curve_defs, axis->curves);
   }
   x = x / axis->limits;
   if(x < -1.0){
@@ -31,7 +31,7 @@ float val_on_axis(struct axis_def *axis, float x)
   if(x > 1.0){
     x = 1.0;
   }
-  float y = spline_point(axis->curves, x);
+  float y = ltr_int_spline_point(axis->curves, x);
   if(x < 0.0){
     return y * axis->l_factor; 
   }else{
@@ -39,22 +39,22 @@ float val_on_axis(struct axis_def *axis, float x)
   }
 }
 
-void enable_axis(struct axis_def *axis)
+void ltr_int_enable_axis(struct axis_def *axis)
 {
   axis->enabled = true;
 }
 
-void disable_axis(struct axis_def *axis)
+void ltr_int_disable_axis(struct axis_def *axis)
 {
   axis->enabled = false;
 }
 
-bool is_enabled(struct axis_def *axis)
+bool ltr_int_is_enabled(struct axis_def *axis)
 {
   return axis->enabled;
 }
 
-bool is_symetrical(const struct axis_def *axis)
+bool ltr_int_is_symetrical(const struct axis_def *axis)
 {
   assert(axis != NULL);
   assert(axis->curve_defs != NULL);
@@ -68,7 +68,7 @@ bool is_symetrical(const struct axis_def *axis)
   }
 }
 
-bool set_deadzone(struct axis_def *axis, float dz)
+bool ltr_int_set_deadzone(struct axis_def *axis, float dz)
 {
   assert(axis != NULL);
   assert(axis->curve_defs != NULL);
@@ -80,7 +80,7 @@ bool set_deadzone(struct axis_def *axis, float dz)
   return true;
 }
 
-float get_deadzone(struct axis_def *axis)
+float ltr_int_get_deadzone(struct axis_def *axis)
 {
   assert(axis != NULL);
   assert(axis->curve_defs != NULL);
@@ -89,7 +89,7 @@ float get_deadzone(struct axis_def *axis)
   return axis->curve_defs->dead_zone;
 }
 
-bool set_lcurv(struct axis_def *axis, float c)
+bool ltr_int_set_lcurv(struct axis_def *axis, float c)
 {
   assert(axis != NULL);
   assert(axis->curve_defs != NULL);
@@ -101,7 +101,7 @@ bool set_lcurv(struct axis_def *axis, float c)
   return true;
 }
 
-float get_lcurv(struct axis_def *axis)
+float ltr_int_get_lcurv(struct axis_def *axis)
 {
   assert(axis != NULL);
   assert(axis->curve_defs != NULL);
@@ -110,7 +110,7 @@ float get_lcurv(struct axis_def *axis)
   return axis->curve_defs->l_curvature;
 }
 
-bool set_rcurv(struct axis_def *axis, float c)
+bool ltr_int_set_rcurv(struct axis_def *axis, float c)
 {
   assert(axis != NULL);
   assert(axis->curve_defs != NULL);
@@ -122,7 +122,7 @@ bool set_rcurv(struct axis_def *axis, float c)
   return true;
 }
 
-float get_rcurv(struct axis_def *axis)
+float ltr_int_get_rcurv(struct axis_def *axis)
 {
   assert(axis != NULL);
   assert(axis->curve_defs != NULL);
@@ -131,7 +131,7 @@ float get_rcurv(struct axis_def *axis)
   return axis->curve_defs->r_curvature;
 }
 
-bool set_lmult(struct axis_def *axis, float m1)
+bool ltr_int_set_lmult(struct axis_def *axis, float m1)
 {
   assert(axis != NULL);
   assert(axis->curve_defs != NULL);
@@ -143,7 +143,7 @@ bool set_lmult(struct axis_def *axis, float m1)
   return true;
 }
 
-float get_lmult(struct axis_def *axis)
+float ltr_int_get_lmult(struct axis_def *axis)
 {
   assert(axis != NULL);
   assert(axis->curve_defs != NULL);
@@ -152,7 +152,7 @@ float get_lmult(struct axis_def *axis)
   return axis->l_factor;
 }
 
-bool set_rmult(struct axis_def *axis, float m1)
+bool ltr_int_set_rmult(struct axis_def *axis, float m1)
 {
   assert(axis != NULL);
   assert(axis->curve_defs != NULL);
@@ -164,7 +164,7 @@ bool set_rmult(struct axis_def *axis, float m1)
   return true;
 }
 
-float get_rmult(struct axis_def *axis)
+float ltr_int_get_rmult(struct axis_def *axis)
 {
   assert(axis != NULL);
   assert(axis->curve_defs != NULL);
@@ -173,7 +173,7 @@ float get_rmult(struct axis_def *axis)
   return axis->r_factor;
 }
 
-bool set_limits(struct axis_def *axis, float lim)
+bool ltr_int_set_limits(struct axis_def *axis, float lim)
 {
   assert(axis != NULL);
   assert(axis->curve_defs != NULL);
@@ -185,7 +185,7 @@ bool set_limits(struct axis_def *axis, float lim)
   return true;
 }
 
-float get_limits(struct axis_def *axis)
+float ltr_int_get_limits(struct axis_def *axis)
 {
   assert(axis != NULL);
   assert(axis->curve_defs != NULL);
@@ -194,16 +194,16 @@ float get_limits(struct axis_def *axis)
   return axis->limits;
 }
 
-void init_axis(struct axis_def **axis)
+void ltr_int_init_axis(struct axis_def **axis)
 {
   assert(axis != NULL);
-  (*axis) = (struct axis_def *)my_malloc(sizeof(struct axis_def));
-  (*axis)->curve_defs = (splines_def *)my_malloc(sizeof(splines_def));
-  (*axis)->curves = (splines *)my_malloc(sizeof(splines));
+  (*axis) = (struct axis_def *)ltr_int_my_malloc(sizeof(struct axis_def));
+  (*axis)->curve_defs = (splines_def *)ltr_int_my_malloc(sizeof(splines_def));
+  (*axis)->curves = (splines *)ltr_int_my_malloc(sizeof(splines));
   (*axis)->enabled = true;
 }
 
-void close_axis(struct axis_def **axis)
+void ltr_int_close_axis(struct axis_def **axis)
 {
   assert(axis != NULL);
   assert((*axis) != NULL);

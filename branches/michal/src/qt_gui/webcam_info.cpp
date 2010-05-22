@@ -14,9 +14,9 @@ static enum_webcams_fun_t enum_webcams_fun = NULL;
 static enum_webcam_formats_fun_t enum_webcam_formats_fun = NULL;
 static enum_webcam_formats_cleanup_fun_t enum_webcam_formats_cleanup_fun = NULL;
 static lib_fun_def_t functions[] = {
-  {(char *)"enum_webcams", (void*) &enum_webcams_fun},
-  {(char *)"enum_webcam_formats", (void*) &enum_webcam_formats_fun},
-  {(char *)"enum_webcam_formats_cleanup", (void*) &enum_webcam_formats_cleanup_fun},
+  {(char *)"ltr_int_enum_webcams", (void*) &enum_webcams_fun},
+  {(char *)"ltr_int_enum_webcam_formats", (void*) &enum_webcam_formats_fun},
+  {(char *)"ltr_int_enum_webcam_formats_cleanup", (void*) &enum_webcam_formats_cleanup_fun},
   {NULL, NULL}
 };
 
@@ -37,13 +37,13 @@ class WebcamLibProxy{
 WebcamLibProxy WebcamLibProxy::wcl;
 
 WebcamLibProxy::WebcamLibProxy(){
-  if((libhandle = lt_load_library((char *)"libwc.so", functions)) == NULL){
+  if((libhandle = ltr_int_load_library((char *)"libwc.so", functions)) == NULL){
     throw(0);
   }
 }
 
 WebcamLibProxy::~WebcamLibProxy(){
-  lt_unload_library(libhandle, functions);
+  ltr_int_unload_library(libhandle, functions);
   libhandle = NULL;
 }
 
@@ -187,7 +187,7 @@ QStringList& WebcamInfo::EnumerateWebcams()
       res->append(ids[id_num]);
       ++id_num;
     }
-    array_cleanup(&ids);
+    ltr_int_array_cleanup(&ids);
   }
   return *res;
 }

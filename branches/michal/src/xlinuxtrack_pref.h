@@ -7,13 +7,13 @@
 enum pref_id {START_STOP, PAUSE};
 struct pref;
 
-char *get_pref_file_name();
-void print_pref(struct pref *p);
-bool read_pref(char *fname, struct pref *p);
-bool save_pref(char *fname, struct pref *p);
-bool is_pref_valid(struct pref *p);
-struct pref *new_pref();
-void reset_pref(struct pref *p);
-bool set_pref(struct pref *p, enum pref_id id, int val);
-int get_pref(struct pref *p, enum pref_id id);
+char *xltr_get_pref_file_name();
+void xltr_print_pref(struct pref *p);
+bool xltr_read_pref(char *fname, struct pref *p);
+bool xltr_save_pref(char *fname, struct pref *p);
+bool xltr_is_pref_valid(struct pref *p);
+struct pref *xltr_new_pref();
+void xltr_reset_pref(struct pref *p);
+bool xltr_set_pref(struct pref *p, enum pref_id id, int val);
+int xltr_get_pref(struct pref *p, enum pref_id id);
 

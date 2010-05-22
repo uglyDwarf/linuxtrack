@@ -11,15 +11,15 @@
 extern "C" {
 #endif
 
-char *get_device_section();
-const char *get_storage_path();
-bool is_model_active();
-bool get_device(struct camera_control_block *ccb);
-bool get_model_setup(reflector_model_type *rm);
-bool model_changed();
-bool get_filter_factor(float *ff);
-bool get_axis(const char *prefix, struct axis_def **axis, bool *change_flag);
-void close_prefs();
+char *ltr_int_get_device_section();
+const char *ltr_int_get_storage_path();
+bool ltr_int_is_model_active();
+bool ltr_int_get_device(struct camera_control_block *ccb);
+bool ltr_int_get_model_setup(reflector_model_type *rm);
+bool ltr_int_model_changed();
+bool ltr_int_get_filter_factor(float *ff);
+bool ltr_int_get_axis(const char *prefix, struct axis_def **axis, bool *change_flag);
+void ltr_int_close_prefs();
 
 #ifdef __cplusplus
 }

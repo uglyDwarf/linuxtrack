@@ -25,7 +25,7 @@ void Window::update_pic()
 {
   float h,p,r;
   float x,y,z;
-  if(lt_int_get_camera_update(&h, &p, &r, &x, &y, &z) != -1){
+  if(ltr_int_get_camera_update(&h, &p, &r, &x, &y, &z) != -1){
     glWidget->setXRotation(-p);
     glWidget->setYRotation(h);
     glWidget->setZRotation(r);

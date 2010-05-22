@@ -47,7 +47,7 @@ typedef enum cal_device_category_type {
   tir_open
 } cal_device_category_type;
 
-extern lt_state_type cal_device_state;
+extern ltr_state_type ltr_int_cal_device_state;
 
 struct cal_device_type {
   enum cal_device_category_type category;
@@ -81,40 +81,40 @@ typedef struct {
 
 
 
-int cal_run(struct camera_control_block *ccb, frame_callback_fun cbk);
+int ltr_int_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk);
 
 /* call to shutdown the inited device 
  * typically called once at close
  * turns all leds off
  * must call init to restart again after a shutdown 
  * a return value < 0 indicates error */
-int cal_shutdown();
+int ltr_int_cal_shutdown();
 
 /* suspend the currently inited camera device. 
  * All leds on the camera will be deactivated
  * call cal_wakeup to un-suspend 
  * the frame queue will be flushed
  * a return value < 0 indicates error */
-int cal_suspend();
+int ltr_int_cal_suspend();
 
 /* unsuspend the currently suspended (and inited) 
  * camera device. 
  * a return value < 0 indicates error */
-int cal_wakeup();
+int ltr_int_cal_wakeup();
 
-lt_state_type cal_get_state();
+ltr_state_type ltr_int_cal_get_state();
 
 /* frees the memory allocated to the given frame.  
  * For every frame populated, with cal_populate_frame,
  * this must be called when finished with the frame to 
  * prevent memory leaks.
  * a return value < 0 indicates error */
-void frame_free(struct camera_control_block *ccb,
+void ltr_int_frame_free(struct camera_control_block *ccb,
                 struct frame_type *f);
 
 /* primarily for debug, will print a string 
  * represtentation of the given frame to stdout */ 
-void frame_print(struct frame_type f);
+void ltr_int_frame_print(struct frame_type f);
 
 #ifdef __cplusplus
 }

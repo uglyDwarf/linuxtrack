@@ -11,7 +11,7 @@ static pthread_t cal_thread;
 static int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 {
   (void)ccb;
-  update_pose(frame);
+  ltr_int_update_pose(frame);
   return 0;
 }
 
@@ -20,68 +20,61 @@ static struct camera_control_block ccb;
 static void *cal_thread_fun(void *param)
 {
   (void)param;
-  if(get_device(&ccb)){
+  if(ltr_int_get_device(&ccb)){
     ccb.diag = false;
-    cal_run(&ccb, frame_callback);
-    close_prefs();
+    ltr_int_cal_run(&ccb, frame_callback);
+    ltr_int_close_prefs();
   }
   return NULL;
 }
 
-int lt_int_init(char *cust_section)
+int ltr_int_init(char *cust_section)
 {
-  if(!read_prefs(NULL, false)){
-    log_message("Couldn't load preferences!\n");
+  if(!ltr_int_read_prefs(NULL, false)){
+    ltr_int_log_message("Couldn't load preferences!\n");
     return -1;
   }
-  set_custom_section(cust_section);
-  if(!init_tracking()){
-    log_message("Couldn't initialize trcking!\n");
+  ltr_int_set_custom_section(cust_section);
+  if(!ltr_int_init_tracking()){
+    ltr_int_log_message("Couldn't initialize trcking!\n");
     return -1;
   }
   pthread_create(&cal_thread, NULL, cal_thread_fun, NULL);
   return 0;
 }
 
-int lt_int_get_camera_update(float *heading,
+int ltr_int_get_camera_update(float *heading,
                          float *pitch,
                          float *roll,
                          float *tx,
                          float *ty,
                          float *tz)
 {
-  return get_camera_update(heading, pitch,roll, tx, ty, tz);
+  return ltr_int_tracking_get_camera(heading, pitch,roll, tx, ty, tz);
 }
 
-int lt_int_suspend(void)
+int ltr_int_suspend(void)
 {
-  return cal_suspend();
+  return ltr_int_cal_suspend();
 }
 
-int lt_int_wakeup(void)
+int ltr_int_wakeup(void)
 {
-  return cal_wakeup();
+  return ltr_int_cal_wakeup();
 }
 
-int lt_int_shutdown(void)
+int ltr_int_shutdown(void)
 {
-  return cal_shutdown();
+  return ltr_int_cal_shutdown();
 }
 
-void lt_int_recenter(void)
+void ltr_int_recenter(void)
 {
-  recenter_tracking();
+  ltr_int_recenter_tracking();
 }
 
-lt_state_type lt_int_get_tracking_state(void)
+ltr_state_type ltr_int_get_tracking_state(void)
 {
-  return cal_get_state();
+  return ltr_int_cal_get_state();
 }
 
-void lt_int_log_message(const char *format, ...)
-{
-  va_list ap;
-  va_start(ap,format);
-  valog_message(format, ap);
-  va_end(ap);
-}

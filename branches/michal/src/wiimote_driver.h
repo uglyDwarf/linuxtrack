@@ -25,7 +25,7 @@
  * turns the IR leds on
  * this function may block for up to 3 seconds 
  * a return value < 0 indicates error */
-int tracker_init(struct camera_control_block *ccb);
+int ltr_int_tracker_init(struct camera_control_block *ccb);
 
 /* call to shutdown the wiimote device 
  * typically called once at close
@@ -33,21 +33,21 @@ int tracker_init(struct camera_control_block *ccb);
  * can be used to deactivate the wiimote;
  * must call init to restart
  * a return value < 0 indicates error */
-int tracker_shutdown();
+int ltr_int_tracker_shutdown();
 
 /* turn off all the leds, and flush the queue 
  * a return value < 0 indicates error */
-int tracker_suspend();
+int ltr_int_tracker_suspend();
 
 /* unsuspend the currently suspended (and inited) 
  * camera device. 
  * IR leds will reactivate, but that is all
  * a return value < 0 indicates error */
-int tracker_wakeup();
+int ltr_int_tracker_wakeup();
 
 /* read the usb, and process it into frames
  * a return value < 0 indicates error */
-int tracker_get_frame(struct camera_control_block *ccb,
+int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
                    struct frame_type *f);
 
 #endif
