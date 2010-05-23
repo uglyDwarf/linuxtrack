@@ -32,6 +32,8 @@ static ScpForm *scp;
 static bool running = false;
 static int cnt = 0;
 
+static bool accessed;
+
 extern "C" {
   int frame_callback(struct camera_control_block *ccb, struct frame_type *frame);
 }
@@ -76,7 +78,6 @@ LtrGuiForm::LtrGuiForm(ScpForm *s) : cv(NULL)
   timer = new QTimer(this);
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
   timer->start(50);
-//  connect(ct, SIGNAL(new_frame()), this, SLOT(update()));
   
   connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
   connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
@@ -96,7 +97,6 @@ LtrGuiForm::~LtrGuiForm()
 int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 {
   (void) ccb;
-  
   if(cnt == 0){
     ltr_int_recenter_tracking();
   }
@@ -136,6 +136,10 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
   if(bitmap != NULL){
     qt_bitmap = bitmap;
     bitmap = NULL;
+    memset(qt_bitmap, 0, h * w);
+    accessed = false;
+  }else{
+    accessed = true;
   }
   frame->bitmap = qt_bitmap;
   return 0;
@@ -177,13 +181,14 @@ void LtrGuiForm::update()
   if(qt_bitmap == NULL){
     return;
   }
+  if(!accessed){
+    return;
+  }
   if(qt_bitmap != buffer0){
     cv->redraw(img1);
-    memset(buffer0, 0,  h * w);
     bitmap = buffer0;
   }else{
     cv->redraw(img0);
-    memset(buffer1, 0, h * w);
     bitmap = buffer1;
   }
 }

@@ -5,7 +5,7 @@
 #include "utils.h"
 #include "runloop.h"
 
-static enum request_t {CONTINUE, RUN, PAUSE, SHUTDOWN} request;
+static enum request_t {CONTINUE, RUN, PAUSE, SHUTDOWN} request = PAUSE;
 static pthread_cond_t state_cv = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t state_mx = PTHREAD_MUTEX_INITIALIZER;
 
@@ -27,7 +27,6 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   frame.bitmap = NULL;
   
   ltr_int_cal_device_state = RUNNING;
-  request = PAUSE;
   while(1){
     pthread_mutex_lock(&state_mx);
     my_request = request;

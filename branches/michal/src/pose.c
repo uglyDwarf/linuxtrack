@@ -312,9 +312,10 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
   return true;
 }
 
-void transform_print(struct transform trans)
+/*
+static void transform_print(struct transform trans)
 {
-  float ypr[3]; /* yaw, pitch, roll;*/
+  float ypr[3]; // yaw, pitch, roll;
   printf("***** Transform **************\n");
   ltr_int_print_vec(trans.tr, "translation");
   ltr_int_print_matrix(trans.rot, "rotation");
@@ -325,6 +326,7 @@ void transform_print(struct transform trans)
   ltr_int_print_vec(ypr, "angles");
   printf("******************************\n");
 }
+*/
 
 int ltr_int_pose_compute_camera_update(struct transform trans,
                                float *yaw,

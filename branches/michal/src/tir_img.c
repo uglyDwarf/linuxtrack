@@ -30,12 +30,12 @@ static bool process_stripe_tir(unsigned char p_stripe[])
       stripe.hstart |= 0x200;
     if(rest & 0x08)
       stripe.hstop |= 0x200;
-    assert(stripe.hstart >= 81);
-    assert(stripe.hstop >= 81);
-    assert(stripe.vline >= 12);
-    stripe.hstart -= 81;
-    stripe.vline -= 12;
-    stripe.hstop -= 81;
+//    assert(stripe.hstart >= 81);
+//    assert(stripe.hstop >= 81);
+//    assert(stripe.vline >= 12);
+//    stripe.hstart -= 81;
+//    stripe.vline -= 12;
+//    stripe.hstop -= 81;
     stripe.sum = stripe.hstop - stripe.hstart + 1;
     stripe.sum_x = (unsigned int)(stripe.sum * (stripe.sum - 1) / 2.0);
     stripe.points = stripe.sum;

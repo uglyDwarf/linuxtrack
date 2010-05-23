@@ -51,7 +51,7 @@ liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
   ltlib_int.c ltlib_int.h spline.c spline.h axis.c axis.h 
 liblinuxtrack_la_LIBADD = -lm -lpthread -ldl
-#liblinuxtrack_la_LDFLAGS = -export-symbols liblinuxtrack.sym
+liblinuxtrack_la_LDFLAGS = -export-symbols-regex '^ltr_int'
 #libtir4_la_SOURCES = tir4_driver.c tir4_driver.h new_cal.c new_cal.h
 #libtir4_la_LIBADD = -lusb  -llinuxtrack
 

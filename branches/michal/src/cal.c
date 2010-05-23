@@ -16,7 +16,7 @@
 #include "dyn_load.h"
 
 
-dev_interface iface = {
+static dev_interface iface = {
   .device_run = NULL,
   .device_shutdown = NULL,
   .device_suspend = NULL,

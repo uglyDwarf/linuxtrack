@@ -42,7 +42,7 @@ static void wiimote_refresh_indications(void *param)
 {
   param = NULL;
   if(running_indication != NULL){
-    char *ind = get_str(running_indication);
+    char *ind = ltr_int_get_str(running_indication);
     running = 0;
     if(ind[0] == '1') running |= CWIID_LED1_ON;
     if(ind[1] == '1') running |= CWIID_LED2_ON;
@@ -50,7 +50,7 @@ static void wiimote_refresh_indications(void *param)
     if(ind[3] == '1') running |= CWIID_LED4_ON;
   }
   if(paused_indication != NULL){
-    char *ind = get_str(paused_indication);
+    char *ind = ltr_int_get_str(paused_indication);
     paused = 0;
     if(ind[0] == '1') paused |= CWIID_LED1_ON;
     if(ind[1] == '1') paused |= CWIID_LED2_ON;
@@ -61,10 +61,10 @@ static void wiimote_refresh_indications(void *param)
 
 static int wiimote_read_indications()
 {
-  char *sec = get_device_section();
-  open_pref_w_callback(sec, "Running-indication", &running_indication,
+  char *sec = ltr_int_get_device_section();
+  ltr_int_open_pref_w_callback(sec, "Running-indication", &running_indication,
      wiimote_refresh_indications, NULL);
-  open_pref_w_callback(sec, "Paused-indication", &paused_indication,
+  ltr_int_open_pref_w_callback(sec, "Paused-indication", &paused_indication,
      wiimote_refresh_indications, NULL);
   wiimote_refresh_indications(NULL);
   return 0;
@@ -92,7 +92,7 @@ int ltr_int_tracker_init(struct camera_control_block *ccb) {
     } else {
         cwiid_set_led(gWiimote, running);
         cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS | CWIID_RPT_IR);
-        log_message("Wiimote connected\n");
+        ltr_int_log_message("Wiimote connected\n");
     }
     return 0;
 }
@@ -170,7 +170,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
     f->height = WIIMOTE_VERTICAL_RESOLUTION / 2;
     f->bloblist.num_blobs = valid < required_blobnum ? valid : required_blobnum;
     f->bloblist.blobs = (struct blob_type *)
-        malloc(f->bloblist.num_blobs*sizeof(struct blob_type));
+        ltr_int_my_malloc(f->bloblist.num_blobs*sizeof(struct blob_type));
     assert(f->bloblist.blobs);
 
     bool draw;
@@ -193,8 +193,8 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
                 f->bloblist.blobs[valid].y = state.ir_src[i].pos[CWIID_Y] - WIIMOTE_VERTICAL_RESOLUTION/2;
                 f->bloblist.blobs[valid].score = state.ir_src[i].size;
                 if(draw){
-                  draw_square(&img, state.ir_src[i].pos[CWIID_X] / 2, (WIIMOTE_VERTICAL_RESOLUTION - state.ir_src[i].pos[CWIID_Y]) / 2, 2*state.ir_src[i].size);
-                  draw_cross(&img, state.ir_src[i].pos[CWIID_X] / 2, (WIIMOTE_VERTICAL_RESOLUTION - state.ir_src[i].pos[CWIID_Y]) / 2, (int)WIIMOTE_HORIZONTAL_RESOLUTION/100.0);
+                  ltr_int_draw_square(&img, state.ir_src[i].pos[CWIID_X] / 2, (WIIMOTE_VERTICAL_RESOLUTION - state.ir_src[i].pos[CWIID_Y]) / 2, 2*state.ir_src[i].size);
+                  ltr_int_draw_cross(&img, state.ir_src[i].pos[CWIID_X] / 2, (WIIMOTE_VERTICAL_RESOLUTION - state.ir_src[i].pos[CWIID_Y]) / 2, (int)WIIMOTE_HORIZONTAL_RESOLUTION/100.0);
                 }
             }
             valid++;
