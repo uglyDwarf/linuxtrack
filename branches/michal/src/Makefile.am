@@ -43,7 +43,7 @@ include_HEADERS = ltlib.h
 #liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
 liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h dyn_load.c dyn_load.h
 liblt_la_LIBADD = -ldl
-liblt_la_LDFLAGS = -export-symbols liblt.sym
+liblt_la_LDFLAGS = -export-symbols liblt.sym '-Wl,-rpath,@prefix@/lib'
 
 liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
@@ -51,14 +51,14 @@ liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
   ltlib_int.c ltlib_int.h spline.c spline.h axis.c axis.h 
 liblinuxtrack_la_LIBADD = -lm -lpthread -ldl
-liblinuxtrack_la_LDFLAGS = -export-symbols-regex '^ltr_int'
+liblinuxtrack_la_LDFLAGS = -export-symbols-regex '^ltr_int' '-Wl,-rpath,@prefix@/lib'
 #libtir4_la_SOURCES = tir4_driver.c tir4_driver.h new_cal.c new_cal.h
 #libtir4_la_LIBADD = -lusb  -llinuxtrack
 
 libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
 libtir_la_LIBADD = -lz -llinuxtrack
-libtir_la_LDFLAGS = -export-symbols drivers.sym
+libtir_la_LDFLAGS = -export-symbols drivers.sym '-Wl,-rpath,@prefix@/lib'
 
 libltusb1_la_SOURCES = libusb_ifc.c usb_ifc.h
 libltusb1_la_LIBADD = -lusb-1.0 -llinuxtrack
@@ -80,7 +80,7 @@ if XPLANE_PLUGIN
   xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
 			    utils.c utils.h
   xlinuxtrack_la_CFLAGS = -I../${XPLANE_SDK}/CHeaders/XPLM -I../${XPLANE_SDK}/CHeaders/Widgets -I../${XPLANE_SDK}/CHeaders/Wrappers $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS)
-  xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols xlinuxtrack.sym
+  xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols xlinuxtrack.sym  '-Wl,-rpath,@prefix@/lib'
   xlinuxtrack_la_LIBADD = -llt -lm
 endif
 

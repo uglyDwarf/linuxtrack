@@ -56,13 +56,10 @@ static bool active_flag = false;
 
 
 static void MyHotKeyCallback(void *inRefcon);    
-static float LtrAircraftDrawCallback(float inElapsedSinceLastCall,
-			             float inElapsedTimeSinceLastFlightLoop,
-				     int   inCounter,
-				     void *inRefcon);    
+static int doTracking();    
 
 
-static float joystickCallback(float inElapsedSinceLastCall,    
+static float xlinuxtrackCallback(float inElapsedSinceLastCall,    
 			      float inElapsedTimeSinceLastFlightLoop,    
 			      int   inCounter,    
 			      void *inRefcon);
@@ -362,7 +359,7 @@ PLUGIN_API int XPluginStart(char *outName,
   }
   
   XPLMRegisterFlightLoopCallback(		
-	joystickCallback,	/* Callback */
+	xlinuxtrackCallback,	/* Callback */
 	-1.0,					/* Interval */
 	NULL);					/* refcon not used. */
   int index = XPLMAppendMenuItem(XPLMFindPluginsMenu(), "LinuxTrack", NULL, 1);
@@ -379,8 +376,7 @@ PLUGIN_API void	XPluginStop(void)
 {
   XPLMUnregisterHotKey(gTrackKey);
   XPLMUnregisterHotKey(gFreezeKey);
-  XPLMUnregisterFlightLoopCallback(joystickCallback, NULL);
-  XPLMUnregisterFlightLoopCallback(LtrAircraftDrawCallback, NULL);
+  XPLMUnregisterFlightLoopCallback(xlinuxtrackCallback, NULL);
   ltr_shutdown();
   free(xltrprefs);
   free(pref_fname);
@@ -411,20 +407,12 @@ static void activate(void)
 	  freeze = false;
           ltr_recenter();
 	  XPLMCommandKeyStroke(xplm_key_forward);
-          XPLMRegisterFlightLoopCallback(
-                             LtrAircraftDrawCallback,
-                             -1,
-                             NULL);
 	  ltr_wakeup();
 }
 
 static void deactivate(void)
 {
 	  active_flag=false;
-	  XPLMUnregisterFlightLoopCallback(
-                               LtrAircraftDrawCallback,
-                               NULL);
-                               
           XPLMSetDataf(head_x,base_x);
           XPLMSetDataf(head_y,base_y);
           XPLMSetDataf(head_z,base_z);
@@ -507,7 +495,9 @@ static void process_joy()
   }
 }
 
-static float joystickCallback(float inElapsedSinceLastCall,    
+
+
+static float xlinuxtrackCallback(float inElapsedSinceLastCall,    
                               float inElapsedTimeSinceLastFlightLoop,    
                               int   inCounter,    
                               void *inRefcon)
@@ -535,20 +525,17 @@ static float joystickCallback(float inElapsedSinceLastCall,
 	    }
 	  }
 	}
+	
+	if(active_flag){
+	  doTracking();
+	}
+	
 	return -1.0;
 }                                   
 
-
-
-static float LtrAircraftDrawCallback(float inElapsedSinceLastCall,
-                                     float inElapsedTimeSinceLastFlightLoop,
-                                     int   inCounter,
-                                     void *inRefcon)    
+static int doTracking()
 {
-  (void)inElapsedSinceLastCall;
-  (void)inElapsedTimeSinceLastFlightLoop;
-  (void)inCounter;
-  (void)inRefcon;
+
   float heading, pitch, roll;
   float tx, ty, tz;
   int retval;

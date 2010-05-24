@@ -74,7 +74,10 @@ int ltr_int_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
 
 int ltr_int_cal_shutdown()
 {
-  assert(iface.device_shutdown != NULL);
+  if(iface.device_shutdown == NULL){
+    ltr_int_log_message("Calling shutdown without initializing first!\n");
+    return -1;
+  }
   ltr_int_log_message("Closing!\n");
   int res = (iface.device_shutdown)();
   return res;
@@ -82,14 +85,20 @@ int ltr_int_cal_shutdown()
 
 int ltr_int_cal_suspend()
 {
-  assert(iface.device_suspend != NULL);
+  if(iface.device_suspend == NULL){
+    ltr_int_log_message("Calling suspend without initializing first!\n");
+    return -1;
+  }
   ltr_int_log_message("Suspending!\n");
   return (iface.device_suspend)();
 }
 
 int ltr_int_cal_wakeup()
 {
-  assert(iface.device_wakeup != NULL);
+  if(iface.device_wakeup == NULL){
+    ltr_int_log_message("Calling wake-up without initializing first!\n");
+    return -1;
+  }
   ltr_int_log_message("Waking!\n");
   return (iface.device_wakeup)();
 }
