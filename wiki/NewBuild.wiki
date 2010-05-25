@@ -31,10 +31,9 @@ Add following to the .bashrc file (I assume your shell is bash)
 
 {{{
 export PATH=${PATH}:/home/simmer/ltr/bin
-export LD_LIBRARY_PATH=/home/simmer/ltr/lib
 }}}
 
-The first line makes linuxtrack binaries available, while the second one tells your system where to find linuxtrack libraries.
+This line makes linuxtrack binaries available from everywhere.
 If you use TrackIR, you have to download firmware:
 
 http://media.naturalpoint.com/software/external/bulk_config_data.tar.gz
@@ -43,8 +42,63 @@ Copy its contents into '/home/simmer/ltr/share/linuxtrack/' directory.
 
 This should get you up and going...
 
-PS. If you see a funny behavior, you can try reseting locale
+
+== Ubuntu 10.04 AMD64 compilation notes ==
+To build the package on this platform, first install following packages:
+qt4-dev-tools
+libcwiid-dev
+libusb-1.0-0-dev
+libopenusb-dev
+ia32-libs
+g++
+g++-multilib
+
+Then go to /usr/lib32 and by running 'ln -s libz.so.1 libz.so' make libz available.
+
+Then download libusb-1.0 and libcwiid, put it to the same directory when you checked out the linuxtrack. Now create a script containing this:
+
 {{{
-export LC_ALL=C
+#!/bin/bash
+#
+
+export PREFIX=/home/evik/ltr_bin_new
+export CC="gcc -m32"
+export CFLAGS="-I${PREFIX}"
+export CXXFLAGS="-m32"
+export LDFLAGS="-m32 -L${PREFIX}"
+
+#Compile libcwiid
+tar xfz cwiid-0.6.00.tgz
+pushd cwiid-0.6.00
+sed -i s/hci_remote_name/hci_read_remote_name/ libcwiid/bluetooth.c
+./configure --prefix=${PREFIX}
+cd libcwiid
+make install
+popd
+
+#Compile libusb 
+tar xfj libusb-1.0.8.tar.bz2
+pushd libusb-1.0.8
+./configure --prefix=${PREFIX}
+make install
+popd
+
+#Compile Linuxtrack
+pushd michal
+./configure --prefix=${PREFIX}
+make install
+cd src/qt_gui
+qmake -spec linux-g++-32
+make install
+popd
+
+#
 }}}
-In my case - instead of decimal point it uses comma and number like 1.23 simply doesn't work is intended.
+(Just make sure that line "#!/bin/bash" is the first line!)
+I called the file compile64, and now to be able to execute it I run 'chmod 755 compile64'.
+
+Few notes concerning this script...
+  * Change the prefix to a path that suits you...
+  * libcwiid in the 0.06.00 revision has a problem with a current blootooth lib, so there is a patch.
+
+Now run the script and when it ends, you should have the thing compiled along with support libraries.
