@@ -60,11 +60,13 @@ void CaptureThread::run()
   h = 0;
   if(buffer0 != NULL){
     free(buffer0);
-    free(img0);
+    delete img0;
+    buffer0 = NULL;
   }
   if(buffer1 != NULL){
     free(buffer1);
-    free(img1);
+    delete img1;
+    buffer1 = NULL;
   }
 }
 
@@ -127,11 +129,11 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
     h = frame->height;
     if(buffer0 != NULL){
       free(buffer0);
-      free(img0);
+      delete img0;
     }
     if(buffer1 != NULL){
       free(buffer1);
-      free(img1);
+      delete img1;
     }
     buffer0 = (unsigned char*)ltr_int_my_malloc(h * w);
     memset(buffer0, 0, h * w);
