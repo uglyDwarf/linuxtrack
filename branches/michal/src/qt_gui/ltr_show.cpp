@@ -54,6 +54,18 @@ void CaptureThread::run()
   ltr_int_init_tracking();
   ccb.diag = false;
   ltr_int_cal_run(&ccb, frame_callback);
+  accessed = false;
+  bitmap = NULL;
+  w = 0;
+  h = 0;
+  if(buffer0 != NULL){
+    free(buffer0);
+    free(img0);
+  }
+  if(buffer1 != NULL){
+    free(buffer1);
+    free(img1);
+  }
 }
 
 void CaptureThread::signal_new_frame()
@@ -115,9 +127,11 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
     h = frame->height;
     if(buffer0 != NULL){
       free(buffer0);
+      free(img0);
     }
     if(buffer1 != NULL){
       free(buffer1);
+      free(img1);
     }
     buffer0 = (unsigned char*)ltr_int_my_malloc(h * w);
     memset(buffer0, 0, h * w);

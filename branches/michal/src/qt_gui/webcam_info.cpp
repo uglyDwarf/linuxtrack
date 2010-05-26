@@ -81,6 +81,7 @@ const QStringList& WebcamInfo::getFormats()
 
 const QStringList& WebcamInfo::getResolutions(int index)
 {
+  std::cout<<"Selecting format index "<<index<<std::endl;
   if((index >=0) && (index <= fmt_index)){
     return res_list[index];
   }else{

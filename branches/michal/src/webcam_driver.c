@@ -162,6 +162,7 @@ int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
       break;
     }
     ++fmt_cntr;
+    ltr_int_log_message("Supported format: %s\n", (char *)fmt.description);
     ltr_int_add_element(fmt_strings, ltr_int_my_strdup((char *)fmt.description));
     sizes_cntr = 0;
     while(1){
@@ -171,6 +172,7 @@ int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
 	break;
       }
       if(frm.type == V4L2_FRMSIZE_TYPE_DISCRETE){
+	ltr_int_log_message("Frame size %d x %d\n", frm.discrete.width, frm.discrete.height);
 	ival_cntr = 0;
 	while(1){
 	  ival.index = ival_cntr++;
@@ -181,6 +183,8 @@ int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
 	    break;
 	  }
 	  if(ival.type == V4L2_FRMIVAL_TYPE_DISCRETE){
+	    ltr_int_log_message("Supported framerate: %f\n", 
+				(float)ival.discrete.denominator / ival.discrete.numerator);
 	    webcam_format *new_fmt = (webcam_format*)ltr_int_my_malloc(sizeof(webcam_format));
 	    new_fmt->i = fmt_cntr - 1;
 	    new_fmt->fourcc = fmt.pixelformat;
@@ -190,8 +194,12 @@ int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
 	    new_fmt->fps_den = ival.discrete.denominator;
 	    ltr_int_add_element(formats, new_fmt);
 	    ++items;
+	  }else{
+	    ltr_int_log_message("Unsupported framerate spec format!\n");
 	  }
 	}
+      }else{
+	ltr_int_log_message("Unsupported framesize format! %d\n", frm.type);
       }
     }
   }
