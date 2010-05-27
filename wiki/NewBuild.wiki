@@ -63,9 +63,9 @@ Then download libusb-1.0 and libcwiid, put it to the same directory when you che
 
 export PREFIX=/home/evik/ltr_bin_new
 export CC="gcc -m32"
-export CFLAGS="-I${PREFIX}"
+export CFLAGS="-I${PREFIX}/include"
 export CXXFLAGS="-m32"
-export LDFLAGS="-m32 -L${PREFIX}"
+export LDFLAGS="-m32 -L${PREFIX}/lib"
 
 #Compile libcwiid
 tar xfz cwiid-0.6.00.tgz
