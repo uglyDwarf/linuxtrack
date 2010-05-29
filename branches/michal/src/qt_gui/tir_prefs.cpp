@@ -38,9 +38,8 @@ TirPrefs::~TirPrefs()
 
 static bool haveFirmware()
 {
-  QString data_path = DATA_PATH;
-  if(QFile::exists(data_path + "tir4.fw.gz") && 
-     QFile::exists(data_path + "tir5.fw.gz")){
+  if(QFile::exists(PrefProxy::getDataPath("tir4.fw.gz")) && 
+     QFile::exists(PrefProxy::getDataPath("tir5.fw.gz"))){
     return true;
   }else{
     return false;

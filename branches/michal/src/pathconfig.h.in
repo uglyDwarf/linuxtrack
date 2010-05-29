@@ -1,7 +1,7 @@
 #ifndef PATHCONFIG__H
 #define PATHCONFIG__H
 
-#define PREFIX "@prefix@"
-#define DATA_PATH "@prefix@/share/linuxtrack/"
+#define PREFIX_new "@prefix@"
+#define DATA_PATH_new "@prefix@/share/linuxtrack/"
 
 #endif

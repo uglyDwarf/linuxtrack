@@ -5,6 +5,7 @@
 
 #include "objreader.h"
 #include "pathconfig.h"
+#include "ltr_gui_prefs.h"
 
 int cnt = 0;
 int vcnt = 0;
@@ -73,7 +74,7 @@ static void process_line(const QString &line)
     glass = false;
   }else if(texture_line.indexIn(line) != -1){
     if(!texture_line.cap(1).isEmpty()){
-      object.texture = QString(DATA_PATH).append(texture_line.cap(1));
+      object.texture = PrefProxy::getDataPath(texture_line.cap(1));
     }
   }else if(glass_line.indexIn(line) != -1){
     glass = true;
@@ -93,7 +94,7 @@ void read_obj()
   char *obj_list[] = {(char *)"xm8d_body.obj", (char *)"XM8_cockpit.obj", NULL};
   
   for(int i = 0; obj_list[i] != NULL; ++i){
-    QFile f(QString(DATA_PATH).append((char *)obj_list[i]));
+    QFile f(PrefProxy::getDataPath((char *)obj_list[i]));
     obj_init(object); 
     cnt = 0;
     vcnt = 0;

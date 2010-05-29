@@ -14,6 +14,7 @@
 #include "image_process.h"
 #include "usb_ifc.h"
 #include "dyn_load.h"
+#include "utils.h"
 
 pref_id min_blob = NULL;
 pref_id max_blob = NULL;
@@ -80,7 +81,7 @@ int tir_get_prefs()
     return -1;
   }
   
-  storage_path = ltr_int_get_storage_path();
+  storage_path = ltr_int_get_data_path("");
   
   if(ltr_int_get_int(max_blob) == 0){
     ltr_int_log_message("Please set 'Max-blob' in section %s!\n", dev_section);

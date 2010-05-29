@@ -60,11 +60,6 @@ char *ltr_int_get_device_section()
   return ltr_int_get_str(dev_section);
 }
 
-const char *ltr_int_get_storage_path()
-{
-  return DATA_PATH; 
-}
-
 static bool model_section_changed = true;
 
 static char *ltr_int_get_model_section()

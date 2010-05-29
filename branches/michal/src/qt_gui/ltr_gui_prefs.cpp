@@ -3,6 +3,8 @@
 #include "map"
 
 #include <QStringList>
+#include <QApplication>
+#include <QMessageBox>
 #include <iostream>
 
 PrefProxy *PrefProxy::prf = NULL;
@@ -18,6 +20,20 @@ PrefProxy::PrefProxy()
       ltr_int_log_message("Can't create prefs at all... That is too bad.\n");
       exit(1);
     }
+  }
+  QString appPath = QApplication::applicationDirPath();
+  appPath.prepend("\"");
+  appPath += "\"";
+  if(getKeyVal("Global", "Prefix", prefix) && (prefix == appPath)){
+    //Intentionaly left empty
+  }else{
+    prefix = appPath;
+    setKeyVal("Global", "Prefix", appPath);
+    QMessageBox::warning(NULL, "Linuxtrack",
+       QString("It seems you are running Linuxtrack for the first time,") +
+       QString("or you relocated it...") +
+       QString("Please save your preferences now!"), 
+       QMessageBox::Ok, QMessageBox::Ok);
   }
 }
 
@@ -312,5 +328,17 @@ QString PrefProxy::getCustomSectionName()
   }else{
     return QString(sec);
   }
+}
+
+QString PrefProxy::getDataPath(QString file)
+{
+  QString appPath = QApplication::applicationDirPath();
+  return appPath + "/../share/linuxtrack/" + file;
+}
+
+QString PrefProxy::getLibPath(QString file)
+{
+  QString appPath = QApplication::applicationDirPath();
+  return appPath + "/../lib/" + file;
 }
 

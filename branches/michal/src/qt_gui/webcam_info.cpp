@@ -35,20 +35,26 @@ class WebcamLibProxy{
 };
 
 WebcamLibProxy WebcamLibProxy::wcl;
+bool webcamInfoOk = false;
 
 WebcamLibProxy::WebcamLibProxy(){
-  if((libhandle = ltr_int_load_library((char *)"libwc.so", functions)) == NULL){
-    throw(0);
+  if((libhandle = ltr_int_load_library((char *)"libwc.so", functions)) != NULL){
+    webcamInfoOk = true;
   }
 }
 
 WebcamLibProxy::~WebcamLibProxy(){
-  ltr_int_unload_library(libhandle, functions);
+  if(webcamInfoOk){
+    ltr_int_unload_library(libhandle, functions);
+  }
   libhandle = NULL;
 }
 
 WebcamInfo::WebcamInfo(const QString &id)
 {
+  if(!webcamInfoOk){
+    throw(0);
+  }
   webcam_id = id;
   enum_webcam_formats_fun(webcam_id.toAscii().data(), &fmts);
   
@@ -179,6 +185,9 @@ WebcamInfo::~WebcamInfo()
 QStringList& WebcamInfo::EnumerateWebcams()
 {
   QStringList *res = new QStringList();
+  if(!webcamInfoOk){
+    return *res;
+  }
   char **ids = NULL;
   
   if(enum_webcams_fun(&ids) > 0){

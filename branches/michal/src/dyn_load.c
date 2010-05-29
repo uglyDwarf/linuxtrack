@@ -6,11 +6,18 @@
 void *ltr_int_load_library(char *lib_name, lib_fun_def_t *func_defs)
 {
   void *libhandle;
-  libhandle = dlopen(lib_name, RTLD_NOW | RTLD_LOCAL);
-  if(libhandle == NULL){
-    ltr_int_log_message("Couldn't load library '%s' - %s!\n", lib_name, dlerror());
+  char *full_name = ltr_int_get_lib_path(lib_name);
+  if(full_name == NULL){
+    ltr_int_log_message("Couldn't get full name for library %s\n", lib_name);
     return NULL;
   }
+  libhandle = dlopen(full_name, RTLD_NOW | RTLD_LOCAL);
+  if(libhandle == NULL){
+    ltr_int_log_message("Couldn't load library '%s' - %s!\n", full_name, dlerror());
+    free(full_name);
+    return NULL;
+  }
+  free(full_name);
   dlerror(); //clear any existing error...
   //log_message("Handle: %p\n", libhandle);
   while(func_defs->name != NULL){

@@ -23,7 +23,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
 {
   QString target = QDir::homePath() + "/.linuxtrack";
   if(!QFile::exists(target)){
-    QString source = QString(PREFIX) + "/share/linuxtrack/.linuxtrack";
+    QString source = PrefProxy::getDataPath(".linuxtrack");
     std::cout<<"Going to copy "<<source.toAscii().data();
     std::cout<<" to "<<target.toAscii().data()<<std::endl;
     QFile::copy(source, target);
@@ -120,7 +120,7 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
     warnMessage(QString("Strange path... '" + fileName + "'"));
     return;
   }
-  QString sourceFile = QString(PREFIX) + "/lib/xlinuxtrack.so";
+  QString sourceFile = PrefProxy::getLibPath("xlinuxtrack.so");
   QString destPath = pathRexp.cap(1) + "/Resources/plugins";
   if(!QFile::exists(destPath)){
     warnMessage(QString("Wrong file specified!"));

@@ -11,6 +11,7 @@ class PrefProxy{
   PrefProxy();
   ~PrefProxy();
   static PrefProxy *prf;
+  QString prefix;
  public:
   static PrefProxy& Pref();
   bool activateDevice(const QString &sectionName);
@@ -39,6 +40,8 @@ class PrefProxy{
   QString getCustomSectionName();
   bool setCustomSection(const QString &name);
   bool savePrefs();
+  static QString getDataPath(QString file);
+  static QString getLibPath(QString file);
 };
 
 

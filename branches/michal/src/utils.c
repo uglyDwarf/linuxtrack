@@ -1,6 +1,7 @@
 #include "utils.h"
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
@@ -12,6 +13,7 @@
 
 #define IOCTL_RETRY_COUNT 5
 
+static char *pref_file = ".linuxtrack";
 
 void* ltr_int_my_malloc(size_t size)
 {
@@ -99,5 +101,75 @@ char *ltr_int_my_strcat(const char *str1, const char *str2)
   strcpy(res, str1);
   strcpy(res + len1, str2);
   return res;
+}
+
+char *ltr_int_get_default_file_name()
+{
+  char *home = getenv("HOME");
+  if(home == NULL){
+    ltr_int_log_message("Please set HOME variable!\n");
+    return NULL;
+  }
+  char *pref_path = (char *)ltr_int_my_malloc(strlen(home) 
+                    + strlen(pref_file) + 2);
+  sprintf(pref_path, "%s/%s", home, pref_file);
+  return pref_path;
+}
+
+char *ltr_int_get_app_path(const char *suffix)
+{
+  char *fname = ltr_int_get_default_file_name();
+  if(fname == NULL){
+    return NULL;
+  }
+  FILE *f = fopen(fname, "r");
+  if(f == NULL){
+    ltr_int_log_message("Can't open file '%s'!\n", fname);
+    return NULL;
+  }
+  
+  char key[2048];
+  char val[2048];
+  bool found = false;
+  while(!feof(f)){
+    if(fscanf(f, "%2040s", key) == 1){
+      if(strcasecmp(key, "PREFIX") == 0){
+	if(fgets(key, 2040, f) != NULL){
+	  if(sscanf(key, " = \"%[^\"\n]", val) > 0){
+	    found = true;
+	    break;
+	  }
+	}
+      }
+    }
+  }
+  fclose(f);
+  if(found){
+    return ltr_int_my_strcat(val, suffix);
+  }
+  ltr_int_log_message("Couldn't find prefix!\n");
+  return NULL;
+}
+
+char *ltr_int_get_data_path(const char *data)
+{
+  char *app_path = ltr_int_get_app_path("/../share/linuxtrack/");
+  if(app_path == NULL){
+    return NULL;
+  }
+  char *data_path = ltr_int_my_strcat(app_path, data);
+  free(app_path);
+  return data_path;
+}
+
+char *ltr_int_get_lib_path(const char *libname)
+{
+  char *app_path = ltr_int_get_app_path("/../lib/");
+  if(app_path == NULL){
+    return NULL;
+  }
+  char *lib_path = ltr_int_my_strcat(app_path, libname);
+  free(app_path);
+  return lib_path;
 }
 

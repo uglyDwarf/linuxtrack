@@ -27,7 +27,6 @@ int line_num;
 plist ltr_int_prefs;
 
 static bool prefs_read_already = false;
-static char *pref_file = ".linuxtrack";
 static char *def_section_name = "Default";
 static char *custom_section_name = NULL;
 static plist opened_prefs = NULL;
@@ -387,19 +386,6 @@ void yyerror(char const *s)
 {
   ltr_int_log_message("%s in file %s, line %d near '%s'\n",
   		 s, parsed_file, line_num, yytext);
-}
-
-char *ltr_int_get_default_file_name()
-{
-  char *home = getenv("HOME");
-  if(home == NULL){
-    ltr_int_log_message("Please set HOME variable!\n");
-    return NULL;
-  }
-  char *pref_path = (char *)ltr_int_my_malloc(strlen(home) 
-                    + strlen(pref_file) + 2);
-  sprintf(pref_path, "%s/%s", home, pref_file);
-  return pref_path;
 }
 
 bool ltr_int_read_prefs(char *file, bool force_read)
