@@ -1,0 +1,38 @@
+#summary Hall Of Fame
+
+= Hall Of Fame =
+
+
+
+== Testers ==
+
+*Bill* (sparker, x-plane.org forum) 
+  Thank you Bill for all the time you spend testing linuxtrack and all the effort you invested to help us debugging and improving it...
+
+*Chris* (xplaneuser, x-plane.org forum)
+  Thanks for your support...
+
+*Roman* (Adun, x-plane.org forum)
+  Thanks for your help with TIR5 support. 
+
+*Sandy Barbour* (x-plane.org forum)
+  Thanks for your advices when we moved to Macs...
+
+*DanDaMan* (x-plane.org forum)
+  Thanks for your help solving "two years old" problem.
+
+*Patrik* (pasu666, x-plane.org forum)
+*Rejean* (rars_ca, x-plane.org forum)
+*Carmine* (CMB, x-plane.org forum)
+*Marc* (marcmec, x-plane.org forum)
+  Thanks for helping us to polish the Mac side...
+
+
+
+== Donors ==
+
+*Michael* (Macmichael, x-plane.org forum)
+  Thank you for lending us your brand new TrackIR5 - without you, TIR5 suport would take ages to finish.
+
+*Markus* (markus1872)
+  Thanks for supporting the project!
