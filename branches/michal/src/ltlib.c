@@ -62,7 +62,7 @@ int ltr_get_camera_update(float *heading,
 int ltr_suspend(void)
 {
   if(fun_ltr_int_suspend == NULL){
-    if((libhandle = ltr_int_load_library(libname, functions)) != NULL){
+    if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
       return -1;
     }
   }
@@ -72,7 +72,7 @@ int ltr_suspend(void)
 int ltr_wakeup(void)
 {
   if(fun_ltr_int_wakeup == NULL){
-    if((libhandle = ltr_int_load_library(libname, functions)) != NULL){
+    if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
       return -1;
     }
   }
@@ -82,7 +82,7 @@ int ltr_wakeup(void)
 int ltr_shutdown(void)
 {
   if(fun_ltr_int_shutdown == NULL){
-    if((libhandle = ltr_int_load_library(libname, functions)) != NULL){
+    if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
       return -1;
     }
   }
@@ -94,7 +94,7 @@ int ltr_shutdown(void)
 void ltr_recenter(void)
 {
   if(fun_ltr_int_recenter == NULL){
-    if((libhandle = ltr_int_load_library(libname, functions)) != NULL){
+    if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
       return;
     }
   }
@@ -104,7 +104,7 @@ void ltr_recenter(void)
 ltr_state_type ltr_get_tracking_state(void)
 {
   if(fun_ltr_int_get_tracking_state == NULL){
-    if((libhandle = ltr_int_load_library(libname, functions)) != NULL){
+    if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
       return STOPPED;
     }
   }

@@ -354,6 +354,7 @@ PLUGIN_API int XPluginStart(char *outName,
      (head_psi==NULL)||(head_the==NULL)||(joy_buttons==NULL)){
     return(0);
   }
+  ltr_suspend();
   if(ltr_init("Default")!=0){
     return(0);
   }

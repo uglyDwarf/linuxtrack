@@ -3,3 +3,4 @@ XPluginStop
 XPluginDisable
 XPluginEnable
 XPluginReceiveMessage
+ltr_int_valog_message
