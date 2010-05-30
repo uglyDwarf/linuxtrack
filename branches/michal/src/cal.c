@@ -32,7 +32,8 @@ static lib_fun_def_t functions[] = {
 };
 
 static void *libhandle = NULL;
-ltr_state_type ltr_int_cal_device_state = STOPPED;
+static enum ltr_request_t request = RUN;
+static ltr_state_type ltr_int_cal_device_state = STOPPED;
 
 /************************/
 /* function definitions */
@@ -63,8 +64,10 @@ int ltr_int_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
     return -1;
   }
-  ltr_int_log_message("run: %p\n", iface.device_run);
   assert(iface.device_run != NULL);
+  if(request != PAUSE){
+    ltr_int_change_state(RUN);
+  }
   ltr_int_log_message("Running!\n");
   int res = (iface.device_run)(ccb, cbk);
   //Runloop blocks until shutdown is called
@@ -74,6 +77,7 @@ int ltr_int_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
 
 int ltr_int_cal_shutdown()
 {
+  ltr_int_change_state(SHUTDOWN);
   if(iface.device_shutdown == NULL){
     ltr_int_log_message("Calling shutdown without initializing first!\n");
     return -1;
@@ -85,6 +89,7 @@ int ltr_int_cal_shutdown()
 
 int ltr_int_cal_suspend()
 {
+  ltr_int_change_state(PAUSE);
   if(iface.device_suspend == NULL){
     ltr_int_log_message("Calling suspend without initializing first!\n");
     return -1;
@@ -95,6 +100,7 @@ int ltr_int_cal_suspend()
 
 int ltr_int_cal_wakeup()
 {
+  ltr_int_change_state(RUN);
   if(iface.device_wakeup == NULL){
     ltr_int_log_message("Calling wake-up without initializing first!\n");
     return -1;
@@ -106,6 +112,23 @@ int ltr_int_cal_wakeup()
 ltr_state_type ltr_int_cal_get_state()
 {
   return ltr_int_cal_device_state;
+}
+
+void ltr_int_cal_set_state(ltr_state_type new_state)
+{
+  ltr_int_cal_device_state = new_state;
+}
+
+void ltr_int_change_state(enum ltr_request_t new_req)
+{
+  request = new_req;
+}
+
+enum ltr_request_t ltr_int_get_state_request()
+{
+  enum ltr_request_t res = request;
+  request = CONTINUE;
+  return res;
 }
 
 void ltr_int_frame_free(struct camera_control_block *ccb,

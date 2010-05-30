@@ -10,6 +10,7 @@
 extern "C" {
 #endif
 
+enum ltr_request_t {CONTINUE, RUN, PAUSE, SHUTDOWN};
 
 struct blob_type {
   /* coordinates of the blob on the screen 
@@ -46,8 +47,6 @@ typedef enum cal_device_category_type {
   tir,
   tir_open
 } cal_device_category_type;
-
-extern ltr_state_type ltr_int_cal_device_state;
 
 struct cal_device_type {
   enum cal_device_category_type category;
@@ -103,6 +102,9 @@ int ltr_int_cal_suspend();
 int ltr_int_cal_wakeup();
 
 ltr_state_type ltr_int_cal_get_state();
+void ltr_int_cal_set_state(ltr_state_type new_state);
+void ltr_int_change_state(enum ltr_request_t new_req);
+enum ltr_request_t ltr_int_get_state_request();
 
 /* frees the memory allocated to the given frame.  
  * For every frame populated, with cal_populate_frame,
