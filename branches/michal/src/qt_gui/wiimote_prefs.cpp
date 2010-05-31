@@ -18,6 +18,15 @@ WiimotePrefs::~WiimotePrefs()
 {
 }
 
+static void setCheckBox(QCheckBox *box, bool val)
+{
+  if(val){
+    box->setCheckState(Qt::Checked);
+  }else{
+    box->setCheckState(Qt::Unchecked);
+  }
+}
+
 void WiimotePrefs::Activate(const QString &ID)
 {
   QString sec;
@@ -38,18 +47,18 @@ void WiimotePrefs::Activate(const QString &ID)
   QString indication;
   if(PREF.getKeyVal(currentSection, (char *)"Running-indication", indication)){
     if(indication.size() == 4){
-      if(indication[0] == QChar('1')) gui.Wii_r1->setCheckState(Qt::Checked);
-      if(indication[1] == QChar('1')) gui.Wii_r2->setCheckState(Qt::Checked);
-      if(indication[2] == QChar('1')) gui.Wii_r3->setCheckState(Qt::Checked);
-      if(indication[3] == QChar('1')) gui.Wii_r4->setCheckState(Qt::Checked);
+      setCheckBox(gui.Wii_r1, indication[0] == QChar('1'));
+      setCheckBox(gui.Wii_r2, indication[1] == QChar('1'));
+      setCheckBox(gui.Wii_r3, indication[2] == QChar('1'));
+      setCheckBox(gui.Wii_r4, indication[3] == QChar('1'));
     }
   }  
   if(PREF.getKeyVal(currentSection, (char *)"Paused-indication", indication)){
     if(indication.size() == 4){
-      if(indication[0] == QChar('1')) gui.Wii_p1->setCheckState(Qt::Checked);
-      if(indication[1] == QChar('1')) gui.Wii_p2->setCheckState(Qt::Checked);
-      if(indication[2] == QChar('1')) gui.Wii_p3->setCheckState(Qt::Checked);
-      if(indication[3] == QChar('1')) gui.Wii_p4->setCheckState(Qt::Checked);
+      setCheckBox(gui.Wii_p1, indication[0] == QChar('1'));
+      setCheckBox(gui.Wii_p2, indication[1] == QChar('1'));
+      setCheckBox(gui.Wii_p3, indication[2] == QChar('1'));
+      setCheckBox(gui.Wii_p4, indication[3] == QChar('1'));
     }
   }  
 }

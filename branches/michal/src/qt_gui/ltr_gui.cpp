@@ -148,6 +148,13 @@ void LinuxtrackGui::on_ViewLogButton_pressed()
   lv->show();
 }
 
+void LinuxtrackGui::on_DefaultsButton_pressed()
+{
+  std::cout<<"Going back to defaultes!"<<std::endl;
+  PREF.rereadPrefs();
+  on_RefreshDevices_pressed();
+}
+
 void LinuxtrackGui::trackerStopped()
 {
   ui.DeviceSelector->setEnabled(true);

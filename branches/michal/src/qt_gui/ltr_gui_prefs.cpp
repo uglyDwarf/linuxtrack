@@ -342,3 +342,8 @@ QString PrefProxy::getLibPath(QString file)
   return appPath + "/../lib/" + file;
 }
 
+bool PrefProxy::rereadPrefs()
+{
+  ltr_int_new_prefs();
+  return ltr_int_read_prefs(NULL, true);
+}

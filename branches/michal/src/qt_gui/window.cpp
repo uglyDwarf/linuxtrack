@@ -4,8 +4,9 @@
  #include "window.h"
 #include <ltlib_int.h>
 #include <iostream>
- Window::Window()
- {
+Window::Window(QWidget *t) : tab(t)
+{
+     tab->setEnabled(false);
      glWidget = new GLWidget;
      QHBoxLayout *mainLayout = new QHBoxLayout;
      mainLayout->addWidget(glWidget);
@@ -14,11 +15,12 @@
      timer = new QTimer(this);
      connect(timer, SIGNAL(timeout()), this, SLOT(update_pic()));
      connect(glWidget, SIGNAL(ready()), this, SLOT(start_widget()));
- }
+}
 
 void Window::start_widget()
 {
-     timer->start(20);
+  timer->start(20);
+  tab->setEnabled(true);
 }
 
 void Window::update_pic()
@@ -34,6 +36,5 @@ void Window::update_pic()
     glWidget->setZTrans(-z/1000.0);
     glWidget->updateGL();
   }
-  
 }
 

@@ -11,7 +11,7 @@
      Q_OBJECT
 
  public:
-     Window();
+     Window(QWidget *t);
 
  private slots:
   void update_pic();
@@ -19,6 +19,7 @@
  private:
      GLWidget *glWidget;
      QTimer *timer;
+     QWidget *tab;
  };
 
  #endif

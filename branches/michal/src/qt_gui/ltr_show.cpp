@@ -86,7 +86,7 @@ LtrGuiForm::LtrGuiForm(ScpForm *s) : cv(NULL)
   ui.pauseButton->setDisabled(true);
   ui.wakeButton->setDisabled(true);
   ui.stopButton->setDisabled(true);
-  glw = new Window();
+  glw = new Window(ui.tabWidget);
   ui.ogl_box->addWidget(glw);
   ct = new CaptureThread(this);
   timer = new QTimer(this);
