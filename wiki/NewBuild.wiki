@@ -83,6 +83,8 @@ pushd libusb-1.0.8
 make install
 popd
 
+svn co http://linux-track.googlecode.com/svn/branches/michal/
+
 #Compile Linuxtrack
 pushd michal
 ./configure --prefix=${PREFIX}
