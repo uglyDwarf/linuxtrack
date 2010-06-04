@@ -31,6 +31,7 @@ class ModelEdit : public QWidget
  public:
   ModelEdit(const Ui::LinuxtrackMainForm &ui);
   ~ModelEdit();
+  void refresh();
  protected:
  private slots:
   void on_CreateModelButton_pressed();

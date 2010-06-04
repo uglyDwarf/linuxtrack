@@ -37,7 +37,7 @@ bool Profile::setCurrent(const QString &name)
   if(!names.contains(name, Qt::CaseInsensitive)){
     return false;
   }
-  if(PREF.setCustomSection(name)){ 
+  if(PREF.setCustomSection(name)){
     currentProfile->changeProfile(PREF.getCustomSectionName());
     return true;
   }
@@ -71,12 +71,12 @@ AppProfile::AppProfile(const QString &n, QWidget *parent) : QWidget(parent), nam
 {
   PREF.setCustomSection(name);
   //std::cout<<"Cust section: "<<name.toAscii().data()<<std::endl;
-  pitch = new LtrAxis(this, "Pitch");
-  roll = new LtrAxis(this, "Roll");
-  yaw = new LtrAxis(this, "Yaw");
-  tx = new LtrAxis(this, "Xtranslation");
-  ty = new LtrAxis(this, "Ytranslation");
-  tz = new LtrAxis(this, "Ztranslation");
+  pitch = new LtrAxis(this, PITCH);
+  roll = new LtrAxis(this, ROLL);
+  yaw = new LtrAxis(this, YAW);
+  tx = new LtrAxis(this, TX);
+  ty = new LtrAxis(this, TY);
+  tz = new LtrAxis(this, TZ);
   filterFactorReload();
 }
 

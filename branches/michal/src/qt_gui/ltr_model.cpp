@@ -91,6 +91,11 @@ ModelEdit::ModelEdit(const Ui::LinuxtrackMainForm &ui) : gui(ui)
 {
   mcw = new ModelCreate();
   Connect();
+  refresh();
+}
+
+void ModelEdit::refresh()
+{
   QString str;
   if(PREF.getActiveModel(str)){
     currentSection = str;

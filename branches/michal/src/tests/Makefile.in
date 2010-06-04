@@ -264,6 +264,7 @@ ltlib_test_LDFLAGS = -L/lib32 -L/usr/lib32 -L..
 webcam_driver_test_LDFLAGS = -L/lib32 -L/usr/lib32  -L..
 pref_test_LDFLAGS = -L/lib32 -L/usr/lib32  -L..
 tests_LDFLAGS = -fprofile-arcs -ftest-coverage
+MOSTLYCLEANFILES = *.gcno
 all: all-am
 
 .SUFFIXES:
@@ -875,6 +876,7 @@ install-strip:
 	  `test -z '$(STRIP)' || \
 	    echo "INSTALL_PROGRAM_ENV=STRIPPROG='$(STRIP)'"` install
 mostlyclean-generic:
+	-test -z "$(MOSTLYCLEANFILES)" || rm -f $(MOSTLYCLEANFILES)
 
 clean-generic:
 

@@ -20,6 +20,12 @@ LtrTracking::~LtrTracking()
 {
 }
 
+void LtrTracking::refresh()
+{
+  PROFILE.setCurrent("Default");
+  emit customSectionChanged();
+}
+
 void LtrTracking::Connect()
 {
   QObject::connect(PROFILE.getCurrentProfile(), 

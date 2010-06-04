@@ -63,6 +63,9 @@ bool ltr_int_open_pref(const char *section, char *key, pref_id *prf)
 void ltr_int_print_opened()
 {
   iterator i;
+  if(opened_prefs == NULL){
+    return;
+  }
   ltr_int_init_iterator(opened_prefs, &i);
   struct pref_data* opened;
   while((opened = (struct pref_data*)ltr_int_get_next(&i)) != NULL){
@@ -130,14 +133,14 @@ bool ltr_int_open_pref_w_callback(const char *section, char *key, pref_id *prf,
 }
 
 
-static char *get_pref_char(pref_id pref)
+static const char *get_pref_char(pref_id pref)
 {
   assert(pref != NULL);
   pref_data *prf = pref->data;
   assert(prf != NULL);
   char *section = prf->section_name;
   char *key = prf->key_name;
-  char *res = ltr_int_get_key(section, key);
+  const char *res = ltr_int_get_key(section, key);
   if(res != NULL){
     return res;
   }
@@ -156,7 +159,7 @@ float ltr_int_get_flt(pref_id pref)
   assert(pref->data->data_type == FLT);
   if(pref->data->invalid){
     pref->data->invalid = false;
-    char *res = get_pref_char(pref);
+    const char *res = get_pref_char(pref);
     if(res == NULL){
       return 3333.4444f;
     }
@@ -173,7 +176,7 @@ int ltr_int_get_int(pref_id pref)
   assert(pref->data->data_type == INT);
   if(pref->data->invalid){
     pref->data->invalid = false;
-    char *res = get_pref_char(pref);
+    const char *res = get_pref_char(pref);
     if(res == NULL){
       return 5555;
     }
@@ -190,7 +193,7 @@ char *ltr_int_get_str(pref_id pref)
   assert(pref->data->data_type == STR);
   if(pref->data->invalid){
     pref->data->invalid = false;
-    char *res = get_pref_char(pref);
+    const char *res = get_pref_char(pref);
     if(res == NULL){
       return ltr_int_my_strdup("DEADBEEF");
     }
@@ -512,7 +515,7 @@ bool ltr_int_key_exists(const char *section_name, const char *key_name)
   }
 }
 
-char *ltr_int_get_key(const char *section_name, const char *key_name)
+const char *ltr_int_get_key(const char *section_name, const char *key_name)
 {
   assert(prefs_read_already);
   key_val_struct *kv = NULL;
@@ -533,6 +536,24 @@ char *ltr_int_get_key(const char *section_name, const char *key_name)
     return NULL;
   }
   return kv->value;
+}
+
+float ltr_int_get_key_flt(const char *section_name, const char *key_name)
+{
+  const char *res = ltr_int_get_key(section_name, key_name);
+  if(res == NULL){
+    return 3.1415926f;
+  }
+  return atof(res);
+}
+
+int ltr_int_get_key_int(const char *section_name, const char *key_name)
+{
+  const char *res = ltr_int_get_key(section_name, key_name);
+  if(res == NULL){
+    return 0xDEADBEEF;
+  }
+  return atoi(res);
 }
 
 
@@ -581,6 +602,23 @@ bool ltr_int_change_key(const char *section_name, const char *key_name, const ch
   return true;
 }
 
+bool ltr_int_change_key_flt(const char *section_name, const char *key_name, float new_value)
+{
+  char *new_str;
+  asprintf(&new_str, "%f", new_value);
+  bool res = ltr_int_change_key(section_name, key_name, new_str);
+  free(new_str);
+  return res;
+}
+
+bool ltr_int_change_key_int(const char *section_name, const char *key_name, int new_value)
+{
+  char *new_str;
+  asprintf(&new_str, "%d", new_value);
+  bool res = ltr_int_change_key(section_name, key_name, new_str);
+  free(new_str);
+  return res;
+}
 
 
 bool ltr_int_dump_section(section_struct *section, FILE *of)
@@ -671,6 +709,8 @@ static void free_section(section_struct *section)
 void ltr_int_free_prefs()
 {
   iterator i;
+  ltr_int_print_opened();
+
   assert(ltr_int_prefs != NULL);
   ltr_int_init_iterator(ltr_int_prefs, &i);
   
@@ -702,7 +742,7 @@ bool ltr_int_set_custom_section(char *name)
     //Find section with given title...
     iterator i;
     ltr_int_init_iterator(ltr_int_prefs, &i);
-    char *title, *sec_name;
+    const char *title, *sec_name;
     bool found = false;
     pref_file_item *pfi;
     while((pfi = (pref_file_item *)ltr_int_get_next(&i)) != NULL){

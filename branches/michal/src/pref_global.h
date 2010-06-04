@@ -17,7 +17,6 @@ bool ltr_int_get_device(struct camera_control_block *ccb);
 bool ltr_int_get_model_setup(reflector_model_type *rm);
 bool ltr_int_model_changed();
 bool ltr_int_get_filter_factor(float *ff);
-bool ltr_int_get_axis(const char *prefix, struct axis_def **axis, bool *change_flag);
 void ltr_int_close_prefs();
 
 #ifdef __cplusplus

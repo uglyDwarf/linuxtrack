@@ -37,3 +37,5 @@ ltlib_test_LDFLAGS = -L/lib32 -L/usr/lib32 -L..
 webcam_driver_test_LDFLAGS = -L/lib32 -L/usr/lib32  -L..
 pref_test_LDFLAGS = -L/lib32 -L/usr/lib32  -L..
 tests_LDFLAGS = -fprofile-arcs -ftest-coverage
+
+MOSTLYCLEANFILES = *.gcno

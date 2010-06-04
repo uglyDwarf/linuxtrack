@@ -13,7 +13,7 @@ typedef enum{
 class LtrAxis : public QWidget{
   Q_OBJECT
  public:
-  LtrAxis(const AppProfile* parent, const QString &p);
+  LtrAxis(const AppProfile* parent, enum axis_t a);
   ~LtrAxis();
 
   void reload();
@@ -41,8 +41,7 @@ class LtrAxis : public QWidget{
   LtrAxis();
   LtrAxis(const LtrAxis&); 
   const AppProfile *parent;
-  const QString prefix;
-  axis_def *axis;
+  enum axis_t axis;
 };
 
 #endif

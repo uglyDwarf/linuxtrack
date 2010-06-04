@@ -10,15 +10,6 @@
 extern "C" {
 #endif
 
-struct lt_axes {
-  struct axis_def *pitch_axis;
-  struct axis_def *yaw_axis;
-  struct axis_def *roll_axis;
-  struct axis_def *tx_axis;
-  struct axis_def *ty_axis;
-  struct axis_def *tz_axis;
-};
-
 struct current_pose{
   float heading;
   float pitch;

@@ -10,12 +10,10 @@ static float filterfactor=1.0;
 /* private Static members */
 /**************************/
 
-static struct lt_axes axes;
 static struct bloblist_type filtered_bloblist;
 static struct blob_type filtered_blobs[3];
 static bool first_frame = true;
 static bool recenter = false;
-static bool axes_changed = false;
 struct current_pose ltr_int_orig_pose;
 
 /*******************************/
@@ -59,37 +57,11 @@ bool ltr_int_check_pose()
   return true;
 }
 
-static bool get_axes()
-{
-  bool res = true;
-  res &= ltr_int_get_axis("Pitch", &(axes.pitch_axis), &axes_changed);
-  res &= ltr_int_get_axis("Yaw", &(axes.yaw_axis), &axes_changed);
-  res &= ltr_int_get_axis("Roll", &(axes.roll_axis), &axes_changed);
-  res &= ltr_int_get_axis("Xtranslation", &(axes.tx_axis), &axes_changed);
-  res &= ltr_int_get_axis("Ytranslation", &(axes.ty_axis), &axes_changed);
-  res &= ltr_int_get_axis("Ztranslation", &(axes.tz_axis), &axes_changed);
-  return res;
-}
-
-static void close_axes()
-{
-  ltr_int_close_axis(&(axes.pitch_axis));
-  ltr_int_close_axis(&(axes.yaw_axis));
-  ltr_int_close_axis(&(axes.roll_axis));
-  ltr_int_close_axis(&(axes.tx_axis));
-  ltr_int_close_axis(&(axes.ty_axis));
-  ltr_int_close_axis(&(axes.tz_axis));
-}
-
 static bool tracking_initialized = false;
 
 bool ltr_int_init_tracking()
 {
   if(ltr_int_get_filter_factor(&filterfactor) != true){
-    return false;
-  }
-  if(!get_axes()){
-    ltr_int_log_message("Couldn't load axes definitions!\n");
     return false;
   }
 
@@ -231,12 +203,6 @@ int ltr_int_tracking_get_camera(float *heading,
   nonlinfilt_vec(raw_translations, filtered_translations, filterfactor, 
         filtered_translations);
   
-  if(axes_changed){
-    axes_changed = false;
-    close_axes();
-    get_axes();
-  }
-  
   pthread_mutex_lock(&pose_mutex);
   ltr_int_orig_pose.heading = filtered_angles[0];
   ltr_int_orig_pose.pitch = filtered_angles[1];
@@ -245,12 +211,12 @@ int ltr_int_tracking_get_camera(float *heading,
   ltr_int_orig_pose.ty = filtered_translations[1];
   ltr_int_orig_pose.tz = filtered_translations[2];
   
-  *heading = clamp_angle(ltr_int_val_on_axis(axes.yaw_axis, filtered_angles[0]));
-  *pitch = clamp_angle(ltr_int_val_on_axis(axes.pitch_axis, filtered_angles[1]));
-  *roll = clamp_angle(ltr_int_val_on_axis(axes.roll_axis, filtered_angles[2]));
-  *tx = ltr_int_val_on_axis(axes.tx_axis, filtered_translations[0]);
-  *ty = ltr_int_val_on_axis(axes.ty_axis, filtered_translations[1]);
-  *tz = ltr_int_val_on_axis(axes.tz_axis, filtered_translations[2]);
+  *heading = clamp_angle(ltr_int_val_on_axis(YAW, filtered_angles[0]));
+  *pitch = clamp_angle(ltr_int_val_on_axis(PITCH, filtered_angles[1]));
+  *roll = clamp_angle(ltr_int_val_on_axis(ROLL, filtered_angles[2]));
+  *tx = ltr_int_val_on_axis(TX, filtered_translations[0]);
+  *ty = ltr_int_val_on_axis(TY, filtered_translations[1]);
+  *tz = ltr_int_val_on_axis(TZ, filtered_translations[2]);
   
   rotate_translations(heading, pitch, roll, tx, ty, tz);
   

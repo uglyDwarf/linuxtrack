@@ -2,6 +2,7 @@
 #define LTR_GUI_PREFS__H
 
 #include "prefs_link.h"
+#include "pref_global.h"
 #include <QString>
 #include <QStringList>
 #define PREF PrefProxy::Pref()

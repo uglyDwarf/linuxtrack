@@ -11,6 +11,7 @@ class LtrTracking : public QObject
  public:
   LtrTracking(const Ui::LinuxtrackMainForm &ui);
   ~LtrTracking();
+  void refresh();
  signals:
   void customSectionChanged();
  private slots:

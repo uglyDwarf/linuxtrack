@@ -6,12 +6,12 @@
 #include "pref_int.h"
 #include "pref_global.h"
 #include "utils.h"
+#include "axis.h"
 
 #include "pathconfig.h"
 
 static bool model_changed_flag = true;
 static bool model_type_changed = true;
-
 static pref_id dev_section = NULL;
 static pref_id model_section = NULL;
 static pref_id pref_model_type = NULL;
@@ -35,6 +35,7 @@ void ltr_int_close_prefs()
     ltr_int_close_pref(&cff);
     cff = NULL;
   }
+  ltr_int_close_axes(NULL);
 }
 
 static void pref_change_callback(void *param)
@@ -100,7 +101,7 @@ bool ltr_int_get_device(struct camera_control_block *ccb)
   if(dev_section == NULL){
     return false;
   }
-  char *dev_type = ltr_int_get_key(dev_section, "Capture-device");
+  const char *dev_type = ltr_int_get_key(dev_section, "Capture-device");
   if (dev_type == NULL) {
     dev_ok = false;
   } else {
@@ -130,11 +131,11 @@ bool ltr_int_get_device(struct camera_control_block *ccb)
     }
   }
   
-  char *dev_id = ltr_int_get_key(dev_section, "Capture-device-id");
+  const char *dev_id = ltr_int_get_key(dev_section, "Capture-device-id");
   if (dev_id == NULL) {
     dev_ok = false;
   }else{
-    ccb->device.device_id = dev_id;
+    ccb->device.device_id = ltr_int_my_strdup(dev_id);//!!! Benign memory leak!!!
   }
   
   return dev_ok;
@@ -146,7 +147,7 @@ bool ltr_int_get_coord(char *coord_id, float *f)
   if(model_section == NULL){
     return false;
   }
-  char *str = ltr_int_get_key(model_section, coord_id);
+  const char *str = ltr_int_get_key(model_section, coord_id);
   if(str == NULL){
     ltr_int_log_message("Cannot find key %s in section %s!\n", coord_id, model_section);
     return false;
@@ -326,94 +327,5 @@ bool ltr_int_get_filter_factor(float *ff)
   return true;
 }
 
-typedef enum{
-  SENTRY1, DEADZONE, LCURV, RCURV, LMULT, RMULT, LIMITS, SENTRY_2
-}axis_fields;
 
-static void set_axis_field(struct axis_def **axis, axis_fields field, float val)
-{
-  assert(axis != NULL);
-  switch(field){
-    case(DEADZONE):
-      ltr_int_set_deadzone(*axis, val);
-      break;
-    case(LCURV):
-      ltr_int_set_lcurv(*axis, val);
-      break;
-    case(RCURV):
-      ltr_int_set_rcurv(*axis, val);
-      break;
-    case(LMULT):
-      ltr_int_set_lmult(*axis, val);
-      break;
-    case(RMULT):
-      ltr_int_set_rmult(*axis, val);
-      break;
-    case(LIMITS):
-      ltr_int_set_limits(*axis, val);
-      break;
-    default:
-      assert(0);
-      break;
-  }
-}
-
-bool ltr_int_get_axis(const char *prefix, struct axis_def **axis, bool *change_flag)
-{
-  static const char *fields[] = {"-deadzone",
-                                 "-left-curvature", "-right-curvature", 
-				 "-left-multiplier", "-right-multiplier",
-				 "-limits", NULL};
-  static const axis_fields af[] = {DEADZONE, LCURV, RCURV, LMULT, RMULT, LIMITS};
-  
-  pref_id tpid = NULL;
-  int i;
-  char *field_name = NULL;
-
-  assert(prefix != NULL);
-  assert(axis != NULL);
-  
-  ltr_int_init_axis(axis);
-  
-  for(i = 0; fields[i] != NULL; ++i){
-    field_name = ltr_int_my_strcat(prefix, fields[i]);
-    if(change_flag != NULL){
-      if(ltr_int_open_pref_w_callback(ltr_int_get_custom_section_name(), field_name, &tpid, 
-	 pref_change_callback, change_flag) != true){
-        ltr_int_log_message("Can't read '%s' pref!\n", field_name);
-        return false;
-      }
-    }else{
-      if(ltr_int_open_pref(ltr_int_get_custom_section_name(), field_name, &tpid) != true){
-        ltr_int_log_message("Can't read '%s' pref!\n", field_name);
-        return false;
-      }
-    }
-    set_axis_field(axis, af[i], ltr_int_get_flt(tpid));
-    
-    free(field_name);
-    field_name = NULL;
-  }
-  field_name = ltr_int_my_strcat(prefix, "-enabled");
-
-  if(change_flag != NULL){
-    if(ltr_int_open_pref_w_callback(ltr_int_get_custom_section_name(), field_name, &tpid, 
-       pref_change_callback, change_flag) != true){
-      ltr_int_log_message("Can't read '%s' pref!\n", field_name);
-      return false;
-    }
-  }else{
-    if(ltr_int_open_pref(ltr_int_get_custom_section_name(), field_name, &tpid) != true){
-      ltr_int_log_message("Can't read '%s' pref!\n", field_name);
-      return false;
-    }
-  }
-  if(strcasecmp(ltr_int_get_str(tpid), "No") != 0){
-    ltr_int_enable_axis(*axis);
-  }else{
-    ltr_int_disable_axis(*axis);
-  }
-  ltr_int_val_on_axis(*axis, 0.0f);
-  return true;
-}
 

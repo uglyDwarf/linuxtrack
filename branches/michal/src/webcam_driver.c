@@ -284,12 +284,12 @@ static bool read_pref_format(struct v4l2_format *fmt)
   if(dev_section == NULL){
     return false;
   }
-  char *res = ltr_int_get_key(dev_section, "Resolution");
+  const char *res = ltr_int_get_key(dev_section, "Resolution");
   if(res == NULL){
     ltr_int_log_message("No resolution specified!\n");
     return false;
   }
-  char *pix = ltr_int_get_key(dev_section, "Pixel-format");
+  const char *pix = ltr_int_get_key(dev_section, "Pixel-format");
   if(pix == NULL){
     ltr_int_log_message("No pixel format specified!\n");
     return false;
@@ -342,7 +342,7 @@ static bool set_stream_params()
   if(dev_section == NULL){
     return false;
   }
-  char *fps = ltr_int_get_key(dev_section, "Fps");
+  const char *fps = ltr_int_get_key(dev_section, "Fps");
   if(fps == NULL){
     ltr_int_log_message("No framerate specified!\n");
     return false;
@@ -471,17 +471,17 @@ static bool read_img_processing_prefs()
   if(dev_section == NULL){
     return false;
   }
-  char *thres = ltr_int_get_key(dev_section, "Threshold");
+  const char *thres = ltr_int_get_key(dev_section, "Threshold");
   if(thres == NULL){
     ltr_int_log_message("No threshold specified!\n");
     return false;
   }
-  char *max = ltr_int_get_key(dev_section, "Max-blob");
+  const char *max = ltr_int_get_key(dev_section, "Max-blob");
   if(max == NULL){
     ltr_int_log_message("No maximal pixel count for blob specified!\n");
     return false;
   }
-  char *min = ltr_int_get_key(dev_section, "Min-blob");
+  const char *min = ltr_int_get_key(dev_section, "Min-blob");
   if(min == NULL){
     ltr_int_log_message("No minimal pixel count for blob specified!\n");
     return false;

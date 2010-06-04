@@ -1,4 +1,5 @@
 #include "pref_int.h"
+#include "pref_global.h"
 #include "ltr_gui_prefs.h"
 #include "map"
 
@@ -8,7 +9,6 @@
 #include <iostream>
 
 PrefProxy *PrefProxy::prf = NULL;
-
 
 PrefProxy::PrefProxy()
 {
@@ -95,7 +95,7 @@ bool PrefProxy::createSection(QString
 bool PrefProxy::getKeyVal(const QString &sectionName, const QString &keyName, 
 			  QString &result)
 {
-  char *val = ltr_int_get_key(sectionName.toAscii().data(), 
+  const char *val = ltr_int_get_key(sectionName.toAscii().data(), 
                       keyName.toAscii().data());
   if(val != NULL){
     result = val;
@@ -107,7 +107,7 @@ bool PrefProxy::getKeyVal(const QString &sectionName, const QString &keyName,
 
 bool PrefProxy::getKeyVal(const QString &keyName, QString &result)
 {
-  char *val = ltr_int_get_key(NULL, keyName.toAscii().data());
+  const char *val = ltr_int_get_key(NULL, keyName.toAscii().data());
   if(val != NULL){
     result = val;
     return true;
@@ -192,7 +192,7 @@ bool PrefProxy::getFirstDeviceSection(const QString &devType, QString &result)
   char *name;
   int i = 0;
   while((name = sections[i]) != NULL){
-    char *dev_name;
+    const char *dev_name;
     if((dev_name = ltr_int_get_key(name, (char *)"Capture-device")) != NULL){
       if(QString(dev_name) == devType){
 	break;
@@ -219,8 +219,8 @@ bool PrefProxy::getFirstDeviceSection(const QString &devType,
   char *name;
   int i = 0;
   while((name = sections[i]) != NULL){
-    char *dev_name = ltr_int_get_key(name, (char *)"Capture-device");
-    char *dev_id = ltr_int_get_key(name, (char *)"Capture-device-id");
+    const char *dev_name = ltr_int_get_key(name, (char *)"Capture-device");
+    const char *dev_id = ltr_int_get_key(name, (char *)"Capture-device-id");
     if((dev_name != NULL) && (dev_id != NULL)){
       if((QString(dev_name) == devType) && (QString(dev_id) == devId)){
 	break;
@@ -241,12 +241,12 @@ bool PrefProxy::getFirstDeviceSection(const QString &devType,
 
 bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id)
 {
-  char *dev_section = ltr_int_get_key((char *)"Global", (char *)"Input");
+  const char *dev_section = ltr_int_get_key((char *)"Global", (char *)"Input");
   if(dev_section == NULL){
     return false;
   }
-  char *dev_name = ltr_int_get_key(dev_section, (char *)"Capture-device");
-  char *dev_id = ltr_int_get_key(dev_section, (char *)"Capture-device-id");
+  const char *dev_name = ltr_int_get_key(dev_section, (char *)"Capture-device");
+  const char *dev_id = ltr_int_get_key(dev_section, (char *)"Capture-device-id");
   if((dev_name == NULL) || (dev_id == NULL)){
     return false;
   }
@@ -268,7 +268,7 @@ bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id)
 
 bool PrefProxy::getActiveModel(QString &model)
 {
-  char *mod_section = ltr_int_get_key((char *)"Global", (char *)"Model");
+  const char *mod_section = ltr_int_get_key((char *)"Global", (char *)"Model");
   if(mod_section == NULL){
     return false;
   }
@@ -284,7 +284,7 @@ bool PrefProxy::getModelList(QStringList &list)
   char *name;
   int i = 0;
   while((name = sections[i]) != NULL){
-    char *model_type = ltr_int_get_key(name, (char *)"Model-type");
+    const char *model_type = ltr_int_get_key(name, (char *)"Model-type");
     if(model_type != NULL){
       list.append(name);
     }
@@ -301,7 +301,7 @@ bool PrefProxy::getProfiles(QStringList &list)
   char *name;
   int i = 0;
   while((name = sections[i]) != NULL){
-    char *title = ltr_int_get_key(name, (char *)"Title");
+    const char *title = ltr_int_get_key(name, (char *)"Title");
     if(title != NULL){
       list.append(title);
     }
@@ -312,7 +312,9 @@ bool PrefProxy::getProfiles(QStringList &list)
 
 bool PrefProxy::setCustomSection(const QString &name)
 {
-  return ltr_int_set_custom_section(name.toAscii().data());
+  bool res = ltr_int_set_custom_section(name.toAscii().data());
+  ltr_int_init_axes();
+  return res;
 }
 
 bool PrefProxy::savePrefs()
@@ -344,6 +346,10 @@ QString PrefProxy::getLibPath(QString file)
 
 bool PrefProxy::rereadPrefs()
 {
+  ltr_int_close_prefs();
   ltr_int_new_prefs();
-  return ltr_int_read_prefs(NULL, true);
+  ltr_int_read_prefs(NULL, true);
+  
+  return true;
 }
+

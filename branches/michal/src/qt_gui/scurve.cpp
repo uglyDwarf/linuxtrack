@@ -168,6 +168,11 @@ void SCurve::axisChanged(AxisElem_t what)
       ui.SCRightCurv->setValue(round(axis->getRCurv() * 100.0));
       ui.SCDeadZone->setValue(round(axis->getDZone() * 101.0));
       ui.SCInputLimits->setValue(axis->getLimits());
+      if(axis->isSymetrical()){
+	ui.SCSymetrical->setCheckState(Qt::Checked);
+      }else{
+	ui.SCSymetrical->setCheckState(Qt::Unchecked);
+      }
       break;
     default:
       break;

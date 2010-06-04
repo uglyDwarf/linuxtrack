@@ -41,11 +41,15 @@ extern plist ltr_int_prefs;
 void ltr_int_get_section_list(char **names[]);
 bool ltr_int_section_exists(const char *section_name);
 bool ltr_int_key_exists(const char *section_name, const char *key_name);
-char *ltr_int_get_key(const char *section_name, const char *key_name);
+const char *ltr_int_get_key(const char *section_name, const char *key_name);
+float ltr_int_get_key_flt(const char *section_name, const char *key_name);
+int ltr_int_get_key_int(const char *section_name, const char *key_name);
 
 bool ltr_int_add_section(const char *name);
 bool ltr_int_add_key(const char *section_name, const char *key_name, const char *new_value);
 bool ltr_int_change_key(const char *section_name, const char *key_name, const char *new_value);
+bool ltr_int_change_key_flt(const char *section_name, const char *key_name, float new_value);
+bool ltr_int_change_key_int(const char *section_name, const char *key_name, int new_value);
 bool ltr_int_dump_prefs(char *file_name);
 void ltr_int_free_prefs();
 

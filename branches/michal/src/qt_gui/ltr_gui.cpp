@@ -153,6 +153,8 @@ void LinuxtrackGui::on_DefaultsButton_pressed()
   std::cout<<"Going back to defaultes!"<<std::endl;
   PREF.rereadPrefs();
   on_RefreshDevices_pressed();
+  me->refresh();
+  track->refresh();
 }
 
 void LinuxtrackGui::trackerStopped()
@@ -160,6 +162,7 @@ void LinuxtrackGui::trackerStopped()
   ui.DeviceSelector->setEnabled(true);
   ui.ModelSelector->setEnabled(true);
   ui.Profiles->setEnabled(true);
+  ui.DefaultsButton->setEnabled(true);
 }
 
 void LinuxtrackGui::trackerRunning()
@@ -167,5 +170,6 @@ void LinuxtrackGui::trackerRunning()
   ui.DeviceSelector->setDisabled(true);
   ui.ModelSelector->setDisabled(true);
   ui.Profiles->setDisabled(true);
+  ui.DefaultsButton->setDisabled(true);
 }
 

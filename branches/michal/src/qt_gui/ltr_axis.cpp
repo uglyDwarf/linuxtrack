@@ -4,36 +4,28 @@
 #include <pref_global.h>
 #include "ltr_profiles.h"
 #include <iostream>
-LtrAxis::LtrAxis(const AppProfile* tmp_parent ,const QString &p) : 
-  parent(tmp_parent), prefix(p)
+LtrAxis::LtrAxis(const AppProfile* tmp_parent, enum axis_t a) : 
+  parent(tmp_parent), axis(a)
 {
-  ltr_int_get_axis(prefix.toAscii().data(), &axis, NULL);
   emit axisChanged(RELOAD);
 }
 
 LtrAxis::~LtrAxis()
 {
-  ltr_int_close_axis(&axis);
 }
 
 void LtrAxis::reload()
 {
-  ltr_int_close_axis(&axis);
-  ltr_int_get_axis(prefix.toAscii().data(), &axis, NULL);
   emit axisChanged(RELOAD);
 }
 
 bool LtrAxis::changeEnabled(bool enabled)
 {
-  QString val;
   if(enabled){
     ltr_int_enable_axis(axis);
-    val = "yes";
   }else{
     ltr_int_disable_axis(axis);
-    val = "no";
   }
-  PREF.setKeyVal(parent->getProfileName(), prefix + "-enabled", val);
   emit axisChanged(ENABLED);
   return true; 
 }
@@ -42,7 +34,6 @@ bool LtrAxis::changeLFactor(float val)
 {
   bool res = ltr_int_set_lmult(axis, val);
   if(res){
-    PREF.setKeyVal(parent->getProfileName(), prefix + "-left-multiplier", val);
     emit axisChanged(LFACTOR);
   }
   return res; 
@@ -52,7 +43,6 @@ bool LtrAxis::changeRFactor(float val)
 {
   bool res = ltr_int_set_rmult(axis, val);
   if(res){
-    PREF.setKeyVal(parent->getProfileName(), prefix + "-right-multiplier", val);
     emit axisChanged(RFACTOR);
   }
   return res; 
@@ -62,7 +52,6 @@ bool LtrAxis::changeLCurv(float val)
 {
   bool res = ltr_int_set_lcurv(axis, val);
   if(res){
-    PREF.setKeyVal(parent->getProfileName(), prefix + "-left-curvature", val);
     emit axisChanged(LCURV);
   }
   return res; 
@@ -72,7 +61,6 @@ bool LtrAxis::changeRCurv(float val)
 {
   bool res = ltr_int_set_rcurv(axis, val);
   if(res){
-    PREF.setKeyVal(parent->getProfileName(), prefix + "-right-curvature", val);
     emit axisChanged(RCURV);
   }
   return res; 
@@ -82,7 +70,6 @@ bool LtrAxis::changeDZone(float val)
 {
   bool res = ltr_int_set_deadzone(axis, val);
   if(res){
-    PREF.setKeyVal(parent->getProfileName(), prefix + "-deadzone", val);
     emit axisChanged(DZONE);
   }
   return res; 
@@ -92,7 +79,6 @@ bool LtrAxis::changeLimits(float val)
 {
   bool res = ltr_int_set_limits(axis, val);
   if(res){
-    PREF.setKeyVal(parent->getProfileName(), prefix + "-limits", val);
     emit axisChanged(LIMITS);
   }
   return res; 
