@@ -32,6 +32,7 @@ class LinuxtrackGui : public QWidget
   void on_SaveButton_pressed();
   void on_ViewLogButton_pressed();
   void on_DefaultsButton_pressed();
+  void on_DiscardChangesButton_pressed();
   void trackerStopped();
   void trackerRunning();
  private:

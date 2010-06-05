@@ -21,6 +21,11 @@ PrefProxy::PrefProxy()
       exit(1);
     }
   }
+  checkPrefix();
+}
+
+bool PrefProxy::checkPrefix()
+{
   QString appPath = QApplication::applicationDirPath();
   appPath.prepend("\"");
   appPath += "\"";
@@ -349,7 +354,7 @@ bool PrefProxy::rereadPrefs()
   ltr_int_close_prefs();
   ltr_int_new_prefs();
   ltr_int_read_prefs(NULL, true);
-  
+  checkPrefix();
   return true;
 }
 

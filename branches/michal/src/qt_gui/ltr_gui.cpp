@@ -23,10 +23,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
 {
   QString target = QDir::homePath() + "/.linuxtrack";
   if(!QFile::exists(target)){
-    QString source = PrefProxy::getDataPath(".linuxtrack");
-    std::cout<<"Going to copy "<<source.toAscii().data();
-    std::cout<<" to "<<target.toAscii().data()<<std::endl;
-    QFile::copy(source, target);
+    on_DefaultsButton_pressed();
   }
   ui.setupUi(this);
   wcp = new WebcamPrefs(ui);
@@ -150,13 +147,24 @@ void LinuxtrackGui::on_ViewLogButton_pressed()
 
 void LinuxtrackGui::on_DefaultsButton_pressed()
 {
-  std::cout<<"Going back to defaultes!"<<std::endl;
+  QString target = QDir::homePath() + "/.linuxtrack";
+  QString source = PrefProxy::getDataPath(".linuxtrack");
+  std::cout<<"Going to copy "<<source.toAscii().data();
+  std::cout<<" to "<<target.toAscii().data()<<std::endl;
+  QFile::rename(target, target + ".backup");
+  QFile::copy(source, target);
+  on_DiscardChangesButton_pressed();
+}
+
+void LinuxtrackGui::on_DiscardChangesButton_pressed()
+{
   PREF.rereadPrefs();
   on_RefreshDevices_pressed();
   me->refresh();
   track->refresh();
 }
 
+  
 void LinuxtrackGui::trackerStopped()
 {
   ui.DeviceSelector->setEnabled(true);

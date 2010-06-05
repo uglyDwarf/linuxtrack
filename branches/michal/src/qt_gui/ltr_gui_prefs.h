@@ -44,6 +44,9 @@ class PrefProxy{
   bool rereadPrefs();
   static QString getDataPath(QString file);
   static QString getLibPath(QString file);
+ private:
+  bool checkPrefix();
+
 };
 
 
