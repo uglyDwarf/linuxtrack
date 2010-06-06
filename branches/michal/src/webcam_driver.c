@@ -159,6 +159,7 @@ int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
     fmt.index = fmt_cntr;
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if(ioctl(fd, VIDIOC_ENUM_FMT, &fmt) != 0){
+      perror("VIDIOC_ENUM_FMT");
       break;
     }
     ++fmt_cntr;
@@ -169,6 +170,7 @@ int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
       frm.index = sizes_cntr++;
       frm.pixel_format = fmt.pixelformat;
       if(ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frm) != 0){
+        perror("VIDIOC_ENUM_FRAMESIZES");
 	break;
       }
       if(frm.type == V4L2_FRMSIZE_TYPE_DISCRETE){
@@ -180,6 +182,7 @@ int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
 	  ival.width = frm.discrete.width;
 	  ival.height = frm.discrete.height;
 	  if(ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &ival) != 0){
+            perror("VIDIOC_ENUM_FRAMEINTERVALS");
 	    break;
 	  }
 	  if(ival.type == V4L2_FRMIVAL_TYPE_DISCRETE){
