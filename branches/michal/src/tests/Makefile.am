@@ -22,7 +22,7 @@ tests_SOURCES = test.c ../utils.h ../utils.c ../list.c ../list.h ../pref.c ../pr
 
 #pose_test_LDADD = -lm -lpthread -ldl -llt
 ltlib_test_LDADD = -lm -lpthread -ldl -llt
-webcam_driver_test_LDADD = -lm -lpthread -ldl -llinuxtrack
+webcam_driver_test_LDADD = -lm -lpthread -ldl -llinuxtrack -lv4l2
 pref_test_LDADD = -lm -lpthread -ldl -llinuxtrack
 test_LDALL = -lm
 

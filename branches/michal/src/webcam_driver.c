@@ -21,6 +21,7 @@
 #include "image_process.h"
 #include "pref_int.h"
 #include "runloop.h"
+#include <libv4l2.h>
 
 #define NUM_OF_BUFFERS 8
 typedef struct {
@@ -29,7 +30,6 @@ typedef struct {
 } mmap_buffer;
 
 static mmap_buffer *buffers = NULL;
-
 
 typedef struct{
   int fd;
@@ -42,6 +42,7 @@ typedef struct{
   unsigned int threshold;
   int min_blob_pixels;
   int max_blob_pixels;
+  __u32 fourcc;
 } webcam_info;
 
 static webcam_info wc_info;
@@ -60,7 +61,7 @@ static char *get_webcam_id(int fd)
   struct v4l2_capability capability;
 
   //Query device capabilities
-  int ioctl_res = ioctl(fd, VIDIOC_QUERYCAP, &capability);
+  int ioctl_res = v4l2_ioctl(fd, VIDIOC_QUERYCAP, &capability);
   if(ioctl_res == 0){
     __u32 cap = capability.capabilities;
     ltr_int_log_message("  Found V4L2 webcam: '%s'\n", 
@@ -78,7 +79,7 @@ static char *get_webcam_id(int fd)
 
 static int is_our_webcam(char *fname, char *webcam_id)
 {
-  int fd = open(fname, O_RDWR | O_NONBLOCK);
+  int fd = v4l2_open(fname, O_RDWR | O_NONBLOCK);
   if(fd == -1){
     ltr_int_log_message("Can't open file '%s'!\n", fname);
     return -1;
@@ -91,7 +92,7 @@ static int is_our_webcam(char *fname, char *webcam_id)
     return fd;
   }else{
     free(current_id);
-    close(fd);
+    v4l2_close(fd);
   }
   return -1;
 }
@@ -114,7 +115,7 @@ int ltr_int_enum_webcams(char **ids[])
       char *fname;
       asprintf(&fname, "/dev/%s", de->d_name);
       
-      int fd = open(fname, O_RDWR | O_NONBLOCK);
+      int fd = v4l2_open(fname, O_RDWR | O_NONBLOCK);
       if(fd == -1){
 	ltr_int_log_message("Can't open file '%s'!\n", fname);
 	return -1;
@@ -125,7 +126,7 @@ int ltr_int_enum_webcams(char **ids[])
 	++counter;
 	ltr_int_add_element(wc_list, id); 
       }
-      close(fd);
+      v4l2_close(fd);
       free(fname);
     }
   }
@@ -158,7 +159,7 @@ int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
   while(1){
     fmt.index = fmt_cntr;
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    if(ioctl(fd, VIDIOC_ENUM_FMT, &fmt) != 0){
+    if(v4l2_ioctl(fd, VIDIOC_ENUM_FMT, &fmt) != 0){
       perror("VIDIOC_ENUM_FMT");
       break;
     }
@@ -169,7 +170,7 @@ int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
     while(1){
       frm.index = sizes_cntr++;
       frm.pixel_format = fmt.pixelformat;
-      if(ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frm) != 0){
+      if(v4l2_ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frm) != 0){
         perror("VIDIOC_ENUM_FRAMESIZES");
 	break;
       }
@@ -181,7 +182,7 @@ int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
 	  ival.pixel_format = fmt.pixelformat;
 	  ival.width = frm.discrete.width;
 	  ival.height = frm.discrete.height;
-	  if(ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &ival) != 0){
+	  if(v4l2_ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &ival) != 0){
             perror("VIDIOC_ENUM_FRAMEINTERVALS");
 	    break;
 	  }
@@ -230,7 +231,7 @@ int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
   
   ltr_int_free_list(formats, true);
   ltr_int_free_list(fmt_strings, false);
-  close(fd);
+  v4l2_close(fd);
   return items;
 }
 
@@ -310,6 +311,7 @@ static bool read_pref_format(struct v4l2_format *fmt)
   fmt->fmt.pix.pixelformat = *(__u32*)pix;
   fmt->fmt.pix.field = V4L2_FIELD_ANY;
   
+  wc_info.fourcc = *(__u32*)pix;
   return true;
 }
 
@@ -321,7 +323,7 @@ static bool set_capture_format(struct camera_control_block *ccb)
     return false;
   }
   
-  if(0 != ioctl(wc_info.fd, VIDIOC_S_FMT, &fmt)){
+  if(0 != v4l2_ioctl(wc_info.fd, VIDIOC_S_FMT, &fmt)){
     switch(errno){
       case EBUSY:
         ltr_int_log_message("Can't switch formats right now!\n");
@@ -363,7 +365,7 @@ static bool set_stream_params()
   sp.parm.capture.timeperframe.numerator = den;
   sp.parm.capture.timeperframe.denominator = num;
 
-  if(-1 == ioctl(wc_info.fd, VIDIOC_S_PARM, &sp)){
+  if(-1 == v4l2_ioctl(wc_info.fd, VIDIOC_S_PARM, &sp)){
     ltr_int_log_message("Stream parameters setup failed! (%s)\n", strerror(errno));
     return false;
   }
@@ -386,7 +388,7 @@ static int request_streaming_buffers()
   reqb.memory = V4L2_MEMORY_MMAP;
   
   //request buffers from driver
-  if(0 != ioctl(wc_info.fd, VIDIOC_REQBUFS, &reqb)){
+  if(0 != v4l2_ioctl(wc_info.fd, VIDIOC_REQBUFS, &reqb)){
     ltr_int_log_message("Couldn't get streaming buffers! (%s)\n", strerror(errno));
     return 0;
   }
@@ -427,13 +429,13 @@ static bool setup_streaming_buffers()
     buf.memory = V4L2_MEMORY_MMAP;
     buf.index = cntr;
 
-    if(0 != ioctl(wc_info.fd, VIDIOC_QUERYBUF, &buf)){
+    if(0 != v4l2_ioctl(wc_info.fd, VIDIOC_QUERYBUF, &buf)){
       ltr_int_log_message("Request for buffer failed...\n");
       return false;
     }
     
     buffers[cntr].length = buf.length;
-    buffers[cntr].start = mmap(NULL, buf.length, PROT_READ | PROT_WRITE,
+    buffers[cntr].start = v4l2_mmap(NULL, buf.length, PROT_READ | PROT_WRITE,
       MAP_SHARED, wc_info.fd, buf.m.offset);
     if(MAP_FAILED == buffers[cntr].start){
       ltr_int_log_message("Mmap failed...\n");
@@ -458,7 +460,7 @@ static bool release_buffers()
   }
   unsigned int cntr;
   for(cntr = 0; cntr < wc_info.buffers; ++cntr){
-    if(-1 == munmap(buffers[cntr].start, buffers[cntr].length)){
+    if(-1 == v4l2_munmap(buffers[cntr].start, buffers[cntr].length)){
       ltr_int_log_message("Munmap failed!\n");
     }
   }
@@ -512,28 +514,28 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
   
   if(set_capture_format(ccb) != true){
     ltr_int_log_message("Couldn't set capture format!\n");
-    close(fd);
+    v4l2_close(fd);
     return -1;
   }
   if(set_stream_params() != true){
     ltr_int_log_message("Couldn't set stream parameters!\n");
-    close(fd);
+    v4l2_close(fd);
     return -1;
   }
   if(setup_streaming_buffers() != true){
     ltr_int_log_message("Couldn't initialize mmap!\n");
-    close(fd);
+    v4l2_close(fd);
     return -1;
   }
   if(read_img_processing_prefs() != true){
     ltr_int_log_message("Couldn't initialize mmap!\n");
-    close(fd);
+    v4l2_close(fd);
     return -1;
   }
   ltr_int_prepare_for_processing(ccb->pixel_width, ccb->pixel_height);
   if(ltr_int_tracker_resume() != 0){
     ltr_int_log_message("Couldn't start streaming!\n");
-    close(fd);
+    v4l2_close(fd);
     return -1;
   }
   return 0;
@@ -544,7 +546,7 @@ int ltr_int_tracker_close()
   ltr_int_log_message("Webcam shutting down!\n");
   release_buffers();
   free(wc_info.bw_frame);
-  close(wc_info.fd);
+  v4l2_close(wc_info.fd);
   return 0;
 }
 
@@ -561,14 +563,14 @@ int ltr_int_tracker_resume()
     buf.memory = V4L2_MEMORY_MMAP;
     buf.index = cntr;
 
-    if(0 != ioctl(wc_info.fd, VIDIOC_QBUF, &buf)){
+    if(0 != v4l2_ioctl(wc_info.fd, VIDIOC_QBUF, &buf)){
       ltr_int_log_message("Queuing of buffer failed...\n");
       return -1;
     }
   }
   ltr_int_log_message("Buffers queued, starting to stream!\n");
   
-  if(-1 == ioctl(wc_info.fd, VIDIOC_STREAMON, &type)){
+  if(-1 == v4l2_ioctl(wc_info.fd, VIDIOC_STREAMON, &type)){
     ltr_int_log_message("Start of streaming failed!\n");
     return -1;
   }
@@ -578,7 +580,7 @@ int ltr_int_tracker_resume()
 int ltr_int_tracker_pause()
 {
   enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  if(-1 == ioctl(wc_info.fd, VIDIOC_STREAMOFF, &type)){
+  if(-1 == v4l2_ioctl(wc_info.fd, VIDIOC_STREAMOFF, &type)){
     ltr_int_log_message("Problem stopping streaming!\n");
     return -1;
   }
@@ -586,6 +588,32 @@ int ltr_int_tracker_pause()
   return 0;
 }
 
+static void get_bw_image(unsigned char *source_buf, unsigned char *dest_buf, unsigned int bytes_used)
+{
+  unsigned int cntr, cntr1;
+  
+  if(wc_info.fourcc == *(__u32*)"YUYV"){
+    for(cntr = cntr1 = 0; cntr < bytes_used; cntr += 2, cntr1++){
+      if(source_buf[cntr] > wc_info.threshold){
+	dest_buf[cntr1] = source_buf[cntr];
+      }else{
+	dest_buf[cntr1] = 0;
+      }
+    }
+  }else if((wc_info.fourcc == *(__u32*)"YU12") || (wc_info.fourcc == *(__u32*)"YV12")){
+    for(cntr = 0; cntr < (unsigned int)wc_info.w * wc_info.h; ++cntr){
+      if(source_buf[cntr] > wc_info.threshold){
+	dest_buf[cntr] = source_buf[cntr];
+      }else{
+	dest_buf[cntr] = 0;
+      }
+    }
+  }else{
+    for(cntr = 0; cntr < (unsigned int)wc_info.w * wc_info.h; ++cntr){
+      dest_buf[cntr] = 0;
+    }
+  }
+}
 
 int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 {
@@ -630,7 +658,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
     }
   };
   
-  while(-1 == ioctl(wc_info.fd, VIDIOC_DQBUF, &buf)){
+  while(-1 == v4l2_ioctl(wc_info.fd, VIDIOC_DQBUF, &buf)){
     switch(errno){
       case EAGAIN:
         continue;
@@ -642,25 +670,12 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
   }
   assert(buf.index < wc_info.buffers);
   
-  //Convert YUYV format to bw image
-  //FIXME!!! - this would work only with YUYV!
   unsigned char *source_buf = (buffers[buf.index]).start;
   unsigned char *dest_buf = (f->bitmap != NULL) ? f->bitmap : wc_info.bw_frame;
-  unsigned int cntr, cntr1;
-  //int pts = 0;
-  
-  for(cntr = cntr1 = 0; cntr < buf.bytesused; cntr += 2, cntr1++){
-    if(source_buf[cntr] > wc_info.threshold){
-      dest_buf[cntr1] = source_buf[cntr];
-      //++pts;
-    }else{
-      dest_buf[cntr1] = 0;
-    }
-  }
-  
+  get_bw_image(source_buf, dest_buf, buf.bytesused);
   //ltr_int_log_message("%d points found!\n", pts);
 
-  if(-1 == ioctl(wc_info.fd, VIDIOC_QBUF, &buf)){
+  if(-1 == v4l2_ioctl(wc_info.fd, VIDIOC_QBUF, &buf)){
     ltr_int_log_message("Error queuing buffer!\n");
   }
   //ltr_int_log_message("Queued buffer %d\n", buf.index);

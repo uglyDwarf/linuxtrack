@@ -70,7 +70,7 @@ libwii_la_LIBADD = -lcwiid -llinuxtrack
 libwii_la_LDFLAGS = -export-symbols drivers.sym
 
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
-libwc_la_LIBADD = -llinuxtrack
+libwc_la_LIBADD = -llinuxtrack -lv4l2
 libwc_la_LDFLAGS = -export-symbols webcam_driver.sym
 
 dist_pkgdata_DATA = .linuxtrack
