@@ -1,9 +1,10 @@
 #include <QtGui>
- #include <QtOpenGL>
+#include <QtOpenGL>
 
- #include <math.h>
+#include <iostream>
+#include <math.h>
 #include "objreader.h"
- #include "glwidget.h"
+#include "glwidget.h"
 #include <iostream> 
 #include "pathconfig.h"
 
@@ -14,6 +15,7 @@ ReaderThread::ReaderThread(): QThread()
 void ReaderThread::run()
 {
      read_obj();
+     std::cout<<"Object read!"<<std::endl;
      emit done();
 }
 
@@ -40,6 +42,7 @@ GLWidget::GLWidget(QWidget *parent)
 
  GLWidget::~GLWidget()
  {
+     rt->terminate();
      makeCurrent();
      std::vector<GLuint>::iterator i;
      for(i = objects.begin(); i != objects.end(); ++i){
