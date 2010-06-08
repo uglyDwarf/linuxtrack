@@ -8,7 +8,7 @@
 static openusb_handle_t handle;
 static openusb_dev_handle_t devhandle;
 static unsigned int in, out;
-
+static bool interface_claimed = false;
 
 bool ltr_int_init_usb()
 {
@@ -67,8 +67,10 @@ static bool claim_tir(unsigned int interface)
 {
   if(openusb_claim_interface(devhandle, interface, USB_INIT_DEFAULT)){
     ltr_int_log_message("Couldn't set interface!\n");
+    interface_claimed = false;
     return false;
   }
+  interface_claimed = true;
   return true;
 }
 
@@ -126,8 +128,10 @@ void ltr_int_finish_usb(unsigned int interface)
 {
   (void) interface;
   int32_t res;
-  if((res = openusb_release_interface(devhandle, 0)) != OPENUSB_SUCCESS){
-    ltr_int_log_message("Couldn't release interface! (%d)\n", res);
+  if(interface_claimed){
+    if((res = openusb_release_interface(devhandle, 0)) != OPENUSB_SUCCESS){
+      ltr_int_log_message("Couldn't release interface! (%d)\n", res);
+    }
   }
   openusb_close_device(devhandle);
   openusb_fini(handle);

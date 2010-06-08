@@ -177,3 +177,28 @@ int ltr_int_tracker_close()
   return res;
 }
 
+int ltr_int_tir_found()
+{
+  if((libhandle = ltr_int_load_library((char *)"libltusb1.so", functions)) == NULL){
+    return 0;
+  }
+  if(!ltr_int_init_usb()){
+    return 0;
+  }
+  int res = 0;
+  switch(ltr_int_find_tir()){
+    case TIR4:
+      res = 4;
+      break;
+    case TIR5:
+      res = 4;
+      break;
+    default:
+      res = 0;
+      break;
+  }
+  ltr_int_finish_usb(-1);
+  ltr_int_unload_library(libhandle, functions);
+  libhandle = NULL;
+  return res;
+}

@@ -492,7 +492,7 @@
                   <item>
                    <layout class="QVBoxLayout" name="verticalLayout_13">
                     <item>
-                     <widget class="QLabel" name="label_42">
+                     <widget class="QLabel" name="StatusBrightLabel">
                       <property name="text">
                        <string>Status LED brightness (TIR5 only)</string>
                       </property>
@@ -522,7 +522,7 @@
                   <item>
                    <layout class="QVBoxLayout" name="verticalLayout_14">
                     <item>
-                     <widget class="QLabel" name="label_45">
+                     <widget class="QLabel" name="IRBrightLabel">
                       <property name="text">
                        <string>IR LEDs brightness (TIR5 only)</string>
                       </property>

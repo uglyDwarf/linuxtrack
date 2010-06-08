@@ -5,11 +5,32 @@
 #include "ltr_gui_prefs.h"
 #include "tir_prefs.h"
 #include "pathconfig.h"
-
+#include "dyn_load.h"
 #include <QFile>
 
 static QString currentId = QString("None");
 static QString currentSection = QString();
+static int tirType = 0;
+
+typedef int (*probe_tir_fun_t)();
+static probe_tir_fun_t probe_tir_fun = NULL;
+static lib_fun_def_t functions[] = {
+  {(char *)"ltr_int_tir_found", (void*) &probe_tir_fun},
+  {NULL, NULL}
+};
+
+
+static int probeTir()
+{
+  void *libhandle = NULL;
+  int res = 0;
+  if((libhandle = ltr_int_load_library((char *)"libtir.so", functions)) != NULL){
+    res = probe_tir_fun();
+    ltr_int_unload_library(libhandle, functions);
+  }
+  return res;
+}
+
 
 void TirPrefs::Connect()
 {
@@ -96,13 +117,29 @@ void TirPrefs::Activate(const QString &ID)
   }else{
     gui.TirFwLabel->setText("Firmware not found - TrackIr will not work!");
   }
+  if(tirType < 5){
+    gui.TirIrBright->setDisabled(true);
+    gui.TirIrBright->setHidden(true);
+    gui.TirStatusBright->setDisabled(true);
+    gui.TirStatusBright->setHidden(true);
+    gui.StatusBrightLabel->setHidden(true);
+    gui.IRBrightLabel->setHidden(true);
+  }
 }
+
+
 
 void TirPrefs::AddAvailableDevices(QComboBox &combo)
 {
   QString id;
   deviceType_t dt;
   bool tir_selected = false;
+  
+  tirType = probeTir();
+  if(tirType == 0){
+    return;
+  }
+  
   if(PREF.getActiveDevice(dt,id)){
     if(dt == TIR){
       tir_selected = true;

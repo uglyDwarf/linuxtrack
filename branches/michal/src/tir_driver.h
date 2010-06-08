@@ -4,6 +4,8 @@
 #include "cal.h"
 #include "tir.h"
 
+int ltr_int_tir_found();
+
 int ltr_int_tracker_init(struct camera_control_block *ccb);
 int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f);
 int ltr_int_tracker_pause();

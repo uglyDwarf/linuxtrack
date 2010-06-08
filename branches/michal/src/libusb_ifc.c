@@ -8,7 +8,7 @@
 static libusb_context *usb_context = NULL;
 static libusb_device_handle *handle = NULL;
 static unsigned int in, out;
-
+static bool interface_claimed = false;
 
 bool ltr_int_init_usb()
 {
@@ -109,8 +109,10 @@ static bool claim_tir(int config, unsigned int interface)
 {
   if(libusb_claim_interface(handle, interface)){
     ltr_int_log_message("Couldn't claim interface!\n");
+    interface_claimed = false;
     return false;
   }
+  interface_claimed = true;
 //  if(libusb_reset_device(handle)){
 //    log_message("Couldn't reset device!\n");
 //    return false;
@@ -164,7 +166,10 @@ bool ltr_int_receive_data(unsigned char data[], size_t size, size_t *transferred
 
 void ltr_int_finish_usb(unsigned int interface)
 {
-  libusb_release_interface(handle, interface);
+  if(interface_claimed){
+    libusb_release_interface(handle, interface);
+  }
+  interface_claimed = false;
   libusb_close(handle);
   libusb_exit(usb_context);
 }

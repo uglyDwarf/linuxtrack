@@ -325,7 +325,7 @@ libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
 
 libtir_la_LIBADD = -lz -llinuxtrack
-libtir_la_LDFLAGS = -export-symbols drivers.sym '-Wl,-rpath,@prefix@/lib'
+libtir_la_LDFLAGS = -export-symbols tir.sym '-Wl,-rpath,@prefix@/lib'
 libltusb1_la_SOURCES = libusb_ifc.c usb_ifc.h
 libltusb1_la_LIBADD = -lusb-1.0 -llinuxtrack
 libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h

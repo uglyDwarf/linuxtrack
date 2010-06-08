@@ -40,6 +40,7 @@ bool PrefProxy::checkPrefix()
        QString("Please save your preferences now!"), 
        QMessageBox::Ok, QMessageBox::Ok);
   }
+  return true;
 }
 
 PrefProxy::~PrefProxy()
