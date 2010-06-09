@@ -315,7 +315,7 @@ static bool set_status_led_tir5(bool running)
   }
   pkt[3] = status_brightness;
   if(running){
-    pkt[4] = 20;
+    pkt[4] = 22;
   }else{
     pkt[4] = 33;
   }
