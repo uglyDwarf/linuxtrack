@@ -257,7 +257,7 @@ void CameraView::redraw(QImage *img)
 
 void CameraView::paintEvent(QPaintEvent * /* event */)
 {
-  if(image != NULL){
+  if((image != NULL) && (running)){
     QPainter painter(this);
     painter.drawImage(QPoint(0, 0), *image);
     painter.end();

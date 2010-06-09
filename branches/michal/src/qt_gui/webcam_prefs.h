@@ -23,6 +23,7 @@ class WebcamPrefs : public QObject{
   void on_WebcamThreshold_valueChanged(int i);
   void on_WebcamMinBlob_valueChanged(int i);
   void on_WebcamMaxBlob_valueChanged(int i);
+  void on_FlipWebcam_stateChanged(int state);
 };
 
 

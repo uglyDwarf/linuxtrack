@@ -23,6 +23,8 @@ void WebcamPrefs::Connect()
     this, SLOT(on_WebcamMinBlob_valueChanged(int)));
   QObject::connect(gui.WebcamMaxBlob, SIGNAL(valueChanged(int)),
     this, SLOT(on_WebcamMaxBlob_valueChanged(int)));
+  QObject::connect(gui.FlipWebcam, SIGNAL(stateChanged(int)),
+    this, SLOT(on_FlipWebcam_stateChanged(int)));
 }
 
 WebcamPrefs::WebcamPrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
@@ -85,6 +87,7 @@ void WebcamPrefs::Activate(const QString &ID)
       PREF.addKeyVal(sec, (char *)"Threshold", QString::number(140));
       PREF.addKeyVal(sec, (char *)"Min-blob", QString::number(4));
       PREF.addKeyVal(sec, (char *)"Max-blob", QString::number(230));
+      PREF.addKeyVal(sec, (char *)"Upside-down", (char *)"No");
       PREF.activateDevice(sec);
       currentSection = sec;
     }else{
@@ -102,7 +105,7 @@ void WebcamPrefs::Activate(const QString &ID)
     
     
     gui.WebcamFormats->addItems(wc_info->getFormats());
-    QString fourcc, thres, bmin, bmax, res, fps;
+    QString fourcc, thres, bmin, bmax, res, fps, flip;
     int fmt_index = 0;
     if(PREF.getKeyVal(sec, (char *)"Pixel-format", fourcc)){
       fmt_index = wc_info->findFourcc(fourcc);
@@ -119,7 +122,12 @@ void WebcamPrefs::Activate(const QString &ID)
     if(PREF.getKeyVal(sec, (char *)"Min-blob", bmin)){
       gui.WebcamMinBlob->setValue(bmin.toInt());
     }
-    
+    Qt::CheckState state = Qt::Unchecked;
+    if(PREF.getKeyVal(sec, (char *)"Upside-down", flip)){
+      state = (flip.compare("Yes", Qt::CaseInsensitive) == 0) ? 
+                            Qt::Checked : Qt::Unchecked;
+    }
+    gui.FlipWebcam->setCheckState(state);
   }
 }
 
@@ -139,6 +147,17 @@ void WebcamPrefs::on_WebcamMaxBlob_valueChanged(int i)
 {
   //std::cout<<"Max Blob: "<<i<<std::endl;
   PREF.setKeyVal(currentSection, (char *)"Max-blob", i);
+}
+
+void WebcamPrefs::on_FlipWebcam_stateChanged(int state)
+{
+  QString str;
+  if(state == Qt::Checked){
+    str = "Yes";
+  }else{
+    str = "No";
+  }
+  PREF.setKeyVal(currentSection, (char *)"Upside-down", str);
 }
 
 void WebcamPrefs::AddAvailableDevices(QComboBox &combo)

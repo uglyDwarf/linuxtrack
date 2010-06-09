@@ -43,6 +43,7 @@ typedef struct{
   int min_blob_pixels;
   int max_blob_pixels;
   __u32 fourcc;
+  bool flip;
 } webcam_info;
 
 static webcam_info wc_info;
@@ -297,6 +298,16 @@ static bool read_pref_format(struct v4l2_format *fmt)
   if(pix == NULL){
     ltr_int_log_message("No pixel format specified!\n");
     return false;
+  }
+  
+  wc_info.flip = false;
+  const char *flip = ltr_int_get_key(dev_section, "Upside-down");
+  if(flip == NULL){
+    ltr_int_log_message("Flipping not specified!\n");
+  }else{
+    if(strcasecmp(flip, "Yes") == 0){
+      wc_info.flip = true;
+    }
   }
   
   int x, y;
@@ -688,5 +699,12 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
   ltr_int_to_stripes(&img);
   ltr_int_stripes_to_blobs(3, &(f->bloblist), wc_info.min_blob_pixels, 
 		   wc_info.max_blob_pixels, &img);
+  if(wc_info.flip){
+    unsigned int tmp;
+    for(tmp = 0; tmp < f->bloblist.num_blobs; ++tmp){
+      f->bloblist.blobs[tmp].x *= -1;
+      f->bloblist.blobs[tmp].y *= -1;
+    }
+  }
   return 0;
 }
