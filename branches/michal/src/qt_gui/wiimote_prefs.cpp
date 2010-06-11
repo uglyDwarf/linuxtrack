@@ -1,5 +1,6 @@
 #include "wiimote_prefs.h"
 #include "ltr_gui_prefs.h"
+#include "wii_driver_prefs.h"
 #include <iostream>
 
 typedef enum{
@@ -11,6 +12,7 @@ static QString currentSection = QString();
 
 WiimotePrefs::WiimotePrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
 {
+  PREF;
   Connect();
 }
 
@@ -44,22 +46,20 @@ void WiimotePrefs::Activate(const QString &ID)
       currentSection = sec;
     }
   }
+  ltr_int_wii_init_prefs();
   QString indication;
-  if(PREF.getKeyVal(currentSection, (char *)"Running-indication", indication)){
-    if(indication.size() == 4){
-      setCheckBox(gui.Wii_r1, indication[0] == QChar('1'));
-      setCheckBox(gui.Wii_r2, indication[1] == QChar('1'));
-      setCheckBox(gui.Wii_r3, indication[2] == QChar('1'));
-      setCheckBox(gui.Wii_r4, indication[3] == QChar('1'));
-    }
+  bool d1, d2, d3, d4;
+  if(ltr_int_get_run_indication(&d1, &d2, &d3, &d4)){
+    setCheckBox(gui.Wii_r1, d1);
+    setCheckBox(gui.Wii_r2, d2);
+    setCheckBox(gui.Wii_r3, d3);
+    setCheckBox(gui.Wii_r4, d4);
   }  
-  if(PREF.getKeyVal(currentSection, (char *)"Paused-indication", indication)){
-    if(indication.size() == 4){
-      setCheckBox(gui.Wii_p1, indication[0] == QChar('1'));
-      setCheckBox(gui.Wii_p2, indication[1] == QChar('1'));
-      setCheckBox(gui.Wii_p3, indication[2] == QChar('1'));
-      setCheckBox(gui.Wii_p4, indication[3] == QChar('1'));
-    }
+  if(ltr_int_get_pause_indication(&d1, &d2, &d3, &d4)){
+    setCheckBox(gui.Wii_p1, d1);
+    setCheckBox(gui.Wii_p2, d2);
+    setCheckBox(gui.Wii_p3, d3);
+    setCheckBox(gui.Wii_p4, d4);
   }  
 }
 
@@ -83,67 +83,44 @@ void WiimotePrefs::AddAvailableDevices(QComboBox &combo)
   }
 }
 
-static bool setIndication(int running, int index, bool state)
+static bool getState(QCheckBox *b)
 {
-  QString indication;
-  if(running == 1){
-    if(PREF.getKeyVal(currentSection, (char *)"Running-indication", indication)){
-      indication.replace(index-1, 1, state ? "1" : "0");
-      return PREF.setKeyVal(currentSection, (char *)"Running-indication", indication);
-    }
+  if(b->isChecked()){
+    return true;
   }else{
-    if(PREF.getKeyVal(currentSection, (char *)"Paused-indication", indication)){
-      indication.replace(index-1, 1, state ? "1" : "0");
-      return PREF.setKeyVal(currentSection, (char *)"Paused-indication", indication);
-    }
+    return false;
   }
-  return false;
 }
 
-void WiimotePrefs::indicationButtonStateChanged(int state)
+void WiimotePrefs::runIndicationChanged(int state)
 {
-  QObject *sender = QObject::sender();
-  if(sender == 0){
-    return;
-  }
-  bool bstate = (state == Qt::Unchecked) ? false : true;
-  QString name = sender->objectName();
-  if(name == "Wii_r1"){
-    setIndication(1, 1, bstate);
-  }else if(name == "Wii_r2"){
-    setIndication(1, 2, bstate);
-  }else if(name == "Wii_r3"){
-    setIndication(1, 3, bstate);
-  }else if(name == "Wii_r4"){
-    setIndication(1, 4, bstate);
-  }else if(name == "Wii_p1"){
-    setIndication(0, 1, bstate);
-  }else if(name == "Wii_p2"){
-    setIndication(0, 2, bstate);
-  }else if(name == "Wii_p3"){
-    setIndication(0, 3, bstate);
-  }else if(name == "Wii_p4"){
-    setIndication(0, 4, bstate);
-  }
+  (void) state;
+  ltr_int_set_run_indication(getState(gui.Wii_r1), getState(gui.Wii_r2), getState(gui.Wii_r3), getState(gui.Wii_r4));
+}
+
+void WiimotePrefs::pauseIndicationChanged(int state)
+{
+  (void) state;
+  ltr_int_set_pause_indication(getState(gui.Wii_p1), getState(gui.Wii_p2), getState(gui.Wii_p3), getState(gui.Wii_p4));
 }
 
 void WiimotePrefs::Connect()
 {
   QObject::connect(gui.Wii_r1, SIGNAL(stateChanged(int)),
-    this, SLOT(indicationButtonStateChanged(int)));
+    this, SLOT(runIndicationChanged(int)));
   QObject::connect(gui.Wii_r2, SIGNAL(stateChanged(int)),
-    this, SLOT(indicationButtonStateChanged(int)));
+    this, SLOT(runIndicationChanged(int)));
   QObject::connect(gui.Wii_r3, SIGNAL(stateChanged(int)),
-    this, SLOT(indicationButtonStateChanged(int)));
+    this, SLOT(runIndicationChanged(int)));
   QObject::connect(gui.Wii_r4, SIGNAL(stateChanged(int)),
-    this, SLOT(indicationButtonStateChanged(int)));
+    this, SLOT(runIndicationChanged(int)));
   QObject::connect(gui.Wii_p1, SIGNAL(stateChanged(int)),
-    this, SLOT(indicationButtonStateChanged(int)));
+    this, SLOT(pauseIndicationChanged(int)));
   QObject::connect(gui.Wii_p2, SIGNAL(stateChanged(int)),
-    this, SLOT(indicationButtonStateChanged(int)));
+    this, SLOT(pauseIndicationChanged(int)));
   QObject::connect(gui.Wii_p3, SIGNAL(stateChanged(int)),
-    this, SLOT(indicationButtonStateChanged(int)));
+    this, SLOT(pauseIndicationChanged(int)));
   QObject::connect(gui.Wii_p4, SIGNAL(stateChanged(int)),
-    this, SLOT(indicationButtonStateChanged(int)));
+    this, SLOT(pauseIndicationChanged(int)));
 }
 

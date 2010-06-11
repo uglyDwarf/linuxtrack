@@ -10,7 +10,7 @@
 #include "image_process.h"
 #include "runloop.h"
 #include "utils.h"
-#include "pref_int.h"
+#include "wii_driver_prefs.h"
 #include "pref_global.h"
 
 /*********************/
@@ -26,10 +26,6 @@ static cwiid_wiimote_t *gWiimote = NULL;
 
 static int gStateCheckIn = STATE_CHECK_INTERVAL;
 
-static pref_id running_indication = NULL;
-static pref_id paused_indication = NULL;
-static uint8_t running = CWIID_LED1_ON | CWIID_LED4_ON;
-static uint8_t paused = CWIID_LED1_ON;
 /*******************************/
 /* private function prototypes */
 /*******************************/
@@ -38,36 +34,28 @@ static uint8_t paused = CWIID_LED1_ON;
 /************************/
 /* function definitions */
 /************************/
-static void wiimote_refresh_indications(void *param)
+static void set_leds_running()
 {
-  param = NULL;
-  if(running_indication != NULL){
-    char *ind = ltr_int_get_str(running_indication);
-    running = 0;
-    if(ind[0] == '1') running |= CWIID_LED1_ON;
-    if(ind[1] == '1') running |= CWIID_LED2_ON;
-    if(ind[2] == '1') running |= CWIID_LED3_ON;
-    if(ind[3] == '1') running |= CWIID_LED4_ON;
-  }
-  if(paused_indication != NULL){
-    char *ind = ltr_int_get_str(paused_indication);
-    paused = 0;
-    if(ind[0] == '1') paused |= CWIID_LED1_ON;
-    if(ind[1] == '1') paused |= CWIID_LED2_ON;
-    if(ind[2] == '1') paused |= CWIID_LED3_ON;
-    if(ind[3] == '1') paused |= CWIID_LED4_ON;
-  }
+  uint8_t running = 0;
+  bool d1, d2, d3, d4;
+  ltr_int_get_run_indication(&d1, &d2, &d3, &d4);
+  if(d1) running |= CWIID_LED1_ON;
+  if(d2) running |= CWIID_LED2_ON;
+  if(d3) running |= CWIID_LED3_ON;
+  if(d4) running |= CWIID_LED4_ON;
+  cwiid_set_led(gWiimote, running);
 }
 
-static int wiimote_read_indications()
+static void set_leds_paused()
 {
-  char *sec = ltr_int_get_device_section();
-  ltr_int_open_pref_w_callback(sec, "Running-indication", &running_indication,
-     wiimote_refresh_indications, NULL);
-  ltr_int_open_pref_w_callback(sec, "Paused-indication", &paused_indication,
-     wiimote_refresh_indications, NULL);
-  wiimote_refresh_indications(NULL);
-  return 0;
+  uint8_t paused = 0;
+  bool d1, d2, d3, d4;
+  ltr_int_get_pause_indication(&d1, &d2, &d3, &d4);
+  if(d1) paused |= CWIID_LED1_ON;
+  if(d2) paused |= CWIID_LED2_ON;
+  if(d3) paused |= CWIID_LED3_ON;
+  if(d4) paused |= CWIID_LED4_ON;
+  cwiid_set_led(gWiimote, paused);
 }
 
 
@@ -79,7 +67,6 @@ static int wiimote_read_indications()
  * a return value < 0 indicates error */
 int ltr_int_tracker_init(struct camera_control_block *ccb) {
     (void) ccb;
-    wiimote_read_indications();
     bdaddr_t bdaddr;
     
     bdaddr = *BDADDR_ANY;
@@ -90,7 +77,7 @@ int ltr_int_tracker_init(struct camera_control_block *ccb) {
         printf("Wiimote not found\n");
         return -1;
     } else {
-        cwiid_set_led(gWiimote, running);
+        set_leds_running();
         cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS | CWIID_RPT_IR);
         ltr_int_log_message("Wiimote connected\n");
     }
@@ -111,7 +98,7 @@ int ltr_int_tracker_close() {
 /* turn off all the leds, and flush the queue 
  * a return value < 0 indicates error */
 int ltr_int_tracker_pause() {
-    cwiid_set_led(gWiimote, paused);
+    set_leds_paused();
     cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS);
     return 0;
 }
@@ -121,7 +108,7 @@ int ltr_int_tracker_pause() {
  * IR leds will reactivate, but that is all
  * a return value < 0 indicates error */
 int ltr_int_tracker_resume() {
-    cwiid_set_led(gWiimote, running);
+    set_leds_running();
     cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS | CWIID_RPT_IR);
     return 0;
 }
