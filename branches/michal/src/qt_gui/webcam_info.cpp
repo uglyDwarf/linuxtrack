@@ -51,8 +51,8 @@ WebcamLibProxy::~WebcamLibProxy(){
 }
 
 static webcam_format def_fmt1 = {0, *"YUYV", 160, 120, 1, 30};
-static webcam_format def_fmt2 = {0, *"YUYV", 320, 240, 1, 30};
-static webcam_format def_fmt3 = {0, *"YUYV", 352, 288, 1, 30};
+//static webcam_format def_fmt2 = {0, *"YUYV", 320, 240, 1, 30};
+//static webcam_format def_fmt3 = {0, *"YUYV", 352, 288, 1, 30};
 
 WebcamInfo::WebcamInfo(const QString &id)
 {
@@ -144,10 +144,35 @@ typedef struct{
   int fps_num, fps_den;
 } res_struct;
 
+bool WebcamInfo::decodeRes(const QString &res, int &res_x, int &res_y)
+{
+  const QRegExp &res_rexp = QRegExp("^\\s*(\\d+)\\s*[xX]\\s*(\\d+)\\s*$");
+  if(res_rexp.indexIn(res) == -1){
+    return false;
+  }
+  res_x = res_rexp.cap(1).toInt();
+  res_y = res_rexp.cap(2).toInt();
+  return true;
+}
+
+bool WebcamInfo::decodeFps(const QString &fps, int &num, int &den)
+{
+  const QRegExp &fps_rexp = QRegExp("^(\\d+)\\s*/\\s*(\\d+)\\s*$");
+  if(fps_rexp.indexIn(fps) == -1){
+    return false;
+  }
+  num = fps_rexp.cap(1).toInt();
+  den = fps_rexp.cap(2).toInt();
+  return true;
+}
+
+
+
+/*
 static bool decodeRes(const QString &res, const QString &fps, res_struct &decoded)
 {
   const QRegExp &res_rexp = QRegExp("^\\s*(\\d+)\\s*[xX]\\s*(\\d+)\\s*$");
-  const QRegExp &fps_rexp = QRegExp("^(\\d+)\\s*/\\s*(\\d+)\\s*$");
+  const QRegExp &fps_rexp = QRegExp("^(\\d+)\\s*-- remove! --/\\s*(\\d+)\\s*$");
 
   if(res_rexp.indexIn(res) == -1){
     return false;
@@ -161,14 +186,12 @@ static bool decodeRes(const QString &res, const QString &fps, res_struct &decode
   decoded.fps_den = fps_rexp.cap(2).toInt();
   return true;
 }
+*/
 
-int WebcamInfo::findRes(const QString &res, const QString &fps, 
-			const QString &fourcc)
+int WebcamInfo::findRes(const int &res_x, const int &res_y, const int &fps_num, 
+	      const int &fps_den, const QString &fourcc)
 {
-  res_struct fmt;
-  if(!decodeRes(res, fps, fmt)){
-    return 0;
-  }
+  res_struct fmt = {res_x, res_y, fps_num, fps_den};
   int index = findFourcc(fourcc);
   QList<webcam_format*>::const_iterator i;
   int counter = 0;

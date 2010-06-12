@@ -16,8 +16,10 @@ class WebcamInfo{
   int findFourcc(const QString &fcc);
   bool findFmtSpecs(int i_fmt, int i_res, QString &res, 
 	            QString &fps, QString &fmt);
-  int findRes(const QString &res, const QString &fps, 
-	      const QString &fourcc);
+  int findRes(const int &res_x, const int &res_y, const int &fps_num, 
+	      const int &fps_den, const QString &fourcc);
+  static bool decodeRes(const QString &res, int &res_x, int &res_y);
+  static bool decodeFps(const QString &fps, int &num, int &den);
   ~WebcamInfo();
   static QStringList& EnumerateWebcams();
  private:

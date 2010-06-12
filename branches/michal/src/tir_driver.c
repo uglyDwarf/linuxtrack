@@ -17,11 +17,6 @@
 
 const char *storage_path = NULL;
 
-bool threshold_changed = false;
-bool status_brightness_changed = false;
-bool ir_led_brightness_changed = false;
-bool signal_flag = true;
-
 init_usb_fun ltr_int_init_usb = NULL;
 find_tir_fun ltr_int_find_tir = NULL;
 prepare_device_fun ltr_int_prepare_device = NULL;
@@ -46,10 +41,13 @@ void flag_pref_changed(void *flag_ptr)
   *(bool*)flag_ptr = true;
 }
 
+static int last_threshold = -1;
+
 int ltr_int_tracker_init(struct camera_control_block *ccb)
 {
   assert(ccb != NULL);
   assert((ccb->device.category == tir) || (ccb->device.category == tir_open));
+  last_threshold = -1;
   if((libhandle = ltr_int_load_library((char *)"libltusb1.so", functions)) == NULL){
     return -1;
   }
@@ -92,9 +90,16 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
     .h = h,
     .ratio = hf
   };
-  ltr_int_set_threshold_tir(ltr_int_get_threshold());
-  return ltr_int_read_blobs_tir(&(f->bloblist), ltr_int_get_min_blob(), 
-				ltr_int_get_max_blob(), &img);
+  
+  //Set threshold only when needed
+  int tmp_thr = ltr_int_tir_get_threshold();
+  if(last_threshold != tmp_thr){
+    last_threshold = tmp_thr;
+    ltr_int_set_threshold_tir(tmp_thr);
+  }
+  
+  return ltr_int_read_blobs_tir(&(f->bloblist), ltr_int_tir_get_min_blob(), 
+				ltr_int_tir_get_max_blob(), &img);
 }
 
 int ltr_int_tracker_pause()

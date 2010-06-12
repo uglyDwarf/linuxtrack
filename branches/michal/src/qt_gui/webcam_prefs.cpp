@@ -3,9 +3,9 @@
 #include <QByteArray>
 #include "ltr_gui.h"
 #include "webcam_prefs.h"
+#include "wc_driver_prefs.h"
 #include "webcam_info.h"
 #include "ltr_gui_prefs.h"
-#include "pref_int.h"
 #include "ltr_gui_prefs.h"
 
 static QString currentId = QString("None");
@@ -47,10 +47,12 @@ void WebcamPrefs::on_WebcamFormats_activated(int index)
   }
   gui.WebcamResolutions->addItems(wc_info->getResolutions(index));
   int res_index = 0;
-  QString res, fps;
-  if(PREF.getKeyVal(currentSection, (char *)"Resolution", res) &&
-    PREF.getKeyVal(currentSection, (char *)"Fps", fps)){
-    res_index = wc_info->findRes(res, fps, wc_info->getFourcc(index));
+  int res_x, res_y;
+  int fps_num, fps_den;
+  if(ltr_int_wc_get_resolution(&res_x, &res_y) &&
+    ltr_int_wc_get_fps(&fps_num, &fps_den)){
+    res_index = wc_info->findRes(res_x, res_y, fps_num, fps_den, 
+				 wc_info->getFourcc(index));
     gui.WebcamResolutions->setCurrentIndex(res_index);
   }
   on_WebcamResolutions_activated(res_index);
@@ -64,9 +66,12 @@ void WebcamPrefs::on_WebcamResolutions_activated(int index)
   QString res, fps, fmt;
   if(wc_info->findFmtSpecs(gui.WebcamFormats->currentIndex(), 
                            index, res, fps, fmt)){
-    PREF.setKeyVal(currentSection, (char *)"Pixel-format", fmt);
-    PREF.setKeyVal(currentSection, (char *)"Resolution", res);
-    PREF.setKeyVal(currentSection, (char *)"Fps", fps);
+    int x,y, num, den;
+    WebcamInfo::decodeRes(res, x, y);
+    WebcamInfo::decodeFps(fps, num, den);
+    ltr_int_wc_set_pixfmt(fmt.toAscii().data());
+    ltr_int_wc_set_resolution(x, y);
+    ltr_int_wc_set_fps(num, den);
   }
 }
 
@@ -94,6 +99,9 @@ void WebcamPrefs::Activate(const QString &ID)
       return;
     }
   }
+  if(!ltr_int_wc_init_prefs()){
+    return;
+  }
   currentId = ID;
   gui.WebcamFormats->clear();
   gui.WebcamResolutions->clear();
@@ -107,57 +115,42 @@ void WebcamPrefs::Activate(const QString &ID)
     gui.WebcamFormats->addItems(wc_info->getFormats());
     QString fourcc, thres, bmin, bmax, res, fps, flip;
     int fmt_index = 0;
-    if(PREF.getKeyVal(sec, (char *)"Pixel-format", fourcc)){
+    const char *tmp = ltr_int_wc_get_pixfmt();
+    if(tmp != NULL){
+      fourcc = tmp;
       fmt_index = wc_info->findFourcc(fourcc);
       gui.WebcamFormats->setCurrentIndex(fmt_index);
     }
     on_WebcamFormats_activated(fmt_index);
     
-    if(PREF.getKeyVal(sec, (char *)"Threshold", thres)){
-      gui.WebcamThreshold->setValue(thres.toInt());
-    }
-    if(PREF.getKeyVal(sec, (char *)"Max-blob", bmax)){
-      gui.WebcamMaxBlob->setValue(bmax.toInt());
-    }
-    if(PREF.getKeyVal(sec, (char *)"Min-blob", bmin)){
-      gui.WebcamMinBlob->setValue(bmin.toInt());
-    }
-    Qt::CheckState state = Qt::Unchecked;
-    if(PREF.getKeyVal(sec, (char *)"Upside-down", flip)){
-      state = (flip.compare("Yes", Qt::CaseInsensitive) == 0) ? 
-                            Qt::Checked : Qt::Unchecked;
-    }
+    gui.WebcamThreshold->setValue(ltr_int_wc_get_threshold());
+    gui.WebcamMaxBlob->setValue(ltr_int_wc_get_max_blob());
+    gui.WebcamMinBlob->setValue(ltr_int_wc_get_min_blob());
+    
+    Qt::CheckState state = (ltr_int_wc_get_flip()) ? 
+                       Qt::Checked : Qt::Unchecked;
     gui.FlipWebcam->setCheckState(state);
   }
 }
 
 void WebcamPrefs::on_WebcamThreshold_valueChanged(int i)
 {
-  //std::cout<<"Threshold: "<<i<<std::endl;
-  PREF.setKeyVal(currentSection, (char *)"Threshold", i);
+  ltr_int_wc_set_threshold(i);
 }
 
 void WebcamPrefs::on_WebcamMinBlob_valueChanged(int i)
 {
-  //std::cout<<"Min Blob: "<<i<<std::endl;
-  PREF.setKeyVal(currentSection, (char *)"Min-blob", i);
+  ltr_int_wc_set_min_blob(i);
 }
 
 void WebcamPrefs::on_WebcamMaxBlob_valueChanged(int i)
 {
-  //std::cout<<"Max Blob: "<<i<<std::endl;
-  PREF.setKeyVal(currentSection, (char *)"Max-blob", i);
+  ltr_int_wc_set_max_blob(i);
 }
 
 void WebcamPrefs::on_FlipWebcam_stateChanged(int state)
 {
-  QString str;
-  if(state == Qt::Checked){
-    str = "Yes";
-  }else{
-    str = "No";
-  }
-  PREF.setKeyVal(currentSection, (char *)"Upside-down", str);
+  ltr_int_wc_set_flip(state == Qt::Checked);
 }
 
 void WebcamPrefs::AddAvailableDevices(QComboBox &combo)

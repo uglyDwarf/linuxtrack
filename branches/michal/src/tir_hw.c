@@ -296,7 +296,7 @@ bool ltr_int_set_threshold_tir(unsigned int val)
 static bool set_status_led_tir5(bool running)
 {
   unsigned char pkt[] =  {0x19, 0x04, 0x10, 0x00, 0x00};
-  pkt[3] = ltr_int_get_status_brightness();
+  pkt[3] = ltr_int_tir_get_status_brightness();
   if(running){
     pkt[4] = 0x22;
   }else{
@@ -320,7 +320,7 @@ static bool set_status_led_tir4(bool running)
 bool set_status_led_tir(bool running)
 {
   assert(tir_iface != NULL);
-  if(ltr_int_get_status_indication()){
+  if(ltr_int_tir_get_status_indication()){
     return tir_iface->set_status_led_tir(running);
   }
   return true;
@@ -329,7 +329,7 @@ bool set_status_led_tir(bool running)
 static bool control_status_led_tir(bool status1, bool status2)
 {
   unsigned char pkt[] =  {0x19, 0x04, 0x10, 0x00, 0x00};
-  pkt[3] = ltr_int_get_status_brightness();
+  pkt[3] = ltr_int_tir_get_status_brightness();
   pkt[4] = (status1 ? 0x20 : 0) | (status2 ? 0x02 : 0);
   return ltr_int_send_data(pkt, sizeof(pkt));
 }
@@ -337,7 +337,7 @@ static bool control_status_led_tir(bool status1, bool status2)
 static bool control_ir_led_tir(bool ir)
 {
   unsigned char pkt[] =  {0x19, 0x09, 0x10, 0x00, 0x00};
-  int ir_brightness = ltr_int_get_ir_brightness();
+  int ir_brightness = ltr_int_tir_get_ir_brightness();
   pkt[3] = ir ? ir_brightness : 0;
   pkt[4] = ir ? 0x01 : 0;
   return ltr_int_send_data(pkt, sizeof(pkt));
@@ -412,7 +412,7 @@ static bool start_camera_tir4()
     turn_led_on_tir(TIR_LED_IR);
   }
   flush_fifo_tir();
-  if(ltr_int_get_status_indication()) 
+  if(ltr_int_tir_get_status_indication()) 
     set_status_led_tir4(true);
   return true;
 }
@@ -426,7 +426,7 @@ static bool start_camera_tir5()
   }else{
     control_ir_led_tir(false);
   }
-  if(ltr_int_get_status_indication()) 
+  if(ltr_int_tir_get_status_indication()) 
     set_status_led_tir5(true);
   return true;
 }

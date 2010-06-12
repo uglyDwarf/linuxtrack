@@ -15,11 +15,11 @@
 #include <errno.h>
 #include <sys/poll.h>
 #include "webcam_driver.h"
+#include "wc_driver_prefs.h"
 #include "utils.h"
 #include "pref.h"
 #include "pref_global.h"
 #include "image_process.h"
-#include "pref_int.h"
 #include "runloop.h"
 #include <libv4l2.h>
 
@@ -115,7 +115,7 @@ int ltr_int_enum_webcams(char **ids[])
     if(strncmp("video", de->d_name, 5) == 0){
       char *fname;
       asprintf(&fname, "/dev/%s", de->d_name);
-      
+
       int fd = v4l2_open(fname, O_RDWR | O_NONBLOCK);
       if(fd == -1){
 	ltr_int_log_message("Can't open file '%s'!\n", fname);
@@ -285,36 +285,16 @@ static bool read_pref_format(struct v4l2_format *fmt)
 {
   memset(fmt, 0, sizeof(struct v4l2_format));
   
-  char *dev_section = ltr_int_get_device_section();
-  if(dev_section == NULL){
-    return false;
-  }
-  const char *res = ltr_int_get_key(dev_section, "Resolution");
-  if(res == NULL){
-    ltr_int_log_message("No resolution specified!\n");
-    return false;
-  }
-  const char *pix = ltr_int_get_key(dev_section, "Pixel-format");
+  const char *pix = ltr_int_wc_get_pixfmt();
   if(pix == NULL){
     ltr_int_log_message("No pixel format specified!\n");
     return false;
   }
   
-  wc_info.flip = false;
-  const char *flip = ltr_int_get_key(dev_section, "Upside-down");
-  if(flip == NULL){
-    ltr_int_log_message("Flipping not specified!\n");
-  }else{
-    if(strcasecmp(flip, "Yes") == 0){
-      wc_info.flip = true;
-    }
-  }
-  
   int x, y;
-  if(sscanf(res, "%d x %d", &x, &y)!= 2){
-    ltr_int_log_message("I don't understand resolution specified as '%s'!\n", res);
+  if(!ltr_int_wc_get_resolution(&x, &y)){
     return false;
-  } 
+  }
   
   fmt->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   fmt->fmt.pix.width = x;
@@ -354,18 +334,9 @@ static bool set_capture_format(struct camera_control_block *ccb)
 
 static bool set_stream_params()
 {
-  char *dev_section = ltr_int_get_device_section();
-  if(dev_section == NULL){
-    return false;
-  }
-  const char *fps = ltr_int_get_key(dev_section, "Fps");
-  if(fps == NULL){
-    ltr_int_log_message("No framerate specified!\n");
-    return false;
-  }
   int num, den;
-  if(sscanf(fps, "%d/%d", &num, &den)!= 2){
-    ltr_int_log_message("I don't understand fps specified as '%s'!\n", fps);
+  if(!ltr_int_wc_get_fps(&num, &den)){
+    ltr_int_log_message("I don't understand fps specification!\n");
     return false;
   } 
 
@@ -483,28 +454,10 @@ static bool release_buffers()
 
 static bool read_img_processing_prefs()
 {
-  char *dev_section = ltr_int_get_device_section();
-  if(dev_section == NULL){
-    return false;
-  }
-  const char *thres = ltr_int_get_key(dev_section, "Threshold");
-  if(thres == NULL){
-    ltr_int_log_message("No threshold specified!\n");
-    return false;
-  }
-  const char *max = ltr_int_get_key(dev_section, "Max-blob");
-  if(max == NULL){
-    ltr_int_log_message("No maximal pixel count for blob specified!\n");
-    return false;
-  }
-  const char *min = ltr_int_get_key(dev_section, "Min-blob");
-  if(min == NULL){
-    ltr_int_log_message("No minimal pixel count for blob specified!\n");
-    return false;
-  }
-  wc_info.threshold = (unsigned int)atoi(thres);
-  wc_info.min_blob_pixels = atoi(min);
-  wc_info.max_blob_pixels = atoi(max);
+  wc_info.threshold = ltr_int_wc_get_threshold();
+  wc_info.min_blob_pixels = ltr_int_wc_get_min_blob();
+  wc_info.max_blob_pixels = ltr_int_wc_get_max_blob();
+  wc_info.flip = ltr_int_wc_get_flip();
   return true;
 }
 
@@ -701,6 +654,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
 		   wc_info.max_blob_pixels, &img);
   if(wc_info.flip){
     unsigned int tmp;
+    printf("Flipping!\n");
     for(tmp = 0; tmp < f->bloblist.num_blobs; ++tmp){
       f->bloblist.blobs[tmp].x *= -1;
       f->bloblist.blobs[tmp].y *= -1;

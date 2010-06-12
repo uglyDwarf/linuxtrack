@@ -50,12 +50,12 @@ bool ltr_int_tir_init_prefs()
   return true;
 }
 
-int ltr_int_get_max_blob()
+int ltr_int_tir_get_max_blob()
 {
   return max_blob;
 }
 
-bool ltr_int_set_max_blob(int val)
+bool ltr_int_tir_set_max_blob(int val)
 {
   if(val < 0){
     val = 0;
@@ -64,12 +64,12 @@ bool ltr_int_set_max_blob(int val)
   return ltr_int_change_key_int(ltr_int_get_device_section(), max_blob_key, val);
 }
 
-int ltr_int_get_min_blob()
+int ltr_int_tir_get_min_blob()
 {
   return min_blob;
 }
 
-bool ltr_int_set_min_blob(int val)
+bool ltr_int_tir_set_min_blob(int val)
 {
   if(val < 0){
     val = 0;
@@ -78,12 +78,12 @@ bool ltr_int_set_min_blob(int val)
   return ltr_int_change_key_int(ltr_int_get_device_section(), min_blob_key, val);
 }
 
-int ltr_int_get_status_brightness()
+int ltr_int_tir_get_status_brightness()
 {
   return status_bright;
 }
 
-bool ltr_int_set_status_brightness(int val)
+bool ltr_int_tir_set_status_brightness(int val)
 {
   if(val < 0){
     val = 0;
@@ -95,12 +95,12 @@ bool ltr_int_set_status_brightness(int val)
   return ltr_int_change_key_int(ltr_int_get_device_section(), status_bright_key, val);
 }
 
-int ltr_int_get_ir_brightness()
+int ltr_int_tir_get_ir_brightness()
 {
   return ir_bright;
 }
 
-bool ltr_int_set_ir_brightness(int val)
+bool ltr_int_tir_set_ir_brightness(int val)
 {
   if(val < 5){
     val = 5;
@@ -112,12 +112,12 @@ bool ltr_int_set_ir_brightness(int val)
   return ltr_int_change_key_int(ltr_int_get_device_section(), ir_bright_key, val);
 }
 
-int ltr_int_get_threshold()
+int ltr_int_tir_get_threshold()
 {
   return threshold;
 }
 
-bool ltr_int_set_threshold(int val)
+bool ltr_int_tir_set_threshold(int val)
 {
   if(val < 30){
     val = 30;
@@ -129,12 +129,12 @@ bool ltr_int_set_threshold(int val)
   return ltr_int_change_key_int(ltr_int_get_device_section(), threshold_key, val);
 }
 
-bool ltr_int_get_status_indication()
+bool ltr_int_tir_get_status_indication()
 {
   return status;
 }
 
-bool ltr_int_set_status_indication(bool ind)
+bool ltr_int_tir_set_status_indication(bool ind)
 {
   char on_val[] = "On";
   char off_val[] = "Off";

@@ -92,12 +92,12 @@ void TirPrefs::Activate(const QString &ID)
   }
   ltr_int_tir_init_prefs();
   currentId = ID;
-  gui.TirThreshold->setValue(ltr_int_get_threshold());
-  gui.TirMaxBlob->setValue(ltr_int_get_max_blob());
-  gui.TirMinBlob->setValue(ltr_int_get_min_blob());
-  gui.TirIrBright->setValue(ltr_int_get_ir_brightness());
-  gui.TirStatusBright->setValue(ltr_int_get_status_brightness());
-  Qt::CheckState state = (ltr_int_get_status_indication()) ? 
+  gui.TirThreshold->setValue(ltr_int_tir_get_threshold());
+  gui.TirMaxBlob->setValue(ltr_int_tir_get_max_blob());
+  gui.TirMinBlob->setValue(ltr_int_tir_get_min_blob());
+  gui.TirIrBright->setValue(ltr_int_tir_get_ir_brightness());
+  gui.TirStatusBright->setValue(ltr_int_tir_get_status_brightness());
+  Qt::CheckState state = (ltr_int_tir_get_status_indication()) ? 
                           Qt::Checked : Qt::Unchecked;
   gui.TirSignalizeStatus->setCheckState(state);
   if(haveFirmware()){
@@ -145,30 +145,30 @@ void TirPrefs::AddAvailableDevices(QComboBox &combo)
 
 void TirPrefs::on_TirThreshold_valueChanged(int i)
 {
-  ltr_int_set_threshold(i);
+  ltr_int_tir_set_threshold(i);
 }
 
 void TirPrefs::on_TirMinBlob_valueChanged(int i)
 {
-  ltr_int_set_min_blob(i);
+  ltr_int_tir_set_min_blob(i);
 }
 
 void TirPrefs::on_TirMaxBlob_valueChanged(int i)
 {
-  ltr_int_set_max_blob(i);
+  ltr_int_tir_set_max_blob(i);
 }
 
 void TirPrefs::on_TirStatusBright_valueChanged(int i)
 {
-  ltr_int_set_status_brightness(i);
+  ltr_int_tir_set_status_brightness(i);
 }
 
 void TirPrefs::on_TirIrBright_valueChanged(int i)
 {
-  ltr_int_set_ir_brightness(i);
+  ltr_int_tir_set_ir_brightness(i);
 }
 
 void TirPrefs::on_TirSignalizeStatus_stateChanged(int state)
 {
-  ltr_int_set_status_indication(state == Qt::Checked);
+  ltr_int_tir_set_status_indication(state == Qt::Checked);
 }

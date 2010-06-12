@@ -87,7 +87,8 @@ liblinuxtrack_la_DEPENDENCIES =
 am_liblinuxtrack_la_OBJECTS = cal.lo list.lo dyn_load.lo math_utils.lo \
 	pose.lo pref.lo pref_bison.lo pref_flex.lo pref_global.lo \
 	utils.lo image_process.lo tracking.lo ltlib_int.lo spline.lo \
-	axis.lo wii_driver_prefs.lo tir_driver_prefs.lo
+	axis.lo wii_driver_prefs.lo tir_driver_prefs.lo \
+	wc_driver_prefs.lo
 liblinuxtrack_la_OBJECTS = $(am_liblinuxtrack_la_OBJECTS)
 liblinuxtrack_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -316,7 +317,8 @@ liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   pref_flex.l pref_global.c pref_global.h pref_int.h \
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
   ltlib_int.c ltlib_int.h spline.c spline.h axis.c axis.h wii_driver_prefs.c \
-  wii_driver_prefs.h tir_driver_prefs.c tir_driver_prefs.h
+  wii_driver_prefs.h tir_driver_prefs.c tir_driver_prefs.h wc_driver_prefs.c \
+  wc_driver_prefs.h
 
 liblinuxtrack_la_LIBADD = -lm -lpthread -ldl
 liblinuxtrack_la_LDFLAGS = -export-symbols-regex '^ltr_int' '-Wl,-rpath,@prefix@/lib'
@@ -466,6 +468,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tir_img.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tracking.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wc_driver_prefs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wii_driver_prefs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wiimote_driver.Plo@am__quote@
