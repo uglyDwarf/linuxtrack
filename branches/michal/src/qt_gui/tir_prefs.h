@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QComboBox>
 #include "ui_ltr.h"
-#include "pref_int.h"
 #include "prefs_link.h"
 
 class TirPrefs : public QObject{

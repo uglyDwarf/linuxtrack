@@ -29,12 +29,12 @@ typedef struct {
 //extern tir_interface tir4;
 //extern tir_interface tir5;
 
-bool ltr_int_set_threshold(unsigned int val);
 bool ltr_int_open_tir(const char data_path[], bool force_fw_load, bool ir_on);
 void ltr_int_get_res_tir();
 bool ltr_int_pause_tir();
 bool ltr_int_resume_tir();
 bool ltr_int_close_tir();
+bool ltr_int_set_threshold_tir(unsigned int val);
 
 #endif
 

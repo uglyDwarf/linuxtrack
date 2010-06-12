@@ -345,8 +345,9 @@ bool ltr_int_get_axis(enum axis_t id, struct axis_def *axis)
   for(i = DEADZONE; i <= ENABLED; ++i){
     field_name = ltr_int_my_strcat(prefix, fields[i]);
     if(i != ENABLED){
-      val = ltr_int_get_key_flt(ltr_int_get_custom_section_name(), field_name);
-      set_axis_field(axis, i, val);
+      if(ltr_int_get_key_flt(ltr_int_get_custom_section_name(), field_name, &val)){
+        set_axis_field(axis, i, val);
+      }
     }else{
       string = ltr_int_get_key(ltr_int_get_custom_section_name(), field_name);
       if(strcasecmp(string, "No") != 0){

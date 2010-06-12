@@ -8,7 +8,7 @@
 #include "tir_img.h"
 #include "usb_ifc.h"
 #include "utils.h"
-#include "pref_int.h"
+#include "tir_driver_prefs.h"
 #include "tir.h"
 
 #define TIR_CONFIGURATION 1
@@ -37,8 +37,6 @@ static unsigned char unk_3[] =  {0x13, 0x01};
 static unsigned char unk_7[] =  {0x19, 0x05, 0x10, 0x10, 0x00};
 
 static bool ir_on = true;
-static unsigned char status_brightness = 3; //0 - highest, 3 lowest
-static unsigned char ir_brightness = 5; //5 - lowest, 7 - highest
 
 static dev_found device = NONE;
 
@@ -60,18 +58,10 @@ typedef struct{
 
 
 unsigned char ltr_int_packet[4096];
-extern bool threshold_changed;
-extern bool status_brightness_changed;
-extern bool ir_led_brightness_changed;
-extern bool signal_flag;
-extern pref_id threshold;
-extern pref_id stat_bright;
-extern pref_id ir_bright;
-
 static void switch_red(bool state);
 static void switch_green(bool state);
 
-
+/*
 static void set_status_brightness_tir(unsigned char b)
 {
   if(b > 3){
@@ -90,7 +80,7 @@ static void set_ir_brightness_tir(unsigned char b)
   }
   ir_brightness = b;
 }
-
+*/
 
 
 static void cksum_firmware(firmware_t *fw)
@@ -290,7 +280,7 @@ static bool flush_fifo_tir()
   return ltr_int_send_data(Fifo_flush,sizeof(Fifo_flush));
 }
 
-bool ltr_int_set_threshold(unsigned int val)
+bool ltr_int_set_threshold_tir(unsigned int val)
 {
   unsigned char pkt[] = {0x15, 0x96, 0x01, 0x00};
   if(val < 30){
@@ -306,14 +296,7 @@ bool ltr_int_set_threshold(unsigned int val)
 static bool set_status_led_tir5(bool running)
 {
   unsigned char pkt[] =  {0x19, 0x04, 0x10, 0x00, 0x00};
-  if(status_brightness_changed){
-    status_brightness_changed = false;
-    int new_brightness = ltr_int_get_int(stat_bright); 
-    if(new_brightness != 0){
-      set_status_brightness_tir(new_brightness);
-    }
-  }
-  pkt[3] = status_brightness;
+  pkt[3] = ltr_int_get_status_brightness();
   if(running){
     pkt[4] = 0x22;
   }else{
@@ -337,7 +320,7 @@ static bool set_status_led_tir4(bool running)
 bool set_status_led_tir(bool running)
 {
   assert(tir_iface != NULL);
-  if(signal_flag){
+  if(ltr_int_get_status_indication()){
     return tir_iface->set_status_led_tir(running);
   }
   return true;
@@ -346,7 +329,7 @@ bool set_status_led_tir(bool running)
 static bool control_status_led_tir(bool status1, bool status2)
 {
   unsigned char pkt[] =  {0x19, 0x04, 0x10, 0x00, 0x00};
-  pkt[3] = status_brightness;
+  pkt[3] = ltr_int_get_status_brightness();
   pkt[4] = (status1 ? 0x20 : 0) | (status2 ? 0x02 : 0);
   return ltr_int_send_data(pkt, sizeof(pkt));
 }
@@ -354,13 +337,7 @@ static bool control_status_led_tir(bool status1, bool status2)
 static bool control_ir_led_tir(bool ir)
 {
   unsigned char pkt[] =  {0x19, 0x09, 0x10, 0x00, 0x00};
-  if(ir_led_brightness_changed){
-    ir_led_brightness_changed = false;
-    int new_brightness = ltr_int_get_int(ir_bright); 
-    if(new_brightness != 0){
-      set_ir_brightness_tir(new_brightness);
-    }
-  }
+  int ir_brightness = ltr_int_get_ir_brightness();
   pkt[3] = ir ? ir_brightness : 0;
   pkt[4] = ir ? 0x01 : 0;
   return ltr_int_send_data(pkt, sizeof(pkt));
@@ -435,7 +412,7 @@ static bool start_camera_tir4()
     turn_led_on_tir(TIR_LED_IR);
   }
   flush_fifo_tir();
-  if(signal_flag) 
+  if(ltr_int_get_status_indication()) 
     set_status_led_tir4(true);
   return true;
 }
@@ -449,7 +426,7 @@ static bool start_camera_tir5()
   }else{
     control_ir_led_tir(false);
   }
-  if(signal_flag) 
+  if(ltr_int_get_status_indication()) 
     set_status_led_tir5(true);
   return true;
 }
@@ -511,7 +488,7 @@ static bool init_camera_tir4(const char data_path[], bool force_fw_load, bool p_
       ltr_int_send_data(Set_ir_brightness,sizeof(Set_ir_brightness));
       set_exposure(0x18F);
     }
-    ltr_int_set_threshold(0x82);
+    ltr_int_set_threshold_tir(0x82);
   }else if(status.cfg_flag != 2){
     ltr_int_log_message("TIR configuration problem!\n");
     return false;
@@ -553,7 +530,7 @@ static bool init_camera_tir5(const char data_path[], bool force_fw_load, bool p_
   ltr_int_send_data(Camera_stop,sizeof(Camera_stop));
   read_status_tir(&status);
   ltr_int_send_data(Cfg_reload,sizeof(Cfg_reload));
-  ltr_int_set_threshold(0x96);
+  ltr_int_set_threshold_tir(0x96);
   set_exposure(0x18F);
   control_ir_led_tir(true);
   control_status_led_tir(false, false);
@@ -561,7 +538,7 @@ static bool init_camera_tir5(const char data_path[], bool force_fw_load, bool p_
   ltr_int_send_data(Precision_mode,sizeof(Precision_mode));
   control_status_led_tir(false, false);
   control_ir_led_tir(true);
-  ltr_int_set_threshold(0x76);
+  ltr_int_set_threshold_tir(0x76);
   set_exposure(0x15E);
   control_status_led_tir(false, false);
   ltr_int_send_data(Precision_mode,sizeof(Precision_mode));
@@ -636,7 +613,7 @@ static bool close_camera_tir4(){
 static bool close_camera_tir5()
 {
   stop_camera_tir();
-  ltr_int_set_threshold(0x96);
+  ltr_int_set_threshold_tir(0x96);
   set_exposure(0x18F);
   control_ir_led_tir(true);
   control_status_led_tir(false, false);

@@ -7,21 +7,14 @@
 #include "cal.h"
 #include <stdio.h>
 #include <string.h>
-#include "pref.h"
-#include "pref_int.h"
 #include "pref_global.h"
 #include "runloop.h"
 #include "image_process.h"
 #include "usb_ifc.h"
 #include "dyn_load.h"
 #include "utils.h"
+#include "tir_driver_prefs.h"
 
-pref_id min_blob = NULL;
-pref_id max_blob = NULL;
-pref_id threshold = NULL;
-pref_id stat_bright = NULL;
-pref_id ir_bright = NULL;
-pref_id signals = NULL;
 const char *storage_path = NULL;
 
 bool threshold_changed = false;
@@ -53,57 +46,6 @@ void flag_pref_changed(void *flag_ptr)
   *(bool*)flag_ptr = true;
 }
 
-int tir_get_prefs()
-{
-  char *dev_section = ltr_int_get_device_section();
-  if(dev_section == NULL){
-    return -1;
-  }
-  if(!ltr_int_open_pref(dev_section, "Max-blob", &max_blob)){
-    return -1;
-  }
-  if(!ltr_int_open_pref(dev_section, "Min-blob", &min_blob)){
-    return -1;
-  }
-  if(ltr_int_open_pref_w_callback(dev_section, "Status-led-brightness", &stat_bright,
-                       flag_pref_changed, (void*)&status_brightness_changed)){
-    status_brightness_changed = true;
-  }
-  if(ltr_int_open_pref_w_callback(dev_section, "Ir-led-brightness", &ir_bright,
-                        flag_pref_changed, (void*)&ir_led_brightness_changed)){
-    ir_led_brightness_changed = true;
-  }
-  if(ltr_int_open_pref_w_callback(dev_section, "Threshold", &threshold,
-                        flag_pref_changed, (void*)&threshold_changed)){
-    threshold_changed = true;
-  }
-  if(!ltr_int_open_pref(dev_section, "Status-signals", &signals)){
-    return -1;
-  }
-  
-  storage_path = ltr_int_get_data_path("");
-  
-  if(ltr_int_get_int(max_blob) == 0){
-    ltr_int_log_message("Please set 'Max-blob' in section %s!\n", dev_section);
-    if(!ltr_int_set_int(&max_blob, 200)){
-      ltr_int_log_message("Can't set Max-blob!\n");
-      return -1;
-    }
-  }
-  if(ltr_int_get_int(min_blob) == 0){
-    ltr_int_log_message("Please set 'Min-blob' in section %s!\n", dev_section);
-    if(!ltr_int_set_int(&min_blob, 200)){
-      ltr_int_log_message("Can't set Min-blob!\n");
-      return -1;
-    }
-  }
-  char *tmp = ltr_int_get_str(signals);
-  if((tmp != NULL) && (strcasecmp(tmp, "off") == 0)){
-    signal_flag = false;
-  }
-  return 0;
-}
-
 int ltr_int_tracker_init(struct camera_control_block *ccb)
 {
   assert(ccb != NULL);
@@ -111,9 +53,11 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
   if((libhandle = ltr_int_load_library((char *)"libltusb1.so", functions)) == NULL){
     return -1;
   }
-  if(tir_get_prefs() != 0){
+  if(!ltr_int_tir_init_prefs()){
     return -1;
   }
+  storage_path = ltr_int_get_data_path("");
+
   ltr_int_log_message("Lib loaded, prefs read...\n");
   if(ltr_int_open_tir(storage_path, false, !ltr_int_is_model_active())){
     float tf;
@@ -148,15 +92,9 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
     .h = h,
     .ratio = hf
   };
-  if(threshold_changed){
-    threshold_changed = false;
-    int new_threshold = ltr_int_get_int(threshold);
-    if(new_threshold > 0){
-      ltr_int_set_threshold(new_threshold);
-    }
-  }
-  return ltr_int_read_blobs_tir(&(f->bloblist), ltr_int_get_int(min_blob), 
-				ltr_int_get_int(max_blob), &img);
+  ltr_int_set_threshold_tir(ltr_int_get_threshold());
+  return ltr_int_read_blobs_tir(&(f->bloblist), ltr_int_get_min_blob(), 
+				ltr_int_get_max_blob(), &img);
 }
 
 int ltr_int_tracker_pause()

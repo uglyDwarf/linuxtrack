@@ -1,7 +1,7 @@
 #include <iostream>
 #include "ltr_gui.h"
 #include "ltr_gui_prefs.h"
-#include "pref_int.h"
+#include "tir_driver_prefs.h"
 #include "ltr_gui_prefs.h"
 #include "tir_prefs.h"
 #include "pathconfig.h"
@@ -90,28 +90,16 @@ void TirPrefs::Activate(const QString &ID)
       return;
     }
   }
+  ltr_int_tir_init_prefs();
   currentId = ID;
-  QString fourcc, thres, bmin, bmax, irb, stb, sst;
-  if(PREF.getKeyVal(sec, (char *)"Threshold", thres)){
-    gui.TirThreshold->setValue(thres.toInt());
-  }
-  if(PREF.getKeyVal(sec, (char *)"Max-blob", bmax)){
-    gui.TirMaxBlob->setValue(bmax.toInt());
-  }
-  if(PREF.getKeyVal(sec, (char *)"Min-blob", bmin)){
-    gui.TirMinBlob->setValue(bmin.toInt());
-  }
-  if(PREF.getKeyVal(sec, (char *)"Ir-led-brightness", irb)){
-    gui.TirIrBright->setValue(irb.toInt());
-  }
-  if(PREF.getKeyVal(sec, (char *)"Status-led-brightness", stb)){
-    gui.TirStatusBright->setValue(stb.toInt());
-  }
-  if(PREF.getKeyVal(sec, (char *)"Status-signals", sst)){
-    Qt::CheckState state = (sst.compare("on", Qt::CaseInsensitive) == 0) ? 
-                            Qt::Checked : Qt::Unchecked;
-    gui.TirSignalizeStatus->setCheckState(state);
-  }
+  gui.TirThreshold->setValue(ltr_int_get_threshold());
+  gui.TirMaxBlob->setValue(ltr_int_get_max_blob());
+  gui.TirMinBlob->setValue(ltr_int_get_min_blob());
+  gui.TirIrBright->setValue(ltr_int_get_ir_brightness());
+  gui.TirStatusBright->setValue(ltr_int_get_status_brightness());
+  Qt::CheckState state = (ltr_int_get_status_indication()) ? 
+                          Qt::Checked : Qt::Unchecked;
+  gui.TirSignalizeStatus->setCheckState(state);
   if(haveFirmware()){
     gui.TirFwLabel->setText("Firmware found!");
   }else{
@@ -157,37 +145,30 @@ void TirPrefs::AddAvailableDevices(QComboBox &combo)
 
 void TirPrefs::on_TirThreshold_valueChanged(int i)
 {
-  //std::cout<<"Threshold: "<<i<<std::endl;
-  PREF.setKeyVal(currentSection, (char *)"Threshold", i);
+  ltr_int_set_threshold(i);
 }
 
 void TirPrefs::on_TirMinBlob_valueChanged(int i)
 {
-  //std::cout<<"Min Blob: "<<i<<std::endl;
-  PREF.setKeyVal(currentSection, (char *)"Min-blob", i);
+  ltr_int_set_min_blob(i);
 }
 
 void TirPrefs::on_TirMaxBlob_valueChanged(int i)
 {
-  //std::cout<<"Max Blob: "<<i<<std::endl;
-  PREF.setKeyVal(currentSection, (char *)"Max-blob", i);
+  ltr_int_set_max_blob(i);
 }
 
 void TirPrefs::on_TirStatusBright_valueChanged(int i)
 {
-  //std::cout<<"Status bright: "<<i<<std::endl;
-  PREF.setKeyVal(currentSection, (char *)"Status-led-brightness", i);
+  ltr_int_set_status_brightness(i);
 }
 
 void TirPrefs::on_TirIrBright_valueChanged(int i)
 {
-  //std::cout<<"Ir bright: "<<i<<std::endl;
-  PREF.setKeyVal(currentSection, (char *)"Ir-led-brightness", i);
+  ltr_int_set_ir_brightness(i);
 }
 
 void TirPrefs::on_TirSignalizeStatus_stateChanged(int state)
 {
-  QString state_str = (state == Qt::Unchecked) ? "off" : "on";
-  //std::cout<<"Signal: "<<state_str.toAscii().data()<<std::endl;
-  PREF.setKeyVal(currentSection, (char *)"Status-signals", state_str);
+  ltr_int_set_status_indication(state == Qt::Checked);
 }

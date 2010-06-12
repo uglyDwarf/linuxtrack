@@ -538,22 +538,26 @@ const char *ltr_int_get_key(const char *section_name, const char *key_name)
   return kv->value;
 }
 
-float ltr_int_get_key_flt(const char *section_name, const char *key_name)
+bool ltr_int_get_key_flt(const char *section_name, const char *key_name, float *val)
 {
   const char *res = ltr_int_get_key(section_name, key_name);
   if(res == NULL){
-    return 3.1415926f;
+    *val = 3.1415926f;
+    return false;
   }
-  return atof(res);
+  *val = atof(res);
+  return true;
 }
 
-int ltr_int_get_key_int(const char *section_name, const char *key_name)
+bool ltr_int_get_key_int(const char *section_name, const char *key_name, int *val)
 {
   const char *res = ltr_int_get_key(section_name, key_name);
   if(res == NULL){
-    return 0xDEADBEEF;
+    *val = 0xDEADBEEF;
+    return false;
   }
-  return atoi(res);
+  *val = atoi(res);
+  return true;
 }
 
 

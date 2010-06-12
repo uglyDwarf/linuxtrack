@@ -46,7 +46,6 @@ bool ltr_int_wii_init_prefs()
 bool ltr_int_get_run_indication(bool *d1, bool *d2, bool *d3, bool *d4)
 {
   decode(run_indication, d1, d2, d3, d4);
-  printf("%s\n", run_indication);
   return true;
 }
 
@@ -59,7 +58,6 @@ bool ltr_int_set_run_indication(bool d1, bool d2, bool d3, bool d4)
 bool ltr_int_get_pause_indication(bool *d1, bool *d2, bool *d3, bool *d4)
 {
   decode(pause_indication, d1, d2, d3, d4);
-  printf("%s\n", pause_indication);
   return true;
 }
 
@@ -68,3 +66,4 @@ bool ltr_int_set_pause_indication(bool d1, bool d2, bool d3, bool d4)
   encode(pause_indication, d1, d2, d3, d4);
   return ltr_int_change_key(ltr_int_get_device_section(), pause_id_key, pause_indication);
 }
+
