@@ -395,6 +395,7 @@ static bool stop_camera_tir5()
   flush_fifo_tir();
   ltr_int_send_data(Camera_stop,sizeof(Camera_stop));
   control_ir_led_tir(false);
+  control_status_led_tir(false, false);
   return true;
 }
 
