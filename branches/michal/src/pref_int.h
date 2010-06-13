@@ -55,22 +55,9 @@ void ltr_int_free_prefs();
 
 bool ltr_int_set_custom_section(char *name);
 const char *ltr_int_get_custom_section_name();
-bool ltr_int_open_pref(const char *section, char *key, pref_id *prf);
-bool ltr_int_open_pref_w_callback(const char *section, char *key, pref_id *prf, 
-                          pref_callback cbk,  void *param);
-float ltr_int_get_flt(pref_id prf);
-int ltr_int_get_int(pref_id prf);
-char *ltr_int_get_str(pref_id prf);
-
-bool ltr_int_set_flt(pref_id *prf, float f);
-bool ltr_int_set_int(pref_id *prf, int i);
-bool ltr_int_set_str(pref_id *prf, char *str);
-
 bool ltr_int_read_prefs(char *file, bool force_read);
 bool ltr_int_new_prefs();
 bool ltr_int_save_prefs();
-bool ltr_int_close_pref(pref_id *prf);
-void ltr_int_print_opened();
 
 #ifdef __cplusplus
 }

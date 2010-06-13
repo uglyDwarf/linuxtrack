@@ -21,7 +21,7 @@ static char status_key[] = "Status-signals";
 
 bool ltr_int_tir_init_prefs()
 {
-  char *dev = ltr_int_get_device_section();
+  const char *dev = ltr_int_get_device_section();
   if(dev == NULL){
     return false;
   }

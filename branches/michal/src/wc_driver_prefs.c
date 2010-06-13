@@ -28,7 +28,7 @@ static char flip_key[] = "Upside-down";
 
 bool ltr_int_wc_init_prefs()
 {
-  char *dev = ltr_int_get_device_section();
+  const char *dev = ltr_int_get_device_section();
   if(dev == NULL){
     return false;
   }

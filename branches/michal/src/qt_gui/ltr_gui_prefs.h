@@ -42,6 +42,7 @@ class PrefProxy{
   bool setCustomSection(const QString &name);
   bool savePrefs();
   bool rereadPrefs();
+  void announceModelChange();
   static QString getDataPath(QString file);
   static QString getLibPath(QString file);
  private:

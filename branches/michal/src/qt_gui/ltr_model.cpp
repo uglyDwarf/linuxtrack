@@ -253,31 +253,37 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
     }
   }
   PREF.activateModel(currentSection);
+  PREF.announceModelChange();
 }
 
 void ModelEdit::on_CapA_valueChanged(double val)
 {
   PREF.setKeyVal(currentSection, (char *)"Cap-X", val);
+  PREF.announceModelChange();
 }
 
 void ModelEdit::on_CapB_valueChanged(double val)
 {
   PREF.setKeyVal(currentSection, (char *)"Cap-Y", val);
+  PREF.announceModelChange();
 }
 
 void ModelEdit::on_CapC_valueChanged(double val)
 {
   PREF.setKeyVal(currentSection, (char *)"Cap-Z", val);
+  PREF.announceModelChange();
 }
 
 void ModelEdit::on_CapHy_valueChanged(double val)
 {
   PREF.setKeyVal(currentSection, (char *)"Head-Y", val);
+  PREF.announceModelChange();
 }
 
 void ModelEdit::on_CapHz_valueChanged(double val)
 {
   PREF.setKeyVal(currentSection, (char *)"Head-Z", val);
+  PREF.announceModelChange();
 }
 
 void ModelEdit::on_CapLeds_stateChanged(int state)
@@ -289,16 +295,19 @@ void ModelEdit::on_CapLeds_stateChanged(int state)
     v = "no";
   }
   PREF.setKeyVal(currentSection, (char *)"Active", v);
+  PREF.announceModelChange();
 }
 
 void ModelEdit::on_ClipA_valueChanged(double val)
 {
   PREF.setKeyVal(currentSection, (char *)"Clip-Z1", val);
+  PREF.announceModelChange();
 }
 
 void ModelEdit::on_ClipB_valueChanged(double val)
 {
   PREF.setKeyVal(currentSection, (char *)"Clip-Y1", val);
+  PREF.announceModelChange();
 }
 //                 gui.ClipC->value() + val);
 
@@ -306,27 +315,32 @@ void ModelEdit::on_ClipC_valueChanged(double val)
 {
   PREF.setKeyVal(currentSection, (char *)"Clip-Y2", 
                   gui.ClipB->value() + val);
+  PREF.announceModelChange();
 }
 
 void ModelEdit::on_ClipD_valueChanged(double val)
 {
   PREF.setKeyVal(currentSection, (char *)"Clip-Z2", 
        val - gui.ClipA->value());
+  PREF.announceModelChange();
 }
 
 void ModelEdit::on_ClipHx_valueChanged(double val)
 {
   PREF.setKeyVal(currentSection, (char *)"Head-X", val);
+  PREF.announceModelChange();
 }
 
 void ModelEdit::on_ClipHy_valueChanged(double val)
 {
   PREF.setKeyVal(currentSection, (char *)"Head-Y", val);
+  PREF.announceModelChange();
 }
 
 void ModelEdit::on_ClipHz_valueChanged(double val)
 {
   PREF.setKeyVal(currentSection, (char *)"Head-Z", val);
+  PREF.announceModelChange();
 }
 
 void ModelEdit::on_ClipLeds_stateChanged(int state)
@@ -338,6 +352,7 @@ void ModelEdit::on_ClipLeds_stateChanged(int state)
     v = "no";
   }
   PREF.setKeyVal(currentSection, (char *)"Active", v);
+  PREF.announceModelChange();
 }
 
 void ModelEdit::on_SinglePtLeds_stateChanged(int state)
@@ -349,5 +364,6 @@ void ModelEdit::on_SinglePtLeds_stateChanged(int state)
     v = "no";
   }
   PREF.setKeyVal(currentSection, (char *)"Active", v);
+  PREF.announceModelChange();
 }
 

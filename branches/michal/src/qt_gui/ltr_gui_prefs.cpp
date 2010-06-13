@@ -61,24 +61,14 @@ PrefProxy& PrefProxy::Pref()
 
 bool PrefProxy::activateDevice(const QString &sectionName)
 {
-  pref_id dev_selector;
-  if(!ltr_int_open_pref((char *)"Global", (char *)"Input", &dev_selector)){
-    return addKeyVal((char *)"Global", (char *)"Input", sectionName);
-  }
-  ltr_int_set_str(&dev_selector, sectionName.toAscii().data());
-  ltr_int_close_pref(&dev_selector);
-  return true;
+  return ltr_int_change_key((char *)"Global", (char *)"Input", 
+			    sectionName.toAscii().data());
 }
 
 bool PrefProxy::activateModel(const QString &sectionName)
 {
-  pref_id dev_selector;
-  if(!ltr_int_open_pref((char *)"Global", (char *)"Model", &dev_selector)){
-    return addKeyVal((char *)"Global", (char *)"Model", sectionName);
-  }
-  ltr_int_set_str(&dev_selector, sectionName.toAscii().data());
-  ltr_int_close_pref(&dev_selector);
-  return true;
+  return ltr_int_change_key((char *)"Global", (char *)"Model", 
+			    sectionName.toAscii().data());
 }
 
 bool PrefProxy::createSection(QString 
@@ -134,61 +124,29 @@ bool PrefProxy::addKeyVal(const QString &sectionName, const QString &keyName,
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
 			  const QString &value)
 {
-  pref_id kv;
-  if(!ltr_int_open_pref(sectionName.toAscii().data(), keyName.toAscii().data(), &kv)){
-    return addKeyVal(sectionName, keyName, value);
-  }
-  bool res = true;
-  if(!ltr_int_set_str(&kv, value.toAscii().data())){
-    res = false;
-  }
-  ltr_int_close_pref(&kv);
-  return res;
+  return ltr_int_change_key(sectionName.toAscii().data(), keyName.toAscii().data(),
+			    value.toAscii().data());
 }
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
                           const int &value)
 {
-  pref_id kv;
-  if(!ltr_int_open_pref(sectionName.toAscii().data(), keyName.toAscii().data(), &kv)){
-    return addKeyVal(sectionName, keyName, QString::number(value));
-  }
-  bool res = true;
-  if(!ltr_int_set_int(&kv, value)){
-    res = false;
-  }
-  ltr_int_close_pref(&kv);
-  return res;
+  return ltr_int_change_key_int(sectionName.toAscii().data(), keyName.toAscii().data(),
+			    value);
 }
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
                           const float &value)
 {
-  pref_id kv;
-  if(!ltr_int_open_pref(sectionName.toAscii().data(), keyName.toAscii().data(), &kv)){
-    return addKeyVal(sectionName, keyName, QString::number(value));
-  }
-  bool res = true;
-  if(!ltr_int_set_flt(&kv, value)){
-    res = false;
-  }
-  ltr_int_close_pref(&kv);
-  return res;
+  return ltr_int_change_key_flt(sectionName.toAscii().data(), keyName.toAscii().data(),
+			    value);
 }
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
                           const double &value)
 {
-  pref_id kv;
-  if(!ltr_int_open_pref(sectionName.toAscii().data(), keyName.toAscii().data(), &kv)){
-    return addKeyVal(sectionName, keyName, QString::number(value));
-  }
-  bool res = true;
-  if(!ltr_int_set_flt(&kv, (float)value)){
-    res = false;
-  }
-  ltr_int_close_pref(&kv);
-  return res;
+  return ltr_int_change_key_flt(sectionName.toAscii().data(), keyName.toAscii().data(),
+			    (float)value);
 }
 
 bool PrefProxy::getFirstDeviceSection(const QString &devType, QString &result)
@@ -359,3 +317,7 @@ bool PrefProxy::rereadPrefs()
   return true;
 }
 
+void PrefProxy::announceModelChange()
+{
+  ltr_int_announce_model_change();
+}

@@ -46,7 +46,7 @@ static float clamp_angle(float angle);
 bool ltr_int_check_pose()
 {
   struct reflector_model_type rm;
-  if(ltr_int_model_changed()){
+  if(ltr_int_model_changed(true)){
     if(ltr_int_get_model_setup(&rm) == false){
       ltr_int_log_message("Can't get pose setup!\n");
       return false;
