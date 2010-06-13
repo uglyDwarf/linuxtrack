@@ -334,6 +334,12 @@ static bool control_status_led_tir(bool status1, bool status2)
   return ltr_int_send_data(pkt, sizeof(pkt));
 }
 
+static bool turn_off_status_led_tir5()
+{
+  unsigned char pkt[] =  {0x19, 0x04, 0x10, 0x00, 0x00};
+  return ltr_int_send_data(pkt, sizeof(pkt));
+}
+
 static bool control_ir_led_tir(bool ir)
 {
   unsigned char pkt[] =  {0x19, 0x09, 0x10, 0x00, 0x00};
@@ -394,8 +400,11 @@ static bool stop_camera_tir5()
   usleep(50000);
   flush_fifo_tir();
   ltr_int_send_data(Camera_stop,sizeof(Camera_stop));
+  turn_off_status_led_tir5();
+  usleep(50000);
+  turn_off_status_led_tir5();
   control_ir_led_tir(false);
-  control_status_led_tir(false, false);
+  turn_led_off_tir(TIR_LED_IR);
   return true;
 }
 
