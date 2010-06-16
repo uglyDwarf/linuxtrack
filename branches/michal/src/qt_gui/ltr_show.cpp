@@ -75,7 +75,7 @@ void CaptureThread::signal_new_frame()
   emit new_frame();
 }
 
-LtrGuiForm::LtrGuiForm(ScpForm *s) : cv(NULL)
+LtrGuiForm::LtrGuiForm(ScpForm *s) : cv(NULL), allowClose(false)
 {
   scp = s;
   ui.setupUi(this);
@@ -237,6 +237,20 @@ void LtrGuiForm::trackerPaused()
   ui.wakeButton->setDisabled(false);
   ui.stopButton->setDisabled(false);
   ui.recenterButton->setDisabled(true);
+}
+
+void LtrGuiForm::closeEvent(QCloseEvent *event)
+{
+  if(allowClose){
+    event->accept();
+  }else{
+    event->ignore();
+  }
+}
+
+void LtrGuiForm::allowCloseWindow()
+{
+  allowClose = true;
 }
 
 CameraView::CameraView(QWidget *parent)

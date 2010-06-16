@@ -4,6 +4,7 @@
 #include "ui_ltr_gui.h"
 
 #include <QThread>
+#include <QCloseEvent>
 #include "window.h"
 
 class ScpForm;
@@ -42,6 +43,7 @@ class LtrGuiForm : public QMainWindow
   public:
    LtrGuiForm(ScpForm *s);
    ~LtrGuiForm();
+   void allowCloseWindow();
   public slots:
    void update();
     
@@ -55,13 +57,15 @@ class LtrGuiForm : public QMainWindow
    void trackerStopped();
    void trackerRunning();
    void trackerPaused();
-
+  protected:
+   void closeEvent(QCloseEvent *event);
   private:
    Ui::Ltr_gui ui;
    ScpForm *sens;
    Window *glw;
    QTimer *timer;
    CameraView *cv;
+   bool allowClose;
 };
 
 #endif

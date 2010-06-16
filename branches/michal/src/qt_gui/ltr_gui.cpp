@@ -58,6 +58,7 @@ LinuxtrackGui::~LinuxtrackGui()
 
 void LinuxtrackGui::closeEvent(QCloseEvent *event)
 {
+  showWindow->allowCloseWindow();
   showWindow->close();
   helper->close();
   sc->close();
