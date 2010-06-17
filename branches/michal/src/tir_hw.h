@@ -6,7 +6,7 @@
 #define TIR_LED_BLUE   0x40
 #define TIR_LED_IR     0x80
 
-unsigned char ltr_int_packet[4096];
+extern unsigned char ltr_int_packet[4096];
 
 void ltr_int_get_res_tir(unsigned int *w, unsigned int *h, float *hf);
 

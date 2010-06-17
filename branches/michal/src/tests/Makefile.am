@@ -3,7 +3,11 @@ if DARWIN
   DARWINFLAGS = -undefined dynamic_lookup
 endif
 
-noinst_PROGRAMS = ltlib_test webcam_driver_test pref_test tests
+noinst_PROGRAMS = ltlib_test pref_test tests
+
+if V4L2
+  noinst_PROGRAMS += webcam_driver_test 
+endif
 
 #pose_test_SOURCES = pose_test.c
 ltlib_test_SOURCES = ltlib_test.c ../utils.c ../utils.h

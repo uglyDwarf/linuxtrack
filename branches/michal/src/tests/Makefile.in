@@ -34,8 +34,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = ltlib_test$(EXEEXT) webcam_driver_test$(EXEEXT) \
-	pref_test$(EXEEXT) tests$(EXEEXT)
+noinst_PROGRAMS = ltlib_test$(EXEEXT) pref_test$(EXEEXT) \
+	tests$(EXEEXT) $(am__EXEEXT_1)
+@V4L2_TRUE@am__append_1 = webcam_driver_test 
 subdir = src/tests
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -46,6 +47,7 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
+@V4L2_TRUE@am__EXEEXT_1 = webcam_driver_test$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am_ltlib_test_OBJECTS = ltlib_test-ltlib_test.$(OBJEXT) \
 	ltlib_test-utils.$(OBJEXT)
