@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+  #include "../config.h"
+#endif
+
 #include "utils.h"
 
 #include <stdio.h>
@@ -151,9 +155,17 @@ char *ltr_int_get_app_path(const char *suffix)
   return NULL;
 }
 
+#ifndef DARWIN
+  #define DATA_PATH "/../share/linuxtrack/"
+  #define LIB_PATH "/../lib/"
+#else
+  #define DATA_PATH "/../Resources/linuxtrack/"
+  #define LIB_PATH "/../Frameworks/linuxtrack.framework/Versions/1/"
+#endif
+
 char *ltr_int_get_data_path(const char *data)
 {
-  char *app_path = ltr_int_get_app_path("/../share/linuxtrack/");
+  char *app_path = ltr_int_get_app_path(DATA_PATH);
   if(app_path == NULL){
     return NULL;
   }
@@ -164,7 +176,7 @@ char *ltr_int_get_data_path(const char *data)
 
 char *ltr_int_get_lib_path(const char *libname)
 {
-  char *app_path = ltr_int_get_app_path("/../lib/");
+  char *app_path = ltr_int_get_app_path(LIB_PATH);
   if(app_path == NULL){
     return NULL;
   }

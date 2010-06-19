@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+  #include "../../config.h"
+#endif
+
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QInputDialog>
@@ -9,8 +13,6 @@
 #include "pathconfig.h"
 #include "ltr_state.h"
 
-#include "webcam_prefs.h"
-#include "wiimote_prefs.h"
 #include "tir_prefs.h"
 #include "ltr_show.h"
 #include "ltr_dev_help.h"
@@ -19,6 +21,11 @@
 #include "log_view.h"
 #include "scp_form.h"
 
+#ifndef DARWIN
+  #include "webcam_prefs.h"
+  #include "wiimote_prefs.h"
+#endif
+
 LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
 {
   QString target = QDir::homePath() + "/.linuxtrack";
@@ -26,8 +33,10 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
     on_DefaultsButton_pressed();
   }
   ui.setupUi(this);
+#ifndef DARWIN
   wcp = new WebcamPrefs(ui);
   wiip = new WiimotePrefs(ui);
+#endif
   tirp = new TirPrefs(ui);
   me = new ModelEdit(ui);
   track = new LtrTracking(ui);
@@ -48,8 +57,10 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
 LinuxtrackGui::~LinuxtrackGui()
 {
   delete showWindow;
+#ifndef DARWIN
   delete wcp;
   delete wiip;
+#endif
   delete tirp;
   delete me;
   delete sc;
@@ -73,13 +84,16 @@ void LinuxtrackGui::on_DeviceSelector_activated(int index)
   }
   QVariant v = ui.DeviceSelector->itemData(index);
   PrefsLink pl = v.value<PrefsLink>();
+#ifndef DARWIN
   if(pl.deviceType == WEBCAM){
     ui.DeviceSetupStack->setCurrentIndex(0);
     wcp->Activate(pl.ID);
   }else if(pl.deviceType == WIIMOTE){
     ui.DeviceSetupStack->setCurrentIndex(1);
     wiip->Activate(pl.ID);
-  }else if(pl.deviceType == TIR){
+  }else 
+#endif
+  if(pl.deviceType == TIR){
     ui.DeviceSetupStack->setCurrentIndex(2);
     tirp->Activate(pl.ID);
   }
@@ -88,8 +102,10 @@ void LinuxtrackGui::on_DeviceSelector_activated(int index)
 void LinuxtrackGui::on_RefreshDevices_pressed()
 {
   ui.DeviceSelector->clear();
+#ifndef DARWIN
   WebcamPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   WiimotePrefs::AddAvailableDevices(*(ui.DeviceSelector));
+#endif
   TirPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   on_DeviceSelector_activated(ui.DeviceSelector->currentIndex());
 }

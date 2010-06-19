@@ -1,14 +1,21 @@
 #ifndef LTR_GUI__H
 #define LTR_GUI__H
 
+#ifdef HAVE_CONFIG_H
+  #include "../../config.h"
+#endif
+
 #include <QCloseEvent>
 
 #include "ui_ltr.h"
 
+#ifndef DARWIN
+  class WebcamPrefs;
+  class WiimotePrefs;
+#endif
+
 class LtrGuiForm;
 class LtrDevHelp;
-class WebcamPrefs;
-class WiimotePrefs;
 class TirPrefs;
 class ModelEdit;
 class LtrTracking;
@@ -39,8 +46,10 @@ class LinuxtrackGui : public QWidget
   Ui::LinuxtrackMainForm ui;
   LtrGuiForm *showWindow;
   LtrDevHelp *helper;
+#ifndef DARWIN
   WebcamPrefs *wcp;
   WiimotePrefs *wiip;
+#endif
   TirPrefs *tirp;
   ModelEdit *me;
   LtrTracking *track;
