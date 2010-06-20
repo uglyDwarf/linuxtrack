@@ -55,6 +55,7 @@ class LinuxtrackGui : public QWidget
   LtrTracking *track;
   ScpForm *sc;
   LogView *lv;
+  bool initialized;
 };
 
 

@@ -26,13 +26,14 @@
   #include "wiimote_prefs.h"
 #endif
 
-LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
+LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), wcp(NULL), wiip(NULL),
+  tirp(NULL), me(NULL), initialized(false)
 {
+  ui.setupUi(this);
   QString target = QDir::homePath() + "/.linuxtrack";
   if(!QFile::exists(target)){
     on_DefaultsButton_pressed();
   }
-  ui.setupUi(this);
 #ifndef DARWIN
   wcp = new WebcamPrefs(ui);
   wiip = new WiimotePrefs(ui);
@@ -49,6 +50,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent)
   
   showWindow = new LtrGuiForm(sc);
   helper = new LtrDevHelp();
+  initialized = true;
   on_RefreshDevices_pressed();
   showWindow->show();
   helper->show();
@@ -176,9 +178,11 @@ void LinuxtrackGui::on_DefaultsButton_pressed()
 void LinuxtrackGui::on_DiscardChangesButton_pressed()
 {
   PREF.rereadPrefs();
-  on_RefreshDevices_pressed();
-  me->refresh();
-  track->refresh();
+  if(initialized){
+    on_RefreshDevices_pressed();
+    me->refresh();
+    track->refresh();
+  }
 }
 
   
