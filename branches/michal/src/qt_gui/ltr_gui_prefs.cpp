@@ -315,9 +315,9 @@ QString PrefProxy::getLibPath(QString file)
 {
   QString appPath = QApplication::applicationDirPath();
 #ifndef DARWIN
-  return appPath + "/../lib/" + file;
+  return appPath + "/../lib/" + file + ".so";
 #else
-  return appPath + "/../Frameworks/" + file;
+  return appPath + "/../Frameworks/" + file + ".0.dylib";
 #endif
 }
 
