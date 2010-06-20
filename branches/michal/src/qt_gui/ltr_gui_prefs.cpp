@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+  #include "../../config.h"
+#endif
+
 #include "pref_int.h"
 #include "pref_global.h"
 #include "ltr_gui_prefs.h"
@@ -298,14 +302,23 @@ QString PrefProxy::getCustomSectionName()
 
 QString PrefProxy::getDataPath(QString file)
 {
+  
   QString appPath = QApplication::applicationDirPath();
+#ifndef DARWIN
   return appPath + "/../share/linuxtrack/" + file;
+#else
+  return appPath + "/../Resources/linuxtrack/" + file;
+#endif
 }
 
 QString PrefProxy::getLibPath(QString file)
 {
   QString appPath = QApplication::applicationDirPath();
+#ifndef DARWIN
   return appPath + "/../lib/" + file;
+#else
+  return appPath + "/../Frameworks/" + file;
+#endif
 }
 
 bool PrefProxy::rereadPrefs()

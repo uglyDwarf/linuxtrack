@@ -44,16 +44,16 @@ int ltr_int_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   assert(ccb != NULL);
   switch (ccb->device.category) {
     case tir:
-      libname = "libtir.so";
+      libname = "libtir";
       break;
     case tir4_camera:
-      libname = "libtir4.so";
+      libname = "libtir4";
       break;
     case webcam:
-      libname = "libwc.so";
+      libname = "libwc";
       break;
     case wiimote:
-      libname = "libwii.so";
+      libname = "libwii";
       break;
     default:
       assert(0);

@@ -24,7 +24,7 @@ static int probeTir()
 {
   void *libhandle = NULL;
   int res = 0;
-  if((libhandle = ltr_int_load_library((char *)"libtir.so", functions)) != NULL){
+  if((libhandle = ltr_int_load_library((char *)"libtir", functions)) != NULL){
     res = probe_tir_fun();
     ltr_int_unload_library(libhandle, functions);
   }
@@ -63,6 +63,7 @@ static bool haveFirmware()
      QFile::exists(PrefProxy::getDataPath("tir5.fw.gz"))){
     return true;
   }else{
+    std::cout<<"Can't locate "<<PrefProxy::getDataPath("tir4.fw.gz").toAscii().data()<<std::endl;
     return false;
   }
 }

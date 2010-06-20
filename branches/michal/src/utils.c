@@ -158,9 +158,11 @@ char *ltr_int_get_app_path(const char *suffix)
 #ifndef DARWIN
   #define DATA_PATH "/../share/linuxtrack/"
   #define LIB_PATH "/../lib/"
+  #define LIB_SUFFIX ".so"
 #else
   #define DATA_PATH "/../Resources/linuxtrack/"
-  #define LIB_PATH "/../Frameworks/linuxtrack.framework/Versions/1/"
+  #define LIB_PATH "/../Frameworks/"
+  #define LIB_SUFFIX ".0.dylib"
 #endif
 
 char *ltr_int_get_data_path(const char *data)
@@ -180,8 +182,10 @@ char *ltr_int_get_lib_path(const char *libname)
   if(app_path == NULL){
     return NULL;
   }
-  char *lib_path = ltr_int_my_strcat(app_path, libname);
+  char *lib_path1 = ltr_int_my_strcat(app_path, libname);
+  char *lib_path = ltr_int_my_strcat(lib_path1, LIB_SUFFIX);
   free(app_path);
+  free(lib_path1);
   return lib_path;
 }
 

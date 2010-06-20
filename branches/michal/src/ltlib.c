@@ -31,7 +31,7 @@ static lib_fun_def_t functions[] = {
 };
 
 static void *libhandle = NULL;
-static char libname[] = "liblinuxtrack.so";
+static char libname[] = "liblinuxtrack";
 
 int ltr_init(char *cust_section)
 {

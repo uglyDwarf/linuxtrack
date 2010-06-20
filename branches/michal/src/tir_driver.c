@@ -48,7 +48,7 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
   assert(ccb != NULL);
   assert((ccb->device.category == tir) || (ccb->device.category == tir_open));
   last_threshold = -1;
-  if((libhandle = ltr_int_load_library((char *)"libltusb1.so", functions)) == NULL){
+  if((libhandle = ltr_int_load_library((char *)"libltusb1", functions)) == NULL){
     return -1;
   }
   if(!ltr_int_tir_init_prefs()){
@@ -122,7 +122,7 @@ int ltr_int_tracker_close()
 
 int ltr_int_tir_found()
 {
-  if((libhandle = ltr_int_load_library((char *)"libltusb1.so", functions)) == NULL){
+  if((libhandle = ltr_int_load_library((char *)"libltusb1", functions)) == NULL){
     return 0;
   }
   if(!ltr_int_init_usb()){
