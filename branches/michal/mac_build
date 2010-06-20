@@ -1,0 +1,49 @@
+#!/bin/bash
+#
+#Assumes you have libusb-1.0.8.tar.bz2 and XPlane SDK in the parent directory.
+#
+cd ..
+BASE=`pwd`
+PREFIX=${BASE}/ltr
+LIB_DIR=ltr_gui.app/Contents/Frameworks
+export MACOSX_DEPLOYMENT_TARGET=10.4
+export CFLAGS="-arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 "
+tar xfj libusb-1.0.8.tar.bz2
+pushd libusb-1.0.8
+./configure --prefix=${PREFIX} --disable-dependency-tracking >/dev/null
+make >/dev/null
+make install >/dev/null
+popd
+
+pushd michal
+export CFLAGS="-I${PREFIX}/include -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 "
+export LDFLAGS="-L${PREFIX}/lib -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 "
+./configure --disable-dependency-tracking --prefix=${PREFIX} >/dev/null
+make >/dev/null
+make install >/dev/null
+cd src/qt_gui
+qmake -spec macx-g++
+rm -rf ltr_gui.app
+make install >/dev/null
+mkdir -p ${LIB_DIR}
+cp -R ${PREFIX}/lib/libltusb1.0.dylib ${LIB_DIR}
+cp -R ${PREFIX}/lib/libtir.0.dylib ${LIB_DIR}
+cp -R ${PREFIX}/lib/libusb-1.0.0.dylib ${LIB_DIR}/libusb-1.0.dylib
+
+install_name_tool -id @executable_path/../Frameworks/libusb-1.0.0.dylib ${LIB_DIR}/libusb-1.0.dylib
+install_name_tool -id @executable_path/../Frameworks/libltusb1.0.dylib ${LIB_DIR}/libltusb1.0.dylib
+install_name_tool -id @executable_path/../Frameworks/libtir.0.dylib ${LIB_DIR}/libtir.0.dylib
+
+install_name_tool -change "${PREFIX}/lib/libusb-1.0.0.dylib" @executable_path/../Frameworks/libusb-1.0.dylib \
+${LIB_DIR}/libltusb1.0.dylib
+install_name_tool -change "${PREFIX}/lib/liblinuxtrack.0.dylib" @executable_path/../Frameworks/liblinuxtrack.0.dylib \
+${LIB_DIR}/libltusb1.0.dylib
+
+
+install_name_tool -change ${PREFIX}/lib/liblinuxtrack.0.dylib  \
+@executable_path/../Frameworks/liblinuxtrack.0.dylib ${LIB_DIR}/libtir.0.dylib
+rm -f ltr_gui.dmg
+macdeployqt ltr_gui.app -no-strip -dmg
+
+popd
+#

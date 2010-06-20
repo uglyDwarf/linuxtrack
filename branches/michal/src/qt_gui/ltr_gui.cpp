@@ -26,8 +26,8 @@
   #include "wiimote_prefs.h"
 #endif
 
-LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), wcp(NULL), wiip(NULL),
-  tirp(NULL), me(NULL), initialized(false)
+LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
+  initialized(false)
 {
   ui.setupUi(this);
   QString target = QDir::homePath() + "/.linuxtrack";

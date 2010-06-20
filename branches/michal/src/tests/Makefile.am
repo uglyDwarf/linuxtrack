@@ -1,6 +1,8 @@
 if DARWIN
   AM_CFLAGS = -arch i386 -arch ppc
   DARWINFLAGS = -undefined dynamic_lookup
+else
+  LINUXFLAGS = -fprofile-arcs -ftest-coverage 
 endif
 
 noinst_PROGRAMS = ltlib_test pref_test tests
@@ -34,12 +36,12 @@ test_LDALL = -lm
 ltlib_test_CFLAGS = -m32 -I..
 webcam_driver_test_CFLAGS = -m32 -I..
 pref_test_CFLAGS = -m32 -I..
-tests_CFLAGS = -Wextra -fprofile-arcs -ftest-coverage -m32 -I..
+tests_CFLAGS = -Wextra $(LINUXFLAGS) -m32 -I..
 
 #pose_test_LDFLAGS = -L/lib32 -L/usr/lib32 -L..
 ltlib_test_LDFLAGS = -L/lib32 -L/usr/lib32 -L..
 webcam_driver_test_LDFLAGS = -L/lib32 -L/usr/lib32  -L..
 pref_test_LDFLAGS = -L/lib32 -L/usr/lib32  -L..
-tests_LDFLAGS = -fprofile-arcs -ftest-coverage
+tests_LDFLAGS = $(LINUXFLAGS)
 
 MOSTLYCLEANFILES = *.gcno

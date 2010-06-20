@@ -231,6 +231,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 @DARWIN_TRUE@AM_CFLAGS = -arch i386 -arch ppc
 @DARWIN_TRUE@DARWINFLAGS = -undefined dynamic_lookup
+@DARWIN_FALSE@LINUXFLAGS = -fprofile-arcs -ftest-coverage 
 
 #pose_test_SOURCES = pose_test.c
 ltlib_test_SOURCES = ltlib_test.c ../utils.c ../utils.h
@@ -259,13 +260,13 @@ test_LDALL = -lm
 ltlib_test_CFLAGS = -m32 -I..
 webcam_driver_test_CFLAGS = -m32 -I..
 pref_test_CFLAGS = -m32 -I..
-tests_CFLAGS = -Wextra -fprofile-arcs -ftest-coverage -m32 -I..
+tests_CFLAGS = -Wextra $(LINUXFLAGS) -m32 -I..
 
 #pose_test_LDFLAGS = -L/lib32 -L/usr/lib32 -L..
 ltlib_test_LDFLAGS = -L/lib32 -L/usr/lib32 -L..
 webcam_driver_test_LDFLAGS = -L/lib32 -L/usr/lib32  -L..
 pref_test_LDFLAGS = -L/lib32 -L/usr/lib32  -L..
-tests_LDFLAGS = -fprofile-arcs -ftest-coverage
+tests_LDFLAGS = $(LINUXFLAGS)
 MOSTLYCLEANFILES = *.gcno
 all: all-am
 
