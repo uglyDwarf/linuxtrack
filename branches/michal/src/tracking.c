@@ -69,6 +69,7 @@ bool ltr_int_init_tracking()
     ltr_int_log_message("Can't get pose setup!\n");
     return false;
   }
+  ltr_int_init_axes();
   filtered_bloblist.num_blobs = 3;
   filtered_bloblist.blobs = filtered_blobs;
   first_frame = true;
