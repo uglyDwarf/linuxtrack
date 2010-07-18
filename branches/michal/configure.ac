@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.59])
 AC_INIT([LinuxTrack], [0.0], [http://code.google.com/p/linux-track/issues/list])
-AM_INIT_AUTOMAKE([-Wall -Werror])
+AM_INIT_AUTOMAKE([no-dependencies -Wall -Werror])
 AC_CONFIG_SRCDIR([src/tir4_driver.h])
 AC_CONFIG_HEADERS([config.h])
 
