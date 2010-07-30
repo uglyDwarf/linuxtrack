@@ -376,6 +376,9 @@ static bool stop_camera_tir4()
 
 static bool stop_camera_tir5()
 {
+  turn_off_status_led_tir5();
+  control_ir_led_tir(false);
+  usleep(50000);
   ltr_int_send_data(Video_off,sizeof(Video_off));
   usleep(50000);
   ltr_int_send_data(Video_off,sizeof(Video_off));
