@@ -14,11 +14,11 @@ typedef struct reflector_model_type {
    * (0,0,0) because it is the origin for p1, p2,
    * and the head center */
   /* p1 is the leftmost reflector */
-  float p1[3]; /* x,y,z */
+  double p1[3]; /* x,y,z */
   /* p1 is the remaining/rightmost reflector */
-  float p2[3]; /* x,y,z */
+  double p2[3]; /* x,y,z */
   /* user's head center, again referenced to p0 */
-  float hc[3];  /* x,y,z */
+  double hc[3];  /* x,y,z */
   enum {CAP, CLIP, SINGLE} type;
 } reflector_model_type;
 
@@ -38,10 +38,10 @@ struct transform{
    * Ideally, the translation estimate for this will be
    * (-100,0,0), ie, a 10 cm move to the left
    */
-  float tr[3];
+  double tr[3];
   /* rotation matrix that will rotate from the centered 
    * reference frame to the latest frame */
-  float rot[3][3];
+  double rot[3][3];
 };
 
 void ltr_int_pose_init(struct reflector_model_type rm);
@@ -53,12 +53,12 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
                         bool centering);
 bool ltr_int_is_single_point();                        
 int ltr_int_pose_compute_camera_update(struct transform trans,
-                               float *yaw,
-                               float *pitch,
-                               float *roll,
-                               float *tx,
-                               float *ty,
-                               float *tz);
+                               double *yaw,
+                               double *pitch,
+                               double *roll,
+                               double *tx,
+                               double *ty,
+                               double *tz);
 void ltr_int_transform_print(struct transform trans);
 
 #endif

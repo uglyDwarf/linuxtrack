@@ -28,16 +28,16 @@ static void expfilt_vec(float x[3],
               float filtfactor,
               float res[3]);
 */
-static float nonlinfilt(float x, 
-              float y_minus_1,
-              float filtfactor);
+static double nonlinfilt(double x, 
+              double y_minus_1,
+              double filtfactor);
 
-static void nonlinfilt_vec(float x[3], 
-              float y_minus_1[3],
-              float filtfactor,
-              float res[3]);
+static void nonlinfilt_vec(double x[3], 
+              double y_minus_1[3],
+              double filtfactor,
+              double res[3]);
 
-static float clamp_angle(float angle);
+static double clamp_angle(double angle);
 
 /************************/
 /* function definitions */
@@ -87,17 +87,17 @@ int ltr_int_recenter_tracking()
 //Purpose of this procedure is to modify translations to work more
 //intuitively - if I rotate my head right and move it to the left,
 //it should move view left, not back
-static void rotate_translations(float *heading, float *pitch, float *roll, 
-                         float *tx, float *ty, float *tz)
+static void rotate_translations(double *heading, double *pitch, double *roll, 
+                         double *tx, double *ty, double *tz)
 {
-  float tm[3][3];
-  float k = 180.0 / M_PI;
-  float p = *pitch / k;
-  float y = *heading / k;
-  float r = *roll / k;
+  double tm[3][3];
+  double k = 180.0 / M_PI;
+  double p = *pitch / k;
+  double y = *heading / k;
+  double r = *roll / k;
   ltr_int_euler_to_matrix(p, y, r, tm);
-  float tr[3] = {*tx, *ty, *tz};
-  float res[3];
+  double tr[3] = {*tx, *ty, *tz};
+  double res[3];
   ltr_int_transpose_in_place(tm);
   ltr_int_matrix_times_vec(tm, tr, res);
   *tx = res[0];
@@ -106,8 +106,8 @@ static void rotate_translations(float *heading, float *pitch, float *roll,
 }
 
 static pthread_mutex_t pose_mutex = PTHREAD_MUTEX_INITIALIZER;
-static float raw_angles[3] = {0.0f, 0.0f, 0.0f};
-static float raw_translations[3] = {0.0f, 0.0f, 0.0f};
+static double raw_angles[3] = {0.0f, 0.0f, 0.0f};
+static double raw_translations[3] = {0.0f, 0.0f, 0.0f};
 
 static int update_pose_1pt(struct frame_type *frame)
 {
@@ -192,8 +192,8 @@ int ltr_int_tracking_get_camera(float *heading,
                       float *ty,
                       float *tz)
 {
-  static float filtered_angles[3] = {0.0f, 0.0f, 0.0f};
-  static float filtered_translations[3] = {0.0f, 0.0f, 0.0f};
+  static double filtered_angles[3] = {0.0f, 0.0f, 0.0f};
+  static double filtered_translations[3] = {0.0f, 0.0f, 0.0f};
   
   if(!tracking_initialized){
     ltr_int_init_tracking();
@@ -212,14 +212,21 @@ int ltr_int_tracking_get_camera(float *heading,
   ltr_int_orig_pose.ty = filtered_translations[1];
   ltr_int_orig_pose.tz = filtered_translations[2];
   
-  *heading = clamp_angle(ltr_int_val_on_axis(YAW, filtered_angles[0]));
-  *pitch = clamp_angle(ltr_int_val_on_axis(PITCH, filtered_angles[1]));
-  *roll = clamp_angle(ltr_int_val_on_axis(ROLL, filtered_angles[2]));
-  *tx = ltr_int_val_on_axis(TX, filtered_translations[0]);
-  *ty = ltr_int_val_on_axis(TY, filtered_translations[1]);
-  *tz = ltr_int_val_on_axis(TZ, filtered_translations[2]);
+  double heading_d, pitch_d, roll_d, tx_d, ty_d, tz_d;
+  heading_d = clamp_angle(ltr_int_val_on_axis(YAW, filtered_angles[0]));
+  pitch_d = clamp_angle(ltr_int_val_on_axis(PITCH, filtered_angles[1]));
+  roll_d = clamp_angle(ltr_int_val_on_axis(ROLL, filtered_angles[2]));
+  tx_d = ltr_int_val_on_axis(TX, filtered_translations[0]);
+  ty_d = ltr_int_val_on_axis(TY, filtered_translations[1]);
+  tz_d = ltr_int_val_on_axis(TZ, filtered_translations[2]);
   
-  rotate_translations(heading, pitch, roll, tx, ty, tz);
+  rotate_translations(&heading_d, &pitch_d, &roll_d, &tx_d, &ty_d, &tz_d);
+  *heading = heading_d;
+  *pitch = pitch_d;
+  *roll = roll_d;
+  *tx = tx_d;
+  *ty = ty_d;
+  *tz = tz_d;
   
   pthread_mutex_unlock(&pose_mutex);
 /*
@@ -232,21 +239,21 @@ int ltr_int_tracking_get_camera(float *heading,
 
 
 /*
-float expfilt(float x, 
-              float y_minus_1,
-              float filterfactor) 
+double expfilt(double x, 
+              double y_minus_1,
+              double filterfactor) 
 {
-  float y;
+  double y;
   
   y = y_minus_1*(1.0-filterfactor) + filterfactor*x;
 
   return y;
 }
 
-void expfilt_vec(float x[3], 
-              float y_minus_1[3],
-              float filterfactor,
-              float res[3]) 
+void expfilt_vec(double x[3], 
+              double y_minus_1[3],
+              double filterfactor,
+              double res[3]) 
 {
   res[0] = expfilt(x[0], y_minus_1[0], filterfactor);
   res[1] = expfilt(x[1], y_minus_1[1], filterfactor);
@@ -254,21 +261,21 @@ void expfilt_vec(float x[3],
 }
 */
 
-float nonlinfilt(float x, 
-              float y_minus_1,
-              float filterfactor) 
+double nonlinfilt(double x, 
+              double y_minus_1,
+              double filterfactor) 
 {
-  float y;
-  float delta = x - y_minus_1;
+  double y;
+  double delta = x - y_minus_1;
   y = y_minus_1 + delta * (fabsf(delta)/(fabsf(delta) + filterfactor));
 
   return y;
 }
 
-void nonlinfilt_vec(float x[3], 
-              float y_minus_1[3],
-              float filterfactor,
-              float res[3]) 
+void nonlinfilt_vec(double x[3], 
+              double y_minus_1[3],
+              double filterfactor,
+              double res[3]) 
 {
   res[0] = nonlinfilt(x[0], y_minus_1[0], filterfactor);
   res[1] = nonlinfilt(x[1], y_minus_1[1], filterfactor);
@@ -276,7 +283,7 @@ void nonlinfilt_vec(float x[3],
 }
 
 
-float clamp_angle(float angle)
+double clamp_angle(double angle)
 {
   if(angle<-180.0){
     return -180.0;

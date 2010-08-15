@@ -1,40 +1,40 @@
 
 #include "math_utils.h"
 #include <stdio.h>
-void ltr_int_make_vec(float pt1[3],float pt2[3],float res[3])
+void ltr_int_make_vec(double pt1[3],double pt2[3],double res[3])
 {
   res[0]=pt1[0]-pt2[0];
   res[1]=pt1[1]-pt2[1];
   res[2]=pt1[2]-pt2[2];
 }
 
-float ltr_int_vec_size(float vec[3])
+double ltr_int_vec_size(double vec[3])
 {
   return(sqrt(vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2]));
 }
 
-float ltr_int_dot_product(float vec1[3],float vec2[3])
+double ltr_int_dot_product(double vec1[3],double vec2[3])
 {
   return(vec1[0]*vec2[0]+vec1[1]*vec2[1]+vec1[2]*vec2[2]);
 }
 
-void ltr_int_cross_product(float vec1[3],float vec2[3],float res[3])
+void ltr_int_cross_product(double vec1[3],double vec2[3],double res[3])
 {
   res[0]=vec1[1]*vec2[2]-vec1[2]*vec2[1];
   res[1]=vec1[2]*vec2[0]-vec1[0]*vec2[2];
   res[2]=vec1[0]*vec2[1]-vec1[1]*vec2[0];
 }
 
-void ltr_int_mul_vec(float vec[3],float c,float res[3])
+void ltr_int_mul_vec(double vec[3],double c,double res[3])
 {
   res[0]=vec[0]*c;
   res[1]=vec[1]*c;
   res[2]=vec[2]*c;
 }
 
-void ltr_int_make_base(float vec1[3],float vec2[3],float res[3][3])
+void ltr_int_make_base(double vec1[3],double vec2[3],double res[3][3])
 {
-  float tmp1[3],tmp2[3];
+  double tmp1[3],tmp2[3];
   ltr_int_mul_vec(vec1,1/ltr_int_vec_size(vec1),res[0]);
   ltr_int_mul_vec(res[0],ltr_int_dot_product(vec2,res[0]),tmp1);
   ltr_int_make_vec(vec2,tmp1,tmp2);
@@ -43,14 +43,14 @@ void ltr_int_make_base(float vec1[3],float vec2[3],float res[3][3])
   
 }
 
-void ltr_int_matrix_times_vec(float m[3][3], float vec[3],float res[3])
+void ltr_int_matrix_times_vec(double m[3][3], double vec[3],double res[3])
 {
   res[0] = ltr_int_dot_product(m[0], vec);
   res[1] = ltr_int_dot_product(m[1], vec);
   res[2] = ltr_int_dot_product(m[2], vec);
 }
 
-void ltr_int_print_matrix(float matrix[3][3], char *name)
+void ltr_int_print_matrix(double matrix[3][3], char *name)
 {
   int i,j;
 /*   printf("\n%s = [\n", name); */
@@ -66,21 +66,21 @@ void ltr_int_print_matrix(float matrix[3][3], char *name)
   printf("]\n");
 }
 
-void ltr_int_print_vec(float vec[3], char *name)
+void ltr_int_print_vec(double vec[3], char *name)
 {
 /*   printf("%s = [%15f; %15f; %15f]\n", name, vec[0], vec[1], vec[2]); */
   printf("%s=[%f;%f;%f]\n", name, vec[0], vec[1], vec[2]);
 }
 
-float ltr_int_sqr(float f)
+double ltr_int_sqr(double f)
 {
   return(f*f);
 }
 
-void ltr_int_mul_matrix(float m1[3][3], float m2[3][3], float res[3][3])
+void ltr_int_mul_matrix(double m1[3][3], double m2[3][3], double res[3][3])
 {
   int i,j;
-  float m2t[3][3];
+  double m2t[3][3];
   ltr_int_transpose(m2, m2t);
   for(i = 0; i < 3; ++i){
     for(j = 0; j < 3; ++j){
@@ -89,7 +89,7 @@ void ltr_int_mul_matrix(float m1[3][3], float m2[3][3], float res[3][3])
   }
 }
 
-void ltr_int_transpose(float matrix[3][3], float trans[3][3])
+void ltr_int_transpose(double matrix[3][3], double trans[3][3])
 {
   int i,j;
   for(i = 0; i < 3; ++i){
@@ -99,47 +99,47 @@ void ltr_int_transpose(float matrix[3][3], float trans[3][3])
   }
 }
 
-static void swp(float *f1, float *f2)
+static void swp(double *f1, double *f2)
 {
-  float tmp;
+  double tmp;
   tmp = *f1;
   *f1 = *f2;
   *f2 = tmp;
 }
 
-void ltr_int_transpose_in_place(float matrix[3][3])
+void ltr_int_transpose_in_place(double matrix[3][3])
 {
   swp(&matrix[0][1], &matrix[1][0]);
   swp(&matrix[0][2], &matrix[2][0]);
   swp(&matrix[1][2], &matrix[2][1]);
 }
 
-void ltr_int_matrix_to_euler(float matrix[3][3], float *pitch, float *yaw, float *roll)
+void ltr_int_matrix_to_euler(double matrix[3][3], double *pitch, double *yaw, double *roll)
 {
-  float tmp = matrix[0][2];
+  double tmp = matrix[0][2];
   if(tmp < -1.0f) 
     tmp = -1.0f;
   if(tmp > 1.0f)
     tmp = 1.0f;
-  *yaw = asinf(tmp);
-  float yc = cosf(*yaw);
+  *yaw = asin(tmp);
+  double yc = cos(*yaw);
   if (fabs(yc) > 1e-5){
-    *pitch = atan2f(matrix[1][2]/yc, matrix[2][2]/yc);
-    *roll = atan2f(-matrix[0][1]/yc, matrix[0][0]/yc);
+    *pitch = atan2(matrix[1][2]/yc, matrix[2][2]/yc);
+    *roll = atan2(-matrix[0][1]/yc, matrix[0][0]/yc);
   }else{
     *pitch = 0.0f;
-    *roll = atan2f(matrix[1][0], matrix[1][1]);
+    *roll = atan2(matrix[1][0], matrix[1][1]);
   }
 }
 
-void ltr_int_euler_to_matrix(float pitch, float yaw, float roll, float matrix[3][3])
+void ltr_int_euler_to_matrix(double pitch, double yaw, double roll, double matrix[3][3])
 {
-  float cp = cosf(-pitch);
-  float sp = sinf(-pitch);
-  float cy = cosf(-yaw);
-  float sy = sinf(-yaw);
-  float cr = cosf(-roll);
-  float sr = sinf(-roll);
+  double cp = cos(-pitch);
+  double sp = sin(-pitch);
+  double cy = cos(-yaw);
+  double sy = sin(-yaw);
+  double cr = cos(-roll);
+  double sr = sin(-roll);
   matrix[0][0] = cr * cy;
   matrix[0][1] = sr * cy;
   matrix[0][2] = -sy;
@@ -154,7 +154,7 @@ void ltr_int_euler_to_matrix(float pitch, float yaw, float roll, float matrix[3]
 }
 
 
-void ltr_int_add_vecs(float vec1[3],float vec2[3],float res[3])
+void ltr_int_add_vecs(double vec1[3],double vec2[3],double res[3])
 {
   res[0] = vec1[0] + vec2[0];
   res[1] = vec1[1] + vec2[1];
@@ -162,7 +162,7 @@ void ltr_int_add_vecs(float vec1[3],float vec2[3],float res[3])
 }
 
 
-bool ltr_int_make_bez(float deadzone, float k, bez_def *b)
+bool ltr_int_make_bez(double deadzone, double k, bez_def *b)
 {
   b->p0_x = deadzone;
   b->p0_y = 0.0f;
@@ -181,14 +181,14 @@ bool ltr_int_make_bez(float deadzone, float k, bez_def *b)
   return true;
 }
 
-float ltr_int_bezier(float x, bez_def *b)
+double ltr_int_bezier(double x, bez_def *b)
 {
   if(x < b->p0_x){
     return 0.0f;
   }
-  float c = b->cx - x;
-  float t = (-(b->bx) + sqrt((b->bx * b->bx) - 4 * b->ax * c)) / (2 * b->ax);
-  float y = (t * t) * b->ay + t * b->by + b->cy;
+  double c = b->cx - x;
+  double t = (-(b->bx) + sqrt((b->bx * b->bx) - 4 * b->ax * c)) / (2 * b->ax);
+  double y = (t * t) * b->ay + t * b->by + b->cy;
   return y;
 }
 
@@ -199,7 +199,7 @@ Bezier usage example
   y = bezier(x, &b);
 */
 
-bool ltr_int_is_finite(float f)
+bool ltr_int_is_finite(double f)
 {
   if(finite(f) != 0){
     return true;

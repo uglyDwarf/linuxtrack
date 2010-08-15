@@ -11,12 +11,12 @@ extern "C" {
 #endif
 
 struct current_pose{
-  float heading;
-  float pitch;
-  float roll;
-  float tx;
-  float ty;
-  float tz;
+  double heading;
+  double pitch;
+  double roll;
+  double tx;
+  double ty;
+  double tz;
 };
 
 extern struct current_pose ltr_int_orig_pose;
