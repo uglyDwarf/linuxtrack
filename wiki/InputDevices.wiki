@@ -3,13 +3,13 @@
 = Introduction =
 
 Currently we are supporting three types of input devices.
-  * Track IR 4
+  * Track IR 4/5
   * Wiimote
   * Webcam supporting UVC standard
 
-It is not very probable that our code as it is now would support other versions of Track IR (there is considerable amount of reversing involved...). If you own other version of Track IR or other suitable device and you'd like to contribute to out project, you're welcome.
+If you own other version of Track IR or other suitable device and you'd like to contribute to out project, you're welcome.
 
-= Track IR 4 =
+= Track IR 4/5 =
 This device is supported from the start of our project. Tulthix managed to understand the communication protocol and he wrote a driver for it using libusb (fully userspace).
 Pros of this device are given by the fact that it is designed for motion tracking:
   * wide field of view
@@ -36,6 +36,7 @@ Pros:
 Cons:
   * uses batteries
   * reportedly bluetooth can interfere with your wifi
+  * There seems to be a problem on Mac - Wiimote connects only every other time. This is most probably caused by Wiimote that presents itself a HID device, but it doesn't work that way.
 
 = Webcam =
 Support for this devices is a bit controversial. There are lots of webcams, but lots of them aren't supported in linux at all, some of them work somehow and only a few work really well. Also buying a webcam that should work with linux doesn't guarantee that it will work thanks to frequent changes of hardware, firmware... Also even webcams, that are claimed to be UVC compatible often doesn't support the standart as whole.
@@ -49,7 +50,7 @@ So my reccomendation is following:
   * otherwise - buy something else (wiimote or track ir).
 
 Pros:
-  * webcams can be cheaper
+  * webcams can be cheapest
   * higher physical image resolutions 640x480@30Hz YUYV
 
 Cons:
@@ -59,4 +60,4 @@ Cons:
   * for some webcams you can't turn automatic exposure off
 
 
-PS. I'm speaking from my own experience - I have 3 different webcams and only one works(after several hours of playing with it, and only using cheat - windows in virtual machine); given the fact, that wiimote has pretty much the same price as the one working, there is not much more to think of... And if someone is interested, the one working is Creative Live! Cam Optia (non AF model).
+PS. I'm speaking from my own experience - I have 3 different webcams and only one works; given the fact, that wiimote has pretty much the same price as the one working, there is not much more to think of... And if someone is interested, the one working for me is Creative Live! Cam Optia (non AF model).
