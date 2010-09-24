@@ -50,10 +50,18 @@ int ltr_int_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
       libname = "libtir4";
       break;
     case webcam:
+      #ifndef DARWIN
       libname = "libwc";
+      #else
+      libname = "libmacwc";
+      #endif
       break;
     case wiimote:
+      #ifndef DARWIN
       libname = "libwii";
+      #else
+      libname = "libmacwii";
+      #endif
       break;
     default:
       assert(0);

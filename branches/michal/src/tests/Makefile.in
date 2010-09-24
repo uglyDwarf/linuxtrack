@@ -93,9 +93,8 @@ webcam_driver_test_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(webcam_driver_test_CFLAGS) $(CFLAGS) \
 	$(webcam_driver_test_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
-depcomp = $(SHELL) $(top_srcdir)/depcomp
-am__depfiles_maybe = depfiles
-am__mv = mv -f
+depcomp =
+am__depfiles_maybe =
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
@@ -120,13 +119,11 @@ AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 CC = @CC@
-CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
-DEPDIR = @DEPDIR@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
 ECHO_C = @ECHO_C@
@@ -156,6 +153,8 @@ MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
 NM = @NM@
 NMEDIT = @NMEDIT@
+OBJC = @OBJC@
+OBJCFLAGS = @OBJCFLAGS@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 OTOOL = @OTOOL@
@@ -183,9 +182,8 @@ abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
-am__include = @am__include@
+ac_ct_OBJC = @ac_ct_OBJC@
 am__leading_dot = @am__leading_dot@
-am__quote = @am__quote@
 am__tar = @am__tar@
 am__untar = @am__untar@
 bindir = @bindir@
@@ -281,9 +279,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu src/tests/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu --ignore-deps src/tests/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu src/tests/Makefile
+	  $(AUTOMAKE) --gnu --ignore-deps src/tests/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -330,447 +328,182 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib_test-ltlib_test.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ltlib_test-utils.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_test-axis.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_test-list.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_test-pref.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_test-pref_bison.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_test-pref_flex.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_test-pref_global.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_test-pref_test.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_test-spline.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pref_test-utils.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-list.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-pref.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-pref_bison.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-pref_flex.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-test.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-utils.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver_test-axis.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver_test-image_process.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver_test-list.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver_test-pref.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver_test-pref_bison.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver_test-pref_flex.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver_test-pref_global.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver_test-spline.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver_test-utils.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver_test-webcam_driver.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/webcam_driver_test-webcam_driver_test.Po@am__quote@
-
 .c.o:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c $<
+	$(COMPILE) -c $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
+	$(COMPILE) -c `$(CYGPATH_W) '$<'`
 
 .c.lo:
-@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
+	$(LTCOMPILE) -c -o $@ $<
 
 ltlib_test-ltlib_test.o: ltlib_test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-ltlib_test.o -MD -MP -MF $(DEPDIR)/ltlib_test-ltlib_test.Tpo -c -o ltlib_test-ltlib_test.o `test -f 'ltlib_test.c' || echo '$(srcdir)/'`ltlib_test.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/ltlib_test-ltlib_test.Tpo $(DEPDIR)/ltlib_test-ltlib_test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ltlib_test.c' object='ltlib_test-ltlib_test.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-ltlib_test.o `test -f 'ltlib_test.c' || echo '$(srcdir)/'`ltlib_test.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-ltlib_test.o `test -f 'ltlib_test.c' || echo '$(srcdir)/'`ltlib_test.c
 
 ltlib_test-ltlib_test.obj: ltlib_test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-ltlib_test.obj -MD -MP -MF $(DEPDIR)/ltlib_test-ltlib_test.Tpo -c -o ltlib_test-ltlib_test.obj `if test -f 'ltlib_test.c'; then $(CYGPATH_W) 'ltlib_test.c'; else $(CYGPATH_W) '$(srcdir)/ltlib_test.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/ltlib_test-ltlib_test.Tpo $(DEPDIR)/ltlib_test-ltlib_test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ltlib_test.c' object='ltlib_test-ltlib_test.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-ltlib_test.obj `if test -f 'ltlib_test.c'; then $(CYGPATH_W) 'ltlib_test.c'; else $(CYGPATH_W) '$(srcdir)/ltlib_test.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-ltlib_test.obj `if test -f 'ltlib_test.c'; then $(CYGPATH_W) 'ltlib_test.c'; else $(CYGPATH_W) '$(srcdir)/ltlib_test.c'; fi`
 
 ltlib_test-utils.o: ../utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-utils.o -MD -MP -MF $(DEPDIR)/ltlib_test-utils.Tpo -c -o ltlib_test-utils.o `test -f '../utils.c' || echo '$(srcdir)/'`../utils.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/ltlib_test-utils.Tpo $(DEPDIR)/ltlib_test-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../utils.c' object='ltlib_test-utils.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-utils.o `test -f '../utils.c' || echo '$(srcdir)/'`../utils.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-utils.o `test -f '../utils.c' || echo '$(srcdir)/'`../utils.c
 
 ltlib_test-utils.obj: ../utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -MT ltlib_test-utils.obj -MD -MP -MF $(DEPDIR)/ltlib_test-utils.Tpo -c -o ltlib_test-utils.obj `if test -f '../utils.c'; then $(CYGPATH_W) '../utils.c'; else $(CYGPATH_W) '$(srcdir)/../utils.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/ltlib_test-utils.Tpo $(DEPDIR)/ltlib_test-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../utils.c' object='ltlib_test-utils.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-utils.obj `if test -f '../utils.c'; then $(CYGPATH_W) '../utils.c'; else $(CYGPATH_W) '$(srcdir)/../utils.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-utils.obj `if test -f '../utils.c'; then $(CYGPATH_W) '../utils.c'; else $(CYGPATH_W) '$(srcdir)/../utils.c'; fi`
 
 pref_test-pref_test.o: pref_test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-pref_test.o -MD -MP -MF $(DEPDIR)/pref_test-pref_test.Tpo -c -o pref_test-pref_test.o `test -f 'pref_test.c' || echo '$(srcdir)/'`pref_test.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-pref_test.Tpo $(DEPDIR)/pref_test-pref_test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pref_test.c' object='pref_test-pref_test.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_test.o `test -f 'pref_test.c' || echo '$(srcdir)/'`pref_test.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_test.o `test -f 'pref_test.c' || echo '$(srcdir)/'`pref_test.c
 
 pref_test-pref_test.obj: pref_test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-pref_test.obj -MD -MP -MF $(DEPDIR)/pref_test-pref_test.Tpo -c -o pref_test-pref_test.obj `if test -f 'pref_test.c'; then $(CYGPATH_W) 'pref_test.c'; else $(CYGPATH_W) '$(srcdir)/pref_test.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-pref_test.Tpo $(DEPDIR)/pref_test-pref_test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pref_test.c' object='pref_test-pref_test.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_test.obj `if test -f 'pref_test.c'; then $(CYGPATH_W) 'pref_test.c'; else $(CYGPATH_W) '$(srcdir)/pref_test.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_test.obj `if test -f 'pref_test.c'; then $(CYGPATH_W) 'pref_test.c'; else $(CYGPATH_W) '$(srcdir)/pref_test.c'; fi`
 
 pref_test-utils.o: ../utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-utils.o -MD -MP -MF $(DEPDIR)/pref_test-utils.Tpo -c -o pref_test-utils.o `test -f '../utils.c' || echo '$(srcdir)/'`../utils.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-utils.Tpo $(DEPDIR)/pref_test-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../utils.c' object='pref_test-utils.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-utils.o `test -f '../utils.c' || echo '$(srcdir)/'`../utils.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-utils.o `test -f '../utils.c' || echo '$(srcdir)/'`../utils.c
 
 pref_test-utils.obj: ../utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-utils.obj -MD -MP -MF $(DEPDIR)/pref_test-utils.Tpo -c -o pref_test-utils.obj `if test -f '../utils.c'; then $(CYGPATH_W) '../utils.c'; else $(CYGPATH_W) '$(srcdir)/../utils.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-utils.Tpo $(DEPDIR)/pref_test-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../utils.c' object='pref_test-utils.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-utils.obj `if test -f '../utils.c'; then $(CYGPATH_W) '../utils.c'; else $(CYGPATH_W) '$(srcdir)/../utils.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-utils.obj `if test -f '../utils.c'; then $(CYGPATH_W) '../utils.c'; else $(CYGPATH_W) '$(srcdir)/../utils.c'; fi`
 
 pref_test-list.o: ../list.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-list.o -MD -MP -MF $(DEPDIR)/pref_test-list.Tpo -c -o pref_test-list.o `test -f '../list.c' || echo '$(srcdir)/'`../list.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-list.Tpo $(DEPDIR)/pref_test-list.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../list.c' object='pref_test-list.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-list.o `test -f '../list.c' || echo '$(srcdir)/'`../list.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-list.o `test -f '../list.c' || echo '$(srcdir)/'`../list.c
 
 pref_test-list.obj: ../list.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-list.obj -MD -MP -MF $(DEPDIR)/pref_test-list.Tpo -c -o pref_test-list.obj `if test -f '../list.c'; then $(CYGPATH_W) '../list.c'; else $(CYGPATH_W) '$(srcdir)/../list.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-list.Tpo $(DEPDIR)/pref_test-list.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../list.c' object='pref_test-list.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-list.obj `if test -f '../list.c'; then $(CYGPATH_W) '../list.c'; else $(CYGPATH_W) '$(srcdir)/../list.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-list.obj `if test -f '../list.c'; then $(CYGPATH_W) '../list.c'; else $(CYGPATH_W) '$(srcdir)/../list.c'; fi`
 
 pref_test-pref.o: ../pref.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-pref.o -MD -MP -MF $(DEPDIR)/pref_test-pref.Tpo -c -o pref_test-pref.o `test -f '../pref.c' || echo '$(srcdir)/'`../pref.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-pref.Tpo $(DEPDIR)/pref_test-pref.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref.c' object='pref_test-pref.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref.o `test -f '../pref.c' || echo '$(srcdir)/'`../pref.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref.o `test -f '../pref.c' || echo '$(srcdir)/'`../pref.c
 
 pref_test-pref.obj: ../pref.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-pref.obj -MD -MP -MF $(DEPDIR)/pref_test-pref.Tpo -c -o pref_test-pref.obj `if test -f '../pref.c'; then $(CYGPATH_W) '../pref.c'; else $(CYGPATH_W) '$(srcdir)/../pref.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-pref.Tpo $(DEPDIR)/pref_test-pref.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref.c' object='pref_test-pref.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref.obj `if test -f '../pref.c'; then $(CYGPATH_W) '../pref.c'; else $(CYGPATH_W) '$(srcdir)/../pref.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref.obj `if test -f '../pref.c'; then $(CYGPATH_W) '../pref.c'; else $(CYGPATH_W) '$(srcdir)/../pref.c'; fi`
 
 pref_test-pref_bison.o: ../pref_bison.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-pref_bison.o -MD -MP -MF $(DEPDIR)/pref_test-pref_bison.Tpo -c -o pref_test-pref_bison.o `test -f '../pref_bison.c' || echo '$(srcdir)/'`../pref_bison.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-pref_bison.Tpo $(DEPDIR)/pref_test-pref_bison.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref_bison.c' object='pref_test-pref_bison.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_bison.o `test -f '../pref_bison.c' || echo '$(srcdir)/'`../pref_bison.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_bison.o `test -f '../pref_bison.c' || echo '$(srcdir)/'`../pref_bison.c
 
 pref_test-pref_bison.obj: ../pref_bison.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-pref_bison.obj -MD -MP -MF $(DEPDIR)/pref_test-pref_bison.Tpo -c -o pref_test-pref_bison.obj `if test -f '../pref_bison.c'; then $(CYGPATH_W) '../pref_bison.c'; else $(CYGPATH_W) '$(srcdir)/../pref_bison.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-pref_bison.Tpo $(DEPDIR)/pref_test-pref_bison.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref_bison.c' object='pref_test-pref_bison.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_bison.obj `if test -f '../pref_bison.c'; then $(CYGPATH_W) '../pref_bison.c'; else $(CYGPATH_W) '$(srcdir)/../pref_bison.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_bison.obj `if test -f '../pref_bison.c'; then $(CYGPATH_W) '../pref_bison.c'; else $(CYGPATH_W) '$(srcdir)/../pref_bison.c'; fi`
 
 pref_test-pref_flex.o: ../pref_flex.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-pref_flex.o -MD -MP -MF $(DEPDIR)/pref_test-pref_flex.Tpo -c -o pref_test-pref_flex.o `test -f '../pref_flex.c' || echo '$(srcdir)/'`../pref_flex.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-pref_flex.Tpo $(DEPDIR)/pref_test-pref_flex.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref_flex.c' object='pref_test-pref_flex.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_flex.o `test -f '../pref_flex.c' || echo '$(srcdir)/'`../pref_flex.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_flex.o `test -f '../pref_flex.c' || echo '$(srcdir)/'`../pref_flex.c
 
 pref_test-pref_flex.obj: ../pref_flex.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-pref_flex.obj -MD -MP -MF $(DEPDIR)/pref_test-pref_flex.Tpo -c -o pref_test-pref_flex.obj `if test -f '../pref_flex.c'; then $(CYGPATH_W) '../pref_flex.c'; else $(CYGPATH_W) '$(srcdir)/../pref_flex.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-pref_flex.Tpo $(DEPDIR)/pref_test-pref_flex.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref_flex.c' object='pref_test-pref_flex.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_flex.obj `if test -f '../pref_flex.c'; then $(CYGPATH_W) '../pref_flex.c'; else $(CYGPATH_W) '$(srcdir)/../pref_flex.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_flex.obj `if test -f '../pref_flex.c'; then $(CYGPATH_W) '../pref_flex.c'; else $(CYGPATH_W) '$(srcdir)/../pref_flex.c'; fi`
 
 pref_test-pref_global.o: ../pref_global.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-pref_global.o -MD -MP -MF $(DEPDIR)/pref_test-pref_global.Tpo -c -o pref_test-pref_global.o `test -f '../pref_global.c' || echo '$(srcdir)/'`../pref_global.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-pref_global.Tpo $(DEPDIR)/pref_test-pref_global.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref_global.c' object='pref_test-pref_global.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_global.o `test -f '../pref_global.c' || echo '$(srcdir)/'`../pref_global.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_global.o `test -f '../pref_global.c' || echo '$(srcdir)/'`../pref_global.c
 
 pref_test-pref_global.obj: ../pref_global.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-pref_global.obj -MD -MP -MF $(DEPDIR)/pref_test-pref_global.Tpo -c -o pref_test-pref_global.obj `if test -f '../pref_global.c'; then $(CYGPATH_W) '../pref_global.c'; else $(CYGPATH_W) '$(srcdir)/../pref_global.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-pref_global.Tpo $(DEPDIR)/pref_test-pref_global.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref_global.c' object='pref_test-pref_global.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_global.obj `if test -f '../pref_global.c'; then $(CYGPATH_W) '../pref_global.c'; else $(CYGPATH_W) '$(srcdir)/../pref_global.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-pref_global.obj `if test -f '../pref_global.c'; then $(CYGPATH_W) '../pref_global.c'; else $(CYGPATH_W) '$(srcdir)/../pref_global.c'; fi`
 
 pref_test-axis.o: ../axis.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-axis.o -MD -MP -MF $(DEPDIR)/pref_test-axis.Tpo -c -o pref_test-axis.o `test -f '../axis.c' || echo '$(srcdir)/'`../axis.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-axis.Tpo $(DEPDIR)/pref_test-axis.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../axis.c' object='pref_test-axis.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-axis.o `test -f '../axis.c' || echo '$(srcdir)/'`../axis.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-axis.o `test -f '../axis.c' || echo '$(srcdir)/'`../axis.c
 
 pref_test-axis.obj: ../axis.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-axis.obj -MD -MP -MF $(DEPDIR)/pref_test-axis.Tpo -c -o pref_test-axis.obj `if test -f '../axis.c'; then $(CYGPATH_W) '../axis.c'; else $(CYGPATH_W) '$(srcdir)/../axis.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-axis.Tpo $(DEPDIR)/pref_test-axis.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../axis.c' object='pref_test-axis.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-axis.obj `if test -f '../axis.c'; then $(CYGPATH_W) '../axis.c'; else $(CYGPATH_W) '$(srcdir)/../axis.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-axis.obj `if test -f '../axis.c'; then $(CYGPATH_W) '../axis.c'; else $(CYGPATH_W) '$(srcdir)/../axis.c'; fi`
 
 pref_test-spline.o: ../spline.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-spline.o -MD -MP -MF $(DEPDIR)/pref_test-spline.Tpo -c -o pref_test-spline.o `test -f '../spline.c' || echo '$(srcdir)/'`../spline.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-spline.Tpo $(DEPDIR)/pref_test-spline.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../spline.c' object='pref_test-spline.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-spline.o `test -f '../spline.c' || echo '$(srcdir)/'`../spline.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-spline.o `test -f '../spline.c' || echo '$(srcdir)/'`../spline.c
 
 pref_test-spline.obj: ../spline.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -MT pref_test-spline.obj -MD -MP -MF $(DEPDIR)/pref_test-spline.Tpo -c -o pref_test-spline.obj `if test -f '../spline.c'; then $(CYGPATH_W) '../spline.c'; else $(CYGPATH_W) '$(srcdir)/../spline.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/pref_test-spline.Tpo $(DEPDIR)/pref_test-spline.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../spline.c' object='pref_test-spline.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-spline.obj `if test -f '../spline.c'; then $(CYGPATH_W) '../spline.c'; else $(CYGPATH_W) '$(srcdir)/../spline.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pref_test_CFLAGS) $(CFLAGS) -c -o pref_test-spline.obj `if test -f '../spline.c'; then $(CYGPATH_W) '../spline.c'; else $(CYGPATH_W) '$(srcdir)/../spline.c'; fi`
 
 tests-test.o: test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -MT tests-test.o -MD -MP -MF $(DEPDIR)/tests-test.Tpo -c -o tests-test.o `test -f 'test.c' || echo '$(srcdir)/'`test.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tests-test.Tpo $(DEPDIR)/tests-test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test.c' object='tests-test.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-test.o `test -f 'test.c' || echo '$(srcdir)/'`test.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-test.o `test -f 'test.c' || echo '$(srcdir)/'`test.c
 
 tests-test.obj: test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -MT tests-test.obj -MD -MP -MF $(DEPDIR)/tests-test.Tpo -c -o tests-test.obj `if test -f 'test.c'; then $(CYGPATH_W) 'test.c'; else $(CYGPATH_W) '$(srcdir)/test.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tests-test.Tpo $(DEPDIR)/tests-test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='test.c' object='tests-test.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-test.obj `if test -f 'test.c'; then $(CYGPATH_W) 'test.c'; else $(CYGPATH_W) '$(srcdir)/test.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-test.obj `if test -f 'test.c'; then $(CYGPATH_W) 'test.c'; else $(CYGPATH_W) '$(srcdir)/test.c'; fi`
 
 tests-utils.o: ../utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -MT tests-utils.o -MD -MP -MF $(DEPDIR)/tests-utils.Tpo -c -o tests-utils.o `test -f '../utils.c' || echo '$(srcdir)/'`../utils.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tests-utils.Tpo $(DEPDIR)/tests-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../utils.c' object='tests-utils.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-utils.o `test -f '../utils.c' || echo '$(srcdir)/'`../utils.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-utils.o `test -f '../utils.c' || echo '$(srcdir)/'`../utils.c
 
 tests-utils.obj: ../utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -MT tests-utils.obj -MD -MP -MF $(DEPDIR)/tests-utils.Tpo -c -o tests-utils.obj `if test -f '../utils.c'; then $(CYGPATH_W) '../utils.c'; else $(CYGPATH_W) '$(srcdir)/../utils.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tests-utils.Tpo $(DEPDIR)/tests-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../utils.c' object='tests-utils.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-utils.obj `if test -f '../utils.c'; then $(CYGPATH_W) '../utils.c'; else $(CYGPATH_W) '$(srcdir)/../utils.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-utils.obj `if test -f '../utils.c'; then $(CYGPATH_W) '../utils.c'; else $(CYGPATH_W) '$(srcdir)/../utils.c'; fi`
 
 tests-list.o: ../list.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -MT tests-list.o -MD -MP -MF $(DEPDIR)/tests-list.Tpo -c -o tests-list.o `test -f '../list.c' || echo '$(srcdir)/'`../list.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tests-list.Tpo $(DEPDIR)/tests-list.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../list.c' object='tests-list.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-list.o `test -f '../list.c' || echo '$(srcdir)/'`../list.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-list.o `test -f '../list.c' || echo '$(srcdir)/'`../list.c
 
 tests-list.obj: ../list.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -MT tests-list.obj -MD -MP -MF $(DEPDIR)/tests-list.Tpo -c -o tests-list.obj `if test -f '../list.c'; then $(CYGPATH_W) '../list.c'; else $(CYGPATH_W) '$(srcdir)/../list.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tests-list.Tpo $(DEPDIR)/tests-list.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../list.c' object='tests-list.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-list.obj `if test -f '../list.c'; then $(CYGPATH_W) '../list.c'; else $(CYGPATH_W) '$(srcdir)/../list.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-list.obj `if test -f '../list.c'; then $(CYGPATH_W) '../list.c'; else $(CYGPATH_W) '$(srcdir)/../list.c'; fi`
 
 tests-pref.o: ../pref.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -MT tests-pref.o -MD -MP -MF $(DEPDIR)/tests-pref.Tpo -c -o tests-pref.o `test -f '../pref.c' || echo '$(srcdir)/'`../pref.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tests-pref.Tpo $(DEPDIR)/tests-pref.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref.c' object='tests-pref.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-pref.o `test -f '../pref.c' || echo '$(srcdir)/'`../pref.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-pref.o `test -f '../pref.c' || echo '$(srcdir)/'`../pref.c
 
 tests-pref.obj: ../pref.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -MT tests-pref.obj -MD -MP -MF $(DEPDIR)/tests-pref.Tpo -c -o tests-pref.obj `if test -f '../pref.c'; then $(CYGPATH_W) '../pref.c'; else $(CYGPATH_W) '$(srcdir)/../pref.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tests-pref.Tpo $(DEPDIR)/tests-pref.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref.c' object='tests-pref.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-pref.obj `if test -f '../pref.c'; then $(CYGPATH_W) '../pref.c'; else $(CYGPATH_W) '$(srcdir)/../pref.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-pref.obj `if test -f '../pref.c'; then $(CYGPATH_W) '../pref.c'; else $(CYGPATH_W) '$(srcdir)/../pref.c'; fi`
 
 tests-pref_bison.o: ../pref_bison.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -MT tests-pref_bison.o -MD -MP -MF $(DEPDIR)/tests-pref_bison.Tpo -c -o tests-pref_bison.o `test -f '../pref_bison.c' || echo '$(srcdir)/'`../pref_bison.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tests-pref_bison.Tpo $(DEPDIR)/tests-pref_bison.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref_bison.c' object='tests-pref_bison.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-pref_bison.o `test -f '../pref_bison.c' || echo '$(srcdir)/'`../pref_bison.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-pref_bison.o `test -f '../pref_bison.c' || echo '$(srcdir)/'`../pref_bison.c
 
 tests-pref_bison.obj: ../pref_bison.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -MT tests-pref_bison.obj -MD -MP -MF $(DEPDIR)/tests-pref_bison.Tpo -c -o tests-pref_bison.obj `if test -f '../pref_bison.c'; then $(CYGPATH_W) '../pref_bison.c'; else $(CYGPATH_W) '$(srcdir)/../pref_bison.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tests-pref_bison.Tpo $(DEPDIR)/tests-pref_bison.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref_bison.c' object='tests-pref_bison.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-pref_bison.obj `if test -f '../pref_bison.c'; then $(CYGPATH_W) '../pref_bison.c'; else $(CYGPATH_W) '$(srcdir)/../pref_bison.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-pref_bison.obj `if test -f '../pref_bison.c'; then $(CYGPATH_W) '../pref_bison.c'; else $(CYGPATH_W) '$(srcdir)/../pref_bison.c'; fi`
 
 tests-pref_flex.o: ../pref_flex.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -MT tests-pref_flex.o -MD -MP -MF $(DEPDIR)/tests-pref_flex.Tpo -c -o tests-pref_flex.o `test -f '../pref_flex.c' || echo '$(srcdir)/'`../pref_flex.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tests-pref_flex.Tpo $(DEPDIR)/tests-pref_flex.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref_flex.c' object='tests-pref_flex.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-pref_flex.o `test -f '../pref_flex.c' || echo '$(srcdir)/'`../pref_flex.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-pref_flex.o `test -f '../pref_flex.c' || echo '$(srcdir)/'`../pref_flex.c
 
 tests-pref_flex.obj: ../pref_flex.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -MT tests-pref_flex.obj -MD -MP -MF $(DEPDIR)/tests-pref_flex.Tpo -c -o tests-pref_flex.obj `if test -f '../pref_flex.c'; then $(CYGPATH_W) '../pref_flex.c'; else $(CYGPATH_W) '$(srcdir)/../pref_flex.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tests-pref_flex.Tpo $(DEPDIR)/tests-pref_flex.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref_flex.c' object='tests-pref_flex.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-pref_flex.obj `if test -f '../pref_flex.c'; then $(CYGPATH_W) '../pref_flex.c'; else $(CYGPATH_W) '$(srcdir)/../pref_flex.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_CFLAGS) $(CFLAGS) -c -o tests-pref_flex.obj `if test -f '../pref_flex.c'; then $(CYGPATH_W) '../pref_flex.c'; else $(CYGPATH_W) '$(srcdir)/../pref_flex.c'; fi`
 
 webcam_driver_test-webcam_driver_test.o: webcam_driver_test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-webcam_driver_test.o -MD -MP -MF $(DEPDIR)/webcam_driver_test-webcam_driver_test.Tpo -c -o webcam_driver_test-webcam_driver_test.o `test -f 'webcam_driver_test.c' || echo '$(srcdir)/'`webcam_driver_test.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-webcam_driver_test.Tpo $(DEPDIR)/webcam_driver_test-webcam_driver_test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='webcam_driver_test.c' object='webcam_driver_test-webcam_driver_test.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-webcam_driver_test.o `test -f 'webcam_driver_test.c' || echo '$(srcdir)/'`webcam_driver_test.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-webcam_driver_test.o `test -f 'webcam_driver_test.c' || echo '$(srcdir)/'`webcam_driver_test.c
 
 webcam_driver_test-webcam_driver_test.obj: webcam_driver_test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-webcam_driver_test.obj -MD -MP -MF $(DEPDIR)/webcam_driver_test-webcam_driver_test.Tpo -c -o webcam_driver_test-webcam_driver_test.obj `if test -f 'webcam_driver_test.c'; then $(CYGPATH_W) 'webcam_driver_test.c'; else $(CYGPATH_W) '$(srcdir)/webcam_driver_test.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-webcam_driver_test.Tpo $(DEPDIR)/webcam_driver_test-webcam_driver_test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='webcam_driver_test.c' object='webcam_driver_test-webcam_driver_test.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-webcam_driver_test.obj `if test -f 'webcam_driver_test.c'; then $(CYGPATH_W) 'webcam_driver_test.c'; else $(CYGPATH_W) '$(srcdir)/webcam_driver_test.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-webcam_driver_test.obj `if test -f 'webcam_driver_test.c'; then $(CYGPATH_W) 'webcam_driver_test.c'; else $(CYGPATH_W) '$(srcdir)/webcam_driver_test.c'; fi`
 
 webcam_driver_test-webcam_driver.o: ../webcam_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-webcam_driver.o -MD -MP -MF $(DEPDIR)/webcam_driver_test-webcam_driver.Tpo -c -o webcam_driver_test-webcam_driver.o `test -f '../webcam_driver.c' || echo '$(srcdir)/'`../webcam_driver.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-webcam_driver.Tpo $(DEPDIR)/webcam_driver_test-webcam_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../webcam_driver.c' object='webcam_driver_test-webcam_driver.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-webcam_driver.o `test -f '../webcam_driver.c' || echo '$(srcdir)/'`../webcam_driver.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-webcam_driver.o `test -f '../webcam_driver.c' || echo '$(srcdir)/'`../webcam_driver.c
 
 webcam_driver_test-webcam_driver.obj: ../webcam_driver.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-webcam_driver.obj -MD -MP -MF $(DEPDIR)/webcam_driver_test-webcam_driver.Tpo -c -o webcam_driver_test-webcam_driver.obj `if test -f '../webcam_driver.c'; then $(CYGPATH_W) '../webcam_driver.c'; else $(CYGPATH_W) '$(srcdir)/../webcam_driver.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-webcam_driver.Tpo $(DEPDIR)/webcam_driver_test-webcam_driver.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../webcam_driver.c' object='webcam_driver_test-webcam_driver.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-webcam_driver.obj `if test -f '../webcam_driver.c'; then $(CYGPATH_W) '../webcam_driver.c'; else $(CYGPATH_W) '$(srcdir)/../webcam_driver.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-webcam_driver.obj `if test -f '../webcam_driver.c'; then $(CYGPATH_W) '../webcam_driver.c'; else $(CYGPATH_W) '$(srcdir)/../webcam_driver.c'; fi`
 
 webcam_driver_test-utils.o: ../utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-utils.o -MD -MP -MF $(DEPDIR)/webcam_driver_test-utils.Tpo -c -o webcam_driver_test-utils.o `test -f '../utils.c' || echo '$(srcdir)/'`../utils.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-utils.Tpo $(DEPDIR)/webcam_driver_test-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../utils.c' object='webcam_driver_test-utils.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-utils.o `test -f '../utils.c' || echo '$(srcdir)/'`../utils.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-utils.o `test -f '../utils.c' || echo '$(srcdir)/'`../utils.c
 
 webcam_driver_test-utils.obj: ../utils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-utils.obj -MD -MP -MF $(DEPDIR)/webcam_driver_test-utils.Tpo -c -o webcam_driver_test-utils.obj `if test -f '../utils.c'; then $(CYGPATH_W) '../utils.c'; else $(CYGPATH_W) '$(srcdir)/../utils.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-utils.Tpo $(DEPDIR)/webcam_driver_test-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../utils.c' object='webcam_driver_test-utils.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-utils.obj `if test -f '../utils.c'; then $(CYGPATH_W) '../utils.c'; else $(CYGPATH_W) '$(srcdir)/../utils.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-utils.obj `if test -f '../utils.c'; then $(CYGPATH_W) '../utils.c'; else $(CYGPATH_W) '$(srcdir)/../utils.c'; fi`
 
 webcam_driver_test-list.o: ../list.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-list.o -MD -MP -MF $(DEPDIR)/webcam_driver_test-list.Tpo -c -o webcam_driver_test-list.o `test -f '../list.c' || echo '$(srcdir)/'`../list.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-list.Tpo $(DEPDIR)/webcam_driver_test-list.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../list.c' object='webcam_driver_test-list.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-list.o `test -f '../list.c' || echo '$(srcdir)/'`../list.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-list.o `test -f '../list.c' || echo '$(srcdir)/'`../list.c
 
 webcam_driver_test-list.obj: ../list.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-list.obj -MD -MP -MF $(DEPDIR)/webcam_driver_test-list.Tpo -c -o webcam_driver_test-list.obj `if test -f '../list.c'; then $(CYGPATH_W) '../list.c'; else $(CYGPATH_W) '$(srcdir)/../list.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-list.Tpo $(DEPDIR)/webcam_driver_test-list.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../list.c' object='webcam_driver_test-list.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-list.obj `if test -f '../list.c'; then $(CYGPATH_W) '../list.c'; else $(CYGPATH_W) '$(srcdir)/../list.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-list.obj `if test -f '../list.c'; then $(CYGPATH_W) '../list.c'; else $(CYGPATH_W) '$(srcdir)/../list.c'; fi`
 
 webcam_driver_test-pref.o: ../pref.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-pref.o -MD -MP -MF $(DEPDIR)/webcam_driver_test-pref.Tpo -c -o webcam_driver_test-pref.o `test -f '../pref.c' || echo '$(srcdir)/'`../pref.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-pref.Tpo $(DEPDIR)/webcam_driver_test-pref.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref.c' object='webcam_driver_test-pref.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-pref.o `test -f '../pref.c' || echo '$(srcdir)/'`../pref.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-pref.o `test -f '../pref.c' || echo '$(srcdir)/'`../pref.c
 
 webcam_driver_test-pref.obj: ../pref.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-pref.obj -MD -MP -MF $(DEPDIR)/webcam_driver_test-pref.Tpo -c -o webcam_driver_test-pref.obj `if test -f '../pref.c'; then $(CYGPATH_W) '../pref.c'; else $(CYGPATH_W) '$(srcdir)/../pref.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-pref.Tpo $(DEPDIR)/webcam_driver_test-pref.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref.c' object='webcam_driver_test-pref.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-pref.obj `if test -f '../pref.c'; then $(CYGPATH_W) '../pref.c'; else $(CYGPATH_W) '$(srcdir)/../pref.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-pref.obj `if test -f '../pref.c'; then $(CYGPATH_W) '../pref.c'; else $(CYGPATH_W) '$(srcdir)/../pref.c'; fi`
 
 webcam_driver_test-pref_bison.o: ../pref_bison.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-pref_bison.o -MD -MP -MF $(DEPDIR)/webcam_driver_test-pref_bison.Tpo -c -o webcam_driver_test-pref_bison.o `test -f '../pref_bison.c' || echo '$(srcdir)/'`../pref_bison.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-pref_bison.Tpo $(DEPDIR)/webcam_driver_test-pref_bison.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref_bison.c' object='webcam_driver_test-pref_bison.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-pref_bison.o `test -f '../pref_bison.c' || echo '$(srcdir)/'`../pref_bison.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-pref_bison.o `test -f '../pref_bison.c' || echo '$(srcdir)/'`../pref_bison.c
 
 webcam_driver_test-pref_bison.obj: ../pref_bison.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-pref_bison.obj -MD -MP -MF $(DEPDIR)/webcam_driver_test-pref_bison.Tpo -c -o webcam_driver_test-pref_bison.obj `if test -f '../pref_bison.c'; then $(CYGPATH_W) '../pref_bison.c'; else $(CYGPATH_W) '$(srcdir)/../pref_bison.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-pref_bison.Tpo $(DEPDIR)/webcam_driver_test-pref_bison.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref_bison.c' object='webcam_driver_test-pref_bison.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-pref_bison.obj `if test -f '../pref_bison.c'; then $(CYGPATH_W) '../pref_bison.c'; else $(CYGPATH_W) '$(srcdir)/../pref_bison.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-pref_bison.obj `if test -f '../pref_bison.c'; then $(CYGPATH_W) '../pref_bison.c'; else $(CYGPATH_W) '$(srcdir)/../pref_bison.c'; fi`
 
 webcam_driver_test-pref_flex.o: ../pref_flex.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-pref_flex.o -MD -MP -MF $(DEPDIR)/webcam_driver_test-pref_flex.Tpo -c -o webcam_driver_test-pref_flex.o `test -f '../pref_flex.c' || echo '$(srcdir)/'`../pref_flex.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-pref_flex.Tpo $(DEPDIR)/webcam_driver_test-pref_flex.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref_flex.c' object='webcam_driver_test-pref_flex.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-pref_flex.o `test -f '../pref_flex.c' || echo '$(srcdir)/'`../pref_flex.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-pref_flex.o `test -f '../pref_flex.c' || echo '$(srcdir)/'`../pref_flex.c
 
 webcam_driver_test-pref_flex.obj: ../pref_flex.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-pref_flex.obj -MD -MP -MF $(DEPDIR)/webcam_driver_test-pref_flex.Tpo -c -o webcam_driver_test-pref_flex.obj `if test -f '../pref_flex.c'; then $(CYGPATH_W) '../pref_flex.c'; else $(CYGPATH_W) '$(srcdir)/../pref_flex.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-pref_flex.Tpo $(DEPDIR)/webcam_driver_test-pref_flex.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref_flex.c' object='webcam_driver_test-pref_flex.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-pref_flex.obj `if test -f '../pref_flex.c'; then $(CYGPATH_W) '../pref_flex.c'; else $(CYGPATH_W) '$(srcdir)/../pref_flex.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-pref_flex.obj `if test -f '../pref_flex.c'; then $(CYGPATH_W) '../pref_flex.c'; else $(CYGPATH_W) '$(srcdir)/../pref_flex.c'; fi`
 
 webcam_driver_test-pref_global.o: ../pref_global.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-pref_global.o -MD -MP -MF $(DEPDIR)/webcam_driver_test-pref_global.Tpo -c -o webcam_driver_test-pref_global.o `test -f '../pref_global.c' || echo '$(srcdir)/'`../pref_global.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-pref_global.Tpo $(DEPDIR)/webcam_driver_test-pref_global.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref_global.c' object='webcam_driver_test-pref_global.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-pref_global.o `test -f '../pref_global.c' || echo '$(srcdir)/'`../pref_global.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-pref_global.o `test -f '../pref_global.c' || echo '$(srcdir)/'`../pref_global.c
 
 webcam_driver_test-pref_global.obj: ../pref_global.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-pref_global.obj -MD -MP -MF $(DEPDIR)/webcam_driver_test-pref_global.Tpo -c -o webcam_driver_test-pref_global.obj `if test -f '../pref_global.c'; then $(CYGPATH_W) '../pref_global.c'; else $(CYGPATH_W) '$(srcdir)/../pref_global.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-pref_global.Tpo $(DEPDIR)/webcam_driver_test-pref_global.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../pref_global.c' object='webcam_driver_test-pref_global.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-pref_global.obj `if test -f '../pref_global.c'; then $(CYGPATH_W) '../pref_global.c'; else $(CYGPATH_W) '$(srcdir)/../pref_global.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-pref_global.obj `if test -f '../pref_global.c'; then $(CYGPATH_W) '../pref_global.c'; else $(CYGPATH_W) '$(srcdir)/../pref_global.c'; fi`
 
 webcam_driver_test-image_process.o: ../image_process.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-image_process.o -MD -MP -MF $(DEPDIR)/webcam_driver_test-image_process.Tpo -c -o webcam_driver_test-image_process.o `test -f '../image_process.c' || echo '$(srcdir)/'`../image_process.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-image_process.Tpo $(DEPDIR)/webcam_driver_test-image_process.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../image_process.c' object='webcam_driver_test-image_process.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-image_process.o `test -f '../image_process.c' || echo '$(srcdir)/'`../image_process.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-image_process.o `test -f '../image_process.c' || echo '$(srcdir)/'`../image_process.c
 
 webcam_driver_test-image_process.obj: ../image_process.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-image_process.obj -MD -MP -MF $(DEPDIR)/webcam_driver_test-image_process.Tpo -c -o webcam_driver_test-image_process.obj `if test -f '../image_process.c'; then $(CYGPATH_W) '../image_process.c'; else $(CYGPATH_W) '$(srcdir)/../image_process.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-image_process.Tpo $(DEPDIR)/webcam_driver_test-image_process.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../image_process.c' object='webcam_driver_test-image_process.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-image_process.obj `if test -f '../image_process.c'; then $(CYGPATH_W) '../image_process.c'; else $(CYGPATH_W) '$(srcdir)/../image_process.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-image_process.obj `if test -f '../image_process.c'; then $(CYGPATH_W) '../image_process.c'; else $(CYGPATH_W) '$(srcdir)/../image_process.c'; fi`
 
 webcam_driver_test-axis.o: ../axis.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-axis.o -MD -MP -MF $(DEPDIR)/webcam_driver_test-axis.Tpo -c -o webcam_driver_test-axis.o `test -f '../axis.c' || echo '$(srcdir)/'`../axis.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-axis.Tpo $(DEPDIR)/webcam_driver_test-axis.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../axis.c' object='webcam_driver_test-axis.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-axis.o `test -f '../axis.c' || echo '$(srcdir)/'`../axis.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-axis.o `test -f '../axis.c' || echo '$(srcdir)/'`../axis.c
 
 webcam_driver_test-axis.obj: ../axis.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-axis.obj -MD -MP -MF $(DEPDIR)/webcam_driver_test-axis.Tpo -c -o webcam_driver_test-axis.obj `if test -f '../axis.c'; then $(CYGPATH_W) '../axis.c'; else $(CYGPATH_W) '$(srcdir)/../axis.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-axis.Tpo $(DEPDIR)/webcam_driver_test-axis.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../axis.c' object='webcam_driver_test-axis.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-axis.obj `if test -f '../axis.c'; then $(CYGPATH_W) '../axis.c'; else $(CYGPATH_W) '$(srcdir)/../axis.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-axis.obj `if test -f '../axis.c'; then $(CYGPATH_W) '../axis.c'; else $(CYGPATH_W) '$(srcdir)/../axis.c'; fi`
 
 webcam_driver_test-spline.o: ../spline.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-spline.o -MD -MP -MF $(DEPDIR)/webcam_driver_test-spline.Tpo -c -o webcam_driver_test-spline.o `test -f '../spline.c' || echo '$(srcdir)/'`../spline.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-spline.Tpo $(DEPDIR)/webcam_driver_test-spline.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../spline.c' object='webcam_driver_test-spline.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-spline.o `test -f '../spline.c' || echo '$(srcdir)/'`../spline.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-spline.o `test -f '../spline.c' || echo '$(srcdir)/'`../spline.c
 
 webcam_driver_test-spline.obj: ../spline.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -MT webcam_driver_test-spline.obj -MD -MP -MF $(DEPDIR)/webcam_driver_test-spline.Tpo -c -o webcam_driver_test-spline.obj `if test -f '../spline.c'; then $(CYGPATH_W) '../spline.c'; else $(CYGPATH_W) '$(srcdir)/../spline.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/webcam_driver_test-spline.Tpo $(DEPDIR)/webcam_driver_test-spline.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../spline.c' object='webcam_driver_test-spline.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-spline.obj `if test -f '../spline.c'; then $(CYGPATH_W) '../spline.c'; else $(CYGPATH_W) '$(srcdir)/../spline.c'; fi`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(webcam_driver_test_CFLAGS) $(CFLAGS) -c -o webcam_driver_test-spline.obj `if test -f '../spline.c'; then $(CYGPATH_W) '../spline.c'; else $(CYGPATH_W) '$(srcdir)/../spline.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -896,7 +629,6 @@ clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
 	mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -942,7 +674,6 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

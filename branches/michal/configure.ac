@@ -6,11 +6,10 @@ AC_INIT([LinuxTrack], [0.0], [http://code.google.com/p/linux-track/issues/list])
 AM_INIT_AUTOMAKE([no-dependencies -Wall -Werror])
 AC_CONFIG_SRCDIR([src/tir4_driver.h])
 AC_CONFIG_HEADERS([config.h])
-
+AC_PROG_OBJC
 AS_IF([test "$debug" != "no"],
       [CFLAGS+=" -g -O0 -Wall -Wextra"],
       [CFLAGS+=" -O3 "])
-CFLAGS+=" -m32 "
 
 # Checks for programs.
 AC_PROG_YACC
@@ -99,6 +98,7 @@ AC_CONFIG_FILES([
  src/Makefile
  src/pathconfig.h
  src/tests/Makefile
+ src/mac/Makefile
  src/qt_gui/ltr_gui.pro
 ])
 AC_OUTPUT

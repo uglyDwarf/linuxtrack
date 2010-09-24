@@ -18,6 +18,8 @@
 #define IOCTL_RETRY_COUNT 5
 
 static char *pref_file = ".linuxtrack";
+static const char *default_logfile = "/tmp/linuxtrack.log";
+static const char *logfile = NULL;
 
 void* ltr_int_my_malloc(size_t size)
 {
@@ -40,6 +42,13 @@ char* ltr_int_my_strdup(const char *s)
   return ptr;
 }
 
+void ltr_int_set_logfile_name(const char *fname)
+{
+  assert(logfile == NULL);
+  assert(fname != NULL);
+  logfile = fname;
+}
+
 void ltr_int_log_message(const char *format, ...)
 {
   va_list ap;
@@ -52,7 +61,10 @@ void ltr_int_valog_message(const char *format, va_list va)
 {
   static FILE *output_stream = NULL;
   if(output_stream == NULL){
-    output_stream = freopen("/tmp/linuxtrack.log", "w", stderr);
+    if(logfile == NULL){
+      logfile = default_logfile;
+    }
+    output_stream = freopen(logfile, "w", stderr);
     if(output_stream == NULL){
       printf("Error opening logfile!\n");
       return;
@@ -107,22 +119,25 @@ char *ltr_int_my_strcat(const char *str1, const char *str2)
   return res;
 }
 
-char *ltr_int_get_default_file_name()
+char *ltr_int_get_default_file_name(char *fname)
 {
   char *home = getenv("HOME");
   if(home == NULL){
     ltr_int_log_message("Please set HOME variable!\n");
     return NULL;
   }
+  if(fname == NULL){
+    fname = pref_file;
+  }
   char *pref_path = (char *)ltr_int_my_malloc(strlen(home) 
-                    + strlen(pref_file) + 2);
-  sprintf(pref_path, "%s/%s", home, pref_file);
+                    + strlen(fname) + 2);
+  sprintf(pref_path, "%s/%s", home, fname);
   return pref_path;
 }
 
 char *ltr_int_get_app_path(const char *suffix)
 {
-  char *fname = ltr_int_get_default_file_name();
+  char *fname = ltr_int_get_default_file_name(NULL);
   if(fname == NULL){
     return NULL;
   }

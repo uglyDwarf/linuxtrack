@@ -8,7 +8,7 @@
 
 static int max_blob = 0;
 static int min_blob = 0;
-static int threshold = 0;
+static int threshold_val = 0;
 static char *camera_id = NULL;
 static char *pix_fmt = NULL;
 static int res_x = 0;
@@ -39,8 +39,8 @@ bool ltr_int_wc_init_prefs()
   if(!ltr_int_get_key_int(dev, min_blob_key, &min_blob)){
     min_blob = 4;
   }
-  if(!ltr_int_get_key_int(dev, threshold_key, &threshold)){
-    threshold = 140;
+  if(!ltr_int_get_key_int(dev, threshold_key, &threshold_val)){
+    threshold_val = 140;
   }
   const char *tmp = ltr_int_get_key(dev, id_key);
   if(tmp != NULL){
@@ -102,7 +102,7 @@ bool ltr_int_wc_set_min_blob(int val)
 
 int ltr_int_wc_get_threshold()
 {
-  return threshold;
+  return threshold_val;
 }
 
 bool ltr_int_wc_set_threshold(int val)
@@ -113,7 +113,7 @@ bool ltr_int_wc_set_threshold(int val)
   if(val > 253){
     val = 253;
   }
-  threshold = val;
+  threshold_val = val;
   return ltr_int_change_key_int(ltr_int_get_device_section(), threshold_key, val);
 }
 

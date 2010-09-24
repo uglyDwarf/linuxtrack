@@ -68,7 +68,7 @@ bool ltr_int_read_prefs(char *file, bool force_read)
     if(file != NULL){
       pfile = file;
     }else{
-      pfile = ltr_int_get_default_file_name();
+      pfile = ltr_int_get_default_file_name(NULL);
       free_str = true;
     }
     if(pfile == NULL){
@@ -452,7 +452,7 @@ const char *ltr_int_get_custom_section_name()
 
 bool ltr_int_save_prefs()
 {
-  char *pfile = ltr_int_get_default_file_name();
+  char *pfile = ltr_int_get_default_file_name(NULL);
   if(pfile == NULL){
     ltr_int_log_message("Can't find preference file!\n");
     return false;

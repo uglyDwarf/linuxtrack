@@ -1,8 +1,13 @@
 if DARWIN
   AM_CFLAGS = -arch i386 -arch ppc
+  TIGER_CFLAG = -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4
+  TIGER_LDFLAG = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4
+  LEOPARD_CFLAG = -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5
+  LEOPARD_LDFLAG = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5
   DARWINFLAGS = -undefined dynamic_lookup
   SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
 else
+  AM_CFLAGS = -m32
   LINUXFLAGS = '-Wl,-rpath,@prefix@/lib'
   SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
 endif
@@ -43,8 +48,9 @@ include_HEADERS = ltlib.h
 
 #liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
 liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h dyn_load.c dyn_load.h
+liblt_la_CFLAGS = ${TIGER_CFLAG}
 liblt_la_LIBADD = -ldl
-liblt_la_LDFLAGS = -export-symbols liblt.sym $(LINUXFLAGS)
+liblt_la_LDFLAGS = -export-symbols liblt.sym $(LINUXFLAGS) ${TIGER_LDFLAG}
 
 liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
@@ -54,27 +60,33 @@ liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   wii_driver_prefs.h tir_driver_prefs.c tir_driver_prefs.h wc_driver_prefs.c \
   wc_driver_prefs.h
 liblinuxtrack_la_LIBADD = -lm -lpthread -ldl
-liblinuxtrack_la_LDFLAGS = -export-symbols-regex '^ltr_int' $(LINUXFLAGS)
+liblinuxtrack_la_LDFLAGS = -export-symbols-regex '^ltr_int' $(LINUXFLAGS) ${TIGER_LDFLAG}
 #libtir4_la_SOURCES = tir4_driver.c tir4_driver.h new_cal.c new_cal.h
 #libtir4_la_LIBADD = -lusb  -llinuxtrack
 
 libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
 libtir_la_LIBADD = -lz -llinuxtrack
-libtir_la_LDFLAGS = -export-symbols tir.sym $(LINUXFLAGS)
+libtir_la_LDFLAGS = -export-symbols tir.sym $(LINUXFLAGS) ${TIGER_LDFLAG}
 
 libltusb1_la_SOURCES = libusb_ifc.c usb_ifc.h
+libltusb1_la_CFLAGS = ${TIGER_CFLAG}
 libltusb1_la_LIBADD = -lusb-1.0 -llinuxtrack
+libltusb1_la_LDFLAGS = ${TIGER_LDFLAG}
 libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
+libltopenusb_la_CFLAGS = ${TIGER_CFLAG}
 libltopenusb_la_LIBADD = -lopenusb -llinuxtrack
+libltopenusb_la_LDFLAGS = ${TIGER_LDFLAG}
 
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
+libwii_la_CFLAGS = ${TIGER_CFLAG}
 libwii_la_LIBADD = -lcwiid -llinuxtrack
-libwii_la_LDFLAGS = -export-symbols drivers.sym
+libwii_la_LDFLAGS = -export-symbols drivers.sym ${TIGER_LDFLAG}
 
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
+libwc_la_CFLAGS = ${TIGER_CFLAG}
 libwc_la_LIBADD = -llinuxtrack -lv4l2
-libwc_la_LDFLAGS = -export-symbols webcam_driver.sym
+libwc_la_LDFLAGS = -export-symbols webcam_driver.sym ${TIGER_LDFLAG}
 
 dist_pkgdata_DATA = .linuxtrack
 
@@ -82,11 +94,23 @@ if XPLANE_PLUGIN
   lib_LTLIBRARIES += xlinuxtrack.la
   xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
 			    utils.c utils.h dyn_load.c dyn_load.h ltlib.c ltlib.h
-  xlinuxtrack_la_CFLAGS = -I../${XPLANE_SDK}/CHeaders/XPLM -I../${XPLANE_SDK}/CHeaders/Widgets -I../${XPLANE_SDK}/CHeaders/Wrappers $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS)
-  xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols xlinuxtrack.sym $(LINUXFLAGS) 
+  xlinuxtrack_la_CFLAGS = -I../${XPLANE_SDK}/CHeaders/XPLM -I../${XPLANE_SDK}/CHeaders/Widgets -I../${XPLANE_SDK}/CHeaders/Wrappers $(SYSFLAGS) -fPIC $(DARWINCFLAGS) ${TIGER_CFLAG}
+  xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols xlinuxtrack.sym $(LINUXFLAGS) ${TIGER_LDFLAG}
   xlinuxtrack_la_LIBADD = -lm -ldl
 endif
 
 AM_YFLAGS = -d
 AM_LFLAGS = -i
 BUILT_SOURCES = pref_flex.c pref_bison.c pref_bison.h
+
+clean-local: clean-local-check
+.PHONY: clean-local-check
+clean-local-check:
+	-cd qt_gui;make clean
+
+distclean-local: distclean-local-check
+.PHONY: distclean-local-check
+distclean-local-check:
+	-cd qt_gui;make distclean
+
+

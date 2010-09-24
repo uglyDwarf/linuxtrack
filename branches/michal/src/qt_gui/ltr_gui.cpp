@@ -20,11 +20,8 @@
 #include "ltr_tracking.h"
 #include "log_view.h"
 #include "scp_form.h"
-
-#ifndef DARWIN
-  #include "webcam_prefs.h"
-  #include "wiimote_prefs.h"
-#endif
+#include "webcam_prefs.h"
+#include "wiimote_prefs.h"
 
 LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   initialized(false)
@@ -34,10 +31,8 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   if(!QFile::exists(target)){
     on_DefaultsButton_pressed();
   }
-#ifndef DARWIN
   wcp = new WebcamPrefs(ui);
   wiip = new WiimotePrefs(ui);
-#endif
   tirp = new TirPrefs(ui);
   me = new ModelEdit(ui);
   track = new LtrTracking(ui);
@@ -48,7 +43,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   QObject::connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
   QObject::connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
   
-  showWindow = new LtrGuiForm(sc);
+  showWindow = new LtrGuiForm(ui, sc);
   helper = new LtrDevHelp();
   initialized = true;
   on_RefreshDevices_pressed();
@@ -59,10 +54,8 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
 LinuxtrackGui::~LinuxtrackGui()
 {
   delete showWindow;
-#ifndef DARWIN
   delete wcp;
   delete wiip;
-#endif
   delete tirp;
   delete me;
   delete sc;
@@ -86,15 +79,18 @@ void LinuxtrackGui::on_DeviceSelector_activated(int index)
   }
   QVariant v = ui.DeviceSelector->itemData(index);
   PrefsLink pl = v.value<PrefsLink>();
-#ifndef DARWIN
   if(pl.deviceType == WEBCAM){
+#ifndef DARWIN
     ui.DeviceSetupStack->setCurrentIndex(0);
+#else
+    ui.DeviceSetupStack->setCurrentIndex(3);
+#endif
     wcp->Activate(pl.ID);
-  }else if(pl.deviceType == WIIMOTE){
+  }else 
+  if(pl.deviceType == WIIMOTE){
     ui.DeviceSetupStack->setCurrentIndex(1);
     wiip->Activate(pl.ID);
   }else 
-#endif
   if(pl.deviceType == TIR){
     ui.DeviceSetupStack->setCurrentIndex(2);
     tirp->Activate(pl.ID);
@@ -104,10 +100,8 @@ void LinuxtrackGui::on_DeviceSelector_activated(int index)
 void LinuxtrackGui::on_RefreshDevices_pressed()
 {
   ui.DeviceSelector->clear();
-#ifndef DARWIN
   WebcamPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   WiimotePrefs::AddAvailableDevices(*(ui.DeviceSelector));
-#endif
   TirPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   on_DeviceSelector_activated(ui.DeviceSelector->currentIndex());
 }

@@ -88,9 +88,9 @@
               <item>
                <widget class="QStackedWidget" name="DeviceSetupStack">
                 <property name="currentIndex">
-                 <number>3</number>
+                 <number>4</number>
                 </property>
-                <widget class="QWidget" name="page">
+                <widget class="QWidget" name="LinuxWebcamPrefs">
                  <layout class="QVBoxLayout" name="verticalLayout">
                   <item>
                    <widget class="QLabel" name="label_14">
@@ -270,7 +270,7 @@
                   </item>
                  </layout>
                 </widget>
-                <widget class="QWidget" name="page_2">
+                <widget class="QWidget" name="WiimotePrefs">
                  <layout class="QVBoxLayout" name="verticalLayout_5">
                   <item>
                    <widget class="QLabel" name="label_22">
@@ -396,7 +396,7 @@
                   </item>
                  </layout>
                 </widget>
-                <widget class="QWidget" name="page_7">
+                <widget class="QWidget" name="TirPrefs">
                  <layout class="QVBoxLayout" name="verticalLayout_16">
                   <item>
                    <layout class="QVBoxLayout" name="verticalLayout_15">
@@ -629,7 +629,177 @@
                   </item>
                  </layout>
                 </widget>
-                <widget class="QWidget" name="page_10"/>
+                <widget class="QWidget" name="MacWebcamPrefs">
+                 <layout class="QVBoxLayout" name="verticalLayout_25">
+                  <item>
+                   <widget class="QLabel" name="label_42">
+                    <property name="text">
+                     <string>Resolution</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="WebcamResolutionsMac"/>
+                  </item>
+                  <item>
+                   <layout class="QVBoxLayout" name="verticalLayout_24">
+                    <item>
+                     <layout class="QHBoxLayout" name="horizontalLayout_27">
+                      <item>
+                       <spacer name="horizontalSpacer_16">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_64">
+                        <property name="text">
+                         <string>Threshold</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QSpinBox" name="WebcamThresholdMac">
+                        <property name="maximum">
+                         <number>255</number>
+                        </property>
+                        <property name="value">
+                         <number>150</number>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item>
+                     <layout class="QHBoxLayout" name="horizontalLayout_28">
+                      <item>
+                       <spacer name="horizontalSpacer_17">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_65">
+                        <property name="text">
+                         <string>Min. blob</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QSpinBox" name="WebcamMinBlobMac">
+                        <property name="minimum">
+                         <number>1</number>
+                        </property>
+                        <property name="maximum">
+                         <number>10000</number>
+                        </property>
+                        <property name="value">
+                         <number>8</number>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item>
+                     <layout class="QHBoxLayout" name="horizontalLayout_29">
+                      <item>
+                       <spacer name="horizontalSpacer_18">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_66">
+                        <property name="text">
+                         <string>Max. blob</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QSpinBox" name="WebcamMaxBlobMac">
+                        <property name="minimum">
+                         <number>1</number>
+                        </property>
+                        <property name="maximum">
+                         <number>10000</number>
+                        </property>
+                        <property name="value">
+                         <number>250</number>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_30">
+                    <item>
+                     <spacer name="horizontalSpacer_19">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="label_8">
+                      <property name="text">
+                       <string>Webcam mounted upside-down</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QCheckBox" name="FlipWebcamMac">
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <spacer name="verticalSpacer_9">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>217</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </widget>
+                <widget class="QWidget" name="emptyPrefs"/>
                </widget>
               </item>
              </layout>
@@ -1763,6 +1933,32 @@ tracking profiles for different applications.</string>
              </widget>
             </item>
             <item>
+             <widget class="QFrame" name="frame_7">
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_23">
+               <item>
+                <widget class="QCheckBox" name="DisableCamView">
+                 <property name="text">
+                  <string>Disable camera view</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="Disable3DView">
+                 <property name="text">
+                  <string>Disable 3D tracking preview</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
              <spacer name="verticalSpacer_2">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -1770,7 +1966,7 @@ tracking profiles for different applications.</string>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
-                <height>429</height>
+                <height>40</height>
                </size>
               </property>
              </spacer>

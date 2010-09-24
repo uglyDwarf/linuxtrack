@@ -2,6 +2,7 @@
 #define LTR_SHOW__H
 
 #include "ui_ltr_gui.h"
+#include "ui_ltr.h"
 
 #include <QThread>
 #include <QCloseEvent>
@@ -41,7 +42,7 @@ class LtrGuiForm : public QMainWindow
 {
    Q_OBJECT
   public:
-   LtrGuiForm(ScpForm *s);
+   LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s);
    ~LtrGuiForm();
    void allowCloseWindow();
   public slots:
@@ -53,19 +54,21 @@ class LtrGuiForm : public QMainWindow
    void on_pauseButton_pressed();
    void on_wakeButton_pressed();
    void on_stopButton_pressed();
-
+   void on_DisableCamView_stateChanged(int state);
    void trackerStopped();
    void trackerRunning();
    void trackerPaused();
   protected:
    void closeEvent(QCloseEvent *event);
   private:
+   bool camViewEnable;
    Ui::Ltr_gui ui;
    ScpForm *sens;
    Window *glw;
    QTimer *timer;
    CameraView *cv;
    bool allowClose;
+   const Ui::LinuxtrackMainForm &main_gui;
 };
 
 #endif

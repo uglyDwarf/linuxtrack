@@ -16,14 +16,14 @@ HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h  \
 	   ltr_gui_prefs.h prefs_link.h tir_prefs.h \
            ltr_model.h window.h glwidget.h objreader.h ltr_profiles.h\
            log_view.h ltr_state.h ltr_axis.h ltr_tracking.h scp_form.h \
-           scurve.h scview.h
+           scurve.h scview.h wiimote_prefs.h
 
 FORMS += ltr_gui.ui dev_help.ui ltr.ui model_creation.ui scurve.ui scp_form.ui logview.ui
 SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            ltr_gui_prefs.cpp tir_prefs.cpp \
            ltr_model.cpp window.cpp glwidget.cpp objreader.cpp ltr_profiles.cpp \
            log_view.cpp ltr_state.cpp ltr_axis.cpp ltr_tracking.cpp scp_form.cpp \
-           scurve.cpp scview.cpp
+           scurve.cpp scview.cpp wiimote_prefs.cpp
 
 QMAKE_CXXFLAGS += -DHAVE_CONFIG_H
 
@@ -35,8 +35,8 @@ unix:!macx {
   
   target.path = @prefix@/bin
   INSTALLS += target data
-  HEADERS += webcam_prefs.h webcam_info.h wiimote_prefs.h 
-  SOURCES += webcam_info.cpp webcam_prefs.cpp wiimote_prefs.cpp 
+  HEADERS += webcam_prefs.h webcam_info.h
+  SOURCES += webcam_info.cpp webcam_prefs.cpp 
 }
 
 macx {
@@ -47,4 +47,6 @@ macx {
   data.path += ltr_gui.app/Contents/Resources/linuxtrack
   data.files += XM8_cockpit.obj xm8d_body.obj xm8_detail.png ../.linuxtrack
   INSTALLS += data
+  HEADERS += macwebcam_prefs.h macwebcam_info.h 
+  SOURCES += macwebcam_info.cpp macwebcam_prefs.cpp 
 }

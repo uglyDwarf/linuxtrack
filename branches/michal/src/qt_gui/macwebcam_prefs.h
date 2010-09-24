@@ -1,5 +1,5 @@
-#ifndef WEBCAM_PREFS__H
-#define WEBCAM_PREFS__H
+#ifndef MACWEBCAM_PREFS__H
+#define MACWEBCAM_PREFS__H
 
 #include <QObject>
 #include <QComboBox>
@@ -18,7 +18,6 @@ class WebcamPrefs : public QObject{
   const Ui::LinuxtrackMainForm &gui;
   void Connect();
  private slots:
-  void on_WebcamFormats_activated(int index);
   void on_WebcamResolutions_activated(int index);
   void on_WebcamThreshold_valueChanged(int i);
   void on_WebcamMinBlob_valueChanged(int i);

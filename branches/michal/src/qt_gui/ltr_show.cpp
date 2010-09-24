@@ -75,7 +75,8 @@ void CaptureThread::signal_new_frame()
   emit new_frame();
 }
 
-LtrGuiForm::LtrGuiForm(ScpForm *s) : cv(NULL), allowClose(false)
+LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s) 
+              : cv(NULL), allowClose(false), main_gui(tmp_gui)
 {
   scp = s;
   ui.setupUi(this);
@@ -92,10 +93,12 @@ LtrGuiForm::LtrGuiForm(ScpForm *s) : cv(NULL), allowClose(false)
   timer = new QTimer(this);
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
   timer->start(50);
-  
+  camViewEnable = true;
   connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
   connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
   connect(&STATE, SIGNAL(trackerPaused()), this, SLOT(trackerPaused()));
+  connect(main_gui.DisableCamView, SIGNAL(stateChanged(int)), 
+	    this, SLOT(on_DisableCamView_stateChanged(int)));
 }
 
 LtrGuiForm::~LtrGuiForm()
@@ -190,10 +193,21 @@ void LtrGuiForm::on_stopButton_pressed()
   }
 }
 
+void LtrGuiForm::on_DisableCamView_stateChanged(int state)
+{
+  if(state == Qt::Checked){
+    camViewEnable = false;
+  }else{
+    camViewEnable = true;
+  }
+}
+
 void LtrGuiForm::update()
 {
   ui.statusbar->showMessage(QString("").setNum(cnt) + ". frame");
-
+  if(!camViewEnable){
+    return;
+  }
   if(qt_bitmap == NULL){
     return;
   }

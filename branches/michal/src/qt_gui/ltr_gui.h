@@ -9,14 +9,11 @@
 
 #include "ui_ltr.h"
 
-#ifndef DARWIN
-  class WebcamPrefs;
-  class WiimotePrefs;
-#endif
-
+class WiimotePrefs;
 class LtrGuiForm;
 class LtrDevHelp;
 class TirPrefs;
+class WebcamPrefs;
 class ModelEdit;
 class LtrTracking;
 class LogView;
@@ -46,10 +43,8 @@ class LinuxtrackGui : public QWidget
   Ui::LinuxtrackMainForm ui;
   LtrGuiForm *showWindow;
   LtrDevHelp *helper;
-#ifndef DARWIN
-  WebcamPrefs *wcp;
   WiimotePrefs *wiip;
-#endif
+  WebcamPrefs *wcp;
   TirPrefs *tirp;
   ModelEdit *me;
   LtrTracking *track;
