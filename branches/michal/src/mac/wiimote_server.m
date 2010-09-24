@@ -24,11 +24,13 @@ static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII
   (void) sender;
   switch(server_state){
     case WII_DISCONNECTED: 
+      [status setTextColor:[NSColor orangeColor]];
       [status setStringValue:@"Connecting..."];
       server_state = WII_CONNECTING;
       [wiimote start];
       break;
     case WII_CONNECTED:
+      [status setTextColor:[NSColor orangeColor]];
       [status setStringValue:@"Disconnecting..."];
       [timer invalidate];
       [wiimote stop];
@@ -60,9 +62,36 @@ static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII
   old_cmd = cmd;
 }
 
+
+-(void) connectedIndicationOnCallback:(NSTimer*)theTimer
+{
+  if(!indicate){
+    return;
+  }
+  static int st = 1;
+  
+  (void) theTimer;
+  [wiimote setLEDEnabled:st];
+  st <<= 1; 
+  if(st > 8){
+    st = 1;
+  }
+  connIndicatorOffTimer = [NSTimer scheduledTimerWithTimeInterval:0.05 target:self 
+           selector:@selector(connectedIndicationOffCallback:) userInfo:nil repeats:NO];
+  [connIndicatorOffTimer retain];
+}
+
+-(void) connectedIndicationOffCallback:(NSTimer*)theTimer
+{
+  [wiimote setLEDEnabled:0];
+  [connIndicatorOffTimer release];
+  connIndicatorOffTimer = nil;
+}
+
 -(void) wiiConnected
 {
   server_state = WII_CONNECTED;
+  [status setTextColor:[NSColor greenColor]];
   [status setStringValue:@"Connected..."];
   [connect setTitle:@"Disconnect"];
   NSLog(@"We are connected to the wiimote!");
@@ -70,14 +99,23 @@ static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII
   timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self 
            selector:@selector(timerCallback:) userInfo:nil repeats:YES];
   [timer retain];
+  connIndicatorOnTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self 
+           selector:@selector(connectedIndicationOnCallback:) userInfo:nil repeats:YES];
+  [connIndicatorOnTimer retain];
+  indicate = YES;
 }
 
 -(void) wiiDisconnected
 {
+  indicate = NO;
   server_state = WII_DISCONNECTED;
+  [status setTextColor:[NSColor redColor]];
   [status setStringValue:@"Disconnected..."];
   [connect setTitle:@"Connect"];
   [timer invalidate];
+  timer = nil;
+  [connIndicatorOnTimer invalidate];
+  connIndicatorOnTimer = nil;
   NSLog(@"We are disconnected!");
 }
 
@@ -137,8 +175,10 @@ static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII
   wiimote = [[Wii alloc] init];
   [wiimote setDelegate:self];
   server_state = WII_DISCONNECTED;
+  [status setTextColor:[NSColor redColor]];
   [status setStringValue:@"Disconnected..."];
   ltr_int_prepare_for_processing(WIIMOTE_HORIZONTAL_RESOLUTION, WIIMOTE_VERTICAL_RESOLUTION);
+  indicate = NO;
 }
 
 -(void) dealloc

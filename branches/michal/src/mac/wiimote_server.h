@@ -14,10 +14,13 @@
   IBOutlet NSTextField *status;
   Wii *wiimote;
   NSTimer *timer;
+  NSTimer *connIndicatorOnTimer;
+  NSTimer *connIndicatorOffTimer;
+  bool indicate;
 }
   - (void) dealloc;
   - (IBAction) connectPressed:(id) sender;
   -(void) timerCallback:(NSTimer*)theTimer;
-
-  
+  -(void) connectedIndicationOnCallback:(NSTimer*)theTimer;
+  -(void) connectedIndicationOffCallback:(NSTimer*)theTimer;
 @end
