@@ -18,6 +18,7 @@ typedef struct{
   int              threshold;
   int              min_blob;
   int              max_blob;
+  int              wii_indication;
   bool             frame_filled;
   int              frame_counter;
   int              num_blobs;
@@ -288,3 +289,20 @@ void resetFrameFlag()
 {
   cs->frame_filled = false;
 }
+
+void setWiiIndication(int new_ind)
+{
+  lockSemaphore(sem);
+  cs->wii_indication = new_ind;
+  unlockSemaphore(sem);
+}
+
+int getWiiIndication()
+{
+  lockSemaphore(sem);
+  int res = cs->wii_indication;
+  unlockSemaphore(sem);
+  return res;
+}
+
+

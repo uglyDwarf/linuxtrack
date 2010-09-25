@@ -17,6 +17,7 @@
   NSTimer *connIndicatorOnTimer;
   NSTimer *connIndicatorOffTimer;
   bool indicate;
+  int indication;
 }
   - (void) dealloc;
   - (IBAction) connectPressed:(id) sender;

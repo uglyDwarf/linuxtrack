@@ -36,4 +36,7 @@ bool getFrameFlag();
 void setFrameFlag();
 void resetFrameFlag();
 void printCmd(char *prefix, command_t cmd);
+void setWiiIndication(int new_ind);
+int getWiiIndication();
+
 #endif

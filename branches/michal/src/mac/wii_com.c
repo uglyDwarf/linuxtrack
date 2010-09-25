@@ -37,10 +37,12 @@ bool initWiiCom(bool isServer)
 {
   if(isServer){
     if(serverRunningAlready() != 0){
+      ltr_int_log_message("Server is already running!\n");
       return false;
     }
   }else{
     if(serverRunningAlready() != 1){
+      ltr_int_log_message("Server not running!\n");
       return false;
     }
   }

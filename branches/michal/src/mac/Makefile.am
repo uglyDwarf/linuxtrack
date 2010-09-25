@@ -30,7 +30,8 @@ libmacwc_la_CFLAGS = ${TIGER_CFLAG}
 libmacwc_la_LIBADD = -llinuxtrack
 libmacwc_la_LDFLAGS = -export-symbols ../drivers.sym ${TIGER_LDFLAG}
 
-libmacwii_la_SOURCES = macwii_driver.c wii_com.c wii_com.h com_proc.c com_proc.h ../runloop.c ../runloop.h
+libmacwii_la_SOURCES = macwii_driver.c wii_com.c wii_com.h com_proc.c com_proc.h \
+  ../runloop.c ../runloop.h ../wii_driver_prefs.c ../wii_driver_prefs.h
 libmacwii_la_CFLAGS = ${TIGER_CFLAG}
 libmacwii_la_LIBADD = -llinuxtrack
 libmacwii_la_LDFLAGS = -export-symbols ../drivers.sym ${TIGER_LDFLAG}

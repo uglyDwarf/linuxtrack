@@ -10,6 +10,7 @@
 #import "com_proc.h"
 #import "wii_com.h"
 #import "../image_process.h"
+#import "../utils.h"
 #import <string.h>
 
 #define WIIMOTE_HORIZONTAL_RESOLUTION 1024
@@ -43,6 +44,7 @@ static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII
 -(void) timerCallback:(NSTimer*)theTimer
 {
   (void) theTimer;
+  indication = getWiiIndication();
   static command_t old_cmd = STOP;
   command_t cmd;
   cmd = getCommand();
@@ -50,12 +52,17 @@ static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII
     switch(cmd){
       case STOP:
         [wiimote pause:0];
+        indicate = YES;
         break;
       case SLEEP:
-        [wiimote pause:1];
+        indicate = NO;
+        [wiimote pause:(indication & 15)];
+        ltr_int_log_message("Pausing indication: %X\n", indication);
         break;
       case WAKEUP:
-        [wiimote resume:3];
+        indicate = NO;
+        ltr_int_log_message("Waking indication: %X\n", indication);
+        [wiimote resume:((indication >> 4) & 15)];
         break;
     }
   }

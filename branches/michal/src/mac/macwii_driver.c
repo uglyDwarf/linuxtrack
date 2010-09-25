@@ -9,6 +9,26 @@
 #include "../utils.h"
 #include "wii_com.h"
 
+
+static int get_indication()
+{
+  int indication = 0;
+  bool d1, d2, d3, d4;
+  ltr_int_get_run_indication(&d1, &d2, &d3, &d4);
+  if(d1) indication |= 1;
+  if(d2) indication |= 2;
+  if(d3) indication |= 4;
+  if(d4) indication |= 8;
+  indication <<= 4;
+  ltr_int_get_pause_indication(&d1, &d2, &d3, &d4);
+  if(d1) indication |= 1;
+  if(d2) indication |= 2;
+  if(d3) indication |= 4;
+  if(d4) indication |= 8;
+  ltr_int_log_message("Indication: %X\n", indication);
+  return indication;
+}
+
 int ltr_int_tracker_init(struct camera_control_block *ccb)
 {
   (void)ccb;
@@ -23,19 +43,23 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
     return 1;
   }
   resetFrameFlag();
+  ltr_int_wii_init_prefs();
+  setWiiIndication(get_indication());
   resumeWii();
   ltr_int_log_message("Init done!\n"); 
   return 0;
 }
 
 int ltr_int_tracker_pause()
-{
+{  
+  setWiiIndication(get_indication());
   pauseWii();
   return 0;
 }
 
 int ltr_int_tracker_resume()
 {
+  setWiiIndication(get_indication());
   resumeWii();
   return 0;
 }
