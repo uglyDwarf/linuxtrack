@@ -49,7 +49,7 @@ semaphore_p createSemaphore(char *fname)
   if(fname == NULL){
     return NULL;
   }
-  int fd = open(fname, O_RDWR);
+  int fd = open(fname, O_RDWR | O_CREAT, 0600);
   if(fd == -1){
     perror("open: ");
     return NULL;

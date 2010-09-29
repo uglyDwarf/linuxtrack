@@ -3,7 +3,7 @@
 #include "../utils.h"
 
 static char *contactFile = ".linuxtrack_wii";
-static char *prefFile = ".linuxtrack";
+static char *prefFile = ".linuxtrack_wii.lock";
 static char *fullContactFile = NULL;
 static char *fullPrefFile = NULL;
 static semaphore_p pfSem = NULL;
