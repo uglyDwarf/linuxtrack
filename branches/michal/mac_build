@@ -48,6 +48,7 @@ cp -R ${PREFIX}/lib/libtir.0.dylib ${LIB_DIR}
 cp -R ${PREFIX}/lib/libmacwc.0.dylib ${LIB_DIR}
 cp -R ${PREFIX}/lib/libmacwii.0.dylib ${LIB_DIR}
 cp -R ${PREFIX}/lib/libusb-1.0.0.dylib ${LIB_DIR}/libusb-1.0.dylib
+cp -R ${PREFIX}/lib/xlinuxtrack.0.so ${LIB_DIR}/xlinuxtrack.0.dylib
 cp -R ${PREFIX}/bin/qt_cam ${HELPER_DIR}
 cp -R ${PREFIX}/bin/sg_cam ${HELPER_DIR}
 
@@ -56,17 +57,18 @@ install_name_tool -id @executable_path/../Frameworks/libltusb1.0.dylib ${LIB_DIR
 install_name_tool -id @executable_path/../Frameworks/libtir.0.dylib ${LIB_DIR}/libtir.0.dylib
 install_name_tool -id @executable_path/../Frameworks/libmacwc.0.dylib ${LIB_DIR}/libmacwc.0.dylib
 install_name_tool -id @executable_path/../Frameworks/libmacwii.0.dylib ${LIB_DIR}/libmacwii.0.dylib
+install_name_tool -id @executable_path/../Frameworks/xlinuxtrack.0.dylib ${LIB_DIR}/xlinuxtrack.0.dylib
 
 install_name_tool -change "${PREFIX}/lib/libusb-1.0.0.dylib" @executable_path/../Frameworks/libusb-1.0.dylib \
 ${LIB_DIR}/libltusb1.0.dylib
 install_name_tool -change "${PREFIX}/lib/liblinuxtrack.0.dylib" @executable_path/../Frameworks/liblinuxtrack.0.dylib \
 ${LIB_DIR}/libltusb1.0.dylib
 install_name_tool -change ${PREFIX}/lib/liblinuxtrack.0.dylib  \
-  @executable_path/../Frameworks/liblinuxtrack.0.dylib ${LIB_DIR}/libtir.0.dylib
+  @loader_path/../Frameworks/liblinuxtrack.0.dylib ${LIB_DIR}/libtir.0.dylib
 install_name_tool -change ${PREFIX}/lib/liblinuxtrack.0.dylib  \
-  @executable_path/../Frameworks/liblinuxtrack.0.dylib ${LIB_DIR}/libmacwc.0.dylib
+  @loader_path/../Frameworks/liblinuxtrack.0.dylib ${LIB_DIR}/libmacwc.0.dylib
 install_name_tool -change ${PREFIX}/lib/liblinuxtrack.0.dylib  \
-  @executable_path/../Frameworks/liblinuxtrack.0.dylib ${LIB_DIR}/libmacwii.0.dylib
+  @loader_path/../Frameworks/liblinuxtrack.0.dylib ${LIB_DIR}/libmacwii.0.dylib
 
 install_name_tool -change ${PREFIX}/lib/liblinuxtrack.0.dylib \
   @executable_path/../Frameworks/liblinuxtrack.0.dylib ${HELPER_DIR}/qt_cam
