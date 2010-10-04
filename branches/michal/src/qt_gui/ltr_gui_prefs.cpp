@@ -41,8 +41,9 @@ bool PrefProxy::checkPrefix()
     QMessageBox::warning(NULL, "Linuxtrack",
        QString("It seems you are running Linuxtrack for the first time,") +
        QString("or you relocated it...") +
-       QString("Please save your preferences now!"), 
+       QString("I'm going to change the app prefix in the pref. file."), 
        QMessageBox::Ok, QMessageBox::Ok);
+     return savePrefs();
   }
   return true;
 }

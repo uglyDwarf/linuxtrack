@@ -54,7 +54,7 @@ class LtrGuiForm : public QMainWindow
    void on_pauseButton_pressed();
    void on_wakeButton_pressed();
    void on_stopButton_pressed();
-   void on_DisableCamView_stateChanged(int state);
+   void disableCamView_stateChanged(int state);
    void trackerStopped();
    void trackerRunning();
    void trackerPaused();

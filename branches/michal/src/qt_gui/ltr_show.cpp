@@ -98,7 +98,7 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s)
   connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
   connect(&STATE, SIGNAL(trackerPaused()), this, SLOT(trackerPaused()));
   connect(main_gui.DisableCamView, SIGNAL(stateChanged(int)), 
-	    this, SLOT(on_DisableCamView_stateChanged(int)));
+	    this, SLOT(disableCamView_stateChanged(int)));
 }
 
 LtrGuiForm::~LtrGuiForm()
@@ -193,7 +193,7 @@ void LtrGuiForm::on_stopButton_pressed()
   }
 }
 
-void LtrGuiForm::on_DisableCamView_stateChanged(int state)
+void LtrGuiForm::disableCamView_stateChanged(int state)
 {
   if(state == Qt::Checked){
     camViewEnable = false;
