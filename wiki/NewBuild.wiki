@@ -10,7 +10,7 @@ If you don't want to install it between your system binaries/libraries (which yo
 Also don't forget that installing it into the tree that is not in your search path will cause that system won't be able to find linuxtrack binaries.
  
   
-== Building and installing linuxtrack ==
+== Building and installing linuxtrack on Linux==
 
 Lets assume you checked out sources from the repository into 
 '/home/simmer/linux-track-read-only' and you intend to install it to '/home/simmer/ltr'
@@ -104,3 +104,42 @@ Few notes concerning this script...
   * libcwiid in the 0.06.00 revision has a problem with a current blootooth lib, so there is a patch.
 
 Now run the script and when it ends, you should have the thing compiled along with support libraries.
+
+
+== Building and installing on Mac ==
+First of all, there are some prerequisities to download...
+ * * libusb-1.0.8.tar.bz2 * - http://sourceforge.net/projects/libusb/files/libusb-1.0/
+ * * XPlane SDK * - http://www.xsquawkbox.net/xpsdk/XPSDK201.zip
+ * * Qt SDK for Mac (Qt Libraries should do too) * - http://qt.nokia.com/downloads
+ * * TrackIR 4/5 firmware * - http://media.naturalpoint.com/software/external/bulk_config_data.tar.gz
+
+Install the Qt, now create a build directory somewhere and copy libusb-1.0.8.tar.bz2, bulk_config_data.tar.gz and unpacked SDK there too.
+
+Finally open terminal, go to the build directory and check out the linuxtrack itself using command:
+
+{{{
+svn checkout http://linux-track.googlecode.com/svn/branches/michal
+}}}
+
+Now the structure should look like this:
+{{{
+...
+   build
+      michal                  - checked out from svn
+      libusb-1.0.8.tar.bz2    - you can download it from sourceforge
+      bulk_config_data.tar.gz - trackIR firmware
+      SDK                     - unpacked XPlane SDK
+}}}
+
+Go to the _michal_ directory and run:
+{{{
+./mac_build
+}}}
+
+This should compile linuxtrack and the result should be in _.../build/michal/dist_.
+Just move it from there wherever you like.
+
+Now run the thing, setup tracking device and you can start playing with tracking.
+
+To use tracking in XPlane, on the last pane there is a button allowing you to install XPlane plugin.
+ 
