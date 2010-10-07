@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QDir>
+#include <QSettings>
 #include <iostream>
 #include "ltr_gui.h"
 #include "ltr_gui_prefs.h"
@@ -49,6 +50,19 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   on_RefreshDevices_pressed();
   showWindow->show();
   helper->show();
+  gui_settings = new QSettings("ltr", "linuxtrack");
+  gui_settings->beginGroup("MainWindow");
+  resize(gui_settings->value("size", QSize(763, 627)).toSize());
+  move(gui_settings->value("pos", QPoint(100, 100)).toPoint());
+  gui_settings->endGroup();
+  gui_settings->beginGroup("TrackingWindow");
+  showWindow->resize(gui_settings->value("size", QSize(800, 600)).toSize());
+  showWindow->move(gui_settings->value("pos", QPoint(10, 10)).toPoint());
+  gui_settings->endGroup();
+  gui_settings->beginGroup("HelperWindow");
+  helper->resize(gui_settings->value("size", QSize(300, 80)).toSize());
+  helper->move(gui_settings->value("pos", QPoint(0, 0)).toPoint());
+  gui_settings->endGroup();
 }
 
 LinuxtrackGui::~LinuxtrackGui()
@@ -64,6 +78,18 @@ LinuxtrackGui::~LinuxtrackGui()
 
 void LinuxtrackGui::closeEvent(QCloseEvent *event)
 {
+  gui_settings->beginGroup("MainWindow");
+  gui_settings->setValue("size", size());
+  gui_settings->setValue("pos", pos());
+  gui_settings->endGroup();  
+  gui_settings->beginGroup("TrackingWindow");
+  gui_settings->setValue("size", showWindow->size());
+  gui_settings->setValue("pos", showWindow->pos());
+  gui_settings->endGroup();  
+  gui_settings->beginGroup("HelperWindow");
+  gui_settings->setValue("size", helper->size());
+  gui_settings->setValue("pos", helper->pos());
+  gui_settings->endGroup();  
   showWindow->allowCloseWindow();
   showWindow->close();
   helper->close();

@@ -18,6 +18,7 @@ class ModelEdit;
 class LtrTracking;
 class LogView;
 class ScpForm;
+class QSettings;
 
 class LinuxtrackGui : public QWidget
 {
@@ -51,6 +52,7 @@ class LinuxtrackGui : public QWidget
   ScpForm *sc;
   LogView *lv;
   bool initialized;
+  QSettings *gui_settings;
 };
 
 
