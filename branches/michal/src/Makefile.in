@@ -50,15 +50,15 @@ host_triplet = @host@
 subdir = src
 DIST_COMMON = $(dist_pkgdata_DATA) $(include_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/pathconfig.h.in pref_bison.c pref_bison.h \
-	pref_flex.c
+	$(srcdir)/local_config.h.in $(srcdir)/pathconfig.h.in \
+	pref_bison.c pref_bison.h pref_flex.c
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
-CONFIG_CLEAN_FILES = pathconfig.h
+CONFIG_CLEAN_FILES = pathconfig.h local_config.h
 CONFIG_CLEAN_VPATH_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -312,7 +312,7 @@ top_srcdir = @top_srcdir@
 @DARWIN_TRUE@SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
 @DARWIN_FALSE@QMAKE_FLAGS = -spec linux-g++-32
 @DARWIN_TRUE@QMAKE_FLAGS = -spec macx-g++
-@DARWIN_FALSE@LINUXFLAGS = '-Wl,-rpath,@prefix@/lib'
+@DARWIN_FALSE@LINUXFLAGS = '-Wl,-rpath,@libdir@'
 lib_LTLIBRARIES = liblinuxtrack.la liblt.la $(am__append_1) \
 	$(am__append_2) $(am__append_3) $(am__append_4) \
 	$(am__append_5) $(am__append_6)
@@ -349,19 +349,19 @@ libtir_la_LDFLAGS = -export-symbols tir.sym $(LINUXFLAGS) ${TIGER_LDFLAG}
 libltusb1_la_SOURCES = libusb_ifc.c usb_ifc.h
 libltusb1_la_CFLAGS = ${TIGER_CFLAG}
 libltusb1_la_LIBADD = -lusb-1.0 -llinuxtrack
-libltusb1_la_LDFLAGS = ${TIGER_LDFLAG}
+libltusb1_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS) 
 libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
 libltopenusb_la_CFLAGS = ${TIGER_CFLAG}
 libltopenusb_la_LIBADD = -lopenusb -llinuxtrack
-libltopenusb_la_LDFLAGS = ${TIGER_LDFLAG}
+libltopenusb_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS) 
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
 libwii_la_CFLAGS = ${TIGER_CFLAG}
 libwii_la_LIBADD = -lcwiid -llinuxtrack
-libwii_la_LDFLAGS = -export-symbols drivers.sym ${TIGER_LDFLAG}
+libwii_la_LDFLAGS = -export-symbols drivers.sym ${TIGER_LDFLAG} $(LINUXFLAGS) 
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_CFLAGS = ${TIGER_CFLAG}
 libwc_la_LIBADD = -llinuxtrack -lv4l2
-libwc_la_LDFLAGS = -export-symbols webcam_driver.sym ${TIGER_LDFLAG}
+libwc_la_LDFLAGS = -export-symbols webcam_driver.sym ${TIGER_LDFLAG} $(LINUXFLAGS) 
 dist_pkgdata_DATA = .linuxtrack
 @XPLANE_PLUGIN_TRUE@xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
 @XPLANE_PLUGIN_TRUE@			    utils.c utils.h dyn_load.c dyn_load.h ltlib.c ltlib.h
@@ -409,6 +409,8 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 pathconfig.h: $(top_builddir)/config.status $(srcdir)/pathconfig.h.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+local_config.h: $(top_builddir)/config.status $(srcdir)/local_config.h.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 install-libLTLIBRARIES: $(lib_LTLIBRARIES)
 	@$(NORMAL_INSTALL)

@@ -99,6 +99,7 @@ AC_CONFIG_FILES([
  src/pathconfig.h
  src/tests/Makefile
  src/mac/Makefile
+ src/local_config.h
  src/qt_gui/ltr_gui.pro
 ])
 AC_OUTPUT

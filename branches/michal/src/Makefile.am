@@ -9,7 +9,7 @@ if DARWIN
   QMAKE_FLAGS = -spec macx-g++
 else
   AM_CFLAGS = -m32
-  LINUXFLAGS = '-Wl,-rpath,@prefix@/lib'
+  LINUXFLAGS = '-Wl,-rpath,@libdir@'
   SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
   QMAKE_FLAGS = -spec linux-g++-32
 endif
@@ -74,21 +74,21 @@ libtir_la_LDFLAGS = -export-symbols tir.sym $(LINUXFLAGS) ${TIGER_LDFLAG}
 libltusb1_la_SOURCES = libusb_ifc.c usb_ifc.h
 libltusb1_la_CFLAGS = ${TIGER_CFLAG}
 libltusb1_la_LIBADD = -lusb-1.0 -llinuxtrack
-libltusb1_la_LDFLAGS = ${TIGER_LDFLAG}
+libltusb1_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS) 
 libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
 libltopenusb_la_CFLAGS = ${TIGER_CFLAG}
 libltopenusb_la_LIBADD = -lopenusb -llinuxtrack
-libltopenusb_la_LDFLAGS = ${TIGER_LDFLAG}
+libltopenusb_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS) 
 
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
 libwii_la_CFLAGS = ${TIGER_CFLAG}
 libwii_la_LIBADD = -lcwiid -llinuxtrack
-libwii_la_LDFLAGS = -export-symbols drivers.sym ${TIGER_LDFLAG}
+libwii_la_LDFLAGS = -export-symbols drivers.sym ${TIGER_LDFLAG} $(LINUXFLAGS) 
 
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_CFLAGS = ${TIGER_CFLAG}
 libwc_la_LIBADD = -llinuxtrack -lv4l2
-libwc_la_LDFLAGS = -export-symbols webcam_driver.sym ${TIGER_LDFLAG}
+libwc_la_LDFLAGS = -export-symbols webcam_driver.sym ${TIGER_LDFLAG} $(LINUXFLAGS) 
 
 dist_pkgdata_DATA = .linuxtrack
 
