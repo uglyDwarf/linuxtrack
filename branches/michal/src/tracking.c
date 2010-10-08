@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "tracking.h"
 #include "math_utils.h"
 #include "pose.h"

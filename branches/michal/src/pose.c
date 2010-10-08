@@ -28,12 +28,21 @@ void ltr_int_pose_init(struct reflector_model_type rm)
   switch(rm.type){
     case CAP:
       type = M_CAP;
+      #ifdef PT_DBG
+        printf("MODEL:CAP\n");
+      #endif
       break;
     case CLIP:
       type = M_CLIP;
+      #ifdef PT_DBG
+        printf("MODEL:CLIP\n");
+      #endif
       break;
     case SINGLE:
       type = M_SINGLE;
+      #ifdef PT_DBG
+        printf("MODEL:SINGLE\n");
+      #endif
       break;
     default:
       assert(0);
@@ -54,6 +63,13 @@ void ltr_int_pose_init(struct reflector_model_type rm)
 /*   model_point0[0] = 0.0;  */
 /*   model_point0[1] = y;  */
 /*   model_point0[2] = z; */
+
+  #ifdef PT_DBG
+    printf("RM1: %g %g %g\n", rm.p1[0], rm.p1[1], rm.p1[2]);
+    printf("RM2: %g %g %g\n", rm.p2[0], rm.p2[1], rm.p2[2]);
+    printf("RM_REF: %g %g %g\n", rm.hc[0], rm.hc[1], rm.hc[2]);
+  #endif
+
   model_point0[0] = 0.0;
   model_point0[1] = 0.0;
   model_point0[2] = 0.0;
@@ -162,6 +178,11 @@ static void alter_pose(struct bloblist_type blobs, double points[3][3], bool cen
   points[2][2] = (internal_focal_depth + h2) / s;
 
 /*   print_matrix(points, "alter92_result"); */
+  #ifdef PT_DBG
+    printf("RAW: %g %g %g\n", points[0][0], points[1][0], points[2][0]);
+    printf("RAW: %g %g %g\n", points[0][1], points[1][1], points[2][1]);
+    printf("RAW: %g %g %g\n", points[0][2], points[1][2], points[2][2]);
+  #endif
 }
 
 static void get_translation(double base[3][3], double ref[3], double origin[3],
@@ -349,6 +370,11 @@ int ltr_int_pose_compute_camera_update(struct transform trans,
     (*pitch) = p * 180.0 /M_PI;
     (*yaw)   = y * 180.0 /M_PI;
     (*roll)  = r * 180.0 /M_PI;
+    #ifdef PT_DBG
+      printf("ROT: %g %g %g\n", *pitch, *yaw, *roll);
+      printf("TRA: %g %g %g\n", *tx, *ty, *tz);
+    #endif
+  
     return 0;
   }
   return -1;

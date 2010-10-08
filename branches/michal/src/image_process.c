@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdbool.h>
 #include <assert.h>
 #include "image_process.h"
@@ -401,8 +402,11 @@ int ltr_int_stripes_to_blobs(int num_blobs, struct bloblist_type *blt,
       float y = pb->sum_y / pb->sum;
       //printf("%f\t\t%f\t\t%d\n", x, y, pb->points);
       cal_b = &(blt->blobs[counter]);
-      cal_b->x = ((img->w - 1) / 2.0) - x;
-      cal_b->y = ((img->h - 1) / 2.0) - (y * img->ratio);
+      cal_b->x = (((img->w - 1) / 2.0) - x);
+      cal_b->y = (((img->h - 1) / 2.0) - (y * img->ratio));
+      #ifdef PT_DBG
+        printf("PT: %g %g\n", cal_b->x, cal_b->y);
+      #endif
       if(img->bitmap != NULL){
 	ltr_int_draw_cross(img, x, y * img->ratio, (int) img->w/100.0);
       }

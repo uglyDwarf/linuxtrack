@@ -17,6 +17,7 @@
 
 
 
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
@@ -151,6 +152,7 @@ xlinuxtrack_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(xlinuxtrack_la_CFLAGS) \
 	$(CFLAGS) $(xlinuxtrack_la_LDFLAGS) $(LDFLAGS) -o $@
 @XPLANE_PLUGIN_TRUE@am_xlinuxtrack_la_rpath = -rpath $(libdir)
+SCRIPTS = $(noinst_SCRIPTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp =
 am__depfiles_maybe =
@@ -308,6 +310,8 @@ top_srcdir = @top_srcdir@
 @DARWIN_TRUE@DARWINFLAGS = -undefined dynamic_lookup
 @DARWIN_FALSE@SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
 @DARWIN_TRUE@SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
+@DARWIN_FALSE@QMAKE_FLAGS = -spec linux-g++-32
+@DARWIN_TRUE@QMAKE_FLAGS = -spec macx-g++
 @DARWIN_FALSE@LINUXFLAGS = '-Wl,-rpath,@prefix@/lib'
 lib_LTLIBRARIES = liblinuxtrack.la liblt.la $(am__append_1) \
 	$(am__append_2) $(am__append_3) $(am__append_4) \
@@ -368,6 +372,7 @@ dist_pkgdata_DATA = .linuxtrack
 AM_YFLAGS = -d
 AM_LFLAGS = -i
 BUILT_SOURCES = pref_flex.c pref_bison.c pref_bison.h
+noinst_SCRIPTS = qt_gui/ltr_gui
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -652,7 +657,7 @@ distdir: $(DISTFILES)
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
-all-am: Makefile $(LTLIBRARIES) $(DATA) $(HEADERS)
+all-am: Makefile $(LTLIBRARIES) $(SCRIPTS) $(DATA) $(HEADERS)
 installdirs:
 	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
@@ -716,7 +721,8 @@ install-dvi: install-dvi-am
 install-dvi-am:
 
 install-exec-am: install-libLTLIBRARIES
-
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) install-exec-hook
 install-html: install-html-am
 
 install-html-am:
@@ -757,7 +763,7 @@ ps-am:
 uninstall-am: uninstall-dist_pkgdataDATA uninstall-includeHEADERS \
 	uninstall-libLTLIBRARIES
 
-.MAKE: all check install install-am install-strip
+.MAKE: all check install install-am install-exec-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
 	clean-libLTLIBRARIES clean-libtool clean-local ctags distclean \
@@ -765,16 +771,18 @@ uninstall-am: uninstall-dist_pkgdataDATA uninstall-includeHEADERS \
 	distclean-local distclean-tags distdir dvi dvi-am html html-am \
 	info info-am install install-am install-data install-data-am \
 	install-dist_pkgdataDATA install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-includeHEADERS install-info install-info-am \
-	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
+	install-exec install-exec-am install-exec-hook install-html \
+	install-html-am install-includeHEADERS install-info \
+	install-info-am install-libLTLIBRARIES install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-dist_pkgdataDATA \
 	uninstall-includeHEADERS uninstall-libLTLIBRARIES
 
+
+#dirty hack to integrate qt_gui
 
 clean-local: clean-local-check
 .PHONY: clean-local-check
@@ -785,6 +793,13 @@ distclean-local: distclean-local-check
 .PHONY: distclean-local-check
 distclean-local-check:
 	-cd qt_gui;make distclean
+
+qt_gui/ltr_gui : ${lib_LTLIBRARIES}
+	pushd qt_gui; qmake ${QMAKE_FLAGS}; make; popd
+	echo "QT_GUI COMPILED SUCCESSFULLY!"
+
+install-exec-hook:
+	pushd qt_gui; make install; popd
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

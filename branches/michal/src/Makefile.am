@@ -6,10 +6,12 @@ if DARWIN
   LEOPARD_LDFLAG = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5
   DARWINFLAGS = -undefined dynamic_lookup
   SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
+  QMAKE_FLAGS = -spec macx-g++
 else
   AM_CFLAGS = -m32
   LINUXFLAGS = '-Wl,-rpath,@prefix@/lib'
   SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
+  QMAKE_FLAGS = -spec linux-g++-32
 endif
 
 
@@ -103,6 +105,8 @@ AM_YFLAGS = -d
 AM_LFLAGS = -i
 BUILT_SOURCES = pref_flex.c pref_bison.c pref_bison.h
 
+#dirty hack to integrate qt_gui
+
 clean-local: clean-local-check
 .PHONY: clean-local-check
 clean-local-check:
@@ -113,4 +117,12 @@ distclean-local: distclean-local-check
 distclean-local-check:
 	-cd qt_gui;make distclean
 
+noinst_SCRIPTS = qt_gui/ltr_gui
+
+qt_gui/ltr_gui : ${lib_LTLIBRARIES}
+	pushd qt_gui; qmake ${QMAKE_FLAGS}; make; popd
+	echo "QT_GUI COMPILED SUCCESSFULLY!"
+
+install-exec-hook:
+	pushd qt_gui; make install; popd
 
