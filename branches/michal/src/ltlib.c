@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <unistd.h>
+#include "cal.h"
 #include "ltlib_int.h"
 #include "utils.h"
 #include "dyn_load.h"
@@ -87,6 +89,14 @@ int ltr_shutdown(void)
     }
   }
   int res = fun_ltr_int_shutdown();
+  int counter = 20;
+  while(counter > 0){
+    usleep(100000);
+    if(fun_ltr_int_get_tracking_state() == DOWN){
+      break;
+    }
+    --counter;
+  }
   ltr_int_unload_library(libhandle, functions);
   return res;
 }

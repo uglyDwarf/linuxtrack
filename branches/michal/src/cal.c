@@ -80,6 +80,7 @@ int ltr_int_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   int res = (iface.device_run)(ccb, cbk);
   //Runloop blocks until shutdown is called
   ltr_int_unload_library(libhandle, functions);
+  ltr_int_cal_set_state(DOWN);
   return res;
 }
 
