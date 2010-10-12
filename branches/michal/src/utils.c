@@ -174,6 +174,7 @@ char *ltr_int_get_app_path(const char *suffix)
   #define DATA_PATH "/../share/linuxtrack/"
   #define LIB_SUFFIX ".so"
 #else
+  #undef LIB_PATH
   #define DATA_PATH "/../Resources/linuxtrack/"
   #define LIB_PATH "/../Frameworks/"
   #define LIB_SUFFIX ".0.dylib"

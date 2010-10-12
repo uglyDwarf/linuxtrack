@@ -95,10 +95,12 @@ void ltr_int_draw_cross(image *img, int x, int y, int size)
   int x_p = x + size;
   int y_m = y - size;
   int y_p = y + size;
-  clip_coord(&x_m, 0, img->w);
-  clip_coord(&x_p, 0, img->w);
-  clip_coord(&y_m, 0, img->h);
-  clip_coord(&y_p, 0, img->h);
+  clip_coord(&x_m, 0, img->w-1);
+  clip_coord(&x_p, 0, img->w-1);
+  clip_coord(&y_m, 0, img->h-1);
+  clip_coord(&y_p, 0, img->h-1);
+  clip_coord(&x  , 0, img->w-1);
+  clip_coord(&y  , 0, img->h-1);
   
   unsigned char *pt;
   pt = img->bitmap + (img->w * y) + x_m;

@@ -6,10 +6,19 @@
 #include <iostream>
 
 SCView::SCView(LtrAxis *a, QWidget *parent)
-  : QWidget(parent), axis(a), px(0.0)
+  : QWidget(parent), axis(a), px(0.0), timer(NULL)
 {  
   setBackgroundRole(QPalette::Base);
   setAutoFillBackground(true);
+  timer = new QTimer(this);
+  connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+  timer->start(50);
+}
+
+SCView::~SCView()
+{
+  timer->stop();
+  delete timer;
 }
 
 void SCView::redraw()
@@ -19,12 +28,12 @@ void SCView::redraw()
 
 QSize SCView::sizeHint() const
 {
-  return QSize(360, 180);
+  return QSize(320, 180);
 }
 
 QSize SCView::minimumSizeHint() const
 {
-  return QSize(360, 180);
+  return QSize(320, 180);
 }   
 
 
@@ -80,6 +89,5 @@ void SCView::paintEvent(QPaintEvent * /* event */)
 void SCView::movePoint(float new_x)
 {
   px = new_x;
-  redraw();
 }
 
