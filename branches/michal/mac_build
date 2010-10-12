@@ -34,10 +34,10 @@ make >/dev/null
 make install >/dev/null
 
 #Build gui - should not be needed anymore
-#pushd src/qt_gui
-#qmake -spec macx-g++
-#rm -rf ltr_gui.app
-#make install >/dev/null
+pushd src/qt_gui
+qmake -spec macx-g++
+rm -rf ltr_gui.app
+make install >/dev/null
 
 #Prepare the image
 mkdir -p ${LIB_DIR}
