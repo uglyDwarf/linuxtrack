@@ -93,11 +93,16 @@ int ltr_shutdown(void)
   while(counter > 0){
     usleep(100000);
     if(fun_ltr_int_get_tracking_state() == DOWN){
+      ltr_int_log_message("Driver unloaded!\n");
       break;
     }
     --counter;
   }
+  if(counter == 0){
+    ltr_int_log_message("Driver unload timeout!!!\n");
+  }
   ltr_int_unload_library(libhandle, functions);
+  libhandle = NULL;
   return res;
 }
 

@@ -11,7 +11,8 @@ extern "C" {
 typedef enum {
   RUNNING,
   PAUSED,
-  STOPPED
+  STOPPED,
+  DOWN
 }ltr_state_type;
 
 

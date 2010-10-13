@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-enum ltr_request_t {CONTINUE, RUN, PAUSE, SHUTDOWN, DOWN};
+enum ltr_request_t {CONTINUE, RUN, PAUSE, SHUTDOWN};
 
 struct blob_type {
   /* coordinates of the blob on the screen 

@@ -31,6 +31,7 @@ void TrackerState::pollState()
   if(last_state != current_state){
     switch(current_state){
       case STOPPED:
+      case DOWN:
         emit trackerStopped();
         break;
       case RUNNING:
