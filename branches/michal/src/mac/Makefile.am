@@ -1,3 +1,6 @@
+EXTRA_DIST = Info.plist PkgInfo English.lproj/InfoPlist.strings \
+English.lproj/MainMenu.nib/keyedobjects.nib English.lproj/MainMenu.nib/designable.nib
+
 AM_CFLAGS = -arch i386 -arch ppc
 TIGER_CFLAG = -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4
 TIGER_LDFLAG = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4

@@ -25,7 +25,7 @@ AC_CHECK_LIB([m], [sqrt], [LIBM=true], [AC_MSG_FAILURE([I need libm!])])
 AC_CHECK_LIB([z], [gzopen], [LIBZ=true])
 AC_CHECK_LIB([pthread], [pthread_create], [LIBPTHREAD=true], [AC_MSG_FAILURE([I need libpthread!])])
 AC_CHECK_LIB([usb], [usb_open], [LIBUSB=true])
-AC_CHECK_LIB([openusb], [openusb_init], [LIBOPENUSB=true])
+#AC_CHECK_LIB([openusb], [openusb_init], [LIBOPENUSB=true])
 AC_CHECK_LIB([usb-1.0], [libusb_init], [LIBUSB10=true])
 AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
 
@@ -54,7 +54,7 @@ AC_ARG_WITH([xplane_sdk],
             [AS_HELP_STRING([--with-xplane-sdk],
               [specify path to XPlane SDK @<:@default=../SDK@:>@])], 
             [XPLANE_SDK=${with_xplane_sdk}],
-            [XPLANE_SDK="../SDK"]
+            [XPLANE_SDK="`pwd`/../SDK"]
 )
 
 AC_ARG_ENABLE([xplane_plugin],

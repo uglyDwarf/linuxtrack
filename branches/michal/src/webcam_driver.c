@@ -284,7 +284,9 @@ int search_for_webcam(char *webcam_id)
 static bool read_pref_format(struct v4l2_format *fmt)
 {
   memset(fmt, 0, sizeof(struct v4l2_format));
-  
+  if(!ltr_int_wc_init_prefs()){
+    ltr_int_log_message("Can't read webcam prefs!\n");
+  }
   const char *pix = ltr_int_wc_get_pixfmt();
   if(pix == NULL){
     ltr_int_log_message("No pixel format specified!\n");

@@ -1,9 +1,9 @@
 #ifdef HAVE_CONFIG_H
-  #include "../config.h"
+  #include <config.h>
 #endif
 
-#include "utils.h"
-#include "local_config.h"
+#include <utils.h>
+#include <local_config.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdarg.h>

@@ -8,8 +8,11 @@ TARGET = ltr_gui
 DEPENDPATH += .
 INCLUDEPATH += .
 INCLUDEPATH += ..
+INCLUDEPATH += @srcdir@
+INCLUDEPATH += @srcdir@/..
 RESOURCES = ltr_rc.qrc
 QT           += opengl
+VPATH     = @srcdir@
 
 # Input
 HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h  \
@@ -28,8 +31,8 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
 QMAKE_CXXFLAGS += -DHAVE_CONFIG_H
 
 unix:!macx {
-  LIBS += -L@libdir@ -lm -lpthread -ldl -llinuxtrack \
-           -Wl,-rpath,@libdir@
+  LIBS += "-L$${LIBDIR}" "-L../.libs" -lm -lpthread -ldl -llinuxtrack \
+           "-Wl,-rpath,$${LIBDIR}"
   
   data.path += @prefix@/share/linuxtrack
   data.files += XM8_cockpit.obj xm8d_body.obj xm8_detail.png

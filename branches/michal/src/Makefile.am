@@ -50,9 +50,9 @@ include_HEADERS = ltlib.h
 
 #liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
 liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h dyn_load.c dyn_load.h
-liblt_la_CFLAGS = ${TIGER_CFLAG}
+liblt_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 liblt_la_LIBADD = -ldl
-liblt_la_LDFLAGS = -export-symbols liblt.sym $(LINUXFLAGS) ${TIGER_LDFLAG}
+liblt_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
 
 liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
@@ -69,26 +69,26 @@ liblinuxtrack_la_LDFLAGS = -export-symbols-regex '^ltr_int' $(LINUXFLAGS) ${TIGE
 libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
 libtir_la_LIBADD = -lz -llinuxtrack
-libtir_la_LDFLAGS = -export-symbols tir.sym $(LINUXFLAGS) ${TIGER_LDFLAG}
+libtir_la_LDFLAGS = -export-symbols "${srcdir}/tir.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
 
 libltusb1_la_SOURCES = libusb_ifc.c usb_ifc.h
-libltusb1_la_CFLAGS = ${TIGER_CFLAG}
+libltusb1_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 libltusb1_la_LIBADD = -lusb-1.0 -llinuxtrack
 libltusb1_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS) 
 libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
-libltopenusb_la_CFLAGS = ${TIGER_CFLAG}
+libltopenusb_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 libltopenusb_la_LIBADD = -lopenusb -llinuxtrack
 libltopenusb_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS) 
 
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
-libwii_la_CFLAGS = ${TIGER_CFLAG}
+libwii_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 libwii_la_LIBADD = -lcwiid -llinuxtrack
-libwii_la_LDFLAGS = -export-symbols drivers.sym ${TIGER_LDFLAG} $(LINUXFLAGS) 
+libwii_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${TIGER_LDFLAG} $(LINUXFLAGS) 
 
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
-libwc_la_CFLAGS = ${TIGER_CFLAG}
+libwc_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 libwc_la_LIBADD = -llinuxtrack -lv4l2
-libwc_la_LDFLAGS = -export-symbols webcam_driver.sym ${TIGER_LDFLAG} $(LINUXFLAGS) 
+libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG} $(LINUXFLAGS) 
 
 dist_pkgdata_DATA = .linuxtrack
 
@@ -96,8 +96,8 @@ if XPLANE_PLUGIN
   lib_LTLIBRARIES += xlinuxtrack.la
   xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
 			    utils.c utils.h dyn_load.c dyn_load.h ltlib.c ltlib.h
-  xlinuxtrack_la_CFLAGS = -I../${XPLANE_SDK}/CHeaders/XPLM -I../${XPLANE_SDK}/CHeaders/Widgets -I../${XPLANE_SDK}/CHeaders/Wrappers $(SYSFLAGS) -fPIC $(DARWINCFLAGS) ${TIGER_CFLAG}
-  xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols xlinuxtrack.sym $(LINUXFLAGS) ${TIGER_LDFLAG}
+  xlinuxtrack_la_CFLAGS = -I${XPLANE_SDK}/CHeaders/XPLM -I${XPLANE_SDK}/CHeaders/Widgets -I${XPLANE_SDK}/CHeaders/Wrappers $(SYSFLAGS) -fPIC $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS}
+  xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
   xlinuxtrack_la_LIBADD = -lm -ldl
 endif
 
@@ -119,10 +119,34 @@ distclean-local-check:
 
 noinst_SCRIPTS = qt_gui/ltr_gui
 
+
 qt_gui/ltr_gui : ${lib_LTLIBRARIES}
-	pushd qt_gui; qmake ${QMAKE_FLAGS}; make; popd
+	pushd qt_gui; qmake ${QMAKE_FLAGS} "LIBDIR=@libdir@"; make; popd
 	echo "QT_GUI COMPILED SUCCESSFULLY!"
 
 install-exec-hook:
 	pushd qt_gui; make install; popd
 
+uninstall-hook:
+	pushd qt_gui; make uninstall; popd
+
+
+EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \
+  qt_gui/objreader.cpp qt_gui/window.h qt_gui/webcam_prefs.cpp \
+  qt_gui/xm8_detail.png qt_gui/ltr_profiles.cpp qt_gui/scp_form.h \
+  qt_gui/prefs_link.h qt_gui/webcam_info.cpp qt_gui/scp_form.cpp \
+  qt_gui/ltr_axis.h qt_gui/main.cpp qt_gui/wiimote_prefs.h qt_gui/ltr_tracking.cpp \
+  qt_gui/scurve.cpp qt_gui/ltr_state.cpp qt_gui/scurve.h qt_gui/scurve.ui \
+  qt_gui/ltr_show.h qt_gui/ltr_gui.cpp qt_gui/ltr_profiles.h qt_gui/scp_form.ui \
+  qt_gui/XM8_cockpit.obj qt_gui/macwebcam_prefs.cpp qt_gui/tir_prefs.cpp \
+  qt_gui/macwebcam_info.h qt_gui/objreader.h qt_gui/log_view.h qt_gui/scview.cpp \
+  qt_gui/ltr_dev_help.cpp qt_gui/xm8d_body.obj qt_gui/ltr_gui.h qt_gui/ltr_gui_prefs.h \
+  qt_gui/wiimote_prefs.cpp qt_gui/cap.png qt_gui/ltr_model.h qt_gui/ltr_gui.ui \
+  qt_gui/ltr_tracking.h qt_gui/clip.png qt_gui/log_view.cpp qt_gui/ltr_rc.qrc \
+  qt_gui/ltr.ui qt_gui/dev_help.ui qt_gui/tir_prefs.h qt_gui/window.cpp \
+  qt_gui/webcam_prefs.h qt_gui/macwebcam_info.cpp qt_gui/webcam_info.h \
+  qt_gui/ltr_model.cpp qt_gui/ltr_gui_prefs.cpp qt_gui/ltr_show.cpp \
+  qt_gui/logview.ui qt_gui/ltr_state.h qt_gui/ltr_dev_help.h qt_gui/scview.h \
+  qt_gui/macwebcam_prefs.h qt_gui/glwidget.cpp qt_gui/model_creation.ui \
+  tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
+  xlinuxtrack.sym
