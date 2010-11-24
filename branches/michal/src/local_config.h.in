@@ -1,1 +1,1 @@
-#define LIB_PATH "@libdir@/"
+//#define LIB_PATH "@libdir@/"

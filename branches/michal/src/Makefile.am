@@ -50,7 +50,7 @@ include_HEADERS = ltlib.h
 
 #liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
 liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h dyn_load.c dyn_load.h
-liblt_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
+liblt_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} '-DLIB_PATH="@libdir@/"'
 liblt_la_LIBADD = -ldl
 liblt_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
 
@@ -63,6 +63,7 @@ liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   wc_driver_prefs.h
 liblinuxtrack_la_LIBADD = -lm -lpthread -ldl
 liblinuxtrack_la_LDFLAGS = -export-symbols-regex '^ltr_int' $(LINUXFLAGS) ${TIGER_LDFLAG}
+liblinuxtrack_la_CFLAGS = '-DLIB_PATH="@libdir@/"'
 #libtir4_la_SOURCES = tir4_driver.c tir4_driver.h new_cal.c new_cal.h
 #libtir4_la_LIBADD = -lusb  -llinuxtrack
 
@@ -96,7 +97,7 @@ if XPLANE_PLUGIN
   lib_LTLIBRARIES += xlinuxtrack.la
   xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
 			    utils.c utils.h dyn_load.c dyn_load.h ltlib.c ltlib.h
-  xlinuxtrack_la_CFLAGS = -I${XPLANE_SDK}/CHeaders/XPLM -I${XPLANE_SDK}/CHeaders/Widgets -I${XPLANE_SDK}/CHeaders/Wrappers $(SYSFLAGS) -fPIC $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS}
+  xlinuxtrack_la_CFLAGS = -I${XPLANE_SDK}/CHeaders/XPLM -I${XPLANE_SDK}/CHeaders/Widgets -I${XPLANE_SDK}/CHeaders/Wrappers $(SYSFLAGS) -fPIC $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} '-DLIB_PATH="@libdir@/"'
   xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
   xlinuxtrack_la_LIBADD = -lm -ldl
 endif
@@ -122,7 +123,6 @@ noinst_SCRIPTS = qt_gui/ltr_gui
 
 qt_gui/ltr_gui : ${lib_LTLIBRARIES}
 	pushd qt_gui; qmake ${QMAKE_FLAGS} "LIBDIR=@libdir@"; make; popd
-	echo "QT_GUI COMPILED SUCCESSFULLY!"
 
 install-exec-hook:
 	pushd qt_gui; make install; popd
