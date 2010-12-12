@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <assert.h>
+#include <locale.h>
 #include "pref_int.h"
 
 int yyparse(void);
@@ -276,7 +277,11 @@ bool ltr_int_change_key(const char *section_name, const char *key_name, const ch
 bool ltr_int_change_key_flt(const char *section_name, const char *key_name, float new_value)
 {
   char *new_str;
+  //Stupid trick to make 64 bit QT behave...
+  char *old_locale = setlocale(LC_ALL, NULL);
+  setlocale(LC_ALL, "C");
   asprintf(&new_str, "%f", new_value);
+  setlocale(LC_ALL, old_locale);
   bool res = ltr_int_change_key(section_name, key_name, new_str);
   free(new_str);
   return res;
@@ -476,7 +481,7 @@ bool ltr_int_save_prefs()
   }else{
     ltr_int_log_message("Can't write prefs to file '%s'\n", tmp_file);
     free(tmp_file);
-      free(pfile);
+    free(pfile);
     return false;
   }
   if(tmp_file != NULL) free(tmp_file);

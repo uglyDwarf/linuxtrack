@@ -4,7 +4,7 @@
 #include <string.h>
 #include "../cal.h"
 #include "com_proc.h"
-#include "ipc_utils.h"
+#include "../ipc_utils.h"
 #include "../wc_driver_prefs.h"
 #include "../utils.h"
 

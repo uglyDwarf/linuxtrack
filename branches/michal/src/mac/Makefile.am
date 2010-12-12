@@ -14,14 +14,14 @@ if DARWIN
 endif
 
 qt_cam_SOURCES = qt_camera.m args.c args.h buffer.c buffer.h mac_camera.h com_proc.c \
-  com_proc.h ipc_utils.c ipc_utils.h processing.c processing.h macwebcam.c
+  com_proc.h ../ipc_utils.c ../ipc_utils.h processing.c processing.h macwebcam.c
 qt_cam_LDADD = -llinuxtrack -lobjc -lpthread
 qt_cam_LDFLAGS = ${AM_CFLAGS} ${LEOPARD_LDFLAG} -framework Cocoa -framework QTKit -framework QuartzCore
 qt_cam_CFLAGS = ${AM_CFLAGS} ${LEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 qt_cam_OBJCFLAGS = ${AM_CFLAGS} ${LEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 
 sg_cam_SOURCES = sg_camera.c args.c args.h buffer.c buffer.h mac_camera.h com_proc.c \
-  com_proc.h ipc_utils.c ipc_utils.h processing.c processing.h macwebcam.c
+  com_proc.h ../ipc_utils.c ../ipc_utils.h processing.c processing.h macwebcam.c
 sg_cam_LDADD = -llinuxtrack -lobjc -lpthread
 sg_cam_LDFLAGS = ${AM_CFLAGS} ${TIGER_LDFLAG} -framework QuickTime -framework CoreServices
 sg_cam_CFLAGS = ${AM_CFLAGS} ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/.. -I..

@@ -3,11 +3,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/file.h>
-#include <fcntl.h>
 #include <string.h>
 #include "com_proc.h"
 #include "../cal.h"
@@ -28,67 +24,7 @@ typedef struct{
 
 comm_struct *cs = NULL;
 off_t size = -1;
-bool initialized = false;
-char *fname_dup = NULL;
 
-struct semaphore_t{
-  int fd;
-}semaphore_t;
-
-semaphore_p sem = NULL;
-
-semaphore_p semaphoreFromFd(int fd)
-{
-  semaphore_p res = (semaphore_p)ltr_int_my_malloc(sizeof(semaphore_t));
-  res->fd = fd;
-  return res;
-}
-
-semaphore_p createSemaphore(char *fname)
-{
-  if(fname == NULL){
-    return NULL;
-  }
-  int fd = open(fname, O_RDWR | O_CREAT, 0600);
-  if(fd == -1){
-    perror("open: ");
-    return NULL;
-  }
-  return semaphoreFromFd(fd);
-}
-
-bool lockSemaphore(semaphore_p semaphore)
-{
-  if(semaphore == NULL){
-    return false;
-  }
-  int res = lockf(semaphore->fd, F_TLOCK,0);
-  if(res == 0){
-    return true;
-  }else{
-    perror("lockf: ");
-    return false;
-  }
-}
-
-bool unlockSemaphore(semaphore_p semaphore)
-{
-  if(semaphore == NULL){
-    return false;
-  }
-  int res = lockf(semaphore->fd, F_ULOCK,0);
-  if(res == 0){
-    return true;
-  }else{
-    return false;
-  }
-}
-
-void closeSemaphore(semaphore_p semaphore)
-{
-  close(semaphore->fd);
-  free(semaphore);
-}
 
 command_t getCommand()
 {
@@ -151,70 +87,6 @@ void setMaxBlob(int pix)
 }
 
 
-
-bool mmap_file(const char *fname, size_t tmp_size)
-{
-  tmp_size += sizeof(comm_struct);
-  if(initialized){
-    return false;
-  }
-  fname_dup = strdup(fname);
-  int fd = open(fname, O_RDWR | O_CREAT | O_NOFOLLOW, 0700);
-  if(fd < 0){
-    perror("open: ");
-    return false;
-  }
-  size = tmp_size;
-  
-  //Check if file does have needed length...
-  struct stat file_stat;
-  bool truncate = true;
-  if(fstat(fd, &file_stat) == 0){
-    if(file_stat.st_size == size){
-      truncate = false;
-    }
-  }
-  
-  if(truncate){
-    int res = ftruncate(fd, size);
-    if (res == -1) {
-      perror("ftruncate: ");
-      close(fd);
-      return false;
-    }
-  }
-  cs = (comm_struct*)mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED,
-		   fd, 0);
-  if(cs == (comm_struct*)-1){
-    perror("mmap: ");
-    close(fd);
-    return false;
-  }
-//  close(fd);
-  sem = semaphoreFromFd(fd);
-  sem->fd = fd;
-  cs->frame_counter = 0;
-  initialized = true;
-  return cs != NULL;
-}
-
-bool unmap_file()
-{
-  if(cs == NULL){
-    return true;
-  }
-  closeSemaphore(sem);
-  if(fname_dup != NULL){
-    free(fname_dup);
-    fname_dup = NULL;
-  }
-  int res = munmap(cs, size);
-  if(res < 0){
-    perror("munmap: ");
-  }
-  initialized = false;
-  return res == 0;
-}
 
 void printCmd(char *prefix, command_t cmd)
 {

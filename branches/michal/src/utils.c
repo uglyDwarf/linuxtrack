@@ -3,7 +3,6 @@
 #endif
 
 #include <utils.h>
-#include <local_config.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdarg.h>

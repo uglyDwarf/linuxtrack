@@ -4,7 +4,7 @@
 #include <string.h>
 #include "../cal.h"
 #include "com_proc.h"
-#include "ipc_utils.h"
+#include "../ipc_utils.h"
 #include "../wii_driver_prefs.h"
 #include "../utils.h"
 #include "wii_com.h"

@@ -5,8 +5,9 @@
 
  int main(int argc, char *argv[])
  {
+     setlocale(LC_ALL, "C");
+     QLocale::setDefault(QLocale::c());
      QApplication app(argc, argv);
-     setlocale(LC_NUMERIC,"C");
      LinuxtrackGui gui;
      gui.show();
      return app.exec();

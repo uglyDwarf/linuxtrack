@@ -11,15 +11,6 @@ typedef struct{
 } blobs_t;
 
 struct blob_type;
-typedef struct semaphore_t *semaphore_p;
-
-semaphore_p createSemaphore(char *fname);
-bool lockSemaphore(semaphore_p semaphore);
-bool unlockSemaphore(semaphore_p semaphore);
-void closeSemaphore(semaphore_p semaphore);
-
-bool mmap_file(const char *fname, size_t tmp_size);
-bool unmap_file();
 command_t getCommand();
 void setCommand(command_t cmd);
 int getThreshold();
