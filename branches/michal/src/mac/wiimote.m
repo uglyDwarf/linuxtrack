@@ -448,7 +448,7 @@ void convert_triplet(unsigned char *source, ir_data_t *data)
   if(state != CONNECTED){
     return kIOReturnSuccess;
   }
-  NSLog(@"Sending command!");
+  //NSLog(@"Sending command!");
   memset(buf, 0, 40);
 
   buf[0] = 0x52;
@@ -497,7 +497,7 @@ void convert_triplet(unsigned char *source, ir_data_t *data)
 
 -(void) setLEDEnabled:(int) enabled
 {
-  NSLog(@"Enabling LEDs...");
+  //NSLog(@"Enabling LEDs...");
   unsigned char cmd[] = {0x11, 0x00};
 //  if (vibrationEnabled)  cmd[1] |= 0x01;
   if(enabled & 1)  cmd[1] |= 0x10;

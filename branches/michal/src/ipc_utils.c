@@ -16,7 +16,7 @@
 
 static pid_t child;
 
-bool fork_child(char *const args[])
+bool fork_child(char *args[])
 {
   if((child = fork()) == 0){
     //Child here
@@ -82,8 +82,8 @@ bool lockSemaphore(semaphore_p semaphore)
   }
 }
 
-/*
-bool lockSemaphore(semaphore_p semaphore)
+
+bool tryLockSemaphore(semaphore_p semaphore)
 {
   if(semaphore == NULL){
     return false;
@@ -95,7 +95,7 @@ bool lockSemaphore(semaphore_p semaphore)
     return false;
   }
 }
-*/
+
 
 bool unlockSemaphore(semaphore_p semaphore)
 {

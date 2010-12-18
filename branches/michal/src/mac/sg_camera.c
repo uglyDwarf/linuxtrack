@@ -228,7 +228,7 @@ bool setCaptureParams(int w, int h)
   return true;
 }
 
-bool capture()
+bool capture(struct mmap_s *mmm)
 {
   OSErr result = noErr;
   int x, y;
@@ -252,8 +252,8 @@ bool capture()
   command_t cmd, old_cmd;
   old_cmd = WAKEUP;
   
-  startProcessing(x, y, 4);  
-  while((cmd = getCommand()) != STOP){
+  startProcessing(x, y, 4, mmm);  
+  while((cmd = getCommand(mmm)) != STOP){
     if(old_cmd != cmd){
       printCmd("old", old_cmd);
       printCmd("new", cmd);

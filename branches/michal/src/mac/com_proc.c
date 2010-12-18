@@ -8,6 +8,7 @@
 #include "com_proc.h"
 #include "../cal.h"
 #include "../utils.h"
+#include "../ipc_utils.h"
 
 typedef struct{
   command_t        command;
@@ -22,68 +23,75 @@ typedef struct{
   unsigned char    frame;
 } comm_struct;
 
-comm_struct *cs = NULL;
 off_t size = -1;
 
 
-command_t getCommand()
+command_t getCommand(struct mmap_s *mmm)
 {
-  lockSemaphore(sem);
+  comm_struct *cs = (comm_struct*)mmm->data;
+  lockSemaphore(mmm->sem);
   command_t tmp = cs->command;
-  unlockSemaphore(sem);
+  unlockSemaphore(mmm->sem);
   return tmp;
 }
 
-void setCommand(command_t cmd)
+void setCommand(struct mmap_s *mmm, command_t cmd)
 {
-  lockSemaphore(sem);
+  comm_struct *cs = (comm_struct*)mmm->data;
+  lockSemaphore(mmm->sem);
   cs->command = cmd;
-  unlockSemaphore(sem);
+  unlockSemaphore(mmm->sem);
 }
 
-int getThreshold()
+int getThreshold(struct mmap_s *mmm)
 {
-  lockSemaphore(sem);
+  comm_struct *cs = (comm_struct*)mmm->data;
+  lockSemaphore(mmm->sem);
   int tmp = cs->threshold;
-  unlockSemaphore(sem);
+  unlockSemaphore(mmm->sem);
   return tmp;
 }
 
-void setThreshold(int thr)
+void setThreshold(struct mmap_s *mmm, int thr)
 {
-  lockSemaphore(sem);
+  comm_struct *cs = (comm_struct*)mmm->data;
+  lockSemaphore(mmm->sem);
   cs->threshold = thr;
-  unlockSemaphore(sem);
+  unlockSemaphore(mmm->sem);
 }
 
-int getMinBlob()
+int getMinBlob(struct mmap_s *mmm)
 {
-  lockSemaphore(sem);
+  comm_struct *cs = (comm_struct*)mmm->data;
+  lockSemaphore(mmm->sem);
   int tmp = cs->min_blob;
-  unlockSemaphore(sem);
+  unlockSemaphore(mmm->sem);
   return tmp;
 }
 
-void setMinBlob(int pix)
+void setMinBlob(struct mmap_s *mmm, int pix)
 {
-  lockSemaphore(sem);
+  comm_struct *cs = (comm_struct*)mmm->data;
+  lockSemaphore(mmm->sem);
   cs->min_blob = pix;
-  unlockSemaphore(sem);
+  unlockSemaphore(mmm->sem);
 }
 
-int getMaxBlob()
+int getMaxBlob(struct mmap_s *mmm)
 {
-  lockSemaphore(sem);
+  comm_struct *cs = (comm_struct*)mmm->data;
+  lockSemaphore(mmm->sem);
   int tmp = cs->max_blob;
-  unlockSemaphore(sem);
+  unlockSemaphore(mmm->sem);
   return tmp;
 }
 
-void setMaxBlob(int pix)
+void setMaxBlob(struct mmap_s *mmm, int pix)
 {
-  lockSemaphore(sem);
+  comm_struct *cs = (comm_struct*)mmm->data;
+  lockSemaphore(mmm->sem);
   cs->max_blob = pix;
-  unlockSemaphore(sem);
+  unlockSemaphore(mmm->sem);
 }
 
 
@@ -103,10 +111,11 @@ void printCmd(char *prefix, command_t cmd)
   }
 }
 
-void setBlobs(struct blob_type *b, int num_blobs)
+void setBlobs(struct mmap_s *mmm, struct blob_type *b, int num_blobs)
 {
+  comm_struct *cs = (comm_struct*)mmm->data;
   int i;
-  lockSemaphore(sem);
+  lockSemaphore(mmm->sem);
   for(i = 0; i < 3; ++i){
     (cs->blobs[i]).x = b[i].x;
     (cs->blobs[i]).y = b[i].y;
@@ -114,12 +123,13 @@ void setBlobs(struct blob_type *b, int num_blobs)
   }
   cs->num_blobs = num_blobs;
   ++(cs->frame_counter);
-  unlockSemaphore(sem);
+  unlockSemaphore(mmm->sem);
 }
 
 static int last_val = 0;
-bool haveNewBlobs()
+bool haveNewBlobs(struct mmap_s *mmm)
 {
+  comm_struct *cs = (comm_struct*)mmm->data;
   if(cs->frame_counter != last_val){
     last_val = cs->frame_counter;
     return true;
@@ -127,10 +137,11 @@ bool haveNewBlobs()
   return false;
 }
 
-int getBlobs(struct blob_type *b)
+int getBlobs(struct mmap_s *mmm, struct blob_type *b)
 {
+  comm_struct *cs = (comm_struct*)mmm->data;
   int i;
-  lockSemaphore(sem);
+  lockSemaphore(mmm->sem);
   for(i = 0; i < 3; ++i){
     b[i].x = (cs->blobs[i]).x;
     b[i].y = (cs->blobs[i]).y;
@@ -138,43 +149,53 @@ int getBlobs(struct blob_type *b)
   }
   last_val = cs->frame_counter;
   i = cs->num_blobs;
-  unlockSemaphore(sem);
+  unlockSemaphore(mmm->sem);
   return i;
 }
 
-unsigned char* getFramePtr()
+unsigned char* getFramePtr(struct mmap_s *mmm)
 {
+  comm_struct *cs = (comm_struct*)mmm->data;
   return &(cs->frame);
 }
 
-bool getFrameFlag()
+bool getFrameFlag(struct mmap_s *mmm)
 {
+  comm_struct *cs = (comm_struct*)mmm->data;
   return cs->frame_filled;
 }
 
-void setFrameFlag()
+void setFrameFlag(struct mmap_s *mmm)
 {
+  comm_struct *cs = (comm_struct*)mmm->data;
   cs->frame_filled = true;
 }
 
-void resetFrameFlag()
+void resetFrameFlag(struct mmap_s *mmm)
 {
+  comm_struct *cs = (comm_struct*)mmm->data;
   cs->frame_filled = false;
 }
 
-void setWiiIndication(int new_ind)
+void setWiiIndication(struct mmap_s *mmm, int new_ind)
 {
-  lockSemaphore(sem);
+  comm_struct *cs = (comm_struct*)mmm->data;
+  lockSemaphore(mmm->sem);
   cs->wii_indication = new_ind;
-  unlockSemaphore(sem);
+  unlockSemaphore(mmm->sem);
 }
 
-int getWiiIndication()
+int getWiiIndication(struct mmap_s *mmm)
 {
-  lockSemaphore(sem);
+  comm_struct *cs = (comm_struct*)mmm->data;
+  lockSemaphore(mmm->sem);
   int res = cs->wii_indication;
-  unlockSemaphore(sem);
+  unlockSemaphore(mmm->sem);
   return res;
 }
 
+int get_com_size()
+{
+  return sizeof(comm_struct);
+}
 

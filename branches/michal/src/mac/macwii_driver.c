@@ -9,6 +9,7 @@
 #include "../utils.h"
 #include "wii_com.h"
 
+struct mmap_s *mmm;
 
 static int get_indication()
 {
@@ -38,13 +39,13 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
     return 1;
   }
   
-  if(!initWiiCom(false)){
+  if(!initWiiCom(false, &mmm)){
     ltr_int_log_message("Can't initialize communication with Wii...\n");
     return 1;
   }
-  resetFrameFlag();
+  resetFrameFlag(mmm);
   ltr_int_wii_init_prefs();
-  setWiiIndication(get_indication());
+  setWiiIndication(mmm, get_indication(mmm));
   resumeWii();
   ltr_int_log_message("Init done!\n"); 
   return 0;
@@ -52,14 +53,14 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
 
 int ltr_int_tracker_pause()
 {  
-  setWiiIndication(get_indication());
+  setWiiIndication(mmm, get_indication(mmm));
   pauseWii();
   return 0;
 }
 
 int ltr_int_tracker_resume()
 {
-  setWiiIndication(get_indication());
+  setWiiIndication(mmm, get_indication(mmm));
   resumeWii();
   return 0;
 }
@@ -79,14 +80,14 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
   frame->height = 768/2;
 //  read_img_processing_prefs();
   while(!frame_aquired){
-    if(getFrameFlag()){
+    if(getFrameFlag(mmm)){
       if(frame->bitmap != NULL){
-	memcpy(frame->bitmap, getFramePtr(), frame->width * frame->height);
+	memcpy(frame->bitmap, getFramePtr(mmm), frame->width * frame->height);
       }
-      resetFrameFlag();
+      resetFrameFlag(mmm);
     }
-    if(haveNewBlobs()){
-	frame->bloblist.num_blobs = getBlobs(frame->bloblist.blobs);
+    if(haveNewBlobs(mmm)){
+	frame->bloblist.num_blobs = getBlobs(mmm, frame->bloblist.blobs);
 	frame_aquired = true;
     }else{
       usleep(5000);

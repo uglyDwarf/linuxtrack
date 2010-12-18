@@ -11,10 +11,13 @@
 #import "wii_com.h"
 #import "../image_process.h"
 #import "../utils.h"
+#import "../ipc_utils.h"
 #import <string.h>
 
 #define WIIMOTE_HORIZONTAL_RESOLUTION 1024
 #define WIIMOTE_VERTICAL_RESOLUTION 768
+
+struct mmap_s *mmm;
 
 static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII_DISCONNECTED;
 
@@ -44,10 +47,10 @@ static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII
 -(void) timerCallback:(NSTimer*)theTimer
 {
   (void) theTimer;
-  indication = getWiiIndication();
+  indication = getWiiIndication(mmm);
   static command_t old_cmd = STOP;
   command_t cmd;
-  cmd = getCommand();
+  cmd = getCommand(mmm);
   if(cmd != old_cmd){
     switch(cmd){
       case STOP:
@@ -130,11 +133,11 @@ static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII
 {
   int i;
   int valid = 0;
-  bool get_frame = getFrameFlag();
+  bool get_frame = getFrameFlag(mmm);
   image img = {
     .w = WIIMOTE_HORIZONTAL_RESOLUTION / 2,
     .h = WIIMOTE_VERTICAL_RESOLUTION / 2,
-    .bitmap = getFramePtr(),
+    .bitmap = getFramePtr(mmm),
     .ratio = 1.0
   };
   struct blob_type blobs_array[3] = {
@@ -166,19 +169,20 @@ static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII
       ++valid;
     }
   }
-  setBlobs(blobs_array, bloblist.num_blobs);
+  setBlobs(mmm, blobs_array, bloblist.num_blobs);
   if(!get_frame){
-    setFrameFlag();
+    setFrameFlag(mmm);
   }
 
 }
 
 -(void) awakeFromNib
 {
-  if(!initWiiCom(true)){
+  if(!initWiiCom(true, &mmm)){
     NSLog(@"Can't start server!");
     return;
   }
+  NSLog(@"Server communication initialized!");
   wiimote = [[Wii alloc] init];
   [wiimote setDelegate:self];
   server_state = WII_DISCONNECTED;

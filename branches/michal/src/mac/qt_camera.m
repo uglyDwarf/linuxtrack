@@ -181,7 +181,7 @@ void enumerateCameras()
   return;
 }
 
-bool capture()
+bool capture(struct mmap_s *mmm)
 {
   int x, y;
   getRes(&x, &y);
@@ -200,14 +200,14 @@ bool capture()
     return false;
   }
   
-  startProcessing(x, y, 4);  
+  startProcessing(x, y, 4, mmm);  
   bool capturing = true;
   [webcam start];
   
   command_t cmd, old_cmd;
   old_cmd = WAKEUP;
   
-  while((cmd = getCommand()) != STOP){
+  while((cmd = getCommand(mmm)) != STOP){
     if(old_cmd != cmd){
       printCmd("old", old_cmd);
       printCmd("new", cmd);

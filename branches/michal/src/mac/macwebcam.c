@@ -3,7 +3,10 @@
 
 #include "args.h"
 #include "com_proc.h"
+#include "../ipc_utils.h"
 #include "mac_camera.h"
+
+struct mmap_s mmm;
 
 int main(int argc, char *argv[])
 {
@@ -18,10 +21,10 @@ int main(int argc, char *argv[])
     int x, y;
     getRes(&x, &y);
     // Double buffer...
-    if(mmap_file(getMapFileName(), x * y)){
-      setCommand(WAKEUP);
-      capture();
-      unmap_file();
+    if(mmap_file(getMapFileName(), get_com_size() + x * y, &mmm)){
+      setCommand(&mmm, WAKEUP);
+      capture(&mmm);
+      unmap_file(&mmm);
     }else{
       fprintf(stderr, "Can't mmap!\n");
       return EXIT_FAILURE;

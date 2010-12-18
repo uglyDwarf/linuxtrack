@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-bool fork_child(char *const args[]);
+bool fork_child(char *args[]);
 bool wait_child_exit(int limit);
 
 typedef struct semaphore_t *semaphore_p;
@@ -16,6 +16,7 @@ struct mmap_s{
 
 semaphore_p createSemaphore(char *fname);
 bool lockSemaphore(semaphore_p semaphore);
+bool tryLockSemaphore(semaphore_p semaphore);
 bool unlockSemaphore(semaphore_p semaphore);
 void closeSemaphore(semaphore_p semaphore);
 

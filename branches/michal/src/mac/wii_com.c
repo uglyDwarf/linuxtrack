@@ -8,6 +8,8 @@ static char *fullContactFile = NULL;
 static char *fullPrefFile = NULL;
 static semaphore_p pfSem = NULL;
 
+static struct mmap_s mmm;
+
 // -1 Error
 //  0 Server not running
 //  1 Server runs already
@@ -24,7 +26,7 @@ static int serverRunningAlready()
     ltr_int_log_message("Can't create semaphore!");
     return -1;
   }
-  if(lockSemaphore(pfSem) == false){
+  if(tryLockSemaphore(pfSem) == false){
     closeSemaphore(pfSem);
     pfSem= NULL;
     ltr_int_log_message("Can't lock - server runs already!\n");
@@ -33,7 +35,7 @@ static int serverRunningAlready()
   return 0;
 }
 
-bool initWiiCom(bool isServer)
+bool initWiiCom(bool isServer, struct mmap_s **mmm_p)
 {
   if(isServer){
     if(serverRunningAlready() != 0){
@@ -53,17 +55,19 @@ bool initWiiCom(bool isServer)
     ltr_int_log_message("Can't determine contact file path!\n");
     return false;
   }
-  if(!mmap_file(fullContactFile, 512 * 384)){
+  if(!mmap_file(fullContactFile, get_com_size() + 512 * 384, &mmm)){
     ltr_int_log_message("Can't mmap comm file!\n");
     return false;
   }
+  *mmm_p = &mmm;
+  ltr_int_log_message("Wii com initialized @ %s!\n", fullContactFile);
   return true;
 }
 
 void closeWiiCom()
 {
-  setCommand(STOP);
-  unmap_file();
+  setCommand(&mmm, STOP);
+  unmap_file(&mmm);
   if(pfSem != NULL){
     closeSemaphore(pfSem);
     pfSem= NULL;
@@ -77,15 +81,18 @@ void closeWiiCom()
     free(fullPrefFile);
     fullPrefFile = NULL;
   }
+  ltr_int_log_message("Wii com Closed!\n");
 }
 
 void pauseWii()
 {
-  setCommand(SLEEP);
+  setCommand(&mmm, SLEEP);
+  ltr_int_log_message("Wii com SLEEP!\n");
 }
 
 void resumeWii()
 {
-  setCommand(WAKEUP);
+  setCommand(&mmm, WAKEUP);
+  ltr_int_log_message("Wii com WAKEUP!\n");
 }
 
