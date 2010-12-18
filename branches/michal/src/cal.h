@@ -5,6 +5,7 @@
 #define NEW_CAL__H
 #include <stdbool.h>
 #include "ltlib.h"
+#include "ltlib_int.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,6 +38,7 @@ struct frame_type {
   struct bloblist_type bloblist;
   unsigned int width;
   unsigned int height;
+  unsigned int counter;
   unsigned char *bitmap; /* 8bits per pixel, monochrome 0x00 or 0xff */
 };
 
@@ -105,6 +107,7 @@ ltr_state_type ltr_int_cal_get_state();
 void ltr_int_cal_set_state(ltr_state_type new_state);
 void ltr_int_change_state(enum ltr_request_t new_req);
 enum ltr_request_t ltr_int_get_state_request();
+void ltr_int_set_status_change_cbk(ltr_callback_t status_change_cbk, void *param);
 
 /* frees the memory allocated to the given frame.  
  * For every frame populated, with cal_populate_frame,

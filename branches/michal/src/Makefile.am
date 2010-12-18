@@ -16,6 +16,12 @@ endif
 
 
 lib_LTLIBRARIES = liblinuxtrack.la liblt.la
+bin_PROGRAMS = ltr_server
+
+ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
+ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) '-DLIB_PATH="@libdir@/"'
+ltr_server_LDADD = -lpthread -llinuxtrack
+ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG}
 
 if CWIID
   lib_LTLIBRARIES += libwii.la 
@@ -49,9 +55,9 @@ endif
 include_HEADERS = ltlib.h
 
 #liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
-liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h dyn_load.c dyn_load.h
+#liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h dyn_load.c dyn_load.h
+liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h ipc_utils.c ipc_utils.h
 liblt_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} '-DLIB_PATH="@libdir@/"'
-liblt_la_LIBADD = -ldl
 liblt_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
 
 liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\

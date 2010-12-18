@@ -55,7 +55,7 @@ class LtrTracking : public QObject
   LtrAxis *tx;
   LtrAxis *ty;
   LtrAxis *tz;
-  
+  bool initializing;
 };
 
 #endif

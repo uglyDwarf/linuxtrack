@@ -50,10 +50,16 @@ bool PrefProxy::checkPrefix()
 
 PrefProxy::~PrefProxy()
 {
-  if(prf != NULL){
-    delete prf;
+  if(ltr_int_need_saving()){
+    QMessageBox::StandardButton res;
+    res = QMessageBox::warning(NULL, "Linuxtrack",
+       QString("Preferences were modified,") +
+       QString("Do you want to save them?"), 
+       QMessageBox::Save | QMessageBox::Close, QMessageBox::Save);
+    if(res == QMessageBox::Save){
+      savePrefs();
+    }
   }
-  ltr_int_free_prefs();
 }
 
 PrefProxy& PrefProxy::Pref()
@@ -62,6 +68,15 @@ PrefProxy& PrefProxy::Pref()
     prf = new PrefProxy();
   }
   return *prf;
+}
+
+void PrefProxy::ClosePrefs()
+{
+  if(prf != NULL){
+    delete prf;
+    prf = NULL;
+    ltr_int_free_prefs();
+  }
 }
 
 bool PrefProxy::activateDevice(const QString &sectionName)
@@ -288,7 +303,8 @@ bool PrefProxy::setCustomSection(const QString &name)
 
 bool PrefProxy::savePrefs()
 {
-  return ltr_int_save_prefs();
+  bool res = ltr_int_save_prefs();
+  return res;
 }
 
 QString PrefProxy::getCustomSectionName()

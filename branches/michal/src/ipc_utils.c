@@ -74,14 +74,28 @@ bool lockSemaphore(semaphore_p semaphore)
   if(semaphore == NULL){
     return false;
   }
+  int res = lockf(semaphore->fd, F_LOCK,0);
+  if(res == 0){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+/*
+bool lockSemaphore(semaphore_p semaphore)
+{
+  if(semaphore == NULL){
+    return false;
+  }
   int res = lockf(semaphore->fd, F_TLOCK,0);
   if(res == 0){
     return true;
   }else{
-    perror("lockf: ");
     return false;
   }
 }
+*/
 
 bool unlockSemaphore(semaphore_p semaphore)
 {
@@ -157,5 +171,22 @@ bool unmap_file(struct mmap_s *m)
     perror("munmap: ");
   }
   return res == 0;
+}
+
+//the fname argument should end with XXXXXX;
+//  it is also modified by the call to contain the actual filename.
+//
+//Returns opened file descriptor
+int open_tmp_file(char *fname)
+{
+  umask(S_IWGRP | S_IWOTH);
+  return mkstemp(fname);
+}
+
+//Closes and removes the file...
+void close_tmp_file(char *fname, int fd)
+{
+  unlink(fname);
+  close(fd);
 }
 

@@ -12,11 +12,12 @@ class WebcamPrefs : public QObject{
  public:
   WebcamPrefs(const Ui::LinuxtrackMainForm &ui);
   ~WebcamPrefs();
-  void Activate(const QString &ID);
+  void Activate(const QString &ID, bool init = false);
   static void AddAvailableDevices(QComboBox &combo);
  private:
   const Ui::LinuxtrackMainForm &gui;
   void Connect();
+  bool initializing;
  private slots:
   void on_WebcamFormats_activated(int index);
   void on_WebcamResolutions_activated(int index);

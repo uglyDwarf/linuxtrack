@@ -141,7 +141,7 @@ void ltr_int_enable_axis(enum axis_t id)
   struct axis_def *axis = get_axis(id);
   axis->enabled = true;
   save_val_str(id, ENABLED, "Yes");
-  signal_change(axis);
+  signal_change();
 }
 
 void ltr_int_disable_axis(enum axis_t id)
@@ -345,15 +345,15 @@ bool ltr_int_get_axis(enum axis_t id, struct axis_def *axis)
   for(i = DEADZONE; i <= ENABLED; ++i){
     field_name = ltr_int_my_strcat(prefix, fields[i]);
     if(i != ENABLED){
-      if(ltr_int_get_key_flt(ltr_int_get_custom_section_name(), field_name, &val)){
+      if(ltr_int_get_key_flt(NULL, field_name, &val)){
         set_axis_field(axis, i, val);
       }
     }else{
-      string = ltr_int_get_key(ltr_int_get_custom_section_name(), field_name);
+      string = ltr_int_get_key(NULL, field_name);
       if(strcasecmp(string, "No") != 0){
-	ltr_int_enable_axis(id);
+        axis->enabled = true;
       }else{
-	ltr_int_disable_axis(id);
+        axis->enabled = false;
       }
     }
     free(field_name);

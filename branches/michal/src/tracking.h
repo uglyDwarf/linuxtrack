@@ -29,7 +29,8 @@ int ltr_int_tracking_get_camera(float *heading,
                       float *roll,
                       float *tx,
                       float *ty,
-                      float *tz);
+                      float *tz,
+                      unsigned int *counter);
 
 #ifdef __cplusplus
 }

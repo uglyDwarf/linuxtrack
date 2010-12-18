@@ -1,17 +1,23 @@
 
-#include <stdarg.h>
+//#include <stdarg.h>
 #include "pref_global.h"
 #include "utils.h" 
 #include "pref_int.h"
 #include "cal.h"
 #include "tracking.h"
+#include "ltlib_int.h"
 
 static pthread_t cal_thread;
+static ltr_callback_t ltr_new_frame_cbk = NULL;
+static void *ltr_new_frame_cbk_param = NULL;
 
 static int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 {
   (void)ccb;
   ltr_int_update_pose(frame);
+  if(ltr_new_frame_cbk != NULL){
+    ltr_new_frame_cbk(ltr_new_frame_cbk_param);
+  }
   return 0;
 }
 
@@ -48,9 +54,18 @@ int ltr_int_get_camera_update(float *heading,
                          float *roll,
                          float *tx,
                          float *ty,
-                         float *tz)
+                         float *tz,
+                         unsigned int *counter)
 {
-  return ltr_int_tracking_get_camera(heading, pitch,roll, tx, ty, tz);
+  return ltr_int_tracking_get_camera(heading, pitch,roll, tx, ty, tz, counter);
+}
+
+void ltr_int_register_cbk(ltr_callback_t new_frame_cbk, void *param1,
+                          ltr_callback_t status_change_cbk, void *param2)
+{
+  ltr_new_frame_cbk = new_frame_cbk;
+  ltr_new_frame_cbk_param = param1;
+  ltr_int_set_status_change_cbk(status_change_cbk, param2);
 }
 
 int ltr_int_suspend(void)

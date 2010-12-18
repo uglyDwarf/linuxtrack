@@ -32,16 +32,16 @@ webcam_driver_test_LDADD = -lm -lpthread -ldl -llinuxtrack -lv4l2
 #pref_test_LDADD = -lm -lpthread -ldl -llinuxtrack
 test_LDALL = -lm
 
-#pose_test_CFLAGS = -m32 -I..
-ltlib_test_CFLAGS = -m32 -I${srcdir} -I${srcdir}/.. -I..
-webcam_driver_test_CFLAGS = -m32 -I${srcdir} -I${srcdir}/.. -I..
-#pref_test_CFLAGS = -m32 -I..
-tests_CFLAGS = -Wextra $(LINUXFLAGS) -m32 -I${srcdir} -I${srcdir}/.. -I..
+#pose_test_CFLAGS = -I.. '-DLIB_PATH="@libdir@/"'
+ltlib_test_CFLAGS = -I${srcdir} -I${srcdir}/.. -I.. '-DLIB_PATH="@libdir@/"'
+webcam_driver_test_CFLAGS = -I${srcdir} -I${srcdir}/.. -I.. '-DLIB_PATH="@libdir@/"'
+#pref_test_CFLAGS = -I.. '-DLIB_PATH="@libdir@/"'
+tests_CFLAGS = -Wextra $(LINUXFLAGS) -I${srcdir} -I${srcdir}/.. -I.. '-DLIB_PATH="@libdir@/"'
 
-#pose_test_LDFLAGS = -L/lib32 -L/usr/lib32 -L..
-ltlib_test_LDFLAGS = -L/lib32 -L/usr/lib32 -L..
-webcam_driver_test_LDFLAGS = -L/lib32 -L/usr/lib32  -L..
-#pref_test_LDFLAGS = -L/lib32 -L/usr/lib32  -L..
+#pose_test_LDFLAGS = -L..
+ltlib_test_LDFLAGS = -L..
+webcam_driver_test_LDFLAGS = -L..
+#pref_test_LDFLAGS = -L..
 tests_LDFLAGS = $(LINUXFLAGS)
 
 MOSTLYCLEANFILES = *.gcno

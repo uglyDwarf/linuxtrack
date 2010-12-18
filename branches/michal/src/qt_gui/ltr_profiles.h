@@ -47,6 +47,7 @@ class AppProfile : public QWidget{
   LtrAxis *tz;
   float filterFactor;
   void filterFactorReload();
+  bool initializing;
 };
 
 class Profile{

@@ -46,8 +46,8 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   
   showWindow = new LtrGuiForm(ui, sc);
   helper = new LtrDevHelp();
-  initialized = true;
   on_RefreshDevices_pressed();
+  initialized = true;
   showWindow->show();
   helper->show();
   gui_settings = new QSettings("ltr", "linuxtrack");
@@ -74,6 +74,7 @@ LinuxtrackGui::~LinuxtrackGui()
   delete me;
   delete sc;
   delete helper;
+  PrefProxy::ClosePrefs();
 }
 
 void LinuxtrackGui::closeEvent(QCloseEvent *event)
@@ -111,15 +112,15 @@ void LinuxtrackGui::on_DeviceSelector_activated(int index)
 #else
     ui.DeviceSetupStack->setCurrentIndex(3);
 #endif
-    wcp->Activate(pl.ID);
+    wcp->Activate(pl.ID, !initialized);
   }else 
   if(pl.deviceType == WIIMOTE){
     ui.DeviceSetupStack->setCurrentIndex(1);
-    wiip->Activate(pl.ID);
+    wiip->Activate(pl.ID, !initialized);
   }else 
   if(pl.deviceType == TIR){
     ui.DeviceSetupStack->setCurrentIndex(2);
-    tirp->Activate(pl.ID);
+    tirp->Activate(pl.ID, !initialized);
   }
 }
 

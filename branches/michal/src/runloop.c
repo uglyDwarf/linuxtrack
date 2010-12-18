@@ -17,6 +17,7 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   enum ltr_request_t my_request;
   struct frame_type frame;
   bool stop_flag = false;
+  unsigned int counter = 0;
   
   ltr_int_cal_set_state(STOPPED);
   if(ltr_int_tracker_init(ccb) != 0){
@@ -43,6 +44,7 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
             break;
           default:
             retval = ltr_int_tracker_get_frame(ccb, &frame);
+            frame.counter = ++counter;
             if((retval == -1) || (cbk(ccb, &frame) < 0)){
               stop_flag = true;
             }

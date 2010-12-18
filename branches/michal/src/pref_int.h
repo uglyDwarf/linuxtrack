@@ -58,6 +58,7 @@ const char *ltr_int_get_custom_section_name();
 bool ltr_int_read_prefs(char *file, bool force_read);
 bool ltr_int_new_prefs();
 bool ltr_int_save_prefs();
+bool ltr_int_need_saving();
 
 #ifdef __cplusplus
 }

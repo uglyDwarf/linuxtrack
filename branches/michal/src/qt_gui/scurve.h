@@ -35,6 +35,7 @@ class SCurve : public QWidget{
   bool symetrical;
   SCView *view;
   bool first;
+  bool initializing;
 };
 
 #endif

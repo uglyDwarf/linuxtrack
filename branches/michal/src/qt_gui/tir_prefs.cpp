@@ -68,11 +68,12 @@ static bool haveFirmware()
   }
 }
 
-void TirPrefs::Activate(const QString &ID)
+void TirPrefs::Activate(const QString &ID, bool init)
 {
+  initializing = init;
   QString sec;
   if(PREF.getFirstDeviceSection(QString("Tir"), sec)){
-    PREF.activateDevice(sec);
+    if(!initializing) PREF.activateDevice(sec);
     currentSection = sec;
   }else{
     sec = "TrackIR";
@@ -88,6 +89,7 @@ void TirPrefs::Activate(const QString &ID)
       PREF.activateDevice(sec);
       currentSection = sec;
     }else{
+      initializing = false;
       return;
     }
   }
@@ -114,6 +116,7 @@ void TirPrefs::Activate(const QString &ID)
     gui.StatusBrightLabel->setHidden(true);
     gui.IRBrightLabel->setHidden(true);
   }
+  initializing = false;
 }
 
 
@@ -146,30 +149,30 @@ void TirPrefs::AddAvailableDevices(QComboBox &combo)
 
 void TirPrefs::on_TirThreshold_valueChanged(int i)
 {
-  ltr_int_tir_set_threshold(i);
+  if(!initializing) ltr_int_tir_set_threshold(i);
 }
 
 void TirPrefs::on_TirMinBlob_valueChanged(int i)
 {
-  ltr_int_tir_set_min_blob(i);
+  if(!initializing) ltr_int_tir_set_min_blob(i);
 }
 
 void TirPrefs::on_TirMaxBlob_valueChanged(int i)
 {
-  ltr_int_tir_set_max_blob(i);
+  if(!initializing) ltr_int_tir_set_max_blob(i);
 }
 
 void TirPrefs::on_TirStatusBright_valueChanged(int i)
 {
-  ltr_int_tir_set_status_brightness(i);
+  if(!initializing) ltr_int_tir_set_status_brightness(i);
 }
 
 void TirPrefs::on_TirIrBright_valueChanged(int i)
 {
-  ltr_int_tir_set_ir_brightness(i);
+  if(!initializing) ltr_int_tir_set_ir_brightness(i);
 }
 
 void TirPrefs::on_TirSignalizeStatus_stateChanged(int state)
 {
-  ltr_int_tir_set_status_indication(state == Qt::Checked);
+  if(!initializing) ltr_int_tir_set_status_indication(state == Qt::Checked);
 }

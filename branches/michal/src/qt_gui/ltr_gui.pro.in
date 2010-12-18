@@ -31,7 +31,7 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
 QMAKE_CXXFLAGS += -DHAVE_CONFIG_H
 
 unix:!macx {
-  LIBS += "-L$${LIBDIR}" "-L../.libs" -lm -lpthread -ldl -llinuxtrack \
+  LIBS += "-L../.libs" "-L$${LIBDIR}" -lm -lpthread -ldl -llinuxtrack \
            "-Wl,-rpath,$${LIBDIR}"
   
   data.path += @prefix@/share/linuxtrack

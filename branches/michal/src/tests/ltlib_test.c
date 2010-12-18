@@ -10,6 +10,7 @@ int main(int argc, char *argv[]) {
   (void) argv;
   float heading, pitch, roll;
   float tx, ty, tz;
+  unsigned int counter;
   int retval;
 
   retval = ltr_init("default");
@@ -22,7 +23,7 @@ int main(int argc, char *argv[]) {
   int cntr=0; 
   while (++cntr < 300) {
     retval = ltr_get_camera_update(&heading,&pitch,&roll,
-                                  &tx, &ty, &tz);
+                                  &tx, &ty, &tz, &counter);
     if (retval < 0) {
       printf("Not updated!\n"); 
       usleep(90000);
@@ -40,7 +41,7 @@ int main(int argc, char *argv[]) {
   cntr = 0;
   while (++cntr < 100) {
     retval = ltr_get_camera_update(&heading,&pitch,&roll,
-                                  &tx, &ty, &tz);
+                                  &tx, &ty, &tz, &counter);
     if (retval < 0) {
       printf("Not updated!\n"); 
       usleep(90000);

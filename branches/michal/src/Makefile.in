@@ -18,6 +18,7 @@
 
 
 
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
@@ -37,6 +38,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+bin_PROGRAMS = ltr_server$(EXEEXT)
 @CWIID_TRUE@am__append_1 = libwii.la 
 @V4L2_TRUE@am__append_2 = libwc.la 
 
@@ -81,8 +83,8 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgdatadir)" \
-	"$(DESTDIR)$(includedir)"
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
+	"$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 liblinuxtrack_la_DEPENDENCIES =
 am_liblinuxtrack_la_OBJECTS = liblinuxtrack_la-cal.lo \
@@ -100,9 +102,9 @@ liblinuxtrack_la_OBJECTS = $(am_liblinuxtrack_la_OBJECTS)
 liblinuxtrack_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(liblinuxtrack_la_CFLAGS) \
 	$(CFLAGS) $(liblinuxtrack_la_LDFLAGS) $(LDFLAGS) -o $@
-liblt_la_DEPENDENCIES =
+liblt_la_LIBADD =
 am_liblt_la_OBJECTS = liblt_la-ltlib.lo liblt_la-utils.lo \
-	liblt_la-dyn_load.lo
+	liblt_la-ipc_utils.lo
 liblt_la_OBJECTS = $(am_liblt_la_OBJECTS)
 liblt_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(liblt_la_CFLAGS) $(CFLAGS) \
@@ -158,6 +160,14 @@ xlinuxtrack_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(xlinuxtrack_la_CFLAGS) \
 	$(CFLAGS) $(xlinuxtrack_la_LDFLAGS) $(LDFLAGS) -o $@
 @XPLANE_PLUGIN_TRUE@am_xlinuxtrack_la_rpath = -rpath $(libdir)
+PROGRAMS = $(bin_PROGRAMS)
+am_ltr_server_OBJECTS = ltr_server-ltr_server.$(OBJEXT) \
+	ltr_server-ipc_utils.$(OBJEXT) ltr_server-utils.$(OBJEXT)
+ltr_server_OBJECTS = $(am_ltr_server_OBJECTS)
+ltr_server_DEPENDENCIES =
+ltr_server_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ltr_server_CFLAGS) \
+	$(CFLAGS) $(ltr_server_LDFLAGS) $(LDFLAGS) -o $@
 SCRIPTS = $(noinst_SCRIPTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp =
@@ -181,11 +191,11 @@ LTYACCCOMPILE = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 SOURCES = $(liblinuxtrack_la_SOURCES) $(liblt_la_SOURCES) \
 	$(libltopenusb_la_SOURCES) $(libltusb1_la_SOURCES) \
 	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
-	$(xlinuxtrack_la_SOURCES)
+	$(xlinuxtrack_la_SOURCES) $(ltr_server_SOURCES)
 DIST_SOURCES = $(liblinuxtrack_la_SOURCES) $(liblt_la_SOURCES) \
 	$(libltopenusb_la_SOURCES) $(libltusb1_la_SOURCES) \
 	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
-	$(am__xlinuxtrack_la_SOURCES_DIST)
+	$(am__xlinuxtrack_la_SOURCES_DIST) $(ltr_server_SOURCES)
 DATA = $(dist_pkgdata_DATA)
 HEADERS = $(include_HEADERS)
 ETAGS = etags
@@ -322,6 +332,10 @@ top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = liblinuxtrack.la liblt.la $(am__append_1) \
 	$(am__append_2) $(am__append_3) $(am__append_4) \
 	$(am__append_5) $(am__append_6)
+ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
+ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) '-DLIB_PATH="@libdir@/"'
+ltr_server_LDADD = -lpthread -llinuxtrack
+ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG}
 
 #bin_PROGRAMS = lt_server lt_client
 #lt_server_SOURCES = lt_server.c netcomm.c netcomm.h
@@ -331,9 +345,9 @@ lib_LTLIBRARIES = liblinuxtrack.la liblt.la $(am__append_1) \
 include_HEADERS = ltlib.h
 
 #liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
-liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h dyn_load.c dyn_load.h
+#liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h dyn_load.c dyn_load.h
+liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h ipc_utils.c ipc_utils.h
 liblt_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} '-DLIB_PATH="@libdir@/"'
-liblt_la_LIBADD = -ldl
 liblt_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
 liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
@@ -491,6 +505,52 @@ libwii.la: $(libwii_la_OBJECTS) $(libwii_la_DEPENDENCIES)
 	$(libwii_la_LINK) $(am_libwii_la_rpath) $(libwii_la_OBJECTS) $(libwii_la_LIBADD) $(LIBS)
 xlinuxtrack.la: $(xlinuxtrack_la_OBJECTS) $(xlinuxtrack_la_DEPENDENCIES) 
 	$(xlinuxtrack_la_LINK) $(am_xlinuxtrack_la_rpath) $(xlinuxtrack_la_OBJECTS) $(xlinuxtrack_la_LIBADD) $(LIBS)
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	test -z "$(bindir)" || $(MKDIR_P) "$(DESTDIR)$(bindir)"
+	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
+	for p in $$list; do echo "$$p $$p"; done | \
+	sed 's/$(EXEEXT)$$//' | \
+	while read p p1; do if test -f $$p || test -f $$p1; \
+	  then echo "$$p"; echo "$$p"; else :; fi; \
+	done | \
+	sed -e 'p;s,.*/,,;n;h' -e 's|.*|.|' \
+	    -e 'p;x;s,.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/' | \
+	sed 'N;N;N;s,\n, ,g' | \
+	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1 } \
+	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
+	    if ($$2 == $$4) files[d] = files[d] " " $$1; \
+	    else { print "f", $$3 "/" $$4, $$1; } } \
+	  END { for (d in files) print "f", d, files[d] }' | \
+	while read type dir files; do \
+	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
+	    test -z "$$files" || { \
+	    echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
+	    $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
+	    } \
+	; done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
+	files=`for p in $$list; do echo "$$p"; done | \
+	  sed -e 'h;s,^.*/,,;s/$(EXEEXT)$$//;$(transform)' \
+	      -e 's/$$/$(EXEEXT)/' `; \
+	test -n "$$list" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(bindir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(bindir)" && rm -f $$files
+
+clean-binPROGRAMS:
+	@list='$(bin_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
+ltr_server$(EXEEXT): $(ltr_server_OBJECTS) $(ltr_server_DEPENDENCIES) 
+	@rm -f ltr_server$(EXEEXT)
+	$(ltr_server_LINK) $(ltr_server_OBJECTS) $(ltr_server_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -567,8 +627,8 @@ liblt_la-ltlib.lo: ltlib.c
 liblt_la-utils.lo: utils.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblt_la_CFLAGS) $(CFLAGS) -c -o liblt_la-utils.lo `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
 
-liblt_la-dyn_load.lo: dyn_load.c
-	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblt_la_CFLAGS) $(CFLAGS) -c -o liblt_la-dyn_load.lo `test -f 'dyn_load.c' || echo '$(srcdir)/'`dyn_load.c
+liblt_la-ipc_utils.lo: ipc_utils.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblt_la_CFLAGS) $(CFLAGS) -c -o liblt_la-ipc_utils.lo `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
 
 libltopenusb_la-openusb_ifc.lo: openusb_ifc.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltopenusb_la_CFLAGS) $(CFLAGS) -c -o libltopenusb_la-openusb_ifc.lo `test -f 'openusb_ifc.c' || echo '$(srcdir)/'`openusb_ifc.c
@@ -602,6 +662,24 @@ xlinuxtrack_la-dyn_load.lo: dyn_load.c
 
 xlinuxtrack_la-ltlib.lo: ltlib.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_la_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_la-ltlib.lo `test -f 'ltlib.c' || echo '$(srcdir)/'`ltlib.c
+
+ltr_server-ltr_server.o: ltr_server.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server_CFLAGS) $(CFLAGS) -c -o ltr_server-ltr_server.o `test -f 'ltr_server.c' || echo '$(srcdir)/'`ltr_server.c
+
+ltr_server-ltr_server.obj: ltr_server.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server_CFLAGS) $(CFLAGS) -c -o ltr_server-ltr_server.obj `if test -f 'ltr_server.c'; then $(CYGPATH_W) 'ltr_server.c'; else $(CYGPATH_W) '$(srcdir)/ltr_server.c'; fi`
+
+ltr_server-ipc_utils.o: ipc_utils.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server_CFLAGS) $(CFLAGS) -c -o ltr_server-ipc_utils.o `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
+
+ltr_server-ipc_utils.obj: ipc_utils.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server_CFLAGS) $(CFLAGS) -c -o ltr_server-ipc_utils.obj `if test -f 'ipc_utils.c'; then $(CYGPATH_W) 'ipc_utils.c'; else $(CYGPATH_W) '$(srcdir)/ipc_utils.c'; fi`
+
+ltr_server-utils.o: utils.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server_CFLAGS) $(CFLAGS) -c -o ltr_server-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
+
+ltr_server-utils.obj: utils.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server_CFLAGS) $(CFLAGS) -c -o ltr_server-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
 
 .l.c:
 	$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ -- $(LEXCOMPILE)
@@ -740,9 +818,12 @@ distdir: $(DISTFILES)
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
-all-am: Makefile $(LTLIBRARIES) $(SCRIPTS) $(DATA) $(HEADERS)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(DATA) \
+		$(HEADERS)
+install-binPROGRAMS: install-libLTLIBRARIES
+
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -777,8 +858,8 @@ maintainer-clean-generic:
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
-clean-am: clean-generic clean-libLTLIBRARIES clean-libtool clean-local \
-	mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
+	clean-libtool clean-local mostlyclean-am
 
 distclean: distclean-am
 	-rm -f Makefile
@@ -803,7 +884,7 @@ install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am: install-libLTLIBRARIES
+install-exec-am: install-binPROGRAMS install-libLTLIBRARIES
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) install-exec-hook
 install-html: install-html-am
@@ -843,18 +924,19 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-dist_pkgdataDATA uninstall-includeHEADERS \
-	uninstall-libLTLIBRARIES
+uninstall-am: uninstall-binPROGRAMS uninstall-dist_pkgdataDATA \
+	uninstall-includeHEADERS uninstall-libLTLIBRARIES
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
 .MAKE: all check install install-am install-exec-am install-strip \
 	uninstall-am
 
-.PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libLTLIBRARIES clean-libtool clean-local ctags distclean \
-	distclean-compile distclean-generic distclean-libtool \
-	distclean-local distclean-tags distdir dvi dvi-am html html-am \
-	info info-am install install-am install-data install-data-am \
+.PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
+	clean-generic clean-libLTLIBRARIES clean-libtool clean-local \
+	ctags distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-local distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-binPROGRAMS install-data install-data-am \
 	install-dist_pkgdataDATA install-dvi install-dvi-am \
 	install-exec install-exec-am install-exec-hook install-html \
 	install-html-am install-includeHEADERS install-info \
@@ -863,9 +945,9 @@ uninstall-am: uninstall-dist_pkgdataDATA uninstall-includeHEADERS \
 	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-dist_pkgdataDATA \
-	uninstall-hook uninstall-includeHEADERS \
-	uninstall-libLTLIBRARIES
+	tags uninstall uninstall-am uninstall-binPROGRAMS \
+	uninstall-dist_pkgdataDATA uninstall-hook \
+	uninstall-includeHEADERS uninstall-libLTLIBRARIES
 
 
 #dirty hack to integrate qt_gui

@@ -27,7 +27,8 @@ int ltr_get_camera_update(float *heading,
                          float *roll,
                          float *tx,
                          float *ty,
-                         float *tz);
+                         float *tz,
+                         unsigned int *counter);
 ltr_state_type ltr_get_tracking_state(void);
 void ltr_log_message(const char *format, ...);
 

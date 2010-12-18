@@ -21,7 +21,9 @@ SCurve::SCurve(LtrAxis *a, QString axis_name, QString left_label, QString right_
   first = false;
   view = new SCView(axis, ui.SCView);
   QObject::connect(this, SIGNAL(changed()), view, SLOT(update()));
+  initializing = true;
   axisChanged(RELOAD);
+  initializing = false;
 }
 
 SCurve::~SCurve()
@@ -48,10 +50,10 @@ void SCurve::setEnabled(int state)
 {
   if(state == Qt::Checked){
     //std::cout<<"Enabling..."<<std::endl;
-    axis->changeEnabled(true);
+    if(!initializing) axis->changeEnabled(true);
   }else{
     //std::cout<<"Disabling..."<<std::endl;
-    axis->changeEnabled(false);
+    if(!initializing) axis->changeEnabled(false);
   }
 }
 
@@ -78,7 +80,7 @@ void SCurve::on_SCSymetrical_stateChanged(int state)
 void SCurve::on_SCLeftFactor_valueChanged(double d)
 {
   //std::cout<<"LeftFactor = "<<d<<std::endl;
-  axis->changeLFactor(d);
+  if(!initializing) axis->changeLFactor(d);
   if(symetrical){
     ui.SCRightFactor->setValue(d);
   }
@@ -88,7 +90,7 @@ void SCurve::on_SCLeftFactor_valueChanged(double d)
 void SCurve::on_SCRightFactor_valueChanged(double d)
 {
   //std::cout<<"RightFactor = "<<d<<std::endl;
-  axis->changeRFactor(d);
+  if(!initializing) axis->changeRFactor(d);
   if(symetrical){
     ui.SCLeftFactor->setValue(d);
   }
@@ -98,7 +100,7 @@ void SCurve::on_SCRightFactor_valueChanged(double d)
 void SCurve::on_SCLeftCurv_valueChanged(int value)
 {
   //std::cout<<"LeftCurv = "<<value<<std::endl;
-  axis->changeLCurv(value / 100.0);
+  if(!initializing) axis->changeLCurv(value / 100.0);
   if(symetrical){
     ui.SCRightCurv->setValue(value);
   }else{
@@ -109,21 +111,21 @@ void SCurve::on_SCLeftCurv_valueChanged(int value)
 void SCurve::on_SCRightCurv_valueChanged(int value)
 {
   //std::cout<<"RightCurv = "<<value<<std::endl;
-  axis->changeRCurv(value / 100.0);
+  if(!initializing) axis->changeRCurv(value / 100.0);
   emit changed();
 }
 
 void SCurve::on_SCDeadZone_valueChanged(int value)
 {
   //std::cout<<"DeadZone = "<<value<<std::endl;
-  axis->changeDZone(value / 101.0);
+  if(!initializing) axis->changeDZone(value / 101.0);
   emit changed();
 }
 
 void SCurve::on_SCInputLimits_valueChanged(double d)
 {
   //std::cout<<"Limits = "<<d<<std::endl;
-  axis->changeLimits(d);
+  if(!initializing) axis->changeLimits(d);
   emit changed();
 }
 

@@ -1,5 +1,5 @@
 #include <ltr_gui_prefs.h>
-#include "ltr_profiles.h"
+#include <ltr_profiles.h>
 #include <iostream>
 
 Profile::Profile() : currentProfile(NULL)
@@ -67,7 +67,8 @@ int Profile::isProfile(const QString &name)
   return i;
 }
 
-AppProfile::AppProfile(const QString &n, QWidget *parent) : QWidget(parent), name(n)
+AppProfile::AppProfile(const QString &n, QWidget *parent) : QWidget(parent), name(n), 
+                                                            initializing(false)
 {
   PREF.setCustomSection(name);
   //std::cout<<"Cust section: "<<name.toAscii().data()<<std::endl;
@@ -179,7 +180,6 @@ bool AppProfile::changeProfile(const QString &newName)
 void AppProfile::setFilterFactor(float f)
 {
   filterFactor = f;
-  PREF.setKeyVal(name, "Filter-factor", f);
   emit filterFactorChanged(f);
 }
 

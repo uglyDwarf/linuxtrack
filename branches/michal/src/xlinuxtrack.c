@@ -540,9 +540,10 @@ static int doTracking()
   float heading, pitch, roll;
   float tx, ty, tz;
   int retval;
+  unsigned int counter;
   
   retval = ltr_get_camera_update(&heading,&pitch,&roll,
-                                &tx, &ty, &tz);
+                                &tx, &ty, &tz, &counter);
 
   if (retval < 0) {
     printf("xlinuxtrack: Error code %d detected!\n", retval);

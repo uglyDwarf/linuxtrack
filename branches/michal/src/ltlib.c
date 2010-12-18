@@ -4,46 +4,31 @@
 #include <unistd.h>
 #include "cal.h"
 #include "ltlib_int.h"
+#include "ipc_utils.h"
 #include "utils.h"
-#include "dyn_load.h"
 
-static int (*fun_ltr_int_init)(char *cust_section) = NULL;
-static int (*fun_ltr_int_shutdown)(void) = NULL;
-static int (*fun_ltr_int_suspend)(void) = NULL;
-static int (*fun_ltr_int_wakeup)(void) = NULL;
-static void (*fun_ltr_int_recenter)(void) = NULL;
-static int (*fun_ltr_int_get_camera_update)(float *heading,
-                         float *pitch,
-                         float *roll,
-                         float *tx,
-                         float *ty,
-                         float *tz) = NULL;
-static ltr_state_type (*fun_ltr_int_get_tracking_state)(void) = NULL;
-
-
-static lib_fun_def_t functions[] = {
-{"ltr_int_init", (void*) &fun_ltr_int_init},
-{"ltr_int_shutdown", (void*) &fun_ltr_int_shutdown},
-{"ltr_int_suspend", (void*) &fun_ltr_int_suspend},
-{"ltr_int_wakeup", (void*) &fun_ltr_int_wakeup},
-{"ltr_int_recenter", (void*) &fun_ltr_int_recenter},
-{"ltr_int_get_camera_update", (void*) &fun_ltr_int_get_camera_update},
-{"ltr_int_get_tracking_state", (void*) &fun_ltr_int_get_tracking_state},
-{NULL, NULL}
-};
-
-static void *libhandle = NULL;
-static char libname[] = "liblinuxtrack";
+static int fd;
+static char tmp_fname[] = "/tmp/ltrXXXXXX";
+static struct mmap_s mmm;
 
 int ltr_init(char *cust_section)
 {
-  if(fun_ltr_int_init == NULL){
-    if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
-      ltr_int_log_message("Problem loading library %s!\n", libname);
-      return -1;
-    }
+  fd = open_tmp_file(tmp_fname);
+  if(fd < 0){
+    perror("open_tmp_file");
+    ltr_int_log_message("Couldn't open communication file!\n");
+    return -1;
   }
-  return fun_ltr_int_init(cust_section);
+  if(!mmap_file(tmp_fname, sizeof(struct mmap_s), &mmm)){
+    perror("mmap_file: ");
+    ltr_int_log_message("Couldn't mmap!\n");
+    return -1;
+  }
+  char *server = ltr_int_get_app_path("/ltr_server");
+  char *args[] = {server, tmp_fname, cust_section, NULL};
+  fork_child(args);
+  free(server);
+  return 0;
 }
 
 int ltr_get_camera_update(float *heading,
@@ -51,79 +36,67 @@ int ltr_get_camera_update(float *heading,
                          float *roll,
                          float *tx,
                          float *ty,
-                         float *tz)
+                         float *tz,
+                         unsigned int *counter)
 {
-  if(fun_ltr_int_get_camera_update == NULL){
-    if((libhandle = ltr_int_load_library(libname, functions)) != NULL){
-      return -1;
-    }
-  }
-  return fun_ltr_int_get_camera_update(heading, pitch, roll, tx, ty, tz);
+  struct ltr_comm *com = mmm.data;
+  struct ltr_comm tmp;
+  lockSemaphore(mmm.sem);
+  tmp = *com;
+  unlockSemaphore(mmm.sem);
+  *heading = tmp.heading;
+  *pitch = tmp.pitch;
+  *roll = tmp.roll;
+  *tx = tmp.tx;
+  *ty = tmp.ty;
+  *tz = tmp.tz;
+  *counter = tmp.counter;
+  return 0;
 }
 
 int ltr_suspend(void)
 {
-  if(fun_ltr_int_suspend == NULL){
-    if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
-      return -1;
-    }
-  }
-  return fun_ltr_int_suspend();
+  struct ltr_comm *com = mmm.data;
+  lockSemaphore(mmm.sem);
+  com->cmd = PAUSE_CMD;
+  unlockSemaphore(mmm.sem);
+  return 0;
 }
 
 int ltr_wakeup(void)
 {
-  if(fun_ltr_int_wakeup == NULL){
-    if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
-      return -1;
-    }
-  }
-  return fun_ltr_int_wakeup();
+  struct ltr_comm *com = mmm.data;
+  lockSemaphore(mmm.sem);
+  com->cmd = RUN_CMD;
+  unlockSemaphore(mmm.sem);
+  return 0;
 }
 
 int ltr_shutdown(void)
 {
-  if(fun_ltr_int_shutdown == NULL){
-    if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
-      return -1;
-    }
-  }
-  int res = fun_ltr_int_shutdown();
-  int counter = 20;
-  while(counter > 0){
-    usleep(100000);
-    if(fun_ltr_int_get_tracking_state() == DOWN){
-      ltr_int_log_message("Driver unloaded!\n");
-      break;
-    }
-    --counter;
-  }
-  if(counter == 0){
-    ltr_int_log_message("Driver unload timeout!!!\n");
-  }
-  ltr_int_unload_library(libhandle, functions);
-  libhandle = NULL;
-  return res;
+  struct ltr_comm *com = mmm.data;
+  lockSemaphore(mmm.sem);
+  com->cmd = STOP_CMD;
+  unlockSemaphore(mmm.sem);
+  return 0;
 }
 
 void ltr_recenter(void)
 {
-  if(fun_ltr_int_recenter == NULL){
-    if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
-      return;
-    }
-  }
-  return fun_ltr_int_recenter();
+  struct ltr_comm *com = mmm.data;
+  lockSemaphore(mmm.sem);
+  com->cmd = RECENTER_CMD;
+  unlockSemaphore(mmm.sem);
 }
 
 ltr_state_type ltr_get_tracking_state(void)
 {
-  if(fun_ltr_int_get_tracking_state == NULL){
-    if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
-      return STOPPED;
-    }
-  }
-  return fun_ltr_int_get_tracking_state();
+  ltr_state_type state;
+  struct ltr_comm *com = mmm.data;
+  lockSemaphore(mmm.sem);
+  state = com->state;
+  unlockSemaphore(mmm.sem);
+  return state;
 }
 
 void ltr_log_message(const char *format, ...)

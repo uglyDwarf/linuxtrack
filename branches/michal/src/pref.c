@@ -23,7 +23,7 @@ extern char* yytext;
 extern section_struct *current_section;
 char *parsed_file;
 int line_num;
-
+bool need_saving;
 plist ltr_int_prefs;
 
 static bool prefs_read_already = false;
@@ -93,6 +93,7 @@ bool ltr_int_new_prefs()
   }
   ltr_int_prefs = ltr_int_create_list();
   prefs_read_already = true;
+  need_saving = true;
   return true;
 }
 
@@ -231,6 +232,7 @@ bool ltr_int_get_key_int(const char *section_name, const char *key_name, int *va
 
 bool ltr_int_add_key(const char *section_name, const char *key_name, const char *new_value)
 {
+  need_saving = true;
   assert(prefs_read_already);
   if(section_name == NULL){
     section_name = custom_section_name;
@@ -255,6 +257,7 @@ bool ltr_int_add_key(const char *section_name, const char *key_name, const char 
 
 bool ltr_int_change_key(const char *section_name, const char *key_name, const char *new_value)
 {
+  need_saving = true;
   assert(prefs_read_already);
   assert(key_name != NULL);
   assert(new_value != NULL);
@@ -487,6 +490,7 @@ bool ltr_int_save_prefs()
   if(tmp_file != NULL) free(tmp_file);
   if(old_file != NULL) free(old_file);
   free(pfile);
+  need_saving = false;
   return true;
 }
 
@@ -501,5 +505,11 @@ bool ltr_int_add_section(const char *name)
   item->item_type = SECTION;
   item->section = new_section;
   ltr_int_add_element(ltr_int_prefs, item);
+  need_saving = true;
   return true;
+}
+
+bool ltr_int_need_saving()
+{
+  return need_saving;
 }

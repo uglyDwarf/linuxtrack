@@ -68,17 +68,20 @@ void WebcamPrefs::on_WebcamResolutions_activated(int index)
     int x,y, num, den;
     WebcamInfo::decodeRes(res, x, y);
     WebcamInfo::decodeFps(fps, num, den);
-    ltr_int_wc_set_pixfmt(fmt.toAscii().data());
-    ltr_int_wc_set_resolution(x, y);
-    ltr_int_wc_set_fps(num, den);
+    if(!initializing){
+      ltr_int_wc_set_pixfmt(fmt.toAscii().data());
+      ltr_int_wc_set_resolution(x, y);
+      ltr_int_wc_set_fps(num, den);
+    }
   }
 }
 
-void WebcamPrefs::Activate(const QString &ID)
+void WebcamPrefs::Activate(const QString &ID, bool init)
 {
   QString sec;
+  initializing = init;
   if(PREF.getFirstDeviceSection(QString("Webcam"), ID, sec)){
-    PREF.activateDevice(sec);
+    if(!initializing) PREF.activateDevice(sec);
     currentSection = sec;
   }else{
     sec = "Webcam";
@@ -95,10 +98,12 @@ void WebcamPrefs::Activate(const QString &ID)
       PREF.activateDevice(sec);
       currentSection = sec;
     }else{
+      initializing = false;
       return;
     }
   }
   if(!ltr_int_wc_init_prefs()){
+    initializing = false;
     return;
   }
   currentId = ID;
@@ -130,26 +135,27 @@ void WebcamPrefs::Activate(const QString &ID)
                        Qt::Checked : Qt::Unchecked;
     gui.FlipWebcam->setCheckState(state);
   }
+  initializing = false;
 }
 
 void WebcamPrefs::on_WebcamThreshold_valueChanged(int i)
 {
-  ltr_int_wc_set_threshold(i);
+  if(!initializing) ltr_int_wc_set_threshold(i);
 }
 
 void WebcamPrefs::on_WebcamMinBlob_valueChanged(int i)
 {
-  ltr_int_wc_set_min_blob(i);
+  if(!initializing) ltr_int_wc_set_min_blob(i);
 }
 
 void WebcamPrefs::on_WebcamMaxBlob_valueChanged(int i)
 {
-  ltr_int_wc_set_max_blob(i);
+  if(!initializing) ltr_int_wc_set_max_blob(i);
 }
 
 void WebcamPrefs::on_FlipWebcam_stateChanged(int state)
 {
-  ltr_int_wc_set_flip(state == Qt::Checked);
+  if(!initializing) ltr_int_wc_set_flip(state == Qt::Checked);
 }
 
 void WebcamPrefs::AddAvailableDevices(QComboBox &combo)

@@ -35,7 +35,7 @@ static double nonlinfilt(double x,
 
 static void nonlinfilt_vec(double x[3], 
               double y_minus_1[3],
-              double filtfactor,
+              double filtfactor[3],
               double res[3]);
 
 static double clamp_angle(double angle);
@@ -174,11 +174,14 @@ static int update_pose_3pt(struct frame_type *frame)
 			      &raw_angles[2], //roll
 			      &raw_translations[0], //tx
 			      &raw_translations[1], //ty
-			      &raw_translations[2]);//tz
+			      &raw_translations[2]); //tz
 }
+
+static unsigned int counter_d;
 
 int ltr_int_update_pose(struct frame_type *frame)
 {
+  counter_d = frame->counter;
   if(ltr_int_is_single_point()){
     return update_pose_1pt(frame);
   }else{
@@ -191,18 +194,21 @@ int ltr_int_tracking_get_camera(float *heading,
                       float *roll,
                       float *tx,
                       float *ty,
-                      float *tz)
+                      float *tz,
+                      unsigned int *counter)
 {
   static double filtered_angles[3] = {0.0f, 0.0f, 0.0f};
   static double filtered_translations[3] = {0.0f, 0.0f, 0.0f};
+  double filter_factors_angles[3] = {filterfactor, filterfactor, filterfactor};
+  double filter_factors_translations[3] = {filterfactor, filterfactor, 4 * filterfactor};
   
   if(!tracking_initialized){
     ltr_int_init_tracking();
   }
   
   ltr_int_get_filter_factor(&filterfactor);
-  nonlinfilt_vec(raw_angles, filtered_angles, filterfactor, filtered_angles);
-  nonlinfilt_vec(raw_translations, filtered_translations, filterfactor, 
+  nonlinfilt_vec(raw_angles, filtered_angles, filter_factors_angles, filtered_angles);
+  nonlinfilt_vec(raw_translations, filtered_translations, filter_factors_translations, 
         filtered_translations);
   
   pthread_mutex_lock(&pose_mutex);
@@ -228,7 +234,7 @@ int ltr_int_tracking_get_camera(float *heading,
   *tx = tx_d;
   *ty = ty_d;
   *tz = tz_d;
-  
+  *counter = counter_d;
   pthread_mutex_unlock(&pose_mutex);
 /*
   log_message("%f  %f  %f\n%f  %f  %f\n\n", 
@@ -275,12 +281,12 @@ double nonlinfilt(double x,
 
 void nonlinfilt_vec(double x[3], 
               double y_minus_1[3],
-              double filterfactor,
+              double filterfactor[3],
               double res[3]) 
 {
-  res[0] = nonlinfilt(x[0], y_minus_1[0], filterfactor);
-  res[1] = nonlinfilt(x[1], y_minus_1[1], filterfactor);
-  res[2] = nonlinfilt(x[2], y_minus_1[2], filterfactor);
+  res[0] = nonlinfilt(x[0], y_minus_1[0], filterfactor[0]);
+  res[1] = nonlinfilt(x[1], y_minus_1[1], filterfactor[1]);
+  res[2] = nonlinfilt(x[2], y_minus_1[2], filterfactor[2]);
 }
 
 

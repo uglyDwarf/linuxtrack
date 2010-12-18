@@ -21,5 +21,8 @@ void closeSemaphore(semaphore_p semaphore);
 
 bool mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m);
 bool unmap_file(struct mmap_s *m);
+int open_tmp_file(char *fname);
+int open_tmp_file(char *fname);
+
 
 #endif

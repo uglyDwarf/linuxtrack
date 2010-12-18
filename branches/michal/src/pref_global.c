@@ -213,5 +213,5 @@ bool ltr_int_get_model_setup(reflector_model_type *rm)
 
 bool ltr_int_get_filter_factor(float *ff)
 {
-  return ltr_int_get_key_flt(ltr_int_get_custom_section_name(), "Filter-factor", ff);
+  return ltr_int_get_key_flt(NULL, "Filter-factor", ff);
 }

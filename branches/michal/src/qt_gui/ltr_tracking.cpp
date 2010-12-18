@@ -1,10 +1,12 @@
-#include "ltr_tracking.h"
-#include "ltr_profiles.h"
+#include <ltr_tracking.h>
+#include <ltr_profiles.h>
+#include <ltr_gui_prefs.h>
 #include <QInputDialog>
 #include <iostream>
 
-LtrTracking::LtrTracking(const Ui::LinuxtrackMainForm &ui) : gui(ui)
+LtrTracking::LtrTracking(const Ui::LinuxtrackMainForm &ui) : gui(ui), initializing(false)
 {
+  initializing = true;
   ffChanged(PROFILE.getCurrentProfile()->getFilterFactor());
   pitch = PROFILE.getCurrentProfile()->getPitchAxis();
   roll = PROFILE.getCurrentProfile()->getRollAxis();
@@ -12,6 +14,7 @@ LtrTracking::LtrTracking(const Ui::LinuxtrackMainForm &ui) : gui(ui)
   tx = PROFILE.getCurrentProfile()->getTxAxis();
   ty = PROFILE.getCurrentProfile()->getTyAxis();
   tz = PROFILE.getCurrentProfile()->getTzAxis();
+  initializing = false;
   Connect();
   gui.Profiles->addItems(Profile::getProfiles().getProfileNames());
 }
@@ -91,6 +94,7 @@ void LtrTracking::ffChanged(float f)
 {
   gui.FilterValue->setText(QString::number(f));
   gui.FilterSlider->setValue(f * 10);
+  if(!initializing) PREF.setKeyVal(PROFILE.getCurrentProfile()->getProfileName(), "Filter-factor", f);
 }
 
 void LtrTracking::on_FilterSlider_valueChanged(int value)
@@ -101,8 +105,10 @@ void LtrTracking::on_FilterSlider_valueChanged(int value)
 
 void LtrTracking::on_Profiles_currentIndexChanged(const QString &text)
 {
+  initializing = true;
   PROFILE.setCurrent(text);
   emit customSectionChanged();
+  initializing = false;
 }
 
 void LtrTracking::on_CreateNewProfile_pressed()
@@ -137,92 +143,92 @@ bool state2bool(int state)
 
 void LtrTracking::on_PitchEnable_stateChanged(int state)
 {
-  pitch->changeEnabled((state2bool(state)));
+  if(!initializing) pitch->changeEnabled((state2bool(state)));
 }
 
 void LtrTracking::on_RollEnable_stateChanged(int state)
 {
-  roll->changeEnabled((state2bool(state)));
+  if(!initializing) roll->changeEnabled((state2bool(state)));
 }
 
 void LtrTracking::on_YawEnable_stateChanged(int state)
 {
-  yaw->changeEnabled((state2bool(state)));
+  if(!initializing) yaw->changeEnabled((state2bool(state)));
 }
 
 void LtrTracking::on_XEnable_stateChanged(int state)
 {
-  tx->changeEnabled((state2bool(state)));
+  if(!initializing) tx->changeEnabled((state2bool(state)));
 }
 
 void LtrTracking::on_YEnable_stateChanged(int state)
 {
-  ty->changeEnabled((state2bool(state)));
+  if(!initializing) ty->changeEnabled((state2bool(state)));
 }
 
 void LtrTracking::on_ZEnable_stateChanged(int state)
 {
-  tz->changeEnabled((state2bool(state)));
+  if(!initializing) tz->changeEnabled((state2bool(state)));
 }
 
 void LtrTracking::on_PitchUpSpin_valueChanged(double d)
 {
-  pitch->changeLFactor(d);
+  if(!initializing) pitch->changeLFactor(d);
 }
 
 void LtrTracking::on_PitchDownSpin_valueChanged(double d)
 {
-  pitch->changeRFactor(d);
+  if(!initializing) pitch->changeRFactor(d);
 }
 
 void LtrTracking::on_YawLeftSpin_valueChanged(double d)
 {
-  yaw->changeLFactor(d);
+  if(!initializing) yaw->changeLFactor(d);
 }
 
 void LtrTracking::on_YawRightSpin_valueChanged(double d)
 {
-  yaw->changeRFactor(d);
+  if(!initializing) yaw->changeRFactor(d);
 }
 
 void LtrTracking::on_TiltLeftSpin_valueChanged(double d)
 {
-  roll->changeLFactor(d);
+  if(!initializing) roll->changeLFactor(d);
 }
 
 void LtrTracking::on_TiltRightSpin_valueChanged(double d)
 {
-  roll->changeRFactor(d);
+  if(!initializing) roll->changeRFactor(d);
 }
 
 void LtrTracking::on_MoveLeftSpin_valueChanged(double d)
 {
-  tx->changeLFactor(d);
+  if(!initializing) tx->changeLFactor(d);
 }
 
 void LtrTracking::on_MoveRightSpin_valueChanged(double d)
 {
-  tx->changeRFactor(d);
+  if(!initializing) tx->changeRFactor(d);
 }
 
 void LtrTracking::on_MoveUpSpin_valueChanged(double d)
 {
-  ty->changeLFactor(d);
+  if(!initializing) ty->changeLFactor(d);
 }
 
 void LtrTracking::on_MoveDownSpin_valueChanged(double d)
 {
-  ty->changeRFactor(d);
+  if(!initializing) ty->changeRFactor(d);
 }
 
 void LtrTracking::on_MoveBackSpin_valueChanged(double d)
 {
-  tz->changeLFactor(d);
+  if(!initializing) tz->changeLFactor(d);
 }
 
 void LtrTracking::on_MoveForthSpin_valueChanged(double d)
 {
-  tz->changeRFactor(d);
+  if(!initializing) tz->changeRFactor(d);
 }
 
 static Qt::CheckState bool2state(bool v)

@@ -15,6 +15,7 @@ class PrefProxy{
   QString prefix;
  public:
   static PrefProxy& Pref();
+  static void ClosePrefs();
   bool activateDevice(const QString &sectionName);
   bool getActiveDevice(deviceType_t &devType, QString &id);
   bool activateModel(const QString &sectionName);
@@ -47,7 +48,6 @@ class PrefProxy{
   static QString getLibPath(QString file);
  private:
   bool checkPrefix();
-
 };
 
 

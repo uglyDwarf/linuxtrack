@@ -57,6 +57,7 @@ class ModelEdit : public QWidget
   void Connect();
   ModelCreate *mcw;
   QString currentSection;
+  bool initializing;
 };
 
 #endif

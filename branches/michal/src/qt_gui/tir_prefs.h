@@ -11,11 +11,12 @@ class TirPrefs : public QObject{
  public:
   TirPrefs(const Ui::LinuxtrackMainForm &ui);
   ~TirPrefs();
-  void Activate(const QString &ID);
+  void Activate(const QString &ID, bool init = false);
   static void AddAvailableDevices(QComboBox &combo);
  private:
   const Ui::LinuxtrackMainForm &gui;
   void Connect();
+  bool initializing;
  private slots:
   void on_TirThreshold_valueChanged(int i);
   void on_TirMinBlob_valueChanged(int i);

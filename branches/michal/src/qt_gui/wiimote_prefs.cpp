@@ -10,7 +10,7 @@ typedef enum{
 
 static QString currentSection = QString();
 
-WiimotePrefs::WiimotePrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
+WiimotePrefs::WiimotePrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui), initializing(false)
 {
   PREF;
   Connect();
@@ -29,11 +29,12 @@ static void setCheckBox(QCheckBox *box, bool val)
   }
 }
 
-void WiimotePrefs::Activate(const QString &ID)
+void WiimotePrefs::Activate(const QString &ID, bool init)
 {
   QString sec;
+  initializing= init;
   if(PREF.getFirstDeviceSection(QString("Wiimote"), sec)){
-    PREF.activateDevice(sec);
+    if(!initializing) PREF.activateDevice(sec);
     currentSection = sec;
   }else{
     sec = "Wiimote";
@@ -60,7 +61,8 @@ void WiimotePrefs::Activate(const QString &ID)
     setCheckBox(gui.Wii_p2, d2);
     setCheckBox(gui.Wii_p3, d3);
     setCheckBox(gui.Wii_p4, d4);
-  }  
+  }
+  initializing = false;
 }
 
 void WiimotePrefs::AddAvailableDevices(QComboBox &combo)
@@ -95,13 +97,15 @@ static bool getState(QCheckBox *b)
 void WiimotePrefs::runIndicationChanged(int state)
 {
   (void) state;
-  ltr_int_set_run_indication(getState(gui.Wii_r1), getState(gui.Wii_r2), getState(gui.Wii_r3), getState(gui.Wii_r4));
+  if(!initializing)
+    ltr_int_set_run_indication(getState(gui.Wii_r1), getState(gui.Wii_r2), getState(gui.Wii_r3), getState(gui.Wii_r4));
 }
 
 void WiimotePrefs::pauseIndicationChanged(int state)
 {
   (void) state;
-  ltr_int_set_pause_indication(getState(gui.Wii_p1), getState(gui.Wii_p2), getState(gui.Wii_p3), getState(gui.Wii_p4));
+  if(!initializing)
+    ltr_int_set_pause_indication(getState(gui.Wii_p1), getState(gui.Wii_p2), getState(gui.Wii_p3), getState(gui.Wii_p4));
 }
 
 void WiimotePrefs::Connect()
