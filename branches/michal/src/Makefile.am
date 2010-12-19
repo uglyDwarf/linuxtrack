@@ -102,7 +102,7 @@ dist_pkgdata_DATA = .linuxtrack
 if XPLANE_PLUGIN
   lib_LTLIBRARIES += xlinuxtrack.la
   xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
-			    utils.c utils.h dyn_load.c dyn_load.h ltlib.c ltlib.h
+			    utils.c utils.h ltlib.c ltlib.h ipc_utils.c ipc_utils.h
   xlinuxtrack_la_CFLAGS = -I${XPLANE_SDK}/CHeaders/XPLM -I${XPLANE_SDK}/CHeaders/Widgets -I${XPLANE_SDK}/CHeaders/Wrappers $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} '-DLIB_PATH="@libdir@/"'
   xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -m32 -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
   xlinuxtrack_la_LIBADD = -lm -ldl

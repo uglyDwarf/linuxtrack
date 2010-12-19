@@ -82,7 +82,8 @@ libmacwc_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 libmacwii_la_DEPENDENCIES =
 am_libmacwii_la_OBJECTS = libmacwii_la-macwii_driver.lo \
 	libmacwii_la-wii_com.lo libmacwii_la-com_proc.lo \
-	libmacwii_la-runloop.lo libmacwii_la-wii_driver_prefs.lo
+	libmacwii_la-runloop.lo libmacwii_la-wii_driver_prefs.lo \
+	libmacwii_la-ipc_utils.lo
 libmacwii_la_OBJECTS = $(am_libmacwii_la_OBJECTS)
 libmacwii_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libmacwii_la_CFLAGS) \
@@ -92,7 +93,7 @@ PROGRAMS = $(bin_PROGRAMS)
 am_WiiServer_OBJECTS = WiiServer-com_proc.$(OBJEXT) \
 	WiiServer-wii_com.$(OBJEXT) WiiServer-wiimote.$(OBJEXT) \
 	WiiServer-wiimote_server.$(OBJEXT) \
-	WiiServer-wiisrvr_main.$(OBJEXT)
+	WiiServer-wiisrvr_main.$(OBJEXT) WiiServer-ipc_utils.$(OBJEXT)
 WiiServer_OBJECTS = $(am_WiiServer_OBJECTS)
 WiiServer_DEPENDENCIES =
 WiiServer_LINK = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
@@ -285,19 +286,20 @@ sg_cam_LDFLAGS = ${AM_CFLAGS} ${TIGER_LDFLAG} -framework QuickTime -framework Co
 sg_cam_CFLAGS = ${AM_CFLAGS} ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 sg_cam_OBJCFLAGS = ${AM_CFLAGS} ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 libmacwc_la_SOURCES = macwebcam_driver.c com_proc.c com_proc.h ../runloop.c ../runloop.h \
-  ipc_utils.c ipc_utils.h
+  ../ipc_utils.h ../ipc_utils.c
 
 libmacwc_la_CFLAGS = ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 libmacwc_la_LIBADD = -llinuxtrack
 libmacwc_la_LDFLAGS = -export-symbols ../drivers.sym ${TIGER_LDFLAG}
 libmacwii_la_SOURCES = macwii_driver.c wii_com.c wii_com.h com_proc.c com_proc.h \
-  ../runloop.c ../runloop.h ../wii_driver_prefs.c ../wii_driver_prefs.h
+  ../runloop.c ../runloop.h ../wii_driver_prefs.c ../wii_driver_prefs.h \
+  ../ipc_utils.c ../ipc_utils.h
 
 libmacwii_la_CFLAGS = ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 libmacwii_la_LIBADD = -llinuxtrack
 libmacwii_la_LDFLAGS = -export-symbols ../drivers.sym ${TIGER_LDFLAG}
 WiiServer_SOURCES = com_proc.c com_proc.h wii_com.c wii_com.h wiimote.m wiimote.h \
-  wiimote_server.m wiimote_server.h wiisrvr_main.m
+  wiimote_server.m wiimote_server.h wiisrvr_main.m ../ipc_utils.c ../ipc_utils.h
 
 WiiServer_LDADD = -llinuxtrack -lobjc -lpthread
 WiiServer_LDFLAGS = ${AM_CFLAGS} ${TIGER_LDFLAG} -framework Cocoa -framework CoreData \
@@ -451,8 +453,8 @@ libmacwc_la-com_proc.lo: com_proc.c
 libmacwc_la-runloop.lo: ../runloop.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwc_la_CFLAGS) $(CFLAGS) -c -o libmacwc_la-runloop.lo `test -f '../runloop.c' || echo '$(srcdir)/'`../runloop.c
 
-libmacwc_la-ipc_utils.lo: ipc_utils.c
-	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwc_la_CFLAGS) $(CFLAGS) -c -o libmacwc_la-ipc_utils.lo `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
+libmacwc_la-ipc_utils.lo: ../ipc_utils.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwc_la_CFLAGS) $(CFLAGS) -c -o libmacwc_la-ipc_utils.lo `test -f '../ipc_utils.c' || echo '$(srcdir)/'`../ipc_utils.c
 
 libmacwii_la-macwii_driver.lo: macwii_driver.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwii_la_CFLAGS) $(CFLAGS) -c -o libmacwii_la-macwii_driver.lo `test -f 'macwii_driver.c' || echo '$(srcdir)/'`macwii_driver.c
@@ -469,6 +471,9 @@ libmacwii_la-runloop.lo: ../runloop.c
 libmacwii_la-wii_driver_prefs.lo: ../wii_driver_prefs.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwii_la_CFLAGS) $(CFLAGS) -c -o libmacwii_la-wii_driver_prefs.lo `test -f '../wii_driver_prefs.c' || echo '$(srcdir)/'`../wii_driver_prefs.c
 
+libmacwii_la-ipc_utils.lo: ../ipc_utils.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwii_la_CFLAGS) $(CFLAGS) -c -o libmacwii_la-ipc_utils.lo `test -f '../ipc_utils.c' || echo '$(srcdir)/'`../ipc_utils.c
+
 WiiServer-com_proc.o: com_proc.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(WiiServer_CFLAGS) $(CFLAGS) -c -o WiiServer-com_proc.o `test -f 'com_proc.c' || echo '$(srcdir)/'`com_proc.c
 
@@ -480,6 +485,12 @@ WiiServer-wii_com.o: wii_com.c
 
 WiiServer-wii_com.obj: wii_com.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(WiiServer_CFLAGS) $(CFLAGS) -c -o WiiServer-wii_com.obj `if test -f 'wii_com.c'; then $(CYGPATH_W) 'wii_com.c'; else $(CYGPATH_W) '$(srcdir)/wii_com.c'; fi`
+
+WiiServer-ipc_utils.o: ../ipc_utils.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(WiiServer_CFLAGS) $(CFLAGS) -c -o WiiServer-ipc_utils.o `test -f '../ipc_utils.c' || echo '$(srcdir)/'`../ipc_utils.c
+
+WiiServer-ipc_utils.obj: ../ipc_utils.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(WiiServer_CFLAGS) $(CFLAGS) -c -o WiiServer-ipc_utils.obj `if test -f '../ipc_utils.c'; then $(CYGPATH_W) '../ipc_utils.c'; else $(CYGPATH_W) '$(srcdir)/../ipc_utils.c'; fi`
 
 qt_cam-args.o: args.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(qt_cam_CFLAGS) $(CFLAGS) -c -o qt_cam-args.o `test -f 'args.c' || echo '$(srcdir)/'`args.c

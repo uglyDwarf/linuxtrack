@@ -147,14 +147,14 @@ libwii_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @CWIID_TRUE@am_libwii_la_rpath = -rpath $(libdir)
 xlinuxtrack_la_DEPENDENCIES =
 am__xlinuxtrack_la_SOURCES_DIST = xlinuxtrack.c xlinuxtrack_pref.c \
-	xlinuxtrack_pref.h utils.c utils.h dyn_load.c dyn_load.h \
-	ltlib.c ltlib.h
+	xlinuxtrack_pref.h utils.c utils.h ltlib.c ltlib.h ipc_utils.c \
+	ipc_utils.h
 @XPLANE_PLUGIN_TRUE@am_xlinuxtrack_la_OBJECTS =  \
 @XPLANE_PLUGIN_TRUE@	xlinuxtrack_la-xlinuxtrack.lo \
 @XPLANE_PLUGIN_TRUE@	xlinuxtrack_la-xlinuxtrack_pref.lo \
 @XPLANE_PLUGIN_TRUE@	xlinuxtrack_la-utils.lo \
-@XPLANE_PLUGIN_TRUE@	xlinuxtrack_la-dyn_load.lo \
-@XPLANE_PLUGIN_TRUE@	xlinuxtrack_la-ltlib.lo
+@XPLANE_PLUGIN_TRUE@	xlinuxtrack_la-ltlib.lo \
+@XPLANE_PLUGIN_TRUE@	xlinuxtrack_la-ipc_utils.lo
 xlinuxtrack_la_OBJECTS = $(am_xlinuxtrack_la_OBJECTS)
 xlinuxtrack_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(xlinuxtrack_la_CFLAGS) \
@@ -359,7 +359,7 @@ liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
 
 liblinuxtrack_la_LIBADD = -lm -lpthread -ldl
 liblinuxtrack_la_LDFLAGS = -export-symbols-regex '^ltr_int' $(LINUXFLAGS) ${TIGER_LDFLAG}
-liblinuxtrack_la_CFLAGS = '-DLIB_PATH="@libdir@/"'
+liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} '-DLIB_PATH="@libdir@/"'
 #libtir4_la_SOURCES = tir4_driver.c tir4_driver.h new_cal.c new_cal.h
 #libtir4_la_LIBADD = -lusb  -llinuxtrack
 libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h \
@@ -385,7 +385,7 @@ libwc_la_LIBADD = -llinuxtrack -lv4l2
 libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG} $(LINUXFLAGS) 
 dist_pkgdata_DATA = .linuxtrack
 @XPLANE_PLUGIN_TRUE@xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
-@XPLANE_PLUGIN_TRUE@			    utils.c utils.h dyn_load.c dyn_load.h ltlib.c ltlib.h
+@XPLANE_PLUGIN_TRUE@			    utils.c utils.h ltlib.c ltlib.h ipc_utils.c ipc_utils.h
 
 @XPLANE_PLUGIN_TRUE@xlinuxtrack_la_CFLAGS = -I${XPLANE_SDK}/CHeaders/XPLM -I${XPLANE_SDK}/CHeaders/Widgets -I${XPLANE_SDK}/CHeaders/Wrappers $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} '-DLIB_PATH="@libdir@/"'
 @XPLANE_PLUGIN_TRUE@xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -m32 -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
@@ -657,11 +657,11 @@ xlinuxtrack_la-xlinuxtrack_pref.lo: xlinuxtrack_pref.c
 xlinuxtrack_la-utils.lo: utils.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_la_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_la-utils.lo `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
 
-xlinuxtrack_la-dyn_load.lo: dyn_load.c
-	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_la_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_la-dyn_load.lo `test -f 'dyn_load.c' || echo '$(srcdir)/'`dyn_load.c
-
 xlinuxtrack_la-ltlib.lo: ltlib.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_la_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_la-ltlib.lo `test -f 'ltlib.c' || echo '$(srcdir)/'`ltlib.c
+
+xlinuxtrack_la-ipc_utils.lo: ipc_utils.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_la_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_la-ipc_utils.lo `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
 
 ltr_server-ltr_server.o: ltr_server.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server_CFLAGS) $(CFLAGS) -c -o ltr_server-ltr_server.o `test -f 'ltr_server.c' || echo '$(srcdir)/'`ltr_server.c

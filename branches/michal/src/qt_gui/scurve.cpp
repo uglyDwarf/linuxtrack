@@ -10,7 +10,7 @@
 SCurve::SCurve(LtrAxis *a, QString axis_name, QString left_label, QString right_label, QWidget *parent)
   : QWidget(parent), axis(a), symetrical(true), view(NULL), first(true)
 {
-  symetrical = true;
+  symetrical = axis->isSymetrical();
   ui.setupUi(this);
   ui.SCTitle->setText(axis_name);
   ui.SCLeftLabel->setText(left_label);
@@ -35,8 +35,10 @@ void SCurve::setup_gui()
 {
   if(axis->isSymetrical()){
     ui.SCSymetrical->setCheckState(Qt::Checked);
+    symetrical = true;
   }else{
     ui.SCSymetrical->setCheckState(Qt::Unchecked);
+    symetrical = false;
   }
   ui.SCLeftFactor->setValue(axis->getLFactor());
   ui.SCLeftCurv->setValue(axis->getLCurv() * 100);
@@ -172,8 +174,10 @@ void SCurve::axisChanged(AxisElem_t what)
       ui.SCInputLimits->setValue(axis->getLimits());
       if(axis->isSymetrical()){
 	ui.SCSymetrical->setCheckState(Qt::Checked);
+        symetrical = true;
       }else{
 	ui.SCSymetrical->setCheckState(Qt::Unchecked);
+        symetrical = false;
       }
       break;
     default:
