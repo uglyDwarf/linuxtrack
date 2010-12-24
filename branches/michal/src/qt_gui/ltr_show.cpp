@@ -17,13 +17,10 @@
 #include <string.h>
 
 QImage *img0;
-QImage *img1;
 QPixmap *pic;
 QWidget *label;
 QVector<QRgb> colors;
 
-unsigned char *bitmap = NULL;
-static unsigned char *qt_bitmap = NULL;
 static unsigned char *buffer0 = NULL;
 static unsigned char *buffer1 = NULL;
 static unsigned int w = 0;
@@ -31,8 +28,9 @@ static unsigned int h = 0;
 static ScpForm *scp;
 static bool running = false;
 static int cnt = 0;
+static bool camViewEnable = true;
 
-static bool accessed;
+static bool buffer_empty;
 
 extern "C" {
   int frame_callback(struct camera_control_block *ccb, struct frame_type *frame);
@@ -44,6 +42,28 @@ CaptureThread::CaptureThread(LtrGuiForm *p): QThread(), parent(p)
 {
 }
 
+
+void clean_up()
+{
+  unsigned char *tmp;
+  if(buffer0 != NULL){
+    tmp = buffer0;
+    buffer0 = NULL;
+    free(tmp);
+  }
+  if(buffer1 != NULL){
+    tmp = buffer1;
+    buffer1 = NULL;
+    free(tmp);
+  }
+  if(img0 != NULL){
+    QImage *tmp_i = img0;
+    img0 = NULL;
+    delete tmp_i;
+  }
+}
+
+
 void CaptureThread::run()
 {
   static struct camera_control_block ccb;
@@ -54,20 +74,10 @@ void CaptureThread::run()
   ltr_int_init_tracking();
   ccb.diag = false;
   ltr_int_cal_run(&ccb, frame_callback);
-  accessed = false;
-  bitmap = NULL;
+  buffer_empty = false;
   w = 0;
   h = 0;
-  if(buffer0 != NULL){
-    free(buffer0);
-    delete img0;
-    buffer0 = NULL;
-  }
-  if(buffer1 != NULL){
-    free(buffer1);
-    delete img1;
-    buffer1 = NULL;
-  }
+  clean_up();
 }
 
 void CaptureThread::signal_new_frame()
@@ -80,25 +90,25 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s)
 {
   scp = s;
   ui.setupUi(this);
-//  label = new QLabel();
   label = new QWidget();
   cv = new CameraView(label);
   ui.pix_box->addWidget(label);
   ui.pauseButton->setDisabled(true);
   ui.wakeButton->setDisabled(true);
   ui.stopButton->setDisabled(true);
-  glw = new Window(ui.tabWidget);
+  glw = new Window(ui.tabWidget, main_gui.Disable3DView);
   ui.ogl_box->addWidget(glw);
   ct = new CaptureThread(this);
   timer = new QTimer(this);
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-  timer->start(50);
   camViewEnable = true;
   connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
   connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
   connect(&STATE, SIGNAL(trackerPaused()), this, SLOT(trackerPaused()));
   connect(main_gui.DisableCamView, SIGNAL(stateChanged(int)), 
-	    this, SLOT(disableCamView_stateChanged(int)));
+          this, SLOT(disableCamView_stateChanged(int)));
+  connect(main_gui.Disable3DView, SIGNAL(stateChanged(int)), 
+          this, SLOT(disable3DView_stateChanged(int)));
 }
 
 LtrGuiForm::~LtrGuiForm()
@@ -130,37 +140,28 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
   if((w != frame->width) || (h != frame->height)){
     w = frame->width;
     h = frame->height;
-    if(buffer0 != NULL){
-      free(buffer0);
-      delete img0;
-    }
-    if(buffer1 != NULL){
-      free(buffer1);
-      delete img1;
-    }
+    clean_up();
     buffer0 = (unsigned char*)ltr_int_my_malloc(h * w);
     memset(buffer0, 0, h * w);
     buffer1 = (unsigned char*)ltr_int_my_malloc(h * w);
-    memset(buffer1, 200, h * w);
+    memset(buffer1, 0, h * w);
     img0 = new QImage(buffer0, w, h, w, QImage::Format_Indexed8);
-    img1 = new QImage(buffer1, w, h, w, QImage::Format_Indexed8);
-    qt_bitmap = buffer0;
     colors.clear();
     for(int col = 0; col < 256; ++col){
       colors.push_back(qRgb(col, col, col));
     }
     img0->setColorTable(colors);
-    img1->setColorTable(colors);
   }
-  if(bitmap != NULL){
-    qt_bitmap = bitmap;
-    bitmap = NULL;
-    memset(qt_bitmap, 0, h * w);
-    accessed = false;
-  }else{
-    accessed = true;
+  if((frame->bitmap != NULL) && camViewEnable){
+    //this means that buffer is full
+    memcpy(buffer0, buffer1, w * h);
+    buffer_empty = false;
+    frame->bitmap = NULL;
   }
-  frame->bitmap = qt_bitmap;
+  if(buffer_empty){
+    memset(buffer1, 0, w * h);
+    frame->bitmap = buffer1;
+  }
   return 0;
 }
 
@@ -168,6 +169,7 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
 void LtrGuiForm::on_startButton_pressed()
 {
   ct->start();
+  timer->start(50);
 }
 
 void LtrGuiForm::on_recenterButton_pressed()
@@ -188,6 +190,7 @@ void LtrGuiForm::on_wakeButton_pressed()
 
 void LtrGuiForm::on_stopButton_pressed()
 {
+  timer->stop();
   if(ltr_int_cal_shutdown() == 0){
     ct->wait(1000);
   }
@@ -202,24 +205,24 @@ void LtrGuiForm::disableCamView_stateChanged(int state)
   }
 }
 
+void LtrGuiForm::disable3DView_stateChanged(int state)
+{
+  if(state == Qt::Checked){
+    glw->close_widget();
+  }else{
+    glw->prepare_widget();
+  }
+}
+
 void LtrGuiForm::update()
 {
   ui.statusbar->showMessage(QString("").setNum(cnt) + ". frame");
-  if(!camViewEnable){
+  if(buffer_empty){
     return;
   }
-  if(qt_bitmap == NULL){
-    return;
-  }
-  if(!accessed){
-    return;
-  }
-  if(qt_bitmap != buffer0){
-    cv->redraw(img1);
-    bitmap = buffer0;
-  }else{
+  if(img0 != NULL){
     cv->redraw(img0);
-    bitmap = buffer1;
+    buffer_empty = true;
   }
 }
 

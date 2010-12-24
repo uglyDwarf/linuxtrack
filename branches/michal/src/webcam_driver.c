@@ -651,12 +651,26 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
     .h = wc_info.h,
     .ratio = 1.0f
   };
+  
+#ifdef DEBUG
+  //Save sequence of frames
+  static int frm_cntr = 0;
+  char fname[] = "FRAMEXXX.bin";
+  sprintf(fname, "FRAME%03d.bin", frm_cntr % 100);
+  ++frm_cntr;
+  printf("%s\n", fname);
+  FILE *ff;
+  if((ff = fopen(fname, "wb")) != NULL){
+    fwrite(dest_buf, 1, wc_info.w * wc_info.h, ff);
+    fclose(ff);
+  }
+#endif
+  
   ltr_int_to_stripes(&img);
   ltr_int_stripes_to_blobs(3, &(f->bloblist), wc_info.min_blob_pixels, 
 		   wc_info.max_blob_pixels, &img);
   if(wc_info.flip){
     unsigned int tmp;
-    printf("Flipping!\n");
     for(tmp = 0; tmp < f->bloblist.num_blobs; ++tmp){
       f->bloblist.blobs[tmp].x *= -1;
       f->bloblist.blobs[tmp].y *= -1;

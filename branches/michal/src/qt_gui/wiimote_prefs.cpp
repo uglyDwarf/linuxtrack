@@ -29,7 +29,7 @@ static void setCheckBox(QCheckBox *box, bool val)
   }
 }
 
-void WiimotePrefs::Activate(const QString &ID, bool init)
+bool WiimotePrefs::Activate(const QString &ID, bool init)
 {
   QString sec;
   initializing= init;
@@ -63,10 +63,12 @@ void WiimotePrefs::Activate(const QString &ID, bool init)
     setCheckBox(gui.Wii_p4, d4);
   }
   initializing = false;
+  return true;
 }
 
-void WiimotePrefs::AddAvailableDevices(QComboBox &combo)
+bool WiimotePrefs::AddAvailableDevices(QComboBox &combo)
 {
+  bool res = false;
   QString id;
   deviceType_t dt;
   bool wiimote_selected = false;
@@ -82,7 +84,9 @@ void WiimotePrefs::AddAvailableDevices(QComboBox &combo)
   combo.addItem((char *)"Wiimote", v);
   if(wiimote_selected){
     combo.setCurrentIndex(combo.count() - 1);
+    res = true;
   }
+  return res;
 }
 
 static bool getState(QCheckBox *b)

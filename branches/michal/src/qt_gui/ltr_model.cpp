@@ -102,7 +102,7 @@ void ModelEdit::refresh()
   if(PREF.getActiveModel(str)){
     currentSection = str;
     on_ModelCreated(str);
-    if(!initializing) on_ModelSelector_activated(str);
+    on_ModelSelector_activated(str);
   }else{
     on_ModelCreated("");
     gui.ModelStack->setCurrentIndex(3);
@@ -255,7 +255,7 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
       gui.SinglePtLeds->setCheckState(Qt::Unchecked);
     }
   }
-  PREF.activateModel(currentSection);
+  if(!initializing) PREF.activateModel(currentSection);
   PREF.announceModelChange();
 }
 

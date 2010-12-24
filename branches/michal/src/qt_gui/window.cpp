@@ -4,23 +4,48 @@
  #include "window.h"
 #include <ltlib_int.h>
 #include <iostream>
-Window::Window(QWidget *t) : tab(t)
+Window::Window(QWidget *t, QCheckBox *b) : tab(t), control(b), constructed(false)
 {
-     tab->setEnabled(false);
-     glWidget = new GLWidget;
-     QHBoxLayout *mainLayout = new QHBoxLayout;
-     mainLayout->addWidget(glWidget);
-     setLayout(mainLayout);
+  prepare_widget();
+}
 
-     timer = new QTimer(this);
-     connect(timer, SIGNAL(timeout()), this, SLOT(update_pic()));
-     connect(glWidget, SIGNAL(ready()), this, SLOT(start_widget()));
+void Window::prepare_widget()
+{
+  if(!constructed){
+    control->setEnabled(false);
+    dynamic_cast<QTabWidget*>(tab)->setTabEnabled(1, false);
+    glWidget = new GLWidget;
+    mainLayout = new QHBoxLayout;
+    mainLayout->addWidget(glWidget);
+    setLayout(mainLayout);
+    
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(update_pic()));
+    connect(glWidget, SIGNAL(ready()), this, SLOT(start_widget()));
+  }
+}
+
+void Window::close_widget()
+{
+  if(constructed){
+    control->setEnabled(false);
+    timer->stop();
+    disconnect(timer, SIGNAL(timeout()), this, SLOT(update_pic()));
+    disconnect(glWidget, SIGNAL(ready()), this, SLOT(start_widget()));
+    dynamic_cast<QTabWidget*>(tab)->setTabEnabled(1, false);
+    delete mainLayout;
+    delete glWidget;
+    constructed = false;
+    control->setEnabled(true);
+  }
 }
 
 void Window::start_widget()
 {
   timer->start(20);
-  tab->setEnabled(true);
+  dynamic_cast<QTabWidget*>(tab)->setTabEnabled(1, true);
+  constructed = true;
+  control->setEnabled(true);
 }
 
 void Window::update_pic()

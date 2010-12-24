@@ -68,7 +68,7 @@ static bool haveFirmware()
   }
 }
 
-void TirPrefs::Activate(const QString &ID, bool init)
+bool TirPrefs::Activate(const QString &ID, bool init)
 {
   initializing = init;
   QString sec;
@@ -90,7 +90,7 @@ void TirPrefs::Activate(const QString &ID, bool init)
       currentSection = sec;
     }else{
       initializing = false;
-      return;
+      return false;
     }
   }
   ltr_int_tir_init_prefs();
@@ -117,19 +117,21 @@ void TirPrefs::Activate(const QString &ID, bool init)
     gui.IRBrightLabel->setHidden(true);
   }
   initializing = false;
+  return true;
 }
 
 
 
-void TirPrefs::AddAvailableDevices(QComboBox &combo)
+bool TirPrefs::AddAvailableDevices(QComboBox &combo)
 {
+  bool res = false;
   QString id;
   deviceType_t dt;
   bool tir_selected = false;
   
   tirType = probeTir();
   if(tirType == 0){
-    return;
+    return res;
   }
   
   if(PREF.getActiveDevice(dt,id)){
@@ -144,7 +146,9 @@ void TirPrefs::AddAvailableDevices(QComboBox &combo)
   combo.addItem((char *)"TrackIR", v);
   if(tir_selected){
     combo.setCurrentIndex(combo.count() - 1);
+    res = true;
   }
+  return res;
 }
 
 void TirPrefs::on_TirThreshold_valueChanged(int i)

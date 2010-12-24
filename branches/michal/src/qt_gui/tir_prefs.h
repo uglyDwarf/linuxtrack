@@ -11,8 +11,8 @@ class TirPrefs : public QObject{
  public:
   TirPrefs(const Ui::LinuxtrackMainForm &ui);
   ~TirPrefs();
-  void Activate(const QString &ID, bool init = false);
-  static void AddAvailableDevices(QComboBox &combo);
+  bool Activate(const QString &ID, bool init = false);
+  static bool AddAvailableDevices(QComboBox &combo);
  private:
   const Ui::LinuxtrackMainForm &gui;
   void Connect();

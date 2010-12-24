@@ -76,8 +76,9 @@ void WebcamPrefs::on_WebcamResolutions_activated(int index)
   }
 }
 
-void WebcamPrefs::Activate(const QString &ID, bool init)
+bool WebcamPrefs::Activate(const QString &ID, bool init)
 {
+  bool res = false;
   QString sec;
   initializing = init;
   if(PREF.getFirstDeviceSection(QString("Webcam"), ID, sec)){
@@ -99,12 +100,12 @@ void WebcamPrefs::Activate(const QString &ID, bool init)
       currentSection = sec;
     }else{
       initializing = false;
-      return;
+      return false;
     }
   }
   if(!ltr_int_wc_init_prefs()){
     initializing = false;
-    return;
+    return false;
   }
   currentId = ID;
   gui.WebcamFormats->clear();
@@ -136,6 +137,7 @@ void WebcamPrefs::Activate(const QString &ID, bool init)
     gui.FlipWebcam->setCheckState(state);
   }
   initializing = false;
+  return res;
 }
 
 void WebcamPrefs::on_WebcamThreshold_valueChanged(int i)
@@ -158,8 +160,9 @@ void WebcamPrefs::on_FlipWebcam_stateChanged(int state)
   if(!initializing) ltr_int_wc_set_flip(state == Qt::Checked);
 }
 
-void WebcamPrefs::AddAvailableDevices(QComboBox &combo)
+bool WebcamPrefs::AddAvailableDevices(QComboBox &combo)
 {
+  bool res = false;
   QString id;
   deviceType_t dt;
   bool webcam_selected = false;
@@ -177,8 +180,10 @@ void WebcamPrefs::AddAvailableDevices(QComboBox &combo)
     combo.addItem(*i, v);
     if(webcam_selected && (*i == id)){
       combo.setCurrentIndex(combo.count() - 1);
+      res = true;
     }
   }
   delete(&webcams);
+  return res;
 }
 

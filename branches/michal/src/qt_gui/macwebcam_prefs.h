@@ -12,8 +12,8 @@ class WebcamPrefs : public QObject{
  public:
   WebcamPrefs(const Ui::LinuxtrackMainForm &ui);
   ~WebcamPrefs();
-  void Activate(const QString &ID, bool init = false);
-  static void AddAvailableDevices(QComboBox &combo);
+  bool Activate(const QString &ID, bool init = false);
+  static bool AddAvailableDevices(QComboBox &combo);
  private:
   const Ui::LinuxtrackMainForm &gui;
   void Connect();

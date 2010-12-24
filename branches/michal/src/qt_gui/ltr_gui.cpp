@@ -47,7 +47,6 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   showWindow = new LtrGuiForm(ui, sc);
   helper = new LtrDevHelp();
   on_RefreshDevices_pressed();
-  initialized = true;
   showWindow->show();
   helper->show();
   gui_settings = new QSettings("ltr", "linuxtrack");
@@ -127,10 +126,15 @@ void LinuxtrackGui::on_DeviceSelector_activated(int index)
 void LinuxtrackGui::on_RefreshDevices_pressed()
 {
   ui.DeviceSelector->clear();
-  WebcamPrefs::AddAvailableDevices(*(ui.DeviceSelector));
-  WiimotePrefs::AddAvailableDevices(*(ui.DeviceSelector));
-  TirPrefs::AddAvailableDevices(*(ui.DeviceSelector));
+  bool res = false; 
+  res |= WebcamPrefs::AddAvailableDevices(*(ui.DeviceSelector));
+  res |= WiimotePrefs::AddAvailableDevices(*(ui.DeviceSelector));
+  res |= TirPrefs::AddAvailableDevices(*(ui.DeviceSelector));
+  if(!res){
+    initialized = true;
+  }
   on_DeviceSelector_activated(ui.DeviceSelector->currentIndex());
+  initialized = true;
 }
 
 void LinuxtrackGui::on_QuitButton_pressed()

@@ -285,7 +285,7 @@ bool ltr_int_add_stripe(stripe_t *stripe, image *img)
           merge_preblobs(rng->pb, current.ranges[i].pb);
           preblob_t *merged = current.ranges[i].pb;
 	  int j;
-	  for(j = i; j < current.limit; ++j){
+	  for(j = 0; j < current.limit; ++j){
 	    if(current.ranges[j].pb == merged){
 	      current.ranges[j].pb = rng->pb;
 	    }

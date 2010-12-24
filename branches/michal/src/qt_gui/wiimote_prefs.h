@@ -13,8 +13,8 @@ class WiimotePrefs : public QObject{
  public:
   WiimotePrefs(const Ui::LinuxtrackMainForm &ui);
   ~WiimotePrefs();
-  void Activate(const QString &ID, bool init = false);
-  static void AddAvailableDevices(QComboBox &combo);
+  bool Activate(const QString &ID, bool init = false);
+  static bool AddAvailableDevices(QComboBox &combo);
  private:
   const Ui::LinuxtrackMainForm &gui;
   void Connect();

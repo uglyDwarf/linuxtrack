@@ -55,13 +55,13 @@ class LtrGuiForm : public QMainWindow
    void on_wakeButton_pressed();
    void on_stopButton_pressed();
    void disableCamView_stateChanged(int state);
+   void disable3DView_stateChanged(int state);
    void trackerStopped();
    void trackerRunning();
    void trackerPaused();
   protected:
    void closeEvent(QCloseEvent *event);
   private:
-   bool camViewEnable;
    Ui::Ltr_gui ui;
    ScpForm *sens;
    Window *glw;
