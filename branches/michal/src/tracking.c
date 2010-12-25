@@ -200,7 +200,7 @@ int ltr_int_tracking_get_camera(float *heading,
   static double filtered_angles[3] = {0.0f, 0.0f, 0.0f};
   static double filtered_translations[3] = {0.0f, 0.0f, 0.0f};
   double filter_factors_angles[3] = {filterfactor, filterfactor, filterfactor};
-  double filter_factors_translations[3] = {filterfactor, filterfactor, 4 * filterfactor};
+  double filter_factors_translations[3] = {filterfactor, filterfactor, 10 * filterfactor};
   
   if(!tracking_initialized){
     ltr_int_init_tracking();

@@ -48,7 +48,7 @@ bin_PROGRAMS = ltr_server$(EXEEXT)
 @LIBZ_TRUE@am__append_3 = libtir.la
 @LIBUSB10_TRUE@@LIBZ_TRUE@am__append_4 = libltusb1.la 
 @LIBZ_TRUE@@OPENUSB_TRUE@am__append_5 = libltopenusb.la 
-@XPLANE_PLUGIN_TRUE@am__append_6 = xlinuxtrack.la
+@XPLANE_PLUGIN_TRUE@am__append_6 = xlinuxtrack.la xlinuxtrack9.la
 subdir = src
 DIST_COMMON = $(dist_pkgdata_DATA) $(include_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
@@ -160,6 +160,19 @@ xlinuxtrack_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(xlinuxtrack_la_CFLAGS) \
 	$(CFLAGS) $(xlinuxtrack_la_LDFLAGS) $(LDFLAGS) -o $@
 @XPLANE_PLUGIN_TRUE@am_xlinuxtrack_la_rpath = -rpath $(libdir)
+xlinuxtrack9_la_DEPENDENCIES =
+am__xlinuxtrack9_la_SOURCES_DIST = xlinuxtrack9.c utils.c utils.h \
+	ltlib.c ltlib.h ipc_utils.c ipc_utils.h
+@XPLANE_PLUGIN_TRUE@am_xlinuxtrack9_la_OBJECTS =  \
+@XPLANE_PLUGIN_TRUE@	xlinuxtrack9_la-xlinuxtrack9.lo \
+@XPLANE_PLUGIN_TRUE@	xlinuxtrack9_la-utils.lo \
+@XPLANE_PLUGIN_TRUE@	xlinuxtrack9_la-ltlib.lo \
+@XPLANE_PLUGIN_TRUE@	xlinuxtrack9_la-ipc_utils.lo
+xlinuxtrack9_la_OBJECTS = $(am_xlinuxtrack9_la_OBJECTS)
+xlinuxtrack9_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(xlinuxtrack9_la_CFLAGS) \
+	$(CFLAGS) $(xlinuxtrack9_la_LDFLAGS) $(LDFLAGS) -o $@
+@XPLANE_PLUGIN_TRUE@am_xlinuxtrack9_la_rpath = -rpath $(libdir)
 PROGRAMS = $(bin_PROGRAMS)
 am_ltr_server_OBJECTS = ltr_server-ltr_server.$(OBJEXT) \
 	ltr_server-ipc_utils.$(OBJEXT) ltr_server-utils.$(OBJEXT)
@@ -191,11 +204,13 @@ LTYACCCOMPILE = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 SOURCES = $(liblinuxtrack_la_SOURCES) $(liblt_la_SOURCES) \
 	$(libltopenusb_la_SOURCES) $(libltusb1_la_SOURCES) \
 	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
-	$(xlinuxtrack_la_SOURCES) $(ltr_server_SOURCES)
+	$(xlinuxtrack_la_SOURCES) $(xlinuxtrack9_la_SOURCES) \
+	$(ltr_server_SOURCES)
 DIST_SOURCES = $(liblinuxtrack_la_SOURCES) $(liblt_la_SOURCES) \
 	$(libltopenusb_la_SOURCES) $(libltusb1_la_SOURCES) \
 	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
-	$(am__xlinuxtrack_la_SOURCES_DIST) $(ltr_server_SOURCES)
+	$(am__xlinuxtrack_la_SOURCES_DIST) \
+	$(am__xlinuxtrack9_la_SOURCES_DIST) $(ltr_server_SOURCES)
 DATA = $(dist_pkgdata_DATA)
 HEADERS = $(include_HEADERS)
 ETAGS = etags
@@ -390,6 +405,12 @@ dist_pkgdata_DATA = .linuxtrack
 @XPLANE_PLUGIN_TRUE@xlinuxtrack_la_CFLAGS = -I${XPLANE_SDK}/CHeaders/XPLM -I${XPLANE_SDK}/CHeaders/Widgets -I${XPLANE_SDK}/CHeaders/Wrappers $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} '-DLIB_PATH="@libdir@/"'
 @XPLANE_PLUGIN_TRUE@xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -m32 -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
 @XPLANE_PLUGIN_TRUE@xlinuxtrack_la_LIBADD = -lm -ldl
+@XPLANE_PLUGIN_TRUE@xlinuxtrack9_la_SOURCES = xlinuxtrack9.c \
+@XPLANE_PLUGIN_TRUE@			    utils.c utils.h ltlib.c ltlib.h ipc_utils.c ipc_utils.h
+
+@XPLANE_PLUGIN_TRUE@xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/CHeaders/XPLM -I${XPLANE_SDK}/CHeaders/Widgets -I${XPLANE_SDK}/CHeaders/Wrappers $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} '-DLIB_PATH="@libdir@/"'
+@XPLANE_PLUGIN_TRUE@xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC -m32 -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
+@XPLANE_PLUGIN_TRUE@xlinuxtrack9_la_LIBADD = -lm -ldl
 AM_YFLAGS = -d
 AM_LFLAGS = -i
 BUILT_SOURCES = pref_flex.c pref_bison.c pref_bison.h
@@ -505,6 +526,8 @@ libwii.la: $(libwii_la_OBJECTS) $(libwii_la_DEPENDENCIES)
 	$(libwii_la_LINK) $(am_libwii_la_rpath) $(libwii_la_OBJECTS) $(libwii_la_LIBADD) $(LIBS)
 xlinuxtrack.la: $(xlinuxtrack_la_OBJECTS) $(xlinuxtrack_la_DEPENDENCIES) 
 	$(xlinuxtrack_la_LINK) $(am_xlinuxtrack_la_rpath) $(xlinuxtrack_la_OBJECTS) $(xlinuxtrack_la_LIBADD) $(LIBS)
+xlinuxtrack9.la: $(xlinuxtrack9_la_OBJECTS) $(xlinuxtrack9_la_DEPENDENCIES) 
+	$(xlinuxtrack9_la_LINK) $(am_xlinuxtrack9_la_rpath) $(xlinuxtrack9_la_OBJECTS) $(xlinuxtrack9_la_LIBADD) $(LIBS)
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	test -z "$(bindir)" || $(MKDIR_P) "$(DESTDIR)$(bindir)"
@@ -662,6 +685,18 @@ xlinuxtrack_la-ltlib.lo: ltlib.c
 
 xlinuxtrack_la-ipc_utils.lo: ipc_utils.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack_la_CFLAGS) $(CFLAGS) -c -o xlinuxtrack_la-ipc_utils.lo `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
+
+xlinuxtrack9_la-xlinuxtrack9.lo: xlinuxtrack9.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack9_la_CFLAGS) $(CFLAGS) -c -o xlinuxtrack9_la-xlinuxtrack9.lo `test -f 'xlinuxtrack9.c' || echo '$(srcdir)/'`xlinuxtrack9.c
+
+xlinuxtrack9_la-utils.lo: utils.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack9_la_CFLAGS) $(CFLAGS) -c -o xlinuxtrack9_la-utils.lo `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
+
+xlinuxtrack9_la-ltlib.lo: ltlib.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack9_la_CFLAGS) $(CFLAGS) -c -o xlinuxtrack9_la-ltlib.lo `test -f 'ltlib.c' || echo '$(srcdir)/'`ltlib.c
+
+xlinuxtrack9_la-ipc_utils.lo: ipc_utils.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack9_la_CFLAGS) $(CFLAGS) -c -o xlinuxtrack9_la-ipc_utils.lo `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
 
 ltr_server-ltr_server.o: ltr_server.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server_CFLAGS) $(CFLAGS) -c -o ltr_server-ltr_server.o `test -f 'ltr_server.c' || echo '$(srcdir)/'`ltr_server.c
