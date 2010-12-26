@@ -80,9 +80,9 @@ PLUGIN_API int XPluginStart(char *outName,
                          MyHotKeyCallback,
                          (void*)PAUSE);
 
-  run_cmd = XPLMCreateCommand("sim/plugin/ltr_run","Start/stop tracking");
-  pause_cmd = XPLMCreateCommand("sim/plugin/ltr_pause","Pause tracking");
-  recenter_cmd = XPLMCreateCommand("sim/plugin/ltr_recenter","Recenter tracking");
+  run_cmd = XPLMCreateCommand("sim/view/ltr_run","Start/stop tracking");
+  pause_cmd = XPLMCreateCommand("sim/view/ltr_pause","Pause tracking");
+  recenter_cmd = XPLMCreateCommand("sim/view/ltr_recenter","Recenter tracking");
 
         XPLMRegisterCommandHandler(
                     run_cmd,
