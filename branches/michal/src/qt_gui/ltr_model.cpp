@@ -23,8 +23,8 @@ void ModelCreate::on_CreateButton_pressed()
   if(PREF.createSection(sec)){
     if(ui.Model3PtCap->isChecked()){
       PREF.addKeyVal(sec, (char *)"Model-type", (char *)"Cap");
-      PREF.addKeyVal(sec, (char *)"Cap-X", QString::number(ui.CapA->value()));
-      PREF.addKeyVal(sec, (char *)"Cap-Y", QString::number(ui.CapB->value()));
+      PREF.addKeyVal(sec, (char *)"Cap-Y", QString::number(ui.CapA->value()));
+      PREF.addKeyVal(sec, (char *)"Cap-X", QString::number(ui.CapB->value()));
       PREF.addKeyVal(sec, (char *)"Cap-Z", QString::number(ui.CapC->value()));
       PREF.addKeyVal(sec, (char *)"Head-Y", QString::number(ui.CapHy->value()));
       PREF.addKeyVal(sec, (char *)"Head-Z", QString::number(ui.CapHz->value()));
@@ -195,9 +195,9 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
     gui.ModelStack->setCurrentIndex(0);
     gui.ModelDescStack->setCurrentIndex(0);
     if(PREF.getKeyVal(currentSection, "Cap-X", val))
-      gui.CapA->setValue(val.toFloat());
-    if(PREF.getKeyVal(currentSection, "Cap-Y", val))
       gui.CapB->setValue(val.toFloat());
+    if(PREF.getKeyVal(currentSection, "Cap-Y", val))
+      gui.CapA->setValue(val.toFloat());
     if(PREF.getKeyVal(currentSection, "Cap-Z", val))
       gui.CapC->setValue(val.toFloat());
     if(PREF.getKeyVal(currentSection, "Head-Y", val))
@@ -262,14 +262,14 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
 void ModelEdit::on_CapA_valueChanged(double val)
 { 
   if(!initializing)
-    PREF.setKeyVal(currentSection, (char *)"Cap-X", val);
+    PREF.setKeyVal(currentSection, (char *)"Cap-Y", val);
   PREF.announceModelChange();
 }
 
 void ModelEdit::on_CapB_valueChanged(double val)
 {
   if(!initializing)
-    PREF.setKeyVal(currentSection, (char *)"Cap-Y", val);
+    PREF.setKeyVal(currentSection, (char *)"Cap-X", val);
   PREF.announceModelChange();
 }
 

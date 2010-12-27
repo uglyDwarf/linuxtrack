@@ -96,7 +96,7 @@ void ltr_int_pose_init(struct reflector_model_type rm)
   ref[1] = rm.hc[1];
   ref[2] = rm.hc[2];
 
-
+  
   /* Out of model points create orthonormal base */
   double vec1[3];
   double vec2[3];
@@ -195,8 +195,10 @@ static void get_translation(double base[3][3], double ref[3], double origin[3],
   new_ref[0] += origin[0];
   new_ref[1] += origin[1];
   new_ref[2] += origin[2];
-//  print_vec(new_ref, "new_ref");
-//  print_vec(origin, "origin");
+//  ltr_int_print_vec(ref, "ref");
+//  ltr_int_print_vec(new_ref, "new_ref");
+//  ltr_int_print_vec(origin, "origin");
+//  ltr_int_print_vec(center_ref, "center_ref");
   if(do_center == true){
     center_ref[0] = new_ref[0];
     center_ref[1] = new_ref[1];

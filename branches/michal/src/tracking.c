@@ -110,6 +110,24 @@ static pthread_mutex_t pose_mutex = PTHREAD_MUTEX_INITIALIZER;
 static double raw_angles[3] = {0.0f, 0.0f, 0.0f};
 static double raw_translations[3] = {0.0f, 0.0f, 0.0f};
 
+static void filter_frame(struct frame_type *frame)
+{
+  static float memory_x[3] = {0.0f, 0.0f, 0.0f};
+  static float memory_y[3] = {0.0f, 0.0f, 0.0f};
+  
+  unsigned int i;
+  for(i = 0; i < frame->bloblist.num_blobs; ++i){
+    if(ltr_int_is_finite(frame->bloblist.blobs[i].x)){
+      frame->bloblist.blobs[i].x = 
+        nonlinfilt(frame->bloblist.blobs[i].x, memory_x[i], 2.0);
+    }
+    if(ltr_int_is_finite(frame->bloblist.blobs[i].y)){
+      frame->bloblist.blobs[i].y = 
+        nonlinfilt(frame->bloblist.blobs[i].y, memory_y[i], 2.0);
+    }
+  }
+}
+
 static int update_pose_1pt(struct frame_type *frame)
 {
   static float c_x = 0.0f;
@@ -182,6 +200,7 @@ static unsigned int counter_d;
 int ltr_int_update_pose(struct frame_type *frame)
 {
   counter_d = frame->counter;
+  filter_frame(frame);
   if(ltr_int_is_single_point()){
     return update_pose_1pt(frame);
   }else{
@@ -200,7 +219,7 @@ int ltr_int_tracking_get_camera(float *heading,
   static double filtered_angles[3] = {0.0f, 0.0f, 0.0f};
   static double filtered_translations[3] = {0.0f, 0.0f, 0.0f};
   double filter_factors_angles[3] = {filterfactor, filterfactor, filterfactor};
-  double filter_factors_translations[3] = {filterfactor, filterfactor, 10 * filterfactor};
+  double filter_factors_translations[3] = {filterfactor, filterfactor, 4 * filterfactor};
   
   if(!tracking_initialized){
     ltr_int_init_tracking();
