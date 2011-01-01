@@ -136,10 +136,10 @@ qt_gui/ltr_gui : ${lib_LTLIBRARIES}
 	pushd qt_gui; qmake ${QMAKE_FLAGS} "LIBDIR=@libdir@"; make; popd
 
 install-exec-hook:
-	pushd qt_gui; make install; popd
+	pushd qt_gui; make INSTALL_ROOT=${DESTDIR} install; popd
 
 uninstall-hook:
-	pushd qt_gui; make uninstall; popd
+	pushd qt_gui; make INSTALL_ROOT=${DESTDIR} uninstall; popd
 
 
 EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \
