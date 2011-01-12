@@ -236,17 +236,17 @@ tests_SOURCES = test.c ../utils.h ../utils.c ../list.c ../list.h ../pref.c ../pr
                 ../pref_bison.c ../pref_bison.h ../pref_flex.c ../pref_int.h 
 
 
-#pose_test_LDADD = -lm -lpthread -ldl -llt
-ltlib_test_LDADD = -lm -lpthread -ldl -llt
-webcam_driver_test_LDADD = -lm -lpthread -ldl -llinuxtrack -lv4l2
-#pref_test_LDADD = -lm -lpthread -ldl -llinuxtrack
+#pose_test_LDADD = -lm -lpthread -ldl -llinuxtrack
+ltlib_test_LDADD = -lm -lpthread -ldl -llinuxtrack
+webcam_driver_test_LDADD = -lm -lpthread -ldl -lltr -lv4l2
+#pref_test_LDADD = -lm -lpthread -ldl -lltr
 test_LDALL = -lm
 
 #pose_test_CFLAGS = -I.. '-DLIB_PATH="@libdir@/"'
-ltlib_test_CFLAGS = -I${srcdir} -I${srcdir}/.. -I.. '-DLIB_PATH="@libdir@/"'
-webcam_driver_test_CFLAGS = -I${srcdir} -I${srcdir}/.. -I.. '-DLIB_PATH="@libdir@/"'
+ltlib_test_CFLAGS = -I${srcdir} -I${srcdir}/.. -I.. '-DLIB_PATH="$(pkglibdir)/"'
+webcam_driver_test_CFLAGS = -I${srcdir} -I${srcdir}/.. -I.. '-DLIB_PATH="$(pkglibdir)/"'
 #pref_test_CFLAGS = -I.. '-DLIB_PATH="@libdir@/"'
-tests_CFLAGS = -Wextra $(LINUXFLAGS) -I${srcdir} -I${srcdir}/.. -I.. '-DLIB_PATH="@libdir@/"'
+tests_CFLAGS = -Wextra $(LINUXFLAGS) -I${srcdir} -I${srcdir}/.. -I.. '-DLIB_PATH="$(pkglibdir)/"'
 
 #pose_test_LDFLAGS = -L..
 ltlib_test_LDFLAGS = -L..

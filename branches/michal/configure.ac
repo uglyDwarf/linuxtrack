@@ -54,7 +54,7 @@ AC_ARG_WITH([xplane_sdk],
             [AS_HELP_STRING([--with-xplane-sdk],
               [specify path to XPlane SDK @<:@default=../SDK@:>@])], 
             [XPLANE_SDK=${with_xplane_sdk}],
-            [XPLANE_SDK="`pwd`/../SDK"]
+            [XPLANE_SDK="/usr/include/xplane_sdk"]
 )
 
 AC_ARG_ENABLE([xplane_plugin],
@@ -62,12 +62,12 @@ AC_ARG_ENABLE([xplane_plugin],
               [build XPlane plugin @<:@default=yes@:>@])], 
             [],
             [
-                AC_CHECK_FILE([${XPLANE_SDK}/CHeaders/XPLM/XPLMUtilities.h],
+                AC_CHECK_FILE([${XPLANE_SDK}/XPLM/XPLMUtilities.h],
                     [
                       AC_SUBST([XPLANE_SDK])
                       with_xplane_plugin=yes
                     ],
-                    [AC_MSG_FAILURE([Invalid path of XPlane SDK specified])]
+                    []
                 )
             ]
 )

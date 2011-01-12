@@ -11423,7 +11423,7 @@ XPLANE_SDK=
 if test "${with_xplane_sdk+set}" = set; then :
   withval=$with_xplane_sdk; XPLANE_SDK=${with_xplane_sdk}
 else
-  XPLANE_SDK="`pwd`/../SDK"
+  XPLANE_SDK="/usr/include/xplane_sdk"
 
 fi
 
@@ -11433,15 +11433,15 @@ if test "${enable_xplane_plugin+set}" = set; then :
   enableval=$enable_xplane_plugin;
 else
 
-                as_ac_File=`$as_echo "ac_cv_file_${XPLANE_SDK}/CHeaders/XPLM/XPLMUtilities.h" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ${XPLANE_SDK}/CHeaders/XPLM/XPLMUtilities.h" >&5
-$as_echo_n "checking for ${XPLANE_SDK}/CHeaders/XPLM/XPLMUtilities.h... " >&6; }
+                as_ac_File=`$as_echo "ac_cv_file_${XPLANE_SDK}/XPLM/XPLMUtilities.h" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ${XPLANE_SDK}/XPLM/XPLMUtilities.h" >&5
+$as_echo_n "checking for ${XPLANE_SDK}/XPLM/XPLMUtilities.h... " >&6; }
 if { as_var=$as_ac_File; eval "test \"\${$as_var+set}\" = set"; }; then :
   $as_echo_n "(cached) " >&6
 else
   test "$cross_compiling" = yes &&
   as_fn_error "cannot check for file existence when cross compiling" "$LINENO" 5
-if test -r "${XPLANE_SDK}/CHeaders/XPLM/XPLMUtilities.h"; then
+if test -r "${XPLANE_SDK}/XPLM/XPLMUtilities.h"; then
   eval "$as_ac_File=yes"
 else
   eval "$as_ac_File=no"
@@ -11455,12 +11455,6 @@ eval as_val=\$$as_ac_File
 
 
                       with_xplane_plugin=yes
-
-else
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error "Invalid path of XPlane SDK specified
-See \`config.log' for more details." "$LINENO" 5; }
 
 fi
 

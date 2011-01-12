@@ -45,12 +45,12 @@ pushd src/qt_gui
 mkdir -p ${LIB_DIR}
 mkdir -p ${HELPER_DIR}
 
-cp -R ${PREFIX}/lib/libltusb1.0.dylib ${LIB_DIR}
-cp -R ${PREFIX}/lib/libtir.0.dylib ${LIB_DIR}
-cp -R ${PREFIX}/lib/libmacwc.0.dylib ${LIB_DIR}
-cp -R ${PREFIX}/lib/libmacwii.0.dylib ${LIB_DIR}
+cp -R ${PREFIX}/lib/linuxtrack/libltusb1.0.dylib ${LIB_DIR}
+cp -R ${PREFIX}/lib/linuxtrack/libtir.0.dylib ${LIB_DIR}
+cp -R ${PREFIX}/lib/linuxtrack/libmacwc.0.dylib ${LIB_DIR}
+cp -R ${PREFIX}/lib/linuxtrack/libmacwii.0.dylib ${LIB_DIR}
 cp -R ${PREFIX}/lib/libusb-1.0.0.dylib ${LIB_DIR}/libusb-1.0.dylib
-cp -R ${PREFIX}/lib/xlinuxtrack.0.so ${LIB_DIR}/xlinuxtrack.0.dylib
+cp -R ${PREFIX}/lib/linuxtrack/xlinuxtrack.0.so ${LIB_DIR}/xlinuxtrack.0.dylib
 cp -R ${PREFIX}/bin/qt_cam ${HELPER_DIR}
 cp -R ${PREFIX}/bin/sg_cam ${HELPER_DIR}
 
@@ -91,7 +91,7 @@ pushd dist
   cp ../src/mac/Info.plist WiiServer.app/Contents
   cp ../src/mac/PkgInfo WiiServer.app/Contents
   cp -R ${PREFIX}/bin/WiiServer WiiServer.app/Contents/MacOS
-  cp -R ${PREFIX}/lib/liblinuxtrack.0.dylib WiiServer.app/Contents/Frameworks/
+  cp -R ${PREFIX}/lib/linuxtrack/liblinuxtrack.0.dylib WiiServer.app/Contents/Frameworks/
   install_name_tool -id @executable_path/../Frameworks/liblinuxtrack.0.dylib \
     WiiServer.app/Contents/Frameworks/liblinuxtrack.0.dylib
   install_name_tool -change ${PREFIX}/lib/liblinuxtrack.0.dylib \

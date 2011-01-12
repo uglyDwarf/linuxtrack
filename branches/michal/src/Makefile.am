@@ -9,106 +9,106 @@ if DARWIN
   QMAKE_FLAGS = -spec macx-g++
 else
   AM_CFLAGS = 
-  LINUXFLAGS = '-Wl,-rpath,@libdir@'
+  LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
   SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
   QMAKE_FLAGS = -spec linux-g++
 endif
 
-
-lib_LTLIBRARIES = liblinuxtrack.la liblt.la
+lib_LTLIBRARIES = liblinuxtrack.la
+pkglib_LTLIBRARIES = libltr.la
 bin_PROGRAMS = ltr_server
 
 ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
-ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) '-DLIB_PATH="@libdir@/"'
-ltr_server_LDADD = -lpthread -llinuxtrack
+ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+ltr_server_LDADD = -lpthread -lltr
 ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG}
 
 if CWIID
-  lib_LTLIBRARIES += libwii.la 
+  pkglib_LTLIBRARIES += libwii.la 
 endif
 
 if V4L2
-  lib_LTLIBRARIES += libwc.la 
+  pkglib_LTLIBRARIES += libwc.la 
 endif
 
 #if LIBUSB
-#  lib_LTLIBRARIES += libtir4.la 
+#  pkglib_LTLIBRARIES += libtir4.la 
 #endif
 
 if LIBZ
-lib_LTLIBRARIES += libtir.la
+pkglib_LTLIBRARIES += libtir.la
 if LIBUSB10
-  lib_LTLIBRARIES += libltusb1.la 
+  pkglib_LTLIBRARIES += libltusb1.la 
 endif
 
 if OPENUSB
-  lib_LTLIBRARIES += libltopenusb.la 
+  pkglib_LTLIBRARIES += libltopenusb.la 
 endif
 endif
 
 #bin_PROGRAMS = lt_server lt_client
 #lt_server_SOURCES = lt_server.c netcomm.c netcomm.h
-#lt_server_LDADD = -lm -lpthread -ldl -llinuxtrack 
+#lt_server_LDADD = -lm -lpthread -ldl -lltr 
 #lt_client_SOURCES = lt_client.c netcomm.c netcomm.h
-#lt_client_LDADD = -lm -lpthread -ldl -llinuxtrack 
+#lt_client_LDADD = -lm -lpthread -ldl -lltr 
 
 include_HEADERS = ltlib.h
 
-#liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
-#liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h dyn_load.c dyn_load.h
-liblt_la_SOURCES = ltlib.c ltlib.h utils.c utils.h ipc_utils.c ipc_utils.h
-liblt_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} '-DLIB_PATH="@libdir@/"'
-liblt_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
+#liblinuxtrack_la_SOURCES = ltlib.c ltlib.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
+#liblinuxtrack_la_SOURCES = ltlib.c ltlib.h utils.c utils.h dyn_load.c dyn_load.h
+liblinuxtrack_la_SOURCES = ltlib.c ltlib.h utils.c utils.h ipc_utils.c ipc_utils.h
+liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
 
-liblinuxtrack_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
+libltr_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
   pref_flex.l pref_global.c pref_global.h pref_int.h \
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
   ltlib_int.c ltlib_int.h spline.c spline.h axis.c axis.h wii_driver_prefs.c \
   wii_driver_prefs.h tir_driver_prefs.c tir_driver_prefs.h wc_driver_prefs.c \
   wc_driver_prefs.h
-liblinuxtrack_la_LIBADD = -lm -lpthread -ldl
-liblinuxtrack_la_LDFLAGS = -export-symbols-regex '^ltr_int' $(LINUXFLAGS) ${TIGER_LDFLAG}
-liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} '-DLIB_PATH="@libdir@/"'
+libltr_la_LIBADD = -lm -lpthread -ldl
+libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' $(LINUXFLAGS) ${TIGER_LDFLAG}
+libltr_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 #libtir4_la_SOURCES = tir4_driver.c tir4_driver.h new_cal.c new_cal.h
-#libtir4_la_LIBADD = -lusb  -llinuxtrack
+#libtir4_la_LIBADD = -lusb  -lltr
 
 libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
-libtir_la_LIBADD = -lz -llinuxtrack
+libtir_la_LIBADD = -lz -lltr
 libtir_la_LDFLAGS = -export-symbols "${srcdir}/tir.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
 
 libltusb1_la_SOURCES = libusb_ifc.c usb_ifc.h
 libltusb1_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
-libltusb1_la_LIBADD = -lusb-1.0 -llinuxtrack
-libltusb1_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS) 
+libltusb1_la_LIBADD = -lusb-1.0 -lltr
+libltusb1_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS)
 libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
 libltopenusb_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
-libltopenusb_la_LIBADD = -lopenusb -llinuxtrack
-libltopenusb_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS) 
+libltopenusb_la_LIBADD = -lopenusb -lltr
+libltopenusb_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS)
 
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
 libwii_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
-libwii_la_LIBADD = -lcwiid -llinuxtrack
-libwii_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${TIGER_LDFLAG} $(LINUXFLAGS) 
+libwii_la_LIBADD = -lcwiid -lltr
+libwii_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
 
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
-libwc_la_LIBADD = -llinuxtrack -lv4l2
-libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG} $(LINUXFLAGS) 
+libwc_la_LIBADD = -lltr -lv4l2
+libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
 
 dist_pkgdata_DATA = .linuxtrack
 
 if XPLANE_PLUGIN
-  lib_LTLIBRARIES += xlinuxtrack.la xlinuxtrack9.la
+  pkglib_LTLIBRARIES += xlinuxtrack.la xlinuxtrack9.la
   xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
 			    utils.c utils.h ltlib.c ltlib.h ipc_utils.c ipc_utils.h
-  xlinuxtrack_la_CFLAGS = -I${XPLANE_SDK}/CHeaders/XPLM -I${XPLANE_SDK}/CHeaders/Widgets -I${XPLANE_SDK}/CHeaders/Wrappers $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} '-DLIB_PATH="@libdir@/"'
+  xlinuxtrack_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
   xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -m32 -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
   xlinuxtrack_la_LIBADD = -lm -ldl
   xlinuxtrack9_la_SOURCES = xlinuxtrack9.c \
 			    utils.c utils.h ltlib.c ltlib.h ipc_utils.c ipc_utils.h
-  xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/CHeaders/XPLM -I${XPLANE_SDK}/CHeaders/Widgets -I${XPLANE_SDK}/CHeaders/Wrappers $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} '-DLIB_PATH="@libdir@/"'
+  xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
   xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC -m32 -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
   xlinuxtrack9_la_LIBADD = -lm -ldl
 endif
@@ -132,8 +132,8 @@ distclean-local-check:
 noinst_SCRIPTS = qt_gui/ltr_gui
 
 
-qt_gui/ltr_gui : ${lib_LTLIBRARIES}
-	pushd qt_gui; qmake ${QMAKE_FLAGS} "LIBDIR=@libdir@"; make; popd
+qt_gui/ltr_gui : ${pkglib_LTLIBRARIES}
+	pushd qt_gui; qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
 
 install-exec-hook:
 	pushd qt_gui; make INSTALL_ROOT=${DESTDIR} install; popd
