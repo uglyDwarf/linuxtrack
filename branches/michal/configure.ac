@@ -67,7 +67,9 @@ AC_ARG_ENABLE([xplane_plugin],
                       AC_SUBST([XPLANE_SDK])
                       with_xplane_plugin=yes
                     ],
-                    []
+                    [
+                      with_xplane_plugin=no
+                    ]
                 )
             ]
 )

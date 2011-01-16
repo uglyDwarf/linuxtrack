@@ -29,11 +29,9 @@ pushd michal
 autoreconf -if
 export CFLAGS="-I${PREFIX}/include "
 export LDFLAGS="-L${PREFIX}/lib "
-./configure --prefix=${PREFIX} >/dev/null
+./configure --prefix=${PREFIX} --with-xplane-sdk=${BASE}/SDK/CHeaders>/dev/null
 make>/dev/null
 make install>/dev/null
-
-
 
 #Build gui - should not be needed anymore
 pushd src/qt_gui
@@ -50,7 +48,10 @@ cp -R ${PREFIX}/lib/linuxtrack/libtir.0.dylib ${LIB_DIR}
 cp -R ${PREFIX}/lib/linuxtrack/libmacwc.0.dylib ${LIB_DIR}
 cp -R ${PREFIX}/lib/linuxtrack/libmacwii.0.dylib ${LIB_DIR}
 cp -R ${PREFIX}/lib/libusb-1.0.0.dylib ${LIB_DIR}/libusb-1.0.dylib
+cp -R ${PREFIX}/lib/liblinuxtrack.0.dylib ${LIB_DIR}/liblinuxtrack.0.dylib
+cp -R ${PREFIX}/lib/linuxtrack/libltr.0.dylib ${LIB_DIR}/libltr.0.dylib
 cp -R ${PREFIX}/lib/linuxtrack/xlinuxtrack.0.so ${LIB_DIR}/xlinuxtrack.0.dylib
+cp -R ${PREFIX}/lib/linuxtrack/xlinuxtrack9.0.so ${LIB_DIR}/xlinuxtrack9.0.dylib
 cp -R ${PREFIX}/bin/qt_cam ${HELPER_DIR}
 cp -R ${PREFIX}/bin/sg_cam ${HELPER_DIR}
 
@@ -59,23 +60,28 @@ install_name_tool -id @loader_path/libltusb1.0.dylib ${LIB_DIR}/libltusb1.0.dyli
 install_name_tool -id @executable_path/../Frameworks/libtir.0.dylib ${LIB_DIR}/libtir.0.dylib
 install_name_tool -id @executable_path/../Frameworks/libmacwc.0.dylib ${LIB_DIR}/libmacwc.0.dylib
 install_name_tool -id @executable_path/../Frameworks/libmacwii.0.dylib ${LIB_DIR}/libmacwii.0.dylib
+install_name_tool -id @executable_path/../Frameworks/liblinuxtrack.0.dylib ${LIB_DIR}/liblinuxtrack.0.dylib
+install_name_tool -id @executable_path/../Frameworks/libltr.0.dylib ${LIB_DIR}/libltr.0.dylib
 install_name_tool -id @executable_path/../Frameworks/xlinuxtrack.0.dylib ${LIB_DIR}/xlinuxtrack.0.dylib
+install_name_tool -id @executable_path/../Frameworks/xlinuxtrack9.0.dylib ${LIB_DIR}/xlinuxtrack9.0.dylib
 
 install_name_tool -change "${PREFIX}/lib/libusb-1.0.0.dylib" \
   @loader_path/libusb-1.0.dylib ${LIB_DIR}/libltusb1.0.dylib
-install_name_tool -change "${PREFIX}/lib/liblinuxtrack.0.dylib" \
-  @loader_path/liblinuxtrack.0.dylib ${LIB_DIR}/libltusb1.0.dylib
-install_name_tool -change "${PREFIX}/lib/liblinuxtrack.0.dylib"  \
-  @loader_path/liblinuxtrack.0.dylib "${LIB_DIR}/libtir.0.dylib"
-install_name_tool -change "${PREFIX}/lib/liblinuxtrack.0.dylib"  \
-  @loader_path/liblinuxtrack.0.dylib "${LIB_DIR}/libmacwc.0.dylib"
-install_name_tool -change "${PREFIX}/lib/liblinuxtrack.0.dylib"  \
-  @loader_path/liblinuxtrack.0.dylib "${LIB_DIR}/libmacwii.0.dylib"
+install_name_tool -change "${PREFIX}/lib/linuxtrack/libltr.0.dylib" \
+  @loader_path/libltr.0.dylib ${LIB_DIR}/libltusb1.0.dylib
+install_name_tool -change "${PREFIX}/lib/linuxtrack/libltr.0.dylib"  \
+  @loader_path/libltr.0.dylib "${LIB_DIR}/libtir.0.dylib"
+install_name_tool -change "${PREFIX}/lib/linuxtrack/libltr.0.dylib"  \
+  @loader_path/libltr.0.dylib "${LIB_DIR}/libmacwc.0.dylib"
+install_name_tool -change "${PREFIX}/lib/linuxtrack/libltr.0.dylib"  \
+  @loader_path/libltr.0.dylib "${LIB_DIR}/libmacwii.0.dylib"
 
-install_name_tool -change "${PREFIX}/lib/liblinuxtrack.0.dylib" \
-  @executable_path/../Frameworks/liblinuxtrack.0.dylib ${HELPER_DIR}/qt_cam
-install_name_tool -change "${PREFIX}/lib/liblinuxtrack.0.dylib" \
-  @executable_path/../Frameworks/liblinuxtrack.0.dylib ${HELPER_DIR}/sg_cam
+install_name_tool -change "${PREFIX}/lib/linuxtrack/libltr.0.dylib" \
+  @executable_path/../Frameworks/libltr.0.dylib ${BIN_DIR}/ltr_gui
+install_name_tool -change "${PREFIX}/lib/linuxtrack/libltr.0.dylib" \
+  @executable_path/../Frameworks/libltr.0.dylib ${HELPER_DIR}/qt_cam
+install_name_tool -change "${PREFIX}/lib/linuxtrack/libltr.0.dylib" \
+  @executable_path/../Frameworks/libltr.0.dylib ${HELPER_DIR}/sg_cam
 
 #Create archive image
 macdeployqt ltr_gui.app -no-strip
@@ -91,11 +97,11 @@ pushd dist
   cp ../src/mac/Info.plist WiiServer.app/Contents
   cp ../src/mac/PkgInfo WiiServer.app/Contents
   cp -R ${PREFIX}/bin/WiiServer WiiServer.app/Contents/MacOS
-  cp -R ${PREFIX}/lib/linuxtrack/liblinuxtrack.0.dylib WiiServer.app/Contents/Frameworks/
-  install_name_tool -id @executable_path/../Frameworks/liblinuxtrack.0.dylib \
-    WiiServer.app/Contents/Frameworks/liblinuxtrack.0.dylib
-  install_name_tool -change ${PREFIX}/lib/liblinuxtrack.0.dylib \
-    @executable_path/../Frameworks/liblinuxtrack.0.dylib WiiServer.app/Contents/MacOS/WiiServer
+  cp -R ${PREFIX}/lib/linuxtrack/libltr.0.dylib WiiServer.app/Contents/Frameworks/
+  install_name_tool -id @executable_path/../Frameworks/libltr.0.dylib \
+    WiiServer.app/Contents/Frameworks/libltr.0.dylib
+  install_name_tool -change ${PREFIX}/lib/linuxtrack/libltr.0.dylib \
+    @executable_path/../Frameworks/libltr.0.dylib WiiServer.app/Contents/MacOS/WiiServer
 
   mv ../src/qt_gui/ltr_gui.app .
   if [ -f "${BASE}/bulk_config_data.tar.gz" ]; then
