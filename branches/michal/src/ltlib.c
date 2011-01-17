@@ -85,7 +85,7 @@ void ltr_recenter(void)
 {
   struct ltr_comm *com = mmm.data;
   lockSemaphore(mmm.sem);
-  com->cmd = RECENTER_CMD;
+  com->recenter = true;
   unlockSemaphore(mmm.sem);
 }
 

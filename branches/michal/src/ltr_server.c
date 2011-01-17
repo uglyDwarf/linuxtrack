@@ -52,6 +52,7 @@ char *section = NULL;
 
 void main_loop(struct mmap_s *mmm)
 {
+  bool recenter;
   ltr_int_register_cbk(new_frame, (void*)mmm, state_changed, (void*)mmm);
   if(ltr_int_init(section) != 0){
     printf("Initialized!\n");
@@ -64,6 +65,8 @@ void main_loop(struct mmap_s *mmm)
       lockSemaphore(mmm->sem);
       ltr_cmd cmd = com->cmd;
       com->cmd = NOP_CMD;
+      recenter = com->recenter;
+      com->recenter = false;
       unlockSemaphore(mmm->sem);
       switch(cmd){
         case RUN_CMD:
@@ -79,14 +82,13 @@ void main_loop(struct mmap_s *mmm)
           ltr_int_shutdown();
           break_flag = true;
           break;
-        case RECENTER_CMD:
-          printf("Recenter!\n");
-          ltr_int_recenter();
-          break;
         default:
           printf("SHIT!!!\n");
           //defensive...
           break;
+      }
+      if(recenter){
+        ltr_int_recenter();
       }
     }
     usleep(100000);  //ten times per second...
