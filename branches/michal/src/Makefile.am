@@ -97,7 +97,7 @@ libwc_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 libwc_la_LIBADD = -lltr -lv4l2
 libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
 
-dist_pkgdata_DATA = .linuxtrack
+dist_pkgdata_DATA = .linuxtrack 51-TIR.rules
 
 if XPLANE_PLUGIN
   pkglib_LTLIBRARIES += xlinuxtrack.la xlinuxtrack9.la
