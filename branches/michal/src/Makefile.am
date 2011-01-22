@@ -161,3 +161,5 @@ EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \
   qt_gui/macwebcam_prefs.h qt_gui/glwidget.cpp qt_gui/model_creation.ui \
   tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
   xlinuxtrack.sym
+
+man_MANS = ltr_gui.1 ltr_server.1
