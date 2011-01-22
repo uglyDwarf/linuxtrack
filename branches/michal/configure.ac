@@ -32,6 +32,8 @@ AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
 # Checks for header files.
 AC_CHECK_HEADERS([stdint.h assert.h])
 
+AC_CHECK_FILE([tir4.fw.gz], [with_tir_fw=yes], [with_tir_fw=no])
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
 AC_TYPE_UINT16_T
@@ -89,9 +91,7 @@ AM_CONDITIONAL(LIBUSB, [test "x$ac_cv_lib_usb_usb_open" = xyes])
 AM_CONDITIONAL(LIBUSB10, [test "x$ac_cv_lib_usb_1_0_libusb_init" = xyes])
 AM_CONDITIONAL(OPENUSB, [test  "x$ac_cv_lib_openusb_openusb_init" = xyes])
 AM_CONDITIONAL(LIBZ, [test  "x$ac_cv_lib_z_gzopen" = xyes])
-
-
-
+AM_CONDITIONAL(TIR_FW, [test  "x$with_tir_fw" = xyes])
 
 # Checks for library functions.
 
