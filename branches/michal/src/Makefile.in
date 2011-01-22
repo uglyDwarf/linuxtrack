@@ -402,7 +402,7 @@ libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 libwc_la_LIBADD = -lltr -lv4l2
 libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
-dist_pkgdata_DATA = .linuxtrack
+dist_pkgdata_DATA = .linuxtrack 51-TIR.rules
 @XPLANE_PLUGIN_TRUE@xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
 @XPLANE_PLUGIN_TRUE@			    utils.c utils.h ltlib.c ltlib.h ipc_utils.c ipc_utils.h
 
