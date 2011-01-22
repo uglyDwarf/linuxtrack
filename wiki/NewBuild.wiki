@@ -4,7 +4,7 @@
 
 This page provides instructions how to build the new linuxtrack version.
 
-The new linuxtrack versinon has some changes in the build process. The main difference lies in the fact, that it needs to be installed.
+The new linuxtrack versinon has some changes in the build process. The main difference lies in the fact, that it needs to be installed ('make install' step).
 If you don't want to install it between your system binaries/libraries (which you shouldn't as it is development version), use --prefix option to specify destination directory.
 
 Also don't forget that installing it into the tree that is not in your search path will cause that system won't be able to find linuxtrack binaries.
@@ -13,15 +13,18 @@ Also don't forget that installing it into the tree that is not in your search pa
 == Building and installing linuxtrack on Linux==
 
 Lets assume you checked out sources from the repository into 
-'/home/simmer/linux-track-read-only' and you intend to install it to '/home/simmer/ltr'
+'/home/simmer/linux-track-read-only' and you intend to install it to '/home/simmer/ltr'. You should also install XPlane SDK - if its install path is different from '/usr/include/xplane_sdk' - like '/usr/include/xplane_sdk/XPLM/XPLMCamera.h'.
+(I create a deb package soon to be available to do that). The other option is to use configure option '--with-xplane-sdk'.
+
+If you intend to use TrackIR, you have to download firmware:
+
+http://media.naturalpoint.com/software/external/bulk_config_data.tar.gz
+
+Unpack its contents into the '/home/simmer/linux-track-read-only' directory too.
 
 {{{
 cd /home/simmer/linux-track-read-only
 ./configure --prefix=/home/simmer/ltr
-make
-make install
-cd src/qt_gui
-qmake
 make
 make install
 }}}
@@ -34,76 +37,11 @@ export PATH=${PATH}:/home/simmer/ltr/bin
 }}}
 
 This line makes linuxtrack binaries available from everywhere.
-If you use TrackIR, you have to download firmware:
-
-http://media.naturalpoint.com/software/external/bulk_config_data.tar.gz
-
-Copy its contents into '/home/simmer/ltr/share/linuxtrack/' directory.
+Last but not least - if you intend to use TrackIR, you'll have to install
+file 51-TIR.rules to your udev rules directory (might be /lib/udev/rules.d, but 
+refer to your distro documentation). You can find this file in 'prefix/share/linuxtrack' directory.
 
 This should get you up and going...
-
-
-== Ubuntu 10.04 AMD64 compilation notes ==
-To build the package on this platform, first install following packages:
-qt4-dev-tools
-libcwiid-dev
-libusb-1.0-0-dev
-libopenusb-dev
-ia32-libs
-g++
-g++-multilib
-
-Then go to /usr/lib32 and by running 'ln -s libz.so.1 libz.so' make libz available.
-
-Then download libusb-1.0 and libcwiid, put it to the same directory when you checked out the linuxtrack. Now create a script containing this:
-
-{{{
-#!/bin/bash
-#
-
-export PREFIX=/home/evik/ltr_bin_new
-export CC="gcc -m32"
-export CFLAGS="-I${PREFIX}/include"
-export CXXFLAGS="-m32"
-export LDFLAGS="-m32 -L${PREFIX}/lib"
-
-#Compile libcwiid
-tar xfz cwiid-0.6.00.tgz
-pushd cwiid-0.6.00
-sed -i s/hci_remote_name/hci_read_remote_name/ libcwiid/bluetooth.c
-./configure --prefix=${PREFIX}
-cd libcwiid
-make install
-popd
-
-#Compile libusb 
-tar xfj libusb-1.0.8.tar.bz2
-pushd libusb-1.0.8
-./configure --prefix=${PREFIX}
-make install
-popd
-
-svn co http://linux-track.googlecode.com/svn/branches/michal/
-
-#Compile Linuxtrack
-pushd michal
-./configure --prefix=${PREFIX}
-make install
-cd src/qt_gui
-qmake -spec linux-g++-32
-make install
-popd
-
-#
-}}}
-(Just make sure that line "#!/bin/bash" is the first line!)
-I called the file compile64, and now to be able to execute it I run 'chmod 755 compile64'.
-
-Few notes concerning this script...
-  * Change the prefix to a path that suits you...
-  * libcwiid in the 0.06.00 revision has a problem with a current blootooth lib, so there is a patch.
-
-Now run the script and when it ends, you should have the thing compiled along with support libraries.
 
 
 == Building and installing on Mac ==
@@ -136,10 +74,7 @@ Go to the _michal_ directory and run:
 ./mac_build
 }}}
 
-This should compile linuxtrack and the result should be in _.../build/michal/dist_.
-Just move it from there wherever you like.
-
+This should compile linuxtrack and create .dmg containing all that is needed.
 Now run the thing, setup tracking device and you can start playing with tracking.
 
 To use tracking in XPlane, on the last pane there is a button allowing you to install XPlane plugin.
- 
