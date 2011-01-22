@@ -31,7 +31,7 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
 QMAKE_CXXFLAGS += -DHAVE_CONFIG_H
 
 unix:!macx {
-  LIBS += "-L../.libs" "-L$${LIBDIR}" -lm -lpthread -ldl -lltr \
+  LIBS += "-L../.libs" "-L$${LIBDIR}" -lm -lltr \
            "-Wl,-rpath,$${LIBDIR}"
   
   data.path += @prefix@/share/linuxtrack
@@ -47,7 +47,7 @@ macx {
   QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.4
   QMAKE_MAC_SDK=/Developer/SDKs/MacOSX10.4u.sdk
   CONFIG+=x86 ppc
-  LIBS += -L../.libs -lm -lpthread -ldl -lltr
+  LIBS += -L../.libs -lm -lltr
   data.path += ltr_gui.app/Contents/Resources/linuxtrack
   data.files += XM8_cockpit.obj xm8d_body.obj xm8_detail.png ../.linuxtrack
   INSTALLS += data
