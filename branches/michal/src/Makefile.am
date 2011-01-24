@@ -12,6 +12,12 @@ else
   LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
   SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
   QMAKE_FLAGS = -spec linux-g++
+  
+  l32libdir = $(prefix)/lib32
+
+if X64
+  l32lib_LTLIBRARIES = liblinuxtrack32.la
+endif
 endif
 
 lib_LTLIBRARIES = liblinuxtrack.la
@@ -59,6 +65,11 @@ include_HEADERS = ltlib.h
 liblinuxtrack_la_SOURCES = ltlib.c ltlib.h utils.c utils.h ipc_utils.c ipc_utils.h
 liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
+
+liblinuxtrack32_la_SOURCES = ltlib.c ltlib.h utils.c utils.h ipc_utils.c ipc_utils.h
+liblinuxtrack32_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) -m32
+liblinuxtrack32_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" -m32 $(LINUXFLAGS) ${TIGER_LDFLAG}
+
 
 libltr_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \

@@ -83,6 +83,13 @@ AS_IF([case $host_os in darwin*) true;; *) false;; esac],
   ]
 )
 
+case "$host_cpu" in
+i[[3456]]86) with_64_bit=no ;;
+x86_64) with_64_bit=yes ;;
+*) AC_MSG_ERROR([unsupported CPU type]) ;;
+esac
+
+
 AM_CONDITIONAL(XPLANE_PLUGIN, [test x$with_xplane_plugin = xyes])
 AM_CONDITIONAL(CWIID, [test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes])
 AM_CONDITIONAL(V4L2, [test x$with_v4l2 = xyes])
@@ -92,6 +99,7 @@ AM_CONDITIONAL(LIBUSB10, [test "x$ac_cv_lib_usb_1_0_libusb_init" = xyes])
 AM_CONDITIONAL(OPENUSB, [test  "x$ac_cv_lib_openusb_openusb_init" = xyes])
 AM_CONDITIONAL(LIBZ, [test  "x$ac_cv_lib_z_gzopen" = xyes])
 AM_CONDITIONAL(TIR_FW, [test  "x$with_tir_fw" = xyes])
+AM_CONDITIONAL(X64, [test  "x$with_64_bit" = xyes])
 
 # Checks for library functions.
 

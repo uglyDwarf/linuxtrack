@@ -83,10 +83,12 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" \
-	"$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" \
-	"$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(includedir)"
-LTLIBRARIES = $(lib_LTLIBRARIES) $(pkglib_LTLIBRARIES)
+am__installdirs = "$(DESTDIR)$(l32libdir)" "$(DESTDIR)$(libdir)" \
+	"$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" \
+	"$(DESTDIR)$(man1dir)" "$(DESTDIR)$(pkgdatadir)" \
+	"$(DESTDIR)$(includedir)"
+LTLIBRARIES = $(l32lib_LTLIBRARIES) $(lib_LTLIBRARIES) \
+	$(pkglib_LTLIBRARIES)
 liblinuxtrack_la_LIBADD =
 am_liblinuxtrack_la_OBJECTS = liblinuxtrack_la-ltlib.lo \
 	liblinuxtrack_la-utils.lo liblinuxtrack_la-ipc_utils.lo
@@ -94,6 +96,16 @@ liblinuxtrack_la_OBJECTS = $(am_liblinuxtrack_la_OBJECTS)
 liblinuxtrack_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(liblinuxtrack_la_CFLAGS) \
 	$(CFLAGS) $(liblinuxtrack_la_LDFLAGS) $(LDFLAGS) -o $@
+liblinuxtrack32_la_LIBADD =
+am_liblinuxtrack32_la_OBJECTS = liblinuxtrack32_la-ltlib.lo \
+	liblinuxtrack32_la-utils.lo liblinuxtrack32_la-ipc_utils.lo
+liblinuxtrack32_la_OBJECTS = $(am_liblinuxtrack32_la_OBJECTS)
+liblinuxtrack32_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(liblinuxtrack32_la_CFLAGS) $(CFLAGS) \
+	$(liblinuxtrack32_la_LDFLAGS) $(LDFLAGS) -o $@
+@DARWIN_FALSE@@X64_TRUE@am_liblinuxtrack32_la_rpath = -rpath \
+@DARWIN_FALSE@@X64_TRUE@	$(l32libdir)
 libltopenusb_la_DEPENDENCIES =
 am_libltopenusb_la_OBJECTS = libltopenusb_la-openusb_ifc.lo
 libltopenusb_la_OBJECTS = $(am_libltopenusb_la_OBJECTS)
@@ -201,12 +213,14 @@ YLWRAP = $(top_srcdir)/ylwrap
 YACCCOMPILE = $(YACC) $(YFLAGS) $(AM_YFLAGS)
 LTYACCCOMPILE = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=compile $(YACC) $(YFLAGS) $(AM_YFLAGS)
-SOURCES = $(liblinuxtrack_la_SOURCES) $(libltopenusb_la_SOURCES) \
-	$(libltr_la_SOURCES) $(libltusb1_la_SOURCES) \
-	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
+SOURCES = $(liblinuxtrack_la_SOURCES) $(liblinuxtrack32_la_SOURCES) \
+	$(libltopenusb_la_SOURCES) $(libltr_la_SOURCES) \
+	$(libltusb1_la_SOURCES) $(libtir_la_SOURCES) \
+	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(xlinuxtrack_la_SOURCES) $(xlinuxtrack9_la_SOURCES) \
 	$(ltr_server_SOURCES)
-DIST_SOURCES = $(liblinuxtrack_la_SOURCES) $(libltopenusb_la_SOURCES) \
+DIST_SOURCES = $(liblinuxtrack_la_SOURCES) \
+	$(liblinuxtrack32_la_SOURCES) $(libltopenusb_la_SOURCES) \
 	$(libltr_la_SOURCES) $(libltusb1_la_SOURCES) \
 	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(am__xlinuxtrack_la_SOURCES_DIST) \
@@ -347,6 +361,8 @@ top_srcdir = @top_srcdir@
 @DARWIN_FALSE@QMAKE_FLAGS = -spec linux-g++
 @DARWIN_TRUE@QMAKE_FLAGS = -spec macx-g++
 @DARWIN_FALSE@LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
+@DARWIN_FALSE@l32libdir = $(prefix)/lib32
+@DARWIN_FALSE@@X64_TRUE@l32lib_LTLIBRARIES = liblinuxtrack32.la
 lib_LTLIBRARIES = liblinuxtrack.la
 pkglib_LTLIBRARIES = libltr.la $(am__append_1) $(am__append_2) \
 	$(am__append_3) $(am__append_4) $(am__append_5) \
@@ -368,6 +384,9 @@ include_HEADERS = ltlib.h
 liblinuxtrack_la_SOURCES = ltlib.c ltlib.h utils.c utils.h ipc_utils.c ipc_utils.h
 liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
+liblinuxtrack32_la_SOURCES = ltlib.c ltlib.h utils.c utils.h ipc_utils.c ipc_utils.h
+liblinuxtrack32_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) -m32
+liblinuxtrack32_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" -m32 $(LINUXFLAGS) ${TIGER_LDFLAG}
 libltr_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
   pref_flex.l pref_global.c pref_global.h pref_int.h \
@@ -479,6 +498,37 @@ pathconfig.h: $(top_builddir)/config.status $(srcdir)/pathconfig.h.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 local_config.h: $(top_builddir)/config.status $(srcdir)/local_config.h.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+install-l32libLTLIBRARIES: $(l32lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	test -z "$(l32libdir)" || $(MKDIR_P) "$(DESTDIR)$(l32libdir)"
+	@list='$(l32lib_LTLIBRARIES)'; test -n "$(l32libdir)" || list=; \
+	list2=; for p in $$list; do \
+	  if test -f $$p; then \
+	    list2="$$list2 $$p"; \
+	  else :; fi; \
+	done; \
+	test -z "$$list2" || { \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(l32libdir)'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(l32libdir)"; \
+	}
+
+uninstall-l32libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@list='$(l32lib_LTLIBRARIES)'; test -n "$(l32libdir)" || list=; \
+	for p in $$list; do \
+	  $(am__strip_dir) \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(l32libdir)/$$f'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(l32libdir)/$$f"; \
+	done
+
+clean-l32libLTLIBRARIES:
+	-test -z "$(l32lib_LTLIBRARIES)" || rm -f $(l32lib_LTLIBRARIES)
+	@list='$(l32lib_LTLIBRARIES)'; for p in $$list; do \
+	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
+	  test "$$dir" != "$$p" || dir=.; \
+	  echo "rm -f \"$${dir}/so_locations\""; \
+	  rm -f "$${dir}/so_locations"; \
+	done
 install-libLTLIBRARIES: $(lib_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
 	test -z "$(libdir)" || $(MKDIR_P) "$(DESTDIR)$(libdir)"
@@ -543,6 +593,8 @@ clean-pkglibLTLIBRARIES:
 	done
 liblinuxtrack.la: $(liblinuxtrack_la_OBJECTS) $(liblinuxtrack_la_DEPENDENCIES) 
 	$(liblinuxtrack_la_LINK) -rpath $(libdir) $(liblinuxtrack_la_OBJECTS) $(liblinuxtrack_la_LIBADD) $(LIBS)
+liblinuxtrack32.la: $(liblinuxtrack32_la_OBJECTS) $(liblinuxtrack32_la_DEPENDENCIES) 
+	$(liblinuxtrack32_la_LINK) $(am_liblinuxtrack32_la_rpath) $(liblinuxtrack32_la_OBJECTS) $(liblinuxtrack32_la_LIBADD) $(LIBS)
 libltopenusb.la: $(libltopenusb_la_OBJECTS) $(libltopenusb_la_DEPENDENCIES) 
 	$(libltopenusb_la_LINK) $(am_libltopenusb_la_rpath) $(libltopenusb_la_OBJECTS) $(libltopenusb_la_LIBADD) $(LIBS)
 pref_bison.h: pref_bison.c
@@ -634,6 +686,15 @@ liblinuxtrack_la-utils.lo: utils.c
 
 liblinuxtrack_la-ipc_utils.lo: ipc_utils.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblinuxtrack_la_CFLAGS) $(CFLAGS) -c -o liblinuxtrack_la-ipc_utils.lo `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
+
+liblinuxtrack32_la-ltlib.lo: ltlib.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblinuxtrack32_la_CFLAGS) $(CFLAGS) -c -o liblinuxtrack32_la-ltlib.lo `test -f 'ltlib.c' || echo '$(srcdir)/'`ltlib.c
+
+liblinuxtrack32_la-utils.lo: utils.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblinuxtrack32_la_CFLAGS) $(CFLAGS) -c -o liblinuxtrack32_la-utils.lo `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
+
+liblinuxtrack32_la-ipc_utils.lo: ipc_utils.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblinuxtrack32_la_CFLAGS) $(CFLAGS) -c -o liblinuxtrack32_la-ipc_utils.lo `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
 
 libltopenusb_la-openusb_ifc.lo: openusb_ifc.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltopenusb_la_CFLAGS) $(CFLAGS) -c -o libltopenusb_la-openusb_ifc.lo `test -f 'openusb_ifc.c' || echo '$(srcdir)/'`openusb_ifc.c
@@ -945,7 +1006,7 @@ all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) \
 install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(l32libdir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -980,9 +1041,9 @@ maintainer-clean-generic:
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
-	clean-libtool clean-local clean-pkglibLTLIBRARIES \
-	mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-l32libLTLIBRARIES \
+	clean-libLTLIBRARIES clean-libtool clean-local \
+	clean-pkglibLTLIBRARIES mostlyclean-am
 
 distclean: distclean-am
 	-rm -f Makefile
@@ -1002,7 +1063,7 @@ info: info-am
 info-am:
 
 install-data-am: install-dist_pkgdataDATA install-includeHEADERS \
-	install-man
+	install-l32libLTLIBRARIES install-man
 
 install-dvi: install-dvi-am
 
@@ -1050,8 +1111,9 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-binPROGRAMS uninstall-dist_pkgdataDATA \
-	uninstall-includeHEADERS uninstall-libLTLIBRARIES \
-	uninstall-man uninstall-pkglibLTLIBRARIES
+	uninstall-includeHEADERS uninstall-l32libLTLIBRARIES \
+	uninstall-libLTLIBRARIES uninstall-man \
+	uninstall-pkglibLTLIBRARIES
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
 uninstall-man: uninstall-man1
@@ -1060,25 +1122,26 @@ uninstall-man: uninstall-man1
 	uninstall-am
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
-	clean-generic clean-libLTLIBRARIES clean-libtool clean-local \
-	clean-pkglibLTLIBRARIES ctags distclean distclean-compile \
-	distclean-generic distclean-libtool distclean-local \
-	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-binPROGRAMS install-data \
-	install-data-am install-dist_pkgdataDATA install-dvi \
-	install-dvi-am install-exec install-exec-am install-exec-hook \
-	install-html install-html-am install-includeHEADERS \
-	install-info install-info-am install-libLTLIBRARIES \
-	install-man install-man1 install-pdf install-pdf-am \
-	install-pkglibLTLIBRARIES install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags uninstall uninstall-am \
-	uninstall-binPROGRAMS uninstall-dist_pkgdataDATA \
+	clean-generic clean-l32libLTLIBRARIES clean-libLTLIBRARIES \
+	clean-libtool clean-local clean-pkglibLTLIBRARIES ctags \
+	distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-local distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-binPROGRAMS install-data install-data-am \
+	install-dist_pkgdataDATA install-dvi install-dvi-am \
+	install-exec install-exec-am install-exec-hook install-html \
+	install-html-am install-includeHEADERS install-info \
+	install-info-am install-l32libLTLIBRARIES \
+	install-libLTLIBRARIES install-man install-man1 install-pdf \
+	install-pdf-am install-pkglibLTLIBRARIES install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
+	uninstall-am uninstall-binPROGRAMS uninstall-dist_pkgdataDATA \
 	uninstall-hook uninstall-includeHEADERS \
-	uninstall-libLTLIBRARIES uninstall-man uninstall-man1 \
-	uninstall-pkglibLTLIBRARIES
+	uninstall-l32libLTLIBRARIES uninstall-libLTLIBRARIES \
+	uninstall-man uninstall-man1 uninstall-pkglibLTLIBRARIES
 
 
 #dirty hack to integrate qt_gui
