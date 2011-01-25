@@ -2,6 +2,7 @@
 #include <QFileSystemWatcher>
 #include <QFile>
 #include <QTextStream>
+#include <QTimer>
 #include "ui_logview.h"
 
 class LogView : public QWidget{
@@ -12,9 +13,13 @@ class LogView : public QWidget{
  private slots:
   void on_CloseButton_pressed();
   void fileChanged(const QString &path);
+  void readChanges();
  private:
   Ui::LogViewerForm ui;
   QFileSystemWatcher watcher;
   QFile *lf;
   QTextStream *ts;
+  qint64 size;
+  QTimer *timer;
+  bool changed;
 };

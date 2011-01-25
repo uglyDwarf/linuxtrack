@@ -4,14 +4,18 @@
 LogView::LogView(QWidget *parent) : QWidget(parent), watcher(parent)
 {
   ui.setupUi(this);
+  size = 0;
+  changed = true;
   watcher.addPath("/tmp/linuxtrack.log");
   QObject::connect(&watcher, SIGNAL(fileChanged(const QString&)), 
                    this, SLOT(fileChanged(const QString&)));
   lf = new QFile("/tmp/linuxtrack.log");
   lf->open(QIODevice::ReadOnly);
   ts = new QTextStream(lf);
-  //to capture what happened up to this point...
-  fileChanged(""); 
+  timer = new QTimer(this);
+  QObject::connect(timer, SIGNAL(timeout()), 
+                   this, SLOT(readChanges()));
+  timer->start(250);
 }
 
 void LogView::on_CloseButton_pressed()
@@ -19,16 +23,27 @@ void LogView::on_CloseButton_pressed()
   close();
 }
 
+void LogView::readChanges()
+{
+  if(changed)
+    ui.LogViewer->appendPlainText(ts->readAll());
+  changed = false;
+}
+
+
+
 void LogView::fileChanged(const QString &path)
 {
   (void) path;
-  ts->seek(0);
-  ui.LogViewer->setPlainText("");
-  ui.LogViewer->appendPlainText(ts->readAll());
+  changed = true;
 }
+
+
 
 LogView::~LogView()
 {
+  timer->stop();
+  delete(timer);
   delete(ts);
   delete(lf);
 }
