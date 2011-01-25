@@ -11594,7 +11594,7 @@ fi
 
 # Checks for library functions.
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/pathconfig.h src/tests/Makefile src/mac/Makefile src/local_config.h src/qt_gui/ltr_gui.pro"
+ac_config_files="$ac_config_files Makefile src/Makefile src/pathconfig.h src/tests/Makefile src/mac/Makefile src/local_config.h src/qt_gui/ltr_gui.pro src/helper/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -12601,6 +12601,7 @@ do
     "src/mac/Makefile") CONFIG_FILES="$CONFIG_FILES src/mac/Makefile" ;;
     "src/local_config.h") CONFIG_FILES="$CONFIG_FILES src/local_config.h" ;;
     "src/qt_gui/ltr_gui.pro") CONFIG_FILES="$CONFIG_FILES src/qt_gui/ltr_gui.pro" ;;
+    "src/helper/Makefile") CONFIG_FILES="$CONFIG_FILES src/helper/Makefile" ;;
 
   *) as_fn_error "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

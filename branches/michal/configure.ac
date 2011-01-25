@@ -111,5 +111,6 @@ AC_CONFIG_FILES([
  src/mac/Makefile
  src/local_config.h
  src/qt_gui/ltr_gui.pro
+ src/helper/Makefile
 ])
 AC_OUTPUT
