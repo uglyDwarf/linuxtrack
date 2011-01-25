@@ -53,11 +53,11 @@ endif
 #lt_client_SOURCES = lt_client.c netcomm.c netcomm.h
 #lt_client_LDADD = -lm -lpthread -ldl -lltr 
 
-include_HEADERS = ltlib.h
+include_HEADERS = linuxtrack.h
 
-#liblinuxtrack_la_SOURCES = ltlib.c ltlib.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
-#liblinuxtrack_la_SOURCES = ltlib.c ltlib.h utils.c utils.h dyn_load.c dyn_load.h
-liblinuxtrack_la_SOURCES = ltlib.c ltlib.h utils.c utils.h ipc_utils.c ipc_utils.h
+#liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
+#liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h dyn_load.c dyn_load.h
+liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h ipc_utils.c ipc_utils.h
 liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
 
@@ -103,12 +103,12 @@ dist_pkgdata_DATA = .linuxtrack 51-TIR.rules
 if XPLANE_PLUGIN
   pkglib_LTLIBRARIES += xlinuxtrack.la xlinuxtrack9.la
   xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
-			    utils.c utils.h ltlib.c ltlib.h ipc_utils.c ipc_utils.h
+			    utils.c utils.h ltlib.c linuxtrack.h ipc_utils.c ipc_utils.h
   xlinuxtrack_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
   xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -m32 -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
   xlinuxtrack_la_LIBADD = -lm -ldl
   xlinuxtrack9_la_SOURCES = xlinuxtrack9.c \
-			    utils.c utils.h ltlib.c ltlib.h ipc_utils.c ipc_utils.h
+			    utils.c utils.h ltlib.c linuxtrack.h ipc_utils.c ipc_utils.h
   xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
   xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC -m32 -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
   xlinuxtrack9_la_LIBADD = -lm -ldl

@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdbool.h>
-#include "ltlib.h"
+#include "linuxtrack.h"
 
 static XPLMHotKeyID		gFreezeKey = NULL;
 static XPLMHotKeyID		gTrackKey = NULL;

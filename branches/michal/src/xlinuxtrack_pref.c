@@ -1,5 +1,5 @@
 #include "xlinuxtrack_pref.h"
-#include <ltlib.h>
+#include <linuxtrack.h>
 #include <assert.h>
 
 struct pref{

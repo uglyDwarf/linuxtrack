@@ -3,7 +3,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <assert.h>
-#include <ltlib.h>
+#include <linuxtrack.h>
 
 int main(int argc, char *argv[]) {
   (void) argc;

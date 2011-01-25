@@ -4,7 +4,7 @@
 #ifndef NEW_CAL__H
 #define NEW_CAL__H
 #include <stdbool.h>
-#include "ltlib.h"
+#include "linuxtrack.h"
 #include "ltlib_int.h"
 
 #ifdef __cplusplus

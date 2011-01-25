@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "ltlib.h"
+#include "linuxtrack.h"
 
 #ifdef __cplusplus
 extern "C" {
