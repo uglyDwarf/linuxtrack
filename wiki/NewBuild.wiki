@@ -12,7 +12,27 @@ Also don't forget that installing it into the tree that is not in your search pa
   
 == Building and installing linuxtrack on Linux==
 
-Lets assume you checked out sources from the repository into 
+First of all, some prerequisities have to installed - find them in your favorite package manager.
+
+They include (names from Ubuntu, in other distros might differ a bit):
+
+{{{
+autotools-dev
+libtool
+libc6-dev-i386 (on amd64 arch)
+gcc-4.4-multilib (amd64 arch)
+gobjc
+libqt4-dev
+libqt4-opengl-dev
+libusb-1.0-0-dev
+libcwiid-dev
+zlib1g-dev
+libv4l-dev
+bison
+flex
+}}}
+
+Now lets assume you checked out sources from the repository into 
 '/home/simmer/linux-track-read-only' using this command
 
 {{{
