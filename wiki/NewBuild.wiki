@@ -13,14 +13,21 @@ Also don't forget that installing it into the tree that is not in your search pa
 == Building and installing linuxtrack on Linux==
 
 Lets assume you checked out sources from the repository into 
-'/home/simmer/linux-track-read-only' and you intend to install it to '/home/simmer/ltr'. You should also install XPlane SDK - if its install path is different from '/usr/include/xplane_sdk' - like '/usr/include/xplane_sdk/XPLM/XPLMCamera.h'.
-(I create a deb package soon to be available to do that). The other option is to use configure option '--with-xplane-sdk'.
+'/home/simmer/linux-track-read-only' using this command
+
+{{{
+cd /home/simmer/
+svn checkout http://linux-track.googlecode.com/svn/branches/michal linux-track-read-only
+}}}
+
+You should also install XPlane SDK (default path is '/usr/include/xplane_sdk' - e.g there is file '/usr/include/xplane_sdk/XPLM/XPLMCamera.h'), or specify option
+'--with-xplane-sdk' (e.g --with-xplane-sdk=/home/simmer/SDK/CHeaders).
 
 If you intend to use TrackIR, you have to download firmware:
 
 http://media.naturalpoint.com/software/external/bulk_config_data.tar.gz
 
-Unpack its contents into the '/home/simmer/linux-track-read-only' directory too.
+Then unpack its contents into the '/home/simmer/linux-track-read-only' directory too.
 
 {{{
 cd /home/simmer/linux-track-read-only
@@ -28,6 +35,8 @@ cd /home/simmer/linux-track-read-only
 make
 make install
 }}}
+
+It is possible that you'll see several warnings about relinking libraries (they happen when you have linuxtrack already installed) and one saying that libltr.la wasn't installed. You can safely ignore that too.
 
 Now linuxtrack is installed along with the gui and you need to make it available...
 Add following to the .bashrc file (I assume your shell is bash)
