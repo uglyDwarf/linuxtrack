@@ -94,7 +94,7 @@ liblinuxtrack_la_OBJECTS = $(am_liblinuxtrack_la_OBJECTS)
 liblinuxtrack_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(liblinuxtrack_la_CFLAGS) \
 	$(CFLAGS) $(liblinuxtrack_la_LDFLAGS) $(LDFLAGS) -o $@
-libltopenusb_la_DEPENDENCIES =
+libltopenusb_la_DEPENDENCIES = libltr.la
 am_libltopenusb_la_OBJECTS = libltopenusb_la-openusb_ifc.lo
 libltopenusb_la_OBJECTS = $(am_libltopenusb_la_OBJECTS)
 libltopenusb_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -116,28 +116,28 @@ libltr_la_OBJECTS = $(am_libltr_la_OBJECTS)
 libltr_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libltr_la_CFLAGS) \
 	$(CFLAGS) $(libltr_la_LDFLAGS) $(LDFLAGS) -o $@
-libltusb1_la_DEPENDENCIES =
+libltusb1_la_DEPENDENCIES = libltr.la
 am_libltusb1_la_OBJECTS = libltusb1_la-libusb_ifc.lo
 libltusb1_la_OBJECTS = $(am_libltusb1_la_OBJECTS)
 libltusb1_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libltusb1_la_CFLAGS) \
 	$(CFLAGS) $(libltusb1_la_LDFLAGS) $(LDFLAGS) -o $@
 @LIBUSB10_TRUE@@LIBZ_TRUE@am_libltusb1_la_rpath = -rpath $(pkglibdir)
-libtir_la_DEPENDENCIES =
+libtir_la_DEPENDENCIES = libltr.la
 am_libtir_la_OBJECTS = tir_hw.lo tir_img.lo tir_driver.lo runloop.lo
 libtir_la_OBJECTS = $(am_libtir_la_OBJECTS)
 libtir_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(libtir_la_LDFLAGS) $(LDFLAGS) -o $@
 @LIBZ_TRUE@am_libtir_la_rpath = -rpath $(pkglibdir)
-libwc_la_DEPENDENCIES =
+libwc_la_DEPENDENCIES = libltr.la
 am_libwc_la_OBJECTS = libwc_la-webcam_driver.lo libwc_la-runloop.lo
 libwc_la_OBJECTS = $(am_libwc_la_OBJECTS)
 libwc_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(libwc_la_CFLAGS) $(CFLAGS) \
 	$(libwc_la_LDFLAGS) $(LDFLAGS) -o $@
 @V4L2_TRUE@am_libwc_la_rpath = -rpath $(pkglibdir)
-libwii_la_DEPENDENCIES =
+libwii_la_DEPENDENCIES = libltr.la
 am_libwii_la_OBJECTS = libwii_la-wiimote_driver.lo \
 	libwii_la-runloop.lo
 libwii_la_OBJECTS = $(am_libwii_la_OBJECTS)
@@ -177,7 +177,7 @@ PROGRAMS = $(bin_PROGRAMS)
 am_ltr_server_OBJECTS = ltr_server-ltr_server.$(OBJEXT) \
 	ltr_server-ipc_utils.$(OBJEXT) ltr_server-utils.$(OBJEXT)
 ltr_server_OBJECTS = $(am_ltr_server_OBJECTS)
-ltr_server_DEPENDENCIES =
+ltr_server_DEPENDENCIES = libltr.la
 ltr_server_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ltr_server_CFLAGS) \
 	$(CFLAGS) $(ltr_server_LDFLAGS) $(LDFLAGS) -o $@
@@ -353,14 +353,14 @@ pkglib_LTLIBRARIES = libltr.la $(am__append_1) $(am__append_2) \
 	$(am__append_6)
 ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
 ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
-ltr_server_LDADD = -lpthread -lltr
+ltr_server_LDADD = -lpthread libltr.la
 ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG}
 
 #bin_PROGRAMS = lt_server lt_client
 #lt_server_SOURCES = lt_server.c netcomm.c netcomm.h
-#lt_server_LDADD = -lm -lpthread -ldl -lltr 
+#lt_server_LDADD = -lm -lpthread -ldl libltr.la 
 #lt_client_SOURCES = lt_client.c netcomm.c netcomm.h
-#lt_client_LDADD = -lm -lpthread -ldl -lltr 
+#lt_client_LDADD = -lm -lpthread -ldl libltr.la 
 include_HEADERS = linuxtrack.h
 
 #liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
@@ -380,27 +380,27 @@ libltr_la_LIBADD = -lm -lpthread -ldl
 libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' $(LINUXFLAGS) ${TIGER_LDFLAG}
 libltr_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 #libtir4_la_SOURCES = tir4_driver.c tir4_driver.h new_cal.c new_cal.h
-#libtir4_la_LIBADD = -lusb  -lltr
+#libtir4_la_LIBADD = -lusb  libltr.la
 libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
 
-libtir_la_LIBADD = -lz -lltr
+libtir_la_LIBADD = -lz libltr.la
 libtir_la_LDFLAGS = -export-symbols "${srcdir}/tir.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
 libltusb1_la_SOURCES = libusb_ifc.c usb_ifc.h
 libltusb1_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
-libltusb1_la_LIBADD = -lusb-1.0 -lltr
+libltusb1_la_LIBADD = -lusb-1.0 libltr.la
 libltusb1_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS)
 libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
 libltopenusb_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
-libltopenusb_la_LIBADD = -lopenusb -lltr
+libltopenusb_la_LIBADD = -lopenusb libltr.la
 libltopenusb_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS)
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
 libwii_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
-libwii_la_LIBADD = -lcwiid -lltr
+libwii_la_LIBADD = -lcwiid libltr.la
 libwii_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
-libwc_la_LIBADD = -lltr -lv4l2
+libwc_la_LIBADD = libltr.la -lv4l2
 libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
 dist_pkgdata_DATA = .linuxtrack 51-TIR.rules
 @XPLANE_PLUGIN_TRUE@xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \

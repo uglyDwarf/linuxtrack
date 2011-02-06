@@ -21,7 +21,7 @@ bin_PROGRAMS = ltr_server
 
 ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
 ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
-ltr_server_LDADD = -lpthread -lltr
+ltr_server_LDADD = -lpthread libltr.la
 ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG}
 
 if CWIID
@@ -49,9 +49,9 @@ endif
 
 #bin_PROGRAMS = lt_server lt_client
 #lt_server_SOURCES = lt_server.c netcomm.c netcomm.h
-#lt_server_LDADD = -lm -lpthread -ldl -lltr 
+#lt_server_LDADD = -lm -lpthread -ldl libltr.la 
 #lt_client_SOURCES = lt_client.c netcomm.c netcomm.h
-#lt_client_LDADD = -lm -lpthread -ldl -lltr 
+#lt_client_LDADD = -lm -lpthread -ldl libltr.la 
 
 include_HEADERS = linuxtrack.h
 
@@ -72,30 +72,30 @@ libltr_la_LIBADD = -lm -lpthread -ldl
 libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' $(LINUXFLAGS) ${TIGER_LDFLAG}
 libltr_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 #libtir4_la_SOURCES = tir4_driver.c tir4_driver.h new_cal.c new_cal.h
-#libtir4_la_LIBADD = -lusb  -lltr
+#libtir4_la_LIBADD = -lusb  libltr.la
 
 libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
-libtir_la_LIBADD = -lz -lltr
+libtir_la_LIBADD = -lz libltr.la
 libtir_la_LDFLAGS = -export-symbols "${srcdir}/tir.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
 
 libltusb1_la_SOURCES = libusb_ifc.c usb_ifc.h
 libltusb1_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
-libltusb1_la_LIBADD = -lusb-1.0 -lltr
+libltusb1_la_LIBADD = -lusb-1.0 libltr.la
 libltusb1_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS)
 libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
 libltopenusb_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
-libltopenusb_la_LIBADD = -lopenusb -lltr
+libltopenusb_la_LIBADD = -lopenusb libltr.la
 libltopenusb_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS)
 
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
 libwii_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
-libwii_la_LIBADD = -lcwiid -lltr
+libwii_la_LIBADD = -lcwiid libltr.la
 libwii_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
 
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
-libwc_la_LIBADD = -lltr -lv4l2
+libwc_la_LIBADD = libltr.la -lv4l2
 libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
 
 dist_pkgdata_DATA = .linuxtrack 51-TIR.rules
