@@ -1,0 +1,102 @@
+#summary Description of linuxtrack interface.
+
+= Introduction =
+
+This page describes linuxtrack inteface, that allows building in hadtracking capability to any program.
+
+= Details =
+
+Linuxtrack interface is pretty simple:
+
+{{{
+typedef enum {
+  RUNNING,
+  PAUSED,
+  STOPPED,
+  DOWN
+}ltr_state_type;
+
+int ltr_init(char *cust_section);
+int ltr_shutdown(void);
+int ltr_suspend(void);
+int ltr_wakeup(void);
+void ltr_recenter(void);
+int ltr_get_camera_update(float *heading,
+                         float *pitch,
+                         float *roll,
+                         float *tx,
+                         float *ty,
+                         float *tz,
+                         unsigned int *counter);
+ltr_state_type ltr_get_tracking_state(void);
+void ltr_log_message(const char *format, ...);
+}}}
+
+Lets describe its functions in a more detailed way:
+
+{{{
+int ltr_init(char *cust_section);
+}}}
+This function initializes headtracking.
+
+Parameter _cust_section_ is a pointer to a string containing name of the profile to be used by the application.
+ 
+This way user can customize the headtracking for each application separately.
+
+If NULL is specified, default parameters are used.
+
+It is recomended to use unique string (like name of your application) to prevent clashes.
+
+Returns zero on success, nonzero value otherwise.
+----
+{{{
+int ltr_shutdown(void);
+int ltr_suspend(void);
+int ltr_wakeup(void);
+void ltr_recenter(void);
+}}}
+
+These functions allow you to shutdown, suspend (temporarily stop), wakeup (from suspend) and recenter the tracker.
+
+They are non-blocking, which means that the request will not be fulfilled upon return, but it will be carried out as soon as possible.
+
+To check the current state, please use *ltr_get_tracking_state* function.
+----
+{{{
+int ltr_get_camera_update(float *heading,
+                         float *pitch,
+                         float *roll,
+                         float *tx,
+                         float *ty,
+                         float *tz,
+                         unsigned int *counter);
+}}}
+
+This is the main function of the linuxtrack interface.
+
+Its parameters are pointers to floats, that will contain corresponding rotations and translations upon successfull return.
+
+The counter parameter is pointer to the int, that receives current camera frame number.
+
+Returns zero on success, nonzero value otherwise.
+----
+{{{
+typedef enum {
+  RUNNING,
+  PAUSED,
+  STOPPED,
+  DOWN
+}ltr_state_type;
+
+ltr_state_type ltr_get_tracking_state(void);
+}}}
+
+This function returns current linuxtrack state - RUNNING means tracking is on, PAUSED means tracking is suspended, 
+
+STOPPED means tracker is shut down and finally DOWN means that tracking was not initialized yet.
+----
+{{{
+void ltr_log_message(const char *format, ...);
+}}}
+
+This is utility function, allowing you to log messages to the linuxtrack logfile. Its usage is similar to the printf function.
