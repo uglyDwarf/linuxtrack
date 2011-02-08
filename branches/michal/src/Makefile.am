@@ -5,6 +5,7 @@ if DARWIN
   LEOPARD_CFLAG = -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5
   LEOPARD_LDFLAG = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 -headerpad_max_install_names
   DARWINFLAGS = -undefined dynamic_lookup
+  LIBLINUXTRACK_FLAGS = -fno-common -DPIC
   SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
   QMAKE_FLAGS = -spec macx-g++
 else
@@ -12,7 +13,7 @@ else
   LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
   SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
   QMAKE_FLAGS = -spec linux-g++
-  
+  LIBLINUXTRACK_FLAGS = -fpic -fPIC
 endif
 
 lib_LTLIBRARIES = liblinuxtrack.la
@@ -58,7 +59,7 @@ include_HEADERS = linuxtrack.h
 #liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
 #liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h dyn_load.c dyn_load.h
 liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h ipc_utils.c ipc_utils.h
-liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) $(LIBLINUXTRACK_FLAGS) 
 liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
 
 libltr_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
