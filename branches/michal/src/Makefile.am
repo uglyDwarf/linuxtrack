@@ -13,9 +13,9 @@ else
   QMAKE_FLAGS = -spec macx-g++
 endif
 else
-  AM_CFLAGS = -L/lib32 -L/usr/lib32
+  AM_CFLAGS = 
   LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
-  SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
+  SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1 -L/lib32 -L/usr/lib32
   QMAKE_FLAGS = -spec linux-g++
   LIBLINUXTRACK_FLAGS = -fpic -fPIC
 endif
