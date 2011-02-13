@@ -7,9 +7,13 @@ if DARWIN
   DARWINFLAGS = -undefined dynamic_lookup
   LIBLINUXTRACK_FLAGS = -fno-common -DPIC
   SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
-  QMAKE_FLAGS = -spec macx-g++
+if SNOW_LEOPARD
+  QMAKE_FLAGS = -spec macx-g++40
 else
-  AM_CFLAGS = 
+  QMAKE_FLAGS = -spec macx-g++
+endif
+else
+  AM_CFLAGS = -L/lib32 -L/usr/lib32
   LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
   SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
   QMAKE_FLAGS = -spec linux-g++
@@ -106,12 +110,12 @@ if XPLANE_PLUGIN
   xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
 			    utils.c utils.h ltlib.c linuxtrack.h ipc_utils.c ipc_utils.h
   xlinuxtrack_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
-  xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -m32 -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
+  xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
   xlinuxtrack_la_LIBADD = -lm -ldl
   xlinuxtrack9_la_SOURCES = xlinuxtrack9.c \
 			    utils.c utils.h ltlib.c linuxtrack.h ipc_utils.c ipc_utils.h
   xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
-  xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC -m32 -L/lib32 -L/usr/lib32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
+  xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
   xlinuxtrack9_la_LIBADD = -lm -ldl
 endif
 

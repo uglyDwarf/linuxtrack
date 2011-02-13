@@ -10,6 +10,14 @@ BIN_DIR=ltr_gui.app/Contents/MacOS
 HELPER_DIR=ltr_gui.app/Contents/helper
 WII_SRVR_DIR=
 export MACOSX_DEPLOYMENT_TARGET=10.4
+
+OS_NUM=$(sw_vers -productVersion | sed -E 's/\.[0-9]+$//')
+if test x${OS_NUM} = x10.6; then
+  export CC=gcc-4.0
+  export CXX=g++-4.0
+  export CPP=cpp-4.0
+  export OBJC=gcc-4.0
+fi;
 ##Build libusb-1.0
 if [ -f ${PREFIX}/lib/libusb-1.0.dylib ]; then
   echo 'Libusb-1.0 already exists!'
@@ -29,7 +37,11 @@ pushd michal
 autoreconf -if
 export CFLAGS="-I${PREFIX}/include "
 export LDFLAGS="-L${PREFIX}/lib "
-./configure --prefix=${PREFIX} --with-xplane-sdk=${BASE}/SDK/CHeaders>/dev/null
+if test x${OS_NUM} = x10.6; then
+  ./configure --prefix=${PREFIX} --with-xplane-sdk=${BASE}/SDK/CHeaders --enable-snow-leopard >/dev/null
+else
+  ./configure --prefix=${PREFIX} --with-xplane-sdk=${BASE}/SDK/CHeaders >/dev/null
+fi;
 make>build.log
 make install>install.log
 

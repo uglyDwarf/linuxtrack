@@ -29,16 +29,16 @@ sg_cam_OBJCFLAGS = ${AM_CFLAGS} ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 
 libmacwc_la_SOURCES = macwebcam_driver.c com_proc.c com_proc.h ../runloop.c ../runloop.h \
   ../ipc_utils.h ../ipc_utils.c
-libmacwc_la_CFLAGS = ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
+libmacwc_la_CFLAGS = ${AM_CFLAGS} ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 libmacwc_la_LIBADD = -lltr
-libmacwc_la_LDFLAGS = -export-symbols ../drivers.sym ${TIGER_LDFLAG}
+libmacwc_la_LDFLAGS = -export-symbols ../drivers.sym ${AM_CFLAGS} ${TIGER_LDFLAG}
 
 libmacwii_la_SOURCES = macwii_driver.c wii_com.c wii_com.h com_proc.c com_proc.h \
   ../runloop.c ../runloop.h ../wii_driver_prefs.c ../wii_driver_prefs.h \
   ../ipc_utils.c ../ipc_utils.h
-libmacwii_la_CFLAGS = ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
+libmacwii_la_CFLAGS = ${AM_CFLAGS} ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 libmacwii_la_LIBADD = -lltr
-libmacwii_la_LDFLAGS = -export-symbols ../drivers.sym ${TIGER_LDFLAG}
+libmacwii_la_LDFLAGS = -export-symbols ../drivers.sym ${AM_CFLAGS} ${TIGER_LDFLAG}
 
 WiiServer_SOURCES = com_proc.c com_proc.h wii_com.c wii_com.h wiimote.m wiimote.h \
   wiimote_server.m wiimote_server.h wiisrvr_main.m ../ipc_utils.c ../ipc_utils.h

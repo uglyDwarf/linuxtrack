@@ -76,6 +76,14 @@ AC_ARG_ENABLE([xplane_plugin],
             ]
 )
 
+AC_ARG_ENABLE([snow_leopard],
+            [AS_HELP_STRING([--enable-snow-leopard],
+              [specify that you are building on MacOSX 10.6])], 
+            [with_snow_leopard=yes],
+            [with_snow_leopard=no]
+)
+
+
 AS_IF([case $host_os in darwin*) true;; *) false;; esac],
   [    
     AC_DEFINE([DARWIN], [], [We are on Darwin])
@@ -94,6 +102,7 @@ AM_CONDITIONAL(XPLANE_PLUGIN, [test x$with_xplane_plugin = xyes])
 AM_CONDITIONAL(CWIID, [test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes])
 AM_CONDITIONAL(V4L2, [test x$with_v4l2 = xyes])
 AM_CONDITIONAL(DARWIN, [test x$with_darwin = xyes])
+AM_CONDITIONAL(SNOW_LEOPARD, [test x$with_snow_leopard = xyes])
 AM_CONDITIONAL(LIBUSB, [test "x$ac_cv_lib_usb_usb_open" = xyes])
 AM_CONDITIONAL(LIBUSB10, [test "x$ac_cv_lib_usb_1_0_libusb_init" = xyes])
 AM_CONDITIONAL(OPENUSB, [test  "x$ac_cv_lib_openusb_openusb_init" = xyes])
