@@ -2,7 +2,7 @@
 
 = Introduction =
 
-This page describes linuxtrack inteface, that allows building in hadtracking capability to any program.
+This page describes linuxtrack inteface, that allows building in headtracking capability to any program.
 
 = Details =
 
