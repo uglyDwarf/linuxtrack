@@ -53,9 +53,9 @@ dev_found ltr_int_find_tir(unsigned int devid)
 
   for(i = 0; i < cnt; i++){
     libusb_device *device = list[i];
-    if(is_tir(device, 0x0157)){
+    if(is_tir(device, 0x0158)){
       found = device;
-      dev = TIR5;
+      dev = TIR5V2;
       break;
     }
   }
@@ -63,10 +63,21 @@ dev_found ltr_int_find_tir(unsigned int devid)
   if(!found){
     for(i = 0; i < cnt; i++){
       libusb_device *device = list[i];
-      if(is_tir(device, 0x0156)){
+      if(is_tir(device, 0x0157)){
 	found = device;
-	dev = TIR4;
+	dev = TIR5;
 	break;
+      }
+    }
+  }
+
+  if(!found){
+    for(i = 0; i < cnt; i++){
+      libusb_device *device = list[i];
+      if(is_tir(device, 0x0156)){
+        found = device;
+        dev = TIR4;
+        break;
       }
     }
   }

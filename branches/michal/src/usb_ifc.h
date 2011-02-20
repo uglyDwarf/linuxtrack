@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-typedef enum {NONE = 0, TIR4, TIR5} dev_found;
+typedef enum {NONE = 0, TIR4, TIR5, TIR5V2} dev_found;
 
 #ifndef USB_IMPL_ONLY
 typedef bool (*init_usb_fun)();

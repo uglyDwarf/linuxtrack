@@ -181,6 +181,9 @@ static bool load_firmware(firmware_t *fw, const char data_path[])
     case TIR5:
       fw_path = ltr_int_my_strcat(data_path, "/tir5.fw.gz");
       break;
+    case TIR5V2:
+      fw_path = ltr_int_my_strcat(data_path, "/tir5v2.fw.gz");
+      break;
     default:
       ltr_int_log_message("Unknown device!\n");
       return false;
@@ -275,7 +278,7 @@ static bool turn_led_on_tir(unsigned char leds)
 
 static bool flush_fifo_tir()
 {
-  if(device == TIR5){
+  if((device == TIR5)||(device == TIR5V2)){
     usleep(100000);
   }
   return ltr_int_send_data(Fifo_flush,sizeof(Fifo_flush));
@@ -498,7 +501,7 @@ static bool init_camera_tir4(const char data_path[], bool force_fw_load, bool p_
 	return false;
       }
     }
-    if(device == TIR5){
+    if((device == TIR5)||(device == TIR5V2)){
       ltr_int_send_data(Set_ir_brightness,sizeof(Set_ir_brightness));
       set_exposure(0x18F);
     }
@@ -509,7 +512,7 @@ static bool init_camera_tir4(const char data_path[], bool force_fw_load, bool p_
   }
   
   
-  if(device == TIR5){
+  if((device == TIR5)||(device == TIR5V2)){
     ltr_int_send_data(Precision_mode,sizeof(Precision_mode));
   }
   
@@ -590,6 +593,7 @@ bool ltr_int_open_tir(const char data_path[], bool force_fw_load, bool ir_on)
       tir_iface = &tir4;
       break;
     case TIR5:
+    case TIR5V2:
       tir_iface = &tir5;
       break;
     default:

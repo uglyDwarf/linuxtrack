@@ -134,6 +134,7 @@ int ltr_int_tir_found()
       res = 4;
       break;
     case TIR5:
+    case TIR5V2:
       res = 5;
       break;
     default:
