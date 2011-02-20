@@ -5,13 +5,13 @@ if DARWIN
   LEOPARD_CFLAG = -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5
   LEOPARD_LDFLAG = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 -headerpad_max_install_names
   DARWINFLAGS = -undefined dynamic_lookup
-  LIBLINUXTRACK_FLAGS = -fno-common -DPIC
   SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
 if SNOW_LEOPARD
   QMAKE_FLAGS = -spec macx-g++40
 else
   QMAKE_FLAGS = -spec macx-g++
 endif
+
 else
   AM_CFLAGS = 
   LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
@@ -58,11 +58,14 @@ endif
 #lt_client_SOURCES = lt_client.c netcomm.c netcomm.h
 #lt_client_LDADD = -lm -lpthread -ldl libltr.la 
 
+linuxtrack.c : linuxtrack_pre.c linuxtrack.h utils.h ipc_utils.h utils.c ipc_utils.c ltlib.c ltlib.h
+	cat linuxtrack_pre.c utils.h ipc_utils.h ltlib.h utils.c ipc_utils.c ltlib.c > linuxtrack.c
+
 include_HEADERS = linuxtrack.h
 
 #liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
 #liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h dyn_load.c dyn_load.h
-liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h ipc_utils.c ipc_utils.h
+liblinuxtrack_la_SOURCES = linuxtrack.c linuxtrack.h utils.h ipc_utils.h
 liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) $(LIBLINUXTRACK_FLAGS) 
 liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
 
@@ -108,12 +111,11 @@ dist_pkgdata_DATA = .linuxtrack 51-TIR.rules
 if XPLANE_PLUGIN
   pkglib_LTLIBRARIES += xlinuxtrack.la xlinuxtrack9.la
   xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
-			    utils.c utils.h ltlib.c linuxtrack.h ipc_utils.c ipc_utils.h
+			    linuxtrack.c
   xlinuxtrack_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
   xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
   xlinuxtrack_la_LIBADD = -lm -ldl
-  xlinuxtrack9_la_SOURCES = xlinuxtrack9.c \
-			    utils.c utils.h ltlib.c linuxtrack.h ipc_utils.c ipc_utils.h
+  xlinuxtrack9_la_SOURCES = xlinuxtrack9.c linuxtrack.c
   xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
   xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
   xlinuxtrack9_la_LIBADD = -lm -ldl
@@ -129,11 +131,13 @@ clean-local: clean-local-check
 .PHONY: clean-local-check
 clean-local-check:
 	-cd qt_gui;make clean
+	rm -f linuxtrack.c
 
 distclean-local: distclean-local-check
 .PHONY: distclean-local-check
 distclean-local-check:
 	-cd qt_gui;make distclean
+	rm -f linuxtrack.c
 
 noinst_SCRIPTS = qt_gui/ltr_gui
 

@@ -2,10 +2,12 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <unistd.h>
-#include "cal.h"
 #include "ltlib_int.h"
-#include "ipc_utils.h"
-#include "utils.h"
+
+#ifndef LIBLINUXTRACK_SRC
+  #include "ipc_utils.h"
+  #include "utils.h"
+#endif
 
 static int fd;
 static char tmp_fname[] = "/tmp/ltrXXXXXX";

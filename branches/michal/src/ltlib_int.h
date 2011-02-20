@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "ltlib.h"
 #include "linuxtrack.h"
 
 #ifdef __cplusplus
@@ -10,16 +11,6 @@ extern "C" {
 #endif
 
 typedef void (*ltr_callback_t)(void *);
-
-typedef enum{RUN_CMD, PAUSE_CMD, STOP_CMD, NOP_CMD} ltr_cmd;
-struct ltr_comm{
-  ltr_cmd cmd;
-  bool recenter;
-  ltr_state_type state;
-  float heading, pitch, roll;
-  float tx, ty, tz;
-  uint32_t counter;
-};
 
 int ltr_int_init(char *cust_section);
 int ltr_int_shutdown(void);

@@ -2,7 +2,6 @@
   #include <config.h>
 #endif
 
-#include <utils.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdarg.h>
@@ -13,48 +12,16 @@
 #include <ctype.h>
 #include <time.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #define IOCTL_RETRY_COUNT 5
 
+#ifndef LIBLINUXTRACK_SRC
 static char *pref_file = ".linuxtrack";
+#endif
+
 static const char *default_logfile = "/tmp/linuxtrack.log";
 static const char *logfile = NULL;
-
-void* ltr_int_my_malloc(size_t size)
-{
-  void *ptr = malloc(size);
-  if(ptr == NULL){
-    ltr_int_log_message("Can't malloc memory! %s\n", strerror(errno));
-    assert(0);
-    exit(1);
-  }
-  return ptr;
-}
-
-char* ltr_int_my_strdup(const char *s)
-{
-  char *ptr = strdup(s);
-  if(ptr == NULL){
-    ltr_int_log_message("Can't strdup! %s\n", strerror(errno));
-    exit(1);
-  }
-  return ptr;
-}
-
-void ltr_int_set_logfile_name(const char *fname)
-{
-  assert(logfile == NULL);
-  assert(fname != NULL);
-  logfile = fname;
-}
-
-void ltr_int_log_message(const char *format, ...)
-{
-  va_list ap;
-  va_start(ap,format);
-  ltr_int_valog_message(format, ap);
-  va_end(ap);
-}
 
 void ltr_int_valog_message(const char *format, va_list va)
 {
@@ -79,6 +46,44 @@ void ltr_int_valog_message(const char *format, va_list va)
   fflush(stderr);
 }
 
+void ltr_int_log_message(const char *format, ...)
+{
+  va_list ap;
+  va_start(ap,format);
+  ltr_int_valog_message(format, ap);
+  va_end(ap);
+}
+
+
+
+void* ltr_int_my_malloc(size_t size)
+{
+  void *ptr = malloc(size);
+  if(ptr == NULL){
+    ltr_int_log_message("Can't malloc memory! %s\n", strerror(errno));
+    assert(0);
+    exit(1);
+  }
+  return ptr;
+}
+
+char* ltr_int_my_strdup(const char *s)
+{
+  char *ptr = strdup(s);
+  if(ptr == NULL){
+    ltr_int_log_message("Can't strdup! %s\n", strerror(errno));
+    exit(1);
+  }
+  return ptr;
+}
+
+#ifndef LIBLINUXTRACK_SRC
+void ltr_int_set_logfile_name(const char *fname)
+{
+  assert(logfile == NULL);
+  assert(fname != NULL);
+  logfile = fname;
+}
 
 int ltr_int_my_ioctl(int d, int request, void *argp)
 {
@@ -207,3 +212,4 @@ char *ltr_int_get_lib_path(const char *libname)
   return lib_path;
 }
 
+#endif

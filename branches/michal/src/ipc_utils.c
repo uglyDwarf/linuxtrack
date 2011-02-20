@@ -11,8 +11,11 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
-#include "ipc_utils.h"
-#include "utils.h"
+
+#ifndef LIBLINUXTRACK_SRC
+  #include "ipc_utils.h"
+  #include "utils.h"
+#endif
 
 static pid_t child;
 
@@ -27,6 +30,7 @@ bool fork_child(char *args[])
   return true;
 }
 
+#ifndef LIBLINUXTRACK_SRC
 bool wait_child_exit(int limit)
 {
   pid_t res;
@@ -44,18 +48,20 @@ bool wait_child_exit(int limit)
     return false;
   }
 }
+#endif
 
 struct semaphore_t{
   int fd;
 }semaphore_t;
 
-semaphore_p semaphoreFromFd(int fd)
+static semaphore_p semaphoreFromFd(int fd)
 {
   semaphore_p res = (semaphore_p)ltr_int_my_malloc(sizeof(semaphore_t));
   res->fd = fd;
   return res;
 }
 
+#ifndef LIBLINUXTRACK_SRC
 semaphore_p createSemaphore(char *fname)
 {
   if(fname == NULL){
@@ -68,6 +74,7 @@ semaphore_p createSemaphore(char *fname)
   }
   return semaphoreFromFd(fd);
 }
+#endif
 
 bool lockSemaphore(semaphore_p semaphore)
 {
@@ -83,6 +90,7 @@ bool lockSemaphore(semaphore_p semaphore)
 }
 
 
+#ifndef LIBLINUXTRACK_SRC
 bool tryLockSemaphore(semaphore_p semaphore)
 {
   if(semaphore == NULL){
@@ -95,7 +103,7 @@ bool tryLockSemaphore(semaphore_p semaphore)
     return false;
   }
 }
-
+#endif
 
 bool unlockSemaphore(semaphore_p semaphore)
 {
@@ -110,12 +118,13 @@ bool unlockSemaphore(semaphore_p semaphore)
   }
 }
 
+#ifndef LIBLINUXTRACK_SRC
 void closeSemaphore(semaphore_p semaphore)
 {
   close(semaphore->fd);
   free(semaphore);
 }
-
+#endif
 
 bool mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
 {
@@ -156,6 +165,7 @@ bool mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
   return true;
 }
 
+#ifndef LIBLINUXTRACK_SRC
 bool unmap_file(struct mmap_s *m)
 {
   if(m->data == NULL){
@@ -172,6 +182,7 @@ bool unmap_file(struct mmap_s *m)
   }
   return res == 0;
 }
+#endif
 
 //the fname argument should end with XXXXXX;
 //  it is also modified by the call to contain the actual filename.
@@ -183,10 +194,11 @@ int open_tmp_file(char *fname)
   return mkstemp(fname);
 }
 
+#ifndef LIBLINUXTRACK_SRC
 //Closes and removes the file...
 void close_tmp_file(char *fname, int fd)
 {
   unlink(fname);
   close(fd);
 }
-
+#endif
