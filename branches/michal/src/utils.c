@@ -16,9 +16,7 @@
 
 #define IOCTL_RETRY_COUNT 5
 
-#ifndef LIBLINUXTRACK_SRC
 static char *pref_file = ".linuxtrack";
-#endif
 
 static const char *default_logfile = "/tmp/linuxtrack.log";
 static const char *logfile = NULL;
@@ -113,6 +111,8 @@ void ltr_int_strlower(char *s)
   }
 }
 
+#endif 
+
 char *ltr_int_my_strcat(const char *str1, const char *str2)
 {
   size_t len1 = strlen(str1);
@@ -173,6 +173,9 @@ char *ltr_int_get_app_path(const char *suffix)
   ltr_int_log_message("Couldn't find prefix!\n");
   return NULL;
 }
+
+#ifndef LIBLINUXTRACK_SRC
+
 
 #ifndef DARWIN
   #define DATA_PATH "/../share/linuxtrack/"

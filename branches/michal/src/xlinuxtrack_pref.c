@@ -1,6 +1,7 @@
 #include "xlinuxtrack_pref.h"
 #include <linuxtrack.h>
 #include <assert.h>
+#include <errno.h>
 
 struct pref{
   int start_stop;
@@ -9,14 +10,25 @@ struct pref{
 
 static char *pref_file = ".xplaneltr";
 
+void* my_malloc(size_t size)
+{
+  void *ptr = malloc(size);
+  if(ptr == NULL){
+    ltr_log_message("Can't malloc memory! %s\n", strerror(errno));
+    assert(0);
+    exit(1);
+  }
+  return ptr;
+}
+
 char *xltr_get_pref_file_name()
 {
   char *home = getenv("HOME");
   if(home == NULL){
-    ltr_int_log_message("Please set HOME variable!\n");
+    ltr_log_message("Please set HOME variable!\n");
     return NULL;
   }
-  char *pref_path = (char *)ltr_int_my_malloc(strlen(home) 
+  char *pref_path = (char *)my_malloc(strlen(home) 
                     + strlen(pref_file) + 2);
   sprintf(pref_path, "%s/%s", home, pref_file);
   return pref_path;
@@ -125,7 +137,7 @@ int xltr_get_pref(struct pref *p, enum pref_id id)
       return p->pause;
       break;
     default:
-      ltr_int_log_message("XLinuxtrack_pref: wrong pref ID: %d\n", id);
+      ltr_log_message("XLinuxtrack_pref: wrong pref ID: %d\n", id);
       return -1;
       break;
   }
@@ -133,7 +145,7 @@ int xltr_get_pref(struct pref *p, enum pref_id id)
 
 struct pref *xltr_new_pref()
 {
-  struct pref *p = ltr_int_my_malloc(sizeof(struct pref));
+  struct pref *p = my_malloc(sizeof(struct pref));
   xltr_reset_pref(p);
   return p;
 }
