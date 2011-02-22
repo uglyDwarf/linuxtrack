@@ -11,8 +11,9 @@
 static QString currentId = QString("None");
 static QString currentSection = QString();
 static int tirType = 0;
+bool TirPrefs::firmwareOK = false;
 
-typedef int (*probe_tir_fun_t)();
+typedef int (*probe_tir_fun_t)(bool *have_firmware);
 static probe_tir_fun_t probe_tir_fun = NULL;
 static lib_fun_def_t functions[] = {
   {(char *)"ltr_int_tir_found", (void*) &probe_tir_fun},
@@ -20,12 +21,12 @@ static lib_fun_def_t functions[] = {
 };
 
 
-static int probeTir()
+static int probeTir(bool &fwOK)
 {
   void *libhandle = NULL;
   int res = 0;
   if((libhandle = ltr_int_load_library((char *)"libtir", functions)) != NULL){
-    res = probe_tir_fun();
+    res = probe_tir_fun(&fwOK);
     ltr_int_unload_library(libhandle, functions);
   }
   return res;
@@ -46,25 +47,21 @@ void TirPrefs::Connect()
     this, SLOT(on_TirIrBright_valueChanged(int)));
   QObject::connect(gui.TirSignalizeStatus, SIGNAL(stateChanged(int)),
     this, SLOT(on_TirSignalizeStatus_stateChanged(int)));
+  QObject::connect(gui.TirInstallFirmware, SIGNAL(pressed()),
+    this, SLOT(on_TirInstallFirmware_pressed()));
 }
 
 TirPrefs::TirPrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
 {
   Connect();
+  dlfw = NULL;
 }
 
 TirPrefs::~TirPrefs()
 {
-}
-
-static bool haveFirmware()
-{
-  if(QFile::exists(PrefProxy::getDataPath("tir4.fw.gz")) && 
-     QFile::exists(PrefProxy::getDataPath("tir5.fw.gz"))){
-    return true;
-  }else{
-    std::cout<<"Can't locate "<<PrefProxy::getDataPath("tir4.fw.gz").toAscii().data()<<std::endl;
-    return false;
+  if(dlfw != NULL){
+    dlfw ->close();
+    delete dlfw;
   }
 }
 
@@ -103,8 +100,9 @@ bool TirPrefs::Activate(const QString &ID, bool init)
   Qt::CheckState state = (ltr_int_tir_get_status_indication()) ? 
                           Qt::Checked : Qt::Unchecked;
   gui.TirSignalizeStatus->setCheckState(state);
-  if(haveFirmware()){
+  if(firmwareOK){
     gui.TirFwLabel->setText("Firmware found!");
+    gui.TirInstallFirmware->setDisabled(true);
   }else{
     gui.TirFwLabel->setText("Firmware not found - TrackIr will not work!");
   }
@@ -129,7 +127,7 @@ bool TirPrefs::AddAvailableDevices(QComboBox &combo)
   deviceType_t dt;
   bool tir_selected = false;
   
-  tirType = probeTir();
+  tirType = probeTir(firmwareOK);
   if(tirType == 0){
     return res;
   }
@@ -179,4 +177,28 @@ void TirPrefs::on_TirIrBright_valueChanged(int i)
 void TirPrefs::on_TirSignalizeStatus_stateChanged(int state)
 {
   if(!initializing) ltr_int_tir_set_status_indication(state == Qt::Checked);
+}
+
+void TirPrefs::on_TirFirmwareDLFinished(bool state)
+{
+  if(state){
+    dlfw->hide();
+    probeTir(firmwareOK);    
+    if(firmwareOK){
+      gui.TirFwLabel->setText("Firmware found!");
+      gui.TirInstallFirmware->setDisabled(true);
+    }else{
+      gui.TirFwLabel->setText("Firmware not found - TrackIr will not work!");
+    }
+  }
+}
+
+void TirPrefs::on_TirInstallFirmware_pressed()
+{
+  if(dlfw == NULL){
+    dlfw = new dlfwGui();
+    QObject::connect(dlfw, SIGNAL(finished(bool)),
+      this, SLOT(on_TirFirmwareDLFinished(bool)));
+  }
+  dlfw->show();
 }

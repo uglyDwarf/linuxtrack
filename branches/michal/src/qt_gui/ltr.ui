@@ -88,7 +88,7 @@
               <item>
                <widget class="QStackedWidget" name="DeviceSetupStack">
                 <property name="currentIndex">
-                 <number>4</number>
+                 <number>2</number>
                 </property>
                 <widget class="QWidget" name="LinuxWebcamPrefs">
                  <layout class="QVBoxLayout" name="verticalLayout">
@@ -399,11 +399,24 @@
                 <widget class="QWidget" name="TirPrefs">
                  <layout class="QVBoxLayout" name="verticalLayout_16">
                   <item>
-                   <layout class="QVBoxLayout" name="verticalLayout_15">
+                   <layout class="QHBoxLayout" name="horizontalLayout_23">
                     <item>
                      <widget class="QLabel" name="TirFwLabel">
                       <property name="text">
                        <string>TrackIr firmware path</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="TirInstallFirmware">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string>Install</string>
                       </property>
                      </widget>
                     </item>

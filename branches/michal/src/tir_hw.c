@@ -161,10 +161,9 @@ static bool read_rom_data_tir()
 
 
 
-static bool load_firmware(firmware_t *fw, const char data_path[])
+static bool load_firmware(firmware_t *fw)
 {
   assert(fw != NULL);
-  assert(data_path != NULL);
   gzFile *f;
   unsigned int tsize = FW_SIZE_INCREMENT;
   unsigned char *tbuf = ltr_int_my_malloc(tsize);
@@ -173,22 +172,7 @@ static bool load_firmware(firmware_t *fw, const char data_path[])
   size_t *size = &(fw->size);
   *size = 0;
   
-  char *fw_path;
-  switch(device){
-    case TIR4:
-      fw_path = ltr_int_my_strcat(data_path, "/tir4.fw.gz");
-      break;
-    case TIR5:
-      fw_path = ltr_int_my_strcat(data_path, "/tir5.fw.gz");
-      break;
-    case TIR5V2:
-      fw_path = ltr_int_my_strcat(data_path, "/tir5v2.fw.gz");
-      break;
-    default:
-      ltr_int_log_message("Unknown device!\n");
-      return false;
-      break;
-  }
+  char *fw_path = ltr_int_find_firmware(device);
   ltr_int_log_message("Loading firmware '%s'\n", fw_path);
   f = gzopen(fw_path, "rb");
   if(f == NULL){
@@ -455,7 +439,7 @@ bool start_camera_tir()
 }
 
 
-static bool init_camera_tir4(const char data_path[], bool force_fw_load, bool p_ir_on)
+static bool init_camera_tir4(bool force_fw_load, bool p_ir_on)
 {
   tir_status_t status;
   size_t t;
@@ -476,7 +460,7 @@ static bool init_camera_tir4(const char data_path[], bool force_fw_load, bool p_
     return false;
   }
   firmware_t firmware;
-  if(!load_firmware(&firmware, data_path)){
+  if(!load_firmware(&firmware)){
     ltr_int_log_message("Error loading firmware!\n");
     return false;
   }
@@ -522,7 +506,7 @@ static bool init_camera_tir4(const char data_path[], bool force_fw_load, bool p_
 
 
 
-static bool init_camera_tir5(const char data_path[], bool force_fw_load, bool p_ir_on)
+static bool init_camera_tir5(bool force_fw_load, bool p_ir_on)
 {
   (void) force_fw_load;
   tir_status_t status;
@@ -536,7 +520,7 @@ static bool init_camera_tir5(const char data_path[], bool force_fw_load, bool p_
   set_exposure(0x18F);
   read_status_tir(&status);
   firmware_t firmware;
-  if(!load_firmware(&firmware, data_path)){
+  if(!load_firmware(&firmware)){
     ltr_int_log_message("Error loading firmware!\n");
     return false;
   }
@@ -566,13 +550,13 @@ static bool init_camera_tir5(const char data_path[], bool force_fw_load, bool p_
   return true;
 }
 
-bool init_camera_tir(const char data_path[], bool force_fw_load, bool p_ir_on)
+bool init_camera_tir(bool force_fw_load, bool p_ir_on)
 {
   assert(tir_iface != NULL);
-  return tir_iface->init_camera_tir(data_path, force_fw_load, p_ir_on);
+  return tir_iface->init_camera_tir(force_fw_load, p_ir_on);
 }
 
-bool ltr_int_open_tir(const char data_path[], bool force_fw_load, bool ir_on)
+bool ltr_int_open_tir(bool force_fw_load, bool ir_on)
 {
   if(!ltr_int_init_usb()){
     ltr_int_log_message("Init failed!\n");
@@ -601,7 +585,7 @@ bool ltr_int_open_tir(const char data_path[], bool force_fw_load, bool ir_on)
       return false;
       break;
   }
-  if(!init_camera_tir(data_path, force_fw_load, ir_on)){
+  if(!init_camera_tir(force_fw_load, ir_on)){
     return false;
   }
   start_camera_tir();
@@ -710,6 +694,28 @@ static void switch_ir(bool state)
   }
 }
 */
+
+char *ltr_int_find_firmware(dev_found device)
+{
+  const char *fw_file;
+  switch(device){
+    case TIR4:
+      fw_file = "tir4.fw.gz";
+      break;
+    case TIR5:
+      fw_file = "tir5.fw.gz";
+      break;
+    case TIR5V2:
+      fw_file = "tir5v2.fw.gz";
+      break;
+    default:
+      ltr_int_log_message("Unknown device!\n");
+      return false;
+      break;
+  }
+  char *fw_path = ltr_int_get_resource_path("tir_firmware", fw_file);
+  return fw_path;
+}
 
 static tir_interface tir4 = {
   .stop_camera_tir = stop_camera_tir4,

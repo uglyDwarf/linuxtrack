@@ -46,6 +46,7 @@ class PrefProxy{
   void announceModelChange();
   static QString getDataPath(QString file);
   static QString getLibPath(QString file);
+  static QString getRsrcDirPath();
  private:
   bool checkPrefix();
 };

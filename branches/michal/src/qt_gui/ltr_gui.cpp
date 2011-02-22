@@ -28,8 +28,8 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   initialized(false)
 {
   ui.setupUi(this);
-  QString target = QDir::homePath() + "/.linuxtrack";
-  if(!QFile::exists(target)){
+  QString target = PrefProxy::getRsrcDirPath() + "/linuxtrack.conf";
+  if(!QFileInfo(target).isReadable()){
     on_DefaultsButton_pressed();
   }
   wcp = new WebcamPrefs(ui);
@@ -66,14 +66,6 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
 
 LinuxtrackGui::~LinuxtrackGui()
 {
-  delete showWindow;
-  delete wcp;
-  delete wiip;
-  delete tirp;
-  delete me;
-  delete sc;
-  delete helper;
-  PrefProxy::ClosePrefs();
 }
 
 void LinuxtrackGui::closeEvent(QCloseEvent *event)
@@ -95,6 +87,14 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   helper->close();
   sc->close();
   lv->close();
+  delete wcp;
+  delete wiip;
+  delete tirp;
+  delete showWindow;
+  delete me;
+  delete sc;
+  delete helper;
+  PrefProxy::ClosePrefs();
   event->accept();
 }
 
@@ -191,12 +191,27 @@ void LinuxtrackGui::on_ViewLogButton_pressed()
 
 void LinuxtrackGui::on_DefaultsButton_pressed()
 {
-  QString target = QDir::homePath() + "/.linuxtrack";
-  QString source = PrefProxy::getDataPath(".linuxtrack");
-  std::cout<<"Going to copy "<<source.toAscii().data();
-  std::cout<<" to "<<target.toAscii().data()<<std::endl;
-  QFile::rename(target, target + ".backup");
-  QFile::copy(source, target);
+  QString targetDir = PrefProxy::getRsrcDirPath();
+  if(targetDir.endsWith("/")){
+    targetDir.chop(1);
+  }
+  QString target = targetDir + "/linuxtrack.conf";
+  QString source = PrefProxy::getDataPath("linuxtrack.conf");
+  if(QFileInfo(targetDir).isFile()){//old setup
+    QFile::rename(targetDir, targetDir + ".backup");
+    QDir::home().mkpath(targetDir);
+    QFile::rename(targetDir + ".backup", target);
+  }else if(QFileInfo(targetDir).isDir()){
+    QFileInfo conf(target);
+    if(!conf.isFile()){
+      QFile::copy(source, target);
+    }
+  }else{
+    QDir::home().mkdir(".linuxtrack");
+    QFile::copy(source, target);
+  }
+//  std::cout<<"Going to copy "<<source.toAscii().data();
+//  std::cout<<" to "<<target.toAscii().data()<<std::endl;
   on_DiscardChangesButton_pressed();
 }
 

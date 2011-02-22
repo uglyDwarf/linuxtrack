@@ -16,7 +16,7 @@
 
 #define IOCTL_RETRY_COUNT 5
 
-static char *pref_file = ".linuxtrack";
+static char *pref_file = "linuxtrack.conf";
 
 static const char *default_logfile = "/tmp/linuxtrack.log";
 static const char *logfile = NULL;
@@ -126,6 +126,7 @@ char *ltr_int_my_strcat(const char *str1, const char *str2)
 char *ltr_int_get_default_file_name(char *fname)
 {
   char *home = getenv("HOME");
+  char *pref_dir = ".linuxtrack";
   if(home == NULL){
     ltr_int_log_message("Please set HOME variable!\n");
     return NULL;
@@ -134,8 +135,8 @@ char *ltr_int_get_default_file_name(char *fname)
     fname = pref_file;
   }
   char *pref_path = (char *)ltr_int_my_malloc(strlen(home) 
-                    + strlen(fname) + 2);
-  sprintf(pref_path, "%s/%s", home, fname);
+                    + strlen(fname) + strlen(pref_dir) + 2);
+  sprintf(pref_path, "%s/%s/%s", home, pref_dir, fname);
   return pref_path;
 }
 
@@ -213,6 +214,26 @@ char *ltr_int_get_lib_path(const char *libname)
     free(app_path);
     free(lib_path1);
   return lib_path;
+}
+
+char *ltr_int_get_resource_path(const char *section, const char *rsrc)
+{
+  char *rsrc_path = (char *)ltr_int_my_malloc(strlen(section) + strlen(rsrc) + 3);
+  sprintf(rsrc_path, "/%s/%s", section, rsrc);
+  char *path = ltr_int_get_default_file_name(rsrc_path);
+  FILE *f = fopen(path, "rb");
+  if(f != NULL){
+    fclose(f);
+    free(rsrc_path);
+    return path;
+  }
+  path = ltr_int_get_data_path(rsrc);
+  fopen(path, "rb");
+  if(f != NULL){
+    fclose(f);
+    return path;
+  }
+  return NULL;
 }
 
 #endif

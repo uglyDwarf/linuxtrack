@@ -15,8 +15,6 @@
 #include "utils.h"
 #include "tir_driver_prefs.h"
 
-const char *storage_path = NULL;
-
 init_usb_fun ltr_int_init_usb = NULL;
 find_tir_fun ltr_int_find_tir = NULL;
 prepare_device_fun ltr_int_prepare_device = NULL;
@@ -54,10 +52,9 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
   if(!ltr_int_tir_init_prefs()){
     return -1;
   }
-  storage_path = ltr_int_get_data_path("");
 
   ltr_int_log_message("Lib loaded, prefs read...\n");
-  if(ltr_int_open_tir(storage_path, false, !ltr_int_is_model_active())){
+  if(ltr_int_open_tir(false, !ltr_int_is_model_active())){
     float tf;
     ltr_int_get_res_tir(&(ccb->pixel_width), &(ccb->pixel_height), &tf);
     ltr_int_prepare_for_processing(ccb->pixel_width, ccb->pixel_height);
@@ -120,7 +117,7 @@ int ltr_int_tracker_close()
   return res;
 }
 
-int ltr_int_tir_found()
+int ltr_int_tir_found(bool *have_firmware)
 {
   if((libhandle = ltr_int_load_library((char *)"libltusb1", functions)) == NULL){
     return 0;
@@ -129,17 +126,27 @@ int ltr_int_tir_found()
     return 0;
   }
   int res = 0;
-  switch(ltr_int_find_tir()){
+  dev_found device = ltr_int_find_tir();
+  switch(device){
     case TIR4:
       res = 4;
       break;
     case TIR5:
+      res = 5;
+      break;
     case TIR5V2:
       res = 5;
       break;
     default:
       res = 0;
       break;
+  }
+  char *fw = ltr_int_find_firmware(device);
+  if(fw != NULL){
+    free(fw);
+    *have_firmware = true;
+  }else{
+    *have_firmware = false;
   }
   ltr_int_finish_usb(-1);
   ltr_int_unload_library(libhandle, functions);

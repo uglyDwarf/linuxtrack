@@ -10,6 +10,7 @@
 #include <QStringList>
 #include <QApplication>
 #include <QMessageBox>
+#include <QDir>
 #include <iostream>
 
 PrefProxy *PrefProxy::prf = NULL;
@@ -336,6 +337,11 @@ QString PrefProxy::getLibPath(QString file)
 #else
   return appPath + "/../Frameworks/" + file + ".0.dylib";
 #endif
+}
+
+QString PrefProxy::getRsrcDirPath()
+{
+  return QDir::homePath() + "/.linuxtrack/";
 }
 
 bool PrefProxy::rereadPrefs()

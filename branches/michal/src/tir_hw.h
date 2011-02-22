@@ -1,6 +1,8 @@
 #ifndef TIRHW__H
 #define TIRHW__H
 
+#include "usb_ifc.h"
+
 #define TIR_LED_RED    0x10
 #define TIR_LED_GREEN  0x20
 #define TIR_LED_BLUE   0x40
@@ -9,10 +11,11 @@
 extern unsigned char ltr_int_packet[4096];
 
 void ltr_int_get_res_tir(unsigned int *w, unsigned int *h, float *hf);
+char *ltr_int_find_firmware(dev_found device);
 
 typedef bool (*stop_camera_tir_fun)();
 typedef bool (*start_camera_tir_fun)();
-typedef bool (*init_camera_tir_fun)(const char data_path[], bool force_fw_load, bool p_ir_on);
+typedef bool (*init_camera_tir_fun)(bool force_fw_load, bool p_ir_on);
 typedef void (*get_res_tir_fun)(unsigned int *w, unsigned int *h, float *hf);
 typedef bool (*close_camera_tir_fun)();
 typedef bool (*set_status_led_tir_fun)(bool state);
@@ -29,7 +32,7 @@ typedef struct {
 //extern tir_interface tir4;
 //extern tir_interface tir5;
 
-bool ltr_int_open_tir(const char data_path[], bool force_fw_load, bool ir_on);
+bool ltr_int_open_tir(bool force_fw_load, bool ir_on);
 void ltr_int_get_res_tir();
 bool ltr_int_pause_tir();
 bool ltr_int_resume_tir();

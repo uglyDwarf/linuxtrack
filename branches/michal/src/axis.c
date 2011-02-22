@@ -350,7 +350,7 @@ bool ltr_int_get_axis(enum axis_t id, struct axis_def *axis)
       }
     }else{
       string = ltr_int_get_key(NULL, field_name);
-      if(strcasecmp(string, "No") != 0){
+      if((string == NULL) || (strcasecmp(string, "No") != 0)){
         axis->enabled = true;
       }else{
         axis->enabled = false;
