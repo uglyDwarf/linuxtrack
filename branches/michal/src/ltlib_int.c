@@ -8,7 +8,7 @@
 #include "ltlib_int.h"
 
 static pthread_t cal_thread;
-static ltr_callback_t ltr_new_frame_cbk = NULL;
+static ltr_new_frame_callback_t ltr_new_frame_cbk = NULL;
 static void *ltr_new_frame_cbk_param = NULL;
 
 static int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
@@ -16,7 +16,7 @@ static int frame_callback(struct camera_control_block *ccb, struct frame_type *f
   (void)ccb;
   ltr_int_update_pose(frame);
   if(ltr_new_frame_cbk != NULL){
-    ltr_new_frame_cbk(ltr_new_frame_cbk_param);
+    ltr_new_frame_cbk(frame, ltr_new_frame_cbk_param);
   }
   return 0;
 }
@@ -60,8 +60,8 @@ int ltr_int_get_camera_update(float *heading,
   return ltr_int_tracking_get_camera(heading, pitch,roll, tx, ty, tz, counter);
 }
 
-void ltr_int_register_cbk(ltr_callback_t new_frame_cbk, void *param1,
-                          ltr_callback_t status_change_cbk, void *param2)
+void ltr_int_register_cbk(ltr_new_frame_callback_t new_frame_cbk, void *param1,
+                          ltr_status_update_callback_t status_change_cbk, void *param2)
 {
   ltr_new_frame_cbk = new_frame_cbk;
   ltr_new_frame_cbk_param = param1;

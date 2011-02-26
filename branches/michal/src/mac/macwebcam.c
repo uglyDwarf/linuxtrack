@@ -21,10 +21,10 @@ int main(int argc, char *argv[])
     int x, y;
     getRes(&x, &y);
     // Double buffer...
-    if(mmap_file(getMapFileName(), get_com_size() + x * y, &mmm)){
+    if(ltr_int_mmap_file(getMapFileName(), get_com_size() + x * y, &mmm)){
       setCommand(&mmm, WAKEUP);
       capture(&mmm);
-      unmap_file(&mmm);
+      ltr_int_unmap_file(&mmm);
     }else{
       fprintf(stderr, "Can't mmap!\n");
       return EXIT_FAILURE;

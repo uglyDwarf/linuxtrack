@@ -19,7 +19,7 @@
 
 static pid_t child;
 
-bool fork_child(char *args[])
+bool ltr_int_fork_child(char *args[])
 {
   if((child = fork()) == 0){
     //Child here
@@ -31,7 +31,7 @@ bool fork_child(char *args[])
 }
 
 #ifndef LIBLINUXTRACK_SRC
-bool wait_child_exit(int limit)
+bool ltr_int_wait_child_exit(int limit)
 {
   pid_t res;
   int status;
@@ -48,13 +48,38 @@ bool wait_child_exit(int limit)
     return false;
   }
 }
+
+semaphore_p ltr_int_server_running_already(char *lockName)
+{
+  char *lockFile;
+  semaphore_p pfSem;
+  lockFile = ltr_int_get_default_file_name(lockName);
+  if(lockFile == NULL){
+    ltr_int_log_message("Can't determine pref file path!\n");
+    return NULL;
+  }
+  pfSem = ltr_int_createSemaphore(lockFile);
+  if(pfSem == NULL){
+    ltr_int_log_message("Can't create semaphore!");
+    return NULL;
+  }
+  if(ltr_int_tryLockSemaphore(pfSem) == false){
+    ltr_int_closeSemaphore(pfSem);
+    pfSem= NULL;
+    ltr_int_log_message("Can't lock - server runs already!\n");
+    return NULL;
+  }
+  return pfSem;
+}
+
+
 #endif
 
 struct semaphore_t{
   int fd;
 }semaphore_t;
 
-static semaphore_p semaphoreFromFd(int fd)
+static semaphore_p ltr_int_semaphoreFromFd(int fd)
 {
   semaphore_p res = (semaphore_p)ltr_int_my_malloc(sizeof(semaphore_t));
   res->fd = fd;
@@ -62,7 +87,7 @@ static semaphore_p semaphoreFromFd(int fd)
 }
 
 #ifndef LIBLINUXTRACK_SRC
-semaphore_p createSemaphore(char *fname)
+semaphore_p ltr_int_createSemaphore(char *fname)
 {
   if(fname == NULL){
     return NULL;
@@ -72,11 +97,11 @@ semaphore_p createSemaphore(char *fname)
     perror("open: ");
     return NULL;
   }
-  return semaphoreFromFd(fd);
+  return ltr_int_semaphoreFromFd(fd);
 }
 #endif
 
-bool lockSemaphore(semaphore_p semaphore)
+bool ltr_int_lockSemaphore(semaphore_p semaphore)
 {
   if(semaphore == NULL){
     return false;
@@ -91,7 +116,7 @@ bool lockSemaphore(semaphore_p semaphore)
 
 
 #ifndef LIBLINUXTRACK_SRC
-bool tryLockSemaphore(semaphore_p semaphore)
+bool ltr_int_tryLockSemaphore(semaphore_p semaphore)
 {
   if(semaphore == NULL){
     return false;
@@ -105,7 +130,7 @@ bool tryLockSemaphore(semaphore_p semaphore)
 }
 #endif
 
-bool unlockSemaphore(semaphore_p semaphore)
+bool ltr_int_unlockSemaphore(semaphore_p semaphore)
 {
   if(semaphore == NULL){
     return false;
@@ -119,16 +144,17 @@ bool unlockSemaphore(semaphore_p semaphore)
 }
 
 #ifndef LIBLINUXTRACK_SRC
-void closeSemaphore(semaphore_p semaphore)
+void ltr_int_closeSemaphore(semaphore_p semaphore)
 {
   close(semaphore->fd);
   free(semaphore);
 }
 #endif
 
-bool mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
+bool ltr_int_mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
 {
   m->fname = ltr_int_my_strdup(fname);
+  umask(S_IWGRP | S_IWOTH);
   int fd = open(fname, O_RDWR | O_CREAT | O_NOFOLLOW, 0700);
   if(fd < 0){
     perror("open: ");
@@ -160,45 +186,50 @@ bool mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
     return false;
   }
 //  close(fd);
-  m->sem = semaphoreFromFd(fd);
+  m->sem = ltr_int_semaphoreFromFd(fd);
   m->sem->fd = fd;
   return true;
 }
 
 #ifndef LIBLINUXTRACK_SRC
-bool unmap_file(struct mmap_s *m)
+bool ltr_int_unmap_file(struct mmap_s *m)
 {
   if(m->data == NULL){
     return true;
   }
-  closeSemaphore(m->sem);
+  ltr_int_closeSemaphore(m->sem);
   if(m->fname != NULL){
     free(m->fname);
     m->fname = NULL;
   }
   int res = munmap(m->data, m->size);
+  m->data = NULL;
+  m->size = 0;
   if(res < 0){
     perror("munmap: ");
   }
   return res == 0;
 }
-#endif
 
 //the fname argument should end with XXXXXX;
 //  it is also modified by the call to contain the actual filename.
 //
 //Returns opened file descriptor
-int open_tmp_file(char *fname)
+int ltr_int_open_tmp_file(char *fname)
 {
   umask(S_IWGRP | S_IWOTH);
   return mkstemp(fname);
 }
 
-#ifndef LIBLINUXTRACK_SRC
 //Closes and removes the file...
-void close_tmp_file(char *fname, int fd)
+void ltr_int_close_tmp_file(char *fname, int fd)
 {
   unlink(fname);
   close(fd);
 }
 #endif
+
+char *ltr_int_get_com_file_name()
+{
+  return ltr_int_get_default_file_name("linuxtrack.comm");
+}

@@ -107,7 +107,7 @@ ltr_state_type ltr_int_cal_get_state();
 void ltr_int_cal_set_state(ltr_state_type new_state);
 void ltr_int_change_state(enum ltr_request_t new_req);
 enum ltr_request_t ltr_int_get_state_request();
-void ltr_int_set_status_change_cbk(ltr_callback_t status_change_cbk, void *param);
+void ltr_int_set_status_change_cbk(ltr_status_update_callback_t status_change_cbk, void *param);
 
 /* frees the memory allocated to the given frame.  
  * For every frame populated, with cal_populate_frame,

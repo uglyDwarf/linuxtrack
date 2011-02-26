@@ -75,7 +75,7 @@ libltr_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
   ltlib_int.c ltlib_int.h spline.c spline.h axis.c axis.h wii_driver_prefs.c \
   wii_driver_prefs.h tir_driver_prefs.c tir_driver_prefs.h wc_driver_prefs.c \
-  wc_driver_prefs.h
+  wc_driver_prefs.h ipc_utils.c ipc_utils.h
 libltr_la_LIBADD = -lm -lpthread -ldl
 libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' $(LINUXFLAGS) ${TIGER_LDFLAG}
 libltr_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)

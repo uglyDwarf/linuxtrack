@@ -110,7 +110,7 @@ am_libltr_la_OBJECTS = libltr_la-cal.lo libltr_la-list.lo \
 	libltr_la-tracking.lo libltr_la-ltlib_int.lo \
 	libltr_la-spline.lo libltr_la-axis.lo \
 	libltr_la-wii_driver_prefs.lo libltr_la-tir_driver_prefs.lo \
-	libltr_la-wc_driver_prefs.lo
+	libltr_la-wc_driver_prefs.lo libltr_la-ipc_utils.lo
 libltr_la_OBJECTS = $(am_libltr_la_OBJECTS)
 libltr_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libltr_la_CFLAGS) \
@@ -363,7 +363,7 @@ libltr_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
   ltlib_int.c ltlib_int.h spline.c spline.h axis.c axis.h wii_driver_prefs.c \
   wii_driver_prefs.h tir_driver_prefs.c tir_driver_prefs.h wc_driver_prefs.c \
-  wc_driver_prefs.h
+  wc_driver_prefs.h ipc_utils.c ipc_utils.h
 
 libltr_la_LIBADD = -lm -lpthread -ldl
 libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' $(LINUXFLAGS) ${TIGER_LDFLAG}
@@ -672,6 +672,9 @@ libltr_la-tir_driver_prefs.lo: tir_driver_prefs.c
 
 libltr_la-wc_driver_prefs.lo: wc_driver_prefs.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltr_la_CFLAGS) $(CFLAGS) -c -o libltr_la-wc_driver_prefs.lo `test -f 'wc_driver_prefs.c' || echo '$(srcdir)/'`wc_driver_prefs.c
+
+libltr_la-ipc_utils.lo: ipc_utils.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltr_la_CFLAGS) $(CFLAGS) -c -o libltr_la-ipc_utils.lo `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
 
 libltusb1_la-libusb_ifc.lo: libusb_ifc.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltusb1_la_CFLAGS) $(CFLAGS) -c -o libltusb1_la-libusb_ifc.lo `test -f 'libusb_ifc.c' || echo '$(srcdir)/'`libusb_ifc.c

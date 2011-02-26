@@ -16,6 +16,10 @@
 #include <ltr_state.h>
 #include <string.h>
 
+#include <linuxtrack.h>
+#include <ipc_utils.h>
+#include <unistd.h>
+
 QImage *img0;
 QPixmap *pic;
 QWidget *label;
@@ -33,7 +37,7 @@ static bool camViewEnable = true;
 static bool buffer_empty;
 
 extern "C" {
-  int frame_callback(struct camera_control_block *ccb, struct frame_type *frame);
+  void frame_callback(struct frame_type *frame, void *param);
 }
 
 static CaptureThread *ct = NULL;
@@ -63,17 +67,84 @@ void clean_up()
   }
 }
 
+void state_changed(void *param)
+{
+  struct mmap_s *mmm = (struct mmap_s*)param;
+  struct ltr_comm *com = (struct ltr_comm*)mmm->data;
+  if(mmm->data != NULL){
+    ltr_int_lockSemaphore(mmm->sem);
+    com->state = ltr_int_get_tracking_state();
+    ltr_int_unlockSemaphore(mmm->sem);
+  }
+}
+
+void main_loop(char *section)
+{
+  bool recenter = false;
+
+  char *com_file = ltr_int_get_com_file_name();
+  struct mmap_s mmm;
+  if(!ltr_int_mmap_file(com_file, sizeof(struct ltr_comm), &mmm)){
+    ltr_int_log_message("Couldn't mmap file!!!\n");
+    return;
+  }
+  
+  ltr_int_register_cbk(frame_callback, (void*)&mmm, state_changed, (void*)&mmm);
+  if(ltr_int_init(section) != 0){
+    ltr_int_log_message("Not initialized!\n");
+    ltr_int_unmap_file(&mmm);
+    return;
+  }
+  struct ltr_comm *com = (struct ltr_comm*)mmm.data;
+  bool break_flag = false;
+  while(!break_flag){
+    if((com->cmd != NOP_CMD) || com->recenter){
+      ltr_int_lockSemaphore(mmm.sem);
+      ltr_cmd cmd = com->cmd;
+      com->cmd = NOP_CMD;
+      recenter = com->recenter;
+      com->recenter = false;
+      ltr_int_unlockSemaphore(mmm.sem);
+      switch(cmd){
+        case RUN_CMD:
+          ltr_int_wakeup();
+          break;
+        case PAUSE_CMD:
+          ltr_int_suspend();
+          break;
+        case STOP_CMD:
+          ltr_int_shutdown();
+          break_flag = true;
+          break;
+        default:
+          //defensive...
+          break;
+      }
+    }
+    if(recenter){
+      recenter = false;
+      std::cout<<"Recentering!!!"<<std::endl;
+      ltr_int_recenter();
+    }
+    usleep(100000);  //ten times per second...
+  }
+  while(com->state != DOWN){
+    usleep(100000);
+  }
+  ltr_int_unmap_file(&mmm);
+}
+
+
+
 
 void CaptureThread::run()
 {
-  static struct camera_control_block ccb;
-  if(ltr_int_get_device(&ccb) == false){
-    ltr_int_log_message("Can't get device category!\n");
-    return;
+  semaphore_p sem = ltr_int_server_running_already((char *)"ltr_server.lock");
+  if(sem != NULL){
+    ltr_init(NULL);
+    main_loop(NULL);
+    ltr_int_closeSemaphore(sem);
   }
-  ltr_int_init_tracking();
-  ccb.diag = false;
-  ltr_int_cal_run(&ccb, frame_callback);
   buffer_empty = false;
   w = 0;
   h = 0;
@@ -114,22 +185,21 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s)
 LtrGuiForm::~LtrGuiForm()
 {
   if(running){
-    ltr_int_cal_shutdown();
+    ltr_shutdown();
     ct->wait(1000);
   }
   delete glw;
 }
 
 
-int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
+void frame_callback(struct frame_type *frame, void *param)
 {
-  (void) ccb;
+  (void) param;
   if(cnt == 0){
-    ltr_int_recenter_tracking();
+    ltr_recenter();
   }
   ++cnt;
   
-  ltr_int_update_pose(frame);
   scp->updatePitch(ltr_int_orig_pose.pitch);
   scp->updateRoll(ltr_int_orig_pose.roll);
   scp->updateYaw(ltr_int_orig_pose.heading);
@@ -162,7 +232,7 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
     memset(buffer1, 0, w * h);
     frame->bitmap = buffer1;
   }
-  return 0;
+  return;
 }
 
 
@@ -174,24 +244,24 @@ void LtrGuiForm::on_startButton_pressed()
 
 void LtrGuiForm::on_recenterButton_pressed()
 {
-  ltr_int_recenter_tracking();
+  ltr_recenter();
 }
 
 void LtrGuiForm::on_pauseButton_pressed()
 {
-  ltr_int_cal_suspend();
+  ltr_suspend();
 }
 
 void LtrGuiForm::on_wakeButton_pressed()
 {
-  ltr_int_cal_wakeup();
+  ltr_wakeup();
 }
 
 
 void LtrGuiForm::on_stopButton_pressed()
 {
   timer->stop();
-  if(ltr_int_cal_shutdown() == 0){
+  if(ltr_shutdown() == 0){
     ct->wait(1000);
   }
 }

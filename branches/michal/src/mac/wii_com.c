@@ -21,13 +21,13 @@ static int serverRunningAlready()
     ltr_int_log_message("Can't determine pref file path!\n");
     return -1;
   }
-  pfSem = createSemaphore(fullPrefFile);
+  pfSem = ltr_int_createSemaphore(fullPrefFile);
   if(pfSem == NULL){
     ltr_int_log_message("Can't create semaphore!");
     return -1;
   }
-  if(tryLockSemaphore(pfSem) == false){
-    closeSemaphore(pfSem);
+  if(ltr_int_tryLockSemaphore(pfSem) == false){
+    ltr_int_closeSemaphore(pfSem);
     pfSem= NULL;
     ltr_int_log_message("Can't lock - server runs already!\n");
     return 1;
@@ -55,7 +55,7 @@ bool initWiiCom(bool isServer, struct mmap_s **mmm_p)
     ltr_int_log_message("Can't determine contact file path!\n");
     return false;
   }
-  if(!mmap_file(fullContactFile, get_com_size() + 512 * 384, &mmm)){
+  if(!ltr_int_mmap_file(fullContactFile, get_com_size() + 512 * 384, &mmm)){
     ltr_int_log_message("Can't mmap comm file!\n");
     return false;
   }
@@ -67,9 +67,9 @@ bool initWiiCom(bool isServer, struct mmap_s **mmm_p)
 void closeWiiCom()
 {
   setCommand(&mmm, STOP);
-  unmap_file(&mmm);
+  ltr_int_unmap_file(&mmm);
   if(pfSem != NULL){
-    closeSemaphore(pfSem);
+    ltr_int_closeSemaphore(pfSem);
     pfSem= NULL;
   }
   

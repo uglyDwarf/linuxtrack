@@ -5,6 +5,9 @@
 #include <ipc_utils.h>
 #include <ltlib_int.h>
 
+
+
+
 // Safety - if parent dies, we should follow
 void *safety_thread(void *param)
 {
@@ -28,92 +31,97 @@ void start_safety()
   pthread_create(&st, NULL, safety_thread, NULL);
 }
 
+static char *lockName = "ltr_server.lock";
+static semaphore_p pfSem = NULL;
 
-void new_frame(void *param)
+void new_frame(struct frame_type *frame, void *param)
 {
+  (void)frame;
   struct mmap_s *mmm = (struct mmap_s*)param;
   struct ltr_comm *com = mmm->data;
-  lockSemaphore(mmm->sem);
+  ltr_int_lockSemaphore(mmm->sem);
   ltr_int_get_camera_update(&(com->heading), &(com->pitch), &(com->roll), 
                             &(com->tx), &(com->ty), &(com->tz), &(com->counter));
-  unlockSemaphore(mmm->sem);
+  ltr_int_unlockSemaphore(mmm->sem);
 }
 
 void state_changed(void *param)
 {
   struct mmap_s *mmm = (struct mmap_s*)param;
   struct ltr_comm *com = mmm->data;
-  lockSemaphore(mmm->sem);
+  ltr_int_lockSemaphore(mmm->sem);
   com->state = ltr_int_get_tracking_state();
-  unlockSemaphore(mmm->sem);
+  ltr_int_unlockSemaphore(mmm->sem);
 }
 
-char *section = NULL;
-
-void main_loop(struct mmap_s *mmm)
+void main_loop(char *section)
 {
   bool recenter;
-  ltr_int_register_cbk(new_frame, (void*)mmm, state_changed, (void*)mmm);
-  if(ltr_int_init(section) != 0){
-    printf("Initialized!\n");
+
+  char *com_file = ltr_int_get_com_file_name();
+  struct mmap_s mmm;
+  if(!ltr_int_mmap_file(com_file, sizeof(struct ltr_comm), &mmm)){
+    printf("Couldn't mmap file!!!\n");
     return;
   }
-  struct ltr_comm *com = mmm->data;
+  
+  ltr_int_register_cbk(new_frame, (void*)&mmm, state_changed, (void*)&mmm);
+  if(ltr_int_init(section) != 0){
+    printf("Not initialized!\n");
+    ltr_int_unmap_file(&mmm);
+    return;
+  }
+  struct ltr_comm *com = mmm.data;
   bool break_flag = false;
   while(!break_flag){
     if(com->cmd != NOP_CMD){
-      lockSemaphore(mmm->sem);
+      ltr_int_lockSemaphore(mmm.sem);
       ltr_cmd cmd = com->cmd;
       com->cmd = NOP_CMD;
       recenter = com->recenter;
       com->recenter = false;
-      unlockSemaphore(mmm->sem);
+      ltr_int_unlockSemaphore(mmm.sem);
       switch(cmd){
         case RUN_CMD:
-          printf("Run!\n");
           ltr_int_wakeup();
           break;
         case PAUSE_CMD:
-          printf("Pause!\n");
           ltr_int_suspend();
           break;
         case STOP_CMD:
-          printf("Stop!\n");
           ltr_int_shutdown();
           break_flag = true;
           break;
         default:
-          printf("SHIT!!!\n");
           //defensive...
           break;
       }
-      if(recenter){
-        ltr_int_recenter();
-      }
+    }
+    if(recenter){
+      ltr_int_recenter();
     }
     usleep(100000);  //ten times per second...
   }
+  ltr_int_unmap_file(&mmm);
 }
 
 int main(int argc, char *argv[])
 {
-  if(argc < 2){
-    printf("I need filename!\n");
-    return 1;
+  char *section = NULL;
+
+  if(argc > 1){
+    section = argv[1];
+    //Section name
   }
-  if(argc > 2){
-    section = argv[2];
-    //Comm file and section name
-  }
+  ltr_int_set_logfile_name("/tmp/ltr_server.log");
   
   start_safety();
-  struct mmap_s mmm;
-  if(mmap_file(argv[1], sizeof(struct ltr_comm), &mmm)){
-    printf("Have mmap!\n");
-    main_loop(&mmm);
-    unmap_file(&mmm);
+  pfSem = ltr_int_server_running_already(lockName);
+  if(pfSem != NULL){
+    main_loop(section);
+    ltr_int_closeSemaphore(pfSem);
   }
-  printf("Finishing client!\n");
+  printf("Finishing server!\n");
   return 0;
 }
 

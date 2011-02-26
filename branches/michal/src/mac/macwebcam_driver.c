@@ -20,14 +20,14 @@ static bool init_capture(char *prog, char *camera, int w, int h, char *fileName)
   char res_y[16];
   snprintf(res_x, sizeof(res_x), "%d", w);
   snprintf(res_y, sizeof(res_y), "%d", h);
-  if(mmap_file(fileName, get_com_size() + w * h, &mmm)){
+  if(ltr_int_mmap_file(fileName, get_com_size() + w * h, &mmm)){
     setCommand(&mmm, WAKEUP);
     args[0] = prog;
     args[2] = camera;
     args[4] = res_x;
     args[6] = res_y;
     args[8] = fileName;
-    fork_child(args);
+    ltr_int_fork_child(args);
     return true;
   }else{
     return false;
@@ -80,7 +80,7 @@ int ltr_int_tracker_resume()
 int ltr_int_tracker_close()
 {
   setCommand(&mmm, STOP);
-  wait_child_exit(1000);
+  ltr_int_wait_child_exit(1000);
   return 0;
 }
 

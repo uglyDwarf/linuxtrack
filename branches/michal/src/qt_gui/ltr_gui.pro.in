@@ -27,12 +27,13 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            ltr_gui_prefs.cpp tir_prefs.cpp \
            ltr_model.cpp window.cpp glwidget.cpp objreader.cpp ltr_profiles.cpp \
            log_view.cpp ltr_state.cpp ltr_axis.cpp ltr_tracking.cpp scp_form.cpp \
-           scurve.cpp scview.cpp wiimote_prefs.cpp dlfirmware.cpp
+           scurve.cpp scview.cpp wiimote_prefs.cpp dlfirmware.cpp ../ipc_utils.c \
+           ../linuxtrack.c
 
 QMAKE_CXXFLAGS += -DHAVE_CONFIG_H
 
 unix:!macx {
-  LIBS += "-L../.libs" "-L$${LIBDIR}" -lm -lltr \
+  LIBS += "-L../.libs" "-L$${LIBDIR}" -lm -lltr\
            "-Wl,-rpath,$${LIBDIR}"
   
   data.path += @prefix@/share/linuxtrack

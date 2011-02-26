@@ -123,7 +123,7 @@ ltr_state_type ltr_int_cal_get_state()
   return ltr_int_cal_device_state;
 }
 
-static ltr_callback_t ltr_status_changed_cbk = NULL;
+static ltr_status_update_callback_t ltr_status_changed_cbk = NULL;
 static void *ltr_status_changed_cbk_param = NULL;
 
 void ltr_int_cal_set_state(ltr_state_type new_state)
@@ -139,7 +139,7 @@ void ltr_int_change_state(enum ltr_request_t new_req)
   request = new_req;
 }
 
-void ltr_int_set_status_change_cbk(ltr_callback_t status_change_cbk, void *param)
+void ltr_int_set_status_change_cbk(ltr_status_update_callback_t status_change_cbk, void *param)
 {
   ltr_status_changed_cbk = status_change_cbk;
   ltr_status_changed_cbk_param = param;

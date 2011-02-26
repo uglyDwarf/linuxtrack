@@ -135,7 +135,7 @@ char *ltr_int_get_default_file_name(char *fname)
     fname = pref_file;
   }
   char *pref_path = (char *)ltr_int_my_malloc(strlen(home) 
-                    + strlen(fname) + strlen(pref_dir) + 2);
+                    + strlen(fname) + strlen(pref_dir) + 3);
   sprintf(pref_path, "%s/%s/%s", home, pref_dir, fname);
   return pref_path;
 }

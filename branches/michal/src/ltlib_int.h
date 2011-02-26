@@ -10,7 +10,9 @@
 extern "C" {
 #endif
 
-typedef void (*ltr_callback_t)(void *);
+struct frame_type;
+typedef void (*ltr_new_frame_callback_t)(struct frame_type *frame, void *);
+typedef void (*ltr_status_update_callback_t)(void *);
 
 int ltr_int_init(char *cust_section);
 int ltr_int_shutdown(void);
@@ -25,8 +27,8 @@ int ltr_int_get_camera_update(float *heading,
                          float *tz,
                          unsigned int *counter);
 ltr_state_type ltr_int_get_tracking_state(void);
-void ltr_int_register_cbk(ltr_callback_t new_frame_cbk, void *param1,
-                          ltr_callback_t status_change_cbk, void *param2);
+void ltr_int_register_cbk(ltr_new_frame_callback_t new_frame_cbk, void *param1,
+                          ltr_status_update_callback_t status_change_cbk, void *param2);
 
 #ifdef __cplusplus
 }
