@@ -100,7 +100,7 @@ void main_loop(char *section)
   while(!break_flag){
     if((com->cmd != NOP_CMD) || com->recenter){
       ltr_int_lockSemaphore(mmm.sem);
-      ltr_cmd cmd = com->cmd;
+      ltr_cmd cmd = (ltr_cmd)com->cmd;
       com->cmd = NOP_CMD;
       recenter = com->recenter;
       com->recenter = false;

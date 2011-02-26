@@ -7,9 +7,9 @@
 
 typedef enum{RUN_CMD, PAUSE_CMD, STOP_CMD, NOP_CMD} ltr_cmd;
 struct ltr_comm{
-  ltr_cmd cmd;
-  bool recenter;
-  ltr_state_type state;
+  uint8_t cmd;
+  uint8_t recenter;
+  uint8_t state;
   float heading, pitch, roll;
   float tx, ty, tz;
   uint32_t counter;
