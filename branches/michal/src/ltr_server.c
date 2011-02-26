@@ -6,19 +6,27 @@
 #include <ltlib_int.h>
 
 
-
+bool dead_man_button_pressed = false;
 
 // Safety - if parent dies, we should follow
 void *safety_thread(void *param)
 {
   (void)param;
+  int counter = 0;
   printf("Safety thread started!\n");
   while(1){
-    if(getppid() == 1){
-      printf("Parent died!\n");
-      //check the state and try shutdown first...
-      //Spawn third one with timed exit, in case of HW fubar (deadlock,...)?
-      exit(0);
+    if(dead_man_button_pressed){
+      dead_man_button_pressed = false;
+      counter = 0;
+    }else{
+      if(counter > 10){
+        ltr_int_log_message("No response for too long, exiting...");
+        ltr_int_shutdown();
+        sleep(3);
+        printf("Server exiting!\n");
+        exit(1);
+      }
+      ++counter;
     }
     sleep(1);
   }
@@ -74,6 +82,8 @@ void main_loop(char *section)
   struct ltr_comm *com = mmm.data;
   bool break_flag = false;
   while(!break_flag){
+    dead_man_button_pressed = com->dead_man_button;
+    com->dead_man_button = false;
     if(com->cmd != NOP_CMD){
       ltr_int_lockSemaphore(mmm.sem);
       ltr_cmd cmd = com->cmd;

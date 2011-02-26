@@ -13,6 +13,7 @@ struct ltr_comm{
   float heading, pitch, roll;
   float tx, ty, tz;
   uint32_t counter;
+  uint8_t dead_man_button;
 };
 
 

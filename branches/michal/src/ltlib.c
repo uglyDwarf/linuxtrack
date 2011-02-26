@@ -45,6 +45,7 @@ int ltr_get_camera_update(float *heading,
   struct ltr_comm tmp;
   ltr_int_lockSemaphore(mmm.sem);
   tmp = *com;
+  com->dead_man_button = 1;
   ltr_int_unlockSemaphore(mmm.sem);
   *heading = tmp.heading;
   *pitch = tmp.pitch;
@@ -61,6 +62,7 @@ int ltr_suspend(void)
   struct ltr_comm *com = mmm.data;
   ltr_int_lockSemaphore(mmm.sem);
   com->cmd = PAUSE_CMD;
+  com->dead_man_button = 1;
   ltr_int_unlockSemaphore(mmm.sem);
   return 0;
 }
@@ -70,6 +72,7 @@ int ltr_wakeup(void)
   struct ltr_comm *com = mmm.data;
   ltr_int_lockSemaphore(mmm.sem);
   com->cmd = RUN_CMD;
+  com->dead_man_button = 1;
   ltr_int_unlockSemaphore(mmm.sem);
   return 0;
 }
@@ -79,6 +82,7 @@ int ltr_shutdown(void)
   struct ltr_comm *com = mmm.data;
   ltr_int_lockSemaphore(mmm.sem);
   com->cmd = STOP_CMD;
+  com->dead_man_button = 1;
   ltr_int_unlockSemaphore(mmm.sem);
   return 0;
 }
@@ -88,6 +92,7 @@ void ltr_recenter(void)
   struct ltr_comm *com = mmm.data;
   ltr_int_lockSemaphore(mmm.sem);
   com->recenter = true;
+  com->dead_man_button = 1;
   ltr_int_unlockSemaphore(mmm.sem);
 }
 
@@ -97,6 +102,7 @@ ltr_state_type ltr_get_tracking_state(void)
   struct ltr_comm *com = mmm.data;
   ltr_int_lockSemaphore(mmm.sem);
   state = com->state;
+  com->dead_man_button = 1;
   ltr_int_unlockSemaphore(mmm.sem);
   return state;
 }
