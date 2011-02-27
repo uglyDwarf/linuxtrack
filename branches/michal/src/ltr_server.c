@@ -6,7 +6,10 @@
 #include <ltlib_int.h>
 
 
-bool dead_man_button_pressed = false;
+static bool dead_man_button_pressed = false;
+static bool all_clients_gone = false;
+static bool active = false;
+static struct mmap_s mmm;
 
 // Safety - if parent dies, we should follow
 void *safety_thread(void *param)
@@ -15,28 +18,48 @@ void *safety_thread(void *param)
   int counter = 0;
   printf("Safety thread started!\n");
   while(1){
-    if(dead_man_button_pressed){
-      dead_man_button_pressed = false;
-      counter = 0;
-    }else{
-      if(counter > 10){
-        ltr_int_log_message("No response for too long, exiting...");
-        ltr_int_shutdown();
-        sleep(3);
-        printf("Server exiting!\n");
-        exit(1);
-      }
-      ++counter;
-    }
     sleep(1);
+    ltr_int_log_message("Safety thread loop executing...\n");
+    struct ltr_comm *com = mmm.data;
+    //PID 1 means INIT process, and it means our parent process died.
+    if(com != NULL){
+      if(getppid() != 1){
+        com->dead_man_button = true;
+        ltr_int_log_message("Pressing DMB!\n");
+      }
+    }else{
+      ltr_int_log_message("Mmap channel not initialized properly!\n");
+      exit(1);
+      break; //mmm.data is NULL, something went wrong!
+    }
+    
+    if(active){
+      ltr_int_log_message("DMB counter %d\n", counter);
+      if(dead_man_button_pressed){
+        ltr_int_log_message("DMB pressed!\n");
+        dead_man_button_pressed = false;
+        counter = 0;
+      }else{
+        if(counter > 10){
+          ltr_int_log_message("No response for too long, exiting...\n");
+          all_clients_gone = true;
+        }
+        ++counter;
+      }
+    }
   }
+  return NULL;
 }
 
 pthread_t st;
 
-void start_safety()
+static void start_safety(bool act)
 {
+  active = act;
   pthread_create(&st, NULL, safety_thread, NULL);
+  if(!active){
+    pthread_join(st, NULL);
+  }
 }
 
 static char *lockName = "ltr_server.lock";
@@ -66,13 +89,6 @@ void main_loop(char *section)
 {
   bool recenter;
 
-  char *com_file = ltr_int_get_com_file_name();
-  struct mmap_s mmm;
-  if(!ltr_int_mmap_file(com_file, sizeof(struct ltr_comm), &mmm)){
-    printf("Couldn't mmap file!!!\n");
-    return;
-  }
-  
   ltr_int_register_cbk(new_frame, (void*)&mmm, state_changed, (void*)&mmm);
   if(ltr_int_init(section) != 0){
     printf("Not initialized!\n");
@@ -80,9 +96,8 @@ void main_loop(char *section)
     return;
   }
   struct ltr_comm *com = mmm.data;
-  bool break_flag = false;
-  while(!break_flag){
-    dead_man_button_pressed = com->dead_man_button;
+  while(1){
+    dead_man_button_pressed |= com->dead_man_button;
     com->dead_man_button = false;
     if(com->cmd != NOP_CMD){
       ltr_int_lockSemaphore(mmm.sem);
@@ -99,8 +114,7 @@ void main_loop(char *section)
           ltr_int_suspend();
           break;
         case STOP_CMD:
-          ltr_int_shutdown();
-          break_flag = true;
+          //we handle stopping through dead man's button
           break;
         default:
           //defensive...
@@ -110,9 +124,23 @@ void main_loop(char *section)
     if(recenter){
       ltr_int_recenter();
     }
+    if(all_clients_gone){
+      break;
+    }
     usleep(100000);  //ten times per second...
   }
-  ltr_int_unmap_file(&mmm);
+  ltr_int_shutdown();
+  int counter = 30;
+  while(1){
+    usleep(100000);  //ten times per second...
+    if(com->state == DOWN){
+      break;
+    }
+    if(--counter <= 0){
+      ltr_int_log_message("Wait for shutdown timed out, exiting anyway...");
+      break;
+    }
+  }
 }
 
 int main(int argc, char *argv[])
@@ -125,12 +153,21 @@ int main(int argc, char *argv[])
   }
   ltr_int_set_logfile_name("/tmp/ltr_server.log");
   
-  start_safety();
+  char *com_file = ltr_int_get_com_file_name();
+  if(!ltr_int_mmap_file(com_file, sizeof(struct ltr_comm), &mmm)){
+    printf("Couldn't mmap file!!!\n");
+    return -1;
+  }
+  
   pfSem = ltr_int_server_running_already(lockName);
   if(pfSem != NULL){
+    start_safety(true);
     main_loop(section);
     ltr_int_closeSemaphore(pfSem);
+  }else{
+    start_safety(false);
   }
+  ltr_int_unmap_file(&mmm);
   printf("Finishing server!\n");
   return 0;
 }
