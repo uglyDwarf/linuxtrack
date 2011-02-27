@@ -16,16 +16,13 @@ void *safety_thread(void *param)
 {
   (void)param;
   int counter = 0;
-  printf("Safety thread started!\n");
   while(1){
     sleep(1);
-    ltr_int_log_message("Safety thread loop executing...\n");
     struct ltr_comm *com = mmm.data;
     //PID 1 means INIT process, and it means our parent process died.
     if(com != NULL){
       if(getppid() != 1){
         com->dead_man_button = true;
-        ltr_int_log_message("Pressing DMB!\n");
       }
     }else{
       ltr_int_log_message("Mmap channel not initialized properly!\n");
@@ -34,9 +31,7 @@ void *safety_thread(void *param)
     }
     
     if(active){
-      ltr_int_log_message("DMB counter %d\n", counter);
       if(dead_man_button_pressed){
-        ltr_int_log_message("DMB pressed!\n");
         dead_man_button_pressed = false;
         counter = 0;
       }else{
@@ -91,7 +86,7 @@ void main_loop(char *section)
 
   ltr_int_register_cbk(new_frame, (void*)&mmm, state_changed, (void*)&mmm);
   if(ltr_int_init(section) != 0){
-    printf("Not initialized!\n");
+    ltr_int_log_message("Not initialized!\n");
     ltr_int_unmap_file(&mmm);
     return;
   }
@@ -168,7 +163,7 @@ int main(int argc, char *argv[])
     start_safety(false);
   }
   ltr_int_unmap_file(&mmm);
-  printf("Finishing server!\n");
+  ltr_int_log_message("Finishing server!\n");
   return 0;
 }
 
