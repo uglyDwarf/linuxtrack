@@ -3,6 +3,7 @@
 #endif
 
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QDir>
@@ -168,11 +169,14 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
     return;
   }
   QString destFile = destPath + "/xlinuxtrack.xpl";
-  if(QFile::exists(destFile)){
+  QFileInfo fi(destFile);
+  if(fi.isFile() || fi.isSymLink()){
     if(!QFile::remove(destFile)){
       warnMessage(QString("Couldn't remove ") + destFile + "!");
       return;
     }
+  }else{
+    std::cout<<destFile.toAscii().data()<<" is not a file!"<<std::endl;
   }
   if(!QFile::link(sourceFile, destFile)){
     warnMessage(QString("Couldn't link ") + sourceFile + " to " + destFile);
