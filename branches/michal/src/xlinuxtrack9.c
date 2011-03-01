@@ -1,5 +1,6 @@
 #define XPLM200
 
+#include "XPLMPlugin.h"
 #include "XPLMGraphics.h"
 #include "XPLMMenus.h"
 #include "XPLMDisplay.h"
@@ -22,6 +23,15 @@ static XPLMDataRef		head_y = NULL;
 static XPLMDataRef		head_z = NULL;
 static XPLMDataRef		head_psi = NULL;
 static XPLMDataRef		head_the = NULL;
+static XPLMDataRef              view = NULL;
+
+static XPLMDataRef PV_Enabled_DR = NULL;
+static XPLMDataRef PV_TIR_X_DR = NULL;
+static XPLMDataRef PV_TIR_Y_DR = NULL;
+static XPLMDataRef PV_TIR_Z_DR = NULL;
+static XPLMDataRef PV_TIR_Pitch_DR = NULL;
+static XPLMDataRef PV_TIR_Heading_DR = NULL;
+static XPLMDataRef PV_TIR_Roll_DR = NULL;
 
 static XPLMMenuID		setupMenu = NULL;
 			
@@ -31,7 +41,10 @@ static bool freeze = false;
 static float base_x;
 static float base_y;
 static float base_z;
+static float base_psi;
+static float base_the;
 static bool active_flag = false;
+static bool pv_present = false;
 
 static XPLMCommandRef run_cmd;
 static XPLMCommandRef pause_cmd;
@@ -108,11 +121,13 @@ PLUGIN_API int XPluginStart(char *outName,
   head_psi = XPLMFindDataRef("sim/graphics/view/pilots_head_psi");
   head_the = XPLMFindDataRef("sim/graphics/view/pilots_head_the");
   
+  view = XPLMFindDataRef("sim/graphics/view/view_type");
+  
   if((head_x==NULL)||(head_y==NULL)||(head_z==NULL)||
      (head_psi==NULL)||(head_the==NULL)){
     return(0);
   }
-  if(ltr_init("Default")!=0){
+  if(ltr_init(NULL)!=0){
     return(0);
   }
   ltr_suspend();
@@ -127,6 +142,7 @@ PLUGIN_API int XPluginStart(char *outName,
   setupMenu = XPLMCreateMenu("LinuxTrack", XPLMFindPluginsMenu(), index, 
                          linuxTrackMenuHandler, NULL);
   XPLMAppendMenuItem(setupMenu, "Setup", (void *)"Setup", 1);
+  
   return(1);
 }
 
@@ -151,9 +167,32 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFromWho,
                                       long inMessage,
                                       void *inParam)
 {
-  (void) inFromWho;
-  (void) inMessage;
-  (void) inParam;
+  if(inFromWho == XPLM_PLUGIN_XPLANE){
+    switch(inMessage){
+      case XPLM_MSG_PLANE_LOADED:
+        if((int)inParam == XPLM_PLUGIN_XPLANE){
+          PV_Enabled_DR = XPLMFindDataRef("sandybarbour/pv/enabled");
+          PV_TIR_X_DR = XPLMFindDataRef("sandybarbour/pv/tir_x");
+          PV_TIR_Y_DR = XPLMFindDataRef("sandybarbour/pv/tir_y");
+          PV_TIR_Z_DR = XPLMFindDataRef("sandybarbour/pv/tir_z");
+          PV_TIR_Pitch_DR = XPLMFindDataRef("sandybarbour/pv/tir_pitch");
+          PV_TIR_Heading_DR = XPLMFindDataRef("sandybarbour/pv/tir_heading");
+          PV_TIR_Roll_DR = XPLMFindDataRef("sandybarbour/pv/tir_roll");
+          
+          if((PV_Enabled_DR == NULL) || (PV_TIR_X_DR == NULL) || 
+             (PV_TIR_Y_DR == NULL) || (PV_TIR_Z_DR == NULL) ||
+             (PV_TIR_Pitch_DR == NULL) || (PV_TIR_Heading_DR == NULL) || 
+             (PV_TIR_Roll_DR == NULL)){
+            pv_present = false;
+          }else{
+            pv_present = true;
+          }
+        }
+        break;
+      default:
+        break;
+    }
+  }
 }
 
 static void activate(void)
@@ -161,19 +200,21 @@ static void activate(void)
 	  active_flag=true;
           pos_init_flag = 1;
 	  freeze = false;
-	  XPLMCommandKeyStroke(xplm_key_forward);
 	  ltr_wakeup();
 }
 
 static void deactivate(void)
 {
-	  active_flag=false;
+	active_flag=false;
+        int current_view = XPLMGetDatai(view);
+        if((!pv_present) && (current_view == 1026)){
           XPLMSetDataf(head_x,base_x);
           XPLMSetDataf(head_y,base_y);
           XPLMSetDataf(head_z,base_z);
-	  XPLMSetDataf(head_psi,0.0f);
-	  XPLMSetDataf(head_the,0.0f);
-	  ltr_suspend();
+	  XPLMSetDataf(head_psi,base_psi);
+	  XPLMSetDataf(head_the,base_the);
+        }
+	ltr_suspend();
 }
 
 static void MyHotKeyCallback(void *inRefcon)
@@ -199,12 +240,19 @@ static int cmd_cbk(XPLMCommandRef       inCommand,
                    XPLMCommandPhase     inPhase,
                    void *               inRefcon)
 {
-    (void) inCommand;
-    //(void) inPhase;
-    //(void) inRefcon;
-
-    if (inPhase == xplm_CommandBegin) {
-        MyHotKeyCallback(inRefcon);
+  (void) inRefcon;
+    if(inPhase == xplm_CommandBegin){
+      if(inCommand == run_cmd){
+        if(active_flag==false){
+          activate();
+        }else{
+          deactivate();
+        }
+      }else if(inCommand == pause_cmd){
+        freeze = (freeze == false)? true : false;
+      }else if(inCommand == recenter_cmd){
+        ltr_recenter();
+      }
     }
     return 1;
 }
@@ -218,42 +266,65 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
   (void) inElapsedTimeSinceLastFlightLoop;
   (void) inCounter;
   (void) inRefcon;
-  if(active_flag){
-    float heading, pitch, roll;
-    float tx, ty, tz;
-    int retval;
-    unsigned int counter;
+  
+  bool view_changed = XPLMGetDatai(view) != 1026;
+
+  if(pos_init_flag){
+    pos_init_flag = 0;
+    base_x = XPLMGetDataf(head_x);
+    base_y = XPLMGetDataf(head_y);
+    base_z = XPLMGetDataf(head_z);
+    base_psi = XPLMGetDataf(head_psi);
+    base_the = XPLMGetDataf(head_the);
+    view_changed = false;
+  }
+  if(PV_Enabled_DR)
+    XPLMSetDatai(PV_Enabled_DR, active_flag);
+  
+  if(!active_flag){
+    return -1.0;
+  }
+
+  float heading = 0.0;
+  float pitch = 0.0;
+  float roll = 0.0;
+  float tx = 0.0;
+  float ty = 0.0;
+  float tz = 0.0;
+  int retval;
+  unsigned int counter;
     
-    retval = ltr_get_camera_update(&heading,&pitch,&roll,
-                                  &tx, &ty, &tz, &counter);
-
-    if (retval < 0) {
-      printf("xlinuxtrack: Error code %d detected!\n", retval);
-      return -1;
-    }
-
-    if(freeze == true){
-      return -1;
-    }
-    
-    tx *= 1e-3;
-    ty *= 1e-3;
-    tz *= 1e-3;
-
-    if(pos_init_flag == 1){
-      pos_init_flag = 0;
-      base_x = XPLMGetDataf(head_x);
-      base_y = XPLMGetDataf(head_y);
-      base_z = XPLMGetDataf(head_z);
-    }
-      
-    XPLMSetDataf(head_x,base_x + tx);
-    XPLMSetDataf(head_y,base_y + ty);
-    XPLMSetDataf(head_z,base_z + tz);
-    XPLMSetDataf(head_psi,heading);
-    XPLMSetDataf(head_the,pitch);
+  retval = ltr_get_camera_update(&heading,&pitch,&roll,
+                                 &tx, &ty, &tz, &counter);
+  
+  if (retval < 0) {
+    printf("xlinuxtrack: Error code %d detected!\n", retval);
+    return -1.0;
   }
   
+  if(freeze == true){
+    return -1.0;
+  }
+  
+  tx *= 1e-3;
+  ty *= 1e-3;
+  tz *= 1e-3;
+  if(pv_present){
+    XPLMSetDataf(PV_TIR_X_DR, tx);
+    XPLMSetDataf(PV_TIR_Y_DR, ty);
+    XPLMSetDataf(PV_TIR_Z_DR, tz);
+    XPLMSetDataf(PV_TIR_Pitch_DR, pitch);
+    XPLMSetDataf(PV_TIR_Heading_DR, heading);
+    XPLMSetDataf(PV_TIR_Roll_DR, roll);
+  }else{
+    if(!view_changed){
+      XPLMSetDataf(head_x,base_x + tx);
+      XPLMSetDataf(head_y,base_y + ty);
+      XPLMSetDataf(head_z,base_z + tz);
+      XPLMSetDataf(head_psi,heading);
+      XPLMSetDataf(head_the,pitch);
+    }
+  }
   return -1.0;
 }                                   
 

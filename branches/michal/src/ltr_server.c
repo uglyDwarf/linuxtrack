@@ -82,7 +82,7 @@ void state_changed(void *param)
 
 void main_loop(char *section)
 {
-  bool recenter;
+  bool recenter = false;
 
   ltr_int_register_cbk(new_frame, (void*)&mmm, state_changed, (void*)&mmm);
   if(ltr_int_init(section) != 0){
@@ -94,7 +94,7 @@ void main_loop(char *section)
   while(1){
     dead_man_button_pressed |= com->dead_man_button;
     com->dead_man_button = false;
-    if(com->cmd != NOP_CMD){
+    if((com->cmd != NOP_CMD) || com->recenter){
       ltr_int_lockSemaphore(mmm.sem);
       ltr_cmd cmd = com->cmd;
       com->cmd = NOP_CMD;
@@ -117,6 +117,7 @@ void main_loop(char *section)
       }
     }
     if(recenter){
+      recenter = false;
       ltr_int_recenter();
     }
     if(all_clients_gone){
