@@ -57,6 +57,7 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
           pthread_cond_wait(&state_cv, &state_mx);
         }
         my_request = ltr_int_get_state_request();
+        change_flag = false;
         pthread_mutex_unlock(&state_mx);
         switch(my_request){
           case RUN:

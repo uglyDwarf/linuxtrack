@@ -20,14 +20,16 @@ void *safety_thread(void *param)
     sleep(1);
     struct ltr_comm *com = mmm.data;
     //PID 1 means INIT process, and it means our parent process died.
-    if(com != NULL){
-      if(getppid() != 1){
+    if(getppid() != 1){
+      if(com != NULL){
         com->dead_man_button = true;
+      }else{
+        ltr_int_log_message("Mmap channel not initialized properly!\n");
+        exit(1);
+        break; //mmm.data is NULL, something went wrong!
       }
     }else{
-      ltr_int_log_message("Mmap channel not initialized properly!\n");
-      exit(1);
-      break; //mmm.data is NULL, something went wrong!
+      if(!active) break;
     }
     
     if(active){
@@ -38,6 +40,7 @@ void *safety_thread(void *param)
         if(counter > 10){
           ltr_int_log_message("No response for too long, exiting...\n");
           all_clients_gone = true;
+          break;
         }
         ++counter;
       }
