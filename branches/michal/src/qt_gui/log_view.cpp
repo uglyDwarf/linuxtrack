@@ -6,10 +6,10 @@ LogView::LogView(QWidget *parent) : QWidget(parent), watcher(parent)
   ui.setupUi(this);
   size = 0;
   changed = true;
-  watcher.addPath("/tmp/linuxtrack.log");
+  watcher.addPath("/tmp/ltr_gui.log");
   QObject::connect(&watcher, SIGNAL(fileChanged(const QString&)), 
                    this, SLOT(fileChanged(const QString&)));
-  lf = new QFile("/tmp/linuxtrack.log");
+  lf = new QFile("/tmp/ltr_gui.log");
   lf->open(QIODevice::ReadOnly);
   ts = new QTextStream(lf);
   timer = new QTimer(this);
