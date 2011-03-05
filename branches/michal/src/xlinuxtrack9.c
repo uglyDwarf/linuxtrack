@@ -9,6 +9,7 @@
 #include "XPLMProcessing.h"
 #include "XPWidgets.h"
 #include "XPStandardWidgets.h"
+#include <unistd.h>
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
