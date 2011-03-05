@@ -86,7 +86,7 @@ void state_changed(void *param)
 void main_loop(char *section)
 {
   bool recenter = false;
-
+  
   ltr_int_register_cbk(new_frame, (void*)&mmm, state_changed, (void*)&mmm);
   if(ltr_int_init(section) != 0){
     ltr_int_log_message("Not initialized!\n");
@@ -94,6 +94,9 @@ void main_loop(char *section)
     return;
   }
   struct ltr_comm *com = mmm.data;
+  ltr_int_lockSemaphore(mmm.sem);
+  com->cmd = NOP_CMD;
+  ltr_int_unlockSemaphore(mmm.sem);
   while(1){
     dead_man_button_pressed |= com->dead_man_button;
     com->dead_man_button = false;

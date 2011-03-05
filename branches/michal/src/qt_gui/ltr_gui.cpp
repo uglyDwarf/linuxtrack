@@ -162,7 +162,11 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
     warnMessage(QString("Strange path... '" + fileName + "'"));
     return;
   }
+#ifndef DARWIN
   QString sourceFile = PrefProxy::getLibPath("linuxtrack/xlinuxtrack9");
+#else
+  QString sourceFile = PrefProxy::getLibPath("xlinuxtrack9");
+#endif
   QString destPath = pathRexp.cap(1) + "/Resources/plugins";
   if(!QFile::exists(destPath)){
     warnMessage(QString("Wrong file specified!"));

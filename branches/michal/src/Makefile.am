@@ -6,6 +6,10 @@ if DARWIN
   LEOPARD_LDFLAG = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 -headerpad_max_install_names
   DARWINFLAGS = -undefined dynamic_lookup
   SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
+  #If ltr_server is not linked against CoreFoundation, loading libusb-1.0 would
+  #  cause SIG_TRAP, since CoreFoundation expects the init takes place 
+  #  in the main thread. Linking ltr_server against CoreFoundation solves that.
+  LTR_SERVER_FLAGS = -framework CoreFoundation
 if SNOW_LEOPARD
   QMAKE_FLAGS = -spec macx-g++40
 else
@@ -18,6 +22,7 @@ else
   SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1 -L/lib32 -L/usr/lib32
   QMAKE_FLAGS = -spec linux-g++
   LIBLINUXTRACK_FLAGS = -fpic -fPIC
+  LTR_SERVER_FLAGS = 
 endif
 
 lib_LTLIBRARIES = liblinuxtrack.la
@@ -27,7 +32,7 @@ bin_PROGRAMS = ltr_server
 ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
 ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server_LDADD = -lpthread libltr.la
-ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG}
+ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG} ${LTR_SERVER_FLAGS}
 
 if CWIID
   pkglib_LTLIBRARIES += libwii.la 

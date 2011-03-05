@@ -124,9 +124,13 @@ pushd dist
       tar xfz ${BASE}/bulk_config_data.tar.gz
     popd 
   fi
+  mkdir develop
+  cp ../src/linuxtrack.h develop
+  cp ../src/linuxtrack.c develop
+  cp ${PREFIX}/lib/liblinuxtrack.a develop
 popd
-rm -f linuxtrack.dmg
-hdiutil create linuxtrack.dmg -srcfolder dist -format UDZO -volname linuxtrack
+rm -f linuxtrack*.dmg
+hdiutil create linuxtrack$(date +%d%m%y).dmg -srcfolder dist -format UDZO -volname linuxtrack
 
 popd
 #

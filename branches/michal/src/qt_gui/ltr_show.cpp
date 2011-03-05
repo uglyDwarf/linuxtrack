@@ -96,6 +96,9 @@ void main_loop(char *section)
     return;
   }
   struct ltr_comm *com = (struct ltr_comm*)mmm.data;
+  ltr_int_lockSemaphore(mmm.sem);
+  com->cmd = NOP_CMD;
+  ltr_int_unlockSemaphore(mmm.sem);
   bool break_flag = false;
   while(!break_flag){
     if((com->cmd != NOP_CMD) || com->recenter){
@@ -123,7 +126,6 @@ void main_loop(char *section)
     }
     if(recenter){
       recenter = false;
-      std::cout<<"Recentering!!!"<<std::endl;
       ltr_int_recenter();
     }
     usleep(100000);  //ten times per second...
