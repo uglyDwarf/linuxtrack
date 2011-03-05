@@ -49,7 +49,7 @@ static bool pv_present = false;
 static XPLMCommandRef run_cmd;
 static XPLMCommandRef pause_cmd;
 static XPLMCommandRef recenter_cmd;
-
+static bool initialized = false;
 
 static void MyHotKeyCallback(void *inRefcon);    
 static int cmd_cbk(XPLMCommandRef       inCommand,
@@ -127,10 +127,6 @@ PLUGIN_API int XPluginStart(char *outName,
      (head_psi==NULL)||(head_the==NULL)){
     return(0);
   }
-  if(ltr_init(NULL)!=0){
-    return(0);
-  }
-  ltr_suspend();
   
   XPLMRegisterFlightLoopCallback(		
 	xlinuxtrackCallback,	/* Callback */
@@ -151,7 +147,9 @@ PLUGIN_API void	XPluginStop(void)
   XPLMUnregisterHotKey(gTrackKey);
   XPLMUnregisterHotKey(gFreezeKey);
   XPLMUnregisterFlightLoopCallback(xlinuxtrackCallback, NULL);
-  ltr_shutdown();
+  if(initialized){
+    ltr_shutdown();
+  }
 }
 
 PLUGIN_API void XPluginDisable(void)
@@ -171,6 +169,20 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFromWho,
     switch(inMessage){
       case XPLM_MSG_PLANE_LOADED:
         if((int)inParam == XPLM_PLUGIN_XPLANE){
+          if(!initialized){
+            if(ltr_init(NULL)==0){
+              int c = 5;
+              while(c >= 0){
+                if(ltr_get_tracking_state() == RUNNING) break;
+                sleep(1);
+                --c;
+              }
+              initialized = true;
+              ltr_suspend();
+            }
+          }
+
+
           PV_Enabled_DR = XPLMFindDataRef("sandybarbour/pv/enabled");
           PV_TIR_X_DR = XPLMFindDataRef("sandybarbour/pv/tir_x");
           PV_TIR_Y_DR = XPLMFindDataRef("sandybarbour/pv/tir_y");
@@ -197,10 +209,12 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFromWho,
 
 static void activate(void)
 {
+  if(initialized){
 	  active_flag=true;
           pos_init_flag = 1;
 	  freeze = false;
 	  ltr_wakeup();
+  }
 }
 
 static void deactivate(void)
@@ -214,7 +228,9 @@ static void deactivate(void)
 	  XPLMSetDataf(head_psi,base_psi);
 	  XPLMSetDataf(head_the,base_the);
         }
-	ltr_suspend();
+    if(initialized){
+	  ltr_suspend();
+	}
 }
 
 static void MyHotKeyCallback(void *inRefcon)
@@ -231,7 +247,9 @@ static void MyHotKeyCallback(void *inRefcon)
       freeze = (freeze == false)? true : false;
       break;
     case RECENTER:
-      ltr_recenter();
+      if(initialized){
+        ltr_recenter();
+      }
       break;
   }
 }
@@ -293,9 +311,11 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
   float tz = 0.0;
   int retval;
   unsigned int counter;
-    
-  retval = ltr_get_camera_update(&heading,&pitch,&roll,
-                                 &tx, &ty, &tz, &counter);
+  
+  if(initialized){
+    retval = ltr_get_camera_update(&heading,&pitch,&roll,
+                                   &tx, &ty, &tz, &counter);
+  }
   
   if (retval < 0) {
     printf("xlinuxtrack: Error code %d detected!\n", retval);
