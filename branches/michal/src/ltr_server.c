@@ -88,15 +88,29 @@ void main_loop(char *section)
   bool recenter = false;
   
   ltr_int_register_cbk(new_frame, (void*)&mmm, state_changed, (void*)&mmm);
+
+  struct ltr_comm *com = mmm.data;
+  ltr_int_lockSemaphore(mmm.sem);
+  com->cmd = NOP_CMD;
+  com->recenter = true;
+  com->state = DOWN;
+  com->heading = 0.0f;
+  com->pitch = 0.0f;
+  com->roll = 0.0f;
+  com->tx = 0.0f;
+  com->ty = 0.0f;
+  com->tz = 0.0f;
+  com->counter = 0;
+  com->dead_man_button = 0;
+  ltr_int_unlockSemaphore(mmm.sem);
+  printf("Comm struct initialized!\n");
+
   if(ltr_int_init(section) != 0){
     ltr_int_log_message("Not initialized!\n");
     ltr_int_unmap_file(&mmm);
     return;
   }
-  struct ltr_comm *com = mmm.data;
-  ltr_int_lockSemaphore(mmm.sem);
-  com->cmd = NOP_CMD;
-  ltr_int_unlockSemaphore(mmm.sem);
+  
   while(1){
     dead_man_button_pressed |= com->dead_man_button;
     com->dead_man_button = false;

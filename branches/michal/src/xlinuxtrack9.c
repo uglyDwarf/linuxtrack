@@ -16,14 +16,15 @@
 #include <stdbool.h>
 #include "linuxtrack.h"
 
-static XPLMHotKeyID		gFreezeKey = NULL;
-static XPLMHotKeyID		gTrackKey = NULL;
+static XPLMHotKeyID             gFreezeKey = NULL;
+static XPLMHotKeyID             gTrackKey = NULL;
+static XPLMHotKeyID             gRecenterKey = NULL;
 
-static XPLMDataRef		head_x = NULL;
-static XPLMDataRef		head_y = NULL;
-static XPLMDataRef		head_z = NULL;
-static XPLMDataRef		head_psi = NULL;
-static XPLMDataRef		head_the = NULL;
+static XPLMDataRef              head_x = NULL;
+static XPLMDataRef              head_y = NULL;
+static XPLMDataRef              head_z = NULL;
+static XPLMDataRef              head_psi = NULL;
+static XPLMDataRef              head_the = NULL;
 static XPLMDataRef              view = NULL;
 
 static XPLMDataRef PV_Enabled_DR = NULL;
@@ -34,8 +35,8 @@ static XPLMDataRef PV_TIR_Pitch_DR = NULL;
 static XPLMDataRef PV_TIR_Heading_DR = NULL;
 static XPLMDataRef PV_TIR_Roll_DR = NULL;
 
-static XPLMMenuID		setupMenu = NULL;
-			
+static XPLMMenuID  setupMenu = NULL;
+
 static int pos_init_flag = 0;
 static bool freeze = false;
 
@@ -60,9 +61,9 @@ static int cmd_cbk(XPLMCommandRef       inCommand,
 enum {START, PAUSE, RECENTER};
 
 static float xlinuxtrackCallback(float inElapsedSinceLastCall,    
-			      float inElapsedTimeSinceLastFlightLoop,    
-			      int   inCounter,    
-			      void *inRefcon);
+                                 float inElapsedTimeSinceLastFlightLoop,    
+                                 int   inCounter,    
+                                 void *inRefcon);
 
 static void linuxTrackMenuHandler(void *inMenuRef, void *inItemRef)
 {
@@ -93,6 +94,10 @@ PLUGIN_API int XPluginStart(char *outName,
                          "Freeze 3D linuxTrack view",
                          MyHotKeyCallback,
                          (void*)PAUSE);
+  gRecenterKey = XPLMRegisterHotKey(XPLM_VK_F10, xplm_DownFlag, 
+                         "Recenter 3D linuxTrack view",
+                         MyHotKeyCallback,
+                         (void*)RECENTER);
 
   run_cmd = XPLMCreateCommand("sim/view/ltr_run","Start/stop tracking");
   pause_cmd = XPLMCreateCommand("sim/view/ltr_pause","Pause tracking");
@@ -129,10 +134,10 @@ PLUGIN_API int XPluginStart(char *outName,
     return(0);
   }
   
-  XPLMRegisterFlightLoopCallback(		
-	xlinuxtrackCallback,	/* Callback */
-	-1.0,					/* Interval */
-	NULL);					/* refcon not used. */
+  XPLMRegisterFlightLoopCallback(                
+        xlinuxtrackCallback,        /* Callback */
+        -1.0,                                        /* Interval */
+        NULL);                                        /* refcon not used. */
   int index = XPLMAppendMenuItem(XPLMFindPluginsMenu(), "LinuxTrack", NULL, 1);
 
 
@@ -143,10 +148,11 @@ PLUGIN_API int XPluginStart(char *outName,
   return(1);
 }
 
-PLUGIN_API void	XPluginStop(void)
+PLUGIN_API void XPluginStop(void)
 {
   XPLMUnregisterHotKey(gTrackKey);
   XPLMUnregisterHotKey(gFreezeKey);
+  XPLMUnregisterHotKey(gRecenterKey);
   XPLMUnregisterFlightLoopCallback(xlinuxtrackCallback, NULL);
   if(initialized){
     ltr_shutdown();
@@ -159,7 +165,7 @@ PLUGIN_API void XPluginDisable(void)
 
 PLUGIN_API int XPluginEnable(void)
 {
-	return 1;
+        return 1;
 }
 
 PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFromWho,
@@ -171,18 +177,8 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFromWho,
       case XPLM_MSG_PLANE_LOADED:
         if((int)inParam == XPLM_PLUGIN_XPLANE){
           if(!initialized){
-            if(ltr_init(NULL)==0){
-              int c = 5;
-              while(c >= 0){
-                if(ltr_get_tracking_state() == RUNNING) break;
-                sleep(1);
-                --c;
-              }
-              initialized = true;
-              ltr_suspend();
-            }
+            ltr_init(NULL);
           }
-
 
           PV_Enabled_DR = XPLMFindDataRef("sandybarbour/pv/enabled");
           PV_TIR_X_DR = XPLMFindDataRef("sandybarbour/pv/tir_x");
@@ -211,27 +207,28 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFromWho,
 static void activate(void)
 {
   if(initialized){
-	  active_flag=true;
+          active_flag=true;
           pos_init_flag = 1;
-	  freeze = false;
-	  ltr_wakeup();
+          freeze = false;
+          ltr_wakeup();
+          ltr_recenter();
   }
 }
 
 static void deactivate(void)
 {
-	active_flag=false;
+        active_flag=false;
         int current_view = XPLMGetDatai(view);
         if((!pv_present) && (current_view == 1026)){
           XPLMSetDataf(head_x,base_x);
           XPLMSetDataf(head_y,base_y);
           XPLMSetDataf(head_z,base_z);
-	  XPLMSetDataf(head_psi,base_psi);
-	  XPLMSetDataf(head_the,base_the);
+          XPLMSetDataf(head_psi,base_psi);
+          XPLMSetDataf(head_the,base_the);
         }
     if(initialized){
-	  ltr_suspend();
-	}
+      ltr_suspend();
+    }
 }
 
 static void MyHotKeyCallback(void *inRefcon)
@@ -239,9 +236,9 @@ static void MyHotKeyCallback(void *inRefcon)
   switch((int)inRefcon){
     case START:
       if(active_flag==false){
-	activate();
+        activate();
       }else{
-	deactivate();
+        deactivate();
       }
       break;
     case PAUSE:
@@ -300,6 +297,13 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
   if(PV_Enabled_DR)
     XPLMSetDatai(PV_Enabled_DR, active_flag);
   
+  if(!initialized){
+    if(ltr_get_tracking_state() != DOWN){
+      initialized = true;
+      ltr_suspend();
+    }
+  }
+  
   if(!active_flag){
     return -1.0;
   }
@@ -319,7 +323,6 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
   }
   
   if (retval < 0) {
-    printf("xlinuxtrack: Error code %d detected!\n", retval);
     return -1.0;
   }
   

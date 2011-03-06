@@ -546,7 +546,6 @@ static int doTracking()
                                 &tx, &ty, &tz, &counter);
 
   if (retval < 0) {
-    printf("xlinuxtrack: Error code %d detected!\n", retval);
     return -1;
   }
 

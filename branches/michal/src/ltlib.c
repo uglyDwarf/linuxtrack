@@ -46,14 +46,18 @@ int ltr_get_camera_update(float *heading,
   ltr_int_lockSemaphore(mmm.sem);
   tmp = *com;
   ltr_int_unlockSemaphore(mmm.sem);
-  *heading = tmp.heading;
-  *pitch = tmp.pitch;
-  *roll = tmp.roll;
-  *tx = tmp.tx;
-  *ty = tmp.ty;
-  *tz = tmp.tz;
-  *counter = tmp.counter;
-  return 0;
+  if(tmp.state != DOWN){
+    *heading = tmp.heading;
+    *pitch = tmp.pitch;
+    *roll = tmp.roll;
+    *tx = tmp.tx;
+    *ty = tmp.ty;
+    *tz = tmp.tz;
+    *counter = tmp.counter;
+    return 0;
+  }else{
+    return -1;
+  }
 }
 
 int ltr_suspend(void)
