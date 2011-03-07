@@ -128,9 +128,12 @@ pushd dist
   cp ../src/linuxtrack.h develop
   cp ../src/linuxtrack.c develop
   cp ${PREFIX}/lib/liblinuxtrack.a develop
+  cp ../Readme.rtf .
 popd
 rm -f linuxtrack*.dmg
-hdiutil create linuxtrack$(date +%d%m%y).dmg -srcfolder dist -format UDZO -volname linuxtrack
+DMG=linuxtrack$(date +%d%m%y).dmg
+hdiutil create ${DMG} -srcfolder dist -format UDZO -volname linuxtrack
+ln -s ${DMG} linuxtrack.dmg
 
 popd
 #
