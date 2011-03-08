@@ -1,0 +1,33 @@
+#summary Xplane plugin setup.
+
+= Introduction =
+
+This page explains howto setup the new XPlane plugin. 
+
+Please note, that if you used linuxtrack XPlane plugin before, you might need to reinstall the plugin using the linuxtrack GUI.
+
+Setup of tracking parameters is done in the linuxtrack GUI, this page deals with setup of hotkeys and/or joystick buttons to control the tracking.
+
+= Hotkeys setup =
+Hotkeys are setup using !HotKey Admin, that can be found in the _Plugins / Plugin Admin_ menu.
+
+[http://linux-track.googlecode.com/files/HotKeyAdmin.png]
+
+As you can see, there are three hotkeys recognized by linuxtrack - you can start/stop the tracking, you can pause/unpause tracking (for example to set radio...) and you can also recenter the tracker.
+
+Default bindings are F8 to F10, but most probably you are going to override them.
+To do that, press the Assign button and then press the new key. You can also set modifiers by ticking the appropriate box.
+
+Repeat those steps for all actions you want to change, and when done, press Apply button to make those new bindings active.
+
+= Joystick buttons setup =
+
+Joystick buttons are setup using _Buttons : Adv_ pane in the _Joystick & Equipment_ window, that is accesible through _Settings / Joystick, Keys & Equipment_ menu.
+
+[http://linux-track.googlecode.com/files/JoyButtonsSetup.png]
+
+Please note the last three items in the right box - these are the three actions, that allow you to control the linuxtrack.
+
+Now just press the desired joystick button, in the upper middle box select _view/_ and in the right box select the appropriate action.
+
+Repeat those steps and when done, just close the window and the new bindings should be active.
