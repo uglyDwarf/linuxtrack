@@ -101,3 +101,71 @@ void ltr_log_message(const char *format, ...);
 }}}
 
 This is utility function, allowing you to log messages to the linuxtrack logfile. Its usage is similar to the printf function.
+
+ = Linuxtrack Hello World =
+Here is the small "hello world" type of program showing usage of linuxtrack interface.
+
+{{{
+#include <linuxtrack.h>
+#include <stdio.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[])
+{
+  (void) argc;
+  (void) argv;
+  printf("Hello World!\n");
+  //Initialize the tracking using Default profile
+  ltr_init(NULL);
+  //Wait for tracker initialization
+  ltr_state_type state;
+  int timeout = 50; //5 seconds timeout (for example firmware load...)
+  while(timeout > 0){
+    state = ltr_get_tracking_state();
+    if((state == DOWN) || (state == STOPPED)){
+      usleep(100000); //sleep 0.1s
+    }else{
+      break;
+    }
+    --timeout;
+  };
+  
+  if(ltr_get_tracking_state() != RUNNING){
+    printf("Initialization is taking too long!\n");
+    return 1;
+  }
+  
+  int i;
+  float heading, pitch, roll, x, y, z;
+  unsigned int counter;
+  
+  ltr_recenter();  
+  
+  for(i = 0; i < 30; ++i){
+    ltr_get_camera_update(&heading, &pitch, &roll, &x, &y, &z, &counter);
+    printf("%f  %f  %f\n  %f  %f  %f\n", heading, pitch, roll, x, y, z);
+    usleep(100000);
+  }
+  
+  ltr_suspend();
+  sleep(2);
+  ltr_wakeup();
+  
+  for(i = 0; i < 30; ++i){
+    ltr_get_camera_update(&heading, &pitch, &roll, &x, &y, &z, &counter);
+    printf("%f  %f  %f\n  %f  %f  %f\n", heading, pitch, roll, x, y, z);
+    usleep(100000);
+  }
+
+  ltr_shutdown();
+  return 0;
+}
+}}}
+
+ == Compilation on Linux ==
+To compile this program on Linux, use the following commands (just make the LTR_PREFIX point where you have linuxtrack installed):
+
+{{{
+export LTR_PREFIX=/tmp/ltr_new
+gcc -o ltr_hw -Wall -g -I ${LTR_PREFIX}/include ltr_hw.c ${LTR_PREFIX}/lib/liblinuxtrack.a 
+}}}
