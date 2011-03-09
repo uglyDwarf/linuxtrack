@@ -11,6 +11,7 @@
 
 static char *com_fname;
 static struct mmap_s mmm;
+static bool initialized = false;
 
 static int make_mmap()
 {
@@ -25,7 +26,11 @@ static int make_mmap()
 
 int ltr_init(char *cust_section)
 {
+  if(initialized) return 0;
   if(make_mmap() != 0) return -1;
+  struct ltr_comm *com = mmm.data;
+  com->preparing_start = true;
+  initialized = true;
   char *server = ltr_int_get_app_path("/ltr_server");
   char *args[] = {server, cust_section, NULL};
   ltr_int_fork_child(args);
@@ -42,6 +47,7 @@ int ltr_get_camera_update(float *heading,
                          unsigned int *counter)
 {
   struct ltr_comm *com = mmm.data;
+  if((!initialized) || (com == NULL)) return -1;
   struct ltr_comm tmp;
   ltr_int_lockSemaphore(mmm.sem);
   tmp = *com;
@@ -63,6 +69,7 @@ int ltr_get_camera_update(float *heading,
 int ltr_suspend(void)
 {
   struct ltr_comm *com = mmm.data;
+  if((!initialized) || (com == NULL)) return -1;
   ltr_int_lockSemaphore(mmm.sem);
   com->cmd = PAUSE_CMD;
   ltr_int_unlockSemaphore(mmm.sem);
@@ -72,6 +79,7 @@ int ltr_suspend(void)
 int ltr_wakeup(void)
 {
   struct ltr_comm *com = mmm.data;
+  if((!initialized) || (com == NULL)) return -1;
   ltr_int_lockSemaphore(mmm.sem);
   com->cmd = RUN_CMD;
   ltr_int_unlockSemaphore(mmm.sem);
@@ -81,6 +89,7 @@ int ltr_wakeup(void)
 int ltr_shutdown(void)
 {
   struct ltr_comm *com = mmm.data;
+  if((!initialized) || (com == NULL)) return -1;
   ltr_int_lockSemaphore(mmm.sem);
   com->cmd = STOP_CMD;
   ltr_int_unlockSemaphore(mmm.sem);
@@ -90,6 +99,7 @@ int ltr_shutdown(void)
 void ltr_recenter(void)
 {
   struct ltr_comm *com = mmm.data;
+  if((!initialized) || (com == NULL)) return;
   ltr_int_lockSemaphore(mmm.sem);
   com->recenter = true;
   ltr_int_unlockSemaphore(mmm.sem);
@@ -99,6 +109,9 @@ ltr_state_type ltr_get_tracking_state(void)
 {
   ltr_state_type state = DOWN;
   struct ltr_comm *com = mmm.data;
+  if((!initialized) || (com == NULL) || (com->preparing_start)){
+    return state;
+  }
   ltr_int_lockSemaphore(mmm.sem);
   state = com->state;
   ltr_int_unlockSemaphore(mmm.sem);

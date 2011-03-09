@@ -144,6 +144,10 @@ PLUGIN_API int XPluginStart(char *outName,
   setupMenu = XPLMCreateMenu("LinuxTrack", XPLMFindPluginsMenu(), index, 
                          linuxTrackMenuHandler, NULL);
   XPLMAppendMenuItem(setupMenu, "Setup", (void *)"Setup", 1);
+
+  if(!initialized){
+    ltr_init(NULL);
+  }
   
   return(1);
 }
@@ -176,9 +180,6 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFromWho,
     switch(inMessage){
       case XPLM_MSG_PLANE_LOADED:
         if((int)inParam == XPLM_PLUGIN_XPLANE){
-          if(!initialized){
-            ltr_init(NULL);
-          }
 
           PV_Enabled_DR = XPLMFindDataRef("sandybarbour/pv/enabled");
           PV_TIR_X_DR = XPLMFindDataRef("sandybarbour/pv/tir_x");

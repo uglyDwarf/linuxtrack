@@ -14,6 +14,7 @@ struct ltr_comm{
   float tx, ty, tz;
   uint32_t counter;
   uint8_t dead_man_button;
+  uint8_t preparing_start;
 };
 
 

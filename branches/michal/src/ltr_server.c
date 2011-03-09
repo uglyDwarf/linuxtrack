@@ -102,8 +102,8 @@ void main_loop(char *section)
   com->tz = 0.0f;
   com->counter = 0;
   com->dead_man_button = 0;
+  com->preparing_start = 1;
   ltr_int_unlockSemaphore(mmm.sem);
-  printf("Comm struct initialized!\n");
 
   if(ltr_int_init(section) != 0){
     ltr_int_log_message("Not initialized!\n");
@@ -114,6 +114,7 @@ void main_loop(char *section)
   while(1){
     dead_man_button_pressed |= com->dead_man_button;
     com->dead_man_button = false;
+    com->preparing_start = false;
     if((com->cmd != NOP_CMD) || com->recenter){
       ltr_int_lockSemaphore(mmm.sem);
       ltr_cmd cmd = com->cmd;
@@ -157,6 +158,7 @@ void main_loop(char *section)
       break;
     }
   }
+  com->state = DOWN; // Just in case
 }
 
 int main(int argc, char *argv[])

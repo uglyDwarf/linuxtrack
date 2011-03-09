@@ -337,6 +337,8 @@ top_srcdir = @top_srcdir@
 @DARWIN_TRUE@DARWINFLAGS = -undefined dynamic_lookup
 @DARWIN_FALSE@SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1 -L/lib32 -L/usr/lib32
 @DARWIN_TRUE@SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
+@DARWIN_FALSE@LTR_SERVER_FLAGS = 
+@DARWIN_TRUE@LTR_SERVER_FLAGS = -framework CoreFoundation
 @DARWIN_FALSE@QMAKE_FLAGS = -spec linux-g++
 @DARWIN_TRUE@@SNOW_LEOPARD_FALSE@QMAKE_FLAGS = -spec macx-g++
 @DARWIN_TRUE@@SNOW_LEOPARD_TRUE@QMAKE_FLAGS = -spec macx-g++40
@@ -349,7 +351,7 @@ pkglib_LTLIBRARIES = libltr.la $(am__append_1) $(am__append_2) \
 ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
 ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server_LDADD = -lpthread libltr.la
-ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG}
+ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG} ${LTR_SERVER_FLAGS}
 include_HEADERS = linuxtrack.h
 
 #liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
@@ -1052,6 +1054,9 @@ uninstall-man: uninstall-man1
 	uninstall-libLTLIBRARIES uninstall-man uninstall-man1 \
 	uninstall-pkglibLTLIBRARIES
 
+@DARWIN_TRUE@  #If ltr_server is not linked against CoreFoundation, loading libusb-1.0 would
+@DARWIN_TRUE@  #  cause SIG_TRAP, since CoreFoundation expects the init takes place 
+@DARWIN_TRUE@  #  in the main thread. Linking ltr_server against CoreFoundation solves that.
 
 #bin_PROGRAMS = lt_server lt_client
 #lt_server_SOURCES = lt_server.c netcomm.c netcomm.h
