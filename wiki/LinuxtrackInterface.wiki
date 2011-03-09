@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
   ltr_init(NULL);
   //Wait for tracker initialization
   ltr_state_type state;
-  int timeout = 50; //5 seconds timeout (for example firmware load...)
+  int timeout = 100; //10 seconds timeout (for example firmware load...)
   while(timeout > 0){
     state = ltr_get_tracking_state();
     if((state == DOWN) || (state == STOPPED)){
@@ -169,3 +169,48 @@ To compile this program on Linux, use the following commands (just make the LTR_
 export LTR_PREFIX=/tmp/ltr_new
 gcc -o ltr_hw -Wall -g -I ${LTR_PREFIX}/include ltr_hw.c ${LTR_PREFIX}/lib/liblinuxtrack.a 
 }}}
+
+ == Compilation on MacOS X using XCode ==
+Create an XCode project (for this example Command Line utility, Standard tool),
+and add the linuxtrack.h to the sources (can be drag'n'dropped).
+
+Then add the liblinuxtrack.a library to libraries (Ctrl-click on "Link Binary with Libraries", Add, Existing files...).
+
+The result should look similar to this:
+
+[http://linux-track.googlecode.com/files/xcode_main.png]
+
+Then adjust in Project Info the target SDK...
+
+[http://linux-track.googlecode.com/files/xcode_prj_gen.png]
+
+and deployment target
+
+[http://linux-track.googlecode.com/files/xcode_prj_bu.png]
+
+Now you can build the project and before running it, open the console window
+(menu Run / Console) to see the results.
+
+
+ == Compilation on MacOS X 10.5 commandline ==
+To compile this program on MacOS X, use the following commands (just make the LTR_PREFIX point where you have linuxtrack installed):
+
+{{{
+export LTR_PREFIX=~/Desktop/develop/
+export MACOSX_DEPLOYMENT_TARGET=10.4
+gcc -o ltr_hw -arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk \
+  -mmacosx-version-min=10.4 -I${LTR_PREFIX} ltr_hw.c ${LTR_PREFIX}/liblinuxtrack.a
+}}}
+
+This will compile universal binary, that should be compatible with 10.4 - 10.6 both Intel and PPC.
+
+ == Compilation on MacOS X 10.6 ==
+To compile this code on MacOS X 10.6, you have to use GCC4.0, otherwise you get lots of errors (other way would be to compile using 10.5 SDK, but then you lose 10.4 compatibility).
+
+For the commandline, instead of 'gcc' use 'gcc-4.0' (cpp-4.0, g++-4.0).
+
+In XCode, in the "Project Info" window, Build pane select "C/C++ Compiler version" to GCC 4.0. 
+
+
+ == Creating dynamic library ==
+The static library liblinuxtrack.a is suitable only for programs. Should you need to create a dynamic library (plugin, ...) that would contain tracking functionality, instead of the static library just add linuxtrack.c file to your sources; it will allow you to compile it in a way you need (e.g. using -fpic...).
