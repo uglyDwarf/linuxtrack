@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="ltr" >
+    <file>cap.png</file>
+    <file>clip.png</file>
+  </qresource>
+</RCC>

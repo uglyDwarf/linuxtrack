@@ -1,0 +1,5 @@
+XPluginStart
+XPluginStop
+XPluginDisable
+XPluginEnable
+XPluginReceiveMessage
