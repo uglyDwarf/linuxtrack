@@ -178,3 +178,14 @@ EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \
   xlinuxtrack.sym
 
 man_MANS = ltr_gui.1 ltr_server.1
+
+if LTR_FGFS
+  man_MANS += ltr_fgfs.1
+  bin_PROGRAMS += ltr_fgfs
+  ltr_fgfs_CPPFLAGS = -D_GNU_SOURCE
+  ltr_fgfs_SOURCES = ltr_fgfs.c
+  ltr_fgfs_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
+  ltr_fgfs_LDADD = liblinuxtrack.la
+  ltr_fgfs_LDFLAGS = $(LINUXFLAGS) ${LTR_FGFS_FLAGS}
+endif
+

@@ -37,9 +37,9 @@ host_triplet = @host@
 @TIR_FW_TRUE@am__append_1 = MD5SUM SHA1SUM  tir4.fw.gz tir5.fw.gz copyright_and_terms_of_use.txt
 subdir = .
 DIST_COMMON = README $(am__configure_deps) \
-	$(am__dist_pkgdata_DATA_DIST) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
-	$(top_srcdir)/configure \
+	$(am__dist_pkgdata_DATA_DIST) $(am__nobase_dist_doc_DATA_DIST) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(srcdir)/config.h.in $(top_srcdir)/configure \
 	$(top_srcdir)/src/qt_gui/ltr_gui.pro.in AUTHORS COPYING \
 	ChangeLog INSTALL NEWS compile config.guess config.sub depcomp \
 	install-sh ltmain.sh missing ylwrap
@@ -87,8 +87,10 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(pkgdatadir)"
-DATA = $(dist_pkgdata_DATA)
+am__installdirs = "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(docdir)"
+am__nobase_dist_doc_DATA_DIST = fgfs/linux-track.nas \
+	fgfs/linux-track.xml fgfs/README
+DATA = $(dist_pkgdata_DATA) $(nobase_dist_doc_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
@@ -251,6 +253,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = src src/mac src/tests src/helper
 dist_pkgdata_DATA = README $(am__append_1)
+@LTR_FGFS_TRUE@nobase_dist_doc_DATA = fgfs/linux-track.nas fgfs/linux-track.xml fgfs/README
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -337,6 +340,29 @@ uninstall-dist_pkgdataDATA:
 	test -n "$$files" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(pkgdatadir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(pkgdatadir)" && rm -f $$files
+install-nobase_dist_docDATA: $(nobase_dist_doc_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(docdir)" || $(MKDIR_P) "$(DESTDIR)$(docdir)"
+	@list='$(nobase_dist_doc_DATA)'; test -n "$(docdir)" || list=; \
+	$(am__nobase_list) | while read dir files; do \
+	  xfiles=; for file in $$files; do \
+	    if test -f "$$file"; then xfiles="$$xfiles $$file"; \
+	    else xfiles="$$xfiles $(srcdir)/$$file"; fi; done; \
+	  test -z "$$xfiles" || { \
+	    test "x$$dir" = x. || { \
+	      echo "$(MKDIR_P) '$(DESTDIR)$(docdir)/$$dir'"; \
+	      $(MKDIR_P) "$(DESTDIR)$(docdir)/$$dir"; }; \
+	    echo " $(INSTALL_DATA) $$xfiles '$(DESTDIR)$(docdir)/$$dir'"; \
+	    $(INSTALL_DATA) $$xfiles "$(DESTDIR)$(docdir)/$$dir" || exit $$?; }; \
+	done
+
+uninstall-nobase_dist_docDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(nobase_dist_doc_DATA)'; test -n "$(docdir)" || list=; \
+	$(am__nobase_strip_setup); files=`$(am__nobase_strip)`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(docdir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(docdir)" && rm -f $$files
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -653,7 +679,7 @@ check: check-recursive
 all-am: Makefile $(DATA) config.h
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(pkgdatadir)"; do \
+	for dir in "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(docdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -703,7 +729,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-dist_pkgdataDATA
+install-data-am: install-dist_pkgdataDATA install-nobase_dist_docDATA
 
 install-dvi: install-dvi-recursive
 
@@ -749,7 +775,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-dist_pkgdataDATA
+uninstall-am: uninstall-dist_pkgdataDATA uninstall-nobase_dist_docDATA
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) all \
 	ctags-recursive install-am install-strip tags-recursive
@@ -764,13 +790,14 @@ uninstall-am: uninstall-dist_pkgdataDATA
 	install install-am install-data install-data-am \
 	install-dist_pkgdataDATA install-dvi install-dvi-am \
 	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-recursive uninstall uninstall-am \
-	uninstall-dist_pkgdataDATA
+	install-info install-info-am install-man \
+	install-nobase_dist_docDATA install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-recursive \
+	uninstall uninstall-am uninstall-dist_pkgdataDATA \
+	uninstall-nobase_dist_docDATA
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

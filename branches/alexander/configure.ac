@@ -31,6 +31,7 @@ AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdint.h assert.h])
+AC_CHECK_HEADERS([stdlib.h unistd.h netdb.h sys/socket.h])
 
 AC_CHECK_FILE([tir4.fw.gz], [with_tir_fw=yes], [with_tir_fw=no])
 
@@ -39,6 +40,7 @@ AC_HEADER_STDBOOL
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
+AC_C_INLINE
 
 AC_CANONICAL_HOST
 
@@ -76,6 +78,13 @@ AC_ARG_ENABLE([xplane_plugin],
             ]
 )
 
+AC_ARG_ENABLE([fgfs_support],
+		[AS_HELP_STRING([--enable-fgfs-support],
+				[build ltr_fgfs to provide FlightGear support @<:@default=yes@:>@])],
+		[with_fgfs_support=$enableval],
+		[with_fgfs_support=yes]
+)
+
 AC_ARG_ENABLE([snow_leopard],
             [AS_HELP_STRING([--enable-snow-leopard],
               [specify that you are building on MacOSX 10.6])], 
@@ -109,8 +118,15 @@ AM_CONDITIONAL(OPENUSB, [test  "x$ac_cv_lib_openusb_openusb_init" = xyes])
 AM_CONDITIONAL(LIBZ, [test  "x$ac_cv_lib_z_gzopen" = xyes])
 AM_CONDITIONAL(TIR_FW, [test  "x$with_tir_fw" = xyes])
 AM_CONDITIONAL(X64, [test  "x$with_64_bit" = xyes])
+AM_CONDITIONAL([LTR_FGFS], [test  x$with_fgfs_support = xyes])
 
 # Checks for library functions.
+AC_CHECK_FUNCS([atexit])
+AC_CHECK_FUNCS([memset])
+AC_CHECK_FUNCS([select])
+AC_CHECK_FUNCS([socket])
+AC_FUNC_ERROR_AT_LINE
+
 
 AC_CONFIG_FILES([
  Makefile

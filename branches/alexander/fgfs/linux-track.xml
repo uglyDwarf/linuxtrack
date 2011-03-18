@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+
+<PropertyList>
+
+	<comment>
+		<![CDATA[
+    		Usage:
+					fgfs --generic=socket,in,100,,6543,udp,linux-track
+		]]>
+	</comment>
+
+	<generic>
+
+		<input>
+
+			<line_separator>newline</line_separator>
+			<var_separator>tab</var_separator>
+
+			<chunk>
+				<name>heading-deg</name>
+				<type>float</type>
+				<node>/sim/linux-track/data/heading</node>
+			</chunk>
+   
+			<chunk>
+				<name>pitch-deg</name>
+				<type>float</type>
+				<node>/sim/linux-track/data/pitch</node>
+			</chunk>
+
+			<chunk>
+				<name>roll-deg</name>
+				<type>float</type>
+				<node>/sim/linux-track/data/roll</node>
+			</chunk>
+
+			<chunk>
+				<name>postion-x</name>
+				<type>float</type>
+				<node>/sim/linux-track/data/tx</node>
+			</chunk>
+
+			<chunk>
+				<name>position-y</name>
+				<type>float</type>
+				<node>/sim/linux-track/data/ty</node>
+			</chunk>
+
+			<chunk>
+				<name>position-z</name>
+				<type>float</type>
+				<node>/sim/linux-track/data/tz</node>
+			</chunk>
+
+		</input>
+ 
+	</generic>
+
+</PropertyList>
