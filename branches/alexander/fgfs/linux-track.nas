@@ -9,113 +9,205 @@
 ##  For the original Anders Gidenstam's version of this file please visit
 ##  http://www.gidenstam.org/FlightGear/HeadTracking/ 
 ##
-## Installation:
+##  Installation:
+##
 ## - Put this file in ~/.fgfs/Nasal
-## - Start FlightGear with the parameters
-##    --generic=socket,in,100,,6543,udp,linux-track --prop:/sim/linux-track/enabled=1
+## - Start FlightGear with the parameters:
+##
+##    --generic=socket,in,100,,6543,udp,linux-track \
+##    --prop:/sim/linux-track/enabled=1
+##
+##  Note that X, Y, Z are not enabled by default. You can enable all of them
+##  at once with the additional parameter:
+##
+##    --prop:/sim/linux-track/track-all=1
+##
+##  or any of them one by one with such parameters:
+##
+##    --prop:/sim/linux-track/track-x=1
+##    --prop:/sim/linux-track/track-y=1
+##    --prop:/sim/linux-track/track-z=1
+##
 
+var script_name = "linux-track.nas";
 
 ##
 # linux-track view handler class.
 # Use one instance per tracked view.
 #
-var ltr_view_handler = {
-	
-	new : func {
-		return { parents: [ltr_view_handler] };
-	},
-    
-
-	init : func {
-	
-		if (contains(me, "enabled"))
-			return;
-
-		me.enabled  = props.globals.getNode("/sim/linux-track/enabled", 1);
-		me.data     = props.globals.getNode("/sim/linux-track/data", 1);
-		me.view     = props.globals.getNode("/sim/current-view", 1);
-		me.conf     = props.globals.getNode("/sim/current-view/config", 1);
-		
-		# Low pass filters.
-		me.h_lowpass = aircraft.lowpass.new(0.1);
-		me.p_lowpass = aircraft.lowpass.new(0.1);
-		me.r_lowpass = aircraft.lowpass.new(0.1);
-		me.x_lowpass = aircraft.lowpass.new(0.1);
-		me.y_lowpass = aircraft.lowpass.new(0.1);
-		me.z_lowpass = aircraft.lowpass.new(0.1);
-
-		# Default values
-		me.z_default = asnum(me.conf.getChild("default-field-of-view-deg").getValue());
-
-	},
+var ltr_view_handler = {};
 
 
-	start: func {
-		if (me.enabled.getValue() == 0)
-			return 0;
-
-		me.z_default = asnum(me.conf.getChild("default-field-of-view-deg").getValue());
-	},
+ltr_view_handler.new = func {	
+	return { parents: [ltr_view_handler] };
+};
 
 
-	reset : func {
-	
-		var h = me.h_lowpass.filter(0);
-		var p = me.p_lowpass.filter(0);
-		var r = me.r_lowpass.filter(0);
-		var x = me.x_lowpass.filter(0);
-		var y = me.y_lowpass.filter(0);
-		#var z = me.z_lowpass.filter(0);
-		var z = me.conf.getChild("default-field-of-view-deg").getValue();
-		
-		me.view.getChild("goal-heading-offset-deg").setValue(h);
-		me.view.getChild("goal-pitch-offset-deg").setValue(p);
-		me.view.getChild("goal-roll-offset-deg").setValue(r);
-		me.view.getChild("target-x-offset-m").setValue(x);
-		me.view.getChild("target-y-offset-m").setValue(y);
-		#me.view.getChild("target-z-offset-m").setValue(z);
-		me.view.getChild("field-of-view").setValue(z);
-	},
+ltr_view_handler.init = func {	
 
+	if (contains(me, "enabled"))
+		return;
 
-	update : func {
-	
-		if (me.enabled.getValue() == 0)
-			return 0;
+	var lt_tree = "/sim/linux-track";
+	var cv_tree = "/sim/current-view";
 
-		var hm = -1;
-		var pm =  1;
-		var rm =  1;
-		var xm =  1;
-		var ym =  1;
-		var zm =  1;
+	me.enabled   = props.globals.getNode(lt_tree ~ "/enabled", 1);
+	me.data      = props.globals.getNode(lt_tree ~ "/data", 1);
+	me.view      = props.globals.getNode(cv_tree, 1);
+	me.vcfg      = props.globals.getNode(cv_tree ~ "/config", 1);
 
-		var view_name = me.view.getChild("name").getValue();
-
-		if ((view_name == "Helicopter View") or
-		    (view_name == "Chase View") or
-		    (view_name == "Chase View Without Yaw")) {
-			pm = -1;
-		}
-	
-		var h = me.h_lowpass.filter(hm * asnum(me.data.getChild("heading").getValue()));
-		var p = me.p_lowpass.filter(pm * asnum(me.data.getChild("pitch").getValue()));
-		var r = me.r_lowpass.filter(rm * asnum(me.data.getChild("roll").getValue()));
-		var x = me.x_lowpass.filter(xm * asnum(me.data.getChild("tx").getValue()));
-		var y = me.y_lowpass.filter(ym * asnum(me.data.getChild("ty").getValue()));
-		#var z = me.z_lowpass.filter(zm * asnum(me.data.getChild("tz").getValue()));
-		var z = me.z_lowpass.filter(me.z_default + (zm * asnum(me.data.getChild("tz").getValue())));
-
-		me.view.getChild("goal-heading-offset-deg").setValue(h);
-		me.view.getChild("goal-pitch-offset-deg").setValue(p);
-		me.view.getChild("goal-roll-offset-deg").setValue(r);
-		me.view.getChild("target-x-offset-m").setValue(x);
-		me.view.getChild("target-y-offset-m").setValue(y);
-		#me.view.getChild("target-z-offset-m").setValue(z);
-		me.view.getChild("field-of-view").setValue(z < 0 ? 0 : (z > 120 ? 120 : z));
-
-		return 0;
+	me.track_all = props.globals.getNode(lt_tree ~ "/track-all", 1);
+	if (me.track_all.getValue() == 1) {
+		setprop(lt_tree ~ "/track-x", 1);
+		setprop(lt_tree ~ "/track-y", 1);
+		setprop(lt_tree ~ "/track-z", 1);
 	}
+	me.track_X   = props.globals.getNode(lt_tree ~ "/track-x", 1);
+	me.track_Y   = props.globals.getNode(lt_tree ~ "/track-y", 1);
+	me.track_Z   = props.globals.getNode(lt_tree ~ "/track-z", 1);
+
+	var default_fov_name = "default-field-of-view-deg";
+		
+	# FlightGear target properties names
+	var fg_H_name = "goal-heading-offset-deg";
+	var fg_P_name = "goal-pitch-offset-deg";
+	var fg_R_name = "goal-roll-offset-deg";
+	var fg_X_name = "target-x-offset-m";
+	var fg_Y_name = "target-y-offset-m";
+	var fg_Z_name = "field-of-view";
+
+	# Linux-track data properties names
+	var lt_H_name = "heading";
+	var lt_P_name = "pitch";
+	var lt_R_name = "roll";
+	var lt_X_name = "tx";
+	var lt_Y_name = "ty";
+	var lt_Z_name = "tz";
+
+	# Low pass filters
+	var lowpass_H = aircraft.lowpass.new(0.1);
+	var lowpass_P = aircraft.lowpass.new(0.1);
+	var lowpass_R = aircraft.lowpass.new(0.1);
+	var lowpass_X = aircraft.lowpass.new(0.1);
+	var lowpass_Y = aircraft.lowpass.new(0.1);
+	var lowpass_Z = aircraft.lowpass.new(0.1);
+
+	# Limiter for Z
+	var limit_Z = func(z) {
+		z = asnum(z);
+		return (z < 0 ? 0 : (z > 120 ? 120 : z));
+	};
+
+
+	var set_fg_prop = func(name, val) {
+		me.view.getChild(name).setValue(val);
+	};
+
+	var get_lt_prop = func(name) {
+		return asnum(me.data.getChild(name).getValue());
+	};
+
+	var get_default_fov = func {
+		return asnum(me.vcfg.getChild(default_fov_name).getValue());
+	};
+
+
+	me.set_fg_H = func(val) {
+		val = lowpass_H.filter(asnum(val));
+		set_fg_prop(fg_H_name, val);
+	};
+
+	me.set_fg_P = func(val) {
+		val = lowpass_P.filter(asnum(val));
+		set_fg_prop(fg_P_name, val);
+	};
+
+	me.set_fg_R = func(val) {
+		val = lowpass_R.filter(asnum(val));
+		set_fg_prop(fg_R_name, val);
+	};
+
+	me.set_fg_X = func(val) {
+		val = lowpass_X.filter(asnum(val));
+		set_fg_prop(fg_X_name, val);
+	};
+
+	me.set_fg_Y = func(val) {
+		val = lowpass_Y.filter(asnum(val));
+		set_fg_prop(fg_Y_name, val);
+	};
+
+	me.set_fg_Z = func(val) {
+		val = lowpass_Z.filter(val + get_default_fov());
+		val = limit_Z(val);
+		set_fg_prop(fg_Z_name, val);
+	};
+
+	me.get_lt_H = func { return get_lt_prop(lt_H_name); };
+	me.get_lt_P = func { return get_lt_prop(lt_P_name); };
+	me.get_lt_R = func { return get_lt_prop(lt_R_name); };
+	me.get_lt_X = func { return get_lt_prop(lt_X_name); };
+	me.get_lt_Y = func { return get_lt_prop(lt_Y_name); };
+	me.get_lt_Z = func { return get_lt_prop(lt_Z_name); };
+
+
+	printf("%s: initialized", script_name);
+	printf("%s: enabled heading, pitch, roll%s%s%s",
+		script_name,
+		(me.track_X.getValue() == 1 ? ", x" : ""),
+		(me.track_Y.getValue() == 1 ? ", y" : ""),
+		(me.track_Z.getValue() == 1 ? ", z" : ""));
+	printf("%s: ready to receive data", script_name);
+};
+
+
+ltr_view_handler.reset = func {
+
+	me.set_fg_H(0);
+	me.set_fg_P(0);
+	me.set_fg_R(0);
+
+	if (me.track_X.getValue() == 1)
+		me.set_fg_X(0);
+	if (me.track_Y.getValue() == 1)
+		me.set_fg_Y(0);
+	if (me.track_Z.getValue() == 1)
+		me.set_fg_Z(0);
+};
+
+
+ltr_view_handler.update = func {
+
+	if (me.enabled.getValue() == 0)
+		return 0;
+
+	var m_H = -1;
+	var m_P =  1;
+	var m_R =  1;
+	var m_X =  1;
+	var m_Y =  1;
+	var m_Z =  1;
+
+	var view_name = me.view.getChild("name").getValue();
+
+	if ((view_name == "Helicopter View") or
+	    (view_name == "Chase View") or
+	    (view_name == "Chase View Without Yaw")) {
+		m_P = -1;
+	}
+
+	me.set_fg_H(m_H * me.get_lt_H());
+	me.set_fg_P(m_P * me.get_lt_P());
+	me.set_fg_R(m_R * me.get_lt_R());
+
+	if (me.track_X.getValue() == 1)
+		me.set_fg_X(m_X * me.get_lt_X());
+	if (me.track_Y.getValue() == 1)
+		me.set_fg_Y(m_Y * me.get_lt_Y());
+	if (me.track_Z.getValue() == 1)
+		me.set_fg_Z(m_Z * me.get_lt_Z());
+
+	return 0;
 };
 
 
