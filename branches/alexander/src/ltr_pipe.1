@@ -1,0 +1,52 @@
+.TH ltr_pipe 1 "17 March 2011"
+.IX ltr_pipe
+.SH NAME
+ltr_pipe - send linux-track data to STDOUT or to network.
+.SH SYNOPSYS
+.B ltr_pipe
+.RI [-hVU]
+.RI [-d\ HOST]
+.RI [-p\ PORT]
+.RI [-f\ NAME]
+.RI [-t\ SECONDS]
+.RI [--udp]
+.RI [--dst-host=HOST]
+.RI [--dst-port=PORT]
+.RI [--ltr-profile=NAME]
+.RI [--ltr-timeout=SECONDS]
+.RI [--format-il2]
+.RI [--format-eht]
+.RI [--help]
+.RI [--version]
+.SH DESCRIPTION
+ltr_pipe is a client executable that allows to send linux-track data to
+STDOUT or using UDP protocol to some network destination.
+.SH OPTIONS
+.TP
+.B -U, --udp
+Send to network using UDP protocol.
+.TP
+.B -d <HOST>, --dst-host=<HOST>
+Network destination hostname or IP address (default: localhost). 
+.TP
+.B -p <PORT>, --dst-port=<PORT>
+Destination port (default: 6543).
+.TP
+.B -f <NAME>, --ltr-profile=<NAME>
+Linux-track profile name (default: Default).
+.TP
+.B -t <SECONDS>, --ltr-timeout=<SECONDS>
+Linux-track initialization timeout in seconds (default: 10).
+.TP
+.B --format-il2
+Send data in IL-2 Shturmovik DeviceLink protocol format.
+.TP
+.B --format-eht
+Send data in easy-headtrack compatible format.
+.TP
+.B -h, --help
+Give help list.
+.TP
+.B -V, --version
+Print program version.
+

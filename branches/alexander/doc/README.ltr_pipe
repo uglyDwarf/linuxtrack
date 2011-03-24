@@ -1,0 +1,70 @@
+ltr_pipe: linux-track data sender
+
+This program allows you to send data from linux-track head tracking software
+to some destinations. Currently it is known to work with FlightGear and IL-2
+Shturmovik flight simulators.
+
+Compile and install ltr_pipe with linux-track:
+
+  ./configure --enable-ltr-pipe
+  make
+  make install
+
+
+
+* FlightGear
+------------
+
+You must manually copy files from doc/fgfs directory to proper FlightGear
+directories:
+  
+  cp fgfs/linux-track.xml $FGROOT/Protocol/
+  cp fgfs/linux-track.nas $HOME/.fgfs/Nasal/
+
+Run ltr_pipe in the first terminal window (use --help for available options):
+
+  ltr_pipe --udp
+
+Run FlightGear in the second terminal window with the specified options:
+
+  fgfs --generic=socket,in,100,,6543,udp,linux-track \
+       --prop:/sim/linux-track/enabled=1
+
+See doc/fgfs/README for more available options.
+
+
+
+* FlightGear with easy-headtrack
+--------------------------------
+
+If you're using easy-headtrack (http://gitorious.org/headtrack) then you can
+also use linux-track with their nasal script and protocol file. For this, run
+ltr_pipe in the first terminal window:
+
+  ltr_pipe --udp --format-eht
+  
+Run FlightGear in the second terminal window:
+
+  fgfs --generic=socket,in,100,,6543,udp,headtrack \
+       --prop:/sim/headtracking/enabled=1
+
+
+
+* IL-2 Shturmovik
+-----------------
+
+Edit IL-2 Shturmovik conf.ini file and set its parameters:
+
+[DeviceLink]
+port=6543
+host=127.0.0.1
+
+Run ltr_pipe in a terminal window:
+
+  ltr_pipe --udp --format-il2
+
+Run IL-2 Shturmovik as you usually run it.
+
+
+Have fun!
+

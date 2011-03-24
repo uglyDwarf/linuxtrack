@@ -747,8 +747,8 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
-LTR_FGFS_FALSE
-LTR_FGFS_TRUE
+LTR_PIPE_FALSE
+LTR_PIPE_TRUE
 X64_FALSE
 X64_TRUE
 TIR_FW_FALSE
@@ -887,7 +887,7 @@ with_gnu_ld
 enable_libtool_lock
 with_xplane_sdk
 enable_xplane_plugin
-enable_fgfs_support
+enable_ltr_pipe
 enable_snow_leopard
 '
       ac_precious_vars='build_alias
@@ -1529,8 +1529,7 @@ Optional Features:
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --enable-xplane-plugin  build XPlane plugin [default=yes]
-  --enable-fgfs-support   build ltr_fgfs to provide FlightGear support
-                          [default=yes]
+  --enable-ltr-pipe       build ltr_pipe data sender [default=yes]
   --enable-snow-leopard   specify that you are building on MacOSX 10.6
 
 Optional Packages:
@@ -4925,13 +4924,13 @@ if test "${lt_cv_nm_interface+set}" = set; then :
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:4928: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:4927: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4931: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:4930: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4934: output\"" >&5)
+  (eval echo "\"\$as_me:4933: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -6136,7 +6135,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 6139 "configure"' > conftest.$ac_ext
+  echo '#line 6138 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7661,11 +7660,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7664: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7663: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7668: \$? = $ac_status" >&5
+   echo "$as_me:7667: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8000,11 +7999,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8003: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8002: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8007: \$? = $ac_status" >&5
+   echo "$as_me:8006: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8105,11 +8104,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8108: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8107: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8112: \$? = $ac_status" >&5
+   echo "$as_me:8111: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -8160,11 +8159,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8163: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8162: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8167: \$? = $ac_status" >&5
+   echo "$as_me:8166: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10544,7 +10543,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10547 "configure"
+#line 10546 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10640,7 +10639,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10643 "configure"
+#line 10642 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11450,6 +11449,17 @@ _ACEOF
 ;;
   esac
 
+ac_fn_c_check_type "$LINENO" "size_t" "ac_cv_type_size_t" "$ac_includes_default"
+if test "x$ac_cv_type_size_t" = x""yes; then :
+
+else
+
+cat >>confdefs.h <<_ACEOF
+#define size_t unsigned int
+_ACEOF
+
+fi
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for inline" >&5
 $as_echo_n "checking for inline... " >&6; }
 if test "${ac_cv_c_inline+set}" = set; then :
@@ -11559,11 +11569,11 @@ fi
 fi
 
 
-# Check whether --enable-fgfs_support was given.
-if test "${enable_fgfs_support+set}" = set; then :
-  enableval=$enable_fgfs_support; with_fgfs_support=$enableval
+# Check whether --enable-ltr_pipe was given.
+if test "${enable_ltr_pipe+set}" = set; then :
+  enableval=$enable_ltr_pipe; with_ltr_pipe=$enableval
 else
-  with_fgfs_support=yes
+  with_ltr_pipe=yes
 
 fi
 
@@ -11683,12 +11693,12 @@ else
   X64_FALSE=
 fi
 
- if test  x$with_fgfs_support = xyes; then
-  LTR_FGFS_TRUE=
-  LTR_FGFS_FALSE='#'
+ if test  x$with_ltr_pipe = xyes; then
+  LTR_PIPE_TRUE=
+  LTR_PIPE_FALSE='#'
 else
-  LTR_FGFS_TRUE='#'
-  LTR_FGFS_FALSE=
+  LTR_PIPE_TRUE='#'
+  LTR_PIPE_FALSE=
 fi
 
 
@@ -11737,44 +11747,20 @@ _ACEOF
 fi
 done
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for error_at_line" >&5
-$as_echo_n "checking for error_at_line... " >&6; }
-if test "${ac_cv_lib_error_at_line+set}" = set; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <error.h>
-int
-main ()
-{
-error_at_line (0, 0, "", 0, "an error occurred");
-  ;
-  return 0;
-}
+for ac_func in strerror
+do :
+  ac_fn_c_check_func "$LINENO" "strerror" "ac_cv_func_strerror"
+if test "x$ac_cv_func_strerror" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_STRERROR 1
 _ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_error_at_line=yes
-else
-  ac_cv_lib_error_at_line=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_error_at_line" >&5
-$as_echo "$ac_cv_lib_error_at_line" >&6; }
-if test $ac_cv_lib_error_at_line = no; then
-  case " $LIBOBJS " in
-  *" error.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS error.$ac_objext"
- ;;
-esac
 
 fi
+done
 
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/pathconfig.h src/tests/Makefile src/mac/Makefile src/local_config.h src/qt_gui/ltr_gui.pro src/helper/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile src/pathconfig.h src/tests/Makefile src/mac/Makefile src/local_config.h src/qt_gui/ltr_gui.pro src/helper/Makefile doc/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -11926,8 +11912,8 @@ if test -z "${X64_TRUE}" && test -z "${X64_FALSE}"; then
   as_fn_error $? "conditional \"X64\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${LTR_FGFS_TRUE}" && test -z "${LTR_FGFS_FALSE}"; then
-  as_fn_error $? "conditional \"LTR_FGFS\" was never defined.
+if test -z "${LTR_PIPE_TRUE}" && test -z "${LTR_PIPE_FALSE}"; then
+  as_fn_error $? "conditional \"LTR_PIPE\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
@@ -12797,6 +12783,7 @@ do
     "src/local_config.h") CONFIG_FILES="$CONFIG_FILES src/local_config.h" ;;
     "src/qt_gui/ltr_gui.pro") CONFIG_FILES="$CONFIG_FILES src/qt_gui/ltr_gui.pro" ;;
     "src/helper/Makefile") CONFIG_FILES="$CONFIG_FILES src/helper/Makefile" ;;
+    "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5 ;;
   esac

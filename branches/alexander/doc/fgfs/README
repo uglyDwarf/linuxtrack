@@ -4,11 +4,11 @@ directory to proper FlightGear directories:
   cp linux-track.xml $FGROOT/Protocol/
   cp linux-track.nas $HOME/.fgfs/Nasal/
 
-Run ltr_fgfs in first terminal (use --help for available options):
+Run ltr_pipe in the first terminal window (use --help for available options):
 
-  ltr_fgfs
+  ltr_pipe --udp
 
-Run FlightGear in second terminal with the specified options:
+Run FlightGear in the second terminal window with the specified options:
 
   fgfs --generic=socket,in,100,,6543,udp,linux-track \
        --prop:/sim/linux-track/enabled=1
