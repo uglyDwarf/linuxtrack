@@ -4,7 +4,7 @@ This program allows you to send data from linux-track head tracking software
 to some destinations. Currently it is known to work with FlightGear and IL-2
 Shturmovik flight simulators.
 
-Compile and install ltr_pipe with linux-track:
+Compile and install linux-track with ltr_pipe enabled:
 
   ./configure --enable-ltr-pipe
   make
@@ -19,7 +19,7 @@ You must manually copy files from doc/fgfs directory to proper FlightGear
 directories:
   
   cp fgfs/linux-track.xml $FGROOT/Protocol/
-  cp fgfs/linux-track.nas $HOME/.fgfs/Nasal/
+  cp fgfs/linux-track.nas $FGROOT/Nasal/
 
 Run ltr_pipe in the first terminal window (use --help for available options):
 

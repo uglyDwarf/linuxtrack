@@ -31,6 +31,10 @@
 
 var script_name = "linux-track.nas";
 
+var lt_tree = "/sim/linux-track";
+var cv_tree = "/sim/current-view";
+
+
 ##
 # linux-track view handler class.
 # Use one instance per tracked view.
@@ -47,9 +51,6 @@ ltr_view_handler.init = func {
 
 	if (contains(me, "enabled"))
 		return;
-
-	var lt_tree = "/sim/linux-track";
-	var cv_tree = "/sim/current-view";
 
 	me.enabled   = props.globals.getNode(lt_tree ~ "/enabled", 1);
 	me.data      = props.globals.getNode(lt_tree ~ "/data", 1);
@@ -157,7 +158,6 @@ ltr_view_handler.init = func {
 		(me.track_X.getValue() == 1 ? ", x" : ""),
 		(me.track_Y.getValue() == 1 ? ", y" : ""),
 		(me.track_Z.getValue() == 1 ? ", z" : ""));
-	printf("%s: ready to receive data", script_name);
 };
 
 
@@ -217,10 +217,10 @@ var asnum = func(n) {
 	} else {
 		return 0;
 	}
-}
+};
 
 
-if (getprop("/sim/linux-track/enabled")) {
+var regviews = func {
 
 	foreach (var v; view.views) {
 
@@ -232,5 +232,32 @@ if (getprop("/sim/linux-track/enabled")) {
 		}
 
 		view.manager.register(v.getIndex(), ltr_view_handler);
+
+		printf("%s: registered '%s'",
+			script_name, view_name);
 	}
-}
+};
+
+
+var main = func(n) {
+
+	if (n.getValue() != 1)
+		return;
+
+	var enabled = props.globals.getNode(lt_tree ~ "/enabled");
+
+	if (enabled.getValue() != 1)
+		return;
+
+	# Must wait some seconds untill the objects
+	# from view.nas become fully initialized.
+	#
+	# TODO: Find a better way for this, may be
+	#       by using some property checks.
+
+	settimer(regviews, 2);
+};
+
+
+setlistener("/sim/signals/fdm-initialized", main, 1, 0);
+
