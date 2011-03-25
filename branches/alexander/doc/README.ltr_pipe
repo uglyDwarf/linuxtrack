@@ -18,8 +18,8 @@ Compile and install linux-track with ltr_pipe enabled:
 You must manually copy files from doc/fgfs directory to proper FlightGear
 directories:
   
-  cp fgfs/linux-track.xml $FGROOT/Protocol/
-  cp fgfs/linux-track.nas $FGROOT/Nasal/
+  cp fgfs/linux-track.xml $FG_ROOT/Protocol/
+  cp fgfs/linux-track.nas $FG_ROOT/Nasal/
 
 Run ltr_pipe in the first terminal window (use --help for available options):
 
@@ -52,6 +52,8 @@ Run FlightGear in the second terminal window:
 
 * IL-2 Shturmovik
 -----------------
+
+DON'T USE! ALMOST COMPLETELY UNUSABLE YET.
 
 Edit IL-2 Shturmovik conf.ini file and set its parameters:
 

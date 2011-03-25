@@ -17,6 +17,7 @@
 #include <string.h>
 #include <signal.h>
 #include <stdint.h>
+#include <libgen.h>
 #include <linuxtrack.h>
 
 
@@ -26,10 +27,11 @@
 #define DEFAULT_LTR_PROFILE   "Default"
 
 
+//static int Recenter  =  0;
 static int Terminate =  0;
-static int Recenter  =  0;
 static int PipeFD    = -1;
 
+static char *Program_name;
 
 
 /* ltr_get_camera_update() arguments put together in one structure */
@@ -116,7 +118,7 @@ static void help(void)
 "\n"
 "Report bugs to %s\n",
 
-	program_invocation_name,
+	Program_name,
 	DEFAULT_DST_HOST,
 	DEFAULT_DST_PORT,
 	DEFAULT_LTR_PROFILE,
@@ -170,7 +172,7 @@ static void parse_opt(int argc, char **argv)
 
 
 /**
- * error() - Print error message and optionally terminate program
+ * xerror() - Print error message and optionally terminate program
  * @status:  Terminate with this exit code if it is non-zero.
  * @errnum:  Value of errno.
  * @format:  Printf-like format string for message.
@@ -179,11 +181,11 @@ static void parse_opt(int argc, char **argv)
  * This is a re-invention of GNU/Linux error() function from <error.h>
  * just because there is no such header and function available on Mac OS.
  **/
-static void error(int status, int errnum, const char *format, ...)
+static void xerror(int status, int errnum, const char *format, ...)
 {
 	va_list params;
 
-	fprintf(stderr, "%s: ", program_invocation_name);
+	fprintf(stderr, "%s: ", Program_name);
 
 	va_start(params, format);
 	vfprintf(stderr, format, params);
@@ -214,17 +216,23 @@ static void catch_sigusr2(int sig)
 
 static void catch_sighup(int sig)
 {
+	(void) sig;
+
 	Recenter = 1;
 }
 */
 
 static void catch_sigterm(int sig)
 {
+	(void) sig;
+
 	Terminate = 1;
 }
 
 static void catch_sigint(int sig)
 {
+	(void) sig;
+
 	Terminate = 1;
 }
 
@@ -261,7 +269,7 @@ static void setup_fd(void)
 
 	r = getaddrinfo(Args.dst_host, Args.dst_port, &hints, &res);
 	if (r != 0)
-		error(1, 0, "Bad host address: %s", gai_strerror(r));
+		xerror(1, 0, "Bad host address: %s", gai_strerror(r));
 
 	for (rp = res; rp != NULL; rp = rp->ai_next) {
 
@@ -277,7 +285,7 @@ static void setup_fd(void)
 	}
 
 	if (rp == NULL)
-		error(1, 0, "Socket setup failed");
+		xerror(1, 0, "Socket setup failed");
 
 	freeaddrinfo(res);
 }
@@ -299,7 +307,7 @@ static void at_exit(void)
 static void init(void)
 {
 	if (ltr_init(Args.ltr_profile) != 0)
-		error(1, 0, "Linux-track initialization failed");
+		xerror(1, 0, "Linux-track initialization failed");
 
 	int timeout = atoi(Args.ltr_timeout);
 
@@ -315,10 +323,10 @@ static void init(void)
 	}
 
 	if (ltr_get_tracking_state() != RUNNING)
-		error(1, 0, "Linux-track initialization timeout");
+		xerror(1, 0, "Linux-track initialization timeout");
 
 	if (atexit(at_exit) != 0)
-		error(1, 0, "Exit function setup failed");
+		xerror(1, 0, "Exit function setup failed");
 
 	setup_signals();
 
@@ -344,7 +352,7 @@ static void pipe_write(const char *buf, size_t bsz)
 		return;
 
 	if (r == -1)
-		error(1, errno, "write()");
+		xerror(1, errno, "write()");
 }
 
 
@@ -470,7 +478,7 @@ static void run_loop(void)
 			continue;
 
 		if (r == -1)
-			error(1, errno, "select()");
+			xerror(1, errno, "select()");
 
 		if (FD_ISSET(PipeFD, &wfds)) {
 			switch (Args.format) {
@@ -494,6 +502,8 @@ static void run_loop(void)
 
 int main(int argc, char **argv)
 {
+	Program_name = basename(argv[0]);
+
 	parse_opt(argc, argv);
 
 	init();

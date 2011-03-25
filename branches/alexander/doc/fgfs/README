@@ -1,8 +1,8 @@
 To enable support in FlightGear you must manually copy files from this
 directory to proper FlightGear directories:
   
-  cp linux-track.xml $FGROOT/Protocol/
-  cp linux-track.nas $FGROOT/Nasal/
+  cp linux-track.xml $FG_ROOT/Protocol/
+  cp linux-track.nas $FG_ROOT/Nasal/
 
 Run ltr_pipe in the first terminal window (use --help for available options):
 
