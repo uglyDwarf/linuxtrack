@@ -1,8 +1,12 @@
 ltr_pipe: linux-track data sender
 
 This program allows you to send data from linux-track head tracking software
-to some destinations. Currently it is known to work with FlightGear and IL-2
-Shturmovik flight simulators.
+to some destinations. Currently it is known to work with:
+
+* FlightGear (git version only)
+* IL-2 Shturmovik (movement is not smooth though)
+* Silent Wings 
+
 
 Compile and install linux-track with ltr_pipe enabled:
 
@@ -53,8 +57,6 @@ Run FlightGear in the second terminal window:
 * IL-2 Shturmovik
 -----------------
 
-DON'T USE! ALMOST COMPLETELY UNUSABLE YET.
-
 Edit IL-2 Shturmovik conf.ini file and set its parameters:
 
 [DeviceLink]
@@ -66,6 +68,26 @@ Run ltr_pipe in a terminal window:
   ltr_pipe --udp --format-il2
 
 Run IL-2 Shturmovik as you usually run it.
+
+
+
+* Silent Wings
+--------------
+
+Read this first: http://wiki.silentwings.no/index.php?title=Remote_Control
+
+Add the following lines to Silent Wings options.dat:
+
+use_remote_control = true
+remote_control_port = 6543
+remote_control_mode = UDP
+
+Run ltr_pipe in a terminal window:
+
+  ltr_pipe --udp --format-sw
+
+Run Silent Wings as you usually run it.
+
 
 
 Have fun!

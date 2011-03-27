@@ -55,7 +55,8 @@ enum outputs {
 enum formats {
 	FORMAT_FGFS  = 0,  // Default, for FlightGear with linux-track.xml
 	FORMAT_IL2   = 1,  // For IL-2 Shturmovik with DeviceLink protocol
-	FORMAT_EHT   = 2   // Easy-Headtrack compatible format
+	FORMAT_EHT   = 2,  // Easy-Headtrack compatible format
+	FORMAT_SW    = 3   // Silent Wings format
 };
 
 
@@ -91,6 +92,7 @@ static struct option Opts[] = {
 	{ "ltr-timeout",  required_argument, 0,                  't'         },
 	{ "format-il2",   no_argument,       (int*)&Args.format,  FORMAT_IL2 },
 	{ "format-eht",   no_argument,       (int*)&Args.format,  FORMAT_EHT },
+	{ "format-sw",    no_argument,       (int*)&Args.format,  FORMAT_SW  },
 	{ 0, 0, 0, 0 }
 };
 
@@ -112,6 +114,7 @@ static void help(void)
 "  -t, --ltr-timeout=SECONDS  Linux-track init timeout (default: %s)\n"
 "      --format-il2           Output in IL-2 Shturmovik DeviceLink format\n"
 "      --format-eht           Output in Easy-Headtrack compatible format\n"
+"      --format-sw            Output in Silent Wings remote control format\n"
 "\n"
 "Mandatory or optional arguments to long options are also mandatory or optional\n"
 "for any corresponding short options.\n"
@@ -337,7 +340,7 @@ static void init(void)
 
 
 /**
- * pipe_write() - Write data to PideFD
+ * pipe_write() - Write data to PipeFD
  * @buf:          Data buffer
  * @bsz:          Data size
  **/
@@ -439,6 +442,25 @@ static void eht_send(const struct ltr_data *d)
 }
 
 
+/**
+ * sw_send() - Send data to Silent Wings
+ * @d:        Data to send.
+ **/
+static void sw_send(const struct ltr_data *d)
+{
+	int r;
+
+	char buf[64];
+
+	r = snprintf(buf, sizeof(buf),
+			"PANH %f\nPANV %f\n",
+			d->heading,
+			d->pitch);
+
+	pipe_write(buf, r);
+}
+
+
 static void run_loop(void)
 {
 	int r;
@@ -487,6 +509,9 @@ static void run_loop(void)
 				break;
 			case FORMAT_EHT:
 				eht_send(&d);
+				break;
+			case FORMAT_SW:
+				sw_send(&d);
 				break;
 			case FORMAT_FGFS:
 			default:
