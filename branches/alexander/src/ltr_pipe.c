@@ -21,7 +21,7 @@
 #include <linuxtrack.h>
 
 
-#define DEFAULT_DST_HOST      "localhost"
+#define DEFAULT_DST_HOST      "127.0.0.1"
 #define DEFAULT_DST_PORT      "6543"
 #define DEFAULT_LTR_TIMEOUT   "10"
 #define DEFAULT_LTR_PROFILE   "Default"
@@ -265,7 +265,7 @@ static void setup_fd(void)
 	hints.ai_family    = AF_UNSPEC;
 	hints.ai_socktype  = SOCK_DGRAM;
 	hints.ai_flags     = 0;
-	hints.ai_protocol  = 0;
+	hints.ai_protocol  = IPPROTO_UDP;
 
 	r = getaddrinfo(Args.dst_host, Args.dst_port, &hints, &res);
 	if (r != 0)
