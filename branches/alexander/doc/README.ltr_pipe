@@ -7,6 +7,8 @@ to some destinations. Currently it is known to work with:
 * IL-2 Shturmovik (movement is not smooth though)
 * Silent Wings 
 
+Also it can send data in IMPS/2 mouse format moving mouse pointer. Try to
+play the Neverball game with this feature :^)
 
 Compile and install linux-track with ltr_pipe enabled:
 
@@ -87,6 +89,41 @@ Run ltr_pipe in a terminal window:
   ltr_pipe --udp --format-sw
 
 Run Silent Wings as you usually run it.
+
+
+
+* Mouse emulation
+-----------------
+
+To use this feature you have to make some preparations. First create a 
+named pipe somewhere on your system. For example:
+
+  mkfifo -m 664 /var/local/ltr_pipe
+  chgrp plugdev /var/local/ltr_pipe
+
+Instead of a 'plugdev' group you may use any group that is appropriate for your
+system. Of course, you must be a member of that group. Your xorg.conf must
+contain something like this (see xorg.conf documentation for details):
+
+Section "InputDevice"
+        Identifier      "LinuxTrack"
+        Driver          "mouse"
+        Option          "Device"                "/var/local/ltr_pipe"
+        Option          "Protocol"              "imps/2"
+        Option          "SendCoreEvents"        "yes"
+EndSection
+
+Section "ServerLayout"
+        Identifier      "Default Server Layout"
+        Screen          "Default Screen"
+        InputDevice     "LinuxTrack"
+EndSection
+
+
+Restart X server, check it's log for errors. In case of errors consult X server
+documentation. If everything is OK, then you may run ltr_pipe:
+
+  ltr_pipe --out-file=/var/local/ltr_pipe --format-mouse
 
 
 

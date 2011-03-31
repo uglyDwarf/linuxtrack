@@ -11,6 +11,8 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -27,11 +29,22 @@
 #define DEFAULT_LTR_PROFILE   "Default"
 
 
-//static int Recenter  =  0;
+static int Recenter  =  0;
 static int Terminate =  0;
 static int PipeFD    = -1;
 
 static char *Program_name;
+
+
+/* Run states: RUNNING -> SUSPEND -> STOPPED -> WAKEUP -> RUNNING */
+enum run_states {
+	RST_RUNNING = 0,
+	RST_SUSPEND = 1,
+	RST_STOPPED = 2,
+	RST_WAKEUP  = 3
+};
+
+enum run_states Run_state = RST_RUNNING;
 
 
 /* ltr_get_camera_update() arguments put together in one structure */
@@ -48,7 +61,8 @@ struct ltr_data {
 
 enum outputs {
 	OUTPUT_STDOUT = 0,
-	OUTPUT_NETUDP = 1
+	OUTPUT_FILE   = 1,
+	OUTPUT_NETUDP = 2
 };
 
 
@@ -56,7 +70,8 @@ enum formats {
 	FORMAT_FGFS  = 0,  // Default, for FlightGear with linux-track.xml
 	FORMAT_IL2   = 1,  // For IL-2 Shturmovik with DeviceLink protocol
 	FORMAT_EHT   = 2,  // Easy-Headtrack compatible format
-	FORMAT_SW    = 3   // Silent Wings format
+	FORMAT_SW    = 3,  // Silent Wings format
+	FORMAT_MOUSE = 4   // IMPS/2 Mouse format
 };
 
 
@@ -68,6 +83,7 @@ struct args
 	char          *dst_port;
 	char          *ltr_profile;
 	char          *ltr_timeout;
+	char          *out_file;
 	enum formats  format;
 };
 
@@ -77,26 +93,29 @@ static struct args Args = {
 	.dst_port     = DEFAULT_DST_PORT,
 	.ltr_profile  = NULL, // DEFAULT_LTR_PROFILE
 	.ltr_timeout  = DEFAULT_LTR_TIMEOUT,
+	.out_file     = NULL,
 	.format       = FORMAT_FGFS,
 };
 
 
 /* Program options structure */
 static struct option Opts[] = {
-	{ "help",         no_argument,       0,                  'h'         },
-	{ "version",      no_argument,       0,                  'V'         },
-	{ "udp",          no_argument,       0,                  'U'         },
-	{ "dst-host",     required_argument, 0,                  'd'         },
-	{ "dst-port",     required_argument, 0,                  'p'         },
-	{ "ltr-profile",  required_argument, 0,                  'f'         },
-	{ "ltr-timeout",  required_argument, 0,                  't'         },
-	{ "format-il2",   no_argument,       (int*)&Args.format,  FORMAT_IL2 },
-	{ "format-eht",   no_argument,       (int*)&Args.format,  FORMAT_EHT },
-	{ "format-sw",    no_argument,       (int*)&Args.format,  FORMAT_SW  },
+	{ "help",         no_argument,       0,                  'h'           },
+	{ "version",      no_argument,       0,                  'V'           },
+	{ "udp",          no_argument,       0,                  'U'           },
+	{ "dst-host",     required_argument, 0,                  'd'           },
+	{ "dst-port",     required_argument, 0,                  'p'           },
+	{ "ltr-profile",  required_argument, 0,                  'f'           },
+	{ "ltr-timeout",  required_argument, 0,                  't'           },
+	{ "out-file",     required_argument, 0,                  'o'           },
+	{ "format-il2",   no_argument,       (int*)&Args.format,  FORMAT_IL2   },
+	{ "format-eht",   no_argument,       (int*)&Args.format,  FORMAT_EHT   },
+	{ "format-sw",    no_argument,       (int*)&Args.format,  FORMAT_SW    },
+	{ "format-mouse", no_argument,       (int*)&Args.format,  FORMAT_MOUSE },
 	{ 0, 0, 0, 0 }
 };
 
-static const char *Opts_str = "hVUd:p:f:t:";
+static const char *Opts_str = "hVUd:p:f:t:o:";
 
 
 static void help(void)
@@ -112,9 +131,11 @@ static void help(void)
 "  -p, --dst-port=PORT        Destination port (default: %s)\n"
 "  -f, --ltr-profile=NAME     Linux-track profile name (default: %s)\n"
 "  -t, --ltr-timeout=SECONDS  Linux-track init timeout (default: %s)\n"
+"  -o, --out-file=NAME        Output to a file\n"
 "      --format-il2           Output in IL-2 Shturmovik DeviceLink format\n"
 "      --format-eht           Output in Easy-Headtrack compatible format\n"
 "      --format-sw            Output in Silent Wings remote control format\n"
+"      --format-mouse         Output in IMPS/2 mouse format\n"
 "\n"
 "Mandatory or optional arguments to long options are also mandatory or optional\n"
 "for any corresponding short options.\n"
@@ -166,6 +187,10 @@ static void parse_opt(int argc, char **argv)
 		case 't':
 			Args.ltr_timeout = optarg;
 			break;
+		case 'o':
+			Args.output = OUTPUT_FILE;
+			Args.out_file = optarg;
+			break;
 		case '?':
 			exit(EXIT_FAILURE);
 			break;
@@ -208,14 +233,27 @@ static inline int max(int a, int b)
 }
 
 
-/*
 static void catch_sigusr1(int sig)
 {
+	(void) sig;
+
+	switch (Run_state) {
+	case RST_RUNNING:
+		Run_state = RST_SUSPEND;
+		break;
+	case RST_STOPPED:
+		Run_state = RST_WAKEUP;
+		break;
+	default:
+		break;
+	}
 }
 
+/*
 static void catch_sigusr2(int sig)
 {
 }
+*/
 
 static void catch_sighup(int sig)
 {
@@ -223,7 +261,6 @@ static void catch_sighup(int sig)
 
 	Recenter = 1;
 }
-*/
 
 static void catch_sigterm(int sig)
 {
@@ -241,11 +278,37 @@ static void catch_sigint(int sig)
 
 static void setup_signals(void)
 {
-	//signal(SIGUSR1, catch_sigusr1);
+	signal(SIGUSR1, catch_sigusr1);
 	//signal(SIGUSR2, catch_sigusr2);
-	//signal(SIGHUP,  catch_sighup);
+	signal(SIGHUP,  catch_sighup);
 	signal(SIGTERM, catch_sigterm);
 	signal(SIGINT,  catch_sigint);
+}
+
+
+/**
+ * setup_ltr() - Prepare linux-track library.
+ **/
+static void setup_ltr(void)
+{
+	if (ltr_init(Args.ltr_profile) != 0)
+		xerror(1, 0, "Linux-track initialization failed");
+
+	int timeout = atoi(Args.ltr_timeout);
+
+	ltr_state_type st;
+
+	while (timeout > 0) {
+		st = ltr_get_tracking_state();
+		if ((st == DOWN) || (st == STOPPED))
+			sleep(1);
+		else
+			break;
+		timeout--;
+	}
+
+	if (ltr_get_tracking_state() != RUNNING)
+		xerror(1, 0, "Linux-track initialization timeout");
 }
 
 
@@ -256,6 +319,15 @@ static void setup_fd(void)
 {
 	if (Args.output == OUTPUT_STDOUT) {
 		PipeFD = STDOUT_FILENO;
+		return;
+	}
+
+	if (Args.output == OUTPUT_FILE) {
+		PipeFD = open(Args.out_file, O_CREAT | O_APPEND | O_WRONLY,
+				S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		if (PipeFD == -1)
+			xerror(1, errno, "Failed to open file %s",
+					Args.out_file);
 		return;
 	}
 
@@ -309,24 +381,7 @@ static void at_exit(void)
 
 static void init(void)
 {
-	if (ltr_init(Args.ltr_profile) != 0)
-		xerror(1, 0, "Linux-track initialization failed");
-
-	int timeout = atoi(Args.ltr_timeout);
-
-	ltr_state_type st;
-
-	while (timeout > 0) {
-		st = ltr_get_tracking_state();
-		if ((st == DOWN) || (st == STOPPED))
-			sleep(1);
-		else
-			break;
-		timeout--;
-	}
-
-	if (ltr_get_tracking_state() != RUNNING)
-		xerror(1, 0, "Linux-track initialization timeout");
+	setup_ltr();
 
 	if (atexit(at_exit) != 0)
 		xerror(1, 0, "Exit function setup failed");
@@ -344,9 +399,9 @@ static void init(void)
  * @buf:          Data buffer
  * @bsz:          Data size
  **/
-static void pipe_write(const char *buf, size_t bsz)
+static void pipe_write(const void *buf, size_t bsz)
 {
-	int r = write(PipeFD, (void *) buf, bsz);
+	int r = write(PipeFD, buf, bsz);
 
 	if (r == -1 && errno == EINTR)
 		return;
@@ -409,7 +464,7 @@ static void fg_send(const struct ltr_data *d)
 static void eht_send(const struct ltr_data *d)
 {
 	const size_t bsz = 1 + 6 * sizeof(uint32_t);
-	char buf[bsz];
+	int8_t buf[bsz];
 	uint32_t tmp;
 	size_t offset = 0;
 
@@ -443,6 +498,39 @@ static void eht_send(const struct ltr_data *d)
 
 
 /**
+ * mouse_send() - Send data using IMPS/2 mouse format
+ * @d:        Data to send.
+ **/
+static void mouse_send(const struct ltr_data *d)
+{
+        int8_t x  = (int8_t) d->heading;
+        int8_t y  = (int8_t) d->pitch;
+        int8_t zx = 0;
+        int8_t zy = 0;
+
+        int8_t bttns = 0;
+
+        int8_t buf[4];
+
+        buf[0]  = 0x08;
+        buf[0] |= (bttns & 0x07);
+        buf[0] |= ((x < 0) ? 0x10 : 0);
+        buf[0] |= ((y < 0) ? 0x20 : 0);
+
+        buf[1] = x;
+        buf[2] = y;
+        buf[3] = 0x00;
+
+        if (zx)
+                buf[3] |= ((zx < 0) ? 2 : -2);
+        if (zy)
+                buf[3] |= ((zy < 0) ? 1 : -1);
+
+        pipe_write(buf, sizeof(buf));
+}
+
+
+/**
  * sw_send() - Send data to Silent Wings
  * @d:        Data to send.
  **/
@@ -461,6 +549,54 @@ static void sw_send(const struct ltr_data *d)
 }
 
 
+static void send_data(const struct ltr_data *d)
+{
+	switch (Args.format) {
+	case FORMAT_IL2:
+		il2_send(d);
+		break;
+	case FORMAT_EHT:
+		eht_send(d);
+		break;
+	case FORMAT_SW:
+		sw_send(d);
+		break;
+	case FORMAT_MOUSE:
+		mouse_send(d);
+		break;
+	case FORMAT_FGFS:
+	default:
+		fg_send(d);
+		break;
+	}
+}
+
+
+static int sleepping(void)
+{
+	switch (Run_state) {
+	case RST_RUNNING:
+		return 0;
+	case RST_SUSPEND:
+		fprintf(stderr, "Suspend\n");
+		ltr_suspend();
+		Run_state = RST_STOPPED;
+		return 1;
+	case RST_STOPPED:
+		return 1;
+	case RST_WAKEUP:
+		fprintf(stderr, "Wake-up\n");
+		ltr_wakeup();
+		Run_state = RST_RUNNING;
+		return 0;
+	default:
+		break;
+	}
+
+	return 0;
+}
+
+
 static void run_loop(void)
 {
 	int r;
@@ -473,6 +609,17 @@ static void run_loop(void)
 	while (!Terminate) {
 
 		usleep(10000);
+
+		if (sleepping()) {
+			usleep(100000);
+			continue;
+		}
+
+		if (Recenter) {
+			Recenter = 0;
+			fprintf(stderr, "Recenter\n");
+			ltr_recenter();
+		}
 
 		r = ltr_get_camera_update(
 				&d.heading,
@@ -502,23 +649,8 @@ static void run_loop(void)
 		if (r == -1)
 			xerror(1, errno, "select()");
 
-		if (FD_ISSET(PipeFD, &wfds)) {
-			switch (Args.format) {
-			case FORMAT_IL2:
-				il2_send(&d);
-				break;
-			case FORMAT_EHT:
-				eht_send(&d);
-				break;
-			case FORMAT_SW:
-				sw_send(&d);
-				break;
-			case FORMAT_FGFS:
-			default:
-				fg_send(&d);
-				break;
-			}
-		}
+		if (FD_ISSET(PipeFD, &wfds))
+			send_data(&d);
 	}
 
 	fprintf(stderr, "Got termination signal\n");

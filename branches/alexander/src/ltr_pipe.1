@@ -1,7 +1,7 @@
 .TH ltr_pipe 1 "17 March 2011"
 .IX ltr_pipe
 .SH NAME
-ltr_pipe - send linux-track data to STDOUT or to network.
+ltr_pipe - send linux-track data to STDOUT, a file or network.
 .SH SYNOPSYS
 .B ltr_pipe
 .RI [-hVU]
@@ -9,18 +9,21 @@ ltr_pipe - send linux-track data to STDOUT or to network.
 .RI [-p\ PORT]
 .RI [-f\ NAME]
 .RI [-t\ SECONDS]
+.RI [-o\ NAME]
 .RI [--udp]
 .RI [--dst-host=HOST]
 .RI [--dst-port=PORT]
 .RI [--ltr-profile=NAME]
 .RI [--ltr-timeout=SECONDS]
+.RI [--out-file=NAME]
 .RI [--format-il2]
 .RI [--format-eht]
+.RI [--format-mouse]
 .RI [--help]
 .RI [--version]
 .SH DESCRIPTION
 ltr_pipe is a client executable that allows to send linux-track data to
-STDOUT or using UDP protocol to some network destination.
+STDOUT, a file or using UDP protocol to some network destination.
 .SH OPTIONS
 .TP
 .B -U, --udp
@@ -38,6 +41,9 @@ Linux-track profile name (default: Default).
 .B -t <SECONDS>, --ltr-timeout=<SECONDS>
 Linux-track initialization timeout in seconds (default: 10).
 .TP
+.B -o <NAME>, --out-file=<NAME>
+Output data to a file NAME.
+.TP
 .B --format-il2
 Output data in IL-2 Shturmovik DeviceLink protocol format.
 .TP
@@ -47,9 +53,18 @@ Output data in easy-headtrack compatible format.
 .B --format-sw
 Output data in Silent Wings remote control format.
 .TP
+.B --format-mouse
+Output data in IMPS/2 mouse format.
+.TP
 .B -h, --help
 Give help list.
 .TP
 .B -V, --version
 Print program version.
-
+.SH SIGNALS
+.TP
+.B HUP
+Used as a recenter command.
+.TP
+.B USR1
+Used to suspend/wake-up tracking.

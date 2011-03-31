@@ -31,7 +31,7 @@ AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdint.h assert.h])
-AC_CHECK_HEADERS([stdlib.h unistd.h netdb.h sys/socket.h])
+AC_CHECK_HEADERS([stdlib.h unistd.h netdb.h sys/socket.h fcntl.h])
 
 AC_CHECK_FILE([tir4.fw.gz], [with_tir_fw=yes], [with_tir_fw=no])
 
@@ -40,6 +40,7 @@ AC_HEADER_STDBOOL
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
+AC_TYPE_INT8_T
 AC_TYPE_SIZE_T
 AC_C_INLINE
 
