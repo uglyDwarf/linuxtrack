@@ -183,9 +183,8 @@ if LTR_PIPE
   man_MANS += ltr_pipe.1
   bin_PROGRAMS += ltr_pipe
   ltr_pipe_CPPFLAGS = -D_GNU_SOURCE
-  ltr_pipe_SOURCES = ltr_pipe.c
+  ltr_pipe_SOURCES = ltr_pipe.c linuxtrack.c
   ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
-  ltr_pipe_LDADD = liblinuxtrack.la
   ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_FGFS_FLAGS}
 endif
 
