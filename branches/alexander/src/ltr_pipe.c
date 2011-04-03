@@ -22,6 +22,12 @@
 #include <libgen.h>
 #include <linuxtrack.h>
 
+#ifdef LINUX
+#include <sys/ioctl.h>
+#include <linux/input.h>
+#include <linux/uinput.h>
+#endif
+
 
 #define DEFAULT_DST_HOST      "127.0.0.1"
 #define DEFAULT_DST_PORT      "6543"
@@ -29,9 +35,14 @@
 #define DEFAULT_LTR_PROFILE   "Default"
 
 
+/* Global flags */
 static int Recenter  =  0;
 static int Terminate =  0;
+
+
+/* File descriptor */
 static int PipeFD    = -1;
+
 
 static char *Program_name;
 
@@ -59,19 +70,28 @@ struct ltr_data {
 };
 
 
+/* Output destinations */
 enum outputs {
-	OUTPUT_STDOUT = 0,
-	OUTPUT_FILE   = 1,
-	OUTPUT_NETUDP = 2
+	OUTPUT_NONE     = 0,
+	OUTPUT_STDOUT   = 1,
+	OUTPUT_FILE     = 2,
+	OUTPUT_NET_UDP  = 3,
+	OUTPUT_NET_TCP  = 4,
 };
 
 
+/* Data output formats */
 enum formats {
-	FORMAT_FGFS  = 0,  // Default, for FlightGear with linux-track.xml
-	FORMAT_IL2   = 1,  // For IL-2 Shturmovik with DeviceLink protocol
-	FORMAT_EHT   = 2,  // Easy-Headtrack compatible format
-	FORMAT_SW    = 3,  // Silent Wings format
-	FORMAT_MOUSE = 4   // IMPS/2 Mouse format
+	FORMAT_DEFAULT      = 0, // Default
+	FORMAT_FLIGHTGEAR   = 1, // For FlightGear with linuxtrack.xml
+	FORMAT_IL2          = 2, // For IL-2 Shturmovik with DeviceLink protocol
+	FORMAT_HEADTRACK    = 3, // EasyHeadTrack compatible format
+	FORMAT_SILENTWINGS  = 4, // Silent Wings format
+	FORMAT_MOUSE        = 5, // ImPS/2 Mouse format
+#ifdef LINUX
+	FORMAT_UINPUT_REL   = 6, // uinput relative position (like a mouse)
+	FORMAT_UINPUT_ABS   = 7, // uinput absolute position (like a joystick)
+#endif
 };
 
 
@@ -79,43 +99,170 @@ enum formats {
 struct args
 {
 	enum outputs  output;
+	char          *file;
 	char          *dst_host;
 	char          *dst_port;
 	char          *ltr_profile;
 	char          *ltr_timeout;
-	char          *out_file;
 	enum formats  format;
 };
 
 static struct args Args = {
-	.output       = OUTPUT_STDOUT,
+	.output       = OUTPUT_NONE,
+	.file         = NULL,
 	.dst_host     = DEFAULT_DST_HOST,
 	.dst_port     = DEFAULT_DST_PORT,
 	.ltr_profile  = NULL, // DEFAULT_LTR_PROFILE
 	.ltr_timeout  = DEFAULT_LTR_TIMEOUT,
-	.out_file     = NULL,
-	.format       = FORMAT_FGFS,
+	.format       = FORMAT_DEFAULT,
+};
+
+
+enum option_codes {
+	/* Don't assign code 0x3f (symbol '?') */
+	OPT_HELP                   = 'h',  // 0x68
+	OPT_VERSION                = 'V',  // 0x56
+	OPT_OUTPUT_STDOUT          = 0x01,
+	OPT_OUTPUT_FILE            = 0x02,
+	OPT_OUTPUT_NET_UDP         = 0x03,
+	OPT_OUTPUT_NET_TCP         = 0x04,
+	OPT_DST_HOST               = 0x05,
+	OPT_DST_PORT               = 0x06,
+	OPT_LTR_PROFILE            = 0x07,
+	OPT_LTR_TIMEOUT            = 0x08,
+	OPT_FORMAT_DEFAULT         = 0x09,
+	OPT_FORMAT_FLIGHTGEAR      = 0x0a,
+	OPT_FORMAT_IL2             = 0x0b,
+	OPT_FORMAT_HEADTRACK       = 0x0c,
+	OPT_FORMAT_SILENTWINGS     = 0x0d,
+	OPT_FORMAT_MOUSE           = 0x0e,
+#ifdef LINUX
+	OPT_FORMAT_UINPUT_REL      = 0x0f,
+	OPT_FORMAT_UINPUT_ABS      = 0x10,
+#endif
 };
 
 
 /* Program options structure */
 static struct option Opts[] = {
-	{ "help",         no_argument,       0,                  'h'           },
-	{ "version",      no_argument,       0,                  'V'           },
-	{ "udp",          no_argument,       0,                  'U'           },
-	{ "dst-host",     required_argument, 0,                  'd'           },
-	{ "dst-port",     required_argument, 0,                  'p'           },
-	{ "ltr-profile",  required_argument, 0,                  'f'           },
-	{ "ltr-timeout",  required_argument, 0,                  't'           },
-	{ "out-file",     required_argument, 0,                  'o'           },
-	{ "format-il2",   no_argument,       (int*)&Args.format,  FORMAT_IL2   },
-	{ "format-eht",   no_argument,       (int*)&Args.format,  FORMAT_EHT   },
-	{ "format-sw",    no_argument,       (int*)&Args.format,  FORMAT_SW    },
-	{ "format-mouse", no_argument,       (int*)&Args.format,  FORMAT_MOUSE },
+	{
+		"help",
+		no_argument,
+		0,
+		OPT_HELP
+	},
+	{
+		"version",
+		no_argument,
+		0,
+		OPT_VERSION
+	},
+	{
+		"output-stdout",
+		no_argument,
+		0,
+		OPT_OUTPUT_STDOUT
+	},
+	{
+		"output-file",
+		required_argument,
+		0,
+		OPT_OUTPUT_FILE
+	},
+	{
+		"output-net-udp",
+		no_argument,
+		0,
+		OPT_OUTPUT_NET_UDP
+	},
+	{
+		"output-net-tcp",
+		no_argument,
+		0,
+		OPT_OUTPUT_NET_TCP
+	},
+	{
+		"dst-host",
+		required_argument,
+		0,
+		OPT_DST_HOST
+	},
+	{
+		"dst-port",
+		required_argument,
+		0,
+		OPT_DST_PORT
+	},
+	{
+		"ltr-profile",
+		required_argument,
+		0,
+		OPT_LTR_PROFILE
+	},
+	{
+		"ltr-timeout",
+		required_argument,
+		0,
+		OPT_LTR_TIMEOUT
+	},
+	{
+		"format-default",
+		no_argument,
+		0,
+		OPT_FORMAT_DEFAULT
+	},
+	{
+		"format-flightgear",
+		no_argument,
+		0,
+		OPT_FORMAT_FLIGHTGEAR
+	},
+	{
+		"format-il2",
+		no_argument,
+		0,
+		OPT_FORMAT_IL2
+	},
+	{
+		"format-headtrack",
+		no_argument,
+		0,
+		OPT_FORMAT_HEADTRACK
+	},
+	{
+		"format-silentwings",
+		no_argument,
+		0,
+		OPT_FORMAT_SILENTWINGS
+	},
+	{
+		"format-mouse",
+		no_argument,
+		0,
+		OPT_FORMAT_MOUSE
+	},
+#ifdef LINUX
+	{
+		"format-uinput-rel",
+		no_argument,
+		0,
+		OPT_FORMAT_UINPUT_REL
+	},
+	{
+		"format-uinput-abs",
+		no_argument,
+		0,
+		OPT_FORMAT_UINPUT_ABS
+	},
+#endif
 	{ 0, 0, 0, 0 }
 };
 
-static const char *Opts_str = "hVUd:p:f:t:o:";
+static const char *Opts_str = "hV";
+
+
+static void xerror(int, int, const char *, ...);
+static void xwrite(const void *, size_t);
 
 
 static void help(void)
@@ -124,30 +271,47 @@ static void help(void)
 
 "Usage: %s [OPTION...]\n"
 "\n"
+"Generic options:\n"
+"\n"
 "  -h, --help                 Give this help list\n"
 "  -V, --version              Print program version\n"
-"  -U, --udp                  Output data to network using UDP proto\n"
-"  -d, --dst-host=HOST        Destination host (default: %s)\n"
-"  -p, --dst-port=PORT        Destination port (default: %s)\n"
-"  -f, --ltr-profile=NAME     Linux-track profile name (default: %s)\n"
-"  -t, --ltr-timeout=SECONDS  Linux-track init timeout (default: %s)\n"
-"  -o, --out-file=NAME        Output to a file\n"
-"      --format-il2           Output in IL-2 Shturmovik DeviceLink format\n"
-"      --format-eht           Output in Easy-Headtrack compatible format\n"
-"      --format-sw            Output in Silent Wings remote control format\n"
-"      --format-mouse         Output in IMPS/2 mouse format\n"
 "\n"
-"Mandatory or optional arguments to long options are also mandatory or optional\n"
-"for any corresponding short options.\n"
+"Output options:\n"
 "\n"
-"Report bugs to %s\n",
+"  --output-stdout            Write data to STDOUT\n"
+"  --output-file=FILENAME     Write data to a file\n"
+"  --output-net-udp           Write data to network using UDP protocol\n"
+"  --output-net-tcp           Write data to network using TCP protocol\n"
+"\n"
+"Network options:\n"
+"\n"
+"  --dst-host=HOST            Destination host (default: %s)\n"
+"  --dst-port=PORT            Destination port (default: %s)\n"
+"\n"
+"LinuxTrack options:\n"
+"\n"
+"  --ltr-profile=PROFILE      LinuxTrack profile name (default: %s)\n"
+"  --ltr-timeout=SECONDS      LinuxTrack init timeout (default: %s)\n"
+"\n"
+"Output data format options:\n"
+"\n"
+"  --format-default           Write all LinuxTrack values\n"
+"  --format-flightgear        FlightGear format\n"
+"  --format-il2               IL-2 Shturmovik DeviceLink format\n"
+"  --format-headtrack         EasyHeadTrack compatible format\n"
+"  --format-silentwings       Silent Wings remote control format\n"
+"  --format-mouse             ImPS/2 mouse format\n"
+#ifdef LINUX
+"  --format-uinput-rel        uinput relative position (like a mouse)\n"
+"  --format-uinput-abs        uinput absolute position (like a joystick)\n"
+#endif
+"\n",
 
 	Program_name,
 	DEFAULT_DST_HOST,
 	DEFAULT_DST_PORT,
 	DEFAULT_LTR_PROFILE,
-	DEFAULT_LTR_TIMEOUT,
-	PACKAGE_BUGREPORT);
+	DEFAULT_LTR_TIMEOUT);
 }
 
 
@@ -157,44 +321,85 @@ static void version(void)
 }
 
 
-static void parse_opt(int argc, char **argv)
+static void parse_opts(int argc, char **argv)
 {
 	int key;
 	int idx = 0;
 
 	while ((key = getopt_long(argc, argv, Opts_str, Opts, &idx)) != -1) {
 		switch (key) {
-		case 'h':
+		case OPT_HELP:
 			help();
 			exit(EXIT_SUCCESS);
 			break;
-		case 'V':
+		case OPT_VERSION:
 			version();
 			exit(EXIT_SUCCESS);
 			break;
-		case 'U':
-			Args.output = OUTPUT_NETUDP;
+		case OPT_OUTPUT_STDOUT:
+			Args.output = OUTPUT_STDOUT;
 			break;
-		case 'd':
+		case OPT_OUTPUT_FILE:
+			Args.output = OUTPUT_FILE;
+			Args.file = optarg;
+			break;
+		case OPT_OUTPUT_NET_UDP:
+			Args.output = OUTPUT_NET_UDP;
+			break;
+		case OPT_OUTPUT_NET_TCP:
+			Args.output = OUTPUT_NET_TCP;
+			break;
+		case OPT_DST_HOST:
 			Args.dst_host = optarg;
 			break;
-		case 'p':
+		case OPT_DST_PORT:
 			Args.dst_port = optarg;
 			break;
-		case 'f':
+		case OPT_LTR_PROFILE:
 			Args.ltr_profile = optarg;
 			break;
-		case 't':
+		case OPT_LTR_TIMEOUT:
 			Args.ltr_timeout = optarg;
 			break;
-		case 'o':
-			Args.output = OUTPUT_FILE;
-			Args.out_file = optarg;
+		case OPT_FORMAT_DEFAULT:
+			Args.format = FORMAT_DEFAULT;
 			break;
+		case OPT_FORMAT_FLIGHTGEAR:
+			Args.format = FORMAT_FLIGHTGEAR;
+			break;
+		case OPT_FORMAT_IL2:
+			Args.format = FORMAT_IL2;
+			break;
+		case OPT_FORMAT_HEADTRACK:
+			Args.format = FORMAT_HEADTRACK;
+			break;
+		case OPT_FORMAT_SILENTWINGS:
+			Args.format = FORMAT_SILENTWINGS;
+			break;
+		case OPT_FORMAT_MOUSE:
+			Args.format = FORMAT_MOUSE;
+			break;
+#ifdef LINUX
+		case OPT_FORMAT_UINPUT_REL:
+			Args.format = FORMAT_UINPUT_REL;
+			break;
+		case OPT_FORMAT_UINPUT_ABS:
+			Args.format = FORMAT_UINPUT_ABS;
+			break;
+#endif
 		case '?':
 			exit(EXIT_FAILURE);
 			break;
 		}
+	}
+}
+
+
+static void check_opts(void)
+{
+	if (Args.output == OUTPUT_NONE) {
+		fprintf(stderr, "Output channel unspecified, using STDOUT\n");
+		Args.output = OUTPUT_STDOUT;
 	}
 }
 
@@ -220,7 +425,9 @@ static void xerror(int status, int errnum, const char *format, ...)
 	va_end(params);
 
 	if (errnum)
-		fprintf(stderr, ": %s\n", strerror(errnum));
+		fprintf(stderr, ": %s", strerror(errnum));
+
+	fprintf(stderr, "\n");
 
 	if (status)
 		exit(status);
@@ -276,6 +483,13 @@ static void catch_sigint(int sig)
 	Terminate = 1;
 }
 
+static void catch_sigpipe(int sig)
+{
+	(void) sig;
+
+	Terminate = 1;
+}
+
 static void setup_signals(void)
 {
 	signal(SIGUSR1, catch_sigusr1);
@@ -283,16 +497,17 @@ static void setup_signals(void)
 	signal(SIGHUP,  catch_sighup);
 	signal(SIGTERM, catch_sigterm);
 	signal(SIGINT,  catch_sigint);
+	signal(SIGPIPE, catch_sigpipe);
 }
 
 
 /**
- * setup_ltr() - Prepare linux-track library.
+ * setup_ltr() - Prepare LinuxTrack library.
  **/
 static void setup_ltr(void)
 {
 	if (ltr_init(Args.ltr_profile) != 0)
-		xerror(1, 0, "Linux-track initialization failed");
+		xerror(1, 0, "LinuxTrack initialization failed");
 
 	int timeout = atoi(Args.ltr_timeout);
 
@@ -308,29 +523,12 @@ static void setup_ltr(void)
 	}
 
 	if (ltr_get_tracking_state() != RUNNING)
-		xerror(1, 0, "Linux-track initialization timeout");
+		xerror(1, 0, "LinuxTrack initialization timeout");
 }
 
 
-/**
- * setup_fd() - Set up file descriptor for data traversal
- **/
-static void setup_fd(void)
+static void prepare_sock(void)
 {
-	if (Args.output == OUTPUT_STDOUT) {
-		PipeFD = STDOUT_FILENO;
-		return;
-	}
-
-	if (Args.output == OUTPUT_FILE) {
-		PipeFD = open(Args.out_file, O_CREAT | O_APPEND | O_WRONLY,
-				S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-		if (PipeFD == -1)
-			xerror(1, errno, "Failed to open file %s",
-					Args.out_file);
-		return;
-	}
-
 	int r;
 	struct addrinfo hints;
 	struct addrinfo *res, *rp;
@@ -338,9 +536,20 @@ static void setup_fd(void)
 	memset(&hints, 0, sizeof(hints));
 
 	hints.ai_family    = AF_UNSPEC;
-	hints.ai_socktype  = SOCK_DGRAM;
 	hints.ai_flags     = 0;
-	hints.ai_protocol  = IPPROTO_UDP;
+
+	switch (Args.output) {
+	case OUTPUT_NET_UDP:
+		hints.ai_socktype  = SOCK_DGRAM;
+		hints.ai_protocol  = IPPROTO_UDP;
+		break;
+	case OUTPUT_NET_TCP:
+		hints.ai_socktype  = SOCK_STREAM;
+		hints.ai_protocol  = IPPROTO_TCP;
+		break;
+	default:
+		break;
+	}
 
 	r = getaddrinfo(Args.dst_host, Args.dst_port, &hints, &res);
 	if (r != 0)
@@ -360,9 +569,115 @@ static void setup_fd(void)
 	}
 
 	if (rp == NULL)
-		xerror(1, 0, "Socket setup failed");
+		xerror(1, errno, "Socket setup failed");
 
 	freeaddrinfo(res);
+}
+
+
+#ifdef LINUX
+static void xioctl(int request, ...)
+{
+	va_list params;
+	void    *arg;
+
+	va_start(params, request);
+	arg = va_arg(params, void *);
+	va_end(params);
+
+	int r = ioctl(PipeFD, request, arg);
+
+	if (r == -1)
+		xerror(1, errno, "ioctl()");
+}
+#endif /* LINUX */
+
+
+static void prepare_file(void)
+{
+	const int o_opts = O_CREAT | O_APPEND | O_WRONLY | O_NONBLOCK;
+	const int s_opts = S_IRUSR | S_IWUSR  | S_IRGRP  | S_IROTH;
+
+	PipeFD = open(Args.file, o_opts, s_opts);
+	if (PipeFD == -1)
+		xerror(1, errno, "Failed to open file %s", Args.file);
+
+#ifdef LINUX
+
+	if (Args.format != FORMAT_UINPUT_REL)
+		if (Args.format != FORMAT_UINPUT_ABS)
+			return;
+
+	struct uinput_user_dev ud;
+
+	memset(&ud, 0, sizeof(ud));
+
+	ud.id.bustype = BUS_VIRTUAL;
+	ud.id.vendor  = 0;
+	ud.id.version = 1;
+
+	switch (Args.format) {
+	case FORMAT_UINPUT_REL:
+		snprintf(ud.name, UINPUT_MAX_NAME_SIZE,
+				"LinuxTrack uinput-rel");
+		ud.id.product = 1;
+		xioctl(UI_SET_EVBIT, EV_REL);
+		xioctl(UI_SET_RELBIT, REL_X);
+		xioctl(UI_SET_RELBIT, REL_Y);
+		//xioctl(UI_SET_RELBIT, REL_RX);
+		//xioctl(UI_SET_RELBIT, REL_RY);
+		//xioctl(UI_SET_RELBIT, REL_RZ);
+		break;
+	case FORMAT_UINPUT_ABS:
+		snprintf(ud.name, UINPUT_MAX_NAME_SIZE,
+				"LinuxTrack uinput-abs");
+		ud.id.product = 2;
+		xioctl(UI_SET_EVBIT, EV_ABS);
+		xioctl(UI_SET_ABSBIT, ABS_X);
+		xioctl(UI_SET_ABSBIT, ABS_Y);
+		xioctl(UI_SET_ABSBIT, ABS_Z);
+		xioctl(UI_SET_ABSBIT, ABS_RX);
+		xioctl(UI_SET_ABSBIT, ABS_RY);
+		xioctl(UI_SET_ABSBIT, ABS_RZ);
+
+		ud.absmin[ABS_X] = ud.absmin[ABS_RX] = -180;
+		ud.absmin[ABS_Y] = ud.absmin[ABS_RY] = -180;
+		ud.absmin[ABS_Z] = ud.absmin[ABS_RZ] = -180;
+
+		ud.absmax[ABS_X] = ud.absmax[ABS_RX] =  180;
+		ud.absmax[ABS_Y] = ud.absmax[ABS_RY] =  180;
+		ud.absmax[ABS_Z] = ud.absmax[ABS_RZ] =  180;
+		break;
+	default:
+		break;
+	}
+
+	xwrite(&ud, sizeof(ud));
+	xioctl(UI_DEV_CREATE);
+
+#endif /* LINUX */
+}
+
+
+/**
+ * setup_fd() - Set up file descriptor for data traversal
+ **/
+static void setup_fd(void)
+{
+	switch (Args.output) {
+	case OUTPUT_STDOUT:
+		PipeFD = STDOUT_FILENO;
+		break;
+	case OUTPUT_FILE:
+		prepare_file();
+		break;
+	case OUTPUT_NET_UDP:
+	case OUTPUT_NET_TCP:
+		prepare_sock();
+		break;
+	default:
+		break;
+	}
 }
 
 
@@ -370,8 +685,16 @@ static void at_exit(void)
 {
 	fprintf(stderr, "Exiting...\n");
 
-	if (PipeFD >= 0)
+	if (PipeFD >= 0) {
+
+#ifdef LINUX
+		if (Args.format == FORMAT_UINPUT_REL ||
+		    Args.format == FORMAT_UINPUT_ABS)
+			ioctl(PipeFD, UI_DEV_DESTROY);
+#endif
+
 		close(PipeFD);
+	}
 
 	ltr_shutdown();
 
@@ -395,11 +718,11 @@ static void init(void)
 
 
 /**
- * pipe_write() - Write data to PipeFD
- * @buf:          Data buffer
- * @bsz:          Data size
+ * xwrite() - Write data to PipeFD
+ * @buf:    Data buffer
+ * @bsz:    Data size
  **/
-static void pipe_write(const void *buf, size_t bsz)
+static void xwrite(const void *buf, size_t bsz)
 {
 	int r = write(PipeFD, buf, bsz);
 
@@ -415,10 +738,59 @@ static void pipe_write(const void *buf, size_t bsz)
 
 
 /**
- * il2_send() - Send data to IL-2 Shturmovik
- * @d:        Data to send.
+ * write_data_default() - Write data with all LinuxTrack values
+ * @d:                  Data to write.
  **/
-static void il2_send(const struct ltr_data *d)
+static void write_data_default(const struct ltr_data *d)
+{
+	char buf[256];
+
+	int r = snprintf(buf, sizeof(buf),
+			"heading(%f) "
+			"pitch(%f) "
+			"roll(%f) "
+			"tx(%f) "
+			"ty(%f) "
+			"tz(%f) "
+			"counter(%u)\n",
+			d->heading,
+			d->pitch,
+			d->roll,
+			d->tx,
+			d->ty,
+			d->tz,
+			d->cnt);
+
+	xwrite(buf, r);
+}
+
+
+/**
+ * write_data_flightgear() - Write data in FlightGear format
+ * @d:                     Data to write.
+ **/
+static void write_data_flightgear(const struct ltr_data *d)
+{
+	char buf[128];
+
+	int r = snprintf(buf, sizeof(buf),
+			"%f\t%f\t%f\t%f\t%f\t%f\n",
+			d->heading,
+			d->pitch,
+			d->roll,
+			d->tx,
+			d->ty,
+			d->tz);
+
+	xwrite(buf, r);
+}
+
+
+/**
+ * write_data_il2() - Write data in IL-2 Shturmovik DeviceLink format
+ * @d:              Data to write.
+ **/
+static void write_data_il2(const struct ltr_data *d)
 {
 	int r;
 
@@ -430,38 +802,15 @@ static void il2_send(const struct ltr_data *d)
 			d->pitch   * -1,
 			d->roll);
 
-	pipe_write(buf, r);
+	xwrite(buf, r);
 }
 
 
 /**
- * fg_send() - Send data to FlightGear
- * @d:        Data to send.
+ * write_data_headtrack() - Write data in EasyHeadTrack format
+ * @d:                    Data to write.
  **/
-static void fg_send(const struct ltr_data *d)
-{
-	int r;
-
-	char buf[128];
-
-	r = snprintf(buf, sizeof(buf),
-			"%f\t%f\t%f\t%f\t%f\t%f\n",
-			d->heading,
-			d->pitch,
-			d->roll,
-			d->tx,
-			d->ty,
-			d->tz);
-
-	pipe_write(buf, r);
-}
-
-
-/**
- * eht_send() - Send data to FlightGear using Easy-Headtrack format
- * @d:        Data to send.
- **/
-static void eht_send(const struct ltr_data *d)
+static void write_data_headtrack(const struct ltr_data *d)
 {
 	const size_t bsz = 1 + 6 * sizeof(uint32_t);
 	int8_t buf[bsz];
@@ -493,15 +842,32 @@ static void eht_send(const struct ltr_data *d)
 	tmp = htonl(*(uint32_t *) &d->tz);
 	memcpy(&buf[offset], &tmp, sizeof(uint32_t));
 
-	pipe_write(buf, bsz);
+	xwrite(buf, bsz);
 }
 
 
 /**
- * mouse_send() - Send data using IMPS/2 mouse format
- * @d:        Data to send.
+ * write_data_silentwings() - Write data in Silent Wings format
+ * @d:                      Data to write.
  **/
-static void mouse_send(const struct ltr_data *d)
+static void write_data_silentwings(const struct ltr_data *d)
+{
+	char buf[64];
+
+	int r = snprintf(buf, sizeof(buf),
+			"PANH %f\nPANV %f\n",
+			d->heading,
+			d->pitch);
+
+	xwrite(buf, r);
+}
+
+
+/**
+ * write_data_mouse() - Write data in ImPS/2 mouse format
+ * @d:                Data to write.
+ **/
+static void write_data_mouse(const struct ltr_data *d)
 {
         int8_t x  = (int8_t) d->heading;
         int8_t y  = (int8_t) d->pitch;
@@ -526,47 +892,114 @@ static void mouse_send(const struct ltr_data *d)
         if (zy)
                 buf[3] |= ((zy < 0) ? 1 : -1);
 
-        pipe_write(buf, sizeof(buf));
+        xwrite(buf, sizeof(buf));
 }
+
+
+#ifdef LINUX
+static inline void set_input_event_code(struct input_event *e,
+		uint16_t code_rel, uint16_t code_abs)
+{
+	switch (Args.format) {
+	case FORMAT_UINPUT_REL:
+		e->type = EV_REL;
+		e->code = code_rel;
+		break;
+	case FORMAT_UINPUT_ABS:
+		e->type = EV_ABS;
+		e->code = code_abs;
+		break;
+	default:
+		/* Shouldn't happen */
+		xerror(1, 0, "Program error");
+		break;
+	}
+}
+#endif
 
 
 /**
- * sw_send() - Send data to Silent Wings
- * @d:        Data to send.
+ * write_data_uinput() - Write data in uinput format
+ * @d:                 Data to write.
  **/
-static void sw_send(const struct ltr_data *d)
+#ifdef LINUX
+static void write_data_uinput(const struct ltr_data *d)
 {
-	int r;
+	struct input_event ie;
 
-	char buf[64];
+	memset(&ie, 0, sizeof(ie));
+	gettimeofday(&ie.time, NULL);
 
-	r = snprintf(buf, sizeof(buf),
-			"PANH %f\nPANV %f\n",
-			d->heading,
-			d->pitch);
+	/* heading */
+	set_input_event_code(&ie, REL_X, ABS_X);
+	ie.value = (int32_t) d->heading;
+	xwrite(&ie, sizeof(ie));
 
-	pipe_write(buf, r);
+	/* pitch */
+	set_input_event_code(&ie, REL_Y, ABS_Y);
+	ie.value = (int32_t) d->pitch;
+	xwrite(&ie, sizeof(ie));
+
+	/* roll */
+	set_input_event_code(&ie, REL_Z, ABS_Z);
+	ie.value = (int32_t) d->roll;
+	xwrite(&ie, sizeof(ie));
+
+	if (Args.format == FORMAT_UINPUT_ABS) {
+		/* tx */
+		set_input_event_code(&ie, REL_RX, ABS_RX);
+		ie.value = (int32_t) d->tx;
+		xwrite(&ie, sizeof(ie));
+
+		/* ty */
+		set_input_event_code(&ie, REL_RY, ABS_RY);
+		ie.value = (int32_t) d->tx;
+		xwrite(&ie, sizeof(ie));
+
+		/* tz */
+		set_input_event_code(&ie, REL_RZ, ABS_RZ);
+		ie.value = (int32_t) d->tx;
+		xwrite(&ie, sizeof(ie));
+	}
+
+	/* sync */
+	ie.type = EV_SYN;
+	ie.code = SYN_REPORT;
+	ie.value = 0;
+	xwrite(&ie, sizeof(ie));
 }
+#endif /* LINUX */
 
 
-static void send_data(const struct ltr_data *d)
+static void write_data(const struct ltr_data *d)
 {
 	switch (Args.format) {
+	case FORMAT_FLIGHTGEAR:
+		write_data_flightgear(d);
+		break;
 	case FORMAT_IL2:
-		il2_send(d);
+		write_data_il2(d);
 		break;
-	case FORMAT_EHT:
-		eht_send(d);
+	case FORMAT_HEADTRACK:
+		write_data_headtrack(d);
 		break;
-	case FORMAT_SW:
-		sw_send(d);
+	case FORMAT_SILENTWINGS:
+		write_data_silentwings(d);
 		break;
 	case FORMAT_MOUSE:
-		mouse_send(d);
+		write_data_mouse(d);
 		break;
-	case FORMAT_FGFS:
+
+#ifdef LINUX
+	case FORMAT_UINPUT_REL:
+	case FORMAT_UINPUT_ABS:
+		write_data_uinput(d);
+		break;
+#endif
+
+	case FORMAT_DEFAULT:
 	default:
-		fg_send(d);
+		write_data_default(d);
 		break;
 	}
 }
@@ -606,6 +1039,8 @@ static void run_loop(void)
 
 	struct ltr_data d;
 
+	unsigned int cnt = 0;
+
 	while (!Terminate) {
 
 		usleep(10000);
@@ -633,9 +1068,23 @@ static void run_loop(void)
 		if (r != 0)
 			continue;
 
+		if (d.cnt == cnt)
+			continue;
+		cnt = d.cnt;
+
+#ifdef LINUX
+		/* Don't use select() for uinput writing */
+		if (Args.output == OUTPUT_FILE) {
+			if (Args.format == FORMAT_UINPUT_REL ||
+			    Args.format == FORMAT_UINPUT_ABS) {
+				write_data_uinput(&d);
+			}
+		}
+#endif
+
 		FD_ZERO(&wfds);
 		tv.tv_sec = 0;
-		tv.tv_usec = 10000;
+		tv.tv_usec = 100000;
 		nfds = 0;
 
 		FD_SET(PipeFD, &wfds);
@@ -650,7 +1099,7 @@ static void run_loop(void)
 			xerror(1, errno, "select()");
 
 		if (FD_ISSET(PipeFD, &wfds))
-			send_data(&d);
+			write_data(&d);
 	}
 
 	fprintf(stderr, "Got termination signal\n");
@@ -661,7 +1110,9 @@ int main(int argc, char **argv)
 {
 	Program_name = basename(argv[0]);
 
-	parse_opt(argc, argv);
+	parse_opts(argc, argv);
+
+	check_opts();
 
 	init();
 

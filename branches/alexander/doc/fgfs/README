@@ -1,27 +1,7 @@
 To enable support in FlightGear you must manually copy files from this
-directory to proper FlightGear directories:
-  
-  cp linux-track.xml $FG_ROOT/Protocol/
-  cp linux-track.nas $FG_ROOT/Nasal/
+directory to proper FlightGear directories. See ltr_pipe's README file
+for usage information.
 
-Run ltr_pipe in the first terminal window (use --help for available options):
-
-  ltr_pipe --udp
-
-Run FlightGear in the second terminal window with the specified options:
-
-  fgfs --generic=socket,in,100,,6543,udp,linux-track \
-       --prop:/sim/linux-track/enabled=1
-
-Note that X, Y, Z are not enabled in linux-track.nas by default. You can
-enable all of them at once with the additional FlightGear option:
-
-  --prop:/sim/linux-track/track-all=1
-
-or any of them one by one with such options:
-
-  --prop:/sim/linux-track/track-x=1
-  --prop:/sim/linux-track/track-y=1
-  --prop:/sim/linux-track/track-z=1
-  
-Have fun!
+  fgfs/Nasal/LinuxTrack/linuxtrack.nas            -- Nasal script.
+  fgfs/Protocol/linuxtrack.xml                    -- Protocol file.
+  fgfs/Input/Joysticks/LinuxTrack/linuxtrack.xml  -- Example joystick file.

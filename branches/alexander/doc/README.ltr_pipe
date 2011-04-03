@@ -1,16 +1,17 @@
-ltr_pipe: linux-track data sender
+ltr_pipe: LinuxTrack data sender
+=================================
 
-This program allows you to send data from linux-track head tracking software
+This program allows you to send data from LinuxTrack head tracking software
 to some destinations. Currently it is known to work with:
 
-* FlightGear (git version only)
-* IL-2 Shturmovik (movement is not smooth though)
-* Silent Wings 
+* FlightGear
+* IL-2 Shturmovik
+* Silent Wings
 
-Also it can send data in IMPS/2 mouse format moving mouse pointer. Try to
-play the Neverball game with this feature :^)
+Also it can send data as a mouse or a joystick. That could be used probably in
+any program.
 
-Compile and install linux-track with ltr_pipe enabled:
+Compile and install LinuxTrack with ltr_pipe enabled:
 
   ./configure --enable-ltr-pipe
   make
@@ -19,35 +20,67 @@ Compile and install linux-track with ltr_pipe enabled:
 
 
 * FlightGear
-------------
+=============
+
+There are several ways to use ltr_pipe with FlightGear:
+
+  + Using ltr_pipe's custom protocol and script (FlightGear git version only).
+  + Using EasyHeadTrack (http://gitorious.org/headtrack) custom protocol
+    and script (FlightGear git version only).
+  + Using ltr_pipe's --format-uinput-abs joystick emulation (all FlightGear
+    versions but only on Linux).
+
+
+** ltr_pipe's custom protocol and script
+-----------------------------------------
 
 You must manually copy files from doc/fgfs directory to proper FlightGear
-directories:
+directories. Copy custom protocol file:
   
-  cp fgfs/linux-track.xml $FG_ROOT/Protocol/
-  cp fgfs/linux-track.nas $FG_ROOT/Nasal/
+  cp doc/fgfs/Protocol/linuxtrack.xml $FG_ROOT/Protocol/
+  
+FlightGear now supports running nasal scripts from custom directories below
+$FG_ROOT/Nasal directory. And scripts from those directories run after all
+scripts in $FG_ROOT/Nasal. So all needed nasal subsystems will be initialized
+before running scripts from custom directories.
+
+Create a custom direcory:
+
+  mkdir $FG_ROOT/Nasal/LinuxTrack
+
+Copy nasal script file to that directory:
+
+  cp doc/fgfs/Nasal/LinuxTrack/linuxtrack.nas $FG_ROOT/Nasal/LinuxTrack/
 
 Run ltr_pipe in the first terminal window (use --help for available options):
 
-  ltr_pipe --udp
+  ltr_pipe --output-net-udp --format-flightgear
 
 Run FlightGear in the second terminal window with the specified options:
 
-  fgfs --generic=socket,in,100,,6543,udp,linux-track \
-       --prop:/sim/linux-track/enabled=1
+  fgfs --generic=socket,in,100,,6543,udp,linuxtrack \
+       --prop:/sim/linuxtrack/enabled=1
 
-See doc/fgfs/README for more available options.
+Note that X, Y, Z are not enabled in linuxtrack.nas by default. You can
+enable all of them at once with the additional FlightGear option:
+
+  --prop:/sim/linuxtrack/track-all=1
+
+or any of them one by one with such options:
+
+  --prop:/sim/linuxtrack/track-x=1
+  --prop:/sim/linuxtrack/track-y=1
+  --prop:/sim/linuxtrack/track-z=1
 
 
+** Using EasyHeadTrack custom protocol and script
+--------------------------------------------------
 
-* FlightGear with easy-headtrack
---------------------------------
-
-If you're using easy-headtrack (http://gitorious.org/headtrack) then you can
-also use linux-track with their nasal script and protocol file. For this, run
+If you're using EasyHeadTrack (http://gitorious.org/headtrack) then you can
+also use LinuxTrack with their nasal script and protocol file. For this, run
 ltr_pipe in the first terminal window:
 
-  ltr_pipe --udp --format-eht
+  ltr_pipe --output-net-udp --format-headtrack
   
 Run FlightGear in the second terminal window:
 
@@ -55,9 +88,33 @@ Run FlightGear in the second terminal window:
        --prop:/sim/headtracking/enabled=1
 
 
+** Using ltr_pipe's --format-uinput-abs joystick emulation
+-----------------------------------------------------------
+
+Edit doc/fgfs/Input/Joysticks/LinuxTrack/linuxtrack.xml file according to your
+needs. Create a custom joystick directory below $FG_ROOT/Input/Joysticks:
+
+  mkdir $FG_ROOT/Input/Joysticks/LinuxTrack
+
+Copy joystick file to that directory:
+
+  cp doc/fgfs/Input/Joysticks/LinuxTrack/linuxtrack.xml \
+     $FG_ROOT/Input/Joysticks/LinuxTrack/
+
+Run ltr_pipe in the first terminal window:
+
+  ltr_pipe --output-file=/dev/uinput --format-uinput-abs
+
+Run FlightGear without any specific options (as you usually run it):
+
+  fgfs
+
+Note: specifics of ltr_pipe's uinput mode are described below in this README.
+
+
 
 * IL-2 Shturmovik
------------------
+==================
 
 Edit IL-2 Shturmovik conf.ini file and set its parameters:
 
@@ -67,14 +124,14 @@ host=127.0.0.1
 
 Run ltr_pipe in a terminal window:
 
-  ltr_pipe --udp --format-il2
+  ltr_pipe --output-net-udp --format-il2
 
 Run IL-2 Shturmovik as you usually run it.
 
 
 
 * Silent Wings
---------------
+===============
 
 Read this first: http://wiki.silentwings.no/index.php?title=Remote_Control
 
@@ -86,16 +143,16 @@ remote_control_mode = UDP
 
 Run ltr_pipe in a terminal window:
 
-  ltr_pipe --udp --format-sw
+  ltr_pipe --output-net-udp --format-silentwings
 
 Run Silent Wings as you usually run it.
 
 
 
 * Mouse emulation
------------------
+==================
 
-To use this feature you have to make some preparations. First create a 
+To use this mode you also have to make some preparations. First create a 
 named pipe somewhere on your system. For example:
 
   mkfifo -m 664 /var/local/ltr_pipe
@@ -106,7 +163,7 @@ system. Of course, you must be a member of that group. Your xorg.conf must
 contain something like this (see xorg.conf documentation for details):
 
 Section "InputDevice"
-        Identifier      "LinuxTrack"
+        Identifier      "LinuxTrack mouse"
         Driver          "mouse"
         Option          "Device"                "/var/local/ltr_pipe"
         Option          "Protocol"              "imps/2"
@@ -116,16 +173,83 @@ EndSection
 Section "ServerLayout"
         Identifier      "Default Server Layout"
         Screen          "Default Screen"
-        InputDevice     "LinuxTrack"
+        InputDevice     "LinuxTrack mouse"
 EndSection
 
 
 Restart X server, check it's log for errors. In case of errors consult X server
 documentation. If everything is OK, then you may run ltr_pipe:
 
-  ltr_pipe --out-file=/var/local/ltr_pipe --format-mouse
+  ltr_pipe --output-file=/var/local/ltr_pipe --format-mouse
+
+
+
+* Using uinput driver on Linux
+===============================
+
+Note: this is a Linux-only feature.
+
+Prerequisites (asuming you're a member of plugdev group):
+
+  modprobe uinput
+  chgrp plugdev /dev/uinput
+  chmod 660 /dev/uinput
+  
+Mouse emulation mode:
+
+  ltr_pipe --output-file=/dev/uinput --format-uinput-rel
+
+Joystick emulation mode:
+
+  ltr_pipe --output-file=/dev/uinput --format-uinput-abs
+
+Run dmesg, look at /var/log/Xorg.0.log for information of how the system
+views the 'LinuxTrack uinput-rel' or 'LinuxTrack uinput-abs' device. Use
+evtest to see if it works. Configure your X server as needed (use evdev
+driver). Configure your games to use that joystick for any axes you want.
+
+
+
+* Recenter/Suspend/Wake-Up
+===========================
+
+You can send command to Recenter/Suspend/Wake-Up tracking to ltr_pipe by means
+of signals. To recenter:
+
+  kill -HUP `pidof ltr_pipe`
+
+To Suspend or Wake-Up:
+
+  kill -USR1 `pidof ltr_pipe`
+
+You can bind those commands to a key or key combinations. How to do this
+depends on your window manager. For example, on GNOME I have something like
+this setup:
+
+Create a shell script with something like this:
+
+#/bin/bash
+SIG=$1
+PID=$(pidof ltr_pipe)
+kill $SIG $PID
+
+Let's name it kill_ltr_pipe.sh. Place it to some directory, for example
+/usr/local/bin:
+
+  install -o root -g root -m 755 kill_ltr_pipe.sh /usr/local/bin
+
+Run GNOME's configuration editor (gconf-editor). Go to
+/apps/metacity/keybinding_commands and assign to command_1:
+
+/usr/local/bin/kill_ltr_pipe.sh -HUP
+
+And to command_2:
+
+/usr/local/bin/kill_ltr_pipe.sh -USR1
+
+Then go to /apps/metacity/global_keybindings and assign to run_command_1 and
+run_command_2 any keys or key combinations you like. Enjoy :)
 
 
 
 Have fun!
-

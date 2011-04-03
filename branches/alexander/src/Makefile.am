@@ -179,12 +179,19 @@ EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \
 
 man_MANS = ltr_gui.1 ltr_server.1
 
+
+ltr_pipe_CPPFLAGS =
+
 if LTR_PIPE
   man_MANS += ltr_pipe.1
   bin_PROGRAMS += ltr_pipe
-  ltr_pipe_CPPFLAGS = -D_GNU_SOURCE
+  ltr_pipe_CPPFLAGS += -D_GNU_SOURCE
   ltr_pipe_SOURCES = ltr_pipe.c linuxtrack.c
   ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
-  ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_FGFS_FLAGS}
+  ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS}
+endif
+
+if LINUX
+  ltr_pipe_CPPFLAGS += -DLINUX
 endif
 

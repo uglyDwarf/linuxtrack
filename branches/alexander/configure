@@ -747,6 +747,8 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+LINUX_FALSE
+LINUX_TRUE
 LTR_PIPE_FALSE
 LTR_PIPE_TRUE
 X64_FALSE
@@ -4998,13 +5000,13 @@ if test "${lt_cv_nm_interface+set}" = set; then :
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:5001: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:5003: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:5004: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:5006: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:5007: output\"" >&5)
+  (eval echo "\"\$as_me:5009: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -6209,7 +6211,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 6212 "configure"' > conftest.$ac_ext
+  echo '#line 6214 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7734,11 +7736,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7737: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7739: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7741: \$? = $ac_status" >&5
+   echo "$as_me:7743: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8073,11 +8075,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8076: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8078: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8080: \$? = $ac_status" >&5
+   echo "$as_me:8082: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8178,11 +8180,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8181: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8183: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8185: \$? = $ac_status" >&5
+   echo "$as_me:8187: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -8233,11 +8235,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8236: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8238: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8240: \$? = $ac_status" >&5
+   echo "$as_me:8242: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10617,7 +10619,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10620 "configure"
+#line 10622 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10713,7 +10715,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10716 "configure"
+#line 10718 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11336,7 +11338,7 @@ fi
 
 done
 
-for ac_header in stdlib.h unistd.h netdb.h sys/socket.h fcntl.h
+for ac_header in stdlib.h unistd.h netdb.h sys/socket.h fcntl.h sys/ioctl.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -11534,6 +11536,17 @@ _ACEOF
 ;;
 esac
 
+ac_fn_c_find_intX_t "$LINENO" "32" "ac_cv_c_int32_t"
+case $ac_cv_c_int32_t in #(
+  no|yes) ;; #(
+  *)
+
+cat >>confdefs.h <<_ACEOF
+#define int32_t $ac_cv_c_int32_t
+_ACEOF
+;;
+esac
+
 ac_fn_c_check_type "$LINENO" "size_t" "ac_cv_type_size_t" "$ac_includes_default"
 if test "x$ac_cv_type_size_t" = x""yes; then :
 
@@ -11690,6 +11703,11 @@ x86_64) with_64_bit=yes ;;
 esac
 
 
+if test x$(uname -o) = x"GNU/Linux"; then :
+  with_linux=yes
+fi
+
+
  if test x$with_xplane_plugin = xyes; then
   XPLANE_PLUGIN_TRUE=
   XPLANE_PLUGIN_FALSE='#'
@@ -11786,6 +11804,14 @@ else
   LTR_PIPE_FALSE=
 fi
 
+ if test x$with_linux = xyes; then
+  LINUX_TRUE=
+  LINUX_FALSE='#'
+else
+  LINUX_TRUE='#'
+  LINUX_FALSE=
+fi
+
 
 # Checks for library functions.
 for ac_func in atexit
@@ -11838,6 +11864,17 @@ do :
 if test "x$ac_cv_func_strerror" = x""yes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_STRERROR 1
+_ACEOF
+
+fi
+done
+
+for ac_func in gettimeofday
+do :
+  ac_fn_c_check_func "$LINENO" "gettimeofday" "ac_cv_func_gettimeofday"
+if test "x$ac_cv_func_gettimeofday" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_GETTIMEOFDAY 1
 _ACEOF
 
 fi
@@ -11999,6 +12036,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${LTR_PIPE_TRUE}" && test -z "${LTR_PIPE_FALSE}"; then
   as_fn_error $? "conditional \"LTR_PIPE\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${LINUX_TRUE}" && test -z "${LINUX_FALSE}"; then
+  as_fn_error $? "conditional \"LINUX\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 

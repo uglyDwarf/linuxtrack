@@ -15,6 +15,9 @@
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
 
+/* Define to 1 if you have the `gettimeofday' function. */
+#undef HAVE_GETTIMEOFDAY
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
@@ -50,6 +53,9 @@
 
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
+
+/* Define to 1 if you have the <sys/ioctl.h> header file. */
+#undef HAVE_SYS_IOCTL_H
 
 /* Define to 1 if you have the <sys/socket.h> header file. */
 #undef HAVE_SYS_SOCKET_H
@@ -122,6 +128,10 @@
 #ifndef __cplusplus
 #undef inline
 #endif
+
+/* Define to the type of a signed integer type of width exactly 32 bits if
+   such a type exists and the standard includes do not define it. */
+#undef int32_t
 
 /* Define to the type of a signed integer type of width exactly 8 bits if such
    a type exists and the standard includes do not define it. */

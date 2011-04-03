@@ -1,70 +1,110 @@
-.TH ltr_pipe 1 "17 March 2011"
+.TH ltr_pipe 1 "03 April 2011"
 .IX ltr_pipe
 .SH NAME
-ltr_pipe - send linux-track data to STDOUT, a file or network.
+ltr_pipe - send LinuxTrack data to STDOUT, a file or network.
 .SH SYNOPSYS
 .B ltr_pipe
-.RI [-hVU]
-.RI [-d\ HOST]
-.RI [-p\ PORT]
-.RI [-f\ NAME]
-.RI [-t\ SECONDS]
-.RI [-o\ NAME]
-.RI [--udp]
-.RI [--dst-host=HOST]
-.RI [--dst-port=PORT]
-.RI [--ltr-profile=NAME]
-.RI [--ltr-timeout=SECONDS]
-.RI [--out-file=NAME]
-.RI [--format-il2]
-.RI [--format-eht]
-.RI [--format-mouse]
+.RI [-hV]
 .RI [--help]
 .RI [--version]
+.RI [--output-stdout]
+.RI [--output-file=FILENAME]
+.RI [--output-net-udp]
+.RI [--output-net-tcp]
+.RI [--dst-host=HOST]
+.RI [--dst-port=PORT]
+.RI [--ltr-profile=PROFILE]
+.RI [--ltr-timeout=SECONDS]
+.RI [--format-default]
+.RI [--format-flightgear]
+.RI [--format-il2]
+.RI [--format-headtrack]
+.RI [--format-silentwings]
+.RI [--format-mouse]
+.RI [--format-uinput-rel]
+.RI [--format-uinput-abs]
 .SH DESCRIPTION
-ltr_pipe is a client executable that allows to send linux-track data to
+ltr_pipe is a client executable that allows to send LinuxTrack data to
 STDOUT, a file or using UDP protocol to some network destination.
 .SH OPTIONS
 .TP
-.B -U, --udp
-Send to network using UDP protocol.
 .TP
-.B -d <HOST>, --dst-host=<HOST>
-Network destination hostname or IP address (default: 127.0.0.1). 
-.TP
-.B -p <PORT>, --dst-port=<PORT>
-Destination port (default: 6543).
-.TP
-.B -f <NAME>, --ltr-profile=<NAME>
-Linux-track profile name (default: Default).
-.TP
-.B -t <SECONDS>, --ltr-timeout=<SECONDS>
-Linux-track initialization timeout in seconds (default: 10).
-.TP
-.B -o <NAME>, --out-file=<NAME>
-Output data to a file NAME.
-.TP
-.B --format-il2
-Output data in IL-2 Shturmovik DeviceLink protocol format.
-.TP
-.B --format-eht
-Output data in easy-headtrack compatible format.
-.TP
-.B --format-sw
-Output data in Silent Wings remote control format.
-.TP
-.B --format-mouse
-Output data in IMPS/2 mouse format.
+.B Generic options:
 .TP
 .B -h, --help
-Give help list.
+Give this help list
 .TP
 .B -V, --version
-Print program version.
+Print program version
+.TP
+.B Output options:
+.TP
+.B --output-stdout
+Write data to STDOUT
+.TP
+.B --output-file=FILENAME
+Write data to a file
+.TP
+.B --output-net-udp
+Write data to network using UDP protocol
+.TP
+.B --output-net-tcp
+Write data to network using TCP protocol
+.TP
+.B Network options:
+.TP
+.B --dst-host=HOST
+Destination host (default: 127.0.0.1)
+.TP
+.B --dst-port=PORT
+Destination port (default: 6543)
+.TP
+.B LinuxTrack options:
+.TP
+.B --ltr-profile=PROFILE
+LinuxTrack profile name (default: Default)
+.TP
+.B --ltr-timeout=SECONDS
+LinuxTrack init timeout (default: 10)
+.TP
+.B Output data format options:
+.TP
+.B --format-default
+Write all LinuxTrack values
+.TP
+.B --format-flightgear
+FlightGear format
+.TP
+.B --format-il2
+IL-2 Shturmovik DeviceLink format
+.TP
+.B --format-headtrack
+EasyHeadTrack compatible format
+.TP
+.B --format-silentwings
+Silent Wings remote control format
+.TP
+.B --format-mouse
+ImPS/2 mouse format
+.TP
+.B --format-uinput-rel
+.I(Linux only)
+uinput relative position (like a mouse)
+.TP
+.B --format-uinput-abs
+.I(Linux only)
+uinput absolute position (like a joystick)
 .SH SIGNALS
+Signals could be used to do a specific LinuxTrack action. Simple shell commands
+like
+.B "kill -HUP `pidof ltr_pipe`"
+or
+.B "kill -USR1 `pidof ltr_pipe`"
+could be bound somehow to a key or key combination in order to send signals
+to ltr_pipe.
 .TP
-.B HUP
-Used as a recenter command.
+.B -HUP
+Recenter command.
 .TP
-.B USR1
-Used to suspend/wake-up tracking.
+.B -USR1
+Suspend/wake-up command.

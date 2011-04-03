@@ -5,7 +5,7 @@
 	<comment>
 		<![CDATA[
     		Usage:
-					fgfs --generic=socket,in,100,,6543,udp,linux-track
+					fgfs --generic=socket,in,100,,6543,udp,linuxtrack
 		]]>
 	</comment>
 
@@ -19,37 +19,37 @@
 			<chunk>
 				<name>heading-deg</name>
 				<type>float</type>
-				<node>/sim/linux-track/data/heading</node>
+				<node>/sim/linuxtrack/data/heading</node>
 			</chunk>
    
 			<chunk>
 				<name>pitch-deg</name>
 				<type>float</type>
-				<node>/sim/linux-track/data/pitch</node>
+				<node>/sim/linuxtrack/data/pitch</node>
 			</chunk>
 
 			<chunk>
 				<name>roll-deg</name>
 				<type>float</type>
-				<node>/sim/linux-track/data/roll</node>
+				<node>/sim/linuxtrack/data/roll</node>
 			</chunk>
 
 			<chunk>
 				<name>postion-x</name>
 				<type>float</type>
-				<node>/sim/linux-track/data/tx</node>
+				<node>/sim/linuxtrack/data/tx</node>
 			</chunk>
 
 			<chunk>
 				<name>position-y</name>
 				<type>float</type>
-				<node>/sim/linux-track/data/ty</node>
+				<node>/sim/linuxtrack/data/ty</node>
 			</chunk>
 
 			<chunk>
 				<name>position-z</name>
 				<type>float</type>
-				<node>/sim/linux-track/data/tz</node>
+				<node>/sim/linuxtrack/data/tz</node>
 			</chunk>
 
 		</input>

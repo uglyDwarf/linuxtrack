@@ -1,4 +1,8 @@
 if LTR_PIPE
   dist_doc_DATA = README.ltr_pipe
-  nobase_dist_doc_DATA = fgfs/linux-track.nas fgfs/linux-track.xml fgfs/README
+  nobase_dist_doc_DATA = \
+    fgfs/Nasal/LinuxTrack/linuxtrack.nas \
+    fgfs/Protocol/linuxtrack.xml \
+    fgfs/Input/Joysticks/LinuxTrack/linuxtrack.xml \
+    fgfs/README
 endif

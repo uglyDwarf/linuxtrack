@@ -4,7 +4,7 @@
 ##  This file is licensed under the GPL license version 2 or later.
 ##    Copyright (C) 2007 - 2009  Anders Gidenstam
 ##
-##  Modified by Alexander Pravdin <aledin@evpatoria.com.ua> for linux-track.
+##  Modified by Alexander Pravdin <aledin@evpatoria.com.ua> for LinuxTrack.
 ##
 ##  For the original Anders Gidenstam's version of this file please visit
 ##  http://www.gidenstam.org/FlightGear/HeadTracking/ 
@@ -14,29 +14,29 @@
 ## - Put this file in ~/.fgfs/Nasal
 ## - Start FlightGear with the parameters:
 ##
-##    --generic=socket,in,100,,6543,udp,linux-track \
-##    --prop:/sim/linux-track/enabled=1
+##    --generic=socket,in,100,,6543,udp,linuxtrack \
+##    --prop:/sim/linuxtrack/enabled=1
 ##
 ##  Note that X, Y, Z are not enabled by default. You can enable all of them
 ##  at once with the additional parameter:
 ##
-##    --prop:/sim/linux-track/track-all=1
+##    --prop:/sim/linuxtrack/track-all=1
 ##
 ##  or any of them one by one with such parameters:
 ##
-##    --prop:/sim/linux-track/track-x=1
-##    --prop:/sim/linux-track/track-y=1
-##    --prop:/sim/linux-track/track-z=1
+##    --prop:/sim/linuxtrack/track-x=1
+##    --prop:/sim/linuxtrack/track-y=1
+##    --prop:/sim/linuxtrack/track-z=1
 ##
 
-var script_name = "linux-track.nas";
+var script_name = "linuxtrack.nas";
 
-var lt_tree = "/sim/linux-track";
+var lt_tree = "/sim/linuxtrack";
 var cv_tree = "/sim/current-view";
 
 
 ##
-# linux-track view handler class.
+# LinuxTrack view handler class.
 # Use one instance per tracked view.
 #
 var ltr_view_handler = {};
@@ -77,7 +77,7 @@ ltr_view_handler.init = func {
 	var fg_Y_name = "target-y-offset-m";
 	var fg_Z_name = "field-of-view";
 
-	# Linux-track data properties names
+	# LinuxTrack data properties names
 	var lt_H_name = "heading";
 	var lt_P_name = "pitch";
 	var lt_R_name = "roll";
