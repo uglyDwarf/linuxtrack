@@ -2,14 +2,15 @@ ltr_pipe: LinuxTrack data sender
 =================================
 
 This program allows you to send data from LinuxTrack head tracking software
-to some destinations. Currently it is known to work with:
+to some destinations. It has built-in support for:
 
 * FlightGear
 * IL-2 Shturmovik
 * Silent Wings
 
-Also it can send data as a mouse or a joystick. That could be used probably in
-any program.
+The output of ltr_pipe could be directed to an input filter for transformation
+to custom output formats (See 'Custom output formats' below). Also it can send
+data as a mouse or a joystick. That could be used probably in any application.
 
 Compile and install LinuxTrack with ltr_pipe enabled:
 
@@ -19,38 +20,54 @@ Compile and install LinuxTrack with ltr_pipe enabled:
 
 
 
-* FlightGear
-=============
+* Contents:
+===========
+
+1. FlightGear
+	1.1. ltr_pipe's custom protocol file with Nasal script
+	1.2. ltr_pipe's stand-alone custom protocol file
+	1.3. EasyHeadTrack's custom protocol file and Nasal script
+	1.4. Using ltr_pipe's --format-uinput-abs joystick emulation
+2. IL-2 Shturmovik
+3. Silent Wings
+4. Mouse emulation
+5. Using uinput driver on Linux
+6. Recenter/Suspend/Wake-Up
+7. Custom output formats
+
+
+
+1. FlightGear
+==============
 
 There are several ways to use ltr_pipe with FlightGear:
 
-  + Using ltr_pipe's custom protocol and script (FlightGear git version only).
-  + Using EasyHeadTrack (http://gitorious.org/headtrack) custom protocol
-    and script (FlightGear git version only).
-  + Using ltr_pipe's --format-uinput-abs joystick emulation (all FlightGear
-    versions but only on Linux).
+  + Using ltr_pipe's custom protocol file with Nasal script.
+  + Using ltr_pipe's stand-alone custom protocol file.
+  + Using EasyHeadTrack's (http://gitorious.org/headtrack) custom protocol
+    file and Nasal script (FlightGear git version only).
+  + Using ltr_pipe's --format-uinput-abs joystick emulation (Linux only).
 
 
-** ltr_pipe's custom protocol and script
------------------------------------------
+
+1.1. ltr_pipe's custom protocol file with Nasal script
+-------------------------------------------------------
 
 You must manually copy files from doc/fgfs directory to proper FlightGear
 directories. Copy custom protocol file:
-  
-  cp doc/fgfs/Protocol/linuxtrack.xml $FG_ROOT/Protocol/
-  
-FlightGear now supports running nasal scripts from custom directories below
-$FG_ROOT/Nasal directory. And scripts from those directories run after all
-scripts in $FG_ROOT/Nasal. So all needed nasal subsystems will be initialized
-before running scripts from custom directories.
 
-Create a custom direcory:
+  cp doc/fgfs/Protocol/linuxtrack.nas.xml $FG_ROOT/Protocol/
 
-  mkdir $FG_ROOT/Nasal/LinuxTrack
+Copy Nasal script:
 
-Copy nasal script file to that directory:
+  cp doc/fgfs/Nasal/LinuxTrack/linuxtrack.nas $FG_ROOT/Nasal/
 
-  cp doc/fgfs/Nasal/LinuxTrack/linuxtrack.nas $FG_ROOT/Nasal/LinuxTrack/
+Note that now FlightGear (git version) supports running Nasal scripts from
+custom directories below $FG_ROOT/Nasal directory. Scripts from those custom
+directories run after all scripts in $FG_ROOT/Nasal when all needed Nasal
+subsystems are initialized. If you're using a bleeding edge git FlightGear
+version then create $FG_ROOT/Nasal/LinuxTrack directory and copy linuxtrack.nas
+there.
 
 Run ltr_pipe in the first terminal window (use --help for available options):
 
@@ -58,7 +75,7 @@ Run ltr_pipe in the first terminal window (use --help for available options):
 
 Run FlightGear in the second terminal window with the specified options:
 
-  fgfs --generic=socket,in,100,,6543,udp,linuxtrack \
+  fgfs --generic=socket,in,100,,6543,udp,linuxtrack.nas \
        --prop:/sim/linuxtrack/enabled=1
 
 Note that X, Y, Z are not enabled in linuxtrack.nas by default. You can
@@ -73,11 +90,36 @@ or any of them one by one with such options:
   --prop:/sim/linuxtrack/track-z=1
 
 
-** Using EasyHeadTrack custom protocol and script
---------------------------------------------------
+
+1.2. ltr_pipe's stand-alone custom protocol file
+-------------------------------------------------
+
+This could be used as a back-up if the previous (Nasal) approach doesn't work.
+
+Copy stand-alone custom protocol file to FlightGear's 'Protocol' directory:
+
+  cp doc/fgfs/Protocol/linuxtrack.xml $FG_ROOT/Protocol/
+
+Run ltr_pipe in the first terminal window (use --help for available options):
+
+  ltr_pipe --output-net-udp --format-flightgear
+
+Run FlightGear in the second terminal window with the specified options:
+
+  fgfs --generic=socket,in,100,,6543,udp,linuxtrack
+
+If you don't like the view trembling when in the 'Cocpit View' turning to the
+maximum allowed position then add to FlightGear options:
+
+  --prop:/sim/view/config/limits/enabled='false'
+
+
+
+1.3. EasyHeadTrack's custom protocol file and Nasal script
+-----------------------------------------------------------
 
 If you're using EasyHeadTrack (http://gitorious.org/headtrack) then you can
-also use LinuxTrack with their nasal script and protocol file. For this, run
+also use LinuxTrack with their Nasal script and protocol file. For this, run
 ltr_pipe in the first terminal window:
 
   ltr_pipe --output-net-udp --format-headtrack
@@ -88,17 +130,18 @@ Run FlightGear in the second terminal window:
        --prop:/sim/headtracking/enabled=1
 
 
-** Using ltr_pipe's --format-uinput-abs joystick emulation
------------------------------------------------------------
 
-Edit doc/fgfs/Input/Joysticks/LinuxTrack/linuxtrack.xml file according to your
+1.4. Using ltr_pipe's --format-uinput-abs joystick emulation
+-------------------------------------------------------------
+
+Edit doc/fgfs/Input/Joysticks/LinuxTrack/uinput-abs.xml file according to your
 needs. Create a custom joystick directory below $FG_ROOT/Input/Joysticks:
 
   mkdir $FG_ROOT/Input/Joysticks/LinuxTrack
 
 Copy joystick file to that directory:
 
-  cp doc/fgfs/Input/Joysticks/LinuxTrack/linuxtrack.xml \
+  cp doc/fgfs/Input/Joysticks/LinuxTrack/uinput-abs.xml \
      $FG_ROOT/Input/Joysticks/LinuxTrack/
 
 Run ltr_pipe in the first terminal window:
@@ -113,8 +156,8 @@ Note: specifics of ltr_pipe's uinput mode are described below in this README.
 
 
 
-* IL-2 Shturmovik
-==================
+2. IL-2 Shturmovik
+===================
 
 Edit IL-2 Shturmovik conf.ini file and set its parameters:
 
@@ -130,8 +173,8 @@ Run IL-2 Shturmovik as you usually run it.
 
 
 
-* Silent Wings
-===============
+3. Silent Wings
+================
 
 Read this first: http://wiki.silentwings.no/index.php?title=Remote_Control
 
@@ -149,8 +192,8 @@ Run Silent Wings as you usually run it.
 
 
 
-* Mouse emulation
-==================
+4. Mouse emulation
+===================
 
 To use this mode you also have to make some preparations. First create a 
 named pipe somewhere on your system. For example:
@@ -184,8 +227,8 @@ documentation. If everything is OK, then you may run ltr_pipe:
 
 
 
-* Using uinput driver on Linux
-===============================
+5. Using uinput driver on Linux
+================================
 
 Note: this is a Linux-only feature.
 
@@ -210,8 +253,8 @@ driver). Configure your games to use that joystick for any axes you want.
 
 
 
-* Recenter/Suspend/Wake-Up
-===========================
+6. Recenter/Suspend/Wake-Up
+============================
 
 You can send command to Recenter/Suspend/Wake-Up tracking to ltr_pipe by means
 of signals. To recenter:
@@ -241,15 +284,38 @@ Let's name it kill_ltr_pipe.sh. Place it to some directory, for example
 Run GNOME's configuration editor (gconf-editor). Go to
 /apps/metacity/keybinding_commands and assign to command_1:
 
-/usr/local/bin/kill_ltr_pipe.sh -HUP
+  /usr/local/bin/kill_ltr_pipe.sh -HUP
 
 And to command_2:
 
-/usr/local/bin/kill_ltr_pipe.sh -USR1
+  /usr/local/bin/kill_ltr_pipe.sh -USR1
 
 Then go to /apps/metacity/global_keybindings and assign to run_command_1 and
 run_command_2 any keys or key combinations you like. Enjoy :)
 
+
+
+7. Custom output formats
+=========================
+
+When run without options (or with --format-default option) ltr_pipe outputs
+data in strings with all LinuxTrack values. Each string consists of the
+following seven columns separated by tabs:
+
+  heading	pitch	roll	x	y	z	counter
+
+This output can be processed with a custom input filter for further
+modifications and a custom output.
+
+For example, if for some reason I'd like to output data to network using UDP
+protocol and in Silent Wings format with heading and pitch swapped, I'd do
+that by using gawk (or something else) like this:
+
+  ltr_pipe | gawk \
+    '{ printf("PANH %f\nPANV %f\n", $2, $1) |& "/inet/udp/0/localhost/6543" }'
+
+This approach allows to quickly get results for your application without much
+programming.
 
 
 Have fun!

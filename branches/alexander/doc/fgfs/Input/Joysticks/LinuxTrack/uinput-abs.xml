@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 
-<PropertyList>
+<!-- Example joystick configuration for LinuxTrack ltr_pipe's uinput-abs mode -->
 
-	<!-- Joystick Configuration for LinuxTrack ltr_pipe's uinput-abs mode -->
+<PropertyList>
 
 	<name>LinuxTrack uinput-abs</name>
 

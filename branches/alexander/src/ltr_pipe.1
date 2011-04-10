@@ -1,4 +1,4 @@
-.TH ltr_pipe 1 "03 April 2011"
+.TH ltr_pipe 1 "10 April 2011"
 .IX ltr_pipe
 .SH NAME
 ltr_pipe - send LinuxTrack data to STDOUT, a file or network.
@@ -18,8 +18,8 @@ ltr_pipe - send LinuxTrack data to STDOUT, a file or network.
 .RI [--format-default]
 .RI [--format-flightgear]
 .RI [--format-il2]
-.RI [--format-headtrack]
 .RI [--format-silentwings]
+.RI [--format-headtrack]
 .RI [--format-mouse]
 .RI [--format-uinput-rel]
 .RI [--format-uinput-abs]
@@ -32,68 +32,71 @@ STDOUT, a file or using UDP protocol to some network destination.
 .B Generic options:
 .TP
 .B -h, --help
-Give this help list
+Give this help list.
 .TP
 .B -V, --version
-Print program version
+Print program version.
 .TP
 .B Output options:
 .TP
 .B --output-stdout
-Write data to STDOUT
+Write data to STDOUT.
 .TP
 .B --output-file=FILENAME
-Write data to a file
+Write data to a file.
 .TP
 .B --output-net-udp
-Write data to network using UDP protocol
+Write data to network using UDP protocol.
 .TP
 .B --output-net-tcp
-Write data to network using TCP protocol
+Write data to network using TCP protocol.
 .TP
 .B Network options:
 .TP
 .B --dst-host=HOST
-Destination host (default: 127.0.0.1)
+Destination host (default: 127.0.0.1).
 .TP
 .B --dst-port=PORT
-Destination port (default: 6543)
+Destination port (default: 6543).
 .TP
 .B LinuxTrack options:
 .TP
 .B --ltr-profile=PROFILE
-LinuxTrack profile name (default: Default)
+LinuxTrack profile name (default: Default).
 .TP
 .B --ltr-timeout=SECONDS
-LinuxTrack init timeout (default: 10)
+LinuxTrack init timeout (default: 10).
 .TP
-.B Output data format options:
+.B String output data format options:
 .TP
 .B --format-default
-Write all LinuxTrack values
+Write all LinuxTrack values in strings. Each string consists of the following
+seven colums separated by tabs: heading, pitch, roll, x, y, z, counter.
 .TP
 .B --format-flightgear
-FlightGear format
+FlightGear format.
 .TP
 .B --format-il2
-IL-2 Shturmovik DeviceLink format
-.TP
-.B --format-headtrack
-EasyHeadTrack compatible format
+IL-2 Shturmovik DeviceLink format.
 .TP
 .B --format-silentwings
-Silent Wings remote control format
+Silent Wings remote control format.
+.TP
+.B Binary output data format options:
+.TP
+.B --format-headtrack
+EasyHeadTrack compatible format.
 .TP
 .B --format-mouse
-ImPS/2 mouse format
+ImPS/2 mouse format.
 .TP
 .B --format-uinput-rel
 .I(Linux only)
-uinput relative position (like a mouse)
+uinput relative position (like a mouse).
 .TP
 .B --format-uinput-abs
 .I(Linux only)
-uinput absolute position (like a joystick)
+uinput absolute position (like a joystick).
 .SH SIGNALS
 Signals could be used to do a specific LinuxTrack action. Simple shell commands
 like

@@ -60,13 +60,13 @@ enum run_states Run_state = RST_RUNNING;
 
 /* ltr_get_camera_update() arguments put together in one structure */
 struct ltr_data {
-	float heading;
-	float pitch;
-	float roll;
-	float tx;
-	float ty;
-	float tz;
-	unsigned int cnt;
+	float         h;  // heading
+	float         p;  // pitch
+	float         r;  // roll
+	float         x;  // x
+	float         y;  // y
+	float         z;  // z
+	unsigned int  c;  // counter
 };
 
 
@@ -82,7 +82,7 @@ enum outputs {
 
 /* Data output formats */
 enum formats {
-	FORMAT_DEFAULT      = 0, // Default
+	FORMAT_DEFAULT      = 0, // Default, output all LinuxTrack values
 	FORMAT_FLIGHTGEAR   = 1, // For FlightGear with linuxtrack.xml
 	FORMAT_IL2          = 2, // For IL-2 Shturmovik with DeviceLink protocol
 	FORMAT_HEADTRACK    = 3, // EasyHeadTrack compatible format
@@ -293,13 +293,16 @@ static void help(void)
 "  --ltr-profile=PROFILE      LinuxTrack profile name (default: %s)\n"
 "  --ltr-timeout=SECONDS      LinuxTrack init timeout (default: %s)\n"
 "\n"
-"Output data format options:\n"
+"String output data format options:\n"
 "\n"
 "  --format-default           Write all LinuxTrack values\n"
 "  --format-flightgear        FlightGear format\n"
 "  --format-il2               IL-2 Shturmovik DeviceLink format\n"
-"  --format-headtrack         EasyHeadTrack compatible format\n"
 "  --format-silentwings       Silent Wings remote control format\n"
+"\n"
+"Binary output data format options:\n"
+"\n"
+"  --format-headtrack         EasyHeadTrack compatible format\n"
 "  --format-mouse             ImPS/2 mouse format\n"
 #ifdef LINUX
 "  --format-uinput-rel        uinput relative position (like a mouse)\n"
@@ -397,10 +400,8 @@ static void parse_opts(int argc, char **argv)
 
 static void check_opts(void)
 {
-	if (Args.output == OUTPUT_NONE) {
-		fprintf(stderr, "Output channel unspecified, using STDOUT\n");
+	if (Args.output == OUTPUT_NONE)
 		Args.output = OUTPUT_STDOUT;
-	}
 }
 
 
@@ -539,15 +540,14 @@ static void prepare_sock(void)
 	hints.ai_flags     = 0;
 
 	switch (Args.output) {
-	case OUTPUT_NET_UDP:
-		hints.ai_socktype  = SOCK_DGRAM;
-		hints.ai_protocol  = IPPROTO_UDP;
-		break;
 	case OUTPUT_NET_TCP:
 		hints.ai_socktype  = SOCK_STREAM;
 		hints.ai_protocol  = IPPROTO_TCP;
 		break;
+	case OUTPUT_NET_UDP:
 	default:
+		hints.ai_socktype  = SOCK_DGRAM;
+		hints.ai_protocol  = IPPROTO_UDP;
 		break;
 	}
 
@@ -624,11 +624,9 @@ static void prepare_file(void)
 		xioctl(UI_SET_EVBIT, EV_REL);
 		xioctl(UI_SET_RELBIT, REL_X);
 		xioctl(UI_SET_RELBIT, REL_Y);
-		//xioctl(UI_SET_RELBIT, REL_RX);
-		//xioctl(UI_SET_RELBIT, REL_RY);
-		//xioctl(UI_SET_RELBIT, REL_RZ);
 		break;
 	case FORMAT_UINPUT_ABS:
+	default:
 		snprintf(ud.name, UINPUT_MAX_NAME_SIZE,
 				"LinuxTrack uinput-abs");
 		ud.id.product = 2;
@@ -648,8 +646,6 @@ static void prepare_file(void)
 		ud.absmax[ABS_Y] = ud.absmax[ABS_RY] =  180;
 		ud.absmax[ABS_Z] = ud.absmax[ABS_RZ] =  180;
 		break;
-	default:
-		break;
 	}
 
 	xwrite(&ud, sizeof(ud));
@@ -665,9 +661,6 @@ static void prepare_file(void)
 static void setup_fd(void)
 {
 	switch (Args.output) {
-	case OUTPUT_STDOUT:
-		PipeFD = STDOUT_FILENO;
-		break;
 	case OUTPUT_FILE:
 		prepare_file();
 		break;
@@ -675,7 +668,9 @@ static void setup_fd(void)
 	case OUTPUT_NET_TCP:
 		prepare_sock();
 		break;
+	case OUTPUT_STDOUT:
 	default:
+		PipeFD = STDOUT_FILENO;
 		break;
 	}
 }
@@ -746,20 +741,8 @@ static void write_data_default(const struct ltr_data *d)
 	char buf[256];
 
 	int r = snprintf(buf, sizeof(buf),
-			"heading(%f) "
-			"pitch(%f) "
-			"roll(%f) "
-			"tx(%f) "
-			"ty(%f) "
-			"tz(%f) "
-			"counter(%u)\n",
-			d->heading,
-			d->pitch,
-			d->roll,
-			d->tx,
-			d->ty,
-			d->tz,
-			d->cnt);
+			"%f\t%f\t%f\t%f\t%f\t%f\t%u\n",
+			d->h, d->p, d->r, d->x, d->y, d->z, d->c);
 
 	xwrite(buf, r);
 }
@@ -775,12 +758,7 @@ static void write_data_flightgear(const struct ltr_data *d)
 
 	int r = snprintf(buf, sizeof(buf),
 			"%f\t%f\t%f\t%f\t%f\t%f\n",
-			d->heading,
-			d->pitch,
-			d->roll,
-			d->tx,
-			d->ty,
-			d->tz);
+			d->h * -1, d->p, d->r, d->x, d->y, d->z);
 
 	xwrite(buf, r);
 }
@@ -798,9 +776,7 @@ static void write_data_il2(const struct ltr_data *d)
 
 	r = snprintf(buf, sizeof(buf),
 			"R/11\\%f\\%f\\%f",
-			d->heading * -1,
-			d->pitch   * -1,
-			d->roll);
+			d->h * -1, d->p * -1, d->r);
 
 	xwrite(buf, r);
 }
@@ -817,29 +793,36 @@ static void write_data_headtrack(const struct ltr_data *d)
 	uint32_t tmp;
 	size_t offset = 0;
 
+	/* 'updated' flag */
 	buf[offset++] = 1;
 
-	tmp = htonl(*(uint32_t *) &d->heading);
+	/* heading */
+	tmp = htonl(*(uint32_t *) &d->h);
 	memcpy(&buf[offset], &tmp, sizeof(uint32_t));
 	offset += sizeof(uint32_t);
 
-	tmp = htonl(*(uint32_t *) &d->roll);
+	/* roll */
+	tmp = htonl(*(uint32_t *) &d->r);
 	memcpy(&buf[offset], &tmp, sizeof(uint32_t));
 	offset += sizeof(uint32_t);
 
-	tmp = htonl(*(uint32_t *) &d->pitch);
+	/* pitch */
+	tmp = htonl(*(uint32_t *) &d->p);
 	memcpy(&buf[offset], &tmp, sizeof(uint32_t));
 	offset += sizeof(uint32_t);
 
-	tmp = htonl(*(uint32_t *) &d->tx);
+	/* x */
+	tmp = htonl(*(uint32_t *) &d->x);
 	memcpy(&buf[offset], &tmp, sizeof(uint32_t));
 	offset += sizeof(uint32_t);
 
-	tmp = htonl(*(uint32_t *) &d->ty);
+	/* y */
+	tmp = htonl(*(uint32_t *) &d->y);
 	memcpy(&buf[offset], &tmp, sizeof(uint32_t));
 	offset += sizeof(uint32_t);
 
-	tmp = htonl(*(uint32_t *) &d->tz);
+	/* z */
+	tmp = htonl(*(uint32_t *) &d->z);
 	memcpy(&buf[offset], &tmp, sizeof(uint32_t));
 
 	xwrite(buf, bsz);
@@ -856,8 +839,7 @@ static void write_data_silentwings(const struct ltr_data *d)
 
 	int r = snprintf(buf, sizeof(buf),
 			"PANH %f\nPANV %f\n",
-			d->heading,
-			d->pitch);
+			d->h, d->p);
 
 	xwrite(buf, r);
 }
@@ -869,8 +851,8 @@ static void write_data_silentwings(const struct ltr_data *d)
  **/
 static void write_data_mouse(const struct ltr_data *d)
 {
-        int8_t x  = (int8_t) d->heading;
-        int8_t y  = (int8_t) d->pitch;
+        int8_t x  = (int8_t) d->h;
+        int8_t y  = (int8_t) d->p;
         int8_t zx = 0;
         int8_t zy = 0;
 
@@ -896,28 +878,6 @@ static void write_data_mouse(const struct ltr_data *d)
 }
 
 
-#ifdef LINUX
-static inline void set_input_event_code(struct input_event *e,
-		uint16_t code_rel, uint16_t code_abs)
-{
-	switch (Args.format) {
-	case FORMAT_UINPUT_REL:
-		e->type = EV_REL;
-		e->code = code_rel;
-		break;
-	case FORMAT_UINPUT_ABS:
-		e->type = EV_ABS;
-		e->code = code_abs;
-		break;
-	default:
-		/* Shouldn't happen */
-		xerror(1, 0, "Program error");
-		break;
-	}
-}
-#endif
-
-
 /**
  * write_data_uinput() - Write data in uinput format
  * @d:                 Data to write.
@@ -929,42 +889,44 @@ static void write_data_uinput(const struct ltr_data *d)
 
 	memset(&ie, 0, sizeof(ie));
 	gettimeofday(&ie.time, NULL);
+	
+	ie.type = (Args.format == FORMAT_UINPUT_REL) ? EV_REL : EV_ABS;
 
 	/* heading */
-	set_input_event_code(&ie, REL_X, ABS_X);
-	ie.value = (int32_t) d->heading;
+	ie.code  = (Args.format == FORMAT_UINPUT_REL) ? REL_X : ABS_X;
+	ie.value = (int32_t) d->h;
 	xwrite(&ie, sizeof(ie));
 
 	/* pitch */
-	set_input_event_code(&ie, REL_Y, ABS_Y);
-	ie.value = (int32_t) d->pitch;
+	ie.code  = (Args.format == FORMAT_UINPUT_REL) ? REL_Y : ABS_Y;
+	ie.value = (int32_t) d->p;
 	xwrite(&ie, sizeof(ie));
 
 	/* roll */
-	set_input_event_code(&ie, REL_Z, ABS_Z);
-	ie.value = (int32_t) d->roll;
+	ie.code  = (Args.format == FORMAT_UINPUT_REL) ? REL_Z : ABS_Z;
+	ie.value = (int32_t) d->r;
 	xwrite(&ie, sizeof(ie));
 
 	if (Args.format == FORMAT_UINPUT_ABS) {
-		/* tx */
-		set_input_event_code(&ie, REL_RX, ABS_RX);
-		ie.value = (int32_t) d->tx;
+		/* x */
+		ie.code  = ABS_RX;
+		ie.value = (int32_t) d->x;
 		xwrite(&ie, sizeof(ie));
 
-		/* ty */
-		set_input_event_code(&ie, REL_RY, ABS_RY);
-		ie.value = (int32_t) d->tx;
+		/* y */
+		ie.code  = ABS_RY;
+		ie.value = (int32_t) d->y;
 		xwrite(&ie, sizeof(ie));
 
-		/* tz */
-		set_input_event_code(&ie, REL_RZ, ABS_RZ);
-		ie.value = (int32_t) d->tx;
+		/* z */
+		ie.code  = ABS_RZ;
+		ie.value = (int32_t) d->z;
 		xwrite(&ie, sizeof(ie));
 	}
 
 	/* sync */
-	ie.type = EV_SYN;
-	ie.code = SYN_REPORT;
+	ie.type  = EV_SYN;
+	ie.code  = SYN_REPORT;
 	ie.value = 0;
 	xwrite(&ie, sizeof(ie));
 }
@@ -1056,21 +1018,15 @@ static void run_loop(void)
 			ltr_recenter();
 		}
 
-		r = ltr_get_camera_update(
-				&d.heading,
-				&d.pitch,
-				&d.roll,
-				&d.tx,
-				&d.ty,
-				&d.tz,
-				&d.cnt);
+		r = ltr_get_camera_update(&d.h, &d.p, &d.r,
+					  &d.x, &d.y, &d.z, &d.c);
 
 		if (r != 0)
 			continue;
 
-		if (d.cnt == cnt)
+		if (d.c == cnt)
 			continue;
-		cnt = d.cnt;
+		cnt = d.c;
 
 #ifdef LINUX
 		/* Don't use select() for uinput writing */

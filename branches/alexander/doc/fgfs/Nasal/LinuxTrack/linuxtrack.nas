@@ -11,10 +11,10 @@
 ##
 ##  Installation:
 ##
-## - Put this file in ~/.fgfs/Nasal
+## - Put this file in ~/.fgfs/Nasal or $FG_ROOT/Nasal
 ## - Start FlightGear with the parameters:
 ##
-##    --generic=socket,in,100,,6543,udp,linuxtrack \
+##    --generic=socket,in,100,,6543,udp,linuxtrack.nas \
 ##    --prop:/sim/linuxtrack/enabled=1
 ##
 ##  Note that X, Y, Z are not enabled by default. You can enable all of them
@@ -78,12 +78,12 @@ ltr_view_handler.init = func {
 	var fg_Z_name = "field-of-view";
 
 	# LinuxTrack data properties names
-	var lt_H_name = "heading";
-	var lt_P_name = "pitch";
-	var lt_R_name = "roll";
-	var lt_X_name = "tx";
-	var lt_Y_name = "ty";
-	var lt_Z_name = "tz";
+	var lt_H_name = "h"; # heading
+	var lt_P_name = "p"; # pitch
+	var lt_R_name = "r"; # roll
+	var lt_X_name = "x"; # x
+	var lt_Y_name = "y"; # y
+	var lt_Z_name = "z"; # z
 
 	# Low pass filters
 	var lowpass_H = aircraft.lowpass.new(0.1);
@@ -101,7 +101,7 @@ ltr_view_handler.init = func {
 
 
 	var set_fg_prop = func(name, val) {
-		me.view.getChild(name).setValue(val);
+		me.view.getChild(name).setDoubleValue(val);
 	};
 
 	var get_lt_prop = func(name) {
@@ -181,7 +181,7 @@ ltr_view_handler.update = func {
 	if (me.enabled.getValue() == 0)
 		return 0;
 
-	var m_H = -1;
+	var m_H =  1;
 	var m_P =  1;
 	var m_R =  1;
 	var m_X =  1;
@@ -239,14 +239,12 @@ var regviews = func {
 };
 
 
-var main = func(n) {
+var main = func {
 
-	if (n.getValue() != 1)
+	if (getprop("/sim/signals/fdm-initialized"))
 		return;
 
-	var enabled = props.globals.getNode(lt_tree ~ "/enabled");
-
-	if (enabled.getValue() != 1)
+	if (getprop(lt_tree ~ "/enabled") != 1)
 		return;
 
 	# Must wait some seconds untill the objects
@@ -259,5 +257,5 @@ var main = func(n) {
 };
 
 
-setlistener("/sim/signals/fdm-initialized", main, 1, 0);
+_setlistener("/sim/signals/fdm-initialized", main, 1, 0);
 
