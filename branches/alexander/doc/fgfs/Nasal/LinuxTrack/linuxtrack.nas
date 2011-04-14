@@ -241,7 +241,7 @@ var regviews = func {
 
 var main = func {
 
-	if (getprop("/sim/signals/fdm-initialized"))
+	if (getprop("/sim/signals/fdm-initialized") != 1)
 		return;
 
 	if (getprop(lt_tree ~ "/enabled") != 1)
