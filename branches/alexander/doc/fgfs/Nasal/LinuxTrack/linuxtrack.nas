@@ -7,14 +7,12 @@
 ##  Modified by Alexander Pravdin <aledin@evpatoria.com.ua> for LinuxTrack.
 ##
 ##  For the original Anders Gidenstam's version of this file please visit
-##  http://www.gidenstam.org/FlightGear/HeadTracking/ 
+##  http://www.gidenstam.org/FlightGear/HeadTracking/
 ##
-##  Installation:
+##  Installation: see ltr_pipe's README file.
 ##
-## - Put this file in ~/.fgfs/Nasal or $FG_ROOT/Nasal
-## - Start FlightGear with the parameters:
+##  This script is enabled by the FlightGear command line parameter:
 ##
-##    --generic=socket,in,100,,6543,udp,linuxtrack.nas \
 ##    --prop:/sim/linuxtrack/enabled=1
 ##
 ##  Note that X, Y, Z are not enabled by default. You can enable all of them
@@ -42,12 +40,12 @@ var cv_tree = "/sim/current-view";
 var ltr_view_handler = {};
 
 
-ltr_view_handler.new = func {	
+ltr_view_handler.new = func {
 	return { parents: [ltr_view_handler] };
 };
 
 
-ltr_view_handler.init = func {	
+ltr_view_handler.init = func {
 
 	if (contains(me, "enabled"))
 		return;
@@ -68,7 +66,7 @@ ltr_view_handler.init = func {
 	me.track_Z   = props.globals.getNode(lt_tree ~ "/track-z", 1);
 
 	var default_fov_name = "default-field-of-view-deg";
-		
+
 	# FlightGear target properties names
 	var fg_H_name = "goal-heading-offset-deg";
 	var fg_P_name = "goal-pitch-offset-deg";

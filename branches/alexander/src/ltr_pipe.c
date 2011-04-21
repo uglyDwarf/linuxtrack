@@ -40,8 +40,8 @@ static int Recenter  =  0;
 static int Terminate =  0;
 
 
-/* File descriptor */
-static int PipeFD    = -1;
+/* Output file descriptor */
+static int Output_FD = -1;
 
 
 static char *Program_name;
@@ -261,7 +261,6 @@ static struct option Opts[] = {
 static const char *Opts_str = "hV";
 
 
-static void xerror(int, int, const char *, ...);
 static void xwrite(const void *, size_t);
 
 
@@ -406,6 +405,25 @@ static void check_opts(void)
 
 
 /**
+ * logmsg() - Print an info message to STDERR
+ * @format:  Printf-like format string for message.
+ * @...:     Format optional parameters.
+ **/
+static void logmsg(const char *format, ...)
+{
+	va_list params;
+
+	fprintf(stderr, "%s: ", Program_name);
+
+	va_start(params, format);
+	vfprintf(stderr, format, params);
+	va_end(params);
+
+	fprintf(stderr, "\n");
+}
+
+
+/**
  * xerror() - Print error message and optionally terminate program
  * @status:  Terminate with this exit code if it is non-zero.
  * @errnum:  Value of errno.
@@ -487,8 +505,6 @@ static void catch_sigint(int sig)
 static void catch_sigpipe(int sig)
 {
 	(void) sig;
-
-	Terminate = 1;
 }
 
 static void setup_signals(void)
@@ -503,12 +519,14 @@ static void setup_signals(void)
 
 
 /**
- * setup_ltr() - Prepare LinuxTrack library.
+ * setup_ltr() - Prepare LinuxTrack library
  **/
 static void setup_ltr(void)
 {
+	logmsg("Initializing LinuxTrack library");
+
 	if (ltr_init(Args.ltr_profile) != 0)
-		xerror(1, 0, "LinuxTrack initialization failed");
+		xerror(1, 0, "LinuxTrack library failure");
 
 	int timeout = atoi(Args.ltr_timeout);
 
@@ -524,54 +542,7 @@ static void setup_ltr(void)
 	}
 
 	if (ltr_get_tracking_state() != RUNNING)
-		xerror(1, 0, "LinuxTrack initialization timeout");
-}
-
-
-static void prepare_sock(void)
-{
-	int r;
-	struct addrinfo hints;
-	struct addrinfo *res, *rp;
-
-	memset(&hints, 0, sizeof(hints));
-
-	hints.ai_family    = AF_UNSPEC;
-	hints.ai_flags     = 0;
-
-	switch (Args.output) {
-	case OUTPUT_NET_TCP:
-		hints.ai_socktype  = SOCK_STREAM;
-		hints.ai_protocol  = IPPROTO_TCP;
-		break;
-	case OUTPUT_NET_UDP:
-	default:
-		hints.ai_socktype  = SOCK_DGRAM;
-		hints.ai_protocol  = IPPROTO_UDP;
-		break;
-	}
-
-	r = getaddrinfo(Args.dst_host, Args.dst_port, &hints, &res);
-	if (r != 0)
-		xerror(1, 0, "Bad host address: %s", gai_strerror(r));
-
-	for (rp = res; rp != NULL; rp = rp->ai_next) {
-
-		PipeFD = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-		if (PipeFD == -1)
-			continue;
-
-		r = connect(PipeFD, rp->ai_addr, rp->ai_addrlen);
-		if (r != -1)
-			break;
-
-		close(PipeFD);
-	}
-
-	if (rp == NULL)
-		xerror(1, errno, "Socket setup failed");
-
-	freeaddrinfo(res);
+		xerror(1, 0, "LinuxTrack library timeout");
 }
 
 
@@ -585,7 +556,7 @@ static void xioctl(int request, ...)
 	arg = va_arg(params, void *);
 	va_end(params);
 
-	int r = ioctl(PipeFD, request, arg);
+	int r = ioctl(Output_FD, request, arg);
 
 	if (r == -1)
 		xerror(1, errno, "ioctl()");
@@ -593,14 +564,21 @@ static void xioctl(int request, ...)
 #endif /* LINUX */
 
 
-static void prepare_file(void)
+/**
+ * ofd_setup_file() - Prepare Output_FD for file output
+ **/
+static void ofd_setup_file(void)
 {
 	const int o_opts = O_CREAT | O_APPEND | O_WRONLY | O_NONBLOCK;
 	const int s_opts = S_IRUSR | S_IWUSR  | S_IRGRP  | S_IROTH;
 
-	PipeFD = open(Args.file, o_opts, s_opts);
-	if (PipeFD == -1)
-		xerror(1, errno, "Failed to open file %s", Args.file);
+	Output_FD = open(Args.file, o_opts, s_opts);
+
+	if (Output_FD == -1) {
+		if (errno == ENXIO) // a FIFO yet unopened on the other end
+			return;
+		xerror(1, errno, "Failed to open %s", Args.file);
+	}
 
 #ifdef LINUX
 
@@ -656,79 +634,199 @@ static void prepare_file(void)
 
 
 /**
- * setup_fd() - Set up file descriptor for data traversal
+ * ofd_close() - Close Output_FD
  **/
-static void setup_fd(void)
+static inline void ofd_close(void)
 {
-	switch (Args.output) {
-	case OUTPUT_FILE:
-		prepare_file();
-		break;
-	case OUTPUT_NET_UDP:
-	case OUTPUT_NET_TCP:
-		prepare_sock();
-		break;
-	case OUTPUT_STDOUT:
-	default:
-		PipeFD = STDOUT_FILENO;
-		break;
-	}
-}
-
-
-static void at_exit(void)
-{
-	fprintf(stderr, "Exiting...\n");
-
-	if (PipeFD >= 0) {
+	if (Output_FD == -1)
+		return;
 
 #ifdef LINUX
-		if (Args.format == FORMAT_UINPUT_REL ||
-		    Args.format == FORMAT_UINPUT_ABS)
-			ioctl(PipeFD, UI_DEV_DESTROY);
+	if (Args.format == FORMAT_UINPUT_REL ||
+	    Args.format == FORMAT_UINPUT_ABS)
+		xioctl(UI_DEV_DESTROY);
 #endif
 
-		close(PipeFD);
-	}
+	close(Output_FD);
 
-	ltr_shutdown();
-
-	fprintf(stderr, "Bye.\n");
-}
-
-
-static void init(void)
-{
-	setup_ltr();
-
-	if (atexit(at_exit) != 0)
-		xerror(1, 0, "Exit function setup failed");
-
-	setup_signals();
-
-	setup_fd();
-
-	fprintf(stderr, "Started successfuly\n");
+	Output_FD = -1;
 }
 
 
 /**
- * xwrite() - Write data to PipeFD
- * @buf:    Data buffer
- * @bsz:    Data size
+ * ofd_sock_connect() - Connect Output_FD to destination host
+ * @addr:             Destination host's address sturcture.
+ **/
+static int ofd_sock_connect(struct addrinfo *addr)
+{
+	int r = connect(Output_FD, addr->ai_addr, addr->ai_addrlen);
+
+	if (r != -1)
+		return r;
+
+	//xerror(0, errno, "connect()");
+
+	switch (errno) {
+	case ECONNREFUSED:
+	case ECONNABORTED:
+	case ECONNRESET:
+	case ETIMEDOUT:
+	case ENETDOWN:
+	case ENETRESET:
+	case ENETUNREACH:
+	case EISCONN:
+		ofd_close();
+		return 0;
+	}
+
+	//exit(EXIT_FAILURE);
+	xerror(1, errno, "connect()");
+
+	return r;
+}
+
+
+/**
+ * ofd_setupt_sock() - Prepare Output_FD for network output
+ **/
+static void ofd_setup_sock(void)
+{
+	int r;
+	struct addrinfo hints;
+	struct addrinfo *res, *rp;
+
+	memset(&hints, 0, sizeof(hints));
+
+	hints.ai_family    = AF_UNSPEC;
+	hints.ai_flags     = 0;
+
+	switch (Args.output) {
+	case OUTPUT_NET_TCP:
+		hints.ai_socktype  = SOCK_STREAM;
+		hints.ai_protocol  = IPPROTO_TCP;
+		break;
+	case OUTPUT_NET_UDP:
+	default:
+		hints.ai_socktype  = SOCK_DGRAM;
+		hints.ai_protocol  = IPPROTO_UDP;
+		break;
+	}
+
+	r = getaddrinfo(Args.dst_host, Args.dst_port, &hints, &res);
+
+	if (r != 0)
+		xerror(1, 0, "%s", gai_strerror(r));
+
+	ofd_close();
+
+	for (rp = res; rp != NULL; rp = rp->ai_next) {
+
+		Output_FD = socket(rp->ai_family,
+				rp->ai_socktype,
+				rp->ai_protocol);
+
+		if (Output_FD == -1)
+			continue;
+
+		r = ofd_sock_connect(rp);
+
+		if (r != -1)
+			break;
+
+		ofd_close();
+	}
+
+	if (rp == NULL)
+		xerror(1, 0, "No suitable address");
+
+	freeaddrinfo(res);
+}
+
+
+/**
+ * setup_ofd() - Set up output file descriptor for data traversal
+ **/
+static void setup_ofd(void)
+{
+	switch (Args.output) {
+	case OUTPUT_FILE:
+		ofd_setup_file();
+		break;
+	case OUTPUT_NET_UDP:
+	case OUTPUT_NET_TCP:
+		ofd_setup_sock();
+		break;
+	case OUTPUT_STDOUT:
+	default:
+		Output_FD = STDOUT_FILENO;
+		break;
+	}
+}
+
+
+/**
+ * at_exit() - Steps to do just before program's exit
+ **/
+static void at_exit(void)
+{
+	logmsg("Exiting");
+
+	ofd_close();
+
+	ltr_shutdown();
+
+	logmsg("Bye.");
+}
+
+
+/**
+ * init() - Program's initialization steps
+ **/
+static void init(void)
+{
+	logmsg("Initializing %s", Program_name);
+
+	if (atexit(at_exit) != 0)
+		xerror(1, 0, "Failed to set exit function");
+
+	setup_signals();
+
+	setup_ltr();
+}
+
+
+/**
+ * xwrite() - Write data to Output_FD
+ * @buf:    Data buffer.
+ * @bsz:    Data size.
  **/
 static void xwrite(const void *buf, size_t bsz)
 {
-	int r = write(PipeFD, buf, bsz);
+	int r = write(Output_FD, buf, bsz);
 
-	if (r == -1 && errno == EINTR)
+	if (r != -1)
 		return;
 
-	if (r == -1 && errno == ECONNREFUSED)
+	if (errno == EINTR)
 		return;
 
-	if (r == -1)
-		xerror(1, errno, "write()");
+	//xerror(0, errno, "write()");
+
+	switch (errno) {
+	case EPIPE:
+	case ECONNREFUSED:
+	case ECONNABORTED:
+	case ECONNRESET:
+	case ENETDOWN:
+	case ENETRESET:
+	case ENETUNREACH:
+		if (Args.output == OUTPUT_NET_TCP)
+			ofd_close();
+		return;
+	}
+
+	//exit(EXIT_FAILURE);
+	xerror(1, errno, "write()");
 }
 
 
@@ -889,7 +987,7 @@ static void write_data_uinput(const struct ltr_data *d)
 
 	memset(&ie, 0, sizeof(ie));
 	gettimeofday(&ie.time, NULL);
-	
+
 	ie.type = (Args.format == FORMAT_UINPUT_REL) ? EV_REL : EV_ABS;
 
 	/* heading */
@@ -933,6 +1031,10 @@ static void write_data_uinput(const struct ltr_data *d)
 #endif /* LINUX */
 
 
+/**
+ * write_data() - Write data according to set format
+ * @d:          Data to write.
+ **/
 static void write_data(const struct ltr_data *d)
 {
 	switch (Args.format) {
@@ -967,31 +1069,80 @@ static void write_data(const struct ltr_data *d)
 }
 
 
-static int sleepping(void)
+/**
+ * suspended() - Manage suspended state
+ *
+ * When in suspended state this function returns 1. Otherwise this function
+ * sleeps and after that 0 is returned.
+ **/
+static int suspended(void)
 {
+	int result;
+
 	switch (Run_state) {
 	case RST_RUNNING:
-		return 0;
+		result = 0;
+		break;
 	case RST_SUSPEND:
-		fprintf(stderr, "Suspend\n");
+		logmsg("Suspend");
 		ltr_suspend();
 		Run_state = RST_STOPPED;
-		return 1;
+		result = 1;
+		break;
 	case RST_STOPPED:
-		return 1;
+		result = 1;
+		break;
 	case RST_WAKEUP:
-		fprintf(stderr, "Wake-up\n");
+		logmsg("Wake-up");
 		ltr_wakeup();
 		Run_state = RST_RUNNING;
-		return 0;
+		result = 0;
+		break;
 	default:
+		result = 0;
 		break;
 	}
 
-	return 0;
+	if (result)
+		usleep(500000);
+
+	return result;
 }
 
 
+/**
+ * ofd_unset() - Check the state of Output_FD and set-up it if needed
+ *
+ * If state is OK, then 0 is returned. Otherwise this functions sleeps and
+ * after that 1 is returned.
+ **/
+static inline int ofd_unset(void)
+{
+	if (Output_FD >= 0)
+		return 0;
+
+	setup_ofd();
+
+	if (Output_FD >= 0)
+		return 0;
+
+	sleep(1);
+
+	return 1;
+}
+
+
+static inline void recenter(void)
+{
+	Recenter = 0;
+	logmsg("Recenter");
+	ltr_recenter();
+}
+
+
+/**
+ * run_loop() - Program's main loop
+ **/
 static void run_loop(void)
 {
 	int r;
@@ -1003,20 +1154,20 @@ static void run_loop(void)
 
 	unsigned int cnt = 0;
 
+	logmsg("Working");
+
 	while (!Terminate) {
 
 		usleep(10000);
 
-		if (sleepping()) {
-			usleep(100000);
+		if (suspended())
 			continue;
-		}
 
-		if (Recenter) {
-			Recenter = 0;
-			fprintf(stderr, "Recenter\n");
-			ltr_recenter();
-		}
+		if (Recenter)
+			recenter();
+
+		if (ofd_unset())
+			continue;
 
 		r = ltr_get_camera_update(&d.h, &d.p, &d.r,
 					  &d.x, &d.y, &d.z, &d.c);
@@ -1026,6 +1177,7 @@ static void run_loop(void)
 
 		if (d.c == cnt)
 			continue;
+
 		cnt = d.c;
 
 #ifdef LINUX
@@ -1034,6 +1186,7 @@ static void run_loop(void)
 			if (Args.format == FORMAT_UINPUT_REL ||
 			    Args.format == FORMAT_UINPUT_ABS) {
 				write_data_uinput(&d);
+				continue;
 			}
 		}
 #endif
@@ -1043,22 +1196,20 @@ static void run_loop(void)
 		tv.tv_usec = 100000;
 		nfds = 0;
 
-		FD_SET(PipeFD, &wfds);
-		nfds = max(nfds, PipeFD);
+		FD_SET(Output_FD, &wfds);
+		nfds = max(nfds, Output_FD);
 
 		r = select(nfds + 1, NULL, &wfds, NULL, &tv);
 
-		if (r == -1 && errno == EINTR)
-			continue;
-
-		if (r == -1)
+		if (r == -1) {
+			if (errno == EINTR)
+				continue;
 			xerror(1, errno, "select()");
+		}
 
-		if (FD_ISSET(PipeFD, &wfds))
+		if (FD_ISSET(Output_FD, &wfds))
 			write_data(&d);
 	}
-
-	fprintf(stderr, "Got termination signal\n");
 }
 
 

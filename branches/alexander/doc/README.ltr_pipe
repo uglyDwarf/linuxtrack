@@ -69,13 +69,32 @@ subsystems are initialized. If you're using a bleeding edge git FlightGear
 version then create $FG_ROOT/Nasal/LinuxTrack directory and copy linuxtrack.nas
 there.
 
-Run ltr_pipe in the first terminal window (use --help for available options):
+There are several ways to send data from ltr_pipe to FlightGear. They include
+a FIFO, UDP or TCP networking. For a FIFO do the following three steps:
+
+1) Create a FIFO somewhere on your file system (for eg. in the /tmp directory):
+
+  mkfifo /tmp/fifo
+
+2) Run ltr_pipe in the first terminal window (use --help for available options):
+
+  ltr_pipe --output-file=/tmp/fifo --format-flightgear
+
+3) Run FlightGear in the second terminal window with the specified options:
+
+  fgfs --generic=file,in,200,/tmp/fifo,linuxtrack.nas \
+       --prop:/sim/linuxtrack/enabled=1
+
+If you want to use UDP networking instead of FIFO then do the following two
+steps (for TCP networking just replace 'udp' with 'tcp'):
+
+1) Run ltr_pipe in the first terminal window:
 
   ltr_pipe --output-net-udp --format-flightgear
 
-Run FlightGear in the second terminal window with the specified options:
+2) Run FlightGear in the second terminal window with the specified options:
 
-  fgfs --generic=socket,in,100,,6543,udp,linuxtrack.nas \
+  fgfs --generic=socket,in,200,,6543,udp,linuxtrack.nas \
        --prop:/sim/linuxtrack/enabled=1
 
 Note that X, Y, Z are not enabled in linuxtrack.nas by default. You can
@@ -100,13 +119,32 @@ Copy stand-alone custom protocol file to FlightGear's 'Protocol' directory:
 
   cp doc/fgfs/Protocol/linuxtrack.xml $FG_ROOT/Protocol/
 
-Run ltr_pipe in the first terminal window (use --help for available options):
+For connecting ltr_pipe with FlightGear by means of a FIFO do the following
+three steps:
+
+1) Create a FIFO somewhere on your file system (for eg. in the /tmp directory):
+
+  mkfifo /tmp/fifo
+
+2) Run ltr_pipe in the first terminal window (use --help for available options):
+
+  ltr_pipe --output-file=/tmp/fifo --format-flightgear
+
+3) Run FlightGear in the second terminal window with the specified options:
+
+  fgfs --generic=file,in,200,/tmp/fifo,linuxtrack.nas \
+       --prop:/sim/linuxtrack/enabled=1
+
+If you want to use UDP networking instead of FIFO then do the following two
+steps (for TCP networking just replace 'udp' with 'tcp'):
+
+1) Run ltr_pipe in the first terminal window:
 
   ltr_pipe --output-net-udp --format-flightgear
 
-Run FlightGear in the second terminal window with the specified options:
+2) Run FlightGear in the second terminal window with the specified options:
 
-  fgfs --generic=socket,in,100,,6543,udp,linuxtrack
+  fgfs --generic=socket,in,200,,6543,udp,linuxtrack
 
 If you don't like the view trembling when in the 'Cocpit View' turning to the
 maximum allowed position then add to FlightGear options:
@@ -123,11 +161,13 @@ also use LinuxTrack with their Nasal script and protocol file. For this, run
 ltr_pipe in the first terminal window:
 
   ltr_pipe --output-net-udp --format-headtrack
-  
+
 Run FlightGear in the second terminal window:
 
-  fgfs --generic=socket,in,100,,6543,udp,headtrack \
+  fgfs --generic=socket,in,200,,6543,udp,headtrack \
        --prop:/sim/headtracking/enabled=1
+
+The FIFO connection method (described in previous sections) also should work.
 
 
 
@@ -195,7 +235,7 @@ Run Silent Wings as you usually run it.
 4. Mouse emulation
 ===================
 
-To use this mode you also have to make some preparations. First create a 
+To use this mode you also have to make some preparations. First create a
 named pipe somewhere on your system. For example:
 
   mkfifo -m 664 /var/local/ltr_pipe
@@ -237,7 +277,7 @@ Prerequisites (asuming you're a member of plugdev group):
   modprobe uinput
   chgrp plugdev /dev/uinput
   chmod 660 /dev/uinput
-  
+
 Mouse emulation mode:
 
   ltr_pipe --output-file=/dev/uinput --format-uinput-rel

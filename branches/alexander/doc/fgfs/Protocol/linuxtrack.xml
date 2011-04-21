@@ -2,13 +2,6 @@
 
 <PropertyList>
 
-	<comment>
-		<![CDATA[
-    		Usage:
-			fgfs --generic=socket,in,100,,6543,udp,linuxtrack
-		]]>
-	</comment>
-
 	<generic>
 
 		<input>
@@ -21,7 +14,7 @@
 				<type>float</type>
 				<node>/sim/current-view/goal-heading-offset-deg</node>
 			</chunk>
-   
+
 			<chunk>
 				<name>pitch</name>
 				<type>float</type>
@@ -54,7 +47,7 @@
 			</chunk>
 
 		</input>
- 
+
 	</generic>
 
 </PropertyList>

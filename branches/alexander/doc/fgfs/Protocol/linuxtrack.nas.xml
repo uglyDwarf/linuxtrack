@@ -2,13 +2,6 @@
 
 <PropertyList>
 
-	<comment>
-		<![CDATA[
-    		Usage:
-			fgfs --generic=socket,in,100,,6543,udp,linuxtrack.nas
-		]]>
-	</comment>
-
 	<generic>
 
 		<input>
@@ -21,7 +14,7 @@
 				<type>float</type>
 				<node>/sim/linuxtrack/data/h</node>
 			</chunk>
-   
+
 			<chunk>
 				<name>pitch</name>
 				<type>float</type>
@@ -53,7 +46,7 @@
 			</chunk>
 
 		</input>
- 
+
 	</generic>
 
 </PropertyList>
