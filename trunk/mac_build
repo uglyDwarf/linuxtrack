@@ -2,6 +2,7 @@
 #
 #Assumes you have libusb-1.0.8.tar.bz2 and XPlane SDK in the parent directory.
 #
+LTR_BASE=`pwd`
 cd ..
 BASE=`pwd`
 PREFIX=${BASE}/ltr
@@ -33,14 +34,14 @@ else
 fi
 
 #Build linuxtrack
-pushd michal
+pushd "$LTR_BASE"
 autoreconf -if
 export CFLAGS="-I${PREFIX}/include "
 export LDFLAGS="-L${PREFIX}/lib "
 if test x${OS_NUM} = x10.6; then
-  ./configure --prefix=${PREFIX} --with-xplane-sdk=${BASE}/SDK/CHeaders --enable-snow-leopard >/dev/null
+  ./configure --prefix=${PREFIX} --with-xplane-sdk=${BASE}/SDK/CHeaders --enable-snow-leopard --enable-ltr-pipe >/dev/null
 else
-  ./configure --prefix=${PREFIX} --with-xplane-sdk=${BASE}/SDK/CHeaders >/dev/null
+  ./configure --prefix=${PREFIX} --with-xplane-sdk=${BASE}/SDK/CHeaders --enable-ltr-pipe >/dev/null
 fi;
 make>build.log
 make install>install.log

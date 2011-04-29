@@ -1,0 +1,26 @@
+To enable support in FlightGear you must manually copy some of the files
+from this directory tree to proper FlightGear directories. See ltr_pipe's
+README file for usage information.
+
+* Files description
+====================
+
+Stand-alone protocol file:
+
+  fgfs/Protocol/linuxtrack.xml
+
+
+Protocol file for linuxtrack.nas script:
+
+  fgfs/Protocol/linuxtrack.nas.xml
+
+
+Nasal script for linuxtrack.nas.xml protocol file:
+
+  fgfs/Nasal/LinuxTrack/linuxtrack.nas
+
+
+Example joystick file:
+
+  fgfs/Input/Joysticks/LinuxTrack/uinput-abs.xml
+
