@@ -1,4 +1,4 @@
-SUBDIRS = src src/mac src/tests src/helper
+SUBDIRS = src src/mac src/tests src/helper doc
 dist_pkgdata_DATA = README
 
 if TIR_FW

@@ -1,0 +1,47 @@
+<?xml version="1.0" ?>
+
+<!-- Example joystick configuration for LinuxTrack ltr_pipe's uinput-abs mode -->
+
+<PropertyList>
+
+	<name>LinuxTrack uinput-abs</name>
+
+	<axis n="0">
+		<desc>Heading</desc>
+		<binding>
+			<command>property-scale</command>
+			<property>/sim/current-view/goal-heading-offset-deg</property>
+			<factor type="double">-180.0</factor>
+		</binding>
+	</axis>
+
+	<axis n="1">
+		<desc>Pitch</desc>
+		<binding>
+			<command>property-scale</command>
+			<property>/sim/current-view/goal-pitch-offset-deg</property>
+			<factor type="double">180.0</factor>
+		</binding>
+	</axis>
+
+	<axis n="3">
+		<desc>Roll</desc>
+		<binding>
+			<command>property-scale</command>
+			<property>/sim/current-view/goal-roll-offset-deg</property>
+			<factor type="double">-180.0</factor>
+		</binding>
+	</axis>
+
+<!--
+	<axis n="5">
+		<desc>FOV</desc>
+		<binding>
+			<command>property-scale</command>
+			<property>/sim/current-view/field-of-view</property>
+			<factor type="double">1.0</factor>
+		</binding>
+	</axis>
+-->
+
+</PropertyList>

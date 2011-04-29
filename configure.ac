@@ -31,6 +31,7 @@ AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdint.h assert.h])
+AC_CHECK_HEADERS([stdlib.h unistd.h netdb.h sys/socket.h fcntl.h sys/ioctl.h])
 
 AC_CHECK_FILE([tir4.fw.gz], [with_tir_fw=yes], [with_tir_fw=no])
 
@@ -39,6 +40,10 @@ AC_HEADER_STDBOOL
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
+AC_TYPE_INT8_T
+AC_TYPE_INT32_T
+AC_TYPE_SIZE_T
+AC_C_INLINE
 
 AC_CANONICAL_HOST
 
@@ -76,6 +81,13 @@ AC_ARG_ENABLE([xplane_plugin],
             ]
 )
 
+AC_ARG_ENABLE([ltr_pipe],
+		[AS_HELP_STRING([--enable-ltr-pipe],
+				[build ltr_pipe data sender @<:@default=yes@:>@])],
+		[with_ltr_pipe=$enableval],
+		[with_ltr_pipe=yes]
+)
+
 AC_ARG_ENABLE([snow_leopard],
             [AS_HELP_STRING([--enable-snow-leopard],
               [specify that you are building on MacOSX 10.6])], 
@@ -98,6 +110,9 @@ x86_64) with_64_bit=yes ;;
 esac
 
 
+AS_IF([test x$(uname -o) = x"GNU/Linux"], [with_linux=yes])
+
+
 AM_CONDITIONAL(XPLANE_PLUGIN, [test x$with_xplane_plugin = xyes])
 AM_CONDITIONAL(CWIID, [test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes])
 AM_CONDITIONAL(V4L2, [test x$with_v4l2 = xyes])
@@ -109,8 +124,17 @@ AM_CONDITIONAL(OPENUSB, [test  "x$ac_cv_lib_openusb_openusb_init" = xyes])
 AM_CONDITIONAL(LIBZ, [test  "x$ac_cv_lib_z_gzopen" = xyes])
 AM_CONDITIONAL(TIR_FW, [test  "x$with_tir_fw" = xyes])
 AM_CONDITIONAL(X64, [test  "x$with_64_bit" = xyes])
+AM_CONDITIONAL([LTR_PIPE], [test  x$with_ltr_pipe = xyes])
+AM_CONDITIONAL([LINUX], [test x$with_linux = xyes])
 
 # Checks for library functions.
+AC_CHECK_FUNCS([atexit])
+AC_CHECK_FUNCS([memset])
+AC_CHECK_FUNCS([select])
+AC_CHECK_FUNCS([socket])
+AC_CHECK_FUNCS([strerror])
+AC_CHECK_FUNCS([gettimeofday])
+
 
 AC_CONFIG_FILES([
  Makefile
@@ -121,5 +145,6 @@ AC_CONFIG_FILES([
  src/local_config.h
  src/qt_gui/ltr_gui.pro
  src/helper/Makefile
+ doc/Makefile
 ])
 AC_OUTPUT
