@@ -17,6 +17,7 @@ First of all, some prerequisities have to installed - find them in your favorite
 They include (names from Ubuntu, in other distros might differ a bit):
 
 {{{
+build-essential
 autotools-dev
 libtool
 libc6-dev-i386 (on amd64 arch)
