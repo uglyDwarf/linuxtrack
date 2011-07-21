@@ -4,7 +4,7 @@
 #include <Carbon/Carbon.h>
 
 #include "args.h"
-#include "com_proc.h"
+#include <com_proc.h>
 #include "processing.h"
 
 #define CHECK_RES(x, str)\
@@ -253,7 +253,7 @@ bool capture(struct mmap_s *mmm)
   old_cmd = WAKEUP;
   
   startProcessing(x, y, 4, mmm);  
-  while((cmd = getCommand(mmm)) != STOP){
+  while((cmd = ltr_int_getCommand(mmm)) != STOP){
     if(old_cmd != cmd){
       printCmd("old", old_cmd);
       printCmd("new", cmd);

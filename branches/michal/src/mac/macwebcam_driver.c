@@ -2,11 +2,11 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../cal.h"
-#include "com_proc.h"
-#include "../ipc_utils.h"
-#include "../wc_driver_prefs.h"
-#include "../utils.h"
+#include <cal.h>
+#include <com_proc.h>
+#include <ipc_utils.h>
+#include <wc_driver_prefs.h>
+#include <utils.h>
 
 char *args[] = {"./qt_cam", "-c", "Live! Cam Optia", "-x", "352", "-y", "288", "-f", "xxx", NULL};
 static int width;
@@ -21,7 +21,7 @@ static bool init_capture(char *prog, char *camera, int w, int h, char *fileName)
   snprintf(res_x, sizeof(res_x), "%d", w);
   snprintf(res_y, sizeof(res_y), "%d", h);
   if(ltr_int_mmap_file(fileName, get_com_size() + w * h, &mmm)){
-    setCommand(&mmm, WAKEUP);
+    ltr_int_setCommand(&mmm, WAKEUP);
     args[0] = prog;
     args[2] = camera;
     args[4] = res_x;
@@ -37,9 +37,9 @@ static bool init_capture(char *prog, char *camera, int w, int h, char *fileName)
 
 static bool read_img_processing_prefs()
 {
-  setThreshold(&mmm, ltr_int_wc_get_threshold());
-  setMinBlob(&mmm, ltr_int_wc_get_min_blob());
-  setMaxBlob(&mmm, ltr_int_wc_get_max_blob());
+  ltr_int_setThreshold(&mmm, ltr_int_wc_get_threshold());
+  ltr_int_setMinBlob(&mmm, ltr_int_wc_get_min_blob());
+  ltr_int_setMaxBlob(&mmm, ltr_int_wc_get_max_blob());
   return true;
 }
 
@@ -61,25 +61,25 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
   free(cap_path);
   free(cam_id);
   read_img_processing_prefs();
-  resetFrameFlag(&mmm);
+  ltr_int_resetFrameFlag(&mmm);
   return 0;
 }
 
 int ltr_int_tracker_pause()
 {
-  setCommand(&mmm, SLEEP);
+  ltr_int_setCommand(&mmm, SLEEP);
   return 0;
 }
 
 int ltr_int_tracker_resume()
 {
-  setCommand(&mmm, WAKEUP);
+  ltr_int_setCommand(&mmm, WAKEUP);
   return 0;
 }
 
 int ltr_int_tracker_close()
 {
-  setCommand(&mmm, STOP);
+  ltr_int_setCommand(&mmm, STOP);
   ltr_int_wait_child_exit(1000);
   return 0;
 }
@@ -93,14 +93,14 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
   frame->height = height;
   read_img_processing_prefs();
   while(!frame_aquired){
-    if(getFrameFlag(&mmm)){
+    if(ltr_int_getFrameFlag(&mmm)){
       if(frame->bitmap != NULL){
-	memcpy(frame->bitmap, getFramePtr(&mmm), frame->width * frame->height);
+	memcpy(frame->bitmap, ltr_int_getFramePtr(&mmm), frame->width * frame->height);
       }
-      resetFrameFlag(&mmm);
+      ltr_int_resetFrameFlag(&mmm);
     }
-    if(haveNewBlobs(&mmm)){
-	frame->bloblist.num_blobs = getBlobs(&mmm, frame->bloblist.blobs);
+    if(ltr_int_haveNewBlobs(&mmm)){
+	frame->bloblist.num_blobs = ltr_int_getBlobs(&mmm, frame->bloblist.blobs);
 	frame_aquired = true;
     }else{
       usleep(5000);
@@ -108,3 +108,4 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
   }
   return 0;
 }
+

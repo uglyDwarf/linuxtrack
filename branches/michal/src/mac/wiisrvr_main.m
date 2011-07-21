@@ -7,7 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "../utils.h"
+#import <utils.h>
 
 int main(int argc, char *argv[])
 {

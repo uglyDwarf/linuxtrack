@@ -35,7 +35,7 @@ ltr_server_LDADD = -lpthread libltr.la
 ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG} ${LTR_SERVER_FLAGS}
 
 if CWIID
-  pkglib_LTLIBRARIES += libwii.la 
+  pkglib_LTLIBRARIES += libwii.la libmacwii.la
 endif
 
 if V4L2
@@ -80,7 +80,7 @@ libltr_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
   ltlib_int.c ltlib_int.h spline.c spline.h axis.c axis.h wii_driver_prefs.c \
   wii_driver_prefs.h tir_driver_prefs.c tir_driver_prefs.h wc_driver_prefs.c \
-  wc_driver_prefs.h ipc_utils.c ipc_utils.h
+  wc_driver_prefs.h ipc_utils.c ipc_utils.h com_proc.c com_proc.h wii_com.c wii_com.h
 libltr_la_LIBADD = -lm -lpthread -ldl
 libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' $(LINUXFLAGS) ${TIGER_LDFLAG}
 libltr_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
@@ -105,6 +105,12 @@ libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
 libwii_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 libwii_la_LIBADD = -lcwiid libltr.la
 libwii_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
+
+libmacwii_la_SOURCES = macwii_driver.c wii_com.h com_proc.h \
+  runloop.c runloop.h wii_driver_prefs.c wii_driver_prefs.h ipc_utils.h
+libmacwii_la_CFLAGS = ${AM_CFLAGS} ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/mac -I..
+libmacwii_la_LIBADD = -lltr
+libmacwii_la_LDFLAGS = -export-symbols drivers.sym ${AM_CFLAGS} ${TIGER_LDFLAG}
 
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
@@ -136,25 +142,32 @@ clean-local: clean-local-check
 .PHONY: clean-local-check
 clean-local-check:
 	-cd qt_gui;make clean
+	-cd wii_server;make clean
 	rm -f linuxtrack.c
 
 distclean-local: distclean-local-check
 .PHONY: distclean-local-check
 distclean-local-check:
 	-cd qt_gui;make distclean
+	-cd wii_server;make distclean
 	rm -f linuxtrack.c
 
-noinst_SCRIPTS = qt_gui/ltr_gui
+noinst_SCRIPTS = qt_gui/ltr_gui wii_server/wii_server
 
 
 qt_gui/ltr_gui : ${pkglib_LTLIBRARIES}
 	pushd qt_gui; qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
 
+wii_server/wii_server : ${pkglib_LTLIBRARIES}
+	pushd wii_server; qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
+
 install-exec-hook:
 	pushd qt_gui; make INSTALL_ROOT=${DESTDIR} install; popd
+	pushd wii_server; make INSTALL_ROOT=${DESTDIR} install; popd
 
 uninstall-hook:
 	pushd qt_gui; make INSTALL_ROOT=${DESTDIR} uninstall; popd
+	pushd wii_server; make INSTALL_ROOT=${DESTDIR} uninstall; popd
 
 
 EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \

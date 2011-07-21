@@ -1,6 +1,10 @@
 #ifndef IMAGE_PROCESS__H
 #define IMAGE_PROCESS__H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "cal.h"
 #include "list.h"
 
@@ -26,5 +30,9 @@ int ltr_int_stripes_to_blobs(int num_blobs, struct bloblist_type *blt,
 bool ltr_int_add_stripe(stripe_t *stripe, image *img);
 void ltr_int_draw_cross(image *img, int x, int y, int size);
 void ltr_int_draw_square(image *img, int x, int y, int size);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

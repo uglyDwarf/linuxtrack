@@ -2,11 +2,11 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <string.h>
-#include "../image_process.h"
-#include "../cal.h"
-#include "../ipc_utils.h"
+#include <image_process.h>
+#include <cal.h>
+#include <ipc_utils.h>
 #include "buffer.h"
-#include "com_proc.h"
+#include <com_proc.h>
 
 static pthread_cond_t state_cv = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t state_mx = PTHREAD_MUTEX_INITIALIZER;
@@ -54,11 +54,11 @@ static void *processingThreadFun(void *param)
       };
       ltr_int_to_stripes(&img);
       if(ltr_int_stripes_to_blobs(3, &bloblist, getMinBlob(mmm), getMaxBlob(mmm), &img) == 0){
-	setBlobs(mmm, blobs_array, bloblist.num_blobs);
-        if(!getFrameFlag(mmm)){
+	ltr_int_setBlobs(mmm, blobs_array, bloblist.num_blobs);
+        if(!ltr_int_getFrameFlag(mmm)){
 //	  printf("Copying buffer!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-	  memcpy(getFramePtr(mmm), img.bitmap, width * height);
-	  setFrameFlag(mmm);
+	  memcpy(ltr_int_getFramePtr(mmm), img.bitmap, width * height);
+	  ltr_int_setFrameFlag(mmm);
 	}
       }
       bufferRead(&reader);
@@ -96,9 +96,9 @@ bool newFrame(unsigned char *ptr)
     return false;
   }
   
-  unsigned char *dest = getCurrentBuffer(writer);
+  unsigned char *dest = ltr_int_getCurrentBuffer(writer);
 //  printf("Writing buffer %d @ %p\n", writer, dest);
-  unsigned char thr = (unsigned char)getThreshold(mmm);
+  unsigned char thr = (unsigned char)ltr_int_getThreshold(mmm);
   size_t i;
   for(i = 0; i < (size_t) width * height; ++i){
     dest[i] = (*ptr >= thr) ? *ptr : 0;
