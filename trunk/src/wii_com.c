@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "com_proc.h"
-#include "../utils.h"
+#include <com_proc.h>
+#include <utils.h>
 
 static char *contactFile = ".linuxtrack_wii";
 static char *prefFile = ".linuxtrack_wii.lock";
@@ -35,7 +35,7 @@ static int serverRunningAlready()
   return 0;
 }
 
-bool initWiiCom(bool isServer, struct mmap_s **mmm_p)
+bool ltr_int_initWiiCom(bool isServer, struct mmap_s **mmm_p)
 {
   if(isServer){
     if(serverRunningAlready() != 0){
@@ -55,7 +55,7 @@ bool initWiiCom(bool isServer, struct mmap_s **mmm_p)
     ltr_int_log_message("Can't determine contact file path!\n");
     return false;
   }
-  if(!ltr_int_mmap_file(fullContactFile, get_com_size() + 512 * 384, &mmm)){
+  if(!ltr_int_mmap_file(fullContactFile, ltr_int_get_com_size() + 512 * 384, &mmm)){
     ltr_int_log_message("Can't mmap comm file!\n");
     return false;
   }
@@ -64,9 +64,9 @@ bool initWiiCom(bool isServer, struct mmap_s **mmm_p)
   return true;
 }
 
-void closeWiiCom()
+void ltr_int_closeWiiCom()
 {
-  setCommand(&mmm, STOP);
+  ltr_int_setCommand(&mmm, STOP);
   ltr_int_unmap_file(&mmm);
   if(pfSem != NULL){
     ltr_int_closeSemaphore(pfSem);
@@ -84,15 +84,15 @@ void closeWiiCom()
   ltr_int_log_message("Wii com Closed!\n");
 }
 
-void pauseWii()
+void ltr_int_pauseWii()
 {
-  setCommand(&mmm, SLEEP);
+  ltr_int_setCommand(&mmm, SLEEP);
   ltr_int_log_message("Wii com SLEEP!\n");
 }
 
-void resumeWii()
+void ltr_int_resumeWii()
 {
-  setCommand(&mmm, WAKEUP);
+  ltr_int_setCommand(&mmm, WAKEUP);
   ltr_int_log_message("Wii com WAKEUP!\n");
 }
 

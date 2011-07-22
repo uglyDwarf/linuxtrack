@@ -11,7 +11,7 @@
 #import <unistd.h>
 #include <stdio.h>
 #include "args.h"
-#include "com_proc.h"
+#include <com_proc.h>
 #include "processing.h"
 
 
@@ -207,7 +207,7 @@ bool capture(struct mmap_s *mmm)
   command_t cmd, old_cmd;
   old_cmd = WAKEUP;
   
-  while((cmd = getCommand(mmm)) != STOP){
+  while((cmd = ltr_int_getCommand(mmm)) != STOP){
     if(old_cmd != cmd){
       printCmd("old", old_cmd);
       printCmd("new", cmd);

@@ -40,7 +40,8 @@ DIST_COMMON = README $(am__configure_deps) \
 	$(am__dist_pkgdata_DATA_DIST) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
 	$(top_srcdir)/configure \
-	$(top_srcdir)/src/qt_gui/ltr_gui.pro.in AUTHORS COPYING \
+	$(top_srcdir)/src/qt_gui/ltr_gui.pro.in \
+	$(top_srcdir)/src/wii_server/wii_server.pro.in AUTHORS COPYING \
 	ChangeLog INSTALL NEWS compile config.guess config.sub depcomp \
 	install-sh ltmain.sh missing ylwrap
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -51,7 +52,8 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = config.h
-CONFIG_CLEAN_FILES = src/qt_gui/ltr_gui.pro
+CONFIG_CLEAN_FILES = src/qt_gui/ltr_gui.pro \
+	src/wii_server/wii_server.pro
 CONFIG_CLEAN_VPATH_FILES =
 depcomp =
 am__depfiles_maybe =
@@ -307,6 +309,8 @@ $(srcdir)/config.h.in:  $(am__configure_deps)
 distclean-hdr:
 	-rm -f config.h stamp-h1
 src/qt_gui/ltr_gui.pro: $(top_builddir)/config.status $(top_srcdir)/src/qt_gui/ltr_gui.pro.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+src/wii_server/wii_server.pro: $(top_builddir)/config.status $(top_srcdir)/src/wii_server/wii_server.pro.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 mostlyclean-libtool:

@@ -144,6 +144,7 @@ AC_CONFIG_FILES([
  src/mac/Makefile
  src/local_config.h
  src/qt_gui/ltr_gui.pro
+ src/wii_server/wii_server.pro
  src/helper/Makefile
  doc/Makefile
 ])
