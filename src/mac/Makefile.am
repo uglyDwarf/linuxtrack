@@ -9,7 +9,7 @@ LEOPARD_LDFLAG = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk -mmacosx-version
 DARWINFLAGS = -undefined dynamic_lookup 
 
 if DARWIN
-  pkglib_LTLIBRARIES = libmacwc.la libmacwii.la
+  pkglib_LTLIBRARIES = libmacwc.la
   bin_PROGRAMS = qt_cam sg_cam WiiServer
 endif
 
@@ -27,21 +27,14 @@ sg_cam_LDFLAGS = ${AM_CFLAGS} ${TIGER_LDFLAG} -framework QuickTime -framework Co
 sg_cam_CFLAGS = ${AM_CFLAGS} ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 sg_cam_OBJCFLAGS = ${AM_CFLAGS} ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 
-libmacwc_la_SOURCES = macwebcam_driver.c com_proc.c com_proc.h ../runloop.c ../runloop.h \
-  ../ipc_utils.h ../ipc_utils.c
+libmacwc_la_SOURCES = macwebcam_driver.c ../com_proc.h ../runloop.c ../runloop.h \
+  ../ipc_utils.h
 libmacwc_la_CFLAGS = ${AM_CFLAGS} ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 libmacwc_la_LIBADD = -lltr
 libmacwc_la_LDFLAGS = -export-symbols ../drivers.sym ${AM_CFLAGS} ${TIGER_LDFLAG}
 
-libmacwii_la_SOURCES = macwii_driver.c wii_com.c wii_com.h com_proc.c com_proc.h \
-  ../runloop.c ../runloop.h ../wii_driver_prefs.c ../wii_driver_prefs.h \
-  ../ipc_utils.c ../ipc_utils.h
-libmacwii_la_CFLAGS = ${AM_CFLAGS} ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
-libmacwii_la_LIBADD = -lltr
-libmacwii_la_LDFLAGS = -export-symbols ../drivers.sym ${AM_CFLAGS} ${TIGER_LDFLAG}
-
-WiiServer_SOURCES = com_proc.c com_proc.h wii_com.c wii_com.h wiimote.m wiimote.h \
-  wiimote_server.m wiimote_server.h wiisrvr_main.m ../ipc_utils.c ../ipc_utils.h
+WiiServer_SOURCES = ../com_proc.h ../wii_com.h wiimote.m wiimote.h \
+  wiimote_server.m wiimote_server.h wiisrvr_main.m ../ipc_utils.h
 WiiServer_LDADD = -lltr -lobjc -lpthread
 WiiServer_LDFLAGS = ${AM_CFLAGS} ${TIGER_LDFLAG} -framework Cocoa -framework CoreData \
   -framework AppKit -framework Foundation -framework IOBluetooth

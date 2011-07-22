@@ -39,7 +39,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = ltr_server$(EXEEXT) $(am__EXEEXT_1)
-@CWIID_TRUE@am__append_1 = libwii.la 
+@CWIID_TRUE@am__append_1 = libwii.la libmacwii.la
 @V4L2_TRUE@am__append_2 = libwc.la 
 
 #if LIBUSB
@@ -114,7 +114,8 @@ am_libltr_la_OBJECTS = libltr_la-cal.lo libltr_la-list.lo \
 	libltr_la-tracking.lo libltr_la-ltlib_int.lo \
 	libltr_la-spline.lo libltr_la-axis.lo \
 	libltr_la-wii_driver_prefs.lo libltr_la-tir_driver_prefs.lo \
-	libltr_la-wc_driver_prefs.lo libltr_la-ipc_utils.lo
+	libltr_la-wc_driver_prefs.lo libltr_la-ipc_utils.lo \
+	libltr_la-com_proc.lo libltr_la-wii_com.lo
 libltr_la_OBJECTS = $(am_libltr_la_OBJECTS)
 libltr_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libltr_la_CFLAGS) \
@@ -126,6 +127,14 @@ libltusb1_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libltusb1_la_CFLAGS) \
 	$(CFLAGS) $(libltusb1_la_LDFLAGS) $(LDFLAGS) -o $@
 @LIBUSB10_TRUE@@LIBZ_TRUE@am_libltusb1_la_rpath = -rpath $(pkglibdir)
+libmacwii_la_DEPENDENCIES =
+am_libmacwii_la_OBJECTS = libmacwii_la-macwii_driver.lo \
+	libmacwii_la-runloop.lo libmacwii_la-wii_driver_prefs.lo
+libmacwii_la_OBJECTS = $(am_libmacwii_la_OBJECTS)
+libmacwii_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libmacwii_la_CFLAGS) \
+	$(CFLAGS) $(libmacwii_la_LDFLAGS) $(LDFLAGS) -o $@
+@CWIID_TRUE@am_libmacwii_la_rpath = -rpath $(pkglibdir)
 libtir_la_DEPENDENCIES = libltr.la
 am_libtir_la_OBJECTS = tir_hw.lo tir_img.lo tir_driver.lo runloop.lo
 libtir_la_OBJECTS = $(am_libtir_la_OBJECTS)
@@ -209,12 +218,14 @@ LTYACCCOMPILE = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=compile $(YACC) $(YFLAGS) $(AM_YFLAGS)
 SOURCES = $(liblinuxtrack_la_SOURCES) $(libltopenusb_la_SOURCES) \
 	$(libltr_la_SOURCES) $(libltusb1_la_SOURCES) \
-	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
+	$(libmacwii_la_SOURCES) $(libtir_la_SOURCES) \
+	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(xlinuxtrack_la_SOURCES) $(xlinuxtrack9_la_SOURCES) \
 	$(ltr_pipe_SOURCES) $(ltr_server_SOURCES)
 DIST_SOURCES = $(liblinuxtrack_la_SOURCES) $(libltopenusb_la_SOURCES) \
 	$(libltr_la_SOURCES) $(libltusb1_la_SOURCES) \
-	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
+	$(libmacwii_la_SOURCES) $(libtir_la_SOURCES) \
+	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(am__xlinuxtrack_la_SOURCES_DIST) \
 	$(am__xlinuxtrack9_la_SOURCES_DIST) \
 	$(am__ltr_pipe_SOURCES_DIST) $(ltr_server_SOURCES)
@@ -379,7 +390,7 @@ libltr_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
   ltlib_int.c ltlib_int.h spline.c spline.h axis.c axis.h wii_driver_prefs.c \
   wii_driver_prefs.h tir_driver_prefs.c tir_driver_prefs.h wc_driver_prefs.c \
-  wc_driver_prefs.h ipc_utils.c ipc_utils.h
+  wc_driver_prefs.h ipc_utils.c ipc_utils.h com_proc.c com_proc.h wii_com.c wii_com.h
 
 libltr_la_LIBADD = -lm -lpthread -ldl
 libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' $(LINUXFLAGS) ${TIGER_LDFLAG}
@@ -403,6 +414,12 @@ libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
 libwii_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 libwii_la_LIBADD = -lcwiid libltr.la
 libwii_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
+libmacwii_la_SOURCES = macwii_driver.c wii_com.h com_proc.h \
+  runloop.c runloop.h wii_driver_prefs.c wii_driver_prefs.h ipc_utils.h
+
+libmacwii_la_CFLAGS = ${AM_CFLAGS} ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/mac -I..
+libmacwii_la_LIBADD = -lltr
+libmacwii_la_LDFLAGS = -export-symbols drivers.sym ${AM_CFLAGS} ${TIGER_LDFLAG}
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 libwc_la_LIBADD = libltr.la -lv4l2
@@ -421,7 +438,7 @@ dist_pkgdata_DATA = linuxtrack.conf 51-TIR.rules linuxtrack.c
 AM_YFLAGS = -d
 AM_LFLAGS = -i
 BUILT_SOURCES = pref_flex.c pref_bison.c pref_bison.h
-noinst_SCRIPTS = qt_gui/ltr_gui
+noinst_SCRIPTS = qt_gui/ltr_gui wii_server/wii_server
 EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \
   qt_gui/objreader.cpp qt_gui/window.h qt_gui/webcam_prefs.cpp \
   qt_gui/xm8_detail.png qt_gui/ltr_profiles.cpp qt_gui/scp_form.h \
@@ -561,6 +578,8 @@ libltr.la: $(libltr_la_OBJECTS) $(libltr_la_DEPENDENCIES)
 	$(libltr_la_LINK) -rpath $(pkglibdir) $(libltr_la_OBJECTS) $(libltr_la_LIBADD) $(LIBS)
 libltusb1.la: $(libltusb1_la_OBJECTS) $(libltusb1_la_DEPENDENCIES) 
 	$(libltusb1_la_LINK) $(am_libltusb1_la_rpath) $(libltusb1_la_OBJECTS) $(libltusb1_la_LIBADD) $(LIBS)
+libmacwii.la: $(libmacwii_la_OBJECTS) $(libmacwii_la_DEPENDENCIES) 
+	$(libmacwii_la_LINK) $(am_libmacwii_la_rpath) $(libmacwii_la_OBJECTS) $(libmacwii_la_LIBADD) $(LIBS)
 libtir.la: $(libtir_la_OBJECTS) $(libtir_la_DEPENDENCIES) 
 	$(libtir_la_LINK) $(am_libtir_la_rpath) $(libtir_la_OBJECTS) $(libtir_la_LIBADD) $(LIBS)
 libwc.la: $(libwc_la_OBJECTS) $(libwc_la_DEPENDENCIES) 
@@ -699,8 +718,23 @@ libltr_la-wc_driver_prefs.lo: wc_driver_prefs.c
 libltr_la-ipc_utils.lo: ipc_utils.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltr_la_CFLAGS) $(CFLAGS) -c -o libltr_la-ipc_utils.lo `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
 
+libltr_la-com_proc.lo: com_proc.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltr_la_CFLAGS) $(CFLAGS) -c -o libltr_la-com_proc.lo `test -f 'com_proc.c' || echo '$(srcdir)/'`com_proc.c
+
+libltr_la-wii_com.lo: wii_com.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltr_la_CFLAGS) $(CFLAGS) -c -o libltr_la-wii_com.lo `test -f 'wii_com.c' || echo '$(srcdir)/'`wii_com.c
+
 libltusb1_la-libusb_ifc.lo: libusb_ifc.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltusb1_la_CFLAGS) $(CFLAGS) -c -o libltusb1_la-libusb_ifc.lo `test -f 'libusb_ifc.c' || echo '$(srcdir)/'`libusb_ifc.c
+
+libmacwii_la-macwii_driver.lo: macwii_driver.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwii_la_CFLAGS) $(CFLAGS) -c -o libmacwii_la-macwii_driver.lo `test -f 'macwii_driver.c' || echo '$(srcdir)/'`macwii_driver.c
+
+libmacwii_la-runloop.lo: runloop.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwii_la_CFLAGS) $(CFLAGS) -c -o libmacwii_la-runloop.lo `test -f 'runloop.c' || echo '$(srcdir)/'`runloop.c
+
+libmacwii_la-wii_driver_prefs.lo: wii_driver_prefs.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwii_la_CFLAGS) $(CFLAGS) -c -o libmacwii_la-wii_driver_prefs.lo `test -f 'wii_driver_prefs.c' || echo '$(srcdir)/'`wii_driver_prefs.c
 
 libwc_la-webcam_driver.lo: webcam_driver.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libwc_la_CFLAGS) $(CFLAGS) -c -o libwc_la-webcam_driver.lo `test -f 'webcam_driver.c' || echo '$(srcdir)/'`webcam_driver.c
@@ -1106,22 +1140,29 @@ clean-local: clean-local-check
 .PHONY: clean-local-check
 clean-local-check:
 	-cd qt_gui;make clean
+	-cd wii_server;make clean
 	rm -f linuxtrack.c
 
 distclean-local: distclean-local-check
 .PHONY: distclean-local-check
 distclean-local-check:
 	-cd qt_gui;make distclean
+	-cd wii_server;make distclean
 	rm -f linuxtrack.c
 
 qt_gui/ltr_gui : ${pkglib_LTLIBRARIES}
 	pushd qt_gui; qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
 
+wii_server/wii_server : ${pkglib_LTLIBRARIES}
+	pushd wii_server; qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
+
 install-exec-hook:
 	pushd qt_gui; make INSTALL_ROOT=${DESTDIR} install; popd
+	pushd wii_server; make INSTALL_ROOT=${DESTDIR} install; popd
 
 uninstall-hook:
 	pushd qt_gui; make INSTALL_ROOT=${DESTDIR} uninstall; popd
+	pushd wii_server; make INSTALL_ROOT=${DESTDIR} uninstall; popd
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

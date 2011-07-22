@@ -78,7 +78,7 @@ char* ltr_int_my_strdup(const char *s)
 #ifndef LIBLINUXTRACK_SRC
 void ltr_int_set_logfile_name(const char *fname)
 {
-  assert(logfile == NULL);
+//  assert(logfile == NULL);
   assert(fname != NULL);
   logfile = fname;
 }

@@ -120,8 +120,7 @@ static void signal_change()
 
 static bool save_val_flt(enum axis_t id, axis_fields field, float val)
 {
-  struct axis_def *axis = get_axis(id);
-  const char *field_name = ltr_int_my_strcat(axis->prefix, fields[field]);
+  const char *field_name = ltr_int_my_strcat(get_axis_prefix(id), fields[field]);
   bool res = ltr_int_change_key_flt(ltr_int_get_custom_section_name(), field_name, val);
   free((void*)field_name);
   return res;
@@ -129,8 +128,7 @@ static bool save_val_flt(enum axis_t id, axis_fields field, float val)
 
 static bool save_val_str(enum axis_t id, axis_fields field, const char *val)
 {
-  struct axis_def *axis = get_axis(id);
-  const char *field_name = ltr_int_my_strcat(axis->prefix, fields[field]);
+  const char *field_name = ltr_int_my_strcat(get_axis_prefix(id), fields[field]);
   bool res = ltr_int_change_key(ltr_int_get_custom_section_name(), field_name, val);
   free((void*)field_name);
   return res;

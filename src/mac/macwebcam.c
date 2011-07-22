@@ -2,8 +2,8 @@
 #include <stdlib.h>
 
 #include "args.h"
-#include "com_proc.h"
-#include "../ipc_utils.h"
+#include <com_proc.h>
+#include <ipc_utils.h>
 #include "mac_camera.h"
 
 struct mmap_s mmm;
@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     getRes(&x, &y);
     // Double buffer...
     if(ltr_int_mmap_file(getMapFileName(), get_com_size() + x * y, &mmm)){
-      setCommand(&mmm, WAKEUP);
+      ltr_int_setCommand(&mmm, WAKEUP);
       capture(&mmm);
       ltr_int_unmap_file(&mmm);
     }else{
