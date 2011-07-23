@@ -75,6 +75,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
 			      struct frame_type *frame)
 {
   (void) ccb;
+  int timeout = 0;
   bool frame_aquired = false;
   frame->width = 1024/2;
   frame->height = 768/2;
@@ -89,7 +90,11 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
     if(ltr_int_haveNewBlobs(mmm)){
 	frame->bloblist.num_blobs = ltr_int_getBlobs(mmm, frame->bloblist.blobs);
 	frame_aquired = true;
+	timeout = 0;
     }else{
+      if(++timeout > 1000){
+        return -1;
+      }
       usleep(5000);
     }
   }

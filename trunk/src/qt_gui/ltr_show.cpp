@@ -141,8 +141,9 @@ void main_loop(char *section)
 
 void CaptureThread::run()
 {
-  semaphore_p sem = ltr_int_server_running_already((char *)"ltr_server.lock");
-  if(sem != NULL){
+  semaphore_p sem;
+  int res = ltr_int_server_running_already((char *)"ltr_server.lock", &sem, true);
+  if(res == 0){
     ltr_init(NULL);
     main_loop(NULL);
     ltr_int_closeSemaphore(sem);
@@ -168,7 +169,7 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s)
   ui.pix_box->addWidget(label);
   ui.pauseButton->setDisabled(true);
   ui.wakeButton->setDisabled(true);
-  ui.stopButton->setDisabled(true);
+//  ui.stopButton->setDisabled(true);
   glw = new Window(ui.tabWidget, main_gui.Disable3DView);
   ui.ogl_box->addWidget(glw);
   ct = new CaptureThread(this);
@@ -304,7 +305,7 @@ void LtrGuiForm::trackerStopped()
   ui.startButton->setDisabled(false);
   ui.pauseButton->setDisabled(true);
   ui.wakeButton->setDisabled(true);
-  ui.stopButton->setDisabled(true);
+//  ui.stopButton->setDisabled(true);
   ui.recenterButton->setDisabled(true);
 }
 

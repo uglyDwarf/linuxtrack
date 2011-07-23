@@ -1,5 +1,10 @@
-#define __USE_GNU
-#define _GNU_SOURCE
+
+#ifndef __USE_GNU
+  #define __USE_GNU
+#endif
+#ifndef _GNU_SOURCE
+  #define _GNU_SOURCE
+#endif
 #include <unistd.h>
 #include <errno.h>
 #include <sys/wait.h>
@@ -49,27 +54,49 @@ bool ltr_int_wait_child_exit(int limit)
   }
 }
 
-semaphore_p ltr_int_server_running_already(char *lockName)
+//Check if some server is not running by trying to lock specific file.
+// If psem is not NULL, return this way newly semaphore on the appropriate file.
+// If should lock is false, the file is not actually locked even if it can be.
+//  Return values:
+//    -1 error
+//     0 server not running
+//     1 server running
+int ltr_int_server_running_already(char *lockName, semaphore_p *psem, bool should_lock)
 {
   char *lockFile;
   semaphore_p pfSem;
+  int result = -1;
   lockFile = ltr_int_get_default_file_name(lockName);
   if(lockFile == NULL){
     ltr_int_log_message("Can't determine pref file path!\n");
-    return NULL;
+    return -1;
   }
   pfSem = ltr_int_createSemaphore(lockFile);
+  free(lockFile);
   if(pfSem == NULL){
     ltr_int_log_message("Can't create semaphore!");
-    return NULL;
+    return -1;
   }
-  if(ltr_int_tryLockSemaphore(pfSem) == false){
+  bool lock_result;
+  if(should_lock){
+    lock_result = ltr_int_tryLockSemaphore(pfSem);
+  }else{
+    lock_result = ltr_int_testLockSemaphore(pfSem);
+  }
+  
+  if(lock_result == false){
+    ltr_int_log_message("Can't lock - server runs already!\n");
+    result = 1;
+  }else{
+    result = 0;
+  }
+  if(psem != NULL){
+    *psem = pfSem;
+  }else{
     ltr_int_closeSemaphore(pfSem);
     pfSem= NULL;
-    ltr_int_log_message("Can't lock - server runs already!\n");
-    return NULL;
   }
-  return pfSem;
+  return result;
 }
 
 
@@ -128,6 +155,22 @@ bool ltr_int_tryLockSemaphore(semaphore_p semaphore)
     return false;
   }
 }
+
+//Differnce between last one and this is, that this one
+// wouldn't actually lock the file!
+bool ltr_int_testLockSemaphore(semaphore_p semaphore)
+{
+  if(semaphore == NULL){
+    return false;
+  }
+  int res = lockf(semaphore->fd, F_TEST,0);
+  if(res == 0){
+    return true;
+  }else{
+    return false;
+  }
+}
+
 #endif
 
 bool ltr_int_unlockSemaphore(semaphore_p semaphore)
@@ -187,6 +230,7 @@ bool ltr_int_mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
   }
 //  close(fd);
   m->sem = ltr_int_semaphoreFromFd(fd);
+  m->lock_sem = NULL;
   m->sem->fd = fd;
   return true;
 }
@@ -198,6 +242,9 @@ bool ltr_int_unmap_file(struct mmap_s *m)
     return true;
   }
   ltr_int_closeSemaphore(m->sem);
+  if(m->lock_sem != NULL){
+    ltr_int_closeSemaphore(m->lock_sem);
+  }
   if(m->fname != NULL){
     free(m->fname);
     m->fname = NULL;

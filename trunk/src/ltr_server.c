@@ -177,10 +177,11 @@ int main(int argc, char *argv[])
     return -1;
   }
   
-  pfSem = ltr_int_server_running_already(lockName);
-  if(pfSem != NULL){
+  int res = ltr_int_server_running_already(lockName, &pfSem, true);
+  if(res == 0){
     start_safety(true);
     main_loop(section);
+    ltr_int_log_message("Just left the main loop!");
     ltr_int_closeSemaphore(pfSem);
   }else{
     start_safety(false);
