@@ -14,10 +14,12 @@
 #define WIIMOTE_VERTICAL_RESOLUTION 768
 
 
-WiiServerWindow::WiiServerWindow(QWidget *parent) : QWidget(parent), wii(NULL)
+WiiServerWindow::WiiServerWindow(QWidget *parent) : QWidget(parent), wii(NULL), mm(NULL)
 {
   ui.setupUi(this);
-  ltr_int_initWiiCom(true, &mm);
+  if(ltr_int_initWiiCom(true, &mm)){
+    std::cout<<"Wii Server initialized!!!"<<std::endl;
+  }
   ltr_int_setCommand(mm, STOP);
   wii = new Wiimote(mm);
   cmdTimer = new QTimer(this);

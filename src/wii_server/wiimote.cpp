@@ -34,7 +34,6 @@ static void wii_callback(cwiid_wiimote_t *wii, int count, union cwiid_mesg mesg[
   (void) wii;
   (void) time;
   (void) mesg;
-  printf("Received %d messages:\n", count);
   int i;
   for(i = 0; i < count; ++i){
     switch(mesg[i].type){
@@ -42,7 +41,6 @@ static void wii_callback(cwiid_wiimote_t *wii, int count, union cwiid_mesg mesg[
         printf("  Status - battery: %d\n", mesg[i].status_mesg.battery);
         break;
       case CWIID_MESG_IR:
-        printf("  IR:\n");
         if(target_class != NULL) target_class->pass_ir_data(mesg[i].ir_mesg.src);
         break;
       case CWIID_MESG_ERROR:

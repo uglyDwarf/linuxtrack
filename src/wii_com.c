@@ -6,14 +6,15 @@ static char *contactFile = ".linuxtrack_wii";
 static char *prefFile = ".linuxtrack_wii.lock";
 static char *fullContactFile = NULL;
 static char *fullPrefFile = NULL;
-static semaphore_p pfSem = NULL;
+//static semaphore_p pfSem = NULL;
 
 static struct mmap_s mmm;
 
+/*
 // -1 Error
 //  0 Server not running
 //  1 Server runs already
-static int serverRunningAlready()
+static int serverRunningAlready(bool should_lock)
 {
   //Determine full name of the pref file
   fullPrefFile = ltr_int_get_default_file_name(prefFile);
@@ -32,18 +33,21 @@ static int serverRunningAlready()
     ltr_int_log_message("Can't lock - server runs already!\n");
     return 1;
   }
+  
+  
   return 0;
 }
-
+*/
 bool ltr_int_initWiiCom(bool isServer, struct mmap_s **mmm_p)
 {
+  semaphore_p lock_sem = NULL;
   if(isServer){
-    if(serverRunningAlready() != 0){
+    if(ltr_int_server_running_already(prefFile, &lock_sem, true) != 0){
       ltr_int_log_message("Server is already running!\n");
       return false;
     }
   }else{
-    if(serverRunningAlready() != 1){
+    if(ltr_int_server_running_already(prefFile, NULL, false) != 1){
       ltr_int_log_message("Server not running!\n");
       return false;
     }
@@ -59,6 +63,7 @@ bool ltr_int_initWiiCom(bool isServer, struct mmap_s **mmm_p)
     ltr_int_log_message("Can't mmap comm file!\n");
     return false;
   }
+  mmm.lock_sem = lock_sem;
   *mmm_p = &mmm;
   ltr_int_log_message("Wii com initialized @ %s!\n", fullContactFile);
   return true;
@@ -68,10 +73,6 @@ void ltr_int_closeWiiCom()
 {
   ltr_int_setCommand(&mmm, STOP);
   ltr_int_unmap_file(&mmm);
-  if(pfSem != NULL){
-    ltr_int_closeSemaphore(pfSem);
-    pfSem= NULL;
-  }
   
   if(fullContactFile != NULL){
     free(fullContactFile);
