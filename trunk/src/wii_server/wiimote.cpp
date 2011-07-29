@@ -113,7 +113,7 @@ void WiiThread::pass_ir_data(struct cwiid_ir_src *data)
   }
   
   for(i = 0; i < 4; ++i){
-    if((data[i].size != 15) && (valid < 3)){
+    if((data[i].valid) && (valid < 3)){
       (blobs_array[valid]).x = data[i].pos[0];
       (blobs_array[valid]).y = data[i].pos[1];
       (blobs_array[valid]).score = data[i].size;

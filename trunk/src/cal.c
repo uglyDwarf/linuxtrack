@@ -42,6 +42,7 @@ int ltr_int_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
 {
   char *libname = NULL;
   assert(ccb != NULL);
+  ltr_int_cal_set_state(INITIALIZING);
   switch (ccb->device.category) {
     case tir:
       libname = "libtir";
@@ -80,7 +81,6 @@ int ltr_int_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   int res = (iface.device_run)(ccb, cbk);
   //Runloop blocks until shutdown is called
   ltr_int_unload_library(libhandle, functions);
-  ltr_int_cal_set_state(DOWN);
   return res;
 }
 
@@ -126,8 +126,11 @@ ltr_state_type ltr_int_cal_get_state()
 static ltr_status_update_callback_t ltr_status_changed_cbk = NULL;
 static void *ltr_status_changed_cbk_param = NULL;
 
+static char *state_desc[] = {"INITIALIZING", "RUNNING", "PAUSED", "STOPPED", "ERROR"};
+
 void ltr_int_cal_set_state(ltr_state_type new_state)
 {
+  ltr_int_log_message("Changing state to %s!\n", state_desc[new_state]);
   ltr_int_cal_device_state = new_state;
   if(ltr_status_changed_cbk != NULL){
     ltr_status_changed_cbk(ltr_status_changed_cbk_param);

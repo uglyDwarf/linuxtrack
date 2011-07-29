@@ -42,8 +42,9 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   lv = new LogView();
 //  QObject::connect(this, SIGNAL(customSectionChanged()), sc, SLOT(reinit()));
   
-  QObject::connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
-  QObject::connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
+//  QObject::connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
+//  QObject::connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
+  QObject::connect(&STATE, SIGNAL(stateChanged(ltr_state_type)), this, SLOT(trackerStateHandler(ltr_state_type)));
   
   showWindow = new LtrGuiForm(ui, sc);
   helper = new LtrDevHelp();
@@ -234,19 +235,26 @@ void LinuxtrackGui::on_DiscardChangesButton_pressed()
 }
 
   
-void LinuxtrackGui::trackerStopped()
+void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
 {
-  ui.DeviceSelector->setEnabled(true);
-  ui.ModelSelector->setEnabled(true);
-  ui.Profiles->setEnabled(true);
-  ui.DefaultsButton->setEnabled(true);
-}
-
-void LinuxtrackGui::trackerRunning()
-{
-  ui.DeviceSelector->setDisabled(true);
-  ui.ModelSelector->setDisabled(true);
-  ui.Profiles->setDisabled(true);
-  ui.DefaultsButton->setDisabled(true);
+  switch(current_state){
+    case STOPPED:
+    case ERROR:
+      ui.DeviceSelector->setEnabled(true);
+      ui.ModelSelector->setEnabled(true);
+      ui.Profiles->setEnabled(true);
+      ui.DefaultsButton->setEnabled(true);
+      break;
+    case INITIALIZING:
+    case RUNNING:
+    case PAUSED:
+      ui.DeviceSelector->setDisabled(true);
+      ui.ModelSelector->setDisabled(true);
+      ui.Profiles->setDisabled(true);
+      ui.DefaultsButton->setDisabled(true);
+      break;
+    default:
+      break;
+  }
 }
 

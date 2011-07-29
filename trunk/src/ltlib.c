@@ -52,7 +52,7 @@ int ltr_get_camera_update(float *heading,
   ltr_int_lockSemaphore(mmm.sem);
   tmp = *com;
   ltr_int_unlockSemaphore(mmm.sem);
-  if(tmp.state != DOWN){
+  if(tmp.state != STOPPED){
     *heading = tmp.heading;
     *pitch = tmp.pitch;
     *roll = tmp.roll;
@@ -107,7 +107,7 @@ void ltr_recenter(void)
 
 ltr_state_type ltr_get_tracking_state(void)
 {
-  ltr_state_type state = DOWN;
+  ltr_state_type state = STOPPED;
   struct ltr_comm *com = mmm.data;
   if((!initialized) || (com == NULL) || (com->preparing_start)){
     return state;

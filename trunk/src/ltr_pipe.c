@@ -534,7 +534,7 @@ static void setup_ltr(void)
 
 	while (timeout > 0) {
 		st = ltr_get_tracking_state();
-		if ((st == DOWN) || (st == STOPPED))
+		if((st == INITIALIZING))
 			sleep(1);
 		else
 			break;

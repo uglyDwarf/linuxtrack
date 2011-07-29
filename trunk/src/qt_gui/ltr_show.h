@@ -3,6 +3,7 @@
 
 #include "ui_ltr_gui.h"
 #include "ui_ltr.h"
+#include <linuxtrack.h>
 
 #include <QThread>
 #include <QCloseEvent>
@@ -56,9 +57,7 @@ class LtrGuiForm : public QMainWindow
    void on_stopButton_pressed();
    void disableCamView_stateChanged(int state);
    void disable3DView_stateChanged(int state);
-   void trackerStopped();
-   void trackerRunning();
-   void trackerPaused();
+   void stateChanged(ltr_state_type current_state);
   protected:
    void closeEvent(QCloseEvent *event);
   private:
@@ -69,6 +68,9 @@ class LtrGuiForm : public QMainWindow
    CameraView *cv;
    bool allowClose;
    const Ui::LinuxtrackMainForm &main_gui;
+   void trackerStopped();
+   void trackerRunning();
+   void trackerPaused();
 };
 
 #endif

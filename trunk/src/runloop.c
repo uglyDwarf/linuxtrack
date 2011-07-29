@@ -19,8 +19,10 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   bool stop_flag = false;
   unsigned int counter = 0;
   
-  ltr_int_cal_set_state(STOPPED);
+  ltr_int_cal_set_state(INITIALIZING);
   if(ltr_int_tracker_init(ccb) != 0){
+    ltr_int_log_message("Problem initializing tracker!\n");
+    ltr_int_cal_set_state(ERROR);
     return -1;
   }
   frame.bloblist.blobs = ltr_int_my_malloc(sizeof(struct blob_type) * 3);
@@ -46,6 +48,8 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
             retval = ltr_int_tracker_get_frame(ccb, &frame);
             frame.counter = ++counter;
             if((retval == -1) || (cbk(ccb, &frame) < 0)){
+              ltr_int_log_message("Error getting frame!\n");
+              ltr_int_cal_set_state(ERROR);
               stop_flag = true;
             }
             break;

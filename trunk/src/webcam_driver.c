@@ -473,6 +473,7 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
   assert(ccb->device.device_id != NULL);
   int fd = search_for_webcam(ccb->device.device_id);
   if(fd == -1){
+    ltr_int_log_message("Couldn't open webcam dev file!\n");
     return -1;
   }
   wc_info.fd = fd;
@@ -504,6 +505,7 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
     v4l2_close(fd);
     return -1;
   }
+  ltr_int_log_message("Webcam initialized OK!\n");
   return 0;
 }
 

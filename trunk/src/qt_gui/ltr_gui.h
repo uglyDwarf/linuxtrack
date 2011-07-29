@@ -6,6 +6,7 @@
 #endif
 
 #include <QCloseEvent>
+#include <linuxtrack.h>
 
 #include "ui_ltr.h"
 
@@ -38,8 +39,7 @@ class LinuxtrackGui : public QWidget
   void on_ViewLogButton_pressed();
   void on_DefaultsButton_pressed();
   void on_DiscardChangesButton_pressed();
-  void trackerStopped();
-  void trackerRunning();
+  void trackerStateHandler(ltr_state_type current_state);
  private:
   Ui::LinuxtrackMainForm ui;
   LtrGuiForm *showWindow;

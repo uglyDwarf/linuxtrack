@@ -16,6 +16,7 @@ TrackerState::TrackerState()
 {
   timer = new QTimer(this);
   connect(timer, SIGNAL(timeout()), this, SLOT(pollState()));
+  prev_state = STOPPED;
   timer->start(200);
 }
 
@@ -24,24 +25,18 @@ TrackerState::~TrackerState()
   delete timer;
 }
 
+ltr_state_type TrackerState::getCurrentState()
+{
+  return ltr_int_get_tracking_state();
+}
+
+
 void TrackerState::pollState()
 {
-  static ltr_state_type last_state = STOPPED;
   ltr_state_type current_state = ltr_int_get_tracking_state();
-  if(last_state != current_state){
-    switch(current_state){
-      case STOPPED:
-      case DOWN:
-        emit trackerStopped();
-        break;
-      case RUNNING:
-        emit trackerRunning();
-        break;
-      case PAUSED:
-        emit trackerPaused();
-        break;
-    }
-    last_state = current_state;
+  if(prev_state != current_state){
+    emit stateChanged(current_state);
   }
+  prev_state = current_state;
 }
 
