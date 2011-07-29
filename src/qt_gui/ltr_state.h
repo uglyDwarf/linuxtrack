@@ -4,6 +4,7 @@
 
 #include <QWidget>
 #include <QTimer>
+#include <linuxtrack.h>
 
 #define STATE TrackerState::trackerStateInst()
 
@@ -11,17 +12,17 @@ class TrackerState : public QObject{
   Q_OBJECT
  public:
   static TrackerState& trackerStateInst();
+  ltr_state_type getCurrentState();
  private:
   TrackerState();
   ~TrackerState();
   static TrackerState *ts;
   QTimer *timer;
+  ltr_state_type prev_state;
  private slots:
   void pollState();
  signals:
-  void trackerStopped();
-  void trackerPaused();
-  void trackerRunning();
+  void stateChanged(ltr_state_type current_state);
 };
 
 #endif

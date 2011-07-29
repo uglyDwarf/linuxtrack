@@ -9,10 +9,11 @@ extern "C" {
 #endif
 
 typedef enum {
+  INITIALIZING,
   RUNNING,
   PAUSED,
   STOPPED,
-  DOWN
+  ERROR
 }ltr_state_type;
 
 

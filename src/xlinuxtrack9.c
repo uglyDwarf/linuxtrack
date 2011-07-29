@@ -299,7 +299,7 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
     XPLMSetDatai(PV_Enabled_DR, active_flag);
   
   if(!initialized){
-    if(ltr_get_tracking_state() != DOWN){
+    if(ltr_get_tracking_state() != STOPPED){
       initialized = true;
       ltr_suspend();
     }

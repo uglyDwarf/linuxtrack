@@ -83,6 +83,11 @@ void state_changed(void *param)
   ltr_int_unlockSemaphore(mmm->sem);
 }
 
+static bool ltr_int_is_inactive(ltr_state_type state)
+{
+  return((state == STOPPED) || (state == ERROR));
+}
+
 void main_loop(char *section)
 {
   bool recenter = false;
@@ -93,7 +98,7 @@ void main_loop(char *section)
   ltr_int_lockSemaphore(mmm.sem);
   com->cmd = NOP_CMD;
   com->recenter = true;
-  com->state = DOWN;
+  com->state = STOPPED;
   com->heading = 0.0f;
   com->pitch = 0.0f;
   com->roll = 0.0f;
@@ -104,11 +109,28 @@ void main_loop(char *section)
   com->dead_man_button = 0;
   com->preparing_start = 1;
   ltr_int_unlockSemaphore(mmm.sem);
-
+  
+  
+  //Do the init step
   if(ltr_int_init(section) != 0){
     ltr_int_log_message("Not initialized!\n");
     ltr_int_unmap_file(&mmm);
     return;
+  }
+  
+  int timeout_counter = 300; //On slow machines it could take long time
+                             // for example to load TIR firmware => 30s
+  while(com->state == STOPPED){
+    usleep(100000);
+    if(--timeout_counter < 0){
+      ltr_int_log_message("Timed out while waiting for device to init!\n");
+      break;
+    }
+  }
+  
+  if(com->state == ERROR){
+    ltr_int_log_message("Error encountered during init!\n");
+    goto shutdown;
   }
   
   while(1){
@@ -141,24 +163,24 @@ void main_loop(char *section)
       recenter = false;
       ltr_int_recenter();
     }
-    if(all_clients_gone){
+    if(all_clients_gone || ltr_int_is_inactive(com->state)){
       break;
     }
     usleep(100000);  //ten times per second...
   }
+ shutdown:
+  //shutdown and wait till it is down (with timeout).
   ltr_int_shutdown();
-  int counter = 30;
-  while(1){
+  timeout_counter = 30;
+  while(!ltr_int_is_inactive(com->state)){
     usleep(100000);  //ten times per second...
-    if(com->state == DOWN){
-      break;
-    }
-    if(--counter <= 0){
+    if(--timeout_counter <= 0){
       ltr_int_log_message("Wait for shutdown timed out, exiting anyway...");
+      com->state = ERROR; // Just in case
       break;
     }
   }
-  com->state = DOWN; // Just in case
+  ltr_int_unmap_file(&mmm);
 }
 
 int main(int argc, char *argv[])
@@ -179,11 +201,13 @@ int main(int argc, char *argv[])
   
   int res = ltr_int_server_running_already(lockName, &pfSem, true);
   if(res == 0){
+    ltr_int_log_message("Starting server in the active mode!\n");
     start_safety(true);
     main_loop(section);
     ltr_int_log_message("Just left the main loop!");
     ltr_int_closeSemaphore(pfSem);
   }else{
+    ltr_int_log_message("Starting server in the passive mode!\n");
     start_safety(false);
   }
   ltr_int_unmap_file(&mmm);

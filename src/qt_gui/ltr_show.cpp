@@ -130,7 +130,7 @@ void main_loop(char *section)
     }
     usleep(100000);  //ten times per second...
   }
-  while(com->state != DOWN){
+  while(com->state != STOPPED){
     usleep(100000);
   }
   ltr_int_unmap_file(&mmm);
@@ -169,16 +169,14 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s)
   ui.pix_box->addWidget(label);
   ui.pauseButton->setDisabled(true);
   ui.wakeButton->setDisabled(true);
-//  ui.stopButton->setDisabled(true);
+  ui.stopButton->setDisabled(true);
   glw = new Window(ui.tabWidget, main_gui.Disable3DView);
   ui.ogl_box->addWidget(glw);
   ct = new CaptureThread(this);
   timer = new QTimer(this);
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
   camViewEnable = true;
-  connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
-  connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
-  connect(&STATE, SIGNAL(trackerPaused()), this, SLOT(trackerPaused()));
+  connect(&STATE, SIGNAL(stateChanged(ltr_state_type)), this, SLOT(stateChanged(ltr_state_type)));
   connect(main_gui.DisableCamView, SIGNAL(stateChanged(int)), 
           this, SLOT(disableCamView_stateChanged(int)));
   connect(main_gui.Disable3DView, SIGNAL(stateChanged(int)), 
@@ -299,13 +297,32 @@ void LtrGuiForm::update()
   }
 }
 
+void LtrGuiForm::stateChanged(ltr_state_type current_state)
+{
+  switch(current_state){
+    case STOPPED:
+    case ERROR:
+      trackerStopped();
+      break;
+    case INITIALIZING:
+    case RUNNING:
+      trackerRunning();
+      break;
+    case PAUSED:
+      trackerPaused();
+      break;
+    default:
+      break;
+  }
+}
+
 void LtrGuiForm::trackerStopped()
 {
   running = false;
   ui.startButton->setDisabled(false);
   ui.pauseButton->setDisabled(true);
   ui.wakeButton->setDisabled(true);
-//  ui.stopButton->setDisabled(true);
+  ui.stopButton->setDisabled(true);
   ui.recenterButton->setDisabled(true);
 }
 
