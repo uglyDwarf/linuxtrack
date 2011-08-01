@@ -4,7 +4,7 @@
 #include <utils.h>
 #include <ipc_utils.h>
 #include <ltlib_int.h>
-
+#include <pref_global.h>
 
 static bool dead_man_button_pressed = false;
 static bool all_clients_gone = false;
@@ -175,11 +175,12 @@ void main_loop(char *section)
   while(!ltr_int_is_inactive(com->state)){
     usleep(100000);  //ten times per second...
     if(--timeout_counter <= 0){
-      ltr_int_log_message("Wait for shutdown timed out, exiting anyway...");
+      ltr_int_log_message("Wait for shutdown timed out, exiting anyway...\n");
       com->state = ERROR; // Just in case
       break;
     }
   }
+  ltr_int_log_message("Closing prefs!\n");
   ltr_int_unmap_file(&mmm);
 }
 
@@ -198,13 +199,13 @@ int main(int argc, char *argv[])
     printf("Couldn't mmap file!!!\n");
     return -1;
   }
-  
+  free(com_file);
   int res = ltr_int_server_running_already(lockName, &pfSem, true);
   if(res == 0){
     ltr_int_log_message("Starting server in the active mode!\n");
     start_safety(true);
     main_loop(section);
-    ltr_int_log_message("Just left the main loop!");
+    ltr_int_log_message("Just left the main loop!\n");
     ltr_int_closeSemaphore(pfSem);
   }else{
     ltr_int_log_message("Starting server in the passive mode!\n");

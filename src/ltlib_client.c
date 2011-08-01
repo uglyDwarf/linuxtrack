@@ -125,6 +125,7 @@ int lt_client_close()
   msg = SHUTDOWN;
   if(write(cfd, &msg, sizeof(msg)) == sizeof(msg)){
     pthread_join(data_receiver_thread, NULL);
+    pthread_detach(data_receiver_thread);
   }
   log_message("Closing...\n");
   return 0;

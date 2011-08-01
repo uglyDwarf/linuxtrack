@@ -287,6 +287,7 @@ void ltr_int_init_axis(struct axis_def *axis, const char *prefix)
   axis->valid = false;
   axis->enabled = true;
   axis->prefix = ltr_int_my_strdup(prefix);
+  ltr_int_log_message("Axis string dupped %s: %X", axis->prefix, axis->prefix);
 }
 
 void ltr_int_close_axis(enum axis_t id)
@@ -294,6 +295,7 @@ void ltr_int_close_axis(enum axis_t id)
   struct axis_def *axis = get_axis(id);
   assert(axis != NULL);
   
+  ltr_int_log_message("Axis string freed %s: %X", axis->prefix, axis->prefix);
   free(axis->prefix);
   axis->prefix = NULL;
 }
@@ -339,7 +341,7 @@ bool ltr_int_get_axis(enum axis_t id, struct axis_def *axis)
   assert(axis != NULL);
   
   ltr_int_init_axis(axis, prefix);
-  axis->prefix = ltr_int_my_strdup(prefix);
+//  axis->prefix = ltr_int_my_strdup(prefix);
   for(i = DEADZONE; i <= ENABLED; ++i){
     field_name = ltr_int_my_strcat(prefix, fields[i]);
     if(i != ENABLED){
@@ -372,6 +374,7 @@ bool ltr_int_axes_changed(bool reset_flag)
 
 void ltr_int_init_axes()
 {
+  ltr_int_log_message("Initializing axes!\n");
   bool res = true;
   ltr_int_axes_changed_flag = false;
   res &= ltr_int_get_axis(PITCH, &(ltr_int_axes.pitch_axis));
@@ -384,6 +387,7 @@ void ltr_int_init_axes()
 
 void ltr_int_close_axes()
 {
+  ltr_int_log_message("Closing axes!\n");
   ltr_int_close_axis(PITCH);
   ltr_int_close_axis(ROLL);
   ltr_int_close_axis(YAW);

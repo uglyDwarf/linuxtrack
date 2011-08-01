@@ -30,7 +30,9 @@ static void *cal_thread_fun(void *param)
     ccb.diag = false;
     ltr_int_cal_run(&ccb, frame_callback);
     ltr_int_close_prefs();
+    free(ccb.device.device_id);
   }
+  pthread_detach(pthread_self());
   return NULL;
 }
 
