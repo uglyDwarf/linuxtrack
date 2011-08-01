@@ -410,6 +410,9 @@ void ltr_int_free_prefs()
   }
   ltr_int_free_list(ltr_int_prefs, false);
   prefs_read_already = false;
+  if((custom_section_name != NULL) && (custom_section_name != def_section_name)){
+    free(custom_section_name);
+  }
 }
 
 bool ltr_int_set_custom_section(char *name)

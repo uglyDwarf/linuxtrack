@@ -186,13 +186,11 @@ bool ltr_int_unlockSemaphore(semaphore_p semaphore)
   }
 }
 
-#ifndef LIBLINUXTRACK_SRC
 void ltr_int_closeSemaphore(semaphore_p semaphore)
 {
   close(semaphore->fd);
   free(semaphore);
 }
-#endif
 
 bool ltr_int_mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
 {
@@ -235,7 +233,6 @@ bool ltr_int_mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
   return true;
 }
 
-#ifndef LIBLINUXTRACK_SRC
 bool ltr_int_unmap_file(struct mmap_s *m)
 {
   if(m->data == NULL){
@@ -257,6 +254,8 @@ bool ltr_int_unmap_file(struct mmap_s *m)
   }
   return res == 0;
 }
+
+#ifndef LIBLINUXTRACK_SRC
 
 //the fname argument should end with XXXXXX;
 //  it is also modified by the call to contain the actual filename.

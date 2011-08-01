@@ -149,9 +149,12 @@ char *ltr_int_get_app_path(const char *suffix)
   FILE *f = fopen(fname, "r");
   if(f == NULL){
     ltr_int_log_message("Can't open file '%s'!\n", fname);
+    free(fname);
     return NULL;
   }
   
+  free(fname);
+  fname = NULL;
   char key[2048];
   char val[2048];
   bool found = false;

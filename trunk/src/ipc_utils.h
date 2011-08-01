@@ -31,10 +31,10 @@ LIBLINUXTRACK_PRIVATE bool ltr_int_lockSemaphore(semaphore_p semaphore);
 bool ltr_int_tryLockSemaphore(semaphore_p semaphore);
 bool ltr_int_testLockSemaphore(semaphore_p semaphore);
 LIBLINUXTRACK_PRIVATE bool ltr_int_unlockSemaphore(semaphore_p semaphore);
-void ltr_int_closeSemaphore(semaphore_p semaphore);
+LIBLINUXTRACK_PRIVATE void ltr_int_closeSemaphore(semaphore_p semaphore);
 
 LIBLINUXTRACK_PRIVATE bool ltr_int_mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m);
-bool ltr_int_unmap_file(struct mmap_s *m);
+LIBLINUXTRACK_PRIVATE bool ltr_int_unmap_file(struct mmap_s *m);
 int ltr_int_open_tmp_file(char *fname);
 void ltr_int_close_tmp_file(char *fname, int fd);
 LIBLINUXTRACK_PRIVATE char *ltr_int_get_com_file_name();

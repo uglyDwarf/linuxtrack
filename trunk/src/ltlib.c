@@ -19,8 +19,10 @@ static int make_mmap()
   if(!ltr_int_mmap_file(com_fname, sizeof(struct mmap_s), &mmm)){
     perror("mmap_file: ");
     ltr_int_log_message("Couldn't mmap!\n");
+    free(com_fname);
     return -1;
   }
+  free(com_fname);
   return 0;
 }
 
@@ -93,6 +95,8 @@ int ltr_shutdown(void)
   ltr_int_lockSemaphore(mmm.sem);
   com->cmd = STOP_CMD;
   ltr_int_unlockSemaphore(mmm.sem);
+  initialized = false;
+  ltr_int_unmap_file(&mmm);
   return 0;
 }
 
