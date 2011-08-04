@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <iostream>
 #include <ltr_show.h>
+#include <ltr_gui_prefs.h>
 #include <cal.h>
 #include <utils.h>
 #include <pref_global.h>
@@ -17,6 +18,7 @@
 #include <string.h>
 
 #include <linuxtrack.h>
+#include <ltr_server.h>
 #include <ipc_utils.h>
 #include <unistd.h>
 
@@ -37,7 +39,7 @@ static bool camViewEnable = true;
 static bool buffer_empty;
 
 extern "C" {
-  void frame_callback(struct frame_type *frame, void *param);
+  void new_frame(struct frame_type *frame, void *param);
 }
 
 static CaptureThread *ct = NULL;
@@ -78,76 +80,15 @@ void state_changed(void *param)
   }
 }
 
-void main_loop(char *section)
-{
-  bool recenter = false;
-
-  char *com_file = ltr_int_get_com_file_name();
-  struct mmap_s mmm;
-  if(!ltr_int_mmap_file(com_file, sizeof(struct ltr_comm), &mmm)){
-    ltr_int_log_message("Couldn't mmap file!!!\n");
-    return;
-  }
-  
-  ltr_int_register_cbk(frame_callback, (void*)&mmm, state_changed, (void*)&mmm);
-  if(ltr_int_init(section) != 0){
-    ltr_int_log_message("Not initialized!\n");
-    ltr_int_unmap_file(&mmm);
-    return;
-  }
-  struct ltr_comm *com = (struct ltr_comm*)mmm.data;
-  ltr_int_lockSemaphore(mmm.sem);
-  com->cmd = NOP_CMD;
-  ltr_int_unlockSemaphore(mmm.sem);
-  bool break_flag = false;
-  while(!break_flag){
-    if((com->cmd != NOP_CMD) || com->recenter){
-      ltr_int_lockSemaphore(mmm.sem);
-      ltr_cmd cmd = (ltr_cmd)com->cmd;
-      com->cmd = NOP_CMD;
-      recenter = com->recenter;
-      com->recenter = false;
-      ltr_int_unlockSemaphore(mmm.sem);
-      switch(cmd){
-        case RUN_CMD:
-          ltr_int_wakeup();
-          break;
-        case PAUSE_CMD:
-          ltr_int_suspend();
-          break;
-        case STOP_CMD:
-          ltr_int_shutdown();
-          break_flag = true;
-          break;
-        default:
-          //defensive...
-          break;
-      }
-    }
-    if(recenter){
-      recenter = false;
-      ltr_int_recenter();
-    }
-    usleep(100000);  //ten times per second...
-  }
-  while(com->state != STOPPED){
-    usleep(100000);
-  }
-  ltr_int_unmap_file(&mmm);
-}
-
-
-
 
 void CaptureThread::run()
 {
-  semaphore_p sem;
-  int res = ltr_int_server_running_already((char *)"ltr_server.lock", &sem, true);
-  if(res == 0){
-    ltr_init(NULL);
-    main_loop(NULL);
-    ltr_int_closeSemaphore(sem);
-  }
+  QString section = PREF.getCustomSectionName();
+  char *section_str = section.toAscii().data();
+  section_str = NULL;
+  ltr_init(section_str);
+  prep_main_loop(section_str);
+  ltr_shutdown();
   buffer_empty = false;
   w = 0;
   h = 0;
@@ -193,7 +134,7 @@ LtrGuiForm::~LtrGuiForm()
 }
 
 
-void frame_callback(struct frame_type *frame, void *param)
+void new_frame(struct frame_type *frame, void *param)
 {
   (void) param;
   if(cnt == 0){
