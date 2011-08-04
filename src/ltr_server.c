@@ -1,10 +1,12 @@
 #include <stdio.h>
+#include <assert.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <utils.h>
 #include <ipc_utils.h>
 #include <ltlib_int.h>
 #include <pref_global.h>
+#include <ltr_server.h>
 
 static bool dead_man_button_pressed = false;
 static bool all_clients_gone = false;
@@ -12,7 +14,7 @@ static bool active = false;
 static struct mmap_s mmm;
 
 // Safety - if parent dies, we should follow
-void *safety_thread(void *param)
+static void *safety_thread(void *param)
 {
   (void)param;
   int counter = 0;
@@ -49,7 +51,7 @@ void *safety_thread(void *param)
   return NULL;
 }
 
-pthread_t st;
+static pthread_t st;
 
 static void start_safety(bool act)
 {
@@ -63,7 +65,8 @@ static void start_safety(bool act)
 static char *lockName = "ltr_server.lock";
 static semaphore_p pfSem = NULL;
 
-void new_frame(struct frame_type *frame, void *param)
+#ifndef LTR_GUI
+static void new_frame(struct frame_type *frame, void *param)
 {
   (void)frame;
   struct mmap_s *mmm = (struct mmap_s*)param;
@@ -73,14 +76,17 @@ void new_frame(struct frame_type *frame, void *param)
                             &(com->tx), &(com->ty), &(com->tz), &(com->counter));
   ltr_int_unlockSemaphore(mmm->sem);
 }
+#endif
 
-void state_changed(void *param)
+static void state_changed(void *param)
 {
   struct mmap_s *mmm = (struct mmap_s*)param;
-  struct ltr_comm *com = mmm->data;
-  ltr_int_lockSemaphore(mmm->sem);
-  com->state = ltr_int_get_tracking_state();
-  ltr_int_unlockSemaphore(mmm->sem);
+  struct ltr_comm *com = (struct ltr_comm*)mmm->data;
+  if(mmm->data != NULL){
+    ltr_int_lockSemaphore(mmm->sem);
+    com->state = ltr_int_get_tracking_state();
+    ltr_int_unlockSemaphore(mmm->sem);
+  }
 }
 
 static bool ltr_int_is_inactive(ltr_state_type state)
@@ -88,7 +94,7 @@ static bool ltr_int_is_inactive(ltr_state_type state)
   return((state == STOPPED) || (state == ERROR));
 }
 
-void main_loop(char *section)
+static void main_loop(char *section)
 {
   bool recenter = false;
   
@@ -117,61 +123,73 @@ void main_loop(char *section)
     ltr_int_unmap_file(&mmm);
     return;
   }
-  
-  int timeout_counter = 300; //On slow machines it could take long time
-                             // for example to load TIR firmware => 30s
-  while(com->state == STOPPED){
-    usleep(100000);
-    if(--timeout_counter < 0){
-      ltr_int_log_message("Timed out while waiting for device to init!\n");
-      break;
-    }
-  }
-  
-  if(com->state == ERROR){
-    ltr_int_log_message("Error encountered during init!\n");
-    goto shutdown;
-  }
-  
+
   while(1){
-    dead_man_button_pressed |= com->dead_man_button;
-    com->dead_man_button = false;
-    com->preparing_start = false;
-    if((com->cmd != NOP_CMD) || com->recenter){
-      ltr_int_lockSemaphore(mmm.sem);
-      ltr_cmd cmd = com->cmd;
-      com->cmd = NOP_CMD;
-      recenter = com->recenter;
-      com->recenter = false;
-      ltr_int_unlockSemaphore(mmm.sem);
-      switch(cmd){
-        case RUN_CMD:
-          ltr_int_wakeup();
-          break;
-        case PAUSE_CMD:
-          ltr_int_suspend();
-          break;
-        case STOP_CMD:
-          //we handle stopping through dead man's button
-          break;
-        default:
-          //defensive...
-          break;
-      }
+    switch(com->state){
+      case STOPPED:
+      case INITIALIZING:
+        //Tracker is initializing, wait for the initialization finish
+        break;
+      case RUNNING:
+      case PAUSED:
+        dead_man_button_pressed |= com->dead_man_button;
+        com->dead_man_button = false;
+        com->preparing_start = false;
+        if((com->cmd != NOP_CMD) || com->recenter){
+          ltr_int_lockSemaphore(mmm.sem);
+          ltr_cmd cmd = (ltr_cmd)com->cmd;
+          com->cmd = NOP_CMD;
+          recenter = com->recenter;
+          com->recenter = false;
+          ltr_int_unlockSemaphore(mmm.sem);
+          switch(cmd){
+            case RUN_CMD:
+              ltr_int_wakeup();
+              break;
+            case PAUSE_CMD:
+              ltr_int_suspend();
+              break;
+            case STOP_CMD:
+              //we handle stopping through dead man's button
+              // - we start shutdown countdown when all our clients die;
+              // If some new client pops up, we start again
+              ltr_int_suspend();
+#ifdef LTR_GUI
+              goto shutdown;
+#endif
+              break;
+            case NOP_CMD:
+              break;
+            default:
+              //defensive...
+              assert(0);
+              break;
+          }
+        }
+        break;
+      case ERROR:
+        goto shutdown;
+        break;
+      default:
+        assert(0);
+        break;
     }
     if(recenter){
       recenter = false;
       ltr_int_recenter();
     }
-    if(all_clients_gone || ltr_int_is_inactive(com->state)){
-      break;
+#ifndef LTR_GUI
+    if(all_clients_gone){ // here the shutdown is handled...
+      goto shutdown;
     }
+#endif
     usleep(100000);  //ten times per second...
   }
+
  shutdown:
   //shutdown and wait till it is down (with timeout).
   ltr_int_shutdown();
-  timeout_counter = 30;
+  int timeout_counter = 30;
   while(!ltr_int_is_inactive(com->state)){
     usleep(100000);  //ten times per second...
     if(--timeout_counter <= 0){
@@ -180,9 +198,45 @@ void main_loop(char *section)
       break;
     }
   }
-  ltr_int_log_message("Closing prefs!\n");
-  ltr_int_unmap_file(&mmm);
+#ifndef LTR_GUI
+  ltr_int_close_prefs();
+#endif
 }
+
+int prep_main_loop(char *section)
+{
+  char *com_file = ltr_int_get_com_file_name();
+  if(!ltr_int_mmap_file(com_file, sizeof(struct ltr_comm), &mmm)){
+    printf("Couldn't mmap file!!!\n");
+    return -1;
+  }
+  free(com_file);
+  int res = ltr_int_server_running_already(lockName, &pfSem, true);
+  if(res == 0){
+    ltr_int_log_message("Starting server in the active mode!\n");
+#ifdef LTR_GUI    
+    ltr_init(section);
+#endif
+    start_safety(true);
+    main_loop(section);
+    ltr_int_log_message("Just left the main loop!\n");
+    ltr_int_closeSemaphore(pfSem);
+#ifdef LTR_GUI    
+    pthread_cancel(st);
+    pthread_join(st, NULL);
+#endif
+  }else{
+#ifndef LTR_GUI
+    ltr_int_log_message("Starting server in the passive mode!\n");
+    start_safety(false);
+#endif
+  }
+  ltr_int_unmap_file(&mmm);
+  ltr_int_log_message("Finishing server!\n");
+  return res;
+}
+
+#ifndef LTR_GUI
 
 int main(int argc, char *argv[])
 {
@@ -193,26 +247,8 @@ int main(int argc, char *argv[])
     //Section name
   }
   ltr_int_set_logfile_name("/tmp/ltr_server.log");
-  
-  char *com_file = ltr_int_get_com_file_name();
-  if(!ltr_int_mmap_file(com_file, sizeof(struct ltr_comm), &mmm)){
-    printf("Couldn't mmap file!!!\n");
-    return -1;
-  }
-  free(com_file);
-  int res = ltr_int_server_running_already(lockName, &pfSem, true);
-  if(res == 0){
-    ltr_int_log_message("Starting server in the active mode!\n");
-    start_safety(true);
-    main_loop(section);
-    ltr_int_log_message("Just left the main loop!\n");
-    ltr_int_closeSemaphore(pfSem);
-  }else{
-    ltr_int_log_message("Starting server in the passive mode!\n");
-    start_safety(false);
-  }
-  ltr_int_unmap_file(&mmm);
-  ltr_int_log_message("Finishing server!\n");
-  return 0;
+  return prep_main_loop(section);
 }
+
+#endif
 

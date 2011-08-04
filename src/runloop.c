@@ -48,7 +48,7 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
             retval = ltr_int_tracker_get_frame(ccb, &frame);
             frame.counter = ++counter;
             if((retval == -1) || (cbk(ccb, &frame) < 0)){
-              ltr_int_log_message("Error getting frame!\n");
+              ltr_int_log_message("Error getting frame! (rv = %d)\n", retval);
               ltr_int_cal_set_state(ERROR);
               stop_flag = true;
             }

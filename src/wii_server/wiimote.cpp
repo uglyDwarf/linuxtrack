@@ -15,10 +15,12 @@ void WiiThread::idle()
 {
   idle_cntr++;
   if(idle_cntr == 20){
+    //printf("Indication: %02X\n", 0);
     cwiid_set_led(gWiimote, 0);
   }
   if(idle_cntr > 500){
     idle_cntr = 0;
+    //printf("Indication: %02X\n", idle_sig);
     cwiid_set_led(gWiimote, idle_sig);
     idle_sig <<= 1;
     if(idle_sig > 16){
@@ -141,6 +143,7 @@ void WiiThread::stop_it()
 void WiiThread::pause(int indication)
 {
   if(gWiimote != NULL){
+    //printf("Indication: %02X\n", indication);
     cwiid_set_led(gWiimote, indication);
     cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS);
   }
@@ -150,8 +153,9 @@ void WiiThread::pause(int indication)
 void WiiThread::wakeup(int indication)
 {
   if(gWiimote != NULL){
-    cwiid_set_led(gWiimote, indication);
-    cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS | CWIID_RPT_IR);
+   //printf("Indication: %02X\n", indication);
+   cwiid_set_led(gWiimote, indication);
+   cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS | CWIID_RPT_IR);
   }
   isIdle = false;
 }

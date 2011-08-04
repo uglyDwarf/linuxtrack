@@ -37,6 +37,7 @@ int ltr_init(char *cust_section)
   char *args[] = {server, cust_section, NULL};
   ltr_int_fork_child(args);
   free(server);
+  ltr_wakeup();
   return 0;
 }
 
