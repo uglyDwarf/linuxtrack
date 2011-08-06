@@ -530,19 +530,17 @@ static void setup_ltr(void)
 
 	int timeout = atoi(Args.ltr_timeout);
 
-	ltr_state_type st;
-
 	while (timeout > 0) {
-		st = ltr_get_tracking_state();
-		if((st == INITIALIZING))
-			sleep(1);
+
+		if (ltr_get_tracking_state() == RUNNING)
+			return;
 		else
-			break;
+			sleep(1);
+
 		timeout--;
 	}
 
-	if (ltr_get_tracking_state() != RUNNING)
-		xerror(1, 0, "LinuxTrack library timeout");
+	xerror(1, 0, "LinuxTrack library timeout");
 }
 
 
