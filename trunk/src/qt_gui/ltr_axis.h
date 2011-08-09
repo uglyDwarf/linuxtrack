@@ -7,7 +7,7 @@
 class AppProfile;
 
 typedef enum{
-  ENABLED, LFACTOR, RFACTOR, LCURV, RCURV, DZONE, LIMITS, RELOAD
+  ENABLED, LFACTOR, RFACTOR, LCURV, RCURV, DZONE, LLIMIT, RLIMIT, RELOAD
 }AxisElem_t;
 
 class LtrAxis : public QWidget{
@@ -23,7 +23,8 @@ class LtrAxis : public QWidget{
   bool changeLCurv(float val);
   bool changeRCurv(float val);
   bool changeDZone(float val);
-  bool changeLimits(float val);
+  bool changeLLimit(float val);
+  bool changeRLimit(float val);
   
   bool getEnabled();
   float getLFactor();
@@ -31,7 +32,8 @@ class LtrAxis : public QWidget{
   float getLCurv();
   float getRCurv();
   float getDZone();
-  float getLimits();
+  float getLLimit();
+  float getRLimit();
   float getValue(float val);
   
   bool isSymetrical();

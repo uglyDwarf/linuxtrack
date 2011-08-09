@@ -318,6 +318,21 @@ QString PrefProxy::getCustomSectionName()
   }
 }
 
+QString PrefProxy::getCustomSectionTitle()
+{
+  const char *sec = ltr_int_get_custom_section_name();
+  if(sec == NULL){
+    return QString("Default");
+  }else{
+    QString title;
+    if(getKeyVal("Title", title)){
+      return title;
+    }else{
+      return QString("Default");
+    }
+  }
+}
+
 QString PrefProxy::getDataPath(QString file)
 {
   

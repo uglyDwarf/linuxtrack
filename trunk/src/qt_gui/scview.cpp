@@ -39,12 +39,15 @@ QSize SCView::minimumSizeHint() const
 
 static int spline(LtrAxis *a, QPointF points[], int num_points)
 {
-  float x;
+  float x, kl, kr, max_k;
   float k = 2.0f / (num_points - 1);
+  kl = (a->getLFactor() != 0.0) ? a->getLLimit() / a->getLFactor() : 0.0;
+  kr = (a->getRFactor() != 0.0) ? a->getRLimit() / a->getRFactor() : 0.0;
+  max_k = kl > kr ? kl : kr;
   for(int i = 0; i < num_points; ++i){
     x = -1.0f + k * i;
     points[i].rx() = x;
-    points[i].ry() =  fabs(a->getValue(x * a->getLimits()));
+    points[i].ry() = fabs(a->getValue(x * max_k));
   }
   return 0;
 }
@@ -64,8 +67,10 @@ void SCView::paintEvent(QPaintEvent * /* event */)
   QSize sz = size();
   float h = sz.height() - 1;//Why, oh why?
   float w = floor((sz.width() / 2) - 1);
-  float max_f = (axis->getLFactor() > axis->getRFactor()) ? 
-                 axis->getLFactor() : axis->getRFactor();
+//  float max_f = (axis->getLFactor() > axis->getRFactor()) ? 
+//                 axis->getLFactor() : axis->getRFactor();
+  float max_f = (axis->getLLimit() > axis->getRLimit()) ? 
+                 axis->getLLimit() : axis->getRLimit();
   
   spline(axis, points, spline_points);
   float x,y;
@@ -73,16 +78,21 @@ void SCView::paintEvent(QPaintEvent * /* event */)
     x = points[i].x();
     y = points[i].y();
     points[i].rx() = (x + 1.0f) * w;
-    points[i].ry() = h - y * (h / max_f);
+    points[i].ry() = (max_f > 0.0) ? h - y * (h / max_f) : h;
   }
   QPainter painter(this);
   painter.setPen(Qt::black);
   painter.drawPolyline(points, spline_points);
   painter.setPen(Qt::red);
-  float nx = w + w * px;
-  float ny = h - fabs(spline(axis, px * axis->getLimits()) * (h / max_f));
+  float kl = (axis->getLFactor() != 0.0) ? axis->getLLimit() / axis->getLFactor() : 0.0;
+  float kr = (axis->getRFactor() != 0.0) ? axis->getRLimit() / axis->getRFactor() : 0.0;
+  float max_k = kl > kr ? kl : kr;
+  float nx = w + w * px/max_k;
+  float ny = (max_f != 0.0) ? h - fabs(spline(axis, px) * (h / max_f)) : h;
   painter.drawLine(QLineF(nx, ny - 5, nx, ny + 5));
   painter.drawLine(QLineF(nx - 5, ny, nx + 5, ny));
+  painter.drawText(QPoint(100,10), QString("Real: %1").arg(px));
+  painter.drawText(QPoint(100,20), QString("Simulated: %1").arg(spline(axis, px)));
   painter.end();
 }
 

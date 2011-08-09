@@ -25,7 +25,8 @@ class SCurve : public QWidget{
   void on_SCLeftCurv_valueChanged(int value);
   void on_SCRightCurv_valueChanged(int value);
   void on_SCDeadZone_valueChanged(int value);
-  void on_SCInputLimits_valueChanged(double d);
+  void on_SCLeftLimit_valueChanged(double d);
+  void on_SCRightLimit_valueChanged(double d);
   void setEnabled(int state);
   void axisChanged(AxisElem_t what);
  private:

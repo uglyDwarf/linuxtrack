@@ -26,8 +26,10 @@ bool ltr_int_set_lmult(enum axis_t id, float m1);
 float ltr_int_get_lmult(enum axis_t id);
 bool ltr_int_set_rmult(enum axis_t id, float m1);
 float ltr_int_get_rmult(enum axis_t id);
-bool ltr_int_set_limits(enum axis_t id, float lim);
-float ltr_int_get_limits(enum axis_t id);
+bool ltr_int_set_llimit(enum axis_t id, float lim);
+float ltr_int_get_llimit(enum axis_t id);
+bool ltr_int_set_rlimit(enum axis_t id, float lim);
+float ltr_int_get_rlimit(enum axis_t id);
 bool ltr_int_axes_changed(bool reset_flag);
 
 #ifdef __cplusplus
