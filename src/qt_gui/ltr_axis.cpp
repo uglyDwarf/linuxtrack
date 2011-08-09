@@ -75,11 +75,20 @@ bool LtrAxis::changeDZone(float val)
   return res; 
 }
 
-bool LtrAxis::changeLimits(float val)
+bool LtrAxis::changeLLimit(float val)
 {
-  bool res = ltr_int_set_limits(axis, val);
+  bool res = ltr_int_set_llimit(axis, val);
   if(res){
-    emit axisChanged(LIMITS);
+    emit axisChanged(LLIMIT);
+  }
+  return res; 
+}
+
+bool LtrAxis::changeRLimit(float val)
+{
+  bool res = ltr_int_set_rlimit(axis, val);
+  if(res){
+    emit axisChanged(RLIMIT);
   }
   return res; 
 }
@@ -114,9 +123,14 @@ float LtrAxis::getDZone()
   return ltr_int_get_deadzone(axis);
 }
 
-float LtrAxis::getLimits()
+float LtrAxis::getLLimit()
 {
-  return ltr_int_get_limits(axis);
+  return ltr_int_get_llimit(axis);
+}
+
+float LtrAxis::getRLimit()
+{
+  return ltr_int_get_rlimit(axis);
 }
 
 float LtrAxis::getValue(float val)

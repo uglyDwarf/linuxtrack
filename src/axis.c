@@ -11,7 +11,7 @@ struct axis_def{
   splines curves;
   bool valid;
   float l_factor, r_factor;
-  float limits; //Input value limits - normalize into <-1;1>
+  float l_limit, r_limit;
   char *prefix;
 };
 
@@ -25,15 +25,14 @@ struct lt_axes {
 };
 
 typedef enum{
-  SENTRY1, DEADZONE, LCURV, RCURV, LMULT, RMULT, LIMITS, ENABLED, SENTRY_2
+  SENTRY1, DEADZONE, LCURV, RCURV, LMULT, RMULT, LLIMIT, RLIMIT, ENABLED, SENTRY_2
 }axis_fields;
 static const char *fields[] = {NULL, "-deadzone",
 				"-left-curvature", "-right-curvature", 
 				"-left-multiplier", "-right-multiplier",
-				"-limits", "-enabled", NULL};
+				"-left-limit", "-right-limit", "-enabled", NULL};
 static struct lt_axes ltr_int_axes;
 static bool ltr_int_axes_changed_flag = false;
-
 
 static struct axis_def *get_axis(enum axis_t id)
 {
@@ -98,19 +97,18 @@ float ltr_int_val_on_axis(enum axis_t id, float x)
   if(!(axis->valid)){
     ltr_int_curve2pts(&(axis->curve_defs), &(axis->curves));
   }
-  x = x / axis->limits;
+  float mf = x < 0 ? axis->l_factor : axis->r_factor;
+  float lim = x < 0 ? axis->l_limit : axis->r_limit;
+  if(lim == 0.0) return 0.0;
+  x *= mf; //apply factor (sensitivity)
+  x /= lim; //normalize to apply the spline
   if(x < -1.0){
     x = -1.0;
   }
   if(x > 1.0){
     x = 1.0;
   }
-  float y = ltr_int_spline_point(&(axis->curves), x);
-  if(x < 0.0){
-    return y * axis->l_factor; 
-  }else{
-    return y * axis->r_factor; 
-  }
+  return ltr_int_spline_point(&(axis->curves), x) * lim;
 }
 
 static void signal_change()
@@ -161,7 +159,8 @@ bool ltr_int_is_symetrical(enum axis_t id)
   struct axis_def *axis = get_axis(id);
   
   if((axis->l_factor == axis->r_factor) && 
-     (axis->curve_defs.l_curvature == axis->curve_defs.r_curvature)){
+     (axis->curve_defs.l_curvature == axis->curve_defs.r_curvature) &&
+     (axis->l_limit == axis->r_limit)){
     return true;
   }else{
     return false;
@@ -262,23 +261,41 @@ float ltr_int_get_rmult(enum axis_t id)
   return axis->r_factor;
 }
 
-bool ltr_int_set_limits(enum axis_t id, float lim)
+bool ltr_int_set_rlimit(enum axis_t id, float lim)
 {
   struct axis_def *axis = get_axis(id);
   
   axis->valid = false;
-  axis->limits = lim;
-  save_val_flt(id, LIMITS, lim);
+  axis->r_limit = lim;
+  save_val_flt(id, RLIMIT, lim);
   signal_change();
   
   return true;
 }
 
-float ltr_int_get_limits(enum axis_t id)
+float ltr_int_get_rlimit(enum axis_t id)
 {
   struct axis_def *axis = get_axis(id);
   
-  return axis->limits;
+  return axis->r_limit;
+}
+
+bool ltr_int_set_llimit(enum axis_t id, float lim)
+{
+  struct axis_def *axis = get_axis(id);
+  
+  axis->valid = false;
+  axis->l_limit = lim;
+  save_val_flt(id, LLIMIT, lim);
+  signal_change();
+  
+  return true;
+}
+
+float ltr_int_get_llimit(enum axis_t id)
+{
+  struct axis_def *axis = get_axis(id);
+  return axis->l_limit;
 }
 
 void ltr_int_init_axis(struct axis_def *axis, const char *prefix)
@@ -319,8 +336,11 @@ static void set_axis_field(struct axis_def *axis, axis_fields field, float val)
     case(RMULT):
       axis->r_factor = val;
       break;
-    case(LIMITS):
-      axis->limits = val;
+    case(LLIMIT):
+      axis->l_limit = val;
+      break;
+    case(RLIMIT):
+      axis->r_limit = val;
       break;
     default:
       assert(0);

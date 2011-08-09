@@ -45,7 +45,11 @@ void SCurve::setup_gui()
   ui.SCRightFactor->setValue(axis->getRFactor());
   ui.SCRightCurv->setValue(axis->getRCurv() * 100);
   ui.SCDeadZone->setValue(axis->getDZone() * 101);
-  ui.SCInputLimits->setValue(axis->getLimits());
+  ui.SCRightLimit->setValue(axis->getLLimit());
+  ui.SCLeftLimit->setValue(axis->getRLimit());
+  ui.SCCurvL->setText(QString("Curvature: %1").arg(axis->getLCurv(), 2, 'f', 2));
+  ui.SCCurvR->setText(QString("Curvature: %1").arg(axis->getRCurv(), 2, 'f', 2));
+  ui.SCDZoneLabel->setText(QString("DeadZone: %1").arg(axis->getDZone(), 2, 'f', 2));
 }
 
 void SCurve::setEnabled(int state)
@@ -66,12 +70,15 @@ void SCurve::on_SCSymetrical_stateChanged(int state)
       symetrical = true;
       ui.SCRightFactor->setDisabled(true);
       ui.SCRightFactor->setValue(ui.SCLeftFactor->value());
+      ui.SCRightLimit->setDisabled(true);
+      ui.SCRightLimit->setValue(ui.SCLeftLimit->value());
       ui.SCRightCurv->setDisabled(true);
       ui.SCRightCurv->setValue(ui.SCLeftCurv->value());
       break;
     case Qt::Unchecked:
       symetrical = false;
       ui.SCRightFactor->setDisabled(false);
+      ui.SCRightLimit->setDisabled(false);
       ui.SCRightCurv->setDisabled(false);
       break;
     default:
@@ -103,6 +110,7 @@ void SCurve::on_SCLeftCurv_valueChanged(int value)
 {
   //std::cout<<"LeftCurv = "<<value<<std::endl;
   if(!initializing) axis->changeLCurv(value / 100.0);
+  ui.SCCurvL->setText(QString("Curvature: %1").arg(value / 100.0, 2, 'f', 2));
   if(symetrical){
     ui.SCRightCurv->setValue(value);
   }else{
@@ -114,6 +122,7 @@ void SCurve::on_SCRightCurv_valueChanged(int value)
 {
   //std::cout<<"RightCurv = "<<value<<std::endl;
   if(!initializing) axis->changeRCurv(value / 100.0);
+  ui.SCCurvR->setText(QString("Curvature: %1").arg(value / 100.0, 2, 'f', 2));
   emit changed();
 }
 
@@ -121,18 +130,33 @@ void SCurve::on_SCDeadZone_valueChanged(int value)
 {
   //std::cout<<"DeadZone = "<<value<<std::endl;
   if(!initializing) axis->changeDZone(value / 101.0);
+  ui.SCDZoneLabel->setText(QString("DeadZone: %1").arg(value / 101.0, 2, 'f', 2));
   emit changed();
 }
 
-void SCurve::on_SCInputLimits_valueChanged(double d)
+void SCurve::on_SCLeftLimit_valueChanged(double d)
 {
-  //std::cout<<"Limits = "<<d<<std::endl;
-  if(!initializing) axis->changeLimits(d);
+  //std::cout<<"LLimit = "<<d<<std::endl;
+  if(!initializing) axis->changeLLimit(d);
+  if(symetrical){
+    ui.SCRightLimit->setValue(d);
+  }
+  emit changed();
+}
+
+void SCurve::on_SCRightLimit_valueChanged(double d)
+{
+  //std::cout<<"RLimit = "<<d<<std::endl;
+  if(!initializing) axis->changeRLimit(d);
+  if(symetrical){
+    ui.SCLeftLimit->setValue(d);
+  }
   emit changed();
 }
 
 void SCurve::movePoint(float new_x)
 {
+/*
   float val = new_x / axis->getLimits();
   if(val > 1.0f){
     val = 1.0f;
@@ -141,6 +165,8 @@ void SCurve::movePoint(float new_x)
     val = -1.0f;
   }
   view->movePoint(val);
+*/
+  view->movePoint(new_x);
 }
 
 
@@ -155,15 +181,21 @@ void SCurve::axisChanged(AxisElem_t what)
       break;
     case LCURV:
       ui.SCLeftCurv->setValue(round(axis->getLCurv() * 100.0));
+      ui.SCCurvL->setText(QString("Curvature: %1").arg(axis->getLCurv(), 2, 'f', 2));
       break;
     case RCURV:
       ui.SCRightCurv->setValue(round(axis->getRCurv() * 100.0));
+      ui.SCCurvR->setText(QString("Curvature: %1").arg(axis->getRCurv(), 2, 'f', 2));
       break;
     case DZONE:
       ui.SCDeadZone->setValue(round(axis->getDZone() * 101.0));
+      ui.SCDZoneLabel->setText(QString("DeadZone: %1").arg(axis->getDZone(), 2, 'f', 2));
       break;
-    case LIMITS:
-      ui.SCInputLimits->setValue(axis->getLimits());
+    case LLIMIT:
+      ui.SCLeftLimit->setValue(axis->getLLimit());
+      break;
+    case RLIMIT:
+      ui.SCRightLimit->setValue(axis->getRLimit());
       break;
     case RELOAD:
       ui.SCLeftFactor->setValue(axis->getLFactor());
@@ -171,7 +203,11 @@ void SCurve::axisChanged(AxisElem_t what)
       ui.SCLeftCurv->setValue(round(axis->getLCurv() * 100.0));
       ui.SCRightCurv->setValue(round(axis->getRCurv() * 100.0));
       ui.SCDeadZone->setValue(round(axis->getDZone() * 101.0));
-      ui.SCInputLimits->setValue(axis->getLimits());
+      ui.SCCurvL->setText(QString("Curvature: %1").arg(axis->getLCurv(), 2, 'f', 2));
+      ui.SCCurvR->setText(QString("Curvature: %1").arg(axis->getRCurv(), 2, 'f', 2));
+      ui.SCDZoneLabel->setText(QString("DeadZone: %1").arg(axis->getDZone(), 2, 'f', 2));
+      ui.SCLeftLimit->setValue(axis->getLLimit());
+      ui.SCRightLimit->setValue(axis->getRLimit());
       if(axis->isSymetrical()){
 	ui.SCSymetrical->setCheckState(Qt::Checked);
         symetrical = true;

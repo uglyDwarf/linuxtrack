@@ -83,10 +83,10 @@ void state_changed(void *param)
 
 void CaptureThread::run()
 {
-  QString section = PREF.getCustomSectionName();
+  QString section = PREF.getCustomSectionTitle();
   char *section_str = section.toAscii().data();
-  section_str = NULL;
-  ltr_init(section_str);
+  std::cout<<"Opening section '"<<section_str<<"'"<<std::endl;
+  //section_str = NULL;
   prep_main_loop(section_str);
   ltr_shutdown();
   buffer_empty = false;
@@ -136,12 +136,16 @@ LtrGuiForm::~LtrGuiForm()
 
 void new_frame(struct frame_type *frame, void *param)
 {
-  (void) param;
+  struct mmap_s *mmm = (struct mmap_s*)param;
+  struct ltr_comm *com = (ltr_comm*)mmm->data;
+  ltr_int_lockSemaphore(mmm->sem);
+  ltr_int_get_camera_update(&(com->heading), &(com->pitch), &(com->roll), 
+                            &(com->tx), &(com->ty), &(com->tz), &(com->counter));
+  ltr_int_unlockSemaphore(mmm->sem);
   if(cnt == 0){
     ltr_recenter();
   }
   ++cnt;
-  
   scp->updatePitch(ltr_int_orig_pose.pitch);
   scp->updateRoll(ltr_int_orig_pose.roll);
   scp->updateYaw(ltr_int_orig_pose.heading);

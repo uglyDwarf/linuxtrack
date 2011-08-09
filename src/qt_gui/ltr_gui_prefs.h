@@ -40,6 +40,7 @@ class PrefProxy{
   bool getModelList(QStringList &list);
   bool getProfiles(QStringList &list);
   QString getCustomSectionName();
+  QString getCustomSectionTitle();
   bool setCustomSection(const QString &name);
   bool savePrefs();
   bool rereadPrefs();
