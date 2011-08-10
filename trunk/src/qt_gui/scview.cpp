@@ -6,9 +6,10 @@
 #include <iostream>
 
 SCView::SCView(LtrAxis *a, QWidget *parent)
-  : QWidget(parent), axis(a), px(0.0), timer(NULL)
-{  
+  : QWidget(parent), parentWidget(parent), axis(a), px(0.0), timer(NULL)
+{
   setBackgroundRole(QPalette::Base);
+  setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
   setAutoFillBackground(true);
   timer = new QTimer(this);
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -28,7 +29,11 @@ void SCView::redraw()
 
 QSize SCView::sizeHint() const
 {
-  return QSize(320, 180);
+  if(parentWidget){
+    return parentWidget->size();
+  }else{
+    return minimumSizeHint();
+  }
 }
 
 QSize SCView::minimumSizeHint() const

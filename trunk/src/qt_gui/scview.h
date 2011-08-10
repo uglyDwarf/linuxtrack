@@ -21,6 +21,7 @@ class SCView : public QWidget
   void paintEvent(QPaintEvent *event);
 
  private:
+  QWidget *parentWidget;
   LtrAxis *axis;
   float px;
   QTimer *timer;
