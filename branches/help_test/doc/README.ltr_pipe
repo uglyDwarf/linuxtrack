@@ -1,0 +1,361 @@
+ltr_pipe: LinuxTrack data sender
+=================================
+
+This program allows you to send data from LinuxTrack head tracking software
+to some destinations. It has built-in support for:
+
+* FlightGear
+* IL-2 Shturmovik
+* Silent Wings
+
+The output of ltr_pipe could be directed to an input filter for transformation
+to custom output formats (See 'Custom output formats' below). Also it can send
+data as a mouse or a joystick. That could be used probably in any application.
+
+Compile and install LinuxTrack with ltr_pipe enabled:
+
+  ./configure --enable-ltr-pipe
+  make
+  make install
+
+
+
+* Contents:
+===========
+
+1. FlightGear
+	1.1. ltr_pipe's custom protocol file with Nasal script
+	1.2. ltr_pipe's stand-alone custom protocol file
+	1.3. EasyHeadTrack's custom protocol file and Nasal script
+	1.4. Using ltr_pipe's --format-uinput-abs joystick emulation
+2. IL-2 Shturmovik
+3. Silent Wings
+4. Mouse emulation
+5. Using uinput driver on Linux
+6. Recenter/Suspend/Wake-Up
+7. Custom output formats
+
+
+
+1. FlightGear
+==============
+
+There are several ways to use ltr_pipe with FlightGear:
+
+  + Using ltr_pipe's custom protocol file with Nasal script.
+  + Using ltr_pipe's stand-alone custom protocol file.
+  + Using EasyHeadTrack's (http://gitorious.org/headtrack) custom protocol
+    file and Nasal script (FlightGear git version only).
+  + Using ltr_pipe's --format-uinput-abs joystick emulation (Linux only).
+
+
+
+1.1. ltr_pipe's custom protocol file with Nasal script
+-------------------------------------------------------
+
+You must manually copy files from doc/fgfs directory to proper FlightGear
+directories. Copy custom protocol file:
+
+  cp doc/fgfs/Protocol/linuxtrack.nas.xml $FG_ROOT/Protocol/
+
+Copy Nasal script:
+
+  cp doc/fgfs/Nasal/LinuxTrack/linuxtrack.nas $FG_ROOT/Nasal/
+
+Note that now FlightGear (git version) supports running Nasal scripts from
+custom directories below $FG_ROOT/Nasal directory. Scripts from those custom
+directories run after all scripts in $FG_ROOT/Nasal when all needed Nasal
+subsystems are initialized. If you're using a bleeding edge git FlightGear
+version then create $FG_ROOT/Nasal/LinuxTrack directory and copy linuxtrack.nas
+there.
+
+There are several ways to send data from ltr_pipe to FlightGear. They include
+a FIFO, UDP or TCP networking. For a FIFO do the following three steps:
+
+1) Create a FIFO somewhere on your file system (for eg. in the /tmp directory):
+
+  mkfifo /tmp/fifo
+
+2) Run ltr_pipe in the first terminal window (use --help for available options):
+
+  ltr_pipe --output-file=/tmp/fifo --format-flightgear
+
+3) Run FlightGear in the second terminal window with the specified options:
+
+  fgfs --generic=file,in,200,/tmp/fifo,linuxtrack.nas \
+       --prop:/sim/linuxtrack/enabled=1
+
+If you want to use UDP networking instead of FIFO then do the following two
+steps (for TCP networking just replace 'udp' with 'tcp'):
+
+1) Run ltr_pipe in the first terminal window:
+
+  ltr_pipe --output-net-udp --format-flightgear
+
+2) Run FlightGear in the second terminal window with the specified options:
+
+  fgfs --generic=socket,in,200,,6543,udp,linuxtrack.nas \
+       --prop:/sim/linuxtrack/enabled=1
+
+Note that X, Y, Z are not enabled in linuxtrack.nas by default. You can
+enable all of them at once with the additional FlightGear option:
+
+  --prop:/sim/linuxtrack/track-all=1
+
+or any of them one by one with such options:
+
+  --prop:/sim/linuxtrack/track-x=1
+  --prop:/sim/linuxtrack/track-y=1
+  --prop:/sim/linuxtrack/track-z=1
+
+
+
+1.2. ltr_pipe's stand-alone custom protocol file
+-------------------------------------------------
+
+This could be used as a back-up if the previous (Nasal) approach doesn't work.
+
+Copy stand-alone custom protocol file to FlightGear's 'Protocol' directory:
+
+  cp doc/fgfs/Protocol/linuxtrack.xml $FG_ROOT/Protocol/
+
+For connecting ltr_pipe with FlightGear by means of a FIFO do the following
+three steps:
+
+1) Create a FIFO somewhere on your file system (for eg. in the /tmp directory):
+
+  mkfifo /tmp/fifo
+
+2) Run ltr_pipe in the first terminal window (use --help for available options):
+
+  ltr_pipe --output-file=/tmp/fifo --format-flightgear
+
+3) Run FlightGear in the second terminal window with the specified options:
+
+  fgfs --generic=file,in,200,/tmp/fifo,linuxtrack.nas \
+       --prop:/sim/linuxtrack/enabled=1
+
+If you want to use UDP networking instead of FIFO then do the following two
+steps (for TCP networking just replace 'udp' with 'tcp'):
+
+1) Run ltr_pipe in the first terminal window:
+
+  ltr_pipe --output-net-udp --format-flightgear
+
+2) Run FlightGear in the second terminal window with the specified options:
+
+  fgfs --generic=socket,in,200,,6543,udp,linuxtrack
+
+If you don't like the view trembling when in the 'Cocpit View' turning to the
+maximum allowed position then add to FlightGear options:
+
+  --prop:/sim/view/config/limits/enabled='false'
+
+
+
+1.3. EasyHeadTrack's custom protocol file and Nasal script
+-----------------------------------------------------------
+
+If you're using EasyHeadTrack (http://gitorious.org/headtrack) then you can
+also use LinuxTrack with their Nasal script and protocol file. For this, run
+ltr_pipe in the first terminal window:
+
+  ltr_pipe --output-net-udp --format-headtrack
+
+Run FlightGear in the second terminal window:
+
+  fgfs --generic=socket,in,200,,6543,udp,headtrack \
+       --prop:/sim/headtracking/enabled=1
+
+The FIFO connection method (described in previous sections) also should work.
+
+
+
+1.4. Using ltr_pipe's --format-uinput-abs joystick emulation
+-------------------------------------------------------------
+
+Edit doc/fgfs/Input/Joysticks/LinuxTrack/uinput-abs.xml file according to your
+needs. Create a custom joystick directory below $FG_ROOT/Input/Joysticks:
+
+  mkdir $FG_ROOT/Input/Joysticks/LinuxTrack
+
+Copy joystick file to that directory:
+
+  cp doc/fgfs/Input/Joysticks/LinuxTrack/uinput-abs.xml \
+     $FG_ROOT/Input/Joysticks/LinuxTrack/
+
+Run ltr_pipe in the first terminal window:
+
+  ltr_pipe --output-file=/dev/uinput --format-uinput-abs
+
+Run FlightGear without any specific options (as you usually run it):
+
+  fgfs
+
+Note: specifics of ltr_pipe's uinput mode are described below in this README.
+
+
+
+2. IL-2 Shturmovik
+===================
+
+Edit IL-2 Shturmovik conf.ini file and set its parameters:
+
+[DeviceLink]
+port=6543
+host=127.0.0.1
+
+Run ltr_pipe in a terminal window:
+
+  ltr_pipe --output-net-udp --format-il2
+
+Run IL-2 Shturmovik as you usually run it.
+
+
+
+3. Silent Wings
+================
+
+Read this first: http://wiki.silentwings.no/index.php?title=Remote_Control
+
+Add the following lines to Silent Wings options.dat:
+
+use_remote_control = true
+remote_control_port = 6543
+remote_control_mode = UDP
+
+Run ltr_pipe in a terminal window:
+
+  ltr_pipe --output-net-udp --format-silentwings
+
+Run Silent Wings as you usually run it.
+
+
+
+4. Mouse emulation
+===================
+
+To use this mode you also have to make some preparations. First create a
+named pipe somewhere on your system. For example:
+
+  mkfifo -m 664 /var/local/ltr_pipe
+  chgrp plugdev /var/local/ltr_pipe
+
+Instead of a 'plugdev' group you may use any group that is appropriate for your
+system. Of course, you must be a member of that group. Your xorg.conf must
+contain something like this (see xorg.conf documentation for details):
+
+Section "InputDevice"
+        Identifier      "LinuxTrack mouse"
+        Driver          "mouse"
+        Option          "Device"                "/var/local/ltr_pipe"
+        Option          "Protocol"              "imps/2"
+        Option          "SendCoreEvents"        "yes"
+EndSection
+
+Section "ServerLayout"
+        Identifier      "Default Server Layout"
+        Screen          "Default Screen"
+        InputDevice     "LinuxTrack mouse"
+EndSection
+
+
+Restart X server, check it's log for errors. In case of errors consult X server
+documentation. If everything is OK, then you may run ltr_pipe:
+
+  ltr_pipe --output-file=/var/local/ltr_pipe --format-mouse
+
+
+
+5. Using uinput driver on Linux
+================================
+
+Note: this is a Linux-only feature.
+
+Prerequisites (asuming you're a member of plugdev group):
+
+  modprobe uinput
+  chgrp plugdev /dev/uinput
+  chmod 660 /dev/uinput
+
+Mouse emulation mode:
+
+  ltr_pipe --output-file=/dev/uinput --format-uinput-rel
+
+Joystick emulation mode:
+
+  ltr_pipe --output-file=/dev/uinput --format-uinput-abs
+
+Run dmesg, look at /var/log/Xorg.0.log for information of how the system
+views the 'LinuxTrack uinput-rel' or 'LinuxTrack uinput-abs' device. Use
+evtest to see if it works. Configure your X server as needed (use evdev
+driver). Configure your games to use that joystick for any axes you want.
+
+
+
+6. Recenter/Suspend/Wake-Up
+============================
+
+You can send command to Recenter/Suspend/Wake-Up tracking to ltr_pipe by means
+of signals. To recenter:
+
+  kill -HUP `pidof ltr_pipe`
+
+To Suspend or Wake-Up:
+
+  kill -USR1 `pidof ltr_pipe`
+
+You can bind those commands to a key or key combinations. How to do this
+depends on your window manager. For example, on GNOME I have something like
+this setup:
+
+Create a shell script with something like this:
+
+#/bin/bash
+SIG=$1
+PID=$(pidof ltr_pipe)
+kill $SIG $PID
+
+Let's name it kill_ltr_pipe.sh. Place it to some directory, for example
+/usr/local/bin:
+
+  install -o root -g root -m 755 kill_ltr_pipe.sh /usr/local/bin
+
+Run GNOME's configuration editor (gconf-editor). Go to
+/apps/metacity/keybinding_commands and assign to command_1:
+
+  /usr/local/bin/kill_ltr_pipe.sh -HUP
+
+And to command_2:
+
+  /usr/local/bin/kill_ltr_pipe.sh -USR1
+
+Then go to /apps/metacity/global_keybindings and assign to run_command_1 and
+run_command_2 any keys or key combinations you like. Enjoy :)
+
+
+
+7. Custom output formats
+=========================
+
+When run without options (or with --format-default option) ltr_pipe outputs
+data in strings with all LinuxTrack values. Each string consists of the
+following seven columns separated by tabs:
+
+  heading	pitch	roll	x	y	z	counter
+
+This output can be processed with a custom input filter for further
+modifications and a custom output.
+
+For example, if for some reason I'd like to output data to network using UDP
+protocol and in Silent Wings format with heading and pitch swapped, I'd do
+that by using gawk (or something else) like this:
+
+  ltr_pipe | gawk \
+    '{ printf("PANH %f\nPANV %f\n", $2, $1) |& "/inet/udp/0/localhost/6543" }'
+
+This approach allows to quickly get results for your application without much
+programming.
+
+
+Have fun!
