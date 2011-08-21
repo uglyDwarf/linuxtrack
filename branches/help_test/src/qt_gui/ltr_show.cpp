@@ -4,6 +4,7 @@
 #include <QTimer>
 #include <QThread>
 #include <QPainter>
+#include <QSettings>
 #include <iostream>
 #include <ltr_show.h>
 #include <ltr_gui_prefs.h>
@@ -100,7 +101,7 @@ void CaptureThread::signal_new_frame()
   emit new_frame();
 }
 
-LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s) 
+LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s, QSettings &settings)
               : cv(NULL), allowClose(false), main_gui(tmp_gui)
 {
   scp = s;
@@ -111,12 +112,17 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s)
   ui.pauseButton->setDisabled(true);
   ui.wakeButton->setDisabled(true);
   ui.stopButton->setDisabled(true);
+  settings.beginGroup("TrackingWindow");
+  camViewEnable = ! settings.value("camera_view", false).toBool();
+  bool check3DV = settings.value("3D_view", false).toBool();
+  settings.endGroup();
+  main_gui.DisableCamView->setCheckState(camViewEnable ? Qt::Unchecked : Qt::Checked);
+  main_gui.Disable3DView->setCheckState(check3DV ? Qt::Checked : Qt::Unchecked);
   glw = new Window(ui.tabWidget, main_gui.Disable3DView);
   ui.ogl_box->addWidget(glw);
   ct = new CaptureThread(this);
   timer = new QTimer(this);
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-  camViewEnable = true;
   connect(&STATE, SIGNAL(stateChanged(ltr_state_type)), this, SLOT(stateChanged(ltr_state_type)));
   connect(main_gui.DisableCamView, SIGNAL(stateChanged(int)), 
           this, SLOT(disableCamView_stateChanged(int)));
@@ -131,6 +137,16 @@ LtrGuiForm::~LtrGuiForm()
     ct->wait(1000);
   }
   delete glw;
+}
+
+void LtrGuiForm::StorePrefs(QSettings &settings)
+{
+  bool camEna = (main_gui.DisableCamView->checkState() == Qt::Checked) ? true : false;
+  bool tdEna = (main_gui.Disable3DView->checkState() == Qt::Checked) ? true : false;
+  settings.beginGroup("TrackingWindow");
+  settings.setValue("camera_view", camEna);
+  settings.setValue("3D_view", tdEna);
+  settings.endGroup();
 }
 
 

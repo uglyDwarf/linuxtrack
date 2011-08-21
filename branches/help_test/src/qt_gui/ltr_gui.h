@@ -20,6 +20,7 @@ class LtrTracking;
 class LogView;
 class ScpForm;
 class QSettings;
+class HelpViewer;
 
 class LinuxtrackGui : public QWidget
 {

@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+  <title>Device setup</title>
+  <meta name="GENERATOR" content="Quanta Plus">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<>
+
+The first step in configuring linuxtrack is configuration of the tracking device.<br>
+Select the device of your choice from the "<strong>Tracking device</strong>" combobox. <br>If you can't
+find the device you want to use, try to press the "<strong>Refresh</strong>" button and check again.
+<br>
+
+<h1><A name="Webcam">Webcam Setup</A></h1>
+<p>If you chose webcam as your tracking device, start by setting the <strong>Pixel Format</strong>.
+The preferred format is YUYV, but you can experiment to see which one works for you best.
+</p>
+<p>Then select the desired <strong>Resolution &amp; Framerate</strong>. 
+</p>
+
+<p>To check, how the tracking works, go to the <strong>Tracking window</strong> and select Camera view pane.
+Press <strong>Start</strong> button to comence tracking.<br>
+Ideally, you should see three (or one, in case of single point model) "blobs" - these are light emitting or reflecting points of your model seen by the camera. Each of those "blobs" should contain a white cross to mark a valid blob.</p>
+
+<p>However, to setup the webcam for the first time, you have to set few more things... <br>
+If you see more light sources, you can try one of these solutions.
+<ul>
+  <li>Try to remove unnecessary sources of light in the webcam's field of view</li>
+  <li>You can set lower exposition value </li>
+  <li>You can set the <strong>Threshold</strong> value higher</li>
+  <li>You can use piece of film or magnetic tape as a light filter.</li>
+</ul>
+</p>
+<p>
+When you have removed as much interfering light sources as possible, it is a time to select a blob size constraints.
+<br>
+These limits are used to disctiminate false "returns" by applying a constraints on a number of pixels that form a blob.<br> 
+If a blob should be valid, but it still doesn't contain the white cross, then try lowering the <strong>Min. blob</strong> value and increasing the <strong>Max. blob</strong> value.
+It is best to finetune the Min. blob value when being farthest away from the camera, while the Max. blob value while being closest to the camera.<br>
+</p>
+
+<p>
+Then last, but not least, there is a possibility to flip the images from webcams (mainly some net/notebooks have webcam mounted upside down).
+</p>
+
+<h2>Troubleshooting tips</h2>
+<ul>
+  <li> Make sure the webcam is correctly focused</li>
+  <li> Use an application able to controll brightness, exposure ad so on</li>
+  <li> If the webcam is not shown in devices combo, make sure thad you have a permissiion to access it</li>
+</ul>
+
+</body>
+</html>

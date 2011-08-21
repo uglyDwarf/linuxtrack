@@ -4,6 +4,7 @@
 LogView::LogView(QWidget *parent) : QWidget(parent), watcher(parent)
 {
   ui.setupUi(this);
+  setWindowTitle("Logfile viewer");
   size = 0;
   changed = true;
   watcher.addPath("/tmp/ltr_gui.log");
@@ -13,6 +14,8 @@ LogView::LogView(QWidget *parent) : QWidget(parent), watcher(parent)
   lf->open(QIODevice::ReadOnly);
   ts = new QTextStream(lf);
   timer = new QTimer(this);
+  viewer = new QPlainTextEdit(this);
+  ui.verticalLayout->insertWidget(0, viewer);
   QObject::connect(timer, SIGNAL(timeout()), 
                    this, SLOT(readChanges()));
   timer->start(250);
@@ -26,7 +29,7 @@ void LogView::on_CloseButton_pressed()
 void LogView::readChanges()
 {
   if(changed)
-    ui.LogViewer->appendPlainText(ts->readAll());
+    viewer->appendPlainText(ts->readAll());
   changed = false;
 }
 
@@ -46,4 +49,6 @@ LogView::~LogView()
   delete(timer);
   delete(ts);
   delete(lf);
+  ui.verticalLayout->removeWidget(viewer);
+  delete(viewer);
 }

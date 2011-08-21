@@ -6,11 +6,15 @@
 #include <iostream>
 Window::Window(QWidget *t, QCheckBox *b) : tab(t), control(b), constructed(false)
 {
+  dynamic_cast<QTabWidget*>(tab)->setTabEnabled(1, false);
   prepare_widget();
 }
 
 void Window::prepare_widget()
 {
+  if(control->checkState() == Qt::Checked){
+    return;
+  }
   if(!constructed){
     control->setEnabled(false);
     dynamic_cast<QTabWidget*>(tab)->setTabEnabled(1, false);
