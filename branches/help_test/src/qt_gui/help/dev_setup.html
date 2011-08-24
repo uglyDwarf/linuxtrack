@@ -3,10 +3,9 @@
 
 <head>
   <title>Device setup</title>
-  <meta name="GENERATOR" content="Quanta Plus">
+  <meta name="generator" content="Bluefish 2.0.2" >
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
-<>
 
 The first step in configuring linuxtrack is configuration of the tracking device.<br>
 Select the device of your choice from the "<strong>Tracking device</strong>" combobox. <br>If you can't
@@ -14,42 +13,61 @@ find the device you want to use, try to press the "<strong>Refresh</strong>" but
 <br>
 
 <h1><A name="Webcam">Webcam Setup</A></h1>
-<p>If you chose webcam as your tracking device, start by setting the <strong>Pixel Format</strong>.
-The preferred format is YUYV, but you can experiment to see which one works for you best.
+<p>At first you have to set the <strong>Pixel Format</strong>.
+<br>The preferred format is YUYV, but you can experiment to see which one is the best for you.
 </p>
-<p>Then select the desired <strong>Resolution &amp; Framerate</strong>. 
+<p>Then continue by selecting the desired <strong>Resolution &amp; Framerate</strong>. 
 </p>
 
 <p>To check, how the tracking works, go to the <strong>Tracking window</strong> and select Camera view pane.
-Press <strong>Start</strong> button to comence tracking.<br>
-Ideally, you should see three (or one, in case of single point model) "blobs" - these are light emitting or reflecting points of your model seen by the camera. Each of those "blobs" should contain a white cross to mark a valid blob.</p>
+Press <strong>Start</strong> button to commence tracking.<br>
+Ideally, you should see three (or one, in case of single point model) "blobs" 
+- these are light emitting or reflecting points of your model seen by the camera. 
+Each of those "blobs" should contain a white cross to mark a valid blob.</p>
 
-<p>However, to setup the webcam for the first time, you have to set few more things... <br>
-If you see more light sources, you can try one of these solutions.
-<ul>
-  <li>Try to remove unnecessary sources of light in the webcam's field of view</li>
-  <li>You can set lower exposition value </li>
-  <li>You can set the <strong>Threshold</strong> value higher</li>
-  <li>You can use piece of film or magnetic tape as a light filter.</li>
-</ul>
+<p>
+However, it is most probable, that when you try this for the first time, you'll see
+more or less blobs, or white crosses aren't in the right blobs.
 </p>
+
+<p>
+If you see unwanted blobs, you can try one of these solutions.
+<ul>
+  <li>Try to remove unnecessary sources of light in the webcam's field of view (lightbulbs, ...)</li>
+  <li>Turn off autoexposure and set lower exposition value (on Linux, try using guvcview)</li>
+  <li>Play with Brightness, Contrast and Gamma settings if available</li>
+  <li>Set the <strong>Threshold</strong> value higher (if unwanted blobs are less bright)</li>
+  <li>Try to use piece of exposed film or magnetic tape as a light filter and/or use IR LEDS 
+      (depends on the strength of the IR filter that most webcams have).</li>
+</ul>
+The preferred solution is the first one, although tweaking camera parameters (brightness, contrast, 
+exposure, ...) can improve tracking quite a lot. <br>
+
 <p>
 When you have removed as much interfering light sources as possible, it is a time to select a blob size constraints.
 <br>
-These limits are used to disctiminate false "returns" by applying a constraints on a number of pixels that form a blob.<br> 
-If a blob should be valid, but it still doesn't contain the white cross, then try lowering the <strong>Min. blob</strong> value and increasing the <strong>Max. blob</strong> value.
-It is best to finetune the Min. blob value when being farthest away from the camera, while the Max. blob value while being closest to the camera.<br>
+These limits are used to discriminate false "returns" by applying a constraints on a number of pixels that form a blob.<br> 
+If a blob should be valid, but it still doesn't contain the white cross, then try lowering the 
+<strong>Min. blob</strong> value and increasing the <strong>Max. blob</strong> value.
+It is best to fine-tune the Min. blob value when being farthest away from the camera, while the Max. blob value 
+while being closest to the camera.
 </p>
 
-<p>
-Then last, but not least, there is a possibility to flip the images from webcams (mainly some net/notebooks have webcam mounted upside down).
+<p>If the webcam picture is upside down (e.g. some notebooks have the sensor mounted that way), just check the 
+<strong>Webcam mounte upside down</strong> button.</p>
+
 </p>
 
-<h2>Troubleshooting tips</h2>
+
+<h4>Troubleshooting tips</h4>
 <ul>
   <li> Make sure the webcam is correctly focused</li>
-  <li> Use an application able to controll brightness, exposure ad so on</li>
-  <li> If the webcam is not shown in devices combo, make sure thad you have a permissiion to access it</li>
+  <li> On Linux use an application able to controll brightness, exposure ad so on (e.g. guvcview)</li>
+  <li> If the webcam is not shown in devices combobox, make sure that you have a permission to access it</li>
+  <li> If you are using model with IR LEDs and you don't see any blobs at all, chances are the built-in IR
+         filter is too strong; you can try removing it, or you can try tweaking higher brightness, contrast 
+         and lower exposition time or brighten LEDs a bit. Just be carefull not to over stress the LEDs - 
+         they might become very hot if too much current flows through them.</li>
 </ul>
 
 </body>

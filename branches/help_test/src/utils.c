@@ -2,6 +2,10 @@
   #include <config.h>
 #endif
 
+#ifndef _GNU_SOURCE
+  #define _GNU_SOURCE
+#endif
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdarg.h>
@@ -18,20 +22,30 @@
 
 static char *pref_file = "linuxtrack.conf";
 
-static const char *default_logfile = "/tmp/linuxtrack.log";
-static const char *logfile = NULL;
+static const char *logfile_template = "/tmp/linuxtrack%02d.log";
 
 void ltr_int_valog_message(const char *format, va_list va)
 {
   static FILE *output_stream = NULL;
+  int fd;
   if(output_stream == NULL){
-    if(logfile == NULL){
-      logfile = default_logfile;
-    }
-    output_stream = freopen(logfile, "w", stderr);
-    if(output_stream == NULL){
-      printf("Error opening logfile!\n");
-      return;
+    char *fname = NULL;
+    int cntr = 0;
+    while(1){
+      if(asprintf(&fname, logfile_template, cntr) < 0) return;
+      output_stream = fopen(fname, "a+");
+      if(output_stream != NULL){
+        rewind(output_stream); //rewind to obtain lock on the whole file 
+        fd = fileno(output_stream);
+        if(lockf(fd, F_TLOCK, 0) == 0){
+          output_stream = freopen(fname, "w+", stderr);
+          free(fname);
+          break;
+        }
+        fclose(output_stream);
+      }
+      free(fname);
+      cntr++;
     }
   }
   time_t now = time(NULL);
@@ -76,32 +90,6 @@ char* ltr_int_my_strdup(const char *s)
 }
 
 #ifndef LIBLINUXTRACK_SRC
-void ltr_int_set_logfile_name(const char *fname)
-{
-//  assert(logfile == NULL);
-  assert(fname != NULL);
-  logfile = fname;
-}
-
-int ltr_int_my_ioctl(int d, int request, void *argp)
-{
-  int cntr = 0;
-  int res;
-  
-  do{
-    res = ioctl(d, request, argp);
-    if(0 == res){
-      break;
-    }else{
-      if(errno != EIO){
-        break;
-      }
-    }
-    cntr++;
-//    usleep(100);
-  }while(cntr < IOCTL_RETRY_COUNT);
-  return res;
-}
 
 void ltr_int_strlower(char *s)
 {

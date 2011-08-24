@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
     section = argv[1];
     //Section name
   }
-  ltr_int_set_logfile_name("/tmp/ltr_server.log");
+  ltr_int_log_message("ltr_server\n");
   return prep_main_loop(section);
 }
 
