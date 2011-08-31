@@ -41,7 +41,7 @@ cd /home/simmer/
 svn checkout http://linux-track.googlecode.com/svn/trunk linux-track-read-only
 }}}
 
-You should also install XPlane SDK (default path is '/usr/include/xplane_sdk' - e.g there is file '/usr/include/xplane_sdk/XPLM/XPLMCamera.h'), or specify option
+You should also install XPlane SDK version 2.0.1 and higher (default path is '/usr/include/xplane_sdk' - e.g there is file '/usr/include/xplane_sdk/XPLM/XPLMCamera.h'), or specify option
 '--with-xplane-sdk' (e.g --with-xplane-sdk=/home/simmer/SDK/CHeaders).
 
 If you intend to use TrackIR, you have to download firmware:
@@ -77,7 +77,7 @@ This should get you up and going...
 == Building and installing on Mac ==
 First of all, there are some prerequisities to download...
  * * libusb-1.0.8.tar.bz2 * - http://sourceforge.net/projects/libusb/files/libusb-1.0/
- * * XPlane SDK * - http://www.xsquawkbox.net/xpsdk/XPSDK201.zip
+ * * XPlane SDK 2.0.1 * - http://www.xsquawkbox.net/xpsdk/XPSDK201.zip
  * * Qt SDK for Mac (Qt Libraries should do too) * - http://qt.nokia.com/downloads
  * * TrackIR 4/5 firmware * - http://media.naturalpoint.com/software/external/bulk_config_data.tar.gz
 
