@@ -38,7 +38,7 @@ Now lets assume you checked out sources from the repository into
 
 {{{
 cd /home/simmer/
-svn checkout http://linux-track.googlecode.com/svn/branches/michal linux-track-read-only
+svn checkout http://linux-track.googlecode.com/svn/trunk linux-track-read-only
 }}}
 
 You should also install XPlane SDK (default path is '/usr/include/xplane_sdk' - e.g there is file '/usr/include/xplane_sdk/XPLM/XPLMCamera.h'), or specify option
@@ -86,7 +86,7 @@ Install the Qt, now create a build directory somewhere and copy libusb-1.0.8.tar
 Finally open terminal, go to the build directory and check out the linuxtrack itself using command:
 
 {{{
-svn checkout http://linux-track.googlecode.com/svn/branches/michal
+svn checkout http://linux-track.googlecode.com/svn/trunk
 }}}
 
 Now the structure should look like this:
