@@ -58,7 +58,7 @@ typedef struct{
 } firmware_t;
 
 
-unsigned char ltr_int_packet[4096];
+unsigned char ltr_int_packet[TIR_PACKET_SIZE];
 static void switch_red(bool state);
 static void switch_green(bool state);
 
