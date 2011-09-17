@@ -66,8 +66,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   helper->move(gui_settings->value("pos", QPoint(0, 0)).toPoint());
   gui_settings->endGroup();
   HelpViewer::LoadPrefs(*gui_settings);
-  HelpViewer::ShowWindow();
-  HelpViewer::ChangePage("help.htm");
+  HelpViewer::ChangePage("dev_setup.htm");
 }
 
 LinuxtrackGui::~LinuxtrackGui()
@@ -241,7 +240,31 @@ void LinuxtrackGui::on_DiscardChangesButton_pressed()
   }
 }
 
-  
+void LinuxtrackGui::on_HelpButton_pressed()
+{
+  HelpViewer::ShowWindow();
+}
+
+void LinuxtrackGui::on_LtrTab_currentChanged(int index)
+{
+  switch(index){
+    case 0:
+      HelpViewer::ChangePage("dev_setup.htm");
+      break;
+    case 1:
+      HelpViewer::ChangePage("model_setup.htm");
+      break;
+    case 2:
+      HelpViewer::ChangePage("axes_setup.htm");
+      break;
+    case 3:
+      HelpViewer::ChangePage("misc.htm");
+      break;
+    default:
+      break;
+  }
+}
+
 void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
 {
   switch(current_state){

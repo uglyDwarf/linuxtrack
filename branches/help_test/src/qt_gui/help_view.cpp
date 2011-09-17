@@ -76,7 +76,6 @@ void HelpViewer::on_CloseButton_pressed()
 void HelpViewer::followLink(const QUrl &url)
 {
   viewer->load(url);
-  std::cout<<"Following link!"<<std::endl;
 }
 
 HelpViewer::~HelpViewer()
