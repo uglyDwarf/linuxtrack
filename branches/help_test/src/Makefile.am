@@ -25,6 +25,8 @@ else
   LTR_SERVER_FLAGS = 
 endif
 
+man_MANS = ltr_gui.1 ltr_server.1
+
 lib_LTLIBRARIES = liblinuxtrack.la
 pkglib_LTLIBRARIES = libltr.la
 bin_PROGRAMS = ltr_server
@@ -36,6 +38,8 @@ ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG} ${LTR_SERVER_FLAGS}
 
 if CWIID
   pkglib_LTLIBRARIES += libwii.la libmacwii.la
+  man_MANS += wii_server.1
+
 endif
 
 if V4L2
@@ -71,8 +75,8 @@ include_HEADERS = linuxtrack.h
 #liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
 #liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h dyn_load.c dyn_load.h
 liblinuxtrack_la_SOURCES = linuxtrack.c linuxtrack.h utils.h ipc_utils.h
-liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) $(LIBLINUXTRACK_FLAGS) 
-liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
+liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LIBLINUXTRACK_FLAGS) 
+liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" ${TIGER_LDFLAG}
 
 libltr_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
@@ -190,7 +194,6 @@ EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \
   tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
   xlinuxtrack.sym
 
-man_MANS = ltr_gui.1 ltr_server.1
 
 
 ltr_pipe_CPPFLAGS =
