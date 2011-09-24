@@ -25,12 +25,12 @@ struct lt_axes {
 };
 
 typedef enum{
-  SENTRY1, DEADZONE, LCURV, RCURV, LMULT, RMULT, LLIMIT, RLIMIT, ENABLED, SENTRY_2
+  SENTRY1, DEADZONE, LCURV, RCURV, LMULT, RMULT, LIMITS, LLIMIT, RLIMIT, ENABLED, SENTRY_2
 }axis_fields;
 static const char *fields[] = {NULL, "-deadzone",
 				"-left-curvature", "-right-curvature", 
 				"-left-multiplier", "-right-multiplier",
-				"-left-limit", "-right-limit", "-enabled", NULL};
+				"-limits", "-left-limit", "-right-limit", "-enabled", NULL};
 static struct lt_axes ltr_int_axes;
 static bool ltr_int_axes_changed_flag = false;
 
@@ -304,6 +304,13 @@ void ltr_int_init_axis(struct axis_def *axis, const char *prefix)
   axis->valid = false;
   axis->enabled = true;
   axis->prefix = ltr_int_my_strdup(prefix);
+  axis->l_factor = 1.0f;
+  axis->r_factor = 1.0f;
+  axis->r_limit = 50.0f;
+  axis->l_limit = 50.0f;
+  axis->curve_defs.dead_zone = 0.0f;
+  axis->curve_defs.l_curvature = 0.5f;
+  axis->curve_defs.r_curvature = 0.5f;
 }
 
 void ltr_int_close_axis(enum axis_t id)
@@ -316,7 +323,7 @@ void ltr_int_close_axis(enum axis_t id)
 }
 
 
-static void set_axis_field(struct axis_def *axis, axis_fields field, float val)
+static void set_axis_field(struct axis_def *axis, axis_fields field, float val, enum axis_t id)
 {
   assert(axis != NULL);
   axis->valid = false;
@@ -342,6 +349,16 @@ static void set_axis_field(struct axis_def *axis, axis_fields field, float val)
     case(RLIMIT):
       axis->r_limit = val;
       break;
+    case(LIMITS):
+      //Set some sensible defaults...
+      if((id == PITCH) || (id == ROLL) || (id == YAW)){
+        axis->l_limit = 90.0f;
+        axis->r_limit = 90.0f;
+      }else{
+        axis->l_limit = 300.0f;
+        axis->r_limit = 300.0f;
+      }
+      break;
     default:
       assert(0);
       break;
@@ -364,7 +381,7 @@ bool ltr_int_get_axis(enum axis_t id, struct axis_def *axis)
     field_name = ltr_int_my_strcat(prefix, fields[i]);
     if(i != ENABLED){
       if(ltr_int_get_key_flt(NULL, field_name, &val)){
-        set_axis_field(axis, i, val);
+        set_axis_field(axis, i, val, id);
       }
     }else{
       string = ltr_int_get_key(NULL, field_name);
