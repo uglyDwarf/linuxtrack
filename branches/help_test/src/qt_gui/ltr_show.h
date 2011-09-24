@@ -50,6 +50,7 @@ class LtrGuiForm : public QMainWindow
    void StorePrefs(QSettings &settings);
   public slots:
    void update();
+   void updateFps();
     
   private slots:
    void on_startButton_pressed();
@@ -67,8 +68,11 @@ class LtrGuiForm : public QMainWindow
    ScpForm *sens;
    Window *glw;
    QTimer *timer;
+   QTimer *fpsTimer;
+   QTime *stopwatch;
    CameraView *cv;
    bool allowClose;
+   float fps;
    const Ui::LinuxtrackMainForm &main_gui;
    void trackerStopped();
    void trackerRunning();

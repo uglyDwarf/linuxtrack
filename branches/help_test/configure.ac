@@ -66,10 +66,10 @@ AC_ARG_WITH([xplane_sdk],
 
 AC_ARG_ENABLE([xplane_plugin],
             [AS_HELP_STRING([--enable-xplane-plugin],
-              [build XPlane plugin @<:@default=yes@:>@])], 
+              [build XPlane plugin (requires XPlane SDK > 2.0.1)@<:@default=yes@:>@])], 
             [],
             [
-                AC_CHECK_FILE([${XPLANE_SDK}/XPLM/XPLMUtilities.h],
+                AC_CHECK_FILE([${XPLANE_SDK}/XPLM/XPLMScenery.h],
                     [
                       AC_SUBST([XPLANE_SDK])
                       with_xplane_plugin=yes

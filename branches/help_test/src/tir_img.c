@@ -164,7 +164,7 @@ static bool process_packet_tir4(unsigned char data[], size_t *ptr, int pktsize, 
     }else{
 //      log_message("\t%02X%02X%02X%02X\n", data[*ptr], data[*ptr + 1],
 //             data[*ptr + 2], data[*ptr + 3]);
-      assert((data[*ptr + 3] & 7) == 0);
+//!!!!      assert((data[*ptr + 3] & 7) == 0);
       process_stripe_tir((unsigned char *)ui);
       ++ui;
       (*ptr) += 4;

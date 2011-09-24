@@ -2,6 +2,7 @@
 #include <QPixmap>
 #include <QLabel>
 #include <QTimer>
+#include <QTime>
 #include <QThread>
 #include <QPainter>
 #include <QSettings>
@@ -35,6 +36,9 @@ static unsigned int h = 0;
 static ScpForm *scp;
 static bool running = false;
 static int cnt = 0;
+static int frames = 0;
+static float fps_buffer[8] ={0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+static int fps_ptr = 0;
 static bool camViewEnable = true;
 
 static bool buffer_empty;
@@ -122,12 +126,27 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s, QSetti
   ui.ogl_box->addWidget(glw);
   ct = new CaptureThread(this);
   timer = new QTimer(this);
+  fpsTimer = new QTimer(this);
+  stopwatch = new QTime();
+  frames = 0;
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+  connect(fpsTimer, SIGNAL(timeout()), this, SLOT(updateFps()));
+  camViewEnable = true;
   connect(&STATE, SIGNAL(stateChanged(ltr_state_type)), this, SLOT(stateChanged(ltr_state_type)));
   connect(main_gui.DisableCamView, SIGNAL(stateChanged(int)), 
           this, SLOT(disableCamView_stateChanged(int)));
   connect(main_gui.Disable3DView, SIGNAL(stateChanged(int)), 
           this, SLOT(disable3DView_stateChanged(int)));
+}
+
+void LtrGuiForm::updateFps()
+{
+  int msec = stopwatch->restart();
+  if(msec > 0){
+    fps_buffer[fps_ptr] = 1000 * frames / msec;
+    fps_ptr = (fps_ptr + 1) & 7;
+    frames = 0;
+  }
 }
 
 LtrGuiForm::~LtrGuiForm()
@@ -162,6 +181,7 @@ void new_frame(struct frame_type *frame, void *param)
     ltr_recenter();
   }
   ++cnt;
+  ++frames;
   scp->updatePitch(ltr_int_orig_pose.pitch);
   scp->updateRoll(ltr_int_orig_pose.roll);
   scp->updateYaw(ltr_int_orig_pose.heading);
@@ -202,6 +222,8 @@ void LtrGuiForm::on_startButton_pressed()
 {
   ct->start();
   timer->start(50);
+  fpsTimer->start(250);
+  stopwatch->start();
 }
 
 void LtrGuiForm::on_recenterButton_pressed()
@@ -223,6 +245,7 @@ void LtrGuiForm::on_wakeButton_pressed()
 void LtrGuiForm::on_stopButton_pressed()
 {
   timer->stop();
+  fpsTimer->stop();
   if(ltr_shutdown() == 0){
     ct->wait(1000);
   }
@@ -248,7 +271,13 @@ void LtrGuiForm::disable3DView_stateChanged(int state)
 
 void LtrGuiForm::update()
 {
-  ui.statusbar->showMessage(QString("").setNum(cnt) + ". frame");
+  float fps_mean;
+  int i;
+  for(i = 0; i < 8; ++i){
+    fps_mean += fps_buffer[i];
+  }
+  fps_mean /= 8;
+  ui.statusbar->showMessage(QString("%1.frame @ %2 fps").arg(cnt).arg((int)fps_mean));
   if(buffer_empty){
     return;
   }
