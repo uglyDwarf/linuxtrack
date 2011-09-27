@@ -1,10 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
+
+<head>
+  <title>Model setup</title>
+  <meta name="generator" content="Bluefish 2.0.2" >
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
 <body>
 
-<h1>Model setup</h1>
+The second step to take is to select the "model" to use. Model is a "marker", attached to ones head,
+simplifying the head pose determination.
 
-<p>My first paragraph.</p>
-<a href="3ptcap.htm">Go to TIR setup</a>
+<p>
+There are two predefined models "NP TrackClip" and "NP TrackClip Pro" - if you use one of those,
+just select it using the <b>Model Name</b> combobox.
+
+<p>
+If you use any other model, you'll have to create it first. Just press the <b>Create New</b> button
+and the form for new model creation will pop up.
+
+<p>
+Type in the name of your model to the <b>Model Name</b> box and then select the model type. 
+Available model types are these:
+ <ul>
+   <li><b>1 point</b> - single LED diode or reflective marker, simple but gives you only 2 degrees of freedom (pan)</li>
+   <li><b>3 point Cap</b> - three LEDs or reflective markers, for example on the top of your cap; 
+       provides 6 degrees of freedom</li>
+   <li><b>3 point Clip</b> - three LEDs or reflective markers, for example on the side of your headset;
+       provides 6 degrees of freedom</li>
+ </ul>
+
+<p>
+Now fill in the model dimensions according to the diagram (all dimensions are in milimeters).
+Last thing to do is to select, if the model uses LEDs - if it does, check the <b>Model with LEDs</b> checkbox.
+After pressing the <b>Create</b> button, the new model should appear 
+in the <b>Model Name</b> combobox for you to select it.
 
 </body>
-</html> 
+</html>

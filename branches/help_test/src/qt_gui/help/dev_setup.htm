@@ -6,6 +6,7 @@
   <meta name="generator" content="Bluefish 2.0.2" >
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
+<body>
 
 The first step in linuxtrack configuration is the selection of the tracking device
  - just select the device of your choice from the "<strong>Tracking device</strong>" combobox. <br>
@@ -110,6 +111,7 @@ direction you turn your head (provided the webcam can still physically see the l
 </ul>
 
 <h1><A name="TIR">TrackIR Setup</A></h1>
+If you are a Mac user, you can safely skip over this paragraph...
 When you intend to use TrackIR on linux, most probably you'll need to get access rights to the device.
 The easiest way to do that, is to install the 51-TIR.rules file (comes with linuxtrack) to the udev rules 
 directory (on Ubuntu it is /lib/udev/rules, but other distros might differ in this respect). 
@@ -117,7 +119,7 @@ When the rule is there, restart udev service (or the whole PC, if you aren't sur
 and plug the TrackIR in.
 
 <p>
-Usually this is the only thing you have to do to get the TrackIR working. To check, how it works, 
+To check, how the TrackIR works, 
 go to the <strong>Tracking window</strong>, select Camera view pane and
 press <strong>Start</strong> button to commence tracking.
 Ideally, you should see three (or one, in case of single point model) "blobs" 
