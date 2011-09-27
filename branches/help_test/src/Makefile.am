@@ -28,7 +28,7 @@ endif
 man_MANS = ltr_gui.1 ltr_server.1
 
 lib_LTLIBRARIES = liblinuxtrack.la
-pkglib_LTLIBRARIES = libltr.la
+pkglib_LTLIBRARIES = libltr.la libmacwii.la
 bin_PROGRAMS = ltr_server
 
 ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
@@ -37,9 +37,8 @@ ltr_server_LDADD = -lpthread libltr.la
 ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG} ${LTR_SERVER_FLAGS}
 
 if CWIID
-  pkglib_LTLIBRARIES += libwii.la libmacwii.la
+  pkglib_LTLIBRARIES += libwii.la
   man_MANS += wii_server.1
-
 endif
 
 if V4L2
@@ -156,8 +155,11 @@ distclean-local-check:
 	-cd wii_server;make distclean
 	rm -f linuxtrack.c
 
-noinst_SCRIPTS = qt_gui/ltr_gui wii_server/wii_server
+noinst_SCRIPTS = qt_gui/ltr_gui
 
+if CWIID
+  noinst_SCRIPTS += wii_server/wii_server
+endif
 
 qt_gui/ltr_gui : ${pkglib_LTLIBRARIES}
 	pushd qt_gui; qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
