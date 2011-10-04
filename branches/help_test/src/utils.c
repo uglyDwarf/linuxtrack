@@ -23,6 +23,9 @@
 static char *pref_file = "linuxtrack.conf";
 
 static const char *logfile_template = "/tmp/linuxtrack%02d.log";
+static char *logfile_name = NULL;
+
+char* ltr_int_my_strdup(const char *s);
 
 void ltr_int_valog_message(const char *format, va_list va)
 {
@@ -39,6 +42,7 @@ void ltr_int_valog_message(const char *format, va_list va)
         fd = fileno(output_stream);
         if(lockf(fd, F_TLOCK, 0) == 0){
           output_stream = freopen(fname, "w+", stderr);
+          logfile_name = ltr_int_my_strdup(fname);
           free(fname);
           break;
         }
@@ -90,6 +94,12 @@ char* ltr_int_my_strdup(const char *s)
 }
 
 #ifndef LIBLINUXTRACK_SRC
+
+const char *ltr_int_get_logfile_name()
+{
+  return logfile_name;
+}
+
 
 void ltr_int_strlower(char *s)
 {

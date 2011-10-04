@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>540</width>
-    <height>502</height>
+    <width>543</width>
+    <height>504</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -98,7 +98,7 @@
             <item>
              <widget class="QStackedWidget" name="DeviceSetupStack">
               <property name="currentIndex">
-               <number>4</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="LinuxWebcamPrefs">
                <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -284,6 +284,12 @@
                <layout class="QVBoxLayout" name="verticalLayout_5">
                 <item>
                  <widget class="QLabel" name="label_22">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string>Function Signalization</string>
                   </property>
@@ -363,6 +369,12 @@
                   </item>
                   <item row="0" column="1">
                    <widget class="QLabel" name="label_18">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="text">
                      <string>1</string>
                     </property>
@@ -370,6 +382,12 @@
                   </item>
                   <item row="0" column="2">
                    <widget class="QLabel" name="label_19">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="text">
                      <string>2</string>
                     </property>
@@ -377,6 +395,12 @@
                   </item>
                   <item row="0" column="3">
                    <widget class="QLabel" name="label_20">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="text">
                      <string>3</string>
                     </property>
@@ -384,6 +408,12 @@
                   </item>
                   <item row="0" column="4">
                    <widget class="QLabel" name="label_21">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="text">
                      <string>4</string>
                     </property>
@@ -395,6 +425,15 @@
                  <spacer name="verticalSpacer_4">
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Expanding</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
                   </property>
                  </spacer>
                 </item>
