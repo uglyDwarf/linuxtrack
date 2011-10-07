@@ -11,6 +11,7 @@
 
 class ScpForm;
 class LtrGuiForm;
+class QSettings;
 
 class CaptureThread : public QThread
 {
@@ -43,9 +44,10 @@ class LtrGuiForm : public QMainWindow
 {
    Q_OBJECT
   public:
-   LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s);
+   LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s, QSettings &settings);
    ~LtrGuiForm();
    void allowCloseWindow();
+   void StorePrefs(QSettings &settings);
   public slots:
    void update();
    void updateFps();

@@ -11,11 +11,11 @@ INCLUDEPATH += ..
 INCLUDEPATH += @srcdir@
 INCLUDEPATH += @srcdir@/..
 RESOURCES = ltr_rc.qrc
-QT           += opengl network
+QT           += opengl network webkit
 VPATH     = @srcdir@
 
 # Input
-HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h  \
+HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h help_view.h \
 	   ltr_gui_prefs.h prefs_link.h tir_prefs.h \
            ltr_model.h window.h glwidget.h objreader.h ltr_profiles.h\
            log_view.h ltr_state.h ltr_axis.h ltr_tracking.h scp_form.h \
@@ -24,7 +24,7 @@ HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h  \
 FORMS += ltr_gui.ui dev_help.ui ltr.ui model_creation.ui scurve.ui scp_form.ui \
            logview.ui dl.ui
 SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
-           ltr_gui_prefs.cpp tir_prefs.cpp \
+           ltr_gui_prefs.cpp tir_prefs.cpp help_view.cpp \
            ltr_model.cpp window.cpp glwidget.cpp objreader.cpp ltr_profiles.cpp \
            log_view.cpp ltr_state.cpp ltr_axis.cpp ltr_tracking.cpp scp_form.cpp \
            scurve.cpp scview.cpp wiimote_prefs.cpp dlfirmware.cpp ../ipc_utils.c \
@@ -39,9 +39,11 @@ unix:!macx {
   
   data.path += @prefix@/share/linuxtrack
   data.files += XM8_cockpit.obj xm8d_body.obj xm8_detail.png
-  
+  help.path += @prefix@/share/linuxtrack/help
+  help.files += help/*
+
   target.path = @prefix@/bin
-  INSTALLS += target data
+  INSTALLS += target data help
   HEADERS += webcam_prefs.h webcam_info.h
   SOURCES += webcam_info.cpp webcam_prefs.cpp 
 }
@@ -53,7 +55,9 @@ macx {
   LIBS += -L../.libs -lm -lltr
   data.path += ltr_gui.app/Contents/Resources/linuxtrack
   data.files += XM8_cockpit.obj xm8d_body.obj xm8_detail.png ../linuxtrack.conf
-  INSTALLS += data
+  help.path += ltr_gui.app/Contents/Resources/linuxtrack/help
+  help.files += help/*
+  INSTALLS += data help
   HEADERS += macwebcam_prefs.h macwebcam_info.h 
   SOURCES += macwebcam_info.cpp macwebcam_prefs.cpp 
 }

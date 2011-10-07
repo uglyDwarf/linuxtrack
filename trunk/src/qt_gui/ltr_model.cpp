@@ -1,4 +1,5 @@
 #include "ltr_model.h"
+#include "help_view.h"
 #include "ltr_gui_prefs.h"
 #include <iostream>
 
@@ -193,7 +194,8 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
   if(type.compare("Cap", Qt::CaseInsensitive) == 0){
     gui.ModelTypeLabel->setText("3 Point Cap");
     gui.ModelStack->setCurrentIndex(0);
-    gui.ModelDescStack->setCurrentIndex(0);
+    HelpViewer::ChangePage("3ptcap.htm");
+    //!!!gui.ModelDescStack->setCurrentIndex(0);
     if(PREF.getKeyVal(currentSection, "Cap-X", val))
       gui.CapB->setValue(val.toFloat());
     if(PREF.getKeyVal(currentSection, "Cap-Y", val))
@@ -213,7 +215,8 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
   }else if(type.compare("Clip", Qt::CaseInsensitive) == 0){
     gui.ModelTypeLabel->setText("3 Point Clip");
     gui.ModelStack->setCurrentIndex(1);
-    gui.ModelDescStack->setCurrentIndex(1);
+    HelpViewer::ChangePage("3ptclip.htm");
+    //!!!gui.ModelDescStack->setCurrentIndex(1);
     float y1 = 40;
     float y2 = 110;
     float z1 = 30;
@@ -247,7 +250,8 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
   }else{//1pt
     gui.ModelTypeLabel->setText("1 Point");
     gui.ModelStack->setCurrentIndex(2);
-    gui.ModelDescStack->setCurrentIndex(2);
+    HelpViewer::ChangePage("1pt.htm");
+    //!!!gui.ModelDescStack->setCurrentIndex(2);
     if(PREF.getKeyVal(currentSection, "Active", val)){
       gui.SinglePtLeds->setCheckState(
         (val.compare("yes", Qt::CaseInsensitive) == 0) ? Qt::Checked : Qt::Unchecked);

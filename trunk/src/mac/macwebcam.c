@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     int x, y;
     getRes(&x, &y);
     // Double buffer...
-    if(ltr_int_mmap_file(getMapFileName(), get_com_size() + x * y, &mmm)){
+    if(ltr_int_mmap_file(getMapFileName(), ltr_int_get_com_size() + x * y, &mmm)){
       ltr_int_setCommand(&mmm, WAKEUP);
       capture(&mmm);
       ltr_int_unmap_file(&mmm);

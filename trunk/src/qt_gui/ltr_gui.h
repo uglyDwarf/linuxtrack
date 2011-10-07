@@ -20,6 +20,7 @@ class LtrTracking;
 class LogView;
 class ScpForm;
 class QSettings;
+class HelpViewer;
 
 class LinuxtrackGui : public QWidget
 {
@@ -39,6 +40,8 @@ class LinuxtrackGui : public QWidget
   void on_ViewLogButton_pressed();
   void on_DefaultsButton_pressed();
   void on_DiscardChangesButton_pressed();
+  void on_HelpButton_pressed();
+  void on_LtrTab_currentChanged(int index);
   void trackerStateHandler(ltr_state_type current_state);
  private:
   Ui::LinuxtrackMainForm ui;

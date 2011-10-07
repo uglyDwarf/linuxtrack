@@ -10,7 +10,7 @@ INCLUDEPATH += .
 INCLUDEPATH += ..
 INCLUDEPATH += ./..
 VPATH     = @srcdir@
-
+RESOURCES = wii_server.qrc
 # Input
 FORMS += wii_server.ui
 SOURCES += main.cpp wii_server.cpp wiimote.cpp

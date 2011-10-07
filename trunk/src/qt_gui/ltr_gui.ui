@@ -7,11 +7,15 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>600</height>
+    <height>522</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Tracking window</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="ltr_rc.qrc">
+    <normaloff>:/ltr/linuxtrack.svg</normaloff>:/ltr/linuxtrack.svg</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -132,6 +136,8 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="ltr_rc.qrc"/>
+ </resources>
  <connections/>
 </ui>

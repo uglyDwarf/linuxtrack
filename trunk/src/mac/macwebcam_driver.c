@@ -20,7 +20,7 @@ static bool init_capture(char *prog, char *camera, int w, int h, char *fileName)
   char res_y[16];
   snprintf(res_x, sizeof(res_x), "%d", w);
   snprintf(res_y, sizeof(res_y), "%d", h);
-  if(ltr_int_mmap_file(fileName, get_com_size() + w * h, &mmm)){
+  if(ltr_int_mmap_file(fileName, ltr_int_get_com_size() + w * h, &mmm)){
     ltr_int_setCommand(&mmm, WAKEUP);
     args[0] = prog;
     args[2] = camera;
