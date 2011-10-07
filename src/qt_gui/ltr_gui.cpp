@@ -24,6 +24,7 @@
 #include "scp_form.h"
 #include "webcam_prefs.h"
 #include "wiimote_prefs.h"
+#include "help_view.h"
 
 LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   initialized(false)
@@ -46,12 +47,12 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
 //  QObject::connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
   QObject::connect(&STATE, SIGNAL(stateChanged(ltr_state_type)), this, SLOT(trackerStateHandler(ltr_state_type)));
   
-  showWindow = new LtrGuiForm(ui, sc);
+  gui_settings = new QSettings("ltr", "linuxtrack");
+  showWindow = new LtrGuiForm(ui, sc, *gui_settings);
   helper = new LtrDevHelp();
   on_RefreshDevices_pressed();
   showWindow->show();
-  helper->show();
-  gui_settings = new QSettings("ltr", "linuxtrack");
+  //helper->show();
   gui_settings->beginGroup("MainWindow");
   resize(gui_settings->value("size", QSize(763, 627)).toSize());
   move(gui_settings->value("pos", QPoint(100, 100)).toPoint());
@@ -64,6 +65,8 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   helper->resize(gui_settings->value("size", QSize(300, 80)).toSize());
   helper->move(gui_settings->value("pos", QPoint(0, 0)).toPoint());
   gui_settings->endGroup();
+  HelpViewer::LoadPrefs(*gui_settings);
+  HelpViewer::ChangePage("dev_setup.htm");
 }
 
 LinuxtrackGui::~LinuxtrackGui()
@@ -72,6 +75,7 @@ LinuxtrackGui::~LinuxtrackGui()
 
 void LinuxtrackGui::closeEvent(QCloseEvent *event)
 {
+  HelpViewer::CloseWindow();
   gui_settings->beginGroup("MainWindow");
   gui_settings->setValue("size", size());
   gui_settings->setValue("pos", pos());
@@ -84,6 +88,8 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   gui_settings->setValue("size", helper->size());
   gui_settings->setValue("pos", helper->pos());
   gui_settings->endGroup();  
+  HelpViewer::StorePrefs(*gui_settings);
+  showWindow->StorePrefs(*gui_settings);
   showWindow->allowCloseWindow();
   showWindow->close();
   helper->close();
@@ -234,7 +240,31 @@ void LinuxtrackGui::on_DiscardChangesButton_pressed()
   }
 }
 
-  
+void LinuxtrackGui::on_HelpButton_pressed()
+{
+  HelpViewer::ShowWindow();
+}
+
+void LinuxtrackGui::on_LtrTab_currentChanged(int index)
+{
+  switch(index){
+    case 0:
+      HelpViewer::ChangePage("dev_setup.htm");
+      break;
+    case 1:
+      HelpViewer::ChangePage("model_setup.htm");
+      break;
+    case 2:
+      HelpViewer::ChangePage("axes_setup.htm");
+      break;
+    case 3:
+      HelpViewer::ChangePage("misc.htm");
+      break;
+    default:
+      break;
+  }
+}
+
 void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
 {
   switch(current_state){

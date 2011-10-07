@@ -39,20 +39,22 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = ltr_server$(EXEEXT) $(am__EXEEXT_1)
-@CWIID_TRUE@am__append_1 = libwii.la libmacwii.la
-@V4L2_TRUE@am__append_2 = libwc.la 
+@CWIID_TRUE@am__append_1 = libwii.la
+@CWIID_TRUE@am__append_2 = wii_server.1
+@V4L2_TRUE@am__append_3 = libwc.la 
 
 #if LIBUSB
 #  pkglib_LTLIBRARIES += libtir4.la 
 #endif
-@LIBZ_TRUE@am__append_3 = libtir.la
-@LIBUSB10_TRUE@@LIBZ_TRUE@am__append_4 = libltusb1.la 
-@LIBZ_TRUE@@OPENUSB_TRUE@am__append_5 = libltopenusb.la 
-@XPLANE_PLUGIN_TRUE@am__append_6 = xlinuxtrack.la xlinuxtrack9.la
-@LTR_PIPE_TRUE@am__append_7 = ltr_pipe.1
-@LTR_PIPE_TRUE@am__append_8 = ltr_pipe
-@LTR_PIPE_TRUE@am__append_9 = -D_GNU_SOURCE
-@LINUX_TRUE@am__append_10 = -DLINUX
+@LIBZ_TRUE@am__append_4 = libtir.la
+@LIBUSB10_TRUE@@LIBZ_TRUE@am__append_5 = libltusb1.la 
+@LIBZ_TRUE@@OPENUSB_TRUE@am__append_6 = libltopenusb.la 
+@XPLANE_PLUGIN_TRUE@am__append_7 = xlinuxtrack.la xlinuxtrack9.la
+@CWIID_TRUE@am__append_8 = wii_server/wii_server
+@LTR_PIPE_TRUE@am__append_9 = ltr_pipe.1
+@LTR_PIPE_TRUE@am__append_10 = ltr_pipe
+@LTR_PIPE_TRUE@am__append_11 = -D_GNU_SOURCE
+@LINUX_TRUE@am__append_12 = -DLINUX
 subdir = src
 DIST_COMMON = $(dist_pkgdata_DATA) $(include_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
@@ -89,7 +91,8 @@ am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" \
 	"$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" \
-	"$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(includedir)"
+	"$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" \
+	"$(DESTDIR)$(icondir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES) $(pkglib_LTLIBRARIES)
 liblinuxtrack_la_LIBADD =
 am_liblinuxtrack_la_OBJECTS = liblinuxtrack_la-linuxtrack.lo
@@ -134,7 +137,6 @@ libmacwii_la_OBJECTS = $(am_libmacwii_la_OBJECTS)
 libmacwii_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libmacwii_la_CFLAGS) \
 	$(CFLAGS) $(libmacwii_la_LDFLAGS) $(LDFLAGS) -o $@
-@CWIID_TRUE@am_libmacwii_la_rpath = -rpath $(pkglibdir)
 libtir_la_DEPENDENCIES = libltr.la
 am_libtir_la_OBJECTS = tir_hw.lo tir_img.lo tir_driver.lo runloop.lo
 libtir_la_OBJECTS = $(am_libtir_la_OBJECTS)
@@ -232,7 +234,7 @@ DIST_SOURCES = $(liblinuxtrack_la_SOURCES) $(libltopenusb_la_SOURCES) \
 man1dir = $(mandir)/man1
 NROFF = nroff
 MANS = $(man_MANS)
-DATA = $(dist_pkgdata_DATA)
+DATA = $(desktop_DATA) $(dist_pkgdata_DATA) $(icon_DATA)
 HEADERS = $(include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -369,10 +371,11 @@ top_srcdir = @top_srcdir@
 @DARWIN_TRUE@@SNOW_LEOPARD_TRUE@QMAKE_FLAGS = -spec macx-g++40
 @DARWIN_FALSE@LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
 @DARWIN_FALSE@LIBLINUXTRACK_FLAGS = -fpic -fPIC
+man_MANS = ltr_gui.1 ltr_server.1 $(am__append_2) $(am__append_9)
 lib_LTLIBRARIES = liblinuxtrack.la
-pkglib_LTLIBRARIES = libltr.la $(am__append_1) $(am__append_2) \
+pkglib_LTLIBRARIES = libltr.la libmacwii.la $(am__append_1) \
 	$(am__append_3) $(am__append_4) $(am__append_5) \
-	$(am__append_6)
+	$(am__append_6) $(am__append_7)
 ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
 ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server_LDADD = -lpthread libltr.la
@@ -382,8 +385,8 @@ include_HEADERS = linuxtrack.h
 #liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
 #liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h dyn_load.c dyn_load.h
 liblinuxtrack_la_SOURCES = linuxtrack.c linuxtrack.h utils.h ipc_utils.h
-liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) $(LIBLINUXTRACK_FLAGS) 
-liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
+liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LIBLINUXTRACK_FLAGS) 
+liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" ${TIGER_LDFLAG}
 libltr_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
   pref_flex.l pref_global.c pref_global.h pref_int.h \
@@ -438,7 +441,7 @@ dist_pkgdata_DATA = linuxtrack.conf 51-TIR.rules linuxtrack.c
 AM_YFLAGS = -d
 AM_LFLAGS = -i
 BUILT_SOURCES = pref_flex.c pref_bison.c pref_bison.h
-noinst_SCRIPTS = qt_gui/ltr_gui wii_server/wii_server
+noinst_SCRIPTS = qt_gui/ltr_gui $(am__append_8)
 EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \
   qt_gui/objreader.cpp qt_gui/window.h qt_gui/webcam_prefs.cpp \
   qt_gui/xm8_detail.png qt_gui/ltr_profiles.cpp qt_gui/scp_form.h \
@@ -459,11 +462,16 @@ EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \
   tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
   xlinuxtrack.sym
 
-man_MANS = ltr_gui.1 ltr_server.1 $(am__append_7)
-ltr_pipe_CPPFLAGS = $(am__append_9) $(am__append_10)
+ltr_pipe_CPPFLAGS = $(am__append_11) $(am__append_12)
 @LTR_PIPE_TRUE@ltr_pipe_SOURCES = ltr_pipe.c linuxtrack.c
 @LTR_PIPE_TRUE@ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 @LTR_PIPE_TRUE@ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS}
+desktopdir = $(datadir)/applications
+desktop_DATA = linuxtrack.desktop linuxtrack-wii.desktop
+icondir = $(datadir)/pixmaps
+icon_DATA = linuxtrack.svg linuxtrack.png linuxtrack.xpm \
+            linuxtrack-wii.svg linuxtrack-wii.png linuxtrack-wii.xpm
+
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -579,7 +587,7 @@ libltr.la: $(libltr_la_OBJECTS) $(libltr_la_DEPENDENCIES)
 libltusb1.la: $(libltusb1_la_OBJECTS) $(libltusb1_la_DEPENDENCIES) 
 	$(libltusb1_la_LINK) $(am_libltusb1_la_rpath) $(libltusb1_la_OBJECTS) $(libltusb1_la_LIBADD) $(LIBS)
 libmacwii.la: $(libmacwii_la_OBJECTS) $(libmacwii_la_DEPENDENCIES) 
-	$(libmacwii_la_LINK) $(am_libmacwii_la_rpath) $(libmacwii_la_OBJECTS) $(libmacwii_la_LIBADD) $(LIBS)
+	$(libmacwii_la_LINK) -rpath $(pkglibdir) $(libmacwii_la_OBJECTS) $(libmacwii_la_LIBADD) $(LIBS)
 libtir.la: $(libtir_la_OBJECTS) $(libtir_la_DEPENDENCIES) 
 	$(libtir_la_LINK) $(am_libtir_la_rpath) $(libtir_la_OBJECTS) $(libtir_la_LIBADD) $(LIBS)
 libwc.la: $(libwc_la_OBJECTS) $(libwc_la_DEPENDENCIES) 
@@ -842,6 +850,26 @@ uninstall-man1:
 	test -z "$$files" || { \
 	  echo " ( cd '$(DESTDIR)$(man1dir)' && rm -f" $$files ")"; \
 	  cd "$(DESTDIR)$(man1dir)" && rm -f $$files; }
+install-desktopDATA: $(desktop_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(desktopdir)" || $(MKDIR_P) "$(DESTDIR)$(desktopdir)"
+	@list='$(desktop_DATA)'; test -n "$(desktopdir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(desktopdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(desktopdir)" || exit $$?; \
+	done
+
+uninstall-desktopDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(desktop_DATA)'; test -n "$(desktopdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(desktopdir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(desktopdir)" && rm -f $$files
 install-dist_pkgdataDATA: $(dist_pkgdata_DATA)
 	@$(NORMAL_INSTALL)
 	test -z "$(pkgdatadir)" || $(MKDIR_P) "$(DESTDIR)$(pkgdatadir)"
@@ -862,6 +890,26 @@ uninstall-dist_pkgdataDATA:
 	test -n "$$files" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(pkgdatadir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(pkgdatadir)" && rm -f $$files
+install-iconDATA: $(icon_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(icondir)" || $(MKDIR_P) "$(DESTDIR)$(icondir)"
+	@list='$(icon_DATA)'; test -n "$(icondir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(icondir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(icondir)" || exit $$?; \
+	done
+
+uninstall-iconDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(icon_DATA)'; test -n "$(icondir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(icondir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(icondir)" && rm -f $$files
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(includedir)" || $(MKDIR_P) "$(DESTDIR)$(includedir)"
@@ -986,7 +1034,7 @@ all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) \
 install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(icondir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -1042,8 +1090,8 @@ info: info-am
 
 info-am:
 
-install-data-am: install-dist_pkgdataDATA install-includeHEADERS \
-	install-man
+install-data-am: install-desktopDATA install-dist_pkgdataDATA \
+	install-iconDATA install-includeHEADERS install-man
 
 install-dvi: install-dvi-am
 
@@ -1090,7 +1138,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-dist_pkgdataDATA \
+uninstall-am: uninstall-binPROGRAMS uninstall-desktopDATA \
+	uninstall-dist_pkgdataDATA uninstall-iconDATA \
 	uninstall-includeHEADERS uninstall-libLTLIBRARIES \
 	uninstall-man uninstall-pkglibLTLIBRARIES
 	@$(NORMAL_INSTALL)
@@ -1106,20 +1155,21 @@ uninstall-man: uninstall-man1
 	distclean-generic distclean-libtool distclean-local \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-binPROGRAMS install-data \
-	install-data-am install-dist_pkgdataDATA install-dvi \
-	install-dvi-am install-exec install-exec-am install-exec-hook \
-	install-html install-html-am install-includeHEADERS \
-	install-info install-info-am install-libLTLIBRARIES \
-	install-man install-man1 install-pdf install-pdf-am \
+	install-data-am install-desktopDATA install-dist_pkgdataDATA \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-exec-hook install-html install-html-am \
+	install-iconDATA install-includeHEADERS install-info \
+	install-info-am install-libLTLIBRARIES install-man \
+	install-man1 install-pdf install-pdf-am \
 	install-pkglibLTLIBRARIES install-ps install-ps-am \
 	install-strip installcheck installcheck-am installdirs \
 	maintainer-clean maintainer-clean-generic mostlyclean \
 	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
 	pdf pdf-am ps ps-am tags uninstall uninstall-am \
-	uninstall-binPROGRAMS uninstall-dist_pkgdataDATA \
-	uninstall-hook uninstall-includeHEADERS \
-	uninstall-libLTLIBRARIES uninstall-man uninstall-man1 \
-	uninstall-pkglibLTLIBRARIES
+	uninstall-binPROGRAMS uninstall-desktopDATA \
+	uninstall-dist_pkgdataDATA uninstall-hook uninstall-iconDATA \
+	uninstall-includeHEADERS uninstall-libLTLIBRARIES \
+	uninstall-man uninstall-man1 uninstall-pkglibLTLIBRARIES
 
 @DARWIN_TRUE@  #If ltr_server is not linked against CoreFoundation, loading libusb-1.0 would
 @DARWIN_TRUE@  #  cause SIG_TRAP, since CoreFoundation expects the init takes place 
@@ -1157,12 +1207,12 @@ wii_server/wii_server : ${pkglib_LTLIBRARIES}
 	pushd wii_server; qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
 
 install-exec-hook:
-	pushd qt_gui; make INSTALL_ROOT=${DESTDIR} install; popd
-	pushd wii_server; make INSTALL_ROOT=${DESTDIR} install; popd
+	pushd qt_gui;  qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} install; popd
+	pushd wii_server;  qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} install; popd
 
 uninstall-hook:
-	pushd qt_gui; make INSTALL_ROOT=${DESTDIR} uninstall; popd
-	pushd wii_server; make INSTALL_ROOT=${DESTDIR} uninstall; popd
+	pushd qt_gui;  qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
+	pushd wii_server;  qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

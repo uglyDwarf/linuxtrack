@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QTimer>
+#include <QPlainTextEdit>
 #include "ui_logview.h"
 
 class LogView : public QWidget{
@@ -21,5 +22,6 @@ class LogView : public QWidget{
   QTextStream *ts;
   qint64 size;
   QTimer *timer;
+  QPlainTextEdit *viewer;
   bool changed;
 };

@@ -53,7 +53,7 @@ static void *processingThreadFun(void *param)
 	.blobs = blobs_array
       };
       ltr_int_to_stripes(&img);
-      if(ltr_int_stripes_to_blobs(3, &bloblist, getMinBlob(mmm), getMaxBlob(mmm), &img) == 0){
+      if(ltr_int_stripes_to_blobs(3, &bloblist, ltr_int_getMinBlob(mmm), ltr_int_getMaxBlob(mmm), &img) == 0){
 	ltr_int_setBlobs(mmm, blobs_array, bloblist.num_blobs);
         if(!ltr_int_getFrameFlag(mmm)){
 //	  printf("Copying buffer!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
@@ -96,7 +96,7 @@ bool newFrame(unsigned char *ptr)
     return false;
   }
   
-  unsigned char *dest = ltr_int_getCurrentBuffer(writer);
+  unsigned char *dest = getCurrentBuffer(writer);
 //  printf("Writing buffer %d @ %p\n", writer, dest);
   unsigned char thr = (unsigned char)ltr_int_getThreshold(mmm);
   size_t i;

@@ -25,8 +25,10 @@ else
   LTR_SERVER_FLAGS = 
 endif
 
+man_MANS = ltr_gui.1 ltr_server.1
+
 lib_LTLIBRARIES = liblinuxtrack.la
-pkglib_LTLIBRARIES = libltr.la
+pkglib_LTLIBRARIES = libltr.la libmacwii.la
 bin_PROGRAMS = ltr_server
 
 ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
@@ -35,7 +37,8 @@ ltr_server_LDADD = -lpthread libltr.la
 ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG} ${LTR_SERVER_FLAGS}
 
 if CWIID
-  pkglib_LTLIBRARIES += libwii.la libmacwii.la
+  pkglib_LTLIBRARIES += libwii.la
+  man_MANS += wii_server.1
 endif
 
 if V4L2
@@ -71,8 +74,8 @@ include_HEADERS = linuxtrack.h
 #liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
 #liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h dyn_load.c dyn_load.h
 liblinuxtrack_la_SOURCES = linuxtrack.c linuxtrack.h utils.h ipc_utils.h
-liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) $(LIBLINUXTRACK_FLAGS) 
-liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
+liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LIBLINUXTRACK_FLAGS) 
+liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" ${TIGER_LDFLAG}
 
 libltr_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
@@ -152,8 +155,11 @@ distclean-local-check:
 	-cd wii_server;make distclean
 	rm -f linuxtrack.c
 
-noinst_SCRIPTS = qt_gui/ltr_gui wii_server/wii_server
+noinst_SCRIPTS = qt_gui/ltr_gui
 
+if CWIID
+  noinst_SCRIPTS += wii_server/wii_server
+endif
 
 qt_gui/ltr_gui : ${pkglib_LTLIBRARIES}
 	pushd qt_gui; qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
@@ -162,12 +168,12 @@ wii_server/wii_server : ${pkglib_LTLIBRARIES}
 	pushd wii_server; qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
 
 install-exec-hook:
-	pushd qt_gui; make INSTALL_ROOT=${DESTDIR} install; popd
-	pushd wii_server; make INSTALL_ROOT=${DESTDIR} install; popd
+	pushd qt_gui;  qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} install; popd
+	pushd wii_server;  qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} install; popd
 
 uninstall-hook:
-	pushd qt_gui; make INSTALL_ROOT=${DESTDIR} uninstall; popd
-	pushd wii_server; make INSTALL_ROOT=${DESTDIR} uninstall; popd
+	pushd qt_gui;  qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
+	pushd wii_server;  qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
 
 
 EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \
@@ -190,7 +196,6 @@ EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \
   tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
   xlinuxtrack.sym
 
-man_MANS = ltr_gui.1 ltr_server.1
 
 
 ltr_pipe_CPPFLAGS =
@@ -207,4 +212,10 @@ endif
 if LINUX
   ltr_pipe_CPPFLAGS += -DLINUX
 endif
+
+desktopdir = $(datadir)/applications
+desktop_DATA = linuxtrack.desktop linuxtrack-wii.desktop
+icondir = $(datadir)/pixmaps
+icon_DATA = linuxtrack.svg linuxtrack.png linuxtrack.xpm \
+            linuxtrack-wii.svg linuxtrack-wii.png linuxtrack-wii.xpm
 

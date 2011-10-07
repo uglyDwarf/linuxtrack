@@ -255,8 +255,8 @@ bool capture(struct mmap_s *mmm)
   startProcessing(x, y, 4, mmm);  
   while((cmd = ltr_int_getCommand(mmm)) != STOP){
     if(old_cmd != cmd){
-      printCmd("old", old_cmd);
-      printCmd("new", cmd);
+      ltr_int_printCmd("old", old_cmd);
+      ltr_int_printCmd("new", cmd);
       printf("\n");
     }
     switch(old_cmd){

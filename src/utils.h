@@ -1,6 +1,11 @@
 #ifndef UTILS__H
 #define UTILS__H
 
+#ifndef _GNU_SOURCE
+  #define _GNU_SOURCE
+#endif
+
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 
@@ -16,10 +21,9 @@ extern "C" {
 
 LIBLINUXTRACK_PRIVATE void* ltr_int_my_malloc(size_t size);
 LIBLINUXTRACK_PRIVATE char* ltr_int_my_strdup(const char* s);
-void ltr_int_set_logfile_name(const char *fname);
 LIBLINUXTRACK_PRIVATE void ltr_int_log_message(const char *format, ...);
 LIBLINUXTRACK_PRIVATE void ltr_int_valog_message(const char *format, va_list va);
-int ltr_int_my_ioctl(int d, int request, void *argp);
+const char *ltr_int_get_logfile_name();
 void ltr_int_strlower(char *s);
 LIBLINUXTRACK_PRIVATE char *ltr_int_my_strcat(const char *str1, const char *str2);
 LIBLINUXTRACK_PRIVATE char *ltr_int_get_default_file_name(char *fname);

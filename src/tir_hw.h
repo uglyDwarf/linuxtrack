@@ -8,7 +8,8 @@
 #define TIR_LED_BLUE   0x40
 #define TIR_LED_IR     0x80
 
-extern unsigned char ltr_int_packet[4096];
+#define TIR_PACKET_SIZE 16384
+extern unsigned char ltr_int_packet[TIR_PACKET_SIZE];
 
 void ltr_int_get_res_tir(unsigned int *w, unsigned int *h, float *hf);
 char *ltr_int_find_firmware(dev_found device);
