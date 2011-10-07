@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Name=Linuxtrack
+Comment=Setup headtracking parameters
+Exec=ltr_gui
+Icon=linuxtrack
+Terminal=false
+Type=Application
+Categories=Game;
+StartupNotify=false
+

@@ -6,12 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>739</width>
+    <width>748</width>
     <height>474</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Model Creation</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="ltr_rc.qrc">
+    <normaloff>:/ltr/linuxtrack.svg</normaloff>:/ltr/linuxtrack.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -588,8 +592,6 @@ or reflective material.
  </widget>
  <resources>
   <include location="ltr_rc.qrc"/>
-  <include location="ltr_rc.qrc"/>
-  <include location="../../../../.designer/backup/ltr_rc.qrc"/>
  </resources>
  <connections/>
 </ui>

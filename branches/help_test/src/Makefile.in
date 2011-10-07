@@ -39,7 +39,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = ltr_server$(EXEEXT) $(am__EXEEXT_1)
-@CWIID_TRUE@am__append_1 = libwii.la libmacwii.la
+@CWIID_TRUE@am__append_1 = libwii.la
 @CWIID_TRUE@am__append_2 = wii_server.1
 @V4L2_TRUE@am__append_3 = libwc.la 
 
@@ -50,10 +50,11 @@ bin_PROGRAMS = ltr_server$(EXEEXT) $(am__EXEEXT_1)
 @LIBUSB10_TRUE@@LIBZ_TRUE@am__append_5 = libltusb1.la 
 @LIBZ_TRUE@@OPENUSB_TRUE@am__append_6 = libltopenusb.la 
 @XPLANE_PLUGIN_TRUE@am__append_7 = xlinuxtrack.la xlinuxtrack9.la
-@LTR_PIPE_TRUE@am__append_8 = ltr_pipe.1
-@LTR_PIPE_TRUE@am__append_9 = ltr_pipe
-@LTR_PIPE_TRUE@am__append_10 = -D_GNU_SOURCE
-@LINUX_TRUE@am__append_11 = -DLINUX
+@CWIID_TRUE@am__append_8 = wii_server/wii_server
+@LTR_PIPE_TRUE@am__append_9 = ltr_pipe.1
+@LTR_PIPE_TRUE@am__append_10 = ltr_pipe
+@LTR_PIPE_TRUE@am__append_11 = -D_GNU_SOURCE
+@LINUX_TRUE@am__append_12 = -DLINUX
 subdir = src
 DIST_COMMON = $(dist_pkgdata_DATA) $(include_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
@@ -135,7 +136,6 @@ libmacwii_la_OBJECTS = $(am_libmacwii_la_OBJECTS)
 libmacwii_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libmacwii_la_CFLAGS) \
 	$(CFLAGS) $(libmacwii_la_LDFLAGS) $(LDFLAGS) -o $@
-@CWIID_TRUE@am_libmacwii_la_rpath = -rpath $(pkglibdir)
 libtir_la_DEPENDENCIES = libltr.la
 am_libtir_la_OBJECTS = tir_hw.lo tir_img.lo tir_driver.lo runloop.lo
 libtir_la_OBJECTS = $(am_libtir_la_OBJECTS)
@@ -370,11 +370,11 @@ top_srcdir = @top_srcdir@
 @DARWIN_TRUE@@SNOW_LEOPARD_TRUE@QMAKE_FLAGS = -spec macx-g++40
 @DARWIN_FALSE@LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
 @DARWIN_FALSE@LIBLINUXTRACK_FLAGS = -fpic -fPIC
-man_MANS = ltr_gui.1 ltr_server.1 $(am__append_2) $(am__append_8)
+man_MANS = ltr_gui.1 ltr_server.1 $(am__append_2) $(am__append_9)
 lib_LTLIBRARIES = liblinuxtrack.la
-pkglib_LTLIBRARIES = libltr.la $(am__append_1) $(am__append_3) \
-	$(am__append_4) $(am__append_5) $(am__append_6) \
-	$(am__append_7)
+pkglib_LTLIBRARIES = libltr.la libmacwii.la $(am__append_1) \
+	$(am__append_3) $(am__append_4) $(am__append_5) \
+	$(am__append_6) $(am__append_7)
 ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
 ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server_LDADD = -lpthread libltr.la
@@ -440,7 +440,7 @@ dist_pkgdata_DATA = linuxtrack.conf 51-TIR.rules linuxtrack.c
 AM_YFLAGS = -d
 AM_LFLAGS = -i
 BUILT_SOURCES = pref_flex.c pref_bison.c pref_bison.h
-noinst_SCRIPTS = qt_gui/ltr_gui wii_server/wii_server
+noinst_SCRIPTS = qt_gui/ltr_gui $(am__append_8)
 EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \
   qt_gui/objreader.cpp qt_gui/window.h qt_gui/webcam_prefs.cpp \
   qt_gui/xm8_detail.png qt_gui/ltr_profiles.cpp qt_gui/scp_form.h \
@@ -461,7 +461,7 @@ EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \
   tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
   xlinuxtrack.sym
 
-ltr_pipe_CPPFLAGS = $(am__append_10) $(am__append_11)
+ltr_pipe_CPPFLAGS = $(am__append_11) $(am__append_12)
 @LTR_PIPE_TRUE@ltr_pipe_SOURCES = ltr_pipe.c linuxtrack.c
 @LTR_PIPE_TRUE@ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 @LTR_PIPE_TRUE@ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS}
@@ -580,7 +580,7 @@ libltr.la: $(libltr_la_OBJECTS) $(libltr_la_DEPENDENCIES)
 libltusb1.la: $(libltusb1_la_OBJECTS) $(libltusb1_la_DEPENDENCIES) 
 	$(libltusb1_la_LINK) $(am_libltusb1_la_rpath) $(libltusb1_la_OBJECTS) $(libltusb1_la_LIBADD) $(LIBS)
 libmacwii.la: $(libmacwii_la_OBJECTS) $(libmacwii_la_DEPENDENCIES) 
-	$(libmacwii_la_LINK) $(am_libmacwii_la_rpath) $(libmacwii_la_OBJECTS) $(libmacwii_la_LIBADD) $(LIBS)
+	$(libmacwii_la_LINK) -rpath $(pkglibdir) $(libmacwii_la_OBJECTS) $(libmacwii_la_LIBADD) $(LIBS)
 libtir.la: $(libtir_la_OBJECTS) $(libtir_la_DEPENDENCIES) 
 	$(libtir_la_LINK) $(am_libtir_la_rpath) $(libtir_la_OBJECTS) $(libtir_la_LIBADD) $(LIBS)
 libwc.la: $(libwc_la_OBJECTS) $(libwc_la_DEPENDENCIES) 

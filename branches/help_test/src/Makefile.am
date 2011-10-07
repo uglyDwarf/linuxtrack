@@ -213,3 +213,9 @@ if LINUX
   ltr_pipe_CPPFLAGS += -DLINUX
 endif
 
+desktopdir = $(datadir)/applications
+desktop_DATA = linuxtrack.desktop linuxtrack-wii.desktop
+icondir = $(datadir)/pixmaps
+icon_DATA = linuxtrack.svg linuxtrack.png linuxtrack.xpm \
+            linuxtrack-wii.svg linuxtrack-wii.png linuxtrack-wii.xpm
+

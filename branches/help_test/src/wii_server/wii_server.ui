@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Wiiserver</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="wii_server.qrc">
+    <normaloff>:/newPrefix/linuxtrack-wii.svg</normaloff>:/newPrefix/linuxtrack-wii.svg</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="WiiServerStatus">
@@ -36,6 +40,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="wii_server.qrc"/>
+ </resources>
  <connections/>
 </ui>

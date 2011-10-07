@@ -19,6 +19,10 @@
   <property name="windowTitle">
    <string>Linuxtrack</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="ltr_rc.qrc">
+    <normaloff>:/ltr/linuxtrack.svg</normaloff>:/ltr/linuxtrack.svg</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QTabWidget" name="LtrTab">

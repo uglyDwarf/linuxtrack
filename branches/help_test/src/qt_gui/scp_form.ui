@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Sensitivity curves setup</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="ltr_rc.qrc">
+    <normaloff>:/ltr/linuxtrack.svg</normaloff>:/ltr/linuxtrack.svg</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -81,6 +85,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="ltr_rc.qrc"/>
+ </resources>
  <connections/>
 </ui>
