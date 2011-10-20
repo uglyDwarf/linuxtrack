@@ -181,7 +181,7 @@ char *ltr_int_get_app_path(const char *suffix)
 
 #ifndef DARWIN
   #define DATA_PATH "/../share/linuxtrack/"
-  #define LIB_SUFFIX ".so"
+  #define LIB_SUFFIX ".so.0"
 #else
   #undef LIB_PATH
   #define DATA_PATH "/../Resources/linuxtrack/"
