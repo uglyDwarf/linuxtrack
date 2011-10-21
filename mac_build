@@ -107,6 +107,7 @@ pushd dist
   mkdir -p WiiServer.app/Contents/Frameworks/
   mkdir -p WiiServer.app/Contents/Resources/
   cp -r ../src/mac/English.lproj WiiServer.app/Contents/Resources
+  cp ../src/mac/linuxtrack_wii.icns WiiServer.app/Contents/Resources
   cp ../src/mac/Info.plist WiiServer.app/Contents
   cp ../src/mac/PkgInfo WiiServer.app/Contents
   cp -R ${PREFIX}/bin/WiiServer WiiServer.app/Contents/MacOS

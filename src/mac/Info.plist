@@ -7,9 +7,9 @@
 	<key>CFBundleExecutable</key>
 	<string>WiiServer</string>
 	<key>CFBundleIconFile</key>
-	<string></string>
+	<string>linuxtrack_wii.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.WiiServer</string>
+	<string>linuxtrack.WiiServer</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
