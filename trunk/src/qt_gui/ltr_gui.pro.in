@@ -59,5 +59,6 @@ macx {
   help.files += help/*
   INSTALLS += data help
   HEADERS += macwebcam_prefs.h macwebcam_info.h 
-  SOURCES += macwebcam_info.cpp macwebcam_prefs.cpp 
+  SOURCES += macwebcam_info.cpp macwebcam_prefs.cpp
+  ICON = linuxtrack.icns
 }
