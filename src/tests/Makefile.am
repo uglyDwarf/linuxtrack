@@ -8,7 +8,9 @@ endif
 noinst_PROGRAMS = ltlib_test tests
 
 if V4L2
+if LIBV4L2
   noinst_PROGRAMS += webcam_driver_test 
+endif
 endif
 
 #pose_test_SOURCES = pose_test.c

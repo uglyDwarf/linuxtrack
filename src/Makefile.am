@@ -42,7 +42,9 @@ if CWIID
 endif
 
 if V4L2
-  pkglib_LTLIBRARIES += libwc.la 
+if LIBV4L2
+  pkglib_LTLIBRARIES += libwc.la
+endif 
 endif
 
 #if LIBUSB
