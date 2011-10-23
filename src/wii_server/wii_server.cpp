@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <QTimer>
+#include <QMessageBox>
 
 #define WIIMOTE_HORIZONTAL_RESOLUTION 1024
 #define WIIMOTE_VERTICAL_RESOLUTION 768
@@ -19,6 +20,10 @@ WiiServerWindow::WiiServerWindow(QWidget *parent) : QWidget(parent), wii(NULL), 
   ui.setupUi(this);
   if(ltr_int_initWiiCom(true, &mm)){
     std::cout<<"Wii Server initialized!!!"<<std::endl;
+  }else{
+    QMessageBox::critical(this, "Wii server initialization failed", 
+      "Can't initialize Wii server communication channel;\n Please run Linuxtrack GUI first!");
+    exit(1);
   }
   ltr_int_setCommand(mm, STOP);
   wii = new Wiimote(mm);
