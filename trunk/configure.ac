@@ -53,7 +53,15 @@ AC_CHECK_TYPE([struct v4l2_frmsizeenum],
     AC_DEFINE([V4L2], [1],[Use videodev2.h (V4L2)])
     with_v4l2=yes
   ], [],                                                                             
-  [[#include  <linux/videodev2.h>]]                                                                                                           
+  [[#include  <linux/videodev2.h>
+  ]]                                                                                                           
+)                                                                                                                                             
+
+AC_CHECK_HEADER([libv4l2.h],                                                                                                  
+  [
+    AC_DEFINE([LIBV4L2], [1],[Use libv4l2.h (V4L2)])
+    with_libv4l2=yes
+  ], [], []
 )                                                                                                                                             
 
 XPLANE_SDK=
@@ -116,6 +124,7 @@ AS_IF([test x$(uname -o) = x"GNU/Linux"], [with_linux=yes])
 AM_CONDITIONAL(XPLANE_PLUGIN, [test x$with_xplane_plugin = xyes])
 AM_CONDITIONAL(CWIID, [test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes])
 AM_CONDITIONAL(V4L2, [test x$with_v4l2 = xyes])
+AM_CONDITIONAL(LIBV4L2, [test x$with_libv4l2 = xyes])
 AM_CONDITIONAL(DARWIN, [test x$with_darwin = xyes])
 AM_CONDITIONAL(SNOW_LEOPARD, [test x$with_snow_leopard = xyes])
 AM_CONDITIONAL(LIBUSB, [test "x$ac_cv_lib_usb_usb_open" = xyes])

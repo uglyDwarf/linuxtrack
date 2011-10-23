@@ -271,13 +271,13 @@ void LtrGuiForm::disable3DView_stateChanged(int state)
 
 void LtrGuiForm::update()
 {
-  float fps_mean;
+  float fps_mean = 0.0f;
   int i;
   for(i = 0; i < 8; ++i){
     fps_mean += fps_buffer[i];
   }
-  fps_mean /= 8;
-  ui.statusbar->showMessage(QString("%1.frame @ %2 fps").arg(cnt).arg((int)fps_mean));
+  int fps = fps_mean / 8.0;
+  ui.statusbar->showMessage(QString("%1.frame @ %2 fps").arg(cnt).arg(fps, 4));
   if(buffer_empty){
     return;
   }

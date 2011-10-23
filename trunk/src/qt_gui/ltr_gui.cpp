@@ -213,20 +213,39 @@ void LinuxtrackGui::on_DefaultsButton_pressed()
   QString target = targetDir + "/linuxtrack.conf";
   QString source = PrefProxy::getDataPath("linuxtrack.conf");
   if(QFileInfo(targetDir).isFile()){//old setup
-    QFile::rename(targetDir, targetDir + ".backup");
-    QDir::home().mkpath(targetDir);
-    QFile::rename(targetDir + ".backup", target);
+    ltr_int_log_message("Old .linuxtrack file exists!\n");
+    if(!QFile::rename(targetDir, targetDir + ".backup")){
+      warnMessage(QString("Can't rename '" + targetDir + "' to '" + targetDir + ".backup'!"));
+      return;
+    }
+    if(!QDir::home().mkpath(targetDir)){
+      warnMessage(QString("Can't create '" + targetDir + "'!"));
+      return;
+    }
+    if(!QFile::rename(targetDir + ".backup", target)){
+      warnMessage(QString("Can't move '" + targetDir + ".backup' to '" + targetDir + "'!"));
+      return;
+    }
   }else if(QFileInfo(targetDir).isDir()){
+    ltr_int_log_message("Directory .linuxtrack exists!\n");
     QFileInfo conf(target);
     if(!conf.isFile()){
-      QFile::copy(source, target);
+      if(!QFile::copy(source, target)){
+        warnMessage(QString("Can't copy '" + source + "' to '" + target + "'!"));
+        return;
+      }
     }
   }else{
-    QDir::home().mkdir(".linuxtrack");
-    QFile::copy(source, target);
+    ltr_int_log_message(".linuxtrack doesn't exist, creating new directory!\n");
+    if(!QDir::home().mkdir(".linuxtrack")){
+      warnMessage(QString("Can't create '" + targetDir + "'!"));
+      return;
+    }
+    if(!QFile::copy(source, target)){
+      warnMessage(QString("Can't copy '" + source + "' to '" + target + "'!"));
+      return;
+    }
   }
-//  std::cout<<"Going to copy "<<source.toAscii().data();
-//  std::cout<<" to "<<target.toAscii().data()<<std::endl;
   on_DiscardChangesButton_pressed();
 }
 
@@ -274,6 +293,7 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
       ui.ModelSelector->setEnabled(true);
       ui.Profiles->setEnabled(true);
       ui.DefaultsButton->setEnabled(true);
+      ui.DiscardChangesButton->setEnabled(true);
       break;
     case INITIALIZING:
     case RUNNING:
@@ -282,6 +302,7 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
       ui.ModelSelector->setDisabled(true);
       ui.Profiles->setDisabled(true);
       ui.DefaultsButton->setDisabled(true);
+      ui.DiscardChangesButton->setDisabled(true);
       break;
     default:
       break;
