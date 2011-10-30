@@ -1,7 +1,7 @@
 l32libdir = $(prefix)/lib32
 
 if ! DARWIN
-  LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
+  LINUXFLAGS = '-DLIB_PATH="$(pkglibdir)/"'
 if X64
 
   l32lib_LTLIBRARIES = liblinuxtrack.la
