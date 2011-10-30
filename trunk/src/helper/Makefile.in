@@ -212,7 +212,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 l32libdir = $(prefix)/lib32
-@DARWIN_FALSE@LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
+@DARWIN_FALSE@LINUXFLAGS = '-DLIB_PATH="$(pkglibdir)/"'
 @DARWIN_FALSE@@X64_TRUE@l32lib_LTLIBRARIES = liblinuxtrack.la
 liblinuxtrack_la_SOURCES = ../ltlib.c ../linuxtrack.h ../utils.c ../utils.h \
   ../ipc_utils.c ../ipc_utils.h
