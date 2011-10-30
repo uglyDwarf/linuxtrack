@@ -41,7 +41,7 @@ host_triplet = @host@
 bin_PROGRAMS = ltr_server$(EXEEXT) $(am__EXEEXT_1)
 @CWIID_TRUE@am__append_1 = libwii.la
 @CWIID_TRUE@am__append_2 = wii_server.1
-@V4L2_TRUE@am__append_3 = libwc.la 
+@LIBV4L2_TRUE@@V4L2_TRUE@am__append_3 = libwc.la
 
 #if LIBUSB
 #  pkglib_LTLIBRARIES += libtir4.la 
@@ -150,7 +150,7 @@ libwc_la_OBJECTS = $(am_libwc_la_OBJECTS)
 libwc_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(libwc_la_CFLAGS) $(CFLAGS) \
 	$(libwc_la_LDFLAGS) $(LDFLAGS) -o $@
-@V4L2_TRUE@am_libwc_la_rpath = -rpath $(pkglibdir)
+@LIBV4L2_TRUE@@V4L2_TRUE@am_libwc_la_rpath = -rpath $(pkglibdir)
 libwii_la_DEPENDENCIES = libltr.la
 am_libwii_la_OBJECTS = libwii_la-wiimote_driver.lo \
 	libwii_la-runloop.lo
@@ -252,6 +252,7 @@ CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
+DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
 ECHO_C = @ECHO_C@
@@ -278,6 +279,7 @@ LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
+MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
 NM = @NM@
 NMEDIT = @NMEDIT@
@@ -308,6 +310,7 @@ abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
+ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
 ac_ct_OBJC = @ac_ct_OBJC@
@@ -339,7 +342,6 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = @localedir@
 localstatedir = @localstatedir@
-lt_ECHO = @lt_ECHO@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
