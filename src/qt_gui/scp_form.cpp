@@ -6,19 +6,25 @@
 ScpForm::ScpForm(QWidget *parent) :QWidget(parent)
 {
   ui.setupUi(this);
-  yaw = new SCurve(PROFILE.getCurrentProfile()->getYawAxis(), 
-                    "Yaw - looking left/right", "Left", "Right", ui.SCPYaw);
   pitch = new SCurve(PROFILE.getCurrentProfile()->getPitchAxis(), 
-                      "Pitch - looking up/down", "Down", "Up", ui.SCPPitch);
+                      "Pitch - looking up/down", "Down", "Up", this);
+  yaw = new SCurve(PROFILE.getCurrentProfile()->getYawAxis(), 
+                    "Yaw - looking left/right", "Left", "Right", this);
   roll = new SCurve(PROFILE.getCurrentProfile()->getRollAxis(), 
                      "Roll - tilting head left/right", 
-		    "Counter-clockwise", "Clockwise", ui.SCPRoll);
+		    "Counter-clockwise", "Clockwise", this);
   x = new SCurve(PROFILE.getCurrentProfile()->getTxAxis(), 
-                  "Sideways translation", "Left", "Right", ui.SCPX);
+                  "Sideways translation", "Left", "Right", this);
   y = new SCurve(PROFILE.getCurrentProfile()->getTyAxis(), 
-                  "Up/down translation", "Down", "Up", ui.SCPY);
+                  "Up/down translation", "Down", "Up", this);
   z = new SCurve(PROFILE.getCurrentProfile()->getTzAxis(), 
-                  "Back/forth translation", "Forth", "Back", ui.SCPZ);
+                  "Back/forth translation", "Forth", "Back", this);
+  ui.SCPPitch->addWidget(pitch);
+  ui.SCPYaw->addWidget(yaw);
+  ui.SCPRoll->addWidget(roll);
+  ui.SCPX->addWidget(x);
+  ui.SCPY->addWidget(y);
+  ui.SCPZ->addWidget(z);
 }
 
 ScpForm::~ScpForm()

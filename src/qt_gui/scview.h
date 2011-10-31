@@ -12,8 +12,8 @@ class SCView : public QWidget
  public:
   SCView(LtrAxis *a, QWidget *parent = 0);
   ~SCView();
-  QSize sizeHint() const;
-  QSize minimumSizeHint() const;
+//  QSize sizeHint() const;
+//  QSize minimumSizeHint() const;
   void movePoint(float new_x);
  public slots:
   void redraw();

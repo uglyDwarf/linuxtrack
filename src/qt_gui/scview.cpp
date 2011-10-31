@@ -14,6 +14,7 @@ SCView::SCView(LtrAxis *a, QWidget *parent)
   timer = new QTimer(this);
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
   timer->start(50);
+  setMinimumSize(400, 100);
 }
 
 SCView::~SCView()
@@ -27,19 +28,20 @@ void SCView::redraw()
   update();
 }
 
-QSize SCView::sizeHint() const
-{
-  if(parentWidget){
-    return parentWidget->size();
-  }else{
-    return minimumSizeHint();
-  }
-}
+//QSize SCView::sizeHint() const
+//{
+//  if(parentWidget){
+//    std::cout<<"Size: "<<parentWidget->size().height() <<" "<< parentWidget->size().width() << std::endl;
+//    return parentWidget->size();
+//  }else{
+//    return minimumSizeHint();
+//  }
+//}
 
-QSize SCView::minimumSizeHint() const
-{
-  return QSize(320, 180);
-}   
+//QSize SCView::minimumSizeHint() const
+//{
+//  return QSize(320, 180);
+//}   
 
 
 static int spline(LtrAxis *a, QPointF points[], int num_points)
