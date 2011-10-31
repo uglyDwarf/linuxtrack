@@ -19,7 +19,8 @@ SCurve::SCurve(LtrAxis *a, QString axis_name, QString left_label, QString right_
                     this, SLOT(axisChanged(AxisElem_t)));
   
   first = false;
-  view = new SCView(axis, ui.SCView);
+  view = new SCView(axis, this);
+  ui.SCView->addWidget(view);
   QObject::connect(this, SIGNAL(changed()), view, SLOT(update()));
   initializing = true;
   axisChanged(RELOAD);

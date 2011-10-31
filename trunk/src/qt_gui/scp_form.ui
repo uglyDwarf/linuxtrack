@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
+    <width>639</width>
     <height>520</height>
    </rect>
   </property>
@@ -22,38 +22,71 @@
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QTabWidget" name="SCPTab">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="currentIndex">
         <number>0</number>
        </property>
-       <widget class="QWidget" name="SCPPitch">
+       <widget class="QWidget" name="SCPPitch1">
         <attribute name="title">
          <string>Pitch</string>
         </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <layout class="QVBoxLayout" name="SCPPitch"/>
+         </item>
+        </layout>
        </widget>
-       <widget class="QWidget" name="SCPYaw">
+       <widget class="QWidget" name="SCPYaw1">
         <attribute name="title">
          <string>Yaw</string>
         </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <layout class="QVBoxLayout" name="SCPYaw"/>
+         </item>
+        </layout>
        </widget>
-       <widget class="QWidget" name="SCPRoll">
+       <widget class="QWidget" name="SCPRoll1">
         <attribute name="title">
          <string>Roll</string>
         </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <layout class="QVBoxLayout" name="SCPRoll"/>
+         </item>
+        </layout>
        </widget>
-       <widget class="QWidget" name="SCPX">
+       <widget class="QWidget" name="SCPX1">
         <attribute name="title">
          <string>X Translation</string>
         </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_6">
+         <item>
+          <layout class="QVBoxLayout" name="SCPX"/>
+         </item>
+        </layout>
        </widget>
-       <widget class="QWidget" name="SCPY">
+       <widget class="QWidget" name="SCPY1">
         <attribute name="title">
          <string>Y Translation</string>
         </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_7">
+         <item>
+          <layout class="QVBoxLayout" name="SCPY"/>
+         </item>
+        </layout>
        </widget>
-       <widget class="QWidget" name="SCPZ">
+       <widget class="QWidget" name="SCPZ1">
         <attribute name="title">
          <string>Z Translation</string>
         </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_8">
+         <item>
+          <layout class="QVBoxLayout" name="SCPZ"/>
+         </item>
+        </layout>
        </widget>
       </widget>
      </item>
