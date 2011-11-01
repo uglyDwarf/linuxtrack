@@ -37,6 +37,22 @@
      <property name="sizeConstraint">
       <enum>QLayout::SetMinimumSize</enum>
      </property>
+     <item>
+      <spacer name="SCViewSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>1</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
     </layout>
    </item>
    <item>
@@ -44,7 +60,7 @@
      <item>
       <widget class="QFrame" name="frame_2">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -57,22 +73,38 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QLabel" name="SCRightLabel">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Right</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QLabel" name="label">
+         <layout class="QFormLayout" name="formLayout_2">
+          <item row="0" column="0">
+           <widget class="QLabel" name="SCLeftLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Left</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="SCSymetrical">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Symetrical</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_9">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
               <horstretch>0</horstretch>
@@ -84,11 +116,8 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QDoubleSpinBox" name="SCRightFactor">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
+          <item row="1" column="1">
+           <widget class="QDoubleSpinBox" name="SCLeftFactor">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
               <horstretch>0</horstretch>
@@ -109,12 +138,8 @@
             </property>
            </widget>
           </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
-          <item>
-           <widget class="QLabel" name="label_3">
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_2">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
               <horstretch>0</horstretch>
@@ -126,11 +151,8 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QDoubleSpinBox" name="SCRightLimit">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
+          <item row="2" column="1">
+           <widget class="QDoubleSpinBox" name="SCLeftLimit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
               <horstretch>0</horstretch>
@@ -147,16 +169,12 @@
              <double>9999.899999999999636</double>
             </property>
             <property name="value">
-             <double>601.000000000000000</double>
+             <double>600.000000000000000</double>
             </property>
            </widget>
           </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_8">
-          <item>
-           <widget class="QLabel" name="SCCurvR">
+          <item row="3" column="0">
+           <widget class="QLabel" name="SCCurvL">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
               <horstretch>0</horstretch>
@@ -168,10 +186,10 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QSlider" name="SCRightCurv">
+          <item row="3" column="1">
+           <widget class="QSlider" name="SCLeftCurv">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
@@ -204,7 +222,7 @@
      <item>
       <widget class="QFrame" name="frame">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -217,9 +235,9 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_9">
-          <item>
-           <widget class="QLabel" name="SCLeftLabel">
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="SCRightLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
               <horstretch>0</horstretch>
@@ -227,32 +245,12 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Left</string>
+             <string>Right</string>
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QCheckBox" name="SCSymetrical">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Symetrical</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="QLabel" name="label_9">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
               <horstretch>0</horstretch>
@@ -264,8 +262,11 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QDoubleSpinBox" name="SCLeftFactor">
+          <item row="1" column="1">
+           <widget class="QDoubleSpinBox" name="SCRightFactor">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
               <horstretch>0</horstretch>
@@ -286,12 +287,8 @@
             </property>
            </widget>
           </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_6">
-          <item>
-           <widget class="QLabel" name="label_2">
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_3">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
               <horstretch>0</horstretch>
@@ -303,8 +300,11 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QDoubleSpinBox" name="SCLeftLimit">
+          <item row="2" column="1">
+           <widget class="QDoubleSpinBox" name="SCRightLimit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
               <horstretch>0</horstretch>
@@ -321,16 +321,12 @@
              <double>9999.899999999999636</double>
             </property>
             <property name="value">
-             <double>600.000000000000000</double>
+             <double>601.000000000000000</double>
             </property>
            </widget>
           </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_7">
-          <item>
-           <widget class="QLabel" name="SCCurvL">
+          <item row="3" column="0">
+           <widget class="QLabel" name="SCCurvR">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
               <horstretch>0</horstretch>
@@ -342,10 +338,10 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QSlider" name="SCLeftCurv">
+          <item row="3" column="1">
+           <widget class="QSlider" name="SCRightCurv">
             <property name="enabled">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
@@ -423,10 +419,6 @@
    </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>SCLeftFactor</tabstop>
-  <tabstop>SCRightFactor</tabstop>
- </tabstops>
  <resources/>
  <connections/>
 </ui>
