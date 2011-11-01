@@ -20,6 +20,7 @@ SCurve::SCurve(LtrAxis *a, QString axis_name, QString left_label, QString right_
   
   first = false;
   view = new SCView(axis, this);
+  ui.SCView->removeItem(ui.SCViewSpacer);
   ui.SCView->addWidget(view);
   QObject::connect(this, SIGNAL(changed()), view, SLOT(update()));
   initializing = true;
