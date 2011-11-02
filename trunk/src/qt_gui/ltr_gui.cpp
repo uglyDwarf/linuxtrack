@@ -229,11 +229,15 @@ void LinuxtrackGui::on_DefaultsButton_pressed()
   }else if(QFileInfo(targetDir).isDir()){
     ltr_int_log_message("Directory .linuxtrack exists!\n");
     QFileInfo conf(target);
-    if(!conf.isFile()){
-      if(!QFile::copy(source, target)){
-        warnMessage(QString("Can't copy '" + source + "' to '" + target + "'!"));
+    if(conf.isFile()){
+      if(!QFile::remove(target)){
+        warnMessage(QString("Can't remove '" + target + "'!"));
         return;
       }
+    }
+    if(!QFile::copy(source, target)){
+      warnMessage(QString("Can't copy '" + source + "' to '" + target + "'!"));
+      return;
     }
   }else{
     ltr_int_log_message(".linuxtrack doesn't exist, creating new directory!\n");

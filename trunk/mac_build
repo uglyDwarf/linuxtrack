@@ -133,7 +133,7 @@ pushd dist
   cp ../Readme.rtf .
 popd
 rm -f linuxtrack*.dmg
-DMG=linuxtrack$(date +%d%m%y).dmg
+DMG=linuxtrack$(date +%y%m%d).dmg
 hdiutil create ${DMG} -srcfolder dist -format UDZO -volname linuxtrack
 ln -s ${DMG} linuxtrack.dmg
 
