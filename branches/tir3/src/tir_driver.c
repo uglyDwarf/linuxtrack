@@ -128,6 +128,9 @@ int ltr_int_tir_found(bool *have_firmware)
   int res = 0;
   dev_found device = ltr_int_find_tir();
   switch(device){
+    case TIR3:
+      res = 3;
+      break;
     case TIR4:
       res = 4;
       break;
@@ -141,12 +144,16 @@ int ltr_int_tir_found(bool *have_firmware)
       res = 0;
       break;
   }
-  char *fw = ltr_int_find_firmware(device);
-  if(fw != NULL){
-    free(fw);
+  if(res == 3){
     *have_firmware = true;
   }else{
-    *have_firmware = false;
+    char *fw = ltr_int_find_firmware(device);
+    if(fw != NULL){
+      free(fw);
+      *have_firmware = true;
+    }else{
+      *have_firmware = false;
+    }
   }
   ltr_int_finish_usb(-1);
   ltr_int_unload_library(libhandle, functions);

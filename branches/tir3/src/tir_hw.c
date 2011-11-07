@@ -32,15 +32,21 @@ static unsigned char Precision_mode[] = {0x19, 0x03, 0x10, 0x00, 0x05};
 static unsigned char Set_ir_brightness[] =  {0x10, 0x00, 0x02, 0x00, 0xA0};
 
 //Unknown packets
+static unsigned char unk_1[] =  {0x17, 0x01};
 static unsigned char unk_2[] =  {0x12, 0x01};
 static unsigned char unk_3[] =  {0x13, 0x01};
-//static unsigned char unk_1[] =  {0x17, 0x01};
+static unsigned char unk_4[] =  {0x19, 0x15, 0x10, 0x40, 0x00};
+static unsigned char unk_5[] =  {0x23, 0x40, 0x1c, 0x5e, 0x00, 0x00};
+static unsigned char unk_6[] =  {0x23, 0x40, 0x1d, 0x01, 0x00, 0x00};
 static unsigned char unk_7[] =  {0x19, 0x05, 0x10, 0x10, 0x00};
+static unsigned char unk_8[] =  {0x19, 0x03, 0x03, 0x00, 0x00};
+
 
 static bool ir_on = true;
 
 static dev_found device = NONE;
 
+static tir_interface tir3;
 static tir_interface tir4;
 static tir_interface tir5;
 static tir_interface *tir_iface = NULL;
@@ -137,6 +143,29 @@ static bool read_status_tir(tir_status_t *status)
   return true;
 }
 
+static bool read_rom_data_tir3()
+{
+  size_t t;
+  if(!ltr_int_send_data(unk_1, sizeof(unk_1))){
+    ltr_int_log_message("Couldn't send config data request!\n");
+    return false;
+  }
+  int counter = 0;
+  while(counter < 10){
+    if(!ltr_int_receive_data(ltr_int_packet, sizeof(ltr_int_packet), &t, 2000)){
+      ltr_int_log_message("Couldn't receive status!\n");
+      return false;
+    }
+    if((ltr_int_packet[0] == 0x09) && (ltr_int_packet[1] == 0x40)){
+      break;
+    }
+    usleep(10000);
+    counter++;
+  }
+  return true;
+}
+
+
 static bool read_rom_data_tir()
 {
   size_t t;
@@ -150,7 +179,8 @@ static bool read_rom_data_tir()
       ltr_int_log_message("Couldn't receive status!\n");
       return false;
     }
-    if((ltr_int_packet[0] == 0x14) && (ltr_int_packet[1] == 0x40)){
+    //Tir4/5 0x14, Tir3 0x09...
+    if(((ltr_int_packet[0] == 0x14) || (ltr_int_packet[0] == 0x09)) && (ltr_int_packet[1] == 0x40)){
       break;
     }
     usleep(10000);
@@ -349,6 +379,20 @@ static bool set_exposure(unsigned int exp)
   
 }
 
+static bool stop_camera_tir3()
+{
+  ltr_int_log_message("Stopping TIR3 camera!\n");
+  ltr_int_send_data(Video_off,sizeof(Video_off));
+  turn_led_off_tir(TIR_LED_IR);
+  flush_fifo_tir();
+  ltr_int_send_data(Camera_stop,sizeof(Camera_stop));
+  turn_led_off_tir(TIR_LED_RED);
+  turn_led_off_tir(TIR_LED_GREEN);
+  turn_led_off_tir(TIR_LED_BLUE);
+  usleep(50000);
+  return true;
+}
+
 static bool stop_camera_tir4()
 {
   ltr_int_send_data(Video_off,sizeof(Video_off));
@@ -405,6 +449,20 @@ static bool stop_camera_tir()
   return tir_iface->stop_camera_tir();
 }
 
+static bool start_camera_tir3()
+{
+  ltr_int_log_message("Starting TIR3 camera!\n");
+  flush_fifo_tir();
+  ltr_int_send_data(Camera_stop,sizeof(Camera_stop));
+  if(ir_on){ 
+    turn_led_on_tir(TIR_LED_IR);
+  }
+  ltr_int_send_data(Video_on,sizeof(Video_on));
+  if(ltr_int_tir_get_status_indication()) 
+    set_status_led_tir4(true);
+  return true;
+}
+
 static bool start_camera_tir4()
 {
   stop_camera_tir();
@@ -436,6 +494,31 @@ bool start_camera_tir()
 {
   assert(tir_iface != NULL);
   return tir_iface->start_camera_tir();
+}
+
+static bool init_camera_tir3(bool force_fw_load, bool p_ir_on)
+{
+  (void) force_fw_load;
+  size_t t;
+  
+  ir_on = p_ir_on;
+  ltr_int_log_message("Initializing TIR3 camera!\n");
+  if(!stop_camera_tir()){
+    return false;
+  }
+  //To flush any pending packets...
+  ltr_int_receive_data(ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
+  ltr_int_receive_data(ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
+  ltr_int_receive_data(ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
+  if(!read_rom_data_tir3()){
+    return false;
+  }
+  ltr_int_set_threshold_tir(0x8c);
+  ltr_int_send_data(unk_5,sizeof(unk_5));
+  ltr_int_send_data(unk_6,sizeof(unk_6));
+  ltr_int_set_threshold_tir(0xd0);
+  ltr_int_send_data(unk_8,sizeof(unk_8));
+  return true;
 }
 
 
@@ -573,6 +656,9 @@ bool ltr_int_open_tir(bool force_fw_load, bool ir_on)
   }
   
   switch(device){
+    case TIR3:
+      tir_iface = &tir3;
+      break;
     case TIR4:
       tir_iface = &tir4;
       break;
@@ -606,6 +692,17 @@ bool ltr_int_resume_tir()
   return res;
 }
 
+static bool close_camera_tir3(){
+  ltr_int_log_message("Closing TIR3 camera!\n");
+  stop_camera_tir();
+  ltr_int_send_data(unk_4,sizeof(unk_4));
+  turn_led_off_tir(TIR_LED_RED);
+  turn_led_off_tir(TIR_LED_GREEN);
+  turn_led_off_tir(TIR_LED_BLUE);
+  ltr_int_finish_usb(TIR_INTERFACE);
+  return true;
+}
+
 static bool close_camera_tir4(){
   stop_camera_tir();
   ltr_int_finish_usb(TIR_INTERFACE);
@@ -636,6 +733,13 @@ bool ltr_int_close_tir()
 }
 
 
+
+static void get_res_tir3(unsigned int *w, unsigned int *h, float *hf)
+{
+  *w = 440;
+  *h = 314;
+  *hf = 1.0f;
+}
 
 static void get_res_tir4(unsigned int *w, unsigned int *h, float *hf)
 {
@@ -699,6 +803,9 @@ char *ltr_int_find_firmware(dev_found device)
 {
   const char *fw_file;
   switch(device){
+    case TIR3:
+      fw_file = NULL;
+      break;
     case TIR4:
       fw_file = "tir4.fw.gz";
       break;
@@ -713,9 +820,23 @@ char *ltr_int_find_firmware(dev_found device)
       return false;
       break;
   }
-  char *fw_path = ltr_int_get_resource_path("tir_firmware", fw_file);
+  char *fw_path;
+  if(fw_file != NULL){
+    fw_path = ltr_int_get_resource_path("tir_firmware", fw_file);
+  }else{
+    fw_path = NULL;
+  }
   return fw_path;
 }
+
+static tir_interface tir3 = {
+  .stop_camera_tir = stop_camera_tir3,
+  .start_camera_tir = start_camera_tir3,
+  .init_camera_tir = init_camera_tir3,
+  .close_camera_tir = close_camera_tir3,
+  .get_res_tir = get_res_tir3,
+  .set_status_led_tir = set_status_led_tir4
+};
 
 static tir_interface tir4 = {
   .stop_camera_tir = stop_camera_tir4,
