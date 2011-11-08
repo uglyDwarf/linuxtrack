@@ -95,9 +95,3 @@ Now either reboot the machine, or you can do it the linux-way:
 sudo service udev restart
 }}}
 and then replug/plug-in the TrackIR and you are good to go.
-
-== Known Problems ==
-2011/11/7
-Problem: Xplane plugin installation doesn't work on 11.10.
-
-Solution: For now, manually link /usr/lib/x86_64-linux-gnu/linuxtrack/xlinuxtrack9.so.0 or /usr/lib/i386-linux-gnu/linuxtrack/xlinuxtrack9.so.0 (depending on your architecture) to the Resources/plugins directory in the Xplane directory. Fix will be provided ASAP.
