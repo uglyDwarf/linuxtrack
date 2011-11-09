@@ -15,21 +15,30 @@
 
 PrefProxy *PrefProxy::prf = NULL;
 
-PrefProxy::PrefProxy()
-{
-  if(!ltr_int_read_prefs(NULL, false)){
-    ltr_int_log_message("Couldn't load preferences!\n");
-    ltr_int_new_prefs();
-    QString global = "Global";
-    if(!createSection(global)){
-      ltr_int_log_message("Can't create prefs at all... That is too bad.\n");
-      exit(1);
-    }
-  }
-  checkPrefix();
+static int warnMessage(const QString &message){
+ return QMessageBox::warning(NULL, "Linuxtrack",
+                                message, QMessageBox::Ok, QMessageBox::Ok);
 }
 
-bool PrefProxy::checkPrefix()
+PrefProxy::PrefProxy()
+{
+  if(ltr_int_read_prefs(NULL, false)){
+    checkPrefix(true);
+    return;
+  }
+  ltr_int_log_message("Couldn't load preferences!\n");
+  if(!makeRsrcDir()){
+    throw;
+  }
+  if(!copyDefaultPrefs()){
+    throw;
+  }
+  ltr_int_new_prefs();
+  ltr_int_read_prefs(NULL, true);
+  checkPrefix(true);
+}
+
+bool PrefProxy::checkPrefix(bool save)
 {
   QString appPath = QApplication::applicationDirPath();
   appPath.prepend("\"");
@@ -38,16 +47,90 @@ bool PrefProxy::checkPrefix()
     //Intentionaly left empty
   }else{
     prefix = appPath;
-    setKeyVal("Global", "Prefix", appPath);
-    QMessageBox::warning(NULL, "Linuxtrack",
-       QString("It seems you are running Linuxtrack for the first time,") +
-       QString("or you relocated it...") +
-       QString("I'm going to change the app prefix in the pref. file."), 
-       QMessageBox::Ok, QMessageBox::Ok);
-     return savePrefs();
+    bool res = true;
+    res &= setKeyVal("Global", "Prefix", appPath);
+    if(save){
+      res &= savePrefs();
+    }
+    return res;
   }
   return true;
 }
+
+bool PrefProxy::makeRsrcDir()
+{
+  QString msg;
+  QString targetDir = PrefProxy::getRsrcDirPath();
+  if(targetDir.endsWith("/")){
+    targetDir.chop(1);
+  }
+  QFileInfo rsrcDir(targetDir);
+  if(rsrcDir.isDir()){
+    return true;
+  }
+  if(rsrcDir.exists() || rsrcDir.isSymLink()){
+    QString bck = targetDir + ".pre";
+    QFileInfo bckInfo(bck);
+    if(bckInfo.exists() || bckInfo.isSymLink()){
+      if(!QFile::remove(bck)){
+        msg = QString("Can't remove '" + bck + "'!");
+        goto problem;
+      }
+    }
+    if(!QFile::rename(targetDir, bck)){
+      msg = QString("Can't rename '" + targetDir + "' to '" + bck + "'!");
+      goto problem;
+    }
+  }
+  if(!QDir::home().mkpath(targetDir)){
+    msg = QString("Can't create '" + targetDir + "'!");
+    goto problem;
+  }
+  return true;
+ problem:
+  ltr_int_log_message(QString(msg+"\n").toAscii().data());
+  warnMessage(msg);
+  return false;  
+}
+
+
+bool PrefProxy::copyDefaultPrefs()
+{
+  QString msg;
+  //we can assume the rsrc dir exists now...
+  QString targetDir = PrefProxy::getRsrcDirPath();
+  if(targetDir.endsWith("/")){
+    targetDir.chop(1);
+  }
+  QString target = targetDir + "/linuxtrack.conf";
+  QString source = PrefProxy::getDataPath("linuxtrack.conf");
+  QFileInfo target_info(target);
+  if(target_info.exists() || target_info.isSymLink()){
+    QString bck = target + ".backup";
+    QFileInfo bckInfo(bck);
+    if(bckInfo.exists() || bckInfo.isSymLink()){
+      if(!QFile::remove(bck)){
+        msg = QString("Can't remove '" + bck + "'!");
+        goto problem;
+      }
+    }
+    if(!QFile::rename(target, bck)){
+      msg = QString("Can't rename '" + target + "' to '" + bck + "'!");
+      goto problem;
+    }
+  }
+  if(!QFile::copy(source, target)){
+    msg = QString("Can't copy '" + source + "' to '" + target + "'!");
+    goto problem;
+  }
+  
+  return true;
+ problem:
+  ltr_int_log_message(QString(msg+"\n").toAscii().data());
+  warnMessage(msg);
+  return false;  
+}
+
 
 PrefProxy::~PrefProxy()
 {
@@ -335,23 +418,35 @@ QString PrefProxy::getCustomSectionTitle()
 
 QString PrefProxy::getDataPath(QString file)
 {
-  
+  char *path = ltr_int_get_data_path_prefix(file.toAscii().data(), 
+                                            QApplication::applicationDirPath().toAscii().data());
+  QString res = path;
+  free(path);
+  return res; 
+/*  
   QString appPath = QApplication::applicationDirPath();
 #ifndef DARWIN
   return appPath + "/../share/linuxtrack/" + file;
 #else
   return appPath + "/../Resources/linuxtrack/" + file;
 #endif
+*/
 }
 
 QString PrefProxy::getLibPath(QString file)
 {
+  char *path = ltr_int_get_lib_path(file.toAscii().data());
+  QString res = path;
+  free(path);
+  return res;   
+/*
   QString appPath = QApplication::applicationDirPath();
 #ifndef DARWIN
   return appPath + "/../lib/" + file + ".so.0";
 #else
   return appPath + "/../Frameworks/" + file + ".0.dylib";
 #endif
+*/
 }
 
 QString PrefProxy::getRsrcDirPath()
@@ -364,7 +459,7 @@ bool PrefProxy::rereadPrefs()
   ltr_int_close_prefs();
   ltr_int_new_prefs();
   ltr_int_read_prefs(NULL, true);
-  checkPrefix();
+  checkPrefix(true);
   return true;
 }
 

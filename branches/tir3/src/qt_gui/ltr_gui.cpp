@@ -30,10 +30,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   initialized(false)
 {
   ui.setupUi(this);
-  QString target = PrefProxy::getRsrcDirPath() + "/linuxtrack.conf";
-  if(!QFileInfo(target).isReadable()){
-    on_DefaultsButton_pressed();
-  }
+  PREF; //init prefs
   wcp = new WebcamPrefs(ui);
   wiip = new WiimotePrefs(ui);
   tirp = new TirPrefs(ui);
@@ -169,11 +166,7 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
     warnMessage(QString("Strange path... '" + fileName + "'"));
     return;
   }
-#ifndef DARWIN
-  QString sourceFile = PrefProxy::getLibPath("linuxtrack/xlinuxtrack9");
-#else
   QString sourceFile = PrefProxy::getLibPath("xlinuxtrack9");
-#endif
   QString destPath = pathRexp.cap(1) + "/Resources/plugins";
   if(!QFile::exists(destPath)){
     warnMessage(QString("Wrong file specified!"));
@@ -206,50 +199,7 @@ void LinuxtrackGui::on_ViewLogButton_pressed()
 
 void LinuxtrackGui::on_DefaultsButton_pressed()
 {
-  QString targetDir = PrefProxy::getRsrcDirPath();
-  if(targetDir.endsWith("/")){
-    targetDir.chop(1);
-  }
-  QString target = targetDir + "/linuxtrack.conf";
-  QString source = PrefProxy::getDataPath("linuxtrack.conf");
-  if(QFileInfo(targetDir).isFile()){//old setup
-    ltr_int_log_message("Old .linuxtrack file exists!\n");
-    if(!QFile::rename(targetDir, targetDir + ".backup")){
-      warnMessage(QString("Can't rename '" + targetDir + "' to '" + targetDir + ".backup'!"));
-      return;
-    }
-    if(!QDir::home().mkpath(targetDir)){
-      warnMessage(QString("Can't create '" + targetDir + "'!"));
-      return;
-    }
-    if(!QFile::rename(targetDir + ".backup", target)){
-      warnMessage(QString("Can't move '" + targetDir + ".backup' to '" + targetDir + "'!"));
-      return;
-    }
-  }else if(QFileInfo(targetDir).isDir()){
-    ltr_int_log_message("Directory .linuxtrack exists!\n");
-    QFileInfo conf(target);
-    if(conf.isFile()){
-      if(!QFile::remove(target)){
-        warnMessage(QString("Can't remove '" + target + "'!"));
-        return;
-      }
-    }
-    if(!QFile::copy(source, target)){
-      warnMessage(QString("Can't copy '" + source + "' to '" + target + "'!"));
-      return;
-    }
-  }else{
-    ltr_int_log_message(".linuxtrack doesn't exist, creating new directory!\n");
-    if(!QDir::home().mkdir(".linuxtrack")){
-      warnMessage(QString("Can't create '" + targetDir + "'!"));
-      return;
-    }
-    if(!QFile::copy(source, target)){
-      warnMessage(QString("Can't copy '" + source + "' to '" + target + "'!"));
-      return;
-    }
-  }
+  PREF.copyDefaultPrefs();
   on_DiscardChangesButton_pressed();
 }
 
