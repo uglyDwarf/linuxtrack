@@ -44,12 +44,14 @@ class PrefProxy{
   bool setCustomSection(const QString &name);
   bool savePrefs();
   bool rereadPrefs();
+  bool makeRsrcDir();
+  bool copyDefaultPrefs();
   void announceModelChange();
   static QString getDataPath(QString file);
   static QString getLibPath(QString file);
   static QString getRsrcDirPath();
  private:
-  bool checkPrefix();
+  bool checkPrefix(bool save);
 };
 
 

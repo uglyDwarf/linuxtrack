@@ -200,6 +200,14 @@ char *ltr_int_get_data_path(const char *data)
   return data_path;
 }
 
+char *ltr_int_get_data_path_prefix(const char *data, const char *prefix)
+{
+  char *app_path = ltr_int_my_strcat(prefix, DATA_PATH);
+  char *data_path = ltr_int_my_strcat(app_path, data);
+  free(app_path);
+  return data_path;
+}
+
 char *ltr_int_get_lib_path(const char *libname)
 {
   #ifdef DARWIN
