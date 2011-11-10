@@ -316,7 +316,8 @@ bool ltr_int_add_stripe(stripe_t *stripe, image *img)
 
 void ltr_int_prepare_for_processing(int w, int h)
 {
-  h = 0;
+  //h = 0;
+  (void) h;
   if(current.ranges == NULL){
     current.ranges = (range*)ltr_int_my_malloc(sizeof(range) * ((w / 2) + 1));
     next.ranges = (range*)ltr_int_my_malloc(sizeof(range) * ((w / 2) + 1));

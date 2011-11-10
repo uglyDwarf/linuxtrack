@@ -94,6 +94,12 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" \
 	"$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" \
 	"$(DESTDIR)$(icondir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES) $(pkglib_LTLIBRARIES)
+libfakeusb_la_DEPENDENCIES = libltr.la
+am_libfakeusb_la_OBJECTS = libfakeusb_la-fakeusb.lo
+libfakeusb_la_OBJECTS = $(am_libfakeusb_la_OBJECTS)
+libfakeusb_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libfakeusb_la_CFLAGS) \
+	$(CFLAGS) $(libfakeusb_la_LDFLAGS) $(LDFLAGS) -o $@
 liblinuxtrack_la_LIBADD =
 am_liblinuxtrack_la_OBJECTS = liblinuxtrack_la-linuxtrack.lo
 liblinuxtrack_la_OBJECTS = $(am_liblinuxtrack_la_OBJECTS)
@@ -218,16 +224,16 @@ YLWRAP = $(top_srcdir)/ylwrap
 YACCCOMPILE = $(YACC) $(YFLAGS) $(AM_YFLAGS)
 LTYACCCOMPILE = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=compile $(YACC) $(YFLAGS) $(AM_YFLAGS)
-SOURCES = $(liblinuxtrack_la_SOURCES) $(libltopenusb_la_SOURCES) \
-	$(libltr_la_SOURCES) $(libltusb1_la_SOURCES) \
-	$(libmacwii_la_SOURCES) $(libtir_la_SOURCES) \
-	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
+SOURCES = $(libfakeusb_la_SOURCES) $(liblinuxtrack_la_SOURCES) \
+	$(libltopenusb_la_SOURCES) $(libltr_la_SOURCES) \
+	$(libltusb1_la_SOURCES) $(libmacwii_la_SOURCES) \
+	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(xlinuxtrack_la_SOURCES) $(xlinuxtrack9_la_SOURCES) \
 	$(ltr_pipe_SOURCES) $(ltr_server_SOURCES)
-DIST_SOURCES = $(liblinuxtrack_la_SOURCES) $(libltopenusb_la_SOURCES) \
-	$(libltr_la_SOURCES) $(libltusb1_la_SOURCES) \
-	$(libmacwii_la_SOURCES) $(libtir_la_SOURCES) \
-	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
+DIST_SOURCES = $(libfakeusb_la_SOURCES) $(liblinuxtrack_la_SOURCES) \
+	$(libltopenusb_la_SOURCES) $(libltr_la_SOURCES) \
+	$(libltusb1_la_SOURCES) $(libmacwii_la_SOURCES) \
+	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(am__xlinuxtrack_la_SOURCES_DIST) \
 	$(am__xlinuxtrack9_la_SOURCES_DIST) \
 	$(am__ltr_pipe_SOURCES_DIST) $(ltr_server_SOURCES)
@@ -377,7 +383,7 @@ man_MANS = ltr_gui.1 ltr_server.1 $(am__append_2) $(am__append_9)
 lib_LTLIBRARIES = liblinuxtrack.la
 pkglib_LTLIBRARIES = libltr.la libmacwii.la $(am__append_1) \
 	$(am__append_3) $(am__append_4) $(am__append_5) \
-	$(am__append_6) $(am__append_7)
+	$(am__append_6) libfakeusb.la $(am__append_7)
 ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
 ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server_LDADD = -lpthread libltr.la
@@ -415,6 +421,10 @@ libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
 libltopenusb_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 libltopenusb_la_LIBADD = -lopenusb libltr.la
 libltopenusb_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS)
+libfakeusb_la_SOURCES = fakeusb.c usb_ifc.h
+libfakeusb_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
+libfakeusb_la_LIBADD = libltr.la
+libfakeusb_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS)
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
 libwii_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 libwii_la_LIBADD = -lcwiid libltr.la
@@ -575,6 +585,8 @@ clean-pkglibLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
+libfakeusb.la: $(libfakeusb_la_OBJECTS) $(libfakeusb_la_DEPENDENCIES) 
+	$(libfakeusb_la_LINK) -rpath $(pkglibdir) $(libfakeusb_la_OBJECTS) $(libfakeusb_la_LIBADD) $(LIBS)
 liblinuxtrack.la: $(liblinuxtrack_la_OBJECTS) $(liblinuxtrack_la_DEPENDENCIES) 
 	$(liblinuxtrack_la_LINK) -rpath $(libdir) $(liblinuxtrack_la_OBJECTS) $(liblinuxtrack_la_LIBADD) $(LIBS)
 libltopenusb.la: $(libltopenusb_la_OBJECTS) $(libltopenusb_la_DEPENDENCIES) 
@@ -664,6 +676,9 @@ distclean-compile:
 
 .c.lo:
 	$(LTCOMPILE) -c -o $@ $<
+
+libfakeusb_la-fakeusb.lo: fakeusb.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfakeusb_la_CFLAGS) $(CFLAGS) -c -o libfakeusb_la-fakeusb.lo `test -f 'fakeusb.c' || echo '$(srcdir)/'`fakeusb.c
 
 liblinuxtrack_la-linuxtrack.lo: linuxtrack.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblinuxtrack_la_CFLAGS) $(CFLAGS) -c -o liblinuxtrack_la-linuxtrack.lo `test -f 'linuxtrack.c' || echo '$(srcdir)/'`linuxtrack.c

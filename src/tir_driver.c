@@ -46,7 +46,9 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
   assert(ccb != NULL);
   assert((ccb->device.category == tir) || (ccb->device.category == tir_open));
   last_threshold = -1;
+  printf("loading fake usb!\n");
   if((libhandle = ltr_int_load_library((char *)"libltusb1", functions)) == NULL){
+//  if((libhandle = ltr_int_load_library((char *)"libfakeusb", functions)) == NULL){
     return -1;
   }
   if(!ltr_int_tir_init_prefs()){
@@ -120,6 +122,7 @@ int ltr_int_tracker_close()
 int ltr_int_tir_found(bool *have_firmware)
 {
   if((libhandle = ltr_int_load_library((char *)"libltusb1", functions)) == NULL){
+//  if((libhandle = ltr_int_load_library((char *)"libfakeusb", functions)) == NULL){
     return 0;
   }
   if(!ltr_int_init_usb()){
@@ -128,6 +131,9 @@ int ltr_int_tir_found(bool *have_firmware)
   int res = 0;
   dev_found device = ltr_int_find_tir();
   switch(device){
+    case TIR3:
+      res = 3;
+      break;
     case TIR4:
       res = 4;
       break;
@@ -141,12 +147,16 @@ int ltr_int_tir_found(bool *have_firmware)
       res = 0;
       break;
   }
-  char *fw = ltr_int_find_firmware(device);
-  if(fw != NULL){
-    free(fw);
+  if(res == 3){
     *have_firmware = true;
   }else{
-    *have_firmware = false;
+    char *fw = ltr_int_find_firmware(device);
+    if(fw != NULL){
+      free(fw);
+      *have_firmware = true;
+    }else{
+      *have_firmware = false;
+    }
   }
   ltr_int_finish_usb(-1);
   ltr_int_unload_library(libhandle, functions);
