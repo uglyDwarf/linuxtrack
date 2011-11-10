@@ -609,7 +609,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
         //we have data!
         break;
       }else{
-        if((pfd.revents && POLLERR) != 0){
+        if((pfd.revents & POLLERR) != 0){
           ltr_int_log_message("Poll returned error (%s)!\n", strerror(errno));
 	}else{
 	  ltr_int_log_message("Poll returned unexpected event! (%X)\n",pfd.revents);
