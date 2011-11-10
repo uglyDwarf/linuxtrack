@@ -62,6 +62,8 @@ if OPENUSB
 endif
 endif
 
+pkglib_LTLIBRARIES += libfakeusb.la
+
 #bin_PROGRAMS = lt_server lt_client
 #lt_server_SOURCES = lt_server.c netcomm.c netcomm.h
 #lt_server_LDADD = -lm -lpthread -ldl libltr.la 
@@ -105,6 +107,10 @@ libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
 libltopenusb_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 libltopenusb_la_LIBADD = -lopenusb libltr.la
 libltopenusb_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS)
+libfakeusb_la_SOURCES = fakeusb.c usb_ifc.h
+libfakeusb_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
+libfakeusb_la_LIBADD = libltr.la
+libfakeusb_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS)
 
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
 libwii_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
