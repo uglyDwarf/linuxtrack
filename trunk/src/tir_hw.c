@@ -15,6 +15,7 @@
 #define TIR_CONFIGURATION 1
 #define TIR_INTERFACE 0
 #define TIR_IN_EP  0x01
+#define TIR3_IN_EP  0x02
 #define TIR_OUT_EP 0x82
 
 #define FW_SIZE_INCREMENT 50000
@@ -673,7 +674,9 @@ bool ltr_int_open_tir(bool force_fw_load, bool ir_on)
     return false;
   }
   
-  if(!ltr_int_prepare_device(TIR_CONFIGURATION, TIR_INTERFACE, TIR_OUT_EP, TIR_IN_EP)){
+  //Tir3 uses endpoint 2, while Tir4 and 5 use endpoint 1!
+  int in_ep = (device == TIR3) ? TIR3_IN_EP : TIR_IN_EP;
+  if(!ltr_int_prepare_device(TIR_CONFIGURATION, TIR_INTERFACE, TIR_OUT_EP, in_ep)){
     ltr_int_log_message("Couldn't prepare!\n");
     return false;
   }

@@ -45,7 +45,7 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
   }
   ltr_int_resetFrameFlag(mmm);
   ltr_int_wii_init_prefs();
-  ltr_int_setWiiIndication(mmm, get_indication(mmm));
+  ltr_int_setWiiIndication(mmm, get_indication());
   ltr_int_resumeWii();
   ltr_int_log_message("Init done!\n"); 
   return 0;
@@ -53,14 +53,14 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
 
 int ltr_int_tracker_pause()
 {  
-  ltr_int_setWiiIndication(mmm, get_indication(mmm));
+  ltr_int_setWiiIndication(mmm, get_indication());
   ltr_int_pauseWii();
   return 0;
 }
 
 int ltr_int_tracker_resume()
 {
-  ltr_int_setWiiIndication(mmm, get_indication(mmm));
+  ltr_int_setWiiIndication(mmm, get_indication());
   ltr_int_resumeWii();
   return 0;
 }

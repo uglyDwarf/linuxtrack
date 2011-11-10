@@ -177,7 +177,7 @@ bool ltr_int_receive_data(unsigned char data[], size_t size, size_t *transferred
   }
   *transferred = 0;
   int res;
-  if((res = libusb_bulk_transfer(handle, 0x82, data, size, (int*)transferred, timeout))){
+  if((res = libusb_bulk_transfer(handle, in, data, size, (int*)transferred, timeout))){
     if(res != LIBUSB_ERROR_TIMEOUT){
       ltr_int_log_message("Problem reading data from TIR! %d - %d transferred\n", res, *transferred);
       return false;
