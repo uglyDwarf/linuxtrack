@@ -1,0 +1,10 @@
+<RCC>
+  <qresource prefix="ltr">
+    <file>../linuxtrack.svg</file>
+    <file>../linuxtrack-wii.svg</file>
+    <file>cap_small.png</file>
+    <file>clip_small.png</file>
+    <file>cap.png</file>
+    <file>clip.png</file>
+  </qresource>
+</RCC>
