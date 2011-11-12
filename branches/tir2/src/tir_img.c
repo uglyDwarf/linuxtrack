@@ -10,8 +10,24 @@
 static int pkt_no = 0;
 static image *p_img = NULL;
 static unsigned int current_line = 0;
+static dev_found device = NONE;
 
-static bool process_stripe_tir(unsigned char p_stripe[])
+static bool process_stripe_tir2(unsigned char p_stripe[])
+{
+  stripe_t stripe;
+    stripe.vline = p_stripe[0];
+    stripe.hstart = p_stripe[1];
+    stripe.hstop = p_stripe[2];
+    stripe.sum = stripe.hstop - stripe.hstart + 1;
+    stripe.sum_x = (unsigned int)(stripe.sum * (stripe.sum - 1) / 2.0);
+    stripe.points = stripe.sum;
+    if(!ltr_int_add_stripe(&stripe, p_img)){
+      ltr_int_log_message("Couldn't add stripe!\n");
+    }
+  return true;
+}
+
+static bool process_stripe_tir4(unsigned char p_stripe[])
 {
   stripe_t stripe;
   unsigned char rest;
@@ -51,6 +67,19 @@ static bool is_next_frame_tir(unsigned char p_stripe[])
   bool res;
   if(p_stripe[3] & 0x20)
     vline |= 0x100;
+  if(vline < current_line){
+    res = true;
+  }else{
+    res = false;
+  }
+  current_line = vline;
+  return res;
+}
+
+static bool is_next_frame_tir2(unsigned char p_stripe[])
+{
+  unsigned int vline = p_stripe[0];
+  bool res;
   if(vline < current_line){
     res = true;
   }else{
@@ -123,7 +152,7 @@ static bool process_packet_tir5(unsigned char data[], size_t *ptr, unsigned int 
       *ptr += 4;
       while(ps > 0){
 	if(type == 0){
-	  process_stripe_tir((unsigned char *)&(data[*ptr]));
+	  process_stripe_tir4((unsigned char *)&(data[*ptr]));
 	  *ptr += 4;
           ps -= 4;
 	}else{
@@ -142,9 +171,9 @@ static bool process_packet_tir5(unsigned char data[], size_t *ptr, unsigned int 
   return have_frame;
 }
 
-
 static bool process_packet_tir4(unsigned char data[], size_t *ptr, int pktsize, unsigned int limit)
 {
+  (void) pktsize;
   unsigned int *ui;
   bool have_frame = false;
 
@@ -165,9 +194,48 @@ static bool process_packet_tir4(unsigned char data[], size_t *ptr, int pktsize, 
 //      log_message("\t%02X%02X%02X%02X\n", data[*ptr], data[*ptr + 1],
 //             data[*ptr + 2], data[*ptr + 3]);
 //!!!!      assert((data[*ptr + 3] & 7) == 0);
-      process_stripe_tir((unsigned char *)ui);
+      process_stripe_tir4((unsigned char *)ui);
       ++ui;
       (*ptr) += 4;
+    }
+    if(*ptr >= limit){
+//      log_message(">>>  size %d, limit %d, ptr %d\n", pktsize, limit, *ptr);
+      go_on = false;
+      if(pktsize == 0x3E){
+	*ptr += 2;
+      }
+    }
+  }while(go_on);
+  return have_frame;
+}
+
+
+static bool process_packet_tir2(unsigned char data[], size_t *ptr, int pktsize, unsigned int limit)
+{
+  (void) pktsize;
+  uint8_t *ui;
+  bool have_frame = false;
+
+  ui = (uint8_t *)&(data[*ptr]);
+  bool go_on = true;
+  do{
+    if((ui[0] == 0) && (ui[1] == 0) && (ui[2] == 0)){
+      current_line = 0;
+      have_frame = true;
+      go_on = false;
+      ui += 3;
+      (*ptr) += 3;
+    }else if(is_next_frame_tir2(ui)){
+      ltr_int_log_message("Have frame!!!!!!\n");
+      have_frame = true;
+      go_on = false;
+    }else{
+//      log_message("\t%02X%02X%02X%02X\n", data[*ptr], data[*ptr + 1],
+//             data[*ptr + 2], data[*ptr + 3]);
+//!!!!      assert((data[*ptr + 3] & 7) == 0);
+      process_stripe_tir2((unsigned char *)ui);
+      ui += 3;
+      (*ptr) += 3;
     }
     if(*ptr >= limit){
 //      log_message(">>>  size %d, limit %d, ptr %d\n", pktsize, limit, *ptr);
@@ -226,6 +294,7 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
 	  }
 	  printf("\n");
 */
+          type = -1;
 	  *ptr = size; //Read new packet...
           return false;
           break;
@@ -254,13 +323,18 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
         break;
       case 0x1C:
         //TIR4 packet
-        have_frame = process_packet_tir4(data, ptr, pktsize, limit);
+        if(device == TIR2){
+          have_frame = process_packet_tir2(data, ptr, pktsize, limit);
+        }else{
+          have_frame = process_packet_tir4(data, ptr, pktsize, limit);
+        }
 	if(*ptr >= limit){
           type = -1;
 	}
         //log_message("   size %d, limit %d, ptr %d\n", pktsize, limit, *ptr);
         break;
       default:
+        type = -1;
         break;
     }
 
@@ -274,10 +348,11 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
 
 
 
-int ltr_int_read_blobs_tir(struct bloblist_type *blt, int min, int max, image *img)
+int ltr_int_read_blobs_tir(struct bloblist_type *blt, int min, int max, image *img, tir_info *info)
 {
   assert(blt != NULL);
   assert(img != NULL);
+  device = info->dev_type;
   p_img = img;
   static size_t size = 0;
   static size_t ptr = 0;

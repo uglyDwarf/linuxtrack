@@ -47,6 +47,7 @@ static bool ir_on = true;
 
 static dev_found device = NONE;
 
+static tir_interface tir2;
 static tir_interface tir3;
 static tir_interface tir4;
 static tir_interface tir5;
@@ -305,14 +306,22 @@ static bool flush_fifo_tir()
 bool ltr_int_set_threshold_tir(unsigned int val)
 {
   unsigned char pkt[] = {0x15, 0x96, 0x01, 0x00};
-  if(val < 30){
-    val = 30;
-  }
+  size_t pkt_len = sizeof(pkt);
   if(val > 253){
     val = 253;
   }
+  if(device > TIR2){
+    if(val < 30){
+      val = 30;
+    }
+  }else{
+    if(val < 40){
+      val = 40;
+    }
+    pkt_len -= 1;
+  }
   pkt[1] = val;
-  return ltr_int_send_data(pkt, sizeof(pkt));
+  return ltr_int_send_data(pkt, pkt_len);
 }
 
 static bool set_status_led_tir5(bool running)
@@ -382,6 +391,24 @@ static bool set_exposure(unsigned int exp)
     ltr_int_send_data(Set_exposure_l, sizeof(Set_exposure_l));
   
 }
+
+static bool stop_camera_tir2()
+{
+  ltr_int_log_message("Stopping TIR2 camera!\n");
+  turn_led_off_tir(TIR_LED_RED);
+  usleep(70000);
+  turn_led_off_tir(TIR_LED_GREEN);
+  usleep(70000);
+  turn_led_off_tir(TIR_LED_BLUE);
+  usleep(70000);
+  turn_led_off_tir(TIR_LED_IR);
+  usleep(70000);
+  ltr_int_send_data(Camera_stop,sizeof(Camera_stop));
+  usleep(70000);
+  turn_led_off_tir(TIR_LED_IR);
+  return true;
+}
+
 
 static bool stop_camera_tir3()
 {
@@ -461,6 +488,28 @@ static bool stop_camera_tir()
   return tir_iface->stop_camera_tir();
 }
 
+static bool start_camera_tir2()
+{
+  ltr_int_log_message("Starting TIR2 camera!\n");
+  ltr_int_send_data(Video_on,sizeof(Video_on));
+  usleep(120000);
+  if(ir_on){ 
+    turn_led_on_tir(TIR_LED_IR);
+    usleep(64000);
+  }
+  flush_fifo_tir();
+  usleep(64000);
+  if(ltr_int_tir_get_status_indication()){
+    set_status_led_tir4(true);
+    usleep(64000);
+  }
+  if(ir_on){ 
+    turn_led_on_tir(TIR_LED_IR);
+    usleep(64000);
+  }
+  return true;
+}
+
 static bool start_camera_tir3()
 {
   ltr_int_log_message("Starting TIR3 camera!\n");
@@ -512,6 +561,44 @@ bool start_camera_tir()
 {
   assert(tir_iface != NULL);
   return tir_iface->start_camera_tir();
+}
+
+static bool init_camera_tir2(bool force_fw_load, bool p_ir_on)
+{
+  (void) force_fw_load;
+  size_t t;
+  
+  ir_on = p_ir_on;
+  ltr_int_log_message("Initializing TIR2 camera!\n");
+  turn_led_off_tir(TIR_LED_IR);
+  usleep(2000);
+  turn_led_off_tir(TIR_LED_RED);
+  usleep(2000);
+  turn_led_off_tir(TIR_LED_GREEN);
+  usleep(2000);
+  turn_led_off_tir(TIR_LED_BLUE);
+  usleep(2000);
+  ltr_int_send_data(Video_off,sizeof(Video_off));
+  usleep(2000);
+  turn_led_off_tir(TIR_LED_IR);
+  usleep(2000);
+  turn_led_off_tir(TIR_LED_RED);
+  usleep(2000);
+  turn_led_off_tir(TIR_LED_GREEN);
+  usleep(2000);
+  turn_led_off_tir(TIR_LED_BLUE);
+  usleep(2000);
+  //To flush any pending packets...
+  ltr_int_receive_data(ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
+  ltr_int_receive_data(ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
+  ltr_int_receive_data(ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
+  if(!read_rom_data_tir3()){
+    return false;
+  }
+  usleep(70000);
+  ltr_int_set_threshold_tir(0x8c);
+  usleep(2000);
+  return true;
 }
 
 static bool init_camera_tir3(bool force_fw_load, bool p_ir_on)
@@ -675,13 +762,16 @@ bool ltr_int_open_tir(bool force_fw_load, bool ir_on)
   }
   
   //Tir3 uses endpoint 2, while Tir4 and 5 use endpoint 1!
-  int in_ep = (device == TIR3) ? TIR3_IN_EP : TIR_IN_EP;
+  int in_ep = (device <= TIR3) ? TIR3_IN_EP : TIR_IN_EP;
   if(!ltr_int_prepare_device(TIR_CONFIGURATION, TIR_INTERFACE, TIR_OUT_EP, in_ep)){
     ltr_int_log_message("Couldn't prepare!\n");
     return false;
   }
   
   switch(device){
+    case TIR2:
+      tir_iface = &tir2;
+      break;
     case TIR3:
       tir_iface = &tir3;
       break;
@@ -716,6 +806,22 @@ bool ltr_int_resume_tir()
   bool res = start_camera_tir();
   set_status_led_tir(true);
   return res;
+}
+
+static bool close_camera_tir2(){
+  ltr_int_log_message("Closing TIR2 camera!\n");
+  stop_camera_tir();
+  usleep(25000);
+  turn_led_off_tir(TIR_LED_RED);
+  usleep(2000);
+  turn_led_off_tir(TIR_LED_GREEN);
+  usleep(2000);
+  turn_led_off_tir(TIR_LED_BLUE);
+  usleep(2000);
+  turn_led_off_tir(TIR_LED_IR);
+  usleep(2000);
+  ltr_int_finish_usb(TIR_INTERFACE);
+  return true;
 }
 
 static bool close_camera_tir3(){
@@ -763,32 +869,42 @@ bool ltr_int_close_tir()
 }
 
 
-
-static void get_res_tir3(unsigned int *w, unsigned int *h, float *hf)
+static void get_tir2_info(tir_info *info)
 {
-  *w = 440;
-  *h = 314;
-  *hf = 1.0f;
+  info->width = 256;
+  info->height = 256;
+  info->hf = 1.0f;
+  info->dev_type = TIR2;
 }
 
-static void get_res_tir4(unsigned int *w, unsigned int *h, float *hf)
+static void get_tir3_info(tir_info *info)
 {
-  *w = 710;
-  *h = 2 * 288;
-  *hf = 2.0f;
+  info->width = 440;
+  info->height = 314;
+  info->hf = 1.0f;
+  info->dev_type = TIR3;
 }
 
-static void get_res_tir5(unsigned int *w, unsigned int *h, float *hf)
+static void get_tir4_info(tir_info *info)
 {
-  *w = 640;
-  *h = 480;
-  *hf = 1.0f;
+  info->width = 710;
+  info->height = 2 * 288;
+  info->hf = 2.0f;
+  info->dev_type = TIR4;
 }
 
-void ltr_int_get_res_tir(unsigned int *w, unsigned int *h, float *hf)
+static void get_tir5_info(tir_info *info)
+{
+  info->width = 640;
+  info->height = 480;
+  info->hf = 1.0f;
+  info->dev_type = TIR5;
+}
+
+void ltr_int_get_tir_info(tir_info *info)
 {
   assert(tir_iface != NULL);
-  tir_iface->get_res_tir(w, h, hf);
+  tir_iface->get_tir_info(info);
 }
 
 static void switch_green(bool state)
@@ -834,6 +950,7 @@ char *ltr_int_find_firmware(dev_found device)
   const char *fw_file;
   switch(device){
     case TIR3:
+    case TIR2:
       fw_file = NULL;
       break;
     case TIR4:
@@ -859,12 +976,21 @@ char *ltr_int_find_firmware(dev_found device)
   return fw_path;
 }
 
+static tir_interface tir2 = {
+  .stop_camera_tir = stop_camera_tir2,
+  .start_camera_tir = start_camera_tir2,
+  .init_camera_tir = init_camera_tir2,
+  .close_camera_tir = close_camera_tir2,
+  .get_tir_info = get_tir2_info,
+  .set_status_led_tir = set_status_led_tir4
+};
+
 static tir_interface tir3 = {
   .stop_camera_tir = stop_camera_tir3,
   .start_camera_tir = start_camera_tir3,
   .init_camera_tir = init_camera_tir3,
   .close_camera_tir = close_camera_tir3,
-  .get_res_tir = get_res_tir3,
+  .get_tir_info = get_tir3_info,
   .set_status_led_tir = set_status_led_tir4
 };
 
@@ -873,7 +999,7 @@ static tir_interface tir4 = {
   .start_camera_tir = start_camera_tir4,
   .init_camera_tir = init_camera_tir4,
   .close_camera_tir = close_camera_tir4,
-  .get_res_tir = get_res_tir4,
+  .get_tir_info = get_tir4_info,
   .set_status_led_tir = set_status_led_tir4
 };
 
@@ -882,7 +1008,7 @@ static tir_interface tir5 = {
   .start_camera_tir = start_camera_tir5,
   .init_camera_tir = init_camera_tir5,
   .close_camera_tir = close_camera_tir5,
-  .get_res_tir = get_res_tir5,
+  .get_tir_info = get_tir5_info,
   .set_status_led_tir = set_status_led_tir5
 };
 
