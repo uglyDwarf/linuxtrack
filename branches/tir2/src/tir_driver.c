@@ -15,6 +15,8 @@
 #include "utils.h"
 #include "tir_driver_prefs.h"
 
+//#define FAKEUSB
+
 init_usb_fun ltr_int_init_usb = NULL;
 find_tir_fun ltr_int_find_tir = NULL;
 prepare_device_fun ltr_int_prepare_device = NULL;
@@ -46,9 +48,12 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
   assert(ccb != NULL);
   assert((ccb->device.category == tir) || (ccb->device.category == tir_open));
   last_threshold = -1;
-//  printf("loading fake usb!\n");
-//  if((libhandle = ltr_int_load_library((char *)"libfakeusb", functions)) == NULL){
+#ifdef FAKEUSB
+  printf("loading fake usb!\n");
+  if((libhandle = ltr_int_load_library((char *)"libfakeusb", functions)) == NULL){
+#else
   if((libhandle = ltr_int_load_library((char *)"libltusb1", functions)) == NULL){
+#endif
     return -1;
   }
   if(!ltr_int_tir_init_prefs()){
@@ -124,8 +129,11 @@ int ltr_int_tracker_close()
 
 int ltr_int_tir_found(bool *have_firmware)
 {
+#ifdef FAKEUSB
+  if((libhandle = ltr_int_load_library((char *)"libfakeusb", functions)) == NULL){
+#else
   if((libhandle = ltr_int_load_library((char *)"libltusb1", functions)) == NULL){
-//  if((libhandle = ltr_int_load_library((char *)"libfakeusb", functions)) == NULL){
+#endif
     return 0;
   }
   if(!ltr_int_init_usb()){

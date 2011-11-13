@@ -187,7 +187,6 @@ static bool process_packet_tir4(unsigned char data[], size_t *ptr, int pktsize, 
       ++ui;
       (*ptr) += 4;
     }else if(is_next_frame_tir((unsigned char *)ui)){
-      ltr_int_log_message("Have frame!!!!!!\n");
       have_frame = true;
       go_on = false;
     }else{
