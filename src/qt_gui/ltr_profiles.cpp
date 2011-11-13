@@ -67,7 +67,7 @@ int Profile::isProfile(const QString &name)
   return i;
 }
 
-AppProfile::AppProfile(const QString &n, QWidget *parent) : QWidget(parent), name(n), 
+AppProfile::AppProfile(const QString &n, QWidget *parent) : QWidget(parent), name(n), filterFactor(0.0),
                                                             initializing(false)
 {
   PREF.setCustomSection(name);

@@ -15,6 +15,8 @@
 #include "utils.h"
 #include "tir_driver_prefs.h"
 
+//#define FAKEUSB
+
 init_usb_fun ltr_int_init_usb = NULL;
 find_tir_fun ltr_int_find_tir = NULL;
 prepare_device_fun ltr_int_prepare_device = NULL;
@@ -46,9 +48,12 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
   assert(ccb != NULL);
   assert((ccb->device.category == tir) || (ccb->device.category == tir_open));
   last_threshold = -1;
-//  printf("loading fake usb!\n");
-//  if((libhandle = ltr_int_load_library((char *)"libfakeusb", functions)) == NULL){
+#ifdef FAKEUSB
+  printf("loading fake usb!\n");
+  if((libhandle = ltr_int_load_library((char *)"libfakeusb", functions)) == NULL){
+#else
   if((libhandle = ltr_int_load_library((char *)"libltusb1", functions)) == NULL){
+#endif
     return -1;
   }
   if(!ltr_int_tir_init_prefs()){
@@ -57,8 +62,10 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
 
   ltr_int_log_message("Lib loaded, prefs read...\n");
   if(ltr_int_open_tir(false, !ltr_int_is_model_active())){
-    float tf;
-    ltr_int_get_res_tir(&(ccb->pixel_width), &(ccb->pixel_height), &tf);
+    tir_info info;
+    ltr_int_get_tir_info(&info);
+    ccb->pixel_width = info.width;
+    ccb->pixel_height = info.height;
     ltr_int_prepare_for_processing(ccb->pixel_width, ccb->pixel_height);
     return 0;
   }else{
@@ -77,17 +84,18 @@ static int tir_set_good(struct camera_control_block *ccb, bool arg)
 int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f)
 {
   (void) ccb;
-  unsigned int w,h;
-  float hf;
-  ltr_int_get_res_tir(&w, &h, &hf);
+  tir_info info;
+  //unsigned int w,h;
+  //float hf;
+  ltr_int_get_tir_info(&info);
   
-  f->width = w;
-  f->height = h;
+  f->width = info.width;
+  f->height = info.height;
   image img = {
     .bitmap = f->bitmap,
-    .w = w,
-    .h = h,
-    .ratio = hf
+    .w = info.width,
+    .h = info.height,
+    .ratio = info.hf
   };
   
   //Set threshold only when needed
@@ -98,7 +106,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
   }
   
   return ltr_int_read_blobs_tir(&(f->bloblist), ltr_int_tir_get_min_blob(), 
-				ltr_int_tir_get_max_blob(), &img);
+				ltr_int_tir_get_max_blob(), &img, &info);
 }
 
 int ltr_int_tracker_pause()
@@ -121,8 +129,11 @@ int ltr_int_tracker_close()
 
 int ltr_int_tir_found(bool *have_firmware)
 {
+#ifdef FAKEUSB
+  if((libhandle = ltr_int_load_library((char *)"libfakeusb", functions)) == NULL){
+#else
   if((libhandle = ltr_int_load_library((char *)"libltusb1", functions)) == NULL){
-//  if((libhandle = ltr_int_load_library((char *)"libfakeusb", functions)) == NULL){
+#endif
     return 0;
   }
   if(!ltr_int_init_usb()){
@@ -131,6 +142,9 @@ int ltr_int_tir_found(bool *have_firmware)
   int res = 0;
   dev_found device = ltr_int_find_tir();
   switch(device){
+    case TIR2:
+      res = 2;
+      break;
     case TIR3:
       res = 3;
       break;
@@ -147,7 +161,7 @@ int ltr_int_tir_found(bool *have_firmware)
       res = 0;
       break;
   }
-  if(res == 3){
+  if(res < 4){
     *have_firmware = true;
   }else{
     char *fw = ltr_int_find_firmware(device);
