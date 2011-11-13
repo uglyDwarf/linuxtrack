@@ -8,7 +8,7 @@ extern bool pause_tir();
 extern bool resume_tir();
 extern bool read_frame();
 extern bool close_tir(); 
-extern void get_res_tir();
+extern void get_tir_info();
 extern void switch_green(bool state);
 extern void switch_blue(bool state);
 extern void switch_reb(bool state);

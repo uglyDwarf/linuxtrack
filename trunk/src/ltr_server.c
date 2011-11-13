@@ -214,7 +214,7 @@ int prep_main_loop(char *section)
   int res = ltr_int_server_running_already(lockName, &pfSem, true);
   if(res == 0){
     ltr_int_log_message("Starting server in the active mode!\n");
-#ifdef LTR_GUI    
+#ifdef LTR_GUI
     ltr_init(section);
 #endif
     start_safety(true);
@@ -244,9 +244,11 @@ int main(int argc, char *argv[])
 
   if(argc > 1){
     section = argv[1];
+    ltr_int_log_message("ltr_server - section '%s'\n", section);
     //Section name
+  }else{
+    ltr_int_log_message("ltr_server - section NULL\n");
   }
-  ltr_int_log_message("ltr_server\n");
   return prep_main_loop(section);
 }
 

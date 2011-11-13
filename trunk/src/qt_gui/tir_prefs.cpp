@@ -101,7 +101,11 @@ bool TirPrefs::Activate(const QString &ID, bool init)
                           Qt::Checked : Qt::Unchecked;
   gui.TirSignalizeStatus->setCheckState(state);
   if(firmwareOK){
-    gui.TirFwLabel->setText("Firmware found!");
+    if(tirType < 4){
+      gui.TirFwLabel->setText("Firmware not needed!");
+    }else{
+      gui.TirFwLabel->setText("Firmware found!");
+    }
     gui.TirInstallFirmware->setDisabled(true);
   }else{
     gui.TirFwLabel->setText("Firmware not found - TrackIr will not work!");
