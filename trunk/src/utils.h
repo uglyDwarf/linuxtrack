@@ -33,6 +33,9 @@ char *ltr_int_get_data_path(const char *data);
 char *ltr_int_get_lib_path(const char *libname);
 char *ltr_int_get_resource_path(const char *section, const char *rsrc);
 
+typedef enum {DBG_CHECK, DBG_ON, DBG_OFF} dbg_flag_type; 
+dbg_flag_type ltr_int_get_dbg_flag(const int flag);
+
 #ifdef __cplusplus
 }
 #endif
