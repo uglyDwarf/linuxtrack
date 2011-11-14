@@ -59,9 +59,16 @@ bool ltr_int_check_pose()
 }
 
 static bool tracking_initialized = false;
+static dbg_flag_type tracking_dbg_flag = DBG_CHECK;
+static dbg_flag_type raw_dbg_flag = DBG_CHECK;
 
 bool ltr_int_init_tracking()
 {
+  if(tracking_dbg_flag == DBG_CHECK){
+    tracking_dbg_flag = ltr_int_get_dbg_flag('t');
+    raw_dbg_flag = ltr_int_get_dbg_flag('r');
+  }
+
   if(ltr_int_get_filter_factor(&filterfactor) != true){
     return false;
   }
@@ -136,6 +143,12 @@ static int update_pose_1pt(struct frame_type *frame)
   
   ltr_int_check_pose();
   
+  if(tracking_dbg_flag == DBG_ON){
+    unsigned int i;
+    for(i = 0; i < frame->bloblist.num_blobs; ++i){
+      ltr_int_log_message("*DBG_t* %d: %g %g\n", i, frame->bloblist.blobs[i].x, frame->bloblist.blobs[i].y);
+    }
+  }
   
   if(ltr_int_is_finite(frame->bloblist.blobs[0].x) && ltr_int_is_finite(frame->bloblist.blobs[0].y)){
   }else{
@@ -168,7 +181,7 @@ static int update_pose_3pt(struct frame_type *frame)
   bool recentering = false;
   
   ltr_int_check_pose();
-
+  
   if(frame->bloblist.num_blobs != 3){
     return -1;
   }
@@ -178,6 +191,13 @@ static int update_pose_3pt(struct frame_type *frame)
   }else{
     return -1;
   }
+  if(tracking_dbg_flag == DBG_ON){
+    unsigned int i;
+    for(i = 0; i < frame->bloblist.num_blobs; ++i){
+      ltr_int_log_message("*DBG_t* %d: %g %g\n", i, frame->bloblist.blobs[i].x, frame->bloblist.blobs[i].y);
+    }
+  }
+  
   if(recenter == true){
     recenter = false;
     recentering = true;
@@ -186,13 +206,23 @@ static int update_pose_3pt(struct frame_type *frame)
   ltr_int_pose_sort_blobs(frame->bloblist);
   ltr_int_pose_process_blobs(frame->bloblist, &t, recentering);
 /*     transform_print(t); */
-  return ltr_int_pose_compute_camera_update(t,
+  int res;
+  res = ltr_int_pose_compute_camera_update(t,
 			      &raw_angles[0], //heading
 			      &raw_angles[1], //pitch
 			      &raw_angles[2], //roll
 			      &raw_translations[0], //tx
 			      &raw_translations[1], //ty
 			      &raw_translations[2]); //tz
+  
+
+  if(raw_dbg_flag == DBG_ON){
+    ltr_int_log_message("*DBG_r* yaw: %g pitch: %g roll: %g\n", raw_angles[0], raw_angles[1], raw_angles[2]);
+    ltr_int_log_message("*DBG_r* x: %g y: %g z: %g\n", 
+                        raw_translations[0], raw_translations[1], raw_translations[2]);
+  }
+  
+  return res;
 }
 
 static unsigned int counter_d;

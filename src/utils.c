@@ -17,6 +17,7 @@
 #include <time.h>
 #include <assert.h>
 #include <stdlib.h>
+#include "utils.h"
 
 #define IOCTL_RETRY_COUNT 5
 
@@ -243,6 +244,18 @@ char *ltr_int_get_resource_path(const char *section, const char *rsrc)
     return path;
   }
   return NULL;
+}
+
+
+dbg_flag_type ltr_int_get_dbg_flag(const int flag)
+{
+  char *dbg_flags = getenv("LINUXTRACK_DBG");
+  if(dbg_flags == NULL) return DBG_OFF;
+  if(strchr(dbg_flags, flag) != NULL){
+    return DBG_ON;
+  }else{
+    return DBG_OFF;
+  }
 }
 
 #endif
