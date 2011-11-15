@@ -1,8 +1,88 @@
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <unistd.h>
 #define USB_IMPL_ONLY
 #include "usb_ifc.h"
 #include "utils.h"
+#include <string.h>
+
+#define PKT_MAX 16384
+
+static int get_tir_type()
+{
+  char *fname = getenv("LINUXTRACK_STIMULI");
+  if(fname == NULL){
+    return TIR2;
+  }
+  int last = strlen(fname);
+  if(last == 0){
+    return TIR2;
+  }
+  switch(fname[last-1]){
+    case '2': 
+      return TIR2;
+      break;
+    case '3': 
+      return TIR3;
+      break;
+    case '4': 
+      return TIR4;
+      break;
+    case '5': 
+      return TIR5;
+      break;
+    default:
+      return TIR2;
+      break;
+  }
+}
+
+
+static int read_packet(uint8_t buffer[], int length)
+{
+  int len;
+  int ptr;
+  int buf_ptr = 0;
+  int num;
+  char line[PKT_MAX * 5];
+  static FILE *f = NULL;
+  static bool check_file = true;
+  
+  if(check_file){
+    check_file = false;
+    char *fname = getenv("LINUXTRACK_STIMULI");
+    if(fname == NULL){
+      return 0;
+    }
+    f = fopen(fname, "r");
+  }
+  if(f == NULL){
+    return 0;
+  }
+  char *res;
+ repeat:
+  res = fgets(line, sizeof(line), f);
+  if(res == NULL){
+    fseek(f, 0L, SEEK_SET);
+    res = fgets(line, sizeof(line), f);
+  }
+  
+  if(res != NULL){
+    ptr = 0;
+    while(sscanf(&(line[ptr]), "%X%n", &num, &len) > 0){
+      ptr += len;
+      buffer[buf_ptr++] = num;
+      if(buf_ptr == length){
+        break;
+      }
+    }
+    if(ptr == 0) goto repeat;
+  }else{
+    return 0;
+  }
+  return buf_ptr;
+}
 
 bool ltr_int_init_usb()
 {
@@ -12,7 +92,7 @@ bool ltr_int_init_usb()
 dev_found ltr_int_find_tir(unsigned int devid)
 {
   (void) devid;
-  return TIR2;
+  return get_tir_type();
 }
 
 bool ltr_int_prepare_device(unsigned int config, unsigned int interface, 
@@ -40,42 +120,38 @@ bool ltr_int_send_data(unsigned char data[], size_t size)
   return true;
 }
 
-unsigned char packet[] = {0x3e, 0x1c, 0xa7, 0x79, 0x83, 
-                                      0xa8, 0x7b, 0x80, 
-                                      0xa9, 0x74, 0x75, 0xa9, 0x89, 0x8b, 
-                                      0xab, 0x72, 0x73, 0xab, 0x7a, 0x7b, 0xab, 0x81, 0x83, 
-                                      0xac, 0x7d, 0x81, 
-                                      0xad, 0x7c, 0x7f, 
-                                      0xae, 0x80, 0x83, 
-                                      0xaf, 0x82, 0x85, 
-                                      0xb2, 0x6d, 0x6f, 
-                                      0xb5, 0x7a, 0x7b, 
-                                      0xb6, 0x57, 0x59, 
-                                      0xb7, 0x6e, 0x71, 
-                                      0xb7, 0x8d, 0x8e, 
-                                      0xb8, 0x72, 0x7b, 0xb8, 0x81, 0x82, 
-                                      0xba, 0x76, 0x77, 0xba, 0x7d, 0x7e, 
-                                      0xfe, 0xcd};
-//unsigned char packet[] = {0x11, 0x1c, 0x00, 0x00, 0x00, 0xc5, 0xc6, 0xc8, 0xc6, 0xc5, 0xca, 0xc7, 
-//                          0xc5, 0xca, 0xc8, 0xc5, 0xc8};
+unsigned char packet[] = {0x05, 0x1c, 0x00, 0x00, 0x00}; 
 unsigned char cfg[] = {0x09, 0x40, 0x03, 0x00, 0x00, 0x34, 0x5d, 0x03, 0x00};
+uint8_t pkt_buf[PKT_MAX];
+
+static size_t data_len(size_t s1, size_t s2)
+{
+  return (s1 < s2) ? s1 : s2;
+}
 
 bool ltr_int_receive_data(unsigned char data[], size_t size, size_t *transferred,
                   unsigned int timeout)
 {
   (void) timeout;
-  unsigned int i;
-  //size_t len;
+  size_t i;
+  
   if(send_cfg){
-    for(i = 0; i < cfg[0]; ++i){
+    for(i = 0; i < data_len(cfg[0], size); ++i){
       data[i] = cfg[i];
     }
     *transferred = cfg[0];
   }else{
-    for(i = 0; i < packet[0]; ++i){
-      data[i] = packet[i];
+    uint8_t *pkt_data;
+    int plen = read_packet(pkt_buf, sizeof(pkt_buf));
+    if(plen > 0){
+      pkt_data = pkt_buf;
+    }else{
+      pkt_data = packet;
     }
-    *transferred = packet[0];
+    for(i = 0; i < data_len(pkt_data[0], size); ++i){
+      data[i] = pkt_data[i];
+    }
+    *transferred = pkt_data[0];
   }
   usleep(10000);
   return true;

@@ -59,6 +59,9 @@ bool xltr_read_pref(char *fname, struct pref *p)
   
   while(!feof(f)){
     res = fscanf(f, "%1000s %d", id, &val);
+    if(res < 0){
+      continue;
+    }
     if(strcasecmp(id, "start/stop")){
       xltr_set_pref(p, START_STOP, val);
     }
