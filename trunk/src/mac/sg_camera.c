@@ -281,7 +281,7 @@ bool capture(struct mmap_s *mmm)
       result = SGIdle(grabber);
       CHECK_RES(result, "SGIdle")
     }
-    usleep(20000);
+    ltr_int_usleep(20000);
     old_cmd = cmd;
   }
   if(capturing){

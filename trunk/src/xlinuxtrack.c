@@ -127,9 +127,9 @@ static bool updateButtonCaption(int index, int button)
     return true;
   }
   if(button >= 0){
-    sprintf(text, "%s button %d", btArray[index].caption, button);
+    snprintf(text, sizeof(text), "%s button %d", btArray[index].caption, button);
   }else{
-    sprintf(text, "%s Not mapped", btArray[index].caption);
+    snprintf(text, sizeof(text), "%s Not mapped", btArray[index].caption);
   }
   XPSetWidgetDescriptor(btArray[index].text, text);
   

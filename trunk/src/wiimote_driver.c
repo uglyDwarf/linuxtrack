@@ -125,7 +125,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
     int i;
     
     //Otherwise the polling takes too much processor
-    usleep(10000);
+    ltr_int_usleep(10000);
 
     if (!gStateCheckIn--) {
         gStateCheckIn = STATE_CHECK_INTERVAL;

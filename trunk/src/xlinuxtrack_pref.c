@@ -1,3 +1,8 @@
+#ifndef _GNU_SOURCE
+  #define _GNU_SOURCE
+#endif
+#include <stdio.h>
+
 #include "xlinuxtrack_pref.h"
 #include <linuxtrack.h>
 #include <assert.h>
@@ -28,9 +33,8 @@ char *xltr_get_pref_file_name()
     ltr_log_message("Please set HOME variable!\n");
     return NULL;
   }
-  char *pref_path = (char *)my_malloc(strlen(home) 
-                    + strlen(pref_file) + 2);
-  sprintf(pref_path, "%s/%s", home, pref_file);
+  char *pref_path = NULL;
+  asprintf(&pref_path, "%s/%s", home, pref_file);
   return pref_path;
 }
 

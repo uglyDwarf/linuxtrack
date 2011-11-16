@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <libgen.h>
 #include <linuxtrack.h>
+#include <utils.h>
 
 #ifdef LINUX
 #include <sys/ioctl.h>
@@ -1102,7 +1103,7 @@ static int suspended(void)
 	}
 
 	if (result)
-		usleep(500000);
+		ltr_int_usleep(500000);
 
 	return result;
 }
@@ -1156,7 +1157,7 @@ static void run_loop(void)
 
 	while (!Terminate) {
 
-		usleep(10000);
+		ltr_int_usleep(10000);
 
 		if (suspended())
 			continue;

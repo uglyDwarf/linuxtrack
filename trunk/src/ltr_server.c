@@ -183,7 +183,7 @@ static void main_loop(char *section)
       goto shutdown;
     }
 #endif
-    usleep(100000);  //ten times per second...
+    ltr_int_usleep(100000);  //ten times per second...
   }
 
  shutdown:
@@ -191,7 +191,7 @@ static void main_loop(char *section)
   ltr_int_shutdown();
   int timeout_counter = 30;
   while(!ltr_int_is_inactive(com->state)){
-    usleep(100000);  //ten times per second...
+    ltr_int_usleep(100000);  //ten times per second...
     if(--timeout_counter <= 0){
       ltr_int_log_message("Wait for shutdown timed out, exiting anyway...\n");
       com->state = ERROR; // Just in case

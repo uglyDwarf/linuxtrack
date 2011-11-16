@@ -153,7 +153,7 @@ bool ltr_int_receive_data(unsigned char data[], size_t size, size_t *transferred
     }
     *transferred = pkt_data[0];
   }
-  usleep(10000);
+  ltr_int_usleep(10000);
   return true;
 }
 

@@ -574,7 +574,7 @@ void tir4_write_bulk_config_data(void)
                        bytecount,
                        BULK_WRITE_TIMEOUT);
         bytecount = 0;
-        usleep(BULK_CONFIG_INTERPACKET_SLEEP_TIME);
+        ltr_int_usleep(BULK_CONFIG_INTERPACKET_SLEEP_TIME);
       }
       state = reading_data_byte0;
       break;
