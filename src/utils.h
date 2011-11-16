@@ -35,6 +35,7 @@ char *ltr_int_get_resource_path(const char *section, const char *rsrc);
 
 typedef enum {DBG_CHECK, DBG_ON, DBG_OFF} dbg_flag_type; 
 dbg_flag_type ltr_int_get_dbg_flag(const int flag);
+void ltr_int_usleep(unsigned int usec);
 
 #ifdef __cplusplus
 }

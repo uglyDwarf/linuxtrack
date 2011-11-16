@@ -95,7 +95,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
       if(++timeout > 1000){
         return -1;
       }
-      usleep(5000);
+      ltr_int_usleep(5000);
     }
   }
   return 0;

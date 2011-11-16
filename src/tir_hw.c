@@ -132,7 +132,7 @@ static bool read_status_tir(tir_status_t *status)
     if((ltr_int_packet[0] == 0x07) && (ltr_int_packet[1] == 0x20)){
       break;
     }
-    usleep(10000);
+    ltr_int_usleep(10000);
     counter++;
   }
   ltr_int_log_message("Status packet: %02X %02X %02X %02X %02X %02X %02X\n",
@@ -152,7 +152,7 @@ static bool read_rom_data_tir3()
     ltr_int_log_message("Couldn't send config data request!\n");
     return false;
   }
-  usleep(6000);
+  ltr_int_usleep(6000);
 
   int counter = 0;
   while(counter < 10){
@@ -163,7 +163,7 @@ static bool read_rom_data_tir3()
     if((ltr_int_packet[0] == 0x09) && (ltr_int_packet[1] == 0x40)){
       break;
     }
-    usleep(10000);
+    ltr_int_usleep(10000);
     counter++;
   }
   return true;
@@ -187,7 +187,7 @@ static bool read_rom_data_tir()
     if(((ltr_int_packet[0] == 0x14) || (ltr_int_packet[0] == 0x09)) && (ltr_int_packet[1] == 0x40)){
       break;
     }
-    usleep(10000);
+    ltr_int_usleep(10000);
     counter++;
   }
   return true;
@@ -279,7 +279,7 @@ static bool wiggle_leds_tir(unsigned char leds, unsigned char mask)
     ltr_int_log_message("Problem wiggling LEDs\n");
     return false;
   }
-  usleep(2000);
+  ltr_int_usleep(2000);
   return true;
 }
 
@@ -298,7 +298,7 @@ static bool turn_led_on_tir(unsigned char leds)
 static bool flush_fifo_tir()
 {
   if((device == TIR5)||(device == TIR5V2)){
-    usleep(100000);
+    ltr_int_usleep(100000);
   }
   return ltr_int_send_data(Fifo_flush,sizeof(Fifo_flush));
 }
@@ -396,15 +396,15 @@ static bool stop_camera_tir2()
 {
   ltr_int_log_message("Stopping TIR2 camera!\n");
   turn_led_off_tir(TIR_LED_RED);
-  usleep(70000);
+  ltr_int_usleep(70000);
   turn_led_off_tir(TIR_LED_GREEN);
-  usleep(70000);
+  ltr_int_usleep(70000);
   turn_led_off_tir(TIR_LED_BLUE);
-  usleep(70000);
+  ltr_int_usleep(70000);
   turn_led_off_tir(TIR_LED_IR);
-  usleep(70000);
+  ltr_int_usleep(70000);
   ltr_int_send_data(Camera_stop,sizeof(Camera_stop));
-  usleep(70000);
+  ltr_int_usleep(70000);
   turn_led_off_tir(TIR_LED_IR);
   return true;
 }
@@ -414,21 +414,21 @@ static bool stop_camera_tir3()
 {
   ltr_int_log_message("Stopping TIR3 camera!\n");
   ltr_int_send_data(Video_off,sizeof(Video_off));
-  usleep(2000);
+  ltr_int_usleep(2000);
   ltr_int_send_data(Video_off,sizeof(Video_off));
-  usleep(2000);
+  ltr_int_usleep(2000);
   turn_led_off_tir(TIR_LED_IR);
-  usleep(2000);
+  ltr_int_usleep(2000);
   flush_fifo_tir();
-  usleep(2000);
+  ltr_int_usleep(2000);
   ltr_int_send_data(Camera_stop,sizeof(Camera_stop));
-  usleep(2000);
+  ltr_int_usleep(2000);
   turn_led_off_tir(TIR_LED_RED);
-  usleep(2000);
+  ltr_int_usleep(2000);
   turn_led_off_tir(TIR_LED_GREEN);
-  usleep(2000);
+  ltr_int_usleep(2000);
   turn_led_off_tir(TIR_LED_BLUE);
-  usleep(50000);
+  ltr_int_usleep(50000);
   return true;
 }
 
@@ -441,7 +441,7 @@ static bool stop_camera_tir4()
   turn_led_off_tir(TIR_LED_GREEN);
   turn_led_off_tir(TIR_LED_BLUE);
   ltr_int_send_data(Camera_stop,sizeof(Camera_stop));
-  usleep(50000);
+  ltr_int_usleep(50000);
   return true;
 }
 
@@ -449,33 +449,33 @@ static bool stop_camera_tir5()
 {
   turn_off_status_led_tir5();
   control_ir_led_tir(false);
-  usleep(50000);
+  ltr_int_usleep(50000);
   ltr_int_send_data(Video_off,sizeof(Video_off));
-  usleep(50000);
+  ltr_int_usleep(50000);
   ltr_int_send_data(Video_off,sizeof(Video_off));
-  usleep(50000);
+  ltr_int_usleep(50000);
   ltr_int_send_data(Video_off,sizeof(Video_off));
-  usleep(50000);
+  ltr_int_usleep(50000);
   ltr_int_send_data(Video_off,sizeof(Video_off));
-  usleep(50000);
+  ltr_int_usleep(50000);
   ltr_int_send_data(Video_off,sizeof(Video_off));
-  usleep(50000);
+  ltr_int_usleep(50000);
   ltr_int_send_data(unk_2,sizeof(unk_2));
   ltr_int_send_data(unk_3,sizeof(unk_3));
   ltr_int_send_data(Video_off,sizeof(Video_off));
-  usleep(50000);
+  ltr_int_usleep(50000);
   ltr_int_send_data(Video_off,sizeof(Video_off));
-  usleep(50000);
+  ltr_int_usleep(50000);
   ltr_int_send_data(Video_off,sizeof(Video_off));
-  usleep(50000);
+  ltr_int_usleep(50000);
   ltr_int_send_data(Video_off,sizeof(Video_off));
-  usleep(50000);
+  ltr_int_usleep(50000);
   ltr_int_send_data(Video_off,sizeof(Video_off));
-  usleep(50000);
+  ltr_int_usleep(50000);
   flush_fifo_tir();
   ltr_int_send_data(Camera_stop,sizeof(Camera_stop));
   turn_off_status_led_tir5();
-  usleep(50000);
+  ltr_int_usleep(50000);
   turn_off_status_led_tir5();
   control_ir_led_tir(false);
   turn_led_off_tir(TIR_LED_IR);
@@ -492,20 +492,20 @@ static bool start_camera_tir2()
 {
   ltr_int_log_message("Starting TIR2 camera!\n");
   ltr_int_send_data(Video_on,sizeof(Video_on));
-  usleep(120000);
+  ltr_int_usleep(120000);
   if(ir_on){ 
     turn_led_on_tir(TIR_LED_IR);
-    usleep(64000);
+    ltr_int_usleep(64000);
   }
   flush_fifo_tir();
-  usleep(64000);
+  ltr_int_usleep(64000);
   if(ltr_int_tir_get_status_indication()){
     set_status_led_tir4(true);
-    usleep(64000);
+    ltr_int_usleep(64000);
   }
   if(ir_on){ 
     turn_led_on_tir(TIR_LED_IR);
-    usleep(64000);
+    ltr_int_usleep(64000);
   }
   return true;
 }
@@ -514,18 +514,18 @@ static bool start_camera_tir3()
 {
   ltr_int_log_message("Starting TIR3 camera!\n");
   flush_fifo_tir();
-  usleep(2000);
+  ltr_int_usleep(2000);
   ltr_int_send_data(Camera_stop,sizeof(Camera_stop));
-  usleep(2000);
+  ltr_int_usleep(2000);
   if(ir_on){ 
     turn_led_on_tir(TIR_LED_IR);
-    usleep(2000);
+    ltr_int_usleep(2000);
   }
   ltr_int_send_data(Video_on,sizeof(Video_on));
-  usleep(2000);
+  ltr_int_usleep(2000);
   if(ltr_int_tir_get_status_indication()){
     set_status_led_tir4(true);
-    usleep(2000);
+    ltr_int_usleep(2000);
   }
   return true;
 }
@@ -571,23 +571,23 @@ static bool init_camera_tir2(bool force_fw_load, bool p_ir_on)
   ir_on = p_ir_on;
   ltr_int_log_message("Initializing TIR2 camera!\n");
   turn_led_off_tir(TIR_LED_IR);
-  usleep(2000);
+  ltr_int_usleep(2000);
   turn_led_off_tir(TIR_LED_RED);
-  usleep(2000);
+  ltr_int_usleep(2000);
   turn_led_off_tir(TIR_LED_GREEN);
-  usleep(2000);
+  ltr_int_usleep(2000);
   turn_led_off_tir(TIR_LED_BLUE);
-  usleep(2000);
+  ltr_int_usleep(2000);
   ltr_int_send_data(Video_off,sizeof(Video_off));
-  usleep(2000);
+  ltr_int_usleep(2000);
   turn_led_off_tir(TIR_LED_IR);
-  usleep(2000);
+  ltr_int_usleep(2000);
   turn_led_off_tir(TIR_LED_RED);
-  usleep(2000);
+  ltr_int_usleep(2000);
   turn_led_off_tir(TIR_LED_GREEN);
-  usleep(2000);
+  ltr_int_usleep(2000);
   turn_led_off_tir(TIR_LED_BLUE);
-  usleep(2000);
+  ltr_int_usleep(2000);
   //To flush any pending packets...
   ltr_int_receive_data(ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
   ltr_int_receive_data(ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
@@ -595,9 +595,9 @@ static bool init_camera_tir2(bool force_fw_load, bool p_ir_on)
   if(!read_rom_data_tir3()){
     return false;
   }
-  usleep(70000);
+  ltr_int_usleep(70000);
   ltr_int_set_threshold_tir(0x8c);
-  usleep(2000);
+  ltr_int_usleep(2000);
   return true;
 }
 
@@ -618,17 +618,17 @@ static bool init_camera_tir3(bool force_fw_load, bool p_ir_on)
   if(!read_rom_data_tir3()){
     return false;
   }
-  usleep(70000);
+  ltr_int_usleep(70000);
   ltr_int_set_threshold_tir(0x8c);
-  usleep(70000);
+  ltr_int_usleep(70000);
   ltr_int_send_data(unk_5,sizeof(unk_5));
-  usleep(2000);
+  ltr_int_usleep(2000);
   ltr_int_send_data(unk_6,sizeof(unk_6));
-  usleep(2000);
+  ltr_int_usleep(2000);
   ltr_int_set_threshold_tir(0xd0);
-  usleep(2000);
+  ltr_int_usleep(2000);
   ltr_int_send_data(unk_8,sizeof(unk_8));
-  usleep(2000);
+  ltr_int_usleep(2000);
   return true;
 }
 
@@ -811,15 +811,15 @@ bool ltr_int_resume_tir()
 static bool close_camera_tir2(){
   ltr_int_log_message("Closing TIR2 camera!\n");
   stop_camera_tir();
-  usleep(25000);
+  ltr_int_usleep(25000);
   turn_led_off_tir(TIR_LED_RED);
-  usleep(2000);
+  ltr_int_usleep(2000);
   turn_led_off_tir(TIR_LED_GREEN);
-  usleep(2000);
+  ltr_int_usleep(2000);
   turn_led_off_tir(TIR_LED_BLUE);
-  usleep(2000);
+  ltr_int_usleep(2000);
   turn_led_off_tir(TIR_LED_IR);
-  usleep(2000);
+  ltr_int_usleep(2000);
   ltr_int_finish_usb(TIR_INTERFACE);
   return true;
 }
@@ -828,13 +828,13 @@ static bool close_camera_tir3(){
   ltr_int_log_message("Closing TIR3 camera!\n");
   stop_camera_tir();
   ltr_int_send_data(unk_4,sizeof(unk_4));
-  usleep(25000);
+  ltr_int_usleep(25000);
   turn_led_off_tir(TIR_LED_RED);
-  usleep(2000);
+  ltr_int_usleep(2000);
   turn_led_off_tir(TIR_LED_GREEN);
-  usleep(2000);
+  ltr_int_usleep(2000);
   turn_led_off_tir(TIR_LED_BLUE);
-  usleep(2000);
+  ltr_int_usleep(2000);
   ltr_int_finish_usb(TIR_INTERFACE);
   return true;
 }

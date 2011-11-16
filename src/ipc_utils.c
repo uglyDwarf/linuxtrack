@@ -43,7 +43,7 @@ bool ltr_int_wait_child_exit(int limit)
   int cntr = 0;
   do{
 //    printf("Waiting!\n");
-    usleep(100000);
+    ltr_int_usleep(100000);
     res = waitpid(child, &status, WNOHANG);
     ++cntr;
   }while((res != child) && (cntr < limit));

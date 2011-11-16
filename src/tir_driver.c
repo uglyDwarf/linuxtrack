@@ -133,6 +133,7 @@ int ltr_int_tir_found(bool *have_firmware)
   dbg_flag_type fakeusb_dbg_flag = ltr_int_get_dbg_flag('f');
   if(fakeusb_dbg_flag == DBG_ON){
     libname = "libfakeusb";
+    ltr_int_log_message("Loading fakeusb!\n");
   }else{
     libname = "libltusb1";
   }

@@ -17,6 +17,7 @@
 #include <time.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <time.h>
 #include "utils.h"
 
 #define IOCTL_RETRY_COUNT 5
@@ -114,11 +115,8 @@ void ltr_int_strlower(char *s)
 
 char *ltr_int_my_strcat(const char *str1, const char *str2)
 {
-  size_t len1 = strlen(str1);
-  size_t sum = len1 + strlen(str2) + 1; //Count trainling null too
-  char *res = (char*)ltr_int_my_malloc(sum);
-  strcpy(res, str1);
-  strcpy(res + len1, str2);
+  char *res = NULL;
+  asprintf(&res, "%s%s", str1, str2);
   return res;
 }
 
@@ -133,9 +131,8 @@ char *ltr_int_get_default_file_name(char *fname)
   if(fname == NULL){
     fname = pref_file;
   }
-  char *pref_path = (char *)ltr_int_my_malloc(strlen(home) 
-                    + strlen(fname) + strlen(pref_dir) + 3);
-  sprintf(pref_path, "%s/%s/%s", home, pref_dir, fname);
+  char *pref_path = NULL;
+  asprintf(&pref_path, "%s/%s/%s", home, pref_dir, fname);
   return pref_path;
 }
 
@@ -228,8 +225,8 @@ char *ltr_int_get_lib_path(const char *libname)
 
 char *ltr_int_get_resource_path(const char *section, const char *rsrc)
 {
-  char *rsrc_path = (char *)ltr_int_my_malloc(strlen(section) + strlen(rsrc) + 3);
-  sprintf(rsrc_path, "/%s/%s", section, rsrc);
+  char *rsrc_path = NULL;
+  asprintf(&rsrc_path, "/%s/%s", section, rsrc);
   char *path = ltr_int_get_default_file_name(rsrc_path);
   FILE *f = fopen(path, "rb");
   if(f != NULL){
@@ -259,3 +256,28 @@ dbg_flag_type ltr_int_get_dbg_flag(const int flag)
 }
 
 #endif
+
+void ltr_int_usleep(unsigned int usec)
+{
+  struct timespec req, rem;
+  
+  req.tv_sec = usec / 1000000;
+  req.tv_nsec = (usec % 1000000) * 1000;
+  while(1){
+    if(nanosleep(&req, &rem) != -1){
+      break;
+    }else{
+      if(errno == EINTR){
+        req = rem;
+        continue;
+      }else{
+        //Here the other handler would come;
+        //But how to handle this?
+        perror("nanosleep: ");
+        break;
+      }
+    }
+  }
+}
+
+

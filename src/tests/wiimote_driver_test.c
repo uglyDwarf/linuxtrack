@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
     cal_get_frame(&ccb, &frame);
     frame_print(frame);
     frame_free(&ccb, &frame);
-    usleep(10000);
+    ltr_int_usleep(10000);
   }
 
   /* call disconnects, turns all LEDs off */
