@@ -40,7 +40,7 @@ class CameraView : public QWidget
   QImage *image;
 };
 
-class LtrGuiForm : public QMainWindow
+class LtrGuiForm : public QWidget
 {
    Q_OBJECT
   public:
