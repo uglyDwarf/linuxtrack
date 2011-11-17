@@ -31,7 +31,11 @@
 *Marc* (marcmec, x-plane.org forum)
   Thanks for helping us to polish the Mac side...
 
+*Ola*
+  Thanks for making Tir3 support possible.
 
+*Jaša*
+  Thanks for making Tir2 support possible.
 
 == Donors ==
 
