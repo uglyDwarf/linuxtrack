@@ -85,18 +85,19 @@ void state_changed(void *param)
   }
 }
 
-char *section_str = NULL;
+
 void CaptureThread::run()
 {
   QString section = PREF.getCustomSectionTitle();
-  section_str = ltr_int_my_strdup(section.toAscii().data());
+  char *section_str = section.toAscii().data();
+  std::cout<<"Opening section '"<<section_str<<"'"<<std::endl;
+  //section_str = NULL;
   prep_main_loop(section_str);
   ltr_shutdown();
   buffer_empty = false;
   w = 0;
   h = 0;
   clean_up();
-  free(section_str);
 }
 
 void CaptureThread::signal_new_frame()
@@ -276,7 +277,7 @@ void LtrGuiForm::update()
     fps_mean += fps_buffer[i];
   }
   int fps = fps_mean / 8.0;
-  ui.statusbar->showMessage(QString("%1.frame @ %2 fps").arg(cnt).arg(fps, 4));
+  ui.status->setText(QString("%1.frame @ %2 fps").arg(cnt).arg(fps, 4));
   if(buffer_empty){
     return;
   }
