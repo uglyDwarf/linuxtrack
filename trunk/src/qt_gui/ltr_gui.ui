@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Tracking window</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="ltr_rc.qrc">
+    <normaloff>:/ltr/linuxtrack.svg</normaloff>:/ltr/linuxtrack.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -128,6 +132,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="ltr_rc.qrc"/>
+ </resources>
  <connections/>
 </ui>
