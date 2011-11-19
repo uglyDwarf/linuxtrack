@@ -176,11 +176,11 @@ wii_server/wii_server : ${pkglib_LTLIBRARIES}
 	pushd wii_server; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
 
 install-exec-hook:
-	pushd qt_gui;  qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} install; popd
+	pushd qt_gui;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} install; popd
 	pushd wii_server;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} install; popd
 
 uninstall-hook:
-	pushd qt_gui;  qmake ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
+	pushd qt_gui;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
 	pushd wii_server;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
 
 
