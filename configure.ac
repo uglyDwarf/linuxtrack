@@ -33,7 +33,7 @@ AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
 AC_CHECK_HEADERS([stdint.h assert.h])
 AC_CHECK_HEADERS([stdlib.h unistd.h netdb.h sys/socket.h fcntl.h sys/ioctl.h])
 
-AC_CHECK_FILE([tir4.fw.gz], [with_tir_fw=yes], [with_tir_fw=no])
+AC_PATH_PROGS(QMAKE_PATH, [qmake qmake-qt4])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL

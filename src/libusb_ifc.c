@@ -43,7 +43,7 @@ dev_found ltr_int_find_tir(unsigned int devid)
   libusb_device **list;
   libusb_device *found = NULL;
   dev_found dev = NONE;
-  ssize_t cnt = libusb_get_device_list(NULL, &list);
+  ssize_t cnt = libusb_get_device_list(usb_context, &list);
   ssize_t i = 0;
   int err = 0;
   if (cnt < 0){

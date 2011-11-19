@@ -1,6 +1,6 @@
 #include <QtGui>
 #include <QtOpenGL>
-
+#include <GL/glu.h>
 #include <iostream>
 #include <math.h>
 #include "objreader.h"
