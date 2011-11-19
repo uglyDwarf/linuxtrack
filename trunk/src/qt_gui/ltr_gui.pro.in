@@ -34,7 +34,7 @@ QMAKE_CXXFLAGS += -DHAVE_CONFIG_H
 QMAKE_CFLAGS += -DLTR_GUI
 
 unix:!macx {
-  LIBS += "-L../.libs" "-L$${LIBDIR}" -lm -lltr\
+  LIBS += "-L../.libs" "-L$${LIBDIR}" -lm -lltr -lGLU \
            "-Wl,-rpath,$${LIBDIR}"
   
   data.path += @prefix@/share/linuxtrack
