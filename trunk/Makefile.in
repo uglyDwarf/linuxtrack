@@ -34,7 +34,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@TIR_FW_TRUE@am__append_1 = MD5SUM SHA1SUM  tir4.fw.gz tir5.fw.gz copyright_and_terms_of_use.txt
+@DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@am__append_1 = src/helper
+@TIR_FW_TRUE@am__append_2 = MD5SUM SHA1SUM  tir4.fw.gz tir5.fw.gz copyright_and_terms_of_use.txt
 subdir = .
 DIST_COMMON = README $(am__configure_deps) \
 	$(am__dist_pkgdata_DATA_DIST) $(srcdir)/Makefile.am \
@@ -98,7 +99,7 @@ AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
 	distdir dist dist-all distcheck
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = $(SUBDIRS)
+DIST_SUBDIRS = src src/mac src/tests doc src/helper
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -254,8 +255,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = src src/mac src/tests src/helper doc
-dist_pkgdata_DATA = README $(am__append_1)
+SUBDIRS = src src/mac src/tests doc $(am__append_1)
+dist_pkgdata_DATA = README $(am__append_2)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 

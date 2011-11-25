@@ -120,7 +120,7 @@ libwii_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${TIGER_LDFLAG} $(LI
 libmacwii_la_SOURCES = macwii_driver.c wii_com.h com_proc.h \
   runloop.c runloop.h wii_driver_prefs.c wii_driver_prefs.h ipc_utils.h
 libmacwii_la_CFLAGS = ${AM_CFLAGS} ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/mac -I..
-libmacwii_la_LIBADD = -lltr
+libmacwii_la_LIBADD = libltr.la
 libmacwii_la_LDFLAGS = -export-symbols drivers.sym ${AM_CFLAGS} ${TIGER_LDFLAG}
 
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
@@ -131,6 +131,7 @@ libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG}
 dist_pkgdata_DATA = linuxtrack.conf 51-TIR.rules linuxtrack.c
 
 if XPLANE_PLUGIN
+if LTR32ON64
   pkglib_LTLIBRARIES += xlinuxtrack.la xlinuxtrack9.la
   xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
 			    linuxtrack.c
@@ -141,6 +142,7 @@ if XPLANE_PLUGIN
   xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
   xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
   xlinuxtrack9_la_LIBADD = -lm -ldl
+endif
 endif
 
 AM_YFLAGS = -d

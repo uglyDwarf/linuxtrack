@@ -74,8 +74,8 @@ liblinuxtrack_la_OBJECTS = $(am_liblinuxtrack_la_OBJECTS)
 liblinuxtrack_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(liblinuxtrack_la_CFLAGS) \
 	$(CFLAGS) $(liblinuxtrack_la_LDFLAGS) $(LDFLAGS) -o $@
-@DARWIN_FALSE@@X64_TRUE@am_liblinuxtrack_la_rpath = -rpath \
-@DARWIN_FALSE@@X64_TRUE@	$(l32libdir)
+@DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@am_liblinuxtrack_la_rpath =  \
+@DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@	-rpath $(l32libdir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp =
 am__depfiles_maybe =
@@ -214,7 +214,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 l32libdir = $(prefix)/lib32
 @DARWIN_FALSE@LINUXFLAGS = '-DLIB_PATH="$(pkglibdir)/"'
-@DARWIN_FALSE@@X64_TRUE@l32lib_LTLIBRARIES = liblinuxtrack.la
+@DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@l32lib_LTLIBRARIES = liblinuxtrack.la
 liblinuxtrack_la_SOURCES = ../ltlib.c ../linuxtrack.h ../utils.c ../utils.h \
   ../ipc_utils.c ../ipc_utils.h
 

@@ -103,6 +103,12 @@ AC_ARG_ENABLE([snow_leopard],
             [with_snow_leopard=no]
 )
 
+AC_ARG_ENABLE([ltr_32lib_on_x64],
+		[AS_HELP_STRING([--enable-ltr-32lib-on-x64],
+				[build 32bit linuxtrack library on 64bit host @<:@default=yes@:>@])],
+		[with_ltr_32lib_on_x64=$enableval],
+		[with_ltr_32lib_on_x64=yes]
+)
 
 AS_IF([case $host_os in darwin*) true;; *) false;; esac],
   [    
@@ -133,6 +139,7 @@ AM_CONDITIONAL(OPENUSB, [test  "x$ac_cv_lib_openusb_openusb_init" = xyes])
 AM_CONDITIONAL(LIBZ, [test  "x$ac_cv_lib_z_gzopen" = xyes])
 AM_CONDITIONAL(TIR_FW, [test  "x$with_tir_fw" = xyes])
 AM_CONDITIONAL(X64, [test  "x$with_64_bit" = xyes])
+AM_CONDITIONAL([LTR32ON64], [test  "x$with_ltr_32lib_on_x64" = xyes])
 AM_CONDITIONAL([LTR_PIPE], [test  x$with_ltr_pipe = xyes])
 AM_CONDITIONAL([LINUX], [test x$with_linux = xyes])
 
