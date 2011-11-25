@@ -1,4 +1,13 @@
-SUBDIRS = src src/mac src/tests src/helper doc
+SUBDIRS = src src/mac src/tests doc
+if ! DARWIN
+if X64
+if LTR32ON64
+  SUBDIRS += src/helper
+endif
+endif
+endif
+
+
 dist_pkgdata_DATA = README
 
 if TIR_FW
