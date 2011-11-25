@@ -172,7 +172,26 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
     warnMessage(QString("Wrong file specified!"));
     return;
   }
-  QString destFile = destPath + "/xlinuxtrack.xpl";
+  
+  //Check for the old plugin and remove it if exists
+  QString oldPlugin = destPath + "/xlinuxtrack.xpl";
+  if(QFile::exists(oldPlugin)){
+    if(!QFile::remove(oldPlugin)){
+      warnMessage(QString("Can't remove old plugin ('" + oldPlugin + "')!"));
+    }
+  }
+  
+  //Create destination path
+  destPath += "/xlinuxtrack";
+  QDir pluginDir(destPath);
+  if(!pluginDir.exists()){
+    if(!pluginDir.mkdir(destPath)){
+      warnMessage(QString("Can't create new plugin directory ('" + destPath + "')!"));
+      return;
+    }
+  }
+  
+  QString destFile = destPath + "/lin.xpl";
   QFileInfo fi(destFile);
   if(fi.isFile() || fi.isSymLink()){
     if(!QFile::remove(destFile)){
