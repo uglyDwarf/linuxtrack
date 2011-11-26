@@ -53,6 +53,8 @@ static XPLMCommandRef pause_cmd;
 static XPLMCommandRef recenter_cmd;
 static bool initialized = false;
 
+static char *line4 = NULL;
+
 static void MyHotKeyCallback(void *inRefcon);    
 static int cmd_cbk(XPLMCommandRef       inCommand,
                    XPLMCommandPhase     inPhase,
@@ -65,10 +67,13 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
                                  int   inCounter,    
                                  void *inRefcon);
 
+static int setupDialog();
+
 static void linuxTrackMenuHandler(void *inMenuRef, void *inItemRef)
 {
   (void) inMenuRef;
   (void) inItemRef;
+  setupDialog();
   return;
 }
 
@@ -98,11 +103,17 @@ PLUGIN_API int XPluginStart(char *outName,
                          "Recenter 3D linuxTrack view",
                          MyHotKeyCallback,
                          (void*)RECENTER);
-
-  run_cmd = XPLMCreateCommand("linuxtrack/view/ltr_run","Start/stop tracking");
-  pause_cmd = XPLMCreateCommand("linuxtrack/view/ltr_pause","Pause tracking");
-  recenter_cmd = XPLMCreateCommand("linuxtrack/view/ltr_recenter","Recenter tracking");
-
+  if(xplane_ver >= 10000){
+    run_cmd = XPLMCreateCommand("linuxtrack/ltr_run","Start/stop tracking");
+    pause_cmd = XPLMCreateCommand("linuxtrack/ltr_pause","Pause tracking");
+    recenter_cmd = XPLMCreateCommand("linuxtrack/ltr_recenter","Recenter tracking");
+    line4 = "Use commands linuxtrack/ltr_run, linuxtrack/ltr_pause, linuxtrack/ltr_recenter.";
+  }else{
+    run_cmd = XPLMCreateCommand("sim/view/ltr_run","Start/stop tracking");
+    pause_cmd = XPLMCreateCommand("sim/view/ltr_pause","Pause tracking");
+    recenter_cmd = XPLMCreateCommand("sim/view/ltr_recenter","Recenter tracking");
+    line4 = "Use commands sim/view/ltr_run, sim/view/ltr_pause, sim/view/ltr_recenter.";
+  }
         XPLMRegisterCommandHandler(
                     run_cmd,
                     cmd_cbk,
@@ -154,6 +165,21 @@ PLUGIN_API int XPluginStart(char *outName,
 
 PLUGIN_API void XPluginStop(void)
 {
+        XPLMUnregisterCommandHandler(
+                    run_cmd,
+                    cmd_cbk,
+                    true,
+                    (void *)START);
+        XPLMUnregisterCommandHandler(
+                    pause_cmd,
+                    cmd_cbk,
+                    true,
+                    (void *)PAUSE);
+        XPLMUnregisterCommandHandler(
+                    recenter_cmd,
+                    cmd_cbk,
+                    true,
+                    (void *)RECENTER);
   XPLMUnregisterHotKey(gTrackKey);
   XPLMUnregisterHotKey(gFreezeKey);
   XPLMUnregisterHotKey(gRecenterKey);
@@ -356,3 +382,93 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
 //positive x moves us to the right (meters?)
 //positive y moves us up
 //positive z moves us back
+
+
+static XPWidgetID		setupWindow;
+static XPWidgetID		setupButton;
+static int			setupWindowOpened = 0;
+
+static int setupWindowHandler(XPWidgetMessage inMessage,
+			XPWidgetID inWidget,
+			long inParam1,
+			long inParam2)
+{
+  (void) inWidget;
+  (void) inWidget;
+  (void) inParam1;
+  (void) inParam2;
+  if((inMessage == xpMessage_CloseButtonPushed) || (inMessage == xpMsg_PushButtonPressed)){
+    if(setupWindow != NULL){
+      XPHideWidget(setupWindow);
+      setupWindowOpened = 0;
+    }
+    return 1;
+  }
+  return 0;
+}
+
+static XPWidgetID		setupText;
+static char line1[] = "Linuxtrack setup is now done using either:";
+static XPWidgetID		setupText2;
+static char line2[] = " - Settings -> Joystick, Keys and Equipment -> Buttons Adv. to setup Joystick";
+static XPWidgetID		setupText3;
+static char line3[] = " - Settings -> Joystick, Keys and Equipment -> Keys to setup Keyboard";
+static XPWidgetID		setupText4;
+static XPWidgetID		setupText5;
+static char line5[] = "For more details refer to http://code.google.com/p/linux-track/wiki/XplanePluginSetup";
+
+static int setupDialog()
+{
+  if(setupWindowOpened != 0){
+    return -1;
+  }
+  setupWindowOpened = 1;
+  
+  if(setupWindow != NULL){
+    XPShowWidget(setupWindow);
+  }else{
+    int x  = 100;
+    int y  = 600;
+    int w  = 500;
+    int h  = 170;
+    int x2 = x + w;
+    int y2 = y - h;
+
+    setupWindow = XPCreateWidget(x, y, x2, y2,
+  				  1, //Visible
+				  "Linuxtrack Setup",
+				  1, //Root
+				  NULL, //No container
+				  xpWidgetClass_MainWindow 
+    );
+    y -= 20;
+    setupText = XPCreateWidget(x+20, y, x2 -20, y -20 ,
+    				   1, line1, 0, setupWindow, 
+				   xpWidgetClass_Caption);
+    
+    y -= 20;
+    setupText2 = XPCreateWidget(x+20, y, x2 -20, y -20 ,
+    				   1, line2, 0, setupWindow, 
+				   xpWidgetClass_Caption);
+    y -= 20;
+    setupText3 = XPCreateWidget(x+20, y, x2 -20, y -20 ,
+    				   1, line3, 0, setupWindow, 
+				   xpWidgetClass_Caption);
+    y -= 20;
+    setupText4 = XPCreateWidget(x+20, y, x2 -20, y -20 ,
+    				   1, line4, 0, setupWindow, 
+				   xpWidgetClass_Caption);
+    y -= 20;
+    setupText5 = XPCreateWidget(x+20, y, x2 -20, y -20 ,
+    				   1, line5, 0, setupWindow, 
+				   xpWidgetClass_Caption);
+    y -= 20;
+    setupButton = XPCreateWidget(x+80, y2+40, x2-80, y2+20, 1, 
+  				  "Close", 0, setupWindow,
+  				  xpWidgetClass_Button);
+    XPAddWidgetCallback(setupWindow, setupWindowHandler);
+  }
+  return 0;
+}
+
+
