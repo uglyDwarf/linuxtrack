@@ -53,8 +53,6 @@ static XPLMCommandRef pause_cmd;
 static XPLMCommandRef recenter_cmd;
 static bool initialized = false;
 
-static char *line4 = NULL;
-
 static void MyHotKeyCallback(void *inRefcon);    
 static int cmd_cbk(XPLMCommandRef       inCommand,
                    XPLMCommandPhase     inPhase,
@@ -89,7 +87,10 @@ PLUGIN_API int XPluginStart(char *outName,
   int sdk_ver;
   XPLMHostApplicationID app_id;
   XPLMGetVersions(&xplane_ver, &sdk_ver, &app_id);
-
+  if(xplane_ver > 5000){
+    xplane_ver /= 10;
+  }
+  printf("XPlane version: %d\n", xplane_ver);
   /* Register our hot key for the new view. */
   gTrackKey = XPLMRegisterHotKey(XPLM_VK_F8, xplm_DownFlag, 
                          "3D linuxTrack view",
@@ -103,17 +104,9 @@ PLUGIN_API int XPluginStart(char *outName,
                          "Recenter 3D linuxTrack view",
                          MyHotKeyCallback,
                          (void*)RECENTER);
-  if(xplane_ver >= 10000){
     run_cmd = XPLMCreateCommand("linuxtrack/ltr_run","Start/stop tracking");
     pause_cmd = XPLMCreateCommand("linuxtrack/ltr_pause","Pause tracking");
     recenter_cmd = XPLMCreateCommand("linuxtrack/ltr_recenter","Recenter tracking");
-    line4 = "Use commands linuxtrack/ltr_run, linuxtrack/ltr_pause, linuxtrack/ltr_recenter.";
-  }else{
-    run_cmd = XPLMCreateCommand("sim/view/ltr_run","Start/stop tracking");
-    pause_cmd = XPLMCreateCommand("sim/view/ltr_pause","Pause tracking");
-    recenter_cmd = XPLMCreateCommand("sim/view/ltr_recenter","Recenter tracking");
-    line4 = "Use commands sim/view/ltr_run, sim/view/ltr_pause, sim/view/ltr_recenter.";
-  }
         XPLMRegisterCommandHandler(
                     run_cmd,
                     cmd_cbk,
@@ -414,6 +407,7 @@ static char line2[] = " - Settings -> Joystick, Keys and Equipment -> Buttons Ad
 static XPWidgetID		setupText3;
 static char line3[] = " - Settings -> Joystick, Keys and Equipment -> Keys to setup Keyboard";
 static XPWidgetID		setupText4;
+static char line4[] = "Use commands linuxtrack/ltr_run, linuxtrack/ltr_pause, linuxtrack/ltr_recenter.";
 static XPWidgetID		setupText5;
 static char line5[] = "For more details refer to http://code.google.com/p/linux-track/wiki/XplanePluginSetup";
 
