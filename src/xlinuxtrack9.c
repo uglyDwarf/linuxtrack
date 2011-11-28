@@ -53,6 +53,8 @@ static XPLMCommandRef pause_cmd;
 static XPLMCommandRef recenter_cmd;
 static bool initialized = false;
 
+static int xplane_ver;
+
 static void MyHotKeyCallback(void *inRefcon);    
 static int cmd_cbk(XPLMCommandRef       inCommand,
                    XPLMCommandPhase     inPhase,
@@ -83,7 +85,6 @@ PLUGIN_API int XPluginStart(char *outName,
   strcpy(outSig, "linuxtrack.camera");
   strcpy(outDesc, "A plugin that controls view using your webcam.");
 
-  int xplane_ver;
   int sdk_ver;
   XPLMHostApplicationID app_id;
   XPLMGetVersions(&xplane_ver, &sdk_ver, &app_id);
@@ -328,26 +329,21 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
     return -1.0;
   }
 
-  float heading = 0.0;
-  float pitch = 0.0;
-  float roll = 0.0;
-  float tx = 0.0;
-  float ty = 0.0;
-  float tz = 0.0;
+  static float heading = 0.0;
+  static float pitch = 0.0;
+  static float roll = 0.0;
+  static float tx = 0.0;
+  static float ty = 0.0;
+  static float tz = 0.0;
   int retval;
   unsigned int counter;
   
-  if(initialized){
+  if(initialized && (freeze == false)){
     retval = ltr_get_camera_update(&heading,&pitch,&roll,
                                    &tx, &ty, &tz, &counter);
-  }
-  
-  if (retval < 0) {
-    return -1.0;
-  }
-  
-  if(freeze == true){
-    return -1.0;
+    if (retval < 0) {
+      return -1.0;
+    }
   }
   
   tx *= 1e-3;
