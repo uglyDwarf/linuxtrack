@@ -191,7 +191,11 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
     }
   }
   
+#ifndef DARWIN
   QString destFile = destPath + "/lin.xpl";
+#else
+  QString destFile = destPath + "/mac.xpl";
+#endif
   QFileInfo fi(destFile);
   if(fi.isFile() || fi.isSymLink()){
     if(!QFile::remove(destFile)){

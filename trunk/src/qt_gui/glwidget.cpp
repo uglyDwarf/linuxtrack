@@ -1,6 +1,8 @@
 #include <QtGui>
 #include <QtOpenGL>
+#ifndef DARWIN
 #include <GL/glu.h>
+#endif
 #include <iostream>
 #include <math.h>
 #include "objreader.h"
