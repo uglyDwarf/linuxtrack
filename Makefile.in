@@ -67,8 +67,8 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-pdf-recursive install-ps-recursive install-recursive \
 	installcheck-recursive installdirs-recursive pdf-recursive \
 	ps-recursive uninstall-recursive
-am__dist_pkgdata_DATA_DIST = README MD5SUM SHA1SUM tir4.fw.gz \
-	tir5.fw.gz copyright_and_terms_of_use.txt
+am__dist_pkgdata_DATA_DIST = README README.devel README.xplane MD5SUM \
+	SHA1SUM tir4.fw.gz tir5.fw.gz copyright_and_terms_of_use.txt
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -256,7 +256,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = src src/mac src/tests doc $(am__append_1)
-dist_pkgdata_DATA = README $(am__append_2)
+dist_pkgdata_DATA = README README.devel README.xplane $(am__append_2)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
