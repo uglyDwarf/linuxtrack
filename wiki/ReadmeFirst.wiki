@@ -1,4 +1,5 @@
 #summary Short summary of things to get newcommers quickly up and going
+#labels Deprecated
 
 = Introduction =
 
