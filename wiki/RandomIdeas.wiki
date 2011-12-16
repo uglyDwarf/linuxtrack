@@ -1,4 +1,5 @@
 #summary Some initial thoughts.
+#labels Deprecated
 
 = Introduction =
 
