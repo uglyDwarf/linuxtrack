@@ -1,4 +1,5 @@
 #summary How to setup linuxtrack
+#labels Deprecated
 = Introduction =
 
 This page provides sommary of the steps needed to setup linuxtrack.
