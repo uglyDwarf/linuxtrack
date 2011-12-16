@@ -1,4 +1,5 @@
 #summary A todo list
+#labels Deprecated
 
 = Introduction =
 This is a list of things that should be done
