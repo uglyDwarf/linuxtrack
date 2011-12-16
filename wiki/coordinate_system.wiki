@@ -1,4 +1,5 @@
 #summary Internal Coordinate System
+#labels Deprecated
 
 = Introduction =
 
