@@ -1,4 +1,5 @@
 #summary Howto compile linuxtrack on Mac
+#labels Deprecated
 
 = These instructions are intended for the version under tags/no_gui. If you intend to compile the newest version, follow the NewBuild instructions! =
 
