@@ -1,18 +1,12 @@
-#summary How to build new version of linuxtrack with Qt GUI
+#summary How to build Linuxtrack
 
 = Introduction =
 
-This page provides instructions how to build the new linuxtrack version.
-
-The new linuxtrack versinon has some changes in the build process. The main difference lies in the fact, that it needs to be installed ('make install' step).
-If you don't want to install it between your system binaries/libraries (which you shouldn't as it is development version), use --prefix option to specify destination directory.
-
-Also don't forget that installing it into the tree that is not in your search path will cause that system won't be able to find linuxtrack binaries.
- 
+This page provides instructions how to build Linuxtrack on linux and Mac.
   
 == Building and installing linuxtrack on Linux==
 
-First of all, some prerequisities have to installed - find them in your favorite package manager.
+First of all, some prerequisities have to be installed - find them in your favorite package manager.
 
 They include (names from Ubuntu, in other distros might differ a bit):
 
@@ -44,20 +38,17 @@ svn checkout http://linux-track.googlecode.com/svn/trunk linux-track-read-only
 You should also install XPlane SDK version 2.0.1 and higher (default path is '/usr/include/xplane_sdk' - e.g there is file '/usr/include/xplane_sdk/XPLM/XPLMCamera.h'), or specify option
 '--with-xplane-sdk' (e.g --with-xplane-sdk=/home/simmer/SDK/CHeaders).
 
-If you intend to use TrackIR, you have to download firmware:
-
-http://media.naturalpoint.com/software/external/bulk_config_data.tar.gz
-
-Then unpack its contents into the '/home/simmer/linux-track-read-only' directory too.
+Also decide where the linuxtrack should be installed using --prefix option;
+in this example we are installing it into /home/simmer/ltr directory.
 
 {{{
 cd /home/simmer/linux-track-read-only
-./configure --prefix=/home/simmer/ltr
+./configure --prefix=/home/simmer/ltr --with-xplane-sdk=/home/simmer/SDK/CHeaders
 make
 make install
 }}}
 
-It is possible that you'll see several warnings about relinking libraries (they happen when you have linuxtrack already installed) and one saying that libltr.la wasn't installed. You can safely ignore that too.
+It is possible that you'll see several warnings about relinking libraries (they happen when you have linuxtrack already installed) and one saying that libltr.la wasn't installed. You can safely ignore them.
 
 Now linuxtrack is installed along with the gui and you need to make it available...
 Add following to the .bashrc file (I assume your shell is bash)
@@ -66,20 +57,22 @@ Add following to the .bashrc file (I assume your shell is bash)
 export PATH=${PATH}:/home/simmer/ltr/bin
 }}}
 
-This line makes linuxtrack binaries available from everywhere.
+This line makes linuxtrack binaries available without specifying full path to them.
+
 Last but not least - if you intend to use TrackIR, you'll have to install
 file 51-TIR.rules to your udev rules directory (might be /lib/udev/rules.d, but 
-refer to your distro documentation). You can find this file in 'prefix/share/linuxtrack' directory.
-
-This should get you up and going...
+refer to your distro documentation). You can find this file in 'prefix/share/linuxtrack' directory. Then either restart udev service, or reboot the computer and replug the TrackIR.
 
 
 == Building and installing on Mac ==
+Please note, that compiling Linuxtrack for Mac is usually not necessary - you can grab the .dmg archive in the Downloads section - it should work on both PowerPC and Intel Macs in MacOS X 10.4 to 10.7...
+
+Also note that due to supporting Tiger and PowerPC, development platform of choice is MacOS X 10.5. However, the compilation should work on 10.6 too(although I'm not using that, so I can't guarantee that)...
+
 First of all, there are some prerequisities to download...
  * * libusb-1.0.8.tar.bz2 * - http://sourceforge.net/projects/libusb/files/libusb-1.0/
  * * XPlane SDK 2.0.1 * - http://www.xsquawkbox.net/xpsdk/XPSDK201.zip
  * * Qt SDK for Mac (Qt Libraries should do too) * - http://qt.nokia.com/downloads
- * * TrackIR 4/5 firmware * - http://media.naturalpoint.com/software/external/bulk_config_data.tar.gz
 
 Install the Qt, now create a build directory somewhere and copy libusb-1.0.8.tar.bz2, bulk_config_data.tar.gz and unpacked SDK there too.
 
@@ -105,6 +98,3 @@ Go to the _michal_ directory and run:
 }}}
 
 This should compile linuxtrack and create .dmg containing all that is needed.
-Now run the thing, setup tracking device and you can start playing with tracking.
-
-To use tracking in XPlane, on the last pane there is a button allowing you to install XPlane plugin.
