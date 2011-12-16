@@ -1,4 +1,5 @@
 #summary Frequently asked questions
+#labels Deprecated
 
 = Introduction =
 This page should contain answers of frequently asked questions.
