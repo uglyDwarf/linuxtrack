@@ -3,11 +3,15 @@
 
 = Introduction =
 
-This page explains howto setup the new XPlane plugin. 
+This page explains howto setup the new XPlane plugin.
+
+First of all, you have to install the XPlane plugin. To do that, start the Linuxtrack GUI, go to the fourth tab (Misc.) and press the "Install XPlane plugin...". A dialog will popup, use it to find the XPlane executable and press "Open". This will install the plugin.
 
 Please note, that if you used linuxtrack XPlane plugin before, you will need to reinstall the plugin using the linuxtrack GUI to be able to use it in XPlane 10.
 
 Setup of tracking parameters is done in the linuxtrack GUI, this page deals with setup of hotkeys and/or joystick buttons to control the tracking.
+
+Last but not least - unlike other headtracking programs like freetrack, the GUI should not be running when using headtracking - e.g. when running XPlane with linuxtrack plugin installed.
 
 = Joystick buttons setup =
 
