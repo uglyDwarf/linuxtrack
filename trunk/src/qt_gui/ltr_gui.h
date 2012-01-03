@@ -56,6 +56,7 @@ class LinuxtrackGui : public QWidget
   LogView *lv;
   bool initialized;
   QSettings *gui_settings;
+  void rereadPrefs();
 };
 
 

@@ -26,6 +26,18 @@
 #include "wiimote_prefs.h"
 #include "help_view.h"
 
+static QMessageBox::StandardButton warnQuestion(const QString &message)
+{
+ return QMessageBox::warning(NULL, "Linuxtrack",
+                                message, QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
+}
+
+static QMessageBox::StandardButton warningMessage(const QString &message)
+{
+ return QMessageBox::warning(NULL, "Linuxtrack",
+                                message, QMessageBox::Ok);
+}
+
 LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   initialized(false)
 {
@@ -152,24 +164,19 @@ void LinuxtrackGui::on_EditSCButton_pressed()
   sc->show();
 }
 
-static int warnMessage(const QString &message){
- return QMessageBox::warning(NULL, "Linuxtrack",
-                                message, QMessageBox::Ok, QMessageBox::Ok);
-}
-
 void LinuxtrackGui::on_XplanePluginButton_pressed()
 {
   QString fileName = QFileDialog::getOpenFileName(this,
      "Find XPlane executable", "/", "All Files (*)");
   QRegExp pathRexp("^(.*/)[^/]+$");
   if(pathRexp.indexIn(fileName) == -1){
-    warnMessage(QString("Strange path... '" + fileName + "'"));
+    warningMessage(QString("Strange path... '" + fileName + "'"));
     return;
   }
   QString sourceFile = PrefProxy::getLibPath("xlinuxtrack9");
   QString destPath = pathRexp.cap(1) + "/Resources/plugins";
   if(!QFile::exists(destPath)){
-    warnMessage(QString("Wrong file specified!"));
+    warningMessage(QString("Wrong file specified!"));
     return;
   }
   
@@ -177,7 +184,7 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
   QString oldPlugin = destPath + "/xlinuxtrack.xpl";
   if(QFile::exists(oldPlugin)){
     if(!QFile::remove(oldPlugin)){
-      warnMessage(QString("Can't remove old plugin ('" + oldPlugin + "')!"));
+      warningMessage(QString("Can't remove old plugin ('" + oldPlugin + "')!"));
     }
   }
   
@@ -186,7 +193,7 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
   QDir pluginDir(destPath);
   if(!pluginDir.exists()){
     if(!pluginDir.mkdir(destPath)){
-      warnMessage(QString("Can't create new plugin directory ('" + destPath + "')!"));
+      warningMessage(QString("Can't create new plugin directory ('" + destPath + "')!"));
       return;
     }
   }
@@ -199,14 +206,14 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
   QFileInfo fi(destFile);
   if(fi.isFile() || fi.isSymLink()){
     if(!QFile::remove(destFile)){
-      warnMessage(QString("Couldn't remove ") + destFile + "!");
+      warningMessage(QString("Couldn't remove ") + destFile + "!");
       return;
     }
   }else{
     std::cout<<destFile.toAscii().data()<<" is not a file!"<<std::endl;
   }
   if(!QFile::link(sourceFile, destFile)){
-    warnMessage(QString("Couldn't link ") + sourceFile + " to " + destFile);
+    warningMessage(QString("Couldn't link ") + sourceFile + " to " + destFile);
   }
 }
 
@@ -220,19 +227,30 @@ void LinuxtrackGui::on_ViewLogButton_pressed()
   lv->show();
 }
 
-void LinuxtrackGui::on_DefaultsButton_pressed()
-{
-  PREF.copyDefaultPrefs();
-  on_DiscardChangesButton_pressed();
-}
-
-void LinuxtrackGui::on_DiscardChangesButton_pressed()
+void LinuxtrackGui::rereadPrefs()
 {
   PREF.rereadPrefs();
   if(initialized){
     on_RefreshDevices_pressed();
     me->refresh();
     track->refresh();
+  }
+}
+
+void LinuxtrackGui::on_DefaultsButton_pressed()
+{
+  if(warnQuestion(QString("You are about to load default settings, removing all changes you ever did!\n") + 
+                          "Do you really want to do that?") == QMessageBox::Ok){  
+    PREF.copyDefaultPrefs();
+    rereadPrefs();
+  }
+}
+
+void LinuxtrackGui::on_DiscardChangesButton_pressed()
+{
+  if(warnQuestion(QString("You are about to discard modifications you did since last save!\n") + 
+                          "Do you really want to do that?") == QMessageBox::Ok){ 
+     rereadPrefs();
   }
 }
 
