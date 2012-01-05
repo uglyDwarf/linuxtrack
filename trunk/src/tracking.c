@@ -61,6 +61,8 @@ bool ltr_int_check_pose()
 static bool tracking_initialized = false;
 static dbg_flag_type tracking_dbg_flag = DBG_CHECK;
 static dbg_flag_type raw_dbg_flag = DBG_CHECK;
+static int orientation = 0;
+static bool behind = false;
 
 bool ltr_int_init_tracking()
 {
@@ -72,7 +74,14 @@ bool ltr_int_init_tracking()
   if(ltr_int_get_filter_factor(&filterfactor) != true){
     return false;
   }
-
+  
+  orientation = ltr_int_get_orientation();
+  if(orientation & 8){
+    behind = true;
+  }else{
+    behind = false;
+  }
+  
   if(ltr_int_check_pose() == false){
     ltr_int_log_message("Can't get pose setup!\n");
     return false;
@@ -135,6 +144,31 @@ static void filter_frame(struct frame_type *frame)
   }
 }
 
+
+static void ltr_int_rotate_camera(float *x, float *y, int orientation)
+{
+  float tmp_x;
+  float tmp_y;
+  if(orientation & 4){
+    tmp_x = *y;
+    tmp_y = *x;
+  }else{
+    tmp_x = *x;
+    tmp_y = *y;
+  }
+  *x = (orientation & 1) ? -tmp_x : tmp_x;
+  *y = (orientation & 2) ? -tmp_y : tmp_y;
+}
+
+
+static void ltr_int_remove_camera_rotation(struct bloblist_type bl)
+{
+  unsigned int i;
+  for(i = 0; i < bl.num_blobs; ++i){
+    ltr_int_rotate_camera(&(bl.blobs[i].x), &(bl.blobs[i].y), orientation);
+  }
+}
+
 static int update_pose_1pt(struct frame_type *frame)
 {
   static float c_x = 0.0f;
@@ -155,6 +189,8 @@ static int update_pose_1pt(struct frame_type *frame)
     return -1;
   }
 
+  ltr_int_remove_camera_rotation(frame->bloblist);
+
   if(recenter == true){
     recenter = false;
     recentering = true;
@@ -171,6 +207,11 @@ static int update_pose_1pt(struct frame_type *frame)
   raw_translations[0] = 0.0f;
   raw_translations[1] = 0.0f;
   raw_translations[2] = 0.0f;
+
+  if(behind){
+    raw_angles[1] *= -1;
+  }
+
   return 0;
 }
 
@@ -202,7 +243,7 @@ static int update_pose_3pt(struct frame_type *frame)
     recenter = false;
     recentering = true;
   } 
-  
+  ltr_int_remove_camera_rotation(frame->bloblist);
   ltr_int_pose_sort_blobs(frame->bloblist);
   ltr_int_pose_process_blobs(frame->bloblist, &t, recentering);
 /*     transform_print(t); */
@@ -215,7 +256,12 @@ static int update_pose_3pt(struct frame_type *frame)
 			      &raw_translations[1], //ty
 			      &raw_translations[2]); //tz
   
-
+  if(behind){
+    raw_angles[1] *= -1;
+    raw_angles[2] *= -1;
+    raw_translations[0] *= -1;
+    raw_translations[2] *= -1;
+  }
   if(raw_dbg_flag == DBG_ON){
     ltr_int_log_message("*DBG_r* yaw: %g pitch: %g roll: %g\n", raw_angles[0], raw_angles[1], raw_angles[2]);
     ltr_int_log_message("*DBG_r* x: %g y: %g z: %g\n", 
