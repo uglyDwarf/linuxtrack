@@ -43,6 +43,7 @@ class LinuxtrackGui : public QWidget
   void on_HelpButton_pressed();
   void on_LtrTab_currentChanged(int index);
   void trackerStateHandler(ltr_state_type current_state);
+  void on_CameraOrientation_activated(int index);
  private:
   Ui::LinuxtrackMainForm ui;
   LtrGuiForm *showWindow;
@@ -57,6 +58,9 @@ class LinuxtrackGui : public QWidget
   bool initialized;
   QSettings *gui_settings;
   void rereadPrefs();
+  static QString descs[8];
+  static int orientValues[8];
+  void initOrientations();
 };
 
 

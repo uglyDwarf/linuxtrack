@@ -216,3 +216,14 @@ bool ltr_int_get_filter_factor(float *ff)
 {
   return ltr_int_get_key_flt(NULL, "Filter-factor", ff);
 }
+
+int ltr_int_get_orientation()
+{
+  int orientation = 0;
+  if(ltr_int_get_key_int("Global", "Camera-orientation", &orientation)){
+    return orientation;
+  }else{
+    return 0;
+  }
+}
+

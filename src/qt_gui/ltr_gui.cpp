@@ -38,6 +38,26 @@ static QMessageBox::StandardButton warningMessage(const QString &message)
                                 message, QMessageBox::Ok);
 }
 
+
+/* Coding:
+            bit0 (lsb) - invert camera X values
+            bit1       - invert camera Y values
+            bit2       - switch X and Y values (applied first!)
+            bit4       - invert pitch, roll, X and Z translations (for tracking from behind)
+*/
+QString LinuxtrackGui::descs[8] = {
+    "Normal",                        //0
+    "Top to the right",              //6
+    "Upside-down",                   //3
+    "Top to the left",               //5
+    "Normal, from behind",           //8
+    "Top to the right, from behind", //14
+    "Upside-down, from behind",      //11
+    "Top to the left, from behind"   //12
+  };
+
+int LinuxtrackGui::orientValues[] = {0, 6, 3, 5, 8, 14, 11, 13};
+
 LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   initialized(false)
 {
@@ -76,10 +96,34 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   gui_settings->endGroup();
   HelpViewer::LoadPrefs(*gui_settings);
   HelpViewer::ChangePage("dev_setup.htm");
+  initOrientations();
 }
 
 LinuxtrackGui::~LinuxtrackGui()
 {
+}
+
+void LinuxtrackGui::initOrientations()
+{
+  int i;
+  int orientVal = 0;
+  int orientIndex = 0;
+  
+  QString orient;
+  if(PREF.getKeyVal("Global", "Camera-orientation", orient)){
+    orientVal=orient.toInt();
+  }
+
+  //Initialize Orientations combobox and lookup saved val
+  ui.CameraOrientation->clear();
+  for(i = 0; i < 8; ++i){
+    ui.CameraOrientation->addItem(descs[i]);
+    if(orientValues[i] == orientVal){
+      orientIndex = i;
+    }
+  }
+  
+  ui.CameraOrientation->setCurrentIndex(orientIndex);
 }
 
 void LinuxtrackGui::closeEvent(QCloseEvent *event)
@@ -138,6 +182,14 @@ void LinuxtrackGui::on_DeviceSelector_activated(int index)
     ui.DeviceSetupStack->setCurrentIndex(2);
     tirp->Activate(pl.ID, !initialized);
   }
+}
+
+void LinuxtrackGui::on_CameraOrientation_activated(int index)
+{
+  if(index < 0){
+    return;
+  }
+  PREF.setKeyVal("Global", "Camera-orientation", orientValues[index]);
 }
 
 void LinuxtrackGui::on_RefreshDevices_pressed()
@@ -234,6 +286,7 @@ void LinuxtrackGui::rereadPrefs()
     on_RefreshDevices_pressed();
     me->refresh();
     track->refresh();
+    initOrientations();
   }
 }
 
@@ -285,6 +338,7 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
     case STOPPED:
     case ERROR:
       ui.DeviceSelector->setEnabled(true);
+      ui.CameraOrientation->setEnabled(true);
       ui.ModelSelector->setEnabled(true);
       ui.Profiles->setEnabled(true);
       ui.DefaultsButton->setEnabled(true);
@@ -294,6 +348,7 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
     case RUNNING:
     case PAUSED:
       ui.DeviceSelector->setDisabled(true);
+      ui.CameraOrientation->setDisabled(true);
       ui.ModelSelector->setDisabled(true);
       ui.Profiles->setDisabled(true);
       ui.DefaultsButton->setDisabled(true);
