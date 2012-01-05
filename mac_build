@@ -131,6 +131,7 @@ pushd dist
   cp ../src/linuxtrack.c develop
   cp ${PREFIX}/lib/liblinuxtrack.a develop
   cp ../Readme.rtf .
+  cp ../src/ltr_pipe .
 popd
 rm -f linuxtrack*.dmg
 DMG=linuxtrack$(date +%y%m%d).dmg
