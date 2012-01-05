@@ -156,7 +156,7 @@ static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII
   
   for(i = 0; i < 4; ++i){
     if((data[i].size != 15) && (valid < 3)){
-      (blobs_array[valid]).x = data[i].x;
+      (blobs_array[valid]).x = - data[i].x;
       (blobs_array[valid]).y = data[i].y;
       (blobs_array[valid]).score = data[i].size;
       if(!get_frame){
