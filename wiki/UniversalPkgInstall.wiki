@@ -1,5 +1,5 @@
 #summary How-to describing installation process for universal package
-#labels Phase-Deploy
+#labels Phase-Deploy,Featured
 
 = How to install the universal Linuxtrack package =
 
@@ -102,9 +102,20 @@ When done, close the terminal and start another one (this will load the new PATH
 {{{
 ltr_gui
 }}}
-If you find yourself lost, just click the Help button and it should provide you with enough info to set the 
-tracking up.
+If you find yourself lost, just click the Help button and it should provide you with enough info to set the tracking up.
 
+
+== Note for TrackIR users ==
+To access TrackIR, you have to have permission to do that; if you go to the /usr/share/linuxtrack, you'll find there file 51-TIR.rules containing udev rules granting you this permission. This file has to be installed to the /lib/udev/rules.d directory.
+The following command does that:
+{{{
+sudo cp /usr/share/linuxtrack/51-TIR.rules /lib/udev/rules.d
+}}}
+Now either reboot the machine, or you can do it the linux-way:
+{{{
+sudo service udev restart
+}}}
+and then replug/plug-in the TrackIR and you are good to go.
 ----
 
 Any questions, comments and ideas concerning either this how-to or Linuxtrack are welcome!
