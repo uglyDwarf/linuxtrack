@@ -58,6 +58,8 @@ When the package is installed, to make it a little bit convenient, let's make a 
 > sudo ln -s linuxtrack_0.0_120118 linuxtrack
 }}}
 
+This way several Linuxtrack versions can coexist happily - just change the link (remove the old one first using command 'sudo rm -i linuxtrack') to point to the version of your choice and rerun ltr_gui (just open it and close again to let it realize the version changed).
+
 In order to get Linuxtrack working, you have to install its dependencies; this step will be different in each distro. First of all, enter the bin directory:
 
 {{{
