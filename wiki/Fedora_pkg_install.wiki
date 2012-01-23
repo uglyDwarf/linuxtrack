@@ -14,12 +14,12 @@ Now open terminal and run the following commands:
 > cd ~/Downloads
 > sudo cp linuxtrack.repo /etc/yum.repos.d
 }}}
-This will enable linuxtrack repository; the last command can also ran as root instead of sudo, depending on your preference (and as always - when having root privileges, make sure you know what are you doing!).
+This will enable Linuxtrack repository; the last command can also ran as root instead of sudo, depending on your preference (and as always - when having root privileges, make sure you know what are you doing!).
 
-Now the linuxtrack is ready to be installed by the following command:
+Now the Linuxtrack is ready to be installed by the following command:
 
 {{{
-> sudo yum install linuxtrack
+> sudo yum install linuxtrack linuxtrack-xplane-plugin
 ...
 Retrieving key from http://www.linuxtrack.eu/repositories/fedora-pubkey.gpg
 Importing GPG key 0x061A0257:
@@ -27,20 +27,6 @@ Importing GPG key 0x061A0257:
  From  : http://www.linuxtrack.eu/repositories/fedora-pubkey.gpg
 Is this ok [y/N]: y
 ...
-Dependencies Resolved
-
-===============================================================================
- Package              Arch        Version                Repository       Size
-===============================================================================
-Installing:
- linuxtrack           x86_64      0.0.120118-1.fc16      linuxtrack      248 k
-Installing for dependencies:
- linuxtrack-data      noarch      0.0.120118-1.fc16      linuxtrack      1.7 M
-
-Transaction Summary
-===============================================================================
-Install       2 Packages
-
 Total download size: 1.9 M
 Installed size: 8.7 M
 Is this ok [y/N]: y
@@ -48,7 +34,7 @@ Is this ok [y/N]: y
 Complete!
 }}}
 
-You'll be asked seveal times to confirm - at first to allow public key import, then to confirm linuxtrack installation (with dependencies).
+You'll be asked several times to confirm - at first to allow public key import, then to confirm Linuxtrack installation (with dependencies).
 
 When done, you can start ltr_gui either from terminal, or via menu Games.
 If you find yourself lost, just click the Help button and it should provide you with enough info to set the tracking up.
