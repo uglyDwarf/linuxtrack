@@ -1,4 +1,5 @@
 #summary Hall Of Fame
+#labels Featured
 
 = Hall Of Fame =
 
