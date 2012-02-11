@@ -37,6 +37,9 @@
 *Jaša*
   Thanks for making Tir2 support possible.
 
+*Sapam* (Sapam, x-plane.org forum)
+  Thank you for helping me debug unresponsive TrackIR4...
+
 == Donors ==
 
 *Michael* (Macmichael, x-plane.org forum)
@@ -70,4 +73,10 @@
   Thanks for supporting the project!
 
 *Lachlan* (Gairlochan, x-plane.org forum)
+  Thanks for supporting the project!
+
+*Katsumi*
+  Thanks for supporting the project!
+
+*Zane*
   Thanks for supporting the project!
