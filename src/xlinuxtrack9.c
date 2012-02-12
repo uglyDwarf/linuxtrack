@@ -354,14 +354,14 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
     XPLMSetDataf(PV_TIR_Y_DR, ty);
     XPLMSetDataf(PV_TIR_Z_DR, tz);
     XPLMSetDataf(PV_TIR_Pitch_DR, pitch);
-    XPLMSetDataf(PV_TIR_Heading_DR, heading);
-    XPLMSetDataf(PV_TIR_Roll_DR, roll);
+    XPLMSetDataf(PV_TIR_Heading_DR, -heading);
+    XPLMSetDataf(PV_TIR_Roll_DR, -roll);
   }else{
     if(!view_changed){
       XPLMSetDataf(head_x,base_x + tx);
       XPLMSetDataf(head_y,base_y + ty);
       XPLMSetDataf(head_z,base_z + tz);
-      XPLMSetDataf(head_psi,heading);
+      XPLMSetDataf(head_psi,-heading);
       XPLMSetDataf(head_the,pitch);
     }
   }

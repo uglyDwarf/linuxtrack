@@ -114,10 +114,10 @@ void GLWidget::paintGL()
      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
      glLoadIdentity();
      
-     glRotated(xRot, 1.0, 0.0, 0.0);
-     glRotated(yRot, 0.0, 1.0, 0.0);
-     glRotated(zRot, 0.0, 0.0, 1.0);
-     glTranslated(xTrans, yTrans, zTrans);
+     glRotated(-xRot, 1.0, 0.0, 0.0);
+     glRotated(-yRot, 0.0, 1.0, 0.0);
+     glRotated(-zRot, 0.0, 0.0, 1.0);
+     glTranslated(-xTrans, -yTrans, -zTrans);
      
      glPushMatrix();
      glTranslated(0.0, -0.7, -2.265);
