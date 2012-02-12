@@ -97,6 +97,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   HelpViewer::LoadPrefs(*gui_settings);
   HelpViewer::ChangePage("dev_setup.htm");
   initOrientations();
+  ui.LegacyPose->setChecked(ltr_int_use_alter());
 }
 
 LinuxtrackGui::~LinuxtrackGui()
@@ -343,6 +344,7 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
       ui.Profiles->setEnabled(true);
       ui.DefaultsButton->setEnabled(true);
       ui.DiscardChangesButton->setEnabled(true);
+      ui.LegacyPose->setEnabled(true);
       break;
     case INITIALIZING:
     case RUNNING:
@@ -353,9 +355,20 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
       ui.Profiles->setDisabled(true);
       ui.DefaultsButton->setDisabled(true);
       ui.DiscardChangesButton->setDisabled(true);
+      ui.LegacyPose->setDisabled(true);
       break;
     default:
       break;
   }
 }
+
+void LinuxtrackGui::on_LegacyPose_stateChanged(int state)
+{
+  if(state == Qt::Checked){
+    ltr_int_set_use_alter(true);
+  }else{
+    ltr_int_set_use_alter(false);
+  }
+}
+
 

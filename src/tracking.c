@@ -5,8 +5,6 @@
 #include "utils.h"
 #include "pref_global.h"
 
-static float filterfactor=1.0;
-
 /**************************/
 /* private Static members */
 /**************************/
@@ -15,7 +13,6 @@ static struct bloblist_type filtered_bloblist;
 static struct blob_type filtered_blobs[3];
 static bool first_frame = true;
 static bool recenter = false;
-struct current_pose ltr_int_orig_pose;
 
 /*******************************/
 /* private function prototypes */
@@ -29,17 +26,6 @@ static void expfilt_vec(float x[3],
               float filtfactor,
               float res[3]);
 */
-static double nonlinfilt(double x, 
-              double y_minus_1,
-              double filtfactor);
-
-static void nonlinfilt_vec(double x[3], 
-              double y_minus_1[3],
-              double filtfactor[3],
-              double res[3]);
-
-static double clamp_angle(double angle);
-
 /************************/
 /* function definitions */
 /************************/
@@ -71,10 +57,6 @@ bool ltr_int_init_tracking()
     raw_dbg_flag = ltr_int_get_dbg_flag('r');
   }
 
-  if(ltr_int_get_filter_factor(&filterfactor) != true){
-    return false;
-  }
-  
   orientation = ltr_int_get_orientation();
   if(orientation & 8){
     behind = true;
@@ -101,30 +83,10 @@ int ltr_int_recenter_tracking()
   return 0;
 }
 
-//Purpose of this procedure is to modify translations to work more
-//intuitively - if I rotate my head right and move it to the left,
-//it should move view left, not back
-static void rotate_translations(double *heading, double *pitch, double *roll, 
-                         double *tx, double *ty, double *tz)
-{
-  double tm[3][3];
-  double k = 180.0 / M_PI;
-  double p = *pitch / k;
-  double y = *heading / k;
-  double r = *roll / k;
-  ltr_int_euler_to_matrix(p, y, r, tm);
-  double tr[3] = {*tx, *ty, *tz};
-  double res[3];
-  ltr_int_transpose_in_place(tm);
-  ltr_int_matrix_times_vec(tm, tr, res);
-  *tx = res[0];
-  *ty = res[1];
-  *tz = res[2];
-}
 
 static pthread_mutex_t pose_mutex = PTHREAD_MUTEX_INITIALIZER;
-static double raw_angles[3] = {0.0f, 0.0f, 0.0f};
-static double raw_translations[3] = {0.0f, 0.0f, 0.0f};
+static double angles[3] = {0.0f, 0.0f, 0.0f};
+static double translations[3] = {0.0f, 0.0f, 0.0f};
 
 static void filter_frame(struct frame_type *frame)
 {
@@ -135,11 +97,11 @@ static void filter_frame(struct frame_type *frame)
   for(i = 0; i < frame->bloblist.num_blobs; ++i){
     if(ltr_int_is_finite(frame->bloblist.blobs[i].x)){
       frame->bloblist.blobs[i].x = 
-        nonlinfilt(frame->bloblist.blobs[i].x, memory_x[i], 2.0);
+        ltr_int_nonlinfilt(frame->bloblist.blobs[i].x, memory_x[i], 2.0);
     }
     if(ltr_int_is_finite(frame->bloblist.blobs[i].y)){
       frame->bloblist.blobs[i].y = 
-        nonlinfilt(frame->bloblist.blobs[i].y, memory_y[i], 2.0);
+        ltr_int_nonlinfilt(frame->bloblist.blobs[i].y, memory_y[i], 2.0);
     }
   }
 }
@@ -201,15 +163,15 @@ static int update_pose_1pt(struct frame_type *frame)
     c_y = frame->bloblist.blobs[0].y;
   }
   
-  raw_angles[0] = frame->bloblist.blobs[0].x - c_x;
-  raw_angles[1] = frame->bloblist.blobs[0].y - c_y;
-  raw_angles[2] = 0.0f;
-  raw_translations[0] = 0.0f;
-  raw_translations[1] = 0.0f;
-  raw_translations[2] = 0.0f;
+  angles[0] = frame->bloblist.blobs[0].x - c_x;
+  angles[1] = frame->bloblist.blobs[0].y - c_y;
+  angles[2] = 0.0f;
+  translations[0] = 0.0f;
+  translations[1] = 0.0f;
+  translations[2] = 0.0f;
 
   if(behind){
-    raw_angles[1] *= -1;
+    angles[1] *= -1;
   }
 
   return 0;
@@ -218,7 +180,6 @@ static int update_pose_1pt(struct frame_type *frame)
 
 static int update_pose_3pt(struct frame_type *frame)
 {
-  struct transform t;
   bool recentering = false;
   
   ltr_int_check_pose();
@@ -245,28 +206,28 @@ static int update_pose_3pt(struct frame_type *frame)
   } 
   ltr_int_remove_camera_rotation(frame->bloblist);
   ltr_int_pose_sort_blobs(frame->bloblist);
+
+  int res = 0;
+  struct current_pose t;
   ltr_int_pose_process_blobs(frame->bloblist, &t, recentering);
-/*     transform_print(t); */
-  int res;
-  res = ltr_int_pose_compute_camera_update(t,
-			      &raw_angles[0], //heading
-			      &raw_angles[1], //pitch
-			      &raw_angles[2], //roll
-			      &raw_translations[0], //tx
-			      &raw_translations[1], //ty
-			      &raw_translations[2]); //tz
-  
+  angles[0] = t.pitch;
+  angles[1] = t.heading;
+  angles[2] = t.roll;
+  translations[0] = t.tx;
+  translations[1] = t.ty;
+  translations[2] = t.tz;
+
   if(behind){
-    raw_angles[1] *= -1;
-    raw_angles[2] *= -1;
-    raw_translations[0] *= -1;
-    raw_translations[2] *= -1;
+    angles[1] *= -1;
+    angles[2] *= -1;
+    translations[0] *= -1;
+    translations[2] *= -1;
   }
-  if(raw_dbg_flag == DBG_ON){
-    ltr_int_log_message("*DBG_r* yaw: %g pitch: %g roll: %g\n", raw_angles[0], raw_angles[1], raw_angles[2]);
-    ltr_int_log_message("*DBG_r* x: %g y: %g z: %g\n", 
-                        raw_translations[0], raw_translations[1], raw_translations[2]);
-  }
+//  if(raw_dbg_flag == DBG_ON){
+//    printf("*DBG_r* yaw: %g pitch: %g roll: %g\n", angles[0], angles[1], angles[2]);
+//    ltr_int_log_message("*DBG_r* x: %g y: %g z: %g\n", 
+//                        translations[0], translations[1], translations[2]);
+//  }
   
   return res;
 }
@@ -292,50 +253,20 @@ int ltr_int_tracking_get_camera(float *heading,
                       float *tz,
                       unsigned int *counter)
 {
-  static double filtered_angles[3] = {0.0f, 0.0f, 0.0f};
-  static double filtered_translations[3] = {0.0f, 0.0f, 0.0f};
-  double filter_factors_angles[3] = {filterfactor, filterfactor, filterfactor};
-  double filter_factors_translations[3] = {filterfactor, filterfactor, 10 * filterfactor};
-  
   if(!tracking_initialized){
     ltr_int_init_tracking();
   }
   
-  ltr_int_get_filter_factor(&filterfactor);
-  nonlinfilt_vec(raw_angles, filtered_angles, filter_factors_angles, filtered_angles);
-  nonlinfilt_vec(raw_translations, filtered_translations, filter_factors_translations, 
-        filtered_translations);
-  
   pthread_mutex_lock(&pose_mutex);
-  ltr_int_orig_pose.heading = filtered_angles[0];
-  ltr_int_orig_pose.pitch = filtered_angles[1];
-  ltr_int_orig_pose.roll = filtered_angles[2];
-  ltr_int_orig_pose.tx = filtered_translations[0];
-  ltr_int_orig_pose.ty = filtered_translations[1];
-  ltr_int_orig_pose.tz = filtered_translations[2];
+  *pitch = angles[0];
+  *heading = angles[1];
+  *roll = angles[2];
+  *tx = translations[0];
+  *ty = translations[1];
+  *tz = translations[2];
   
-  double heading_d, pitch_d, roll_d, tx_d, ty_d, tz_d;
-  heading_d = clamp_angle(ltr_int_val_on_axis(YAW, filtered_angles[0]));
-  pitch_d = clamp_angle(ltr_int_val_on_axis(PITCH, filtered_angles[1]));
-  roll_d = clamp_angle(ltr_int_val_on_axis(ROLL, filtered_angles[2]));
-  tx_d = ltr_int_val_on_axis(TX, filtered_translations[0]);
-  ty_d = ltr_int_val_on_axis(TY, filtered_translations[1]);
-  tz_d = ltr_int_val_on_axis(TZ, filtered_translations[2]);
-  
-  rotate_translations(&heading_d, &pitch_d, &roll_d, &tx_d, &ty_d, &tz_d);
-  *heading = heading_d;
-  *pitch = pitch_d;
-  *roll = roll_d;
-  *tx = tx_d;
-  *ty = ty_d;
-  *tz = tz_d;
   *counter = counter_d;
   pthread_mutex_unlock(&pose_mutex);
-/*
-  log_message("%f  %f  %f\n%f  %f  %f\n\n", 
-	      lt_current_pose.heading, lt_current_pose.pitch,lt_current_pose.roll,
-	      lt_current_pose.tx,lt_current_pose.ty,lt_current_pose.tz);
-*/
   return 0;
 }
 
@@ -363,7 +294,7 @@ void expfilt_vec(double x[3],
 }
 */
 
-double nonlinfilt(double x, 
+double ltr_int_nonlinfilt(double x, 
               double y_minus_1,
               double filterfactor) 
 {
@@ -374,25 +305,14 @@ double nonlinfilt(double x,
   return y;
 }
 
-void nonlinfilt_vec(double x[3], 
+void ltr_int_nonlinfilt_vec(double x[3], 
               double y_minus_1[3],
               double filterfactor[3],
               double res[3]) 
 {
-  res[0] = nonlinfilt(x[0], y_minus_1[0], filterfactor[0]);
-  res[1] = nonlinfilt(x[1], y_minus_1[1], filterfactor[1]);
-  res[2] = nonlinfilt(x[2], y_minus_1[2], filterfactor[2]);
+  res[0] = ltr_int_nonlinfilt(x[0], y_minus_1[0], filterfactor[0]);
+  res[1] = ltr_int_nonlinfilt(x[1], y_minus_1[1], filterfactor[1]);
+  res[2] = ltr_int_nonlinfilt(x[2], y_minus_1[2], filterfactor[2]);
 }
 
-
-double clamp_angle(double angle)
-{
-  if(angle<-180.0){
-    return -180.0;
-  }else if(angle>180.0){
-    return 180.0;
-  }else{
-    return angle;
-  }
-}
 

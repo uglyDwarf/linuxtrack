@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "pose.h"
 #include "pref.h"
 #include "pref_int.h"
 #include "pref_global.h"
@@ -52,6 +53,31 @@ bool ltr_int_is_model_active()
   }
   bool res = (strcasecmp(active, "yes") == 0) ? true : false;
   return res;
+}
+
+static bool use_alter = false;
+bool ltr_int_use_alter()
+{
+  static const char *pose_method = NULL;
+  if(pose_method == NULL){
+    pose_method = ltr_int_get_key("Global", "Legacy-pose-computation");
+    if(pose_method == NULL){
+      use_alter = false;
+    }else{
+      if(strcasecmp(pose_method, "yes") == 0){
+        use_alter = true;
+      }else{
+        use_alter = false;
+      }
+    }
+  }
+  return use_alter;
+}
+
+void ltr_int_set_use_alter(bool state)
+{
+  ltr_int_change_key("Global", "Legacy-pose-computation", state?"yes":"no");
+  use_alter = state;
 }
 
 bool ltr_int_get_device(struct camera_control_block *ccb)
@@ -134,11 +160,14 @@ static bool setup_cap(reflector_model_type *rm, const char *model_section)
     return false;
   }
   
+  rm->p0[0] = 0;
+  rm->p0[1] = y;
+  rm->p0[2] = 0;
   rm->p1[0] = -x/2;
-  rm->p1[1] = -y;
+  rm->p1[1] = 0;
   rm->p1[2] = -z;
   rm->p2[0] = +x/2;
-  rm->p2[1] = -y;
+  rm->p2[1] = 0;
   rm->p2[2] = -z;
   rm->hc[0] = 0.0;
   rm->hc[1] = -hy;
@@ -175,12 +204,15 @@ static bool setup_clip(reflector_model_type *rm, const char *model_section)
     return false;
   }
   
+  rm->p0[0] = 0;
+  rm->p0[1] = y1;
+  rm->p0[2] = -z1;
   rm->p1[0] = 0;
-  rm->p1[1] = -y1;
-  rm->p1[2] = z1;
+  rm->p1[1] = 0;
+  rm->p1[2] = 0;
   rm->p2[0] = 0;
-  rm->p2[1] = -y2;
-  rm->p2[2] = -z2;
+  rm->p2[1] = y1 - y2;
+  rm->p2[2] = -z1 - z2;
   rm->hc[0] = hx;
   rm->hc[1] = hy;
   rm->hc[2] = hz;

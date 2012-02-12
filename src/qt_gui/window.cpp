@@ -58,12 +58,12 @@ void Window::update_pic()
   float x,y,z;
   unsigned int counter;
   if(ltr_int_get_camera_update(&h, &p, &r, &x, &y, &z, &counter) != -1){
-    glWidget->setXRotation(-p);
+    glWidget->setXRotation(p);
     glWidget->setYRotation(h);
     glWidget->setZRotation(r);
-    glWidget->setXTrans(-x/1000.0);
-    glWidget->setYTrans(-y/1000.0);
-    glWidget->setZTrans(-z/1000.0);
+    glWidget->setXTrans(x/1000.0);
+    glWidget->setYTrans(y/1000.0);
+    glWidget->setZTrans(z/1000.0);
     glWidget->updateGL();
   }
 }
