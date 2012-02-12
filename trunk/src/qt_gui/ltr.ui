@@ -33,7 +33,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -1872,6 +1872,14 @@
               <widget class="QCheckBox" name="Disable3DView">
                <property name="text">
                 <string>Disable 3D tracking preview</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="LegacyPose">
+               <property name="text">
+                <string>Use legacy pose computation method
+  (weak perspective/Alter)</string>
                </property>
               </widget>
              </item>

@@ -4,7 +4,6 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include "cal.h"
-#include "axis.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,6 +30,15 @@ int ltr_int_tracking_get_camera(float *heading,
                       float *ty,
                       float *tz,
                       unsigned int *counter);
+
+double ltr_int_nonlinfilt(double x, 
+              double y_minus_1,
+              double filtfactor);
+
+void ltr_int_nonlinfilt_vec(double x[3], 
+              double y_minus_1[3],
+              double filtfactor[3],
+              double res[3]);
 
 #ifdef __cplusplus
 }

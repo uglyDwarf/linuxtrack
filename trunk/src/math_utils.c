@@ -32,6 +32,24 @@ void ltr_int_mul_vec(double vec[3],double c,double res[3])
   res[2]=vec[2]*c;
 }
 
+void ltr_int_normalize_vec(double vec[3])
+{
+  double a = ltr_int_vec_size(vec);
+  vec[0] /= a;
+  vec[1] /= a;
+  vec[2] /= a;
+}
+
+void ltr_int_assign_matrix(double src[3][3], double tgt[3][3])
+{
+  int i,j;
+  for(i = 0; i < 3; ++i){
+    for(j = 0; j < 3; ++j){
+      tgt[i][j] = src[i][j];
+    }
+  }
+}
+
 void ltr_int_make_base(double vec1[3],double vec2[3],double res[3][3])
 {
   double tmp1[3],tmp2[3];
@@ -45,23 +63,21 @@ void ltr_int_make_base(double vec1[3],double vec2[3],double res[3][3])
 
 void ltr_int_matrix_times_vec(double m[3][3], double vec[3],double res[3])
 {
-  res[0] = ltr_int_dot_product(m[0], vec);
-  res[1] = ltr_int_dot_product(m[1], vec);
-  res[2] = ltr_int_dot_product(m[2], vec);
+  res[0] = m[0][0] * vec[0] + m[0][1] * vec[1] + m[0][2] * vec[2];
+  res[1] = m[1][0] * vec[0] + m[1][1] * vec[1] + m[1][2] * vec[2];
+  res[2] = m[2][0] * vec[0] + m[2][1] * vec[1] + m[2][2] * vec[2];
 }
 
 void ltr_int_print_matrix(double matrix[3][3], char *name)
 {
   int i,j;
-/*   printf("\n%s = [\n", name); */
-  printf("%s=[", name);
+  printf("%s=[\n", name);
   for(i = 0; i < 3; ++i){
     for(j = 0; j < 3; ++j){
-/*       printf("%15f,", matrix[i][j]); */
-      printf("%f,", matrix[i][j]);
+      printf("%15f", matrix[i][j]);
+      if(j < 2) printf(",");
     }
-/*     printf("\n"); */
-    printf(";");
+    printf("\n");
   }
   printf("]\n");
 }
@@ -84,7 +100,8 @@ void ltr_int_mul_matrix(double m1[3][3], double m2[3][3], double res[3][3])
   ltr_int_transpose(m2, m2t);
   for(i = 0; i < 3; ++i){
     for(j = 0; j < 3; ++j){
-      res[i][j] = ltr_int_dot_product(m1[i], m2t[j]);
+      //res[i][j] = ltr_int_dot_product(m1[i], m2t[j]);
+      res[i][j] = m1[i][0]*m2[0][j] + m1[i][1]*m2[1][j] + m1[i][2]*m2[2][j];
     }
   }
 }
@@ -124,7 +141,7 @@ void ltr_int_matrix_to_euler(double matrix[3][3], double *pitch, double *yaw, do
   *yaw = asin(tmp);
   double yc = cos(*yaw);
   if (fabs(yc) > 1e-5){
-    *pitch = atan2(matrix[1][2]/yc, matrix[2][2]/yc);
+    *pitch = atan2(-matrix[1][2]/yc, matrix[2][2]/yc);
     *roll = atan2(-matrix[0][1]/yc, matrix[0][0]/yc);
   }else{
     *pitch = 0.0f;
@@ -134,22 +151,22 @@ void ltr_int_matrix_to_euler(double matrix[3][3], double *pitch, double *yaw, do
 
 void ltr_int_euler_to_matrix(double pitch, double yaw, double roll, double matrix[3][3])
 {
-  double cp = cos(-pitch);
-  double sp = sin(-pitch);
-  double cy = cos(-yaw);
-  double sy = sin(-yaw);
-  double cr = cos(-roll);
-  double sr = sin(-roll);
+  double cp = cos(pitch);
+  double sp = sin(pitch);
+  double cy = cos(yaw);
+  double sy = sin(yaw);
+  double cr = cos(roll);
+  double sr = sin(roll);
   matrix[0][0] = cr * cy;
-  matrix[0][1] = sr * cy;
-  matrix[0][2] = -sy;
+  matrix[0][1] = -sr * cy;
+  matrix[0][2] = sy;
 
-  matrix[1][0] = cr * sy * sp - sr * cp;
-  matrix[1][1] = sr * sy * sp + cr * cp;
-  matrix[1][2] = cy * sp;
+  matrix[1][0] = cr * sy * sp + sr * cp;
+  matrix[1][1] = -sr * sy * sp + cr * cp;
+  matrix[1][2] = -cy * sp;
 
-  matrix[2][0] = cr * sy * cp + sr * sp;
-  matrix[2][1] = sr * sy * cp - cr * sp;
+  matrix[2][0] = -cr * sy * cp + sr * sp;
+  matrix[2][1] = sr * sy * cp + cr * sp;
   matrix[2][2] = cy * cp;
 }
 

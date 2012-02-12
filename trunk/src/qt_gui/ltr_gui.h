@@ -44,6 +44,7 @@ class LinuxtrackGui : public QWidget
   void on_LtrTab_currentChanged(int index);
   void trackerStateHandler(ltr_state_type current_state);
   void on_CameraOrientation_activated(int index);
+  void on_LegacyPose_stateChanged(int state);
  private:
   Ui::LinuxtrackMainForm ui;
   LtrGuiForm *showWindow;

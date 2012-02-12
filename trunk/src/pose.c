@@ -3,12 +3,14 @@
 #include <assert.h>
 #include "pose.h"
 #include "math_utils.h"
+#include <tracking.h>
 #include "cal.h"
 #include "utils.h"
+#include "pref_global.h"
 
 static double model_dist = 1000.0;
 /* Focal length */
-static double internal_focal_depth;
+static double internal_focal_depth = 1000.0;
 
 static double model_point0[3];
 static double model_point1[3];
@@ -18,10 +20,14 @@ static double model_ref[3];
 
 static double model_base[3][3];
 
-static double center_ref[3];
+static double center_ref[3] = {0.0, 0.0, 0.0};
 static double center_base[3][3];
 
 static enum {M_CAP, M_CLIP, M_SINGLE} type;
+
+struct current_pose ltr_int_orig_pose;
+
+static double clamp_angle(double angle);
 
 void ltr_int_pose_init(struct reflector_model_type rm)
 {
@@ -48,55 +54,23 @@ void ltr_int_pose_init(struct reflector_model_type rm)
       assert(0);
       break;
   }
-  /* Physical dimensions */
-  /* Camera looks in direction of Z axis */
-  /* X axis goes then to the right */
-  /* Y axis goes up */
-/*   double x = 168; */
-/*   double y = 90; */
-/*   double z = 100; */
-
-/*   /\* Point, around which model rotates (just dimensions)*\/ */
-/*   double ref_y = 150; */
-/*   double ref_z = 150; */
-
-/*   model_point0[0] = 0.0;  */
-/*   model_point0[1] = y;  */
-/*   model_point0[2] = z; */
 
   #ifdef PT_DBG
+    printf("RM0: %g %g %g\n", rm.p0[0], rm.p0[1], rm.p0[2]);
     printf("RM1: %g %g %g\n", rm.p1[0], rm.p1[1], rm.p1[2]);
     printf("RM2: %g %g %g\n", rm.p2[0], rm.p2[1], rm.p2[2]);
     printf("RM_REF: %g %g %g\n", rm.hc[0], rm.hc[1], rm.hc[2]);
   #endif
 
-  model_point0[0] = 0.0;
-  model_point0[1] = 0.0;
-  model_point0[2] = 0.0;
-
-/*   model_point1[0] = -x/2;  */
-/*   model_point1[1] = 0.0;  */
-/*   model_point1[2] = 0.0; */
-  model_point1[0] = rm.p1[0];
-  model_point1[1] = rm.p1[1];
-  model_point1[2] = rm.p1[2];
-
-/*   model_point2[0] = x/2;  */
-/*   model_point2[1] = 0.0;  */
-/*   model_point2[2] = 0.0; */
-  model_point2[0] = rm.p2[0];
-  model_point2[1] = rm.p2[1];
-  model_point2[2] = rm.p2[2];
-
-/*   ref[0] = 0.0;  */
-/*   ref[1] = -ref_y;  */
-/*   ref[2] = ref_z; */
   double ref[3];
   ref[0] = rm.hc[0];
   ref[1] = rm.hc[1];
   ref[2] = rm.hc[2];
-
   
+  ltr_int_make_vec(rm.p0, ref, model_point0);
+  ltr_int_make_vec(rm.p1, ref, model_point1);
+  ltr_int_make_vec(rm.p2, ref, model_point2);
+
   /* Out of model points create orthonormal base */
   double vec1[3];
   double vec2[3];
@@ -108,9 +82,21 @@ void ltr_int_pose_init(struct reflector_model_type rm)
   ltr_int_make_base(vec1, vec2, center_base);
   /* Convert reference point to model base coordinates */
 //  double ref_pt[3];
+  double origin[3] = {0,0,0};
   double vec3[3];
-  ltr_int_make_vec(ref, model_point0, vec3);
+  ltr_int_make_vec(origin, model_point0, vec3);
   ltr_int_matrix_times_vec(model_base, vec3, model_ref);
+  
+  #ifdef MDL_DBG0
+    ltr_int_print_vec(model_point0, "model_point0");
+    ltr_int_print_vec(model_point1, "model_point1");
+    ltr_int_print_vec(model_point2, "model_point2");
+    
+    ltr_int_print_matrix(model_base, "model_base");
+    ltr_int_print_vec(ref, "ref");
+    ltr_int_print_vec(vec3, "vec3");
+    ltr_int_print_vec(model_ref, "model_ref");
+  #endif
 }
 
 bool ltr_int_is_single_point()
@@ -122,6 +108,126 @@ static double blob_dist(struct blob_type b0, struct blob_type b1)
 {
   return sqrt(ltr_int_sqr(b1.x-b0.x) + ltr_int_sqr(b1.y-b0.y));
 }
+
+
+static void iter_pose(struct bloblist_type blobs, double points[3][3], bool centering)
+{
+  (void) centering;
+  double tmp[3];
+  
+  double pp0[3], pp1[3], pp2[3];
+  double uv, uw, vw;
+  double d, e, f;
+  double d2, e2, f2;
+  double a_max, a_min;
+  double h, j, k, m, n, o, p, q;
+  
+  if(type == M_CAP){
+    //CAP
+    pp0[0] = blobs.blobs[0].x; pp0[1] = blobs.blobs[0].y; pp0[2] = internal_focal_depth;
+    pp1[0] = blobs.blobs[1].x; pp1[1] = blobs.blobs[1].y; pp1[2] = internal_focal_depth;
+    pp2[0] = blobs.blobs[2].x; pp2[1] = blobs.blobs[2].y; pp2[2] = internal_focal_depth;
+    ltr_int_make_vec(model_point1, model_point2, tmp);
+    d = ltr_int_vec_size(tmp);
+    ltr_int_make_vec(model_point0, model_point2, tmp);
+    e = ltr_int_vec_size(tmp);
+    ltr_int_make_vec(model_point0, model_point1, tmp);
+    f = ltr_int_vec_size(tmp);
+  }else{
+    //CLIP
+    pp0[0] = blobs.blobs[1].x; pp0[1] = blobs.blobs[1].y; pp0[2] = internal_focal_depth;
+    pp1[0] = blobs.blobs[0].x; pp1[1] = blobs.blobs[0].y; pp1[2] = internal_focal_depth;
+    pp2[0] = blobs.blobs[2].x; pp2[1] = blobs.blobs[2].y; pp2[2] = internal_focal_depth;
+    ltr_int_make_vec(model_point0, model_point2, tmp);
+    d = ltr_int_vec_size(tmp);
+    ltr_int_make_vec(model_point1, model_point2, tmp);
+    e = ltr_int_vec_size(tmp);
+    ltr_int_make_vec(model_point1, model_point0, tmp);
+    f = ltr_int_vec_size(tmp);
+  }
+  
+//  ltr_int_print_vec(pp0, "cp0");
+//  ltr_int_print_vec(pp1, "cp1");
+//  ltr_int_print_vec(pp2, "cp2");
+  
+  ltr_int_normalize_vec(pp0);
+  ltr_int_normalize_vec(pp1);
+  ltr_int_normalize_vec(pp2);
+
+//ltr_int_print_vec(pp0, "pp0");
+//ltr_int_print_vec(pp1, "pp1");
+//ltr_int_print_vec(pp2, "pp2");
+//  printf("d = %f\t\te = %f\t\tf = %f\n", d, e, f);
+  
+  uv = ltr_int_dot_product(pp0, pp1);
+  uw = ltr_int_dot_product(pp0, pp2);
+  vw = ltr_int_dot_product(pp1, pp2);
+  d2 = d*d;
+  e2 = e*e;
+  f2 = f*f;
+  h=uw * uw - 1.0;
+  j=uv * uv - 1.0;
+  
+  double uxv, uxw;
+  ltr_int_cross_product(pp0, pp1, tmp);
+  uxv = f / ltr_int_vec_size(tmp);
+  ltr_int_cross_product(pp0, pp2, tmp);
+  uxw = e / ltr_int_vec_size(tmp);
+  
+  a_min = e < f ? f : e;
+  a_max = uxv < uxw ? uxv : uxw;
+  
+  //printf("amin = %f; amax = %f\n", a_min, a_max);
+  
+  //Initial guess
+  double a = a_min + (a_min + a_max) / 2;
+  //printf("a = %f\n", a);
+  double a2, b, c, i_d;
+  int i;
+  
+  for(i = 0; i < 20; ++i){
+    if(a < a_min + 0.1){
+      a = a_min + 0.1;
+    }
+    if(a > a_max - 0.1){
+      a = a_max - 0.1;
+    }
+    a2 = a * a;
+    k = sqrt(a2 * j + f2);
+    m = sqrt(a2 * h + e2);
+    n = a * h / m;
+    o = a * j / k;
+    p = a * uv - k;
+    q = a * uw - m;
+    
+    b = a * uv - k;
+    c = a * uw - m;
+    i_d = b * b + c * c - 2 * b * c * vw - d2;
+    //printf("b = %f\nc = %f\ni_d = %f\nd = %f\n", b, c, i_d, i_d / 2*((uv-o)*(p-q*vw)+(uw-n)*(q-p*vw)));
+    a -= i_d / (2*((uv-o)*(p-q*vw)+(uw-n)*(q-p*vw)));
+    //printf("a = %f\n", a);
+    if(abs(i_d) < 1e-2){
+      break;
+    }
+  }
+  //printf("amin = %f\namax = %f\n", a_min, a_max);
+  if(type == M_CAP){
+    ltr_int_mul_vec(pp0, a, points[0]);
+    ltr_int_mul_vec(pp1, b, points[1]);
+  }else{
+    ltr_int_mul_vec(pp0, a, points[1]);
+    ltr_int_mul_vec(pp1, b, points[0]);
+  }
+  ltr_int_mul_vec(pp2, c, points[2]);
+
+/*   print_matrix(points, "alter92_result"); */
+  #ifdef PT_DBG
+    printf("RAW: %g %g %g\n", points[0][0], points[0][1], points[0][2]);
+    printf("RAW: %g %g %g\n", points[1][0], points[1][1], points[1][2]);
+    printf("RAW: %g %g %g\n", points[2][0], points[2][1], points[2][2]);
+  #endif
+}
+
 
 static void alter_pose(struct bloblist_type blobs, double points[3][3], bool centering)
 {
@@ -166,15 +272,15 @@ static void alter_pose(struct bloblist_type blobs, double points[3][3], bool cen
   }
   
   points[0][0] = blobs.blobs[0].x / s;
-  points[1][0] = blobs.blobs[0].y / s;
-  points[2][0] = internal_focal_depth / s;
+  points[0][1] = blobs.blobs[0].y / s;
+  points[0][2] = internal_focal_depth / s;
 
-  points[0][1] = blobs.blobs[1].x / s;
+  points[1][0] = blobs.blobs[1].x / s;
   points[1][1] = blobs.blobs[1].y / s;
-  points[2][1] = (internal_focal_depth + h1) / s;
+  points[1][2] = (internal_focal_depth + h1) / s;
 
-  points[0][2] = blobs.blobs[2].x / s;
-  points[1][2] = blobs.blobs[2].y / s;
+  points[2][0] = blobs.blobs[2].x / s;
+  points[2][1] = blobs.blobs[2].y / s;
   points[2][2] = (internal_focal_depth + h2) / s;
 
 /*   print_matrix(points, "alter92_result"); */
@@ -185,35 +291,6 @@ static void alter_pose(struct bloblist_type blobs, double points[3][3], bool cen
   #endif
 }
 
-static void get_translation(double base[3][3], double ref[3], double origin[3],
-                     double trans[3], bool do_center){
-//  double tmp[3];
-  double t_base[3][3];
-  double new_ref[3];
-  ltr_int_transpose(base, t_base);
-  ltr_int_matrix_times_vec(t_base, ref, new_ref);
-  new_ref[0] += origin[0];
-  new_ref[1] += origin[1];
-  new_ref[2] += origin[2];
-//  ltr_int_print_vec(ref, "ref");
-//  ltr_int_print_vec(new_ref, "new_ref");
-//  ltr_int_print_vec(origin, "origin");
-//  ltr_int_print_vec(center_ref, "center_ref");
-  if(do_center == true){
-    center_ref[0] = new_ref[0];
-    center_ref[1] = new_ref[1];
-    center_ref[2] = new_ref[2];
-  }
-  trans[0] = new_ref[0] - center_ref[0];
-  trans[1] = new_ref[1] - center_ref[1];
-  trans[2] = new_ref[2] - center_ref[2];
-}
-
-static void get_transform(double new_base[3][3], double rot[3][3]){
-  double center_base_t[3][3];
-  ltr_int_transpose(center_base, center_base_t);
-  ltr_int_mul_matrix(center_base_t, new_base, rot);
-}
 
 void ltr_int_pose_sort_blobs(struct bloblist_type bl)
 {
@@ -266,91 +343,126 @@ void ltr_int_pose_sort_blobs(struct bloblist_type bl)
 
 
 bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
-                        struct transform *trans, bool centering)
+                        struct current_pose *pose, bool centering)
 {
+//  double points[3][3];
+  double points[3][3] = {{28.35380,    -1.24458,    -0.11606},
+                         {103.19049,   -44.13490,   -76.36657},
+			 {131.32094,    10.75412,   -50.19649}
+  };
 
-  double points[3][3];
-/*   /\* DELETEME TEST START *\/ */
-/*   printf("deleteme test start\n"); */
-/*   struct bloblist_type testbloblist; */
-/*   testbloblist.num_blobs = 3; */
-/*   struct blob_type test_b[3]; */
-/*   test_b[0].x= -32.370056; */
-/*   test_b[0].y= 42.453735; */
-/*   test_b[0].score= 227; */
-/*   test_b[1].x= -69.601227; */
-/*   test_b[1].y= -53.773010; */
-/*   test_b[1].score= 163; */
-/*   test_b[2].x= -149.311951; */
-/*   test_b[2].y= -45.789001; */
-/*   test_b[2].score = 109; */
-/*   testbloblist.blobs = test_b; */
-/*   printf("unsorted_blobs: \n"); */
-/*   bloblist_print(testbloblist); */
-/*   sort_blobs(testbloblist); */
-/*   printf("Sorted_blobs: \n"); */
-/*   bloblist_print(testbloblist); */
-/*   printf("deleteme test end\n"); */
-/*   exit(1); */
-/*   /\* DELETEME TEST END *\/ */
-
-/*   printf("Sorted_blobs: \n"); */
-/*   bloblist_print(blobs); */
-
-//  print_matrix(model_base, "Model_base");
-//  print_vec(model_ref, "Ref_point");
-  alter_pose(blobs, points, centering);
-//  print_matrix(points, "Alter");
-
+/*
+  double points[3][3] = {{22.923,   110.165,    28.070},
+                         {91.241,    44.781,    91.768},
+			 {184.262,    18.075,    47.793}
+  };
+*/
+  if(ltr_int_use_alter()){
+    alter_pose(blobs, points, centering);
+  }else{
+    iter_pose(blobs, points, centering);
+  }
+//ltr_int_print_matrix(points, "points");
   double new_base[3][3];
   double vec1[3];
   double vec2[3];
-  ltr_int_transpose_in_place(points);
-//  print_matrix(points, "Alter");
   ltr_int_make_vec(points[1], points[0], vec1);
   ltr_int_make_vec(points[2], points[0], vec2);
-//  print_vec(vec1, "vec1");
-//  print_vec(vec2, "vec2");
   ltr_int_make_base(vec1, vec2, new_base);
+  
+//  ltr_int_print_matrix(new_base, "new_base");
   if(centering == true){
-    /*log_message("Center:\n");
-    log_message("[%g, %g]\n", blobs.blobs[0].x, blobs.blobs[0].y);
-    log_message("[%g, %g]\n", blobs.blobs[1].x, blobs.blobs[1].y);
-    log_message("[%g, %g]\n", blobs.blobs[2].x, blobs.blobs[2].y);*/
-/*     print_matrix(center_base, "center-base"); */
-/*     print_matrix(new_base, "new-base"); */
-    int i,j;
+    ltr_int_assign_matrix(new_base, center_base);
+  }
+  
+  //all applications contain transposed base
+  ltr_int_transpose_in_place(new_base);
+
+  double new_center[3];
+  ltr_int_matrix_times_vec(new_base, model_ref, vec1);
+  ltr_int_add_vecs(points[0], vec1, new_center);
+  
+//  ltr_int_print_matrix(new_base, "new_base'");
+//  ltr_int_print_vec(model_ref, "model_ref");
+//  ltr_int_print_vec(points[0], "pt0");
+//  ltr_int_print_vec(new_center, "new_center");
+  
+  if(centering == true){
+    int i;
     for(i = 0; i < 3; ++i){
-      for(j = 0; j < 3; ++j){
-        center_base[i][j] = new_base[i][j];
-      }
+      center_ref[i] = new_center[i];
     }
   }
-//  print_matrix(new_base, "New_base");
-//  double new_ref[3];
-  get_translation(new_base, model_ref, points[0], trans->tr, centering);
-//  print_vec(trans->tr, "translation");
-  get_transform(new_base, trans->rot);
-//  print_matrix(trans->rot, "Rot");
+  double displacement[3];
+  ltr_int_make_vec(new_center, center_ref, displacement);
+//  ltr_int_print_vec(center_ref, "ref_pt");
+//  ltr_int_print_vec(displacement, "mv");
+  
+//  ltr_int_print_matrix(center_base, "center_base");
+
+  double transform[3][3];
+  ltr_int_mul_matrix(new_base, center_base, transform);
+//  ltr_int_print_matrix(new_base, "new_base'");
+//  ltr_int_print_matrix(center_base, "center_base");
+//  ltr_int_print_matrix(transform, "transform");
+  double pitch, yaw, roll;
+  ltr_int_matrix_to_euler(transform, &pitch, &yaw, &roll);
+  pitch *= 180.0 /M_PI;
+  yaw *= 180.0 /M_PI;
+  roll *= 180.0 /M_PI;
+//  printf("Raw Pitch: %g   Yaw: %g  Roll: %g\n", pitch, yaw, roll);
+  ltr_int_orig_pose.pitch = pitch;
+  ltr_int_orig_pose.heading = yaw;
+  ltr_int_orig_pose.roll = roll;
+  static float filterfactor=1.0;
+  ltr_int_get_filter_factor(&filterfactor);
+  static double filtered_angles[3] = {0.0f, 0.0f, 0.0f};
+  static double filtered_translations[3] = {0.0f, 0.0f, 0.0f};
+  double filter_factors_angles[3] = {filterfactor, filterfactor, filterfactor};
+  double filter_factors_translations[3] = {filterfactor, filterfactor, filterfactor * 10};
+  double raw_angles[3] = {pitch, yaw, roll};
+  ltr_int_nonlinfilt_vec(raw_angles, filtered_angles, filter_factors_angles, filtered_angles);
+  
+  pose->pitch = clamp_angle(ltr_int_val_on_axis(PITCH, filtered_angles[0]));
+  pose->heading = clamp_angle(ltr_int_val_on_axis(YAW, filtered_angles[1]));
+  pose->roll = clamp_angle(ltr_int_val_on_axis(ROLL, filtered_angles[2]));
+//  printf("Pitch: %g   Yaw: %g  Roll: %g\n", pose->pitch, pose->heading, pose->roll);
+  
+  double rotated[3];
+//  ltr_int_euler_to_matrix(pitch / 180.0 * M_PI, yaw / 180.0 * M_PI, 
+//                          roll / 180.0 * M_PI, transform);
+  ltr_int_euler_to_matrix(pose->pitch / 180.0 * M_PI, pose->heading / 180.0 * M_PI, 
+                          pose->roll / 180.0 * M_PI, transform);
+  ltr_int_matrix_times_vec(transform, displacement, rotated);
+//  ltr_int_print_matrix(transform, "trf");
+//  ltr_int_print_vec(displacement, "mv");
+//  ltr_int_print_vec(rotated, "rotated");
+  ltr_int_nonlinfilt_vec(rotated, filtered_translations, filter_factors_translations, 
+        filtered_translations);
+  ltr_int_orig_pose.tx = rotated[0];
+  ltr_int_orig_pose.ty = rotated[1];
+  ltr_int_orig_pose.tz = rotated[2];
+  pose->tx = ltr_int_val_on_axis(TX, filtered_translations[0]);
+  pose->ty = ltr_int_val_on_axis(TY, filtered_translations[1]);
+  pose->tz = ltr_int_val_on_axis(TZ, filtered_translations[2]);
+
+//  ltr_int_print_vec(displacement, "tr");
+//  printf("%f %f %f  %f %f %f\n", pose->pitch, pose->heading, pose->roll, pose->tx, pose->ty, pose->tz);
   return true;
 }
 
-/*
-static void transform_print(struct transform trans)
+double clamp_angle(double angle)
 {
-  double ypr[3]; // yaw, pitch, roll;
-  printf("***** Transform **************\n");
-  ltr_int_print_vec(trans.tr, "translation");
-  ltr_int_print_matrix(trans.rot, "rotation");
-  ltr_int_matrix_to_euler(trans.rot, &(ypr[1]), &(ypr[0]), &(ypr[2]));
-  ypr[0] *= 180.0/M_PI;
-  ypr[1] *= 180.0/M_PI;
-  ypr[2] *= 180.0/M_PI;
-  ltr_int_print_vec(ypr, "angles");
-  printf("******************************\n");
+  if(angle<-180.0){
+    return -180.0;
+  }else if(angle>180.0){
+    return 180.0;
+  }else{
+    return angle;
+  }
 }
-*/
 
+/*
 int ltr_int_pose_compute_camera_update(struct transform trans,
                                double *yaw,
                                double *pitch,
@@ -368,7 +480,7 @@ int ltr_int_pose_compute_camera_update(struct transform trans,
     *tx = trans.tr[0];
     *ty = trans.tr[1];
     *tz = trans.tr[2];
-    /* convert to degrees */
+    // convert to degrees 
     (*pitch) = p * 180.0 /M_PI;
     (*yaw)   = y * 180.0 /M_PI;
     (*roll)  = r * 180.0 /M_PI;
@@ -376,13 +488,22 @@ int ltr_int_pose_compute_camera_update(struct transform trans,
       printf("ROT: %g %g %g\n", *pitch, *yaw, *roll);
       printf("TRA: %g %g %g\n", *tx, *ty, *tz);
     #endif
+  / *
   
+    //rotate_translations(&heading_d, &pitch_d, &roll_d, &tx_d, &ty_d, &tz_d);
+    *heading = heading_d;
+    *pitch = pitch_d;
+    *roll = roll_d;
+    *tx = tx_d;
+    *ty = ty_d;
+    *tz = tz_d;
+  * /
     return 0;
   }
   return -1;
 }
 
-/*
+
 int main(void)
 {
   pose_init();
