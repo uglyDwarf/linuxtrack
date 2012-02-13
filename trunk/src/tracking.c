@@ -218,7 +218,8 @@ static int update_pose_3pt(struct frame_type *frame)
   translations[2] = t.tz;
 
   if(behind){
-    angles[1] *= -1;
+    angles[0] *= -1;
+    //angles[1] *= -1;
     angles[2] *= -1;
     translations[0] *= -1;
     translations[2] *= -1;
