@@ -106,6 +106,11 @@ bool ltr_int_get_device(struct camera_control_block *ccb)
       ccb->device.category = webcam;
       dev_ok = true;
     }
+    if(strcasecmp(dev_type, "Webcam-face") == 0){
+      ltr_int_log_message("Device Type: Webcam - facetrack\n");
+      ccb->device.category = webcam_ft;
+      dev_ok = true;
+    }
     if(strcasecmp(dev_type, "Wiimote") == 0){
       ltr_int_log_message("Device Type: Wiimote\n");
       ccb->device.category = wiimote;

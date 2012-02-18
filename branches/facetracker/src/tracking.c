@@ -163,15 +163,15 @@ static int update_pose_1pt(struct frame_type *frame)
     c_y = frame->bloblist.blobs[0].y;
   }
   
-  angles[0] = frame->bloblist.blobs[0].x - c_x;
-  angles[1] = frame->bloblist.blobs[0].y - c_y;
+  angles[0] = c_y - frame->bloblist.blobs[0].y;
+  angles[1] = frame->bloblist.blobs[0].x - c_x;
   angles[2] = 0.0f;
   translations[0] = 0.0f;
   translations[1] = 0.0f;
   translations[2] = 0.0f;
 
   if(behind){
-    angles[1] *= -1;
+    angles[0] *= -1;
   }
 
   return 0;

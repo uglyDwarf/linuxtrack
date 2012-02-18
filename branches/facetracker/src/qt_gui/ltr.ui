@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>543</width>
-    <height>541</height>
+    <height>542</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -122,7 +122,7 @@
             <item>
              <widget class="QStackedWidget" name="DeviceSetupStack">
               <property name="currentIndex">
-               <number>1</number>
+               <number>4</number>
               </property>
               <widget class="QWidget" name="LinuxWebcamPrefs">
                <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -699,6 +699,12 @@
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
                   </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                  </spacer>
                 </item>
                </layout>
@@ -863,21 +869,47 @@
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
                   </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                  </spacer>
                 </item>
                </layout>
               </widget>
               <widget class="QWidget" name="emptyPrefs">
-               <layout class="QVBoxLayout" name="verticalLayout_26">
+               <layout class="QVBoxLayout" name="verticalLayout_7">
                 <item>
-                 <spacer name="verticalSpacer_16">
+                 <widget class="QLabel" name="label_61">
+                  <property name="text">
+                   <string>Pixel Format</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="WebcamFtFormats"/>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_31">
+                  <property name="text">
+                   <string>Resolution &amp; Framerate</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="WebcamFtResolutions"/>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer_8">
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
-                    <width>0</width>
-                    <height>0</height>
+                    <width>458</width>
+                    <height>167</height>
                    </size>
                   </property>
                  </spacer>
@@ -1416,6 +1448,12 @@
                  <spacer name="verticalSpacer_17">
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
                   </property>
                  </spacer>
                 </item>

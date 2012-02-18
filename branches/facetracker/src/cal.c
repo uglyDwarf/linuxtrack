@@ -57,6 +57,9 @@ int ltr_int_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
       libname = "libmacwc";
       #endif
       break;
+    case webcam_ft:
+      libname = "libft";
+      break;
     case wiimote:
 //      #ifndef DARWIN
 //      libname = "libwii";
