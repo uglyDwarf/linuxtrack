@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+  <title>Device setup</title>
+  <meta name="generator" content="Bluefish 2.0.2" >
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+
+The first step in linuxtrack configuration is the selection of the tracking device
+ - just select the device of your choice from the "<strong>Tracking device</strong>" combobox. <br>
+If you can't find the device you want to use, press the "<strong>Refresh</strong>"
+button and check again.
+<p>
+
+Next thing that you can set is the camera orientation - normally you should not need to change this...<br>
+However, if your tracking device is in a position other that in front of you and top pointing up
+(you mounted TrackIR upside down for some reason, or you use laptop with a webcam chip mounted upside down,...),
+change the </strong>Camera Orientation</strong> to match.
+
+<p>
+<A href="#Wiimote">Wiimote Setup</A><br>
+<A href="#Webcam">Webcam Setup</A><br>
+<A href="#TIR">TrackIR Setup</A><br>
+
+<h1><A name="Wiimote">Wiimote Setup</A></h1>
+<p>If Wiimote is the tracking device of your choice, first of all, make sure you have the Wiimote
+server running (comes along with linuxtrack) and connected to the Wiimote.
+
+<p>
+If Wiimote server is not running, then start it, press the <strong>Connect</strong> button and press buttons 
+"1" and "2" on the Wiimote (simultaneously). After a short pause, you should see the state changed to Connected
+and one of LEDs on your Wiimote should blink briefly about every 5 seconds.
+
+<p>
+Due to the nature of Wiimote there is no way to tweak any parameters except which LEDs should indicate 
+running or paused tracker. Just select which LEDs should be on in the Running state and which should be on in 
+the Paused state.
+
+<p>
+If the battery life is crucial, I suggest to turn all LEDs off at least in the Running state (in this state 
+you are going to spend most of the time). 
+
+<p>To check, how the tracking works, go to the <strong>Tracking window</strong>, select Camera view pane and
+press <strong>Start</strong> button to commence tracking.
+Ideally, you should see three (or one, in case of single point model) "blobs" 
+- these are light emitting or reflecting points of your model as seen by the Wiimote. 
+Each of those "blobs" should contain a white cross marking it valid.</p>
+
+<p>
+If there are unwanted blobs, the only possibility to get rid of them is to remove them physically 
+(e.g. turn off the lamp or cover the mirror reflecting it), since there is
+no way to alter the processing taking place inside the Wiimote.
+
+<h1><A name="Webcam">Webcam Setup</A></h1>
+<p>To configure a webcam, at first you have to set the <strong>Pixel Format</strong>.
+The preferred format is YUYV, but you can experiment to see which one works the best for you.
+</p>
+<p>Then continue by selecting the desired <strong>Resolution &amp; Framerate</strong>. <br>
+The safest bet would be something around 320x240@30, when tracking on this setting work, you can safely 
+experiment with different resolutions and framerates.
+</p>
+
+<p>To check, how the tracking works, go to the <strong>Tracking window</strong>, select Camera view pane
+ and press <strong>Start</strong> button to commence tracking.
+Ideally, you should see three (or one, in case of single point model) "blobs" 
+- these are light emitting or reflecting points of your model seen by the camera. 
+Each of those "blobs" should contain a white cross marking it valid.</p>
+
+<p>If the webcam picture is upside down (e.g. some notebooks have the sensor mounted that way), just check the 
+<strong>Webcam mounted upside down</strong> button.</p>
+
+<p>
+When you try tracking for the first time, most probably you'll see
+more or less blobs, or white crosses that aren't in the right blobs.
+</p>
+
+<p>
+Then you can try some of these solutions:
+<ul>
+  <li>Try to remove unnecessary sources of light in the webcam's field of view (lightbulbs, ...)</li>
+  <li>Turn off autoexposure and set lower exposition value (on Linux, try using guvcview or similar software)</li>
+  <li>Play with Brightness, Contrast and Gamma settings if available</li>
+  <li>Set the <strong>Threshold</strong> value higher (if unwanted blobs are less bright than wanted ones)</li>
+  <li>Try to use piece of exposed film or magnetic tape as a light filter (piece of magnetic material from old 
+    floppy works very well too).</li>
+</ul>
+The preferred solution is the first one, although tweaking camera parameters (brightness, contrast, 
+exposure, ...) can improve tracking quite a lot. <br>
+
+<p>
+When you have removed as much interfering light sources as possible, you might try to get rid of the rest of 
+interfering light sources by means of setting blob size constraints.<br>
+However, this is going to work only if the interfering sources are considerable larger or smaller than "wanted" blobs. 
+<p>
+These limits are used to discriminate false "returns" by applying a constraints on a number of pixels that form a blob.<br> 
+If a blob should be valid, but it still doesn't contain the white cross, try lowering the 
+<strong>Min. blob</strong> value and increasing the <strong>Max. blob</strong> value.
+It is best to fine-tune the <strong>Min. blob</strong> value when being farthest away from the camera, while the 
+<strong>Max. blob</strong> value while being closest to the camera.
+When done, you should see white crosses inside the right blobs all the time, no matter how much and in which 
+direction you turn your head (provided the webcam can still physically see the light source).
+</p>
+
+<h4>Troubleshooting tips</h4>
+<ul>
+  <li> Make sure the webcam is correctly focused</li>
+  <li> On Linux use an application able to controll brightness, exposure ad so on (e.g. guvcview)</li>
+  <li> Try turning off all auto... features (autoexposure, autowhite ballance, ...) to improve and stabilize
+   the framerate</li>
+  <li> If the webcam is not shown in devices combobox, make sure that you have a permission to access it</li>
+  <li> If you are using model with IR LEDs and you don't see any blobs at all, chances are the built-in IR
+         filter is too strong; you can try removing the filter itself, or you can try tweaking higher brightness,
+          contrast and longer exposition time or brighten LEDs a bit. Just be carefull not to over stress the LEDs or
+         the resistor - they might become very hot if too much current flows through them.</li>
+</ul>
+
+<h1><A name="TIR">TrackIR Setup</A></h1>
+If you are a Mac user, you can safely skip over this paragraph...
+When you intend to use TrackIR on linux, most probably you'll need to get access rights to the device.
+The easiest way to do that, is to install the 51-TIR.rules file (comes with linuxtrack) to the udev rules 
+directory (on Ubuntu it is /lib/udev/rules, but other distros might differ in this respect). 
+When the rule is there, restart udev service (or the whole PC, if you aren't sure how to do that) 
+and plug the TrackIR in.
+
+<p>
+To check, how the TrackIR works, 
+go to the <strong>Tracking window</strong>, select Camera view pane and
+press <strong>Start</strong> button to commence tracking.
+Ideally, you should see three (or one, in case of single point model) "blobs" 
+- these are light emitting or reflecting points of your model seen by the camera. 
+Each of those "blobs" should contain a white cross marking it valid.
+
+<p>
+If you see unwanted blobs, you can try one of these solutions.
+<ul>
+  <li>Try to remove unnecessary sources of light in the TrackIR's field of view (lightbulbs, ...)</li>
+  <li>Set the <strong>Threshold</strong> value higher (if unwanted blobs are less bright)</li>
+</ul>
+The preferred solution is the first one, since no amount of processing can give you bulletproof results. <br>
+
+<p>
+When you have removed as much interfering light sources as possible, you might try to get rid of the rest of 
+interfering light sources by means of setting blob size constraints.<br>
+However, this is going to work if the interfering sources are considerable larger or smaller than "wanted" blobs. 
+<p>
+These limits are used to discriminate false "returns" by applying a constraints on a number of pixels that 
+form a blob.
+If a blob should be valid, but it still doesn't contain the white cross, then try lowering the 
+<strong>Min. blob</strong> value and increasing the <strong>Max. blob</strong> value.
+It is best to fine-tune the <strong>Min. blob</strong> value when being farthest away from the camera, while the 
+<strong>Max. blob</strong> value while being closest to the camera.<br>
+When done, you should see white crosses inside the right blobs all the time, no matter how much and in which 
+direction you turn your head (provided the TrackIR can still physically see the light source).
+
+<p>
+You can tweak the tracker state signalization and in case of TrackIR5 also the LEDs brightnesses (
+current limitation is, that the change will become visible upon next state change - pausing/restarting the tracking).
+
+<h4>Troubleshooting tips</h4>
+If you experience unwanted reflections while using TrackIR in the active regime (using reflective Track Clip),
+you might want to consider using active model with IR LEDs (like TrackClip Pro, or a home-made one).
+
+
+</body>
+</html>
