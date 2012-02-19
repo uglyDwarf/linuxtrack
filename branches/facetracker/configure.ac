@@ -20,6 +20,7 @@ LT_INIT
 AC_PROG_LIBTOOL
 AC_CONFIG_MACRO_DIR([m4])
 AM_PROG_CC_C_O
+PKG_PROG_PKG_CONFIG
 
 # Checks for libraries.
 AC_CHECK_LIB([m], [sqrt], [LIBM=true], [AC_MSG_FAILURE([I need libm!])])
@@ -111,14 +112,19 @@ AC_ARG_ENABLE([ltr_32lib_on_x64],
 		[with_ltr_32lib_on_x64=yes]
 )
 
-AC_ARG_ENABLE([face_tracker],
-            [AS_HELP_STRING([--enable-face-tracker],
-              [enables building of face tracker (requires OpenCV 2.X)])], 
+#AC_ARG_ENABLE([face_tracker],
+#            [AS_HELP_STRING([--enable-face-tracker],
+#              [enables building of face tracker (requires OpenCV 2.X)])], 
+#            [with_face_tracker=yes],
+#            [with_face_tracker=no]
+#)
+
+PKG_CHECK_MODULES([OPENCV], [opencv >= 2.0],
             [with_face_tracker=yes],
             [with_face_tracker=no]
 )
-
-
+AC_SUBST([OPENCV_CFLAGS])
+AC_SUBST([OPENCV_LIBS])
 
 AS_IF([case $host_os in darwin*) true;; *) false;; esac],
   [    

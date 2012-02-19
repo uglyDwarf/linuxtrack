@@ -36,8 +36,8 @@ void detect(cv::Mat& img)
     }
   }
   if(candidate != NULL){
-    face_x = candidate->x + candidate->width / 2;
-    face_y = candidate->y + candidate->height / 2;
+    face_x = (candidate->x + candidate->width / 2) - frame_w/2;
+    face_y = (candidate->y + candidate->height / 2) - frame_h/2;
   }
   std::cout<<"Done" <<std::endl;
 }
@@ -108,6 +108,6 @@ void face_detect(image *img, struct bloblist_type *blt)
   blt->num_blobs = 1;
   blt->blobs[0].x = face_x;
   blt->blobs[0].y = face_y;
-  ltr_int_draw_cross(img, face_x, face_y, 20);
+  ltr_int_draw_cross(img, face_x + frame_w/2, face_y + frame_h/2, 20);
 }
 
