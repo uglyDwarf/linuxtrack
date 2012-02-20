@@ -82,6 +82,9 @@ bool ltr_int_read_prefs(char *file, bool force_read)
     if(prefs_ok){
       prefs_read_already = true;
     }
+    ltr_int_log_message("Dumping prefs:\n");
+    ltr_int_dump_prefs(NULL);
+    ltr_int_log_message("================================================\n");
   }
   return prefs_ok;
 }
@@ -328,7 +331,7 @@ bool ltr_int_dump_prefs(char *file_name)
 {
   FILE *of;
   if(file_name == NULL){
-    of = stdout;
+    of = stderr;
   }else{
     of = fopen(file_name, "w");
     if(of == NULL){
