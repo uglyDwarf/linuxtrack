@@ -135,6 +135,7 @@ static int update_pose_1pt(struct frame_type *frame)
 {
   static float c_x = 0.0f;
   static float c_y = 0.0f;
+  static float c_z = 0.0f;
   bool recentering = false;
   
   ltr_int_check_pose();
@@ -142,7 +143,8 @@ static int update_pose_1pt(struct frame_type *frame)
   if(tracking_dbg_flag == DBG_ON){
     unsigned int i;
     for(i = 0; i < frame->bloblist.num_blobs; ++i){
-      ltr_int_log_message("*DBG_t* %d: %g %g\n", i, frame->bloblist.blobs[i].x, frame->bloblist.blobs[i].y);
+      ltr_int_log_message("*DBG_t* %d: %g %g %d\n", i, frame->bloblist.blobs[i].x, frame->bloblist.blobs[i].y,
+                          frame->bloblist.blobs[i].score);
     }
   }
   
@@ -161,6 +163,7 @@ static int update_pose_1pt(struct frame_type *frame)
   if(recentering){
     c_x = frame->bloblist.blobs[0].x;
     c_y = frame->bloblist.blobs[0].y;
+    c_z = frame->bloblist.blobs[0].score;
   }
   
   angles[0] = c_y - frame->bloblist.blobs[0].y;
@@ -168,7 +171,11 @@ static int update_pose_1pt(struct frame_type *frame)
   angles[2] = 0.0f;
   translations[0] = 0.0f;
   translations[1] = 0.0f;
-  translations[2] = 0.0f;
+  if(ltr_int_is_face()){
+    translations[2] = c_z - frame->bloblist.blobs[0].score;
+  }else{
+    translations[2] = 0.0f;
+  }
 
   if(behind){
     angles[0] *= -1;

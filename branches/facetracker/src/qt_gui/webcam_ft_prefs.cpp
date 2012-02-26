@@ -10,17 +10,38 @@
 static QString currentId = QString("None");
 static QString currentSection = QString();
 
+
 void WebcamFtPrefs::Connect()
 {
   QObject::connect(gui.WebcamFtFormats, SIGNAL(activated(int)),
     this, SLOT(on_WebcamFtFormats_activated(int)));
   QObject::connect(gui.WebcamFtResolutions, SIGNAL(activated(int)),
     this, SLOT(on_WebcamFtResolutions_activated(int)));
+  QObject::connect(gui.FindCascade, SIGNAL(pressed()),
+    this, SLOT(on_FindCascade_pressed()));
+  QObject::connect(gui.CascadePath, SIGNAL(editingFinished()),
+    this, SLOT(on_CascadePath_editingFinished()));
+  QObject::connect(gui.ExpFilterFactor, SIGNAL(valueChanged(int)),
+    this, SLOT(on_ExpFilterFactor_valueChanged(int)));
+  QObject::connect(gui.MovingDeadzone, SIGNAL(valueChanged(int)),
+    this, SLOT(on_MovingDeadzone_valueChanged(int)));
+  QObject::connect(gui.ProcessorAffinity, SIGNAL(valueChanged(int)),
+    this, SLOT(on_ProcessorAffinity_valueChanged(int)));
 }
 
 WebcamFtPrefs::WebcamFtPrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
 {
   Connect();
+  ltr_int_wc_init_prefs();
+  prefInit = true;
+  QString cascadePath(ltr_int_wc_get_cascade());
+  gui.CascadePath->setText(cascadePath);
+  int n = (2.0 / ltr_int_wc_get_eff()) - 2;
+  gui.ExpFilterFactor->setValue(n);
+  on_ExpFilterFactor_valueChanged(n);
+  gui.MovingDeadzone->setValue(ltr_int_wc_get_moving_deadzone());
+  gui.ProcessorAffinity->setValue(ltr_int_wc_get_proc_affinity());
+  prefInit = false;
 }
 
 WebcamFtPrefs::~WebcamFtPrefs()
@@ -92,10 +113,10 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
       return false;
     }
   }
-  if(!ltr_int_wc_init_prefs()){
-    initializing = false;
-    return false;
-  }
+//  if(!ltr_int_wc_init_prefs()){
+//    initializing = false;
+//    return false;
+//  }
   currentId = ID;
   gui.WebcamFtFormats->clear();
   gui.WebcamFtResolutions->clear();
@@ -148,4 +169,47 @@ bool WebcamFtPrefs::AddAvailableDevices(QComboBox &combo)
   delete(&webcams);
   return res;
 }
+
+
+
+void WebcamFtPrefs::on_FindCascade_pressed()
+{
+  QString fileName = QFileDialog::getOpenFileName(NULL,
+     "Find Harr/LBP cascade", "/", "xml Files (*.xml)");
+  gui.CascadePath->setText(fileName);
+  on_CascadePath_editingFinished();
+}
+
+void WebcamFtPrefs::on_CascadePath_editingFinished()
+{
+  if(!prefInit){
+    ltr_int_wc_set_cascade(gui.CascadePath->text().toAscii().data());
+  }
+}
+
+void WebcamFtPrefs::on_ExpFilterFactor_valueChanged(int value)
+{
+  float a = 2 / (value + 2.0); //EWMA window size
+  gui.ExpFiltFactorVal->setText(QString("%1").arg(a, 0, 'g', 2));
+  if(!prefInit){
+    ltr_int_wc_set_eff(a);
+  }
+}
+
+void WebcamFtPrefs::on_MovingDeadzone_valueChanged(int value)
+{
+  if(!prefInit){
+    ltr_int_wc_set_moving_deadzone(value);
+  }
+}
+
+void WebcamFtPrefs::on_ProcessorAffinity_valueChanged(int value)
+{
+  if(!prefInit){
+    ltr_int_wc_set_proc_affinity(value);
+  }
+}
+
+
+
 

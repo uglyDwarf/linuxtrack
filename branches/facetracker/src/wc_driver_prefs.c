@@ -16,6 +16,10 @@ static int res_y = 0;
 static int fps_num = 0;
 static int fps_den = 0;
 static bool flip = false;
+static char *cascade = NULL;
+static float exp_filt = 0.1;
+static int moving_deadzone = 10;
+static int affinity = -1;
 
 static char max_blob_key[] = "Max-blob";
 static char min_blob_key[] = "Min-blob";
@@ -25,6 +29,11 @@ static char pix_fmt_key[] = "Pixel-format";
 static char res_key[] = "Resolution";
 static char fps_key[] = "Fps";
 static char flip_key[] = "Upside-down";
+static char cascade_key[] = "Cascade";
+static char exp_filter_key[] = "Exp-filter-factor";
+static char moving_deadzone_key[] = "Moving-deadzone";
+static char processor_affinity_key[] = "Processor-affinity";
+
 
 bool ltr_int_wc_init_prefs()
 {
@@ -67,6 +76,18 @@ bool ltr_int_wc_init_prefs()
     flip = (strcasecmp(tmp, "Yes") == 0) ? true : false;
   }else{
     flip = false;
+  }
+  
+  tmp = ltr_int_get_key(dev, cascade_key);
+  cascade = (tmp != NULL) ? ltr_int_my_strdup(tmp) : NULL;
+  if(!ltr_int_get_key_flt(dev, exp_filter_key, &exp_filt)){
+    exp_filt = 0.1;
+  }
+  if(!ltr_int_get_key_int(dev, moving_deadzone_key, &moving_deadzone)){
+    moving_deadzone = 10;
+  }
+  if(!ltr_int_get_key_int(dev, processor_affinity_key, &affinity)){
+    affinity = -1;
   }
   
   return true;
@@ -196,3 +217,69 @@ bool ltr_int_wc_set_flip(bool new_flip)
   flip = new_flip;
   return ltr_int_change_key(ltr_int_get_device_section(), flip_key, val);
 }
+
+const char *ltr_int_wc_get_cascade()
+{
+  return cascade;
+}
+
+bool ltr_int_wc_set_cascade(const char *new_cascade)
+{
+  if(cascade != NULL){
+    free(cascade);
+  }
+  cascade = (new_cascade != NULL) ? ltr_int_my_strdup(new_cascade) : NULL;
+  return ltr_int_change_key(ltr_int_get_device_section(), cascade_key, new_cascade);
+}
+
+float ltr_int_wc_get_eff()
+{
+  return exp_filt;
+}
+
+bool ltr_int_wc_set_eff(float new_eff)
+{
+  char tmp[1024];
+  if(snprintf(tmp, sizeof(tmp), "%g", new_eff) != 0){
+    exp_filt = new_eff;
+    return ltr_int_change_key(ltr_int_get_device_section(), exp_filter_key, tmp);
+  }else{
+    return false;
+  }
+}
+
+int ltr_int_wc_get_moving_deadzone()
+{
+  return moving_deadzone;
+}
+
+bool ltr_int_wc_set_moving_deadzone(int new_dz)
+{
+  char tmp[1024];
+  if(snprintf(tmp, sizeof(tmp), "%d", new_dz) != 0){
+    moving_deadzone = new_dz;
+    return ltr_int_change_key(ltr_int_get_device_section(), moving_deadzone_key, tmp);
+  }else{
+    return false;
+  }
+}
+
+int ltr_int_wc_get_proc_affinity()
+{
+  return affinity;
+}
+
+bool ltr_int_wc_set_proc_affinity(int new_aff)
+{
+  char tmp[1024];
+  if(snprintf(tmp, sizeof(tmp), "%d", new_aff) != 0){
+    affinity = new_aff;
+    return ltr_int_change_key(ltr_int_get_device_section(), processor_affinity_key, tmp);
+  }else{
+    return false;
+  }
+}
+
+
+
+

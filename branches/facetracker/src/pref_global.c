@@ -241,6 +241,9 @@ bool ltr_int_get_model_setup(reflector_model_type *rm)
   }else if(strcasecmp(model_type, "SinglePoint") == 0){
     rm->type = SINGLE;
     res = true;
+  }else if(strcasecmp(model_type, "Face") == 0){
+    rm->type = FACE;
+    res = true;
   }else{
     ltr_int_log_message("Unknown modeltype specified in section %s\n", model_section);
     res = false;
