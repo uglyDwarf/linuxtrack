@@ -41,6 +41,8 @@ WebcamFtPrefs::WebcamFtPrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
   on_ExpFilterFactor_valueChanged(n);
   gui.MovingDeadzone->setValue(ltr_int_wc_get_moving_deadzone());
   gui.ProcessorAffinity->setValue(ltr_int_wc_get_proc_affinity());
+  gui.ProcessorAffinity->hide();
+  gui.ProcessorAffinityLabel->hide();
   prefInit = false;
 }
 

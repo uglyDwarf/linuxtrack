@@ -1005,7 +1005,10 @@
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_33">
                   <item>
-                   <widget class="QLabel" name="label_7">
+                   <widget class="QLabel" name="ProcessorAffinityLabel">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
                     <property name="text">
                      <string>Processor affinity</string>
                     </property>
@@ -1013,6 +1016,9 @@
                   </item>
                   <item>
                    <widget class="QSpinBox" name="ProcessorAffinity">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>

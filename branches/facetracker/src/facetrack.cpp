@@ -16,6 +16,8 @@ static double scale = 0.5;
 
 static float face_x = 0;
 static float face_y = 0;
+static float face_w = 0;
+static float face_h = 0;
 
 static int frame_size = 0;
 static int frame_w = 0;
@@ -34,8 +36,6 @@ float moving_dzone(float x, float *stable, float dzone);
 
 void detect(cv::Mat& img)
 {
-  static float last_face_x = 0.0f;
-  static float last_face_y = 0.0f;
   std::vector<cv::Rect> faces;
   cv::resize(img, scaled, cv::Size(), scale, scale);
   cv::equalizeHist(scaled, scaled);
@@ -56,16 +56,31 @@ void detect(cv::Mat& img)
     std::cout<<expFiltFactor<<" "<<dzone<<std::endl;
     float x = (candidate->x + candidate->width / 2) / scale - frame_w/2;
     float y = (candidate->y + candidate->height / 2) / scale - frame_h/2;
+    float w = candidate->width / scale;
+    float h = candidate->height / scale;
     
     static float stable_x = 0.0;
     static float stable_y = 0.0;
+    static float stable_w = 0.0;
+    static float stable_h = 0.0;
+    static float last_face_x = 0.0f;
+    static float last_face_y = 0.0f;
+    static float last_face_w = 0.0f;
+    static float last_face_h = 0.0f;
+    
     x = moving_dzone(x, &stable_x, dzone);
     y = moving_dzone(y, &stable_y, dzone);
+    w = moving_dzone(w, &stable_w, dzone);
+    h = moving_dzone(h, &stable_h, dzone);
     
     face_x = expfilt(x, last_face_x, expFiltFactor);
     face_y = expfilt(y, last_face_y, expFiltFactor);
+    face_w = expfilt(w, last_face_w, expFiltFactor);
+    face_h = expfilt(h, last_face_h, expFiltFactor);
     last_face_x = face_x;
     last_face_y = face_y;
+    last_face_w = face_w;
+    last_face_h = face_h;
   }
 //  std::cout<<"Done" <<std::endl;
 }
@@ -149,6 +164,8 @@ void face_detect(image *img, struct bloblist_type *blt)
   blt->num_blobs = 1;
   blt->blobs[0].x = face_x;
   blt->blobs[0].y = face_y;
+  blt->blobs[0].score = face_w * face_h;
+  printf("%g x %g\n", face_w, face_h);
   ltr_int_draw_cross(img, face_x + frame_w/2, face_y + frame_h/2, 20);
 }
 

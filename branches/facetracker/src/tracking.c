@@ -13,6 +13,7 @@ static struct bloblist_type filtered_bloblist;
 static struct blob_type filtered_blobs[3];
 static bool first_frame = true;
 static bool recenter = false;
+static float cam_distance = 1000.0f;
 
 /*******************************/
 /* private function prototypes */
@@ -163,7 +164,7 @@ static int update_pose_1pt(struct frame_type *frame)
   if(recentering){
     c_x = frame->bloblist.blobs[0].x;
     c_y = frame->bloblist.blobs[0].y;
-    c_z = frame->bloblist.blobs[0].score;
+    c_z = cam_distance * sqrtf((float)frame->bloblist.blobs[0].score);
   }
   
   angles[0] = c_y - frame->bloblist.blobs[0].y;
@@ -172,11 +173,11 @@ static int update_pose_1pt(struct frame_type *frame)
   translations[0] = 0.0f;
   translations[1] = 0.0f;
   if(ltr_int_is_face()){
-    translations[2] = c_z - frame->bloblist.blobs[0].score;
+    translations[2] = c_z / sqrtf((float)frame->bloblist.blobs[0].score) - cam_distance;
   }else{
     translations[2] = 0.0f;
   }
-
+  printf("Z = %g\n", translations[2]);
   if(behind){
     angles[0] *= -1;
   }
@@ -239,6 +240,7 @@ static int update_pose_3pt(struct frame_type *frame)
   
   return res;
 }
+
 
 static unsigned int counter_d;
 
