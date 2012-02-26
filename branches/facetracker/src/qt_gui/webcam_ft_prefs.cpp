@@ -176,8 +176,15 @@ bool WebcamFtPrefs::AddAvailableDevices(QComboBox &combo)
 
 void WebcamFtPrefs::on_FindCascade_pressed()
 {
+  QString path = gui.CascadePath->text();
+  if(path.isEmpty()){
+    path = "/";
+  }else{
+    QDir tmp(path);
+    path = tmp.filePath(path);
+  }
   QString fileName = QFileDialog::getOpenFileName(NULL,
-     "Find Harr/LBP cascade", "/", "xml Files (*.xml)");
+     "Find Harr/LBP cascade", path, "xml Files (*.xml)");
   gui.CascadePath->setText(fileName);
   on_CascadePath_editingFinished();
 }

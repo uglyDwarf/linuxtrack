@@ -40,9 +40,9 @@ void detect(cv::Mat& img)
   cv::resize(img, scaled, cv::Size(), scale, scale);
   cv::equalizeHist(scaled, scaled);
   cascade->detectMultiScale(scaled, faces, 1.2, 2, 0, minFace);
+  
   double area = -1;
   const cv::Rect *candidate = NULL;
-  std::cout<<"Have "<<faces.size()<<"Candidates"<<std::endl;
   for(std::vector<cv::Rect>::const_iterator i = faces.begin(); i != faces.end(); ++i){
     if(i->width * i->height > area){
       candidate = &(*i);
@@ -53,7 +53,6 @@ void detect(cv::Mat& img)
     expFiltFactor = ltr_int_wc_get_eff();
     dzone = ltr_int_wc_get_moving_deadzone();
     
-    std::cout<<expFiltFactor<<" "<<dzone<<std::endl;
     float x = (candidate->x + candidate->width / 2) / scale - frame_w/2;
     float y = (candidate->y + candidate->height / 2) / scale - frame_h/2;
     float w = candidate->width / scale;
@@ -110,7 +109,11 @@ void *detector_thread(void *)
     }
     frame_status = PROCESSING;
     pthread_mutex_unlock(&frame_mx);
+    double t = (double)cvGetTickCount();
     detect(*cvimage);
+    t = (double)cvGetTickCount() - t;
+    std::cout<<"detection time = "<<t/((double)cvGetTickFrequency()*1000.)<<" ms"<<std::endl;
+
     pthread_mutex_lock(&frame_mx);
     frame_status = DONE;
     pthread_mutex_unlock(&frame_mx);
@@ -165,7 +168,6 @@ void face_detect(image *img, struct bloblist_type *blt)
   blt->blobs[0].x = face_x;
   blt->blobs[0].y = face_y;
   blt->blobs[0].score = face_w * face_h;
-  printf("%g x %g\n", face_w, face_h);
   ltr_int_draw_cross(img, face_x + frame_w/2, face_y + frame_h/2, 20);
 }
 
