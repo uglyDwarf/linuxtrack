@@ -15,6 +15,8 @@ static bool first_frame = true;
 static bool recenter = false;
 static float cam_distance = 1000.0f;
 
+struct current_pose ltr_int_orig_pose;
+
 /*******************************/
 /* private function prototypes */
 /*******************************/
@@ -181,7 +183,14 @@ static int update_pose_1pt(struct frame_type *frame)
   if(behind){
     angles[0] *= -1;
   }
-
+  ltr_int_orig_pose.pitch = angles[0];
+  ltr_int_orig_pose.heading = angles[1];
+  ltr_int_orig_pose.roll = 0;
+  ltr_int_orig_pose.tx = 0;
+  ltr_int_orig_pose.ty = 0;
+  ltr_int_orig_pose.tz = translations[2];
+  
+  //TODO: add nelinear filtration and axes!!!
   return 0;
 }
 
@@ -281,28 +290,6 @@ int ltr_int_tracking_get_camera(float *heading,
 }
 
 
-/*
-double expfilt(double x, 
-              double y_minus_1,
-              double filterfactor) 
-{
-  double y;
-  
-  y = y_minus_1*(1.0-filterfactor) + filterfactor*x;
-
-  return y;
-}
-
-void expfilt_vec(double x[3], 
-              double y_minus_1[3],
-              double filterfactor,
-              double res[3]) 
-{
-  res[0] = expfilt(x[0], y_minus_1[0], filterfactor);
-  res[1] = expfilt(x[1], y_minus_1[1], filterfactor);
-  res[2] = expfilt(x[2], y_minus_1[2], filterfactor);
-}
-*/
 
 double ltr_int_nonlinfilt(double x, 
               double y_minus_1,

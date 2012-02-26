@@ -25,7 +25,7 @@ static double center_base[3][3];
 
 static enum {M_CAP, M_CLIP, M_SINGLE, M_FACE} type;
 
-struct current_pose ltr_int_orig_pose;
+extern struct current_pose ltr_int_orig_pose;
 
 static double clamp_angle(double angle);
 
