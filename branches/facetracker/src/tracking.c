@@ -174,12 +174,12 @@ static int update_pose_1pt(struct frame_type *frame)
   angles[2] = 0.0f;
   translations[0] = 0.0f;
   translations[1] = 0.0f;
-  if(ltr_int_is_face()){
-    translations[2] = c_z / sqrtf((float)frame->bloblist.blobs[0].score) - cam_distance;
+  if(ltr_int_is_face() && (frame->bloblist.blobs[0].score > 0)){
+      translations[2] = c_z / sqrtf((float)frame->bloblist.blobs[0].score) - cam_distance;
   }else{
     translations[2] = 0.0f;
   }
-  printf("Z = %g\n", translations[2]);
+  
   if(behind){
     angles[0] *= -1;
   }
@@ -190,7 +190,15 @@ static int update_pose_1pt(struct frame_type *frame)
   ltr_int_orig_pose.ty = 0;
   ltr_int_orig_pose.tz = translations[2];
   
-  //TODO: add nelinear filtration and axes!!!
+  static double filtered[3] = {0.0f, 0.0f, 0.0f};
+  float filterfactor=1.0;
+  ltr_int_get_filter_factor(&filterfactor);
+  double filter_factors[3] = {filterfactor, filterfactor, filterfactor * 10};
+  double values[] = {angles[0], angles[1], translations[2]};
+  ltr_int_nonlinfilt_vec(values, filtered, filter_factors, filtered);
+  angles[0] = clamp_angle(ltr_int_val_on_axis(PITCH, filtered[0]));
+  angles[1] = clamp_angle(ltr_int_val_on_axis(PITCH, filtered[1]));
+  translations[2] = ltr_int_val_on_axis(TZ, filtered[2]);
   return 0;
 }
 

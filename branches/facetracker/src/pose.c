@@ -27,8 +27,6 @@ static enum {M_CAP, M_CLIP, M_SINGLE, M_FACE} type;
 
 extern struct current_pose ltr_int_orig_pose;
 
-static double clamp_angle(double angle);
-
 void ltr_int_pose_init(struct reflector_model_type rm)
 {
   switch(rm.type){
@@ -460,17 +458,6 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
 //  ltr_int_print_vec(displacement, "tr");
 //  printf("%f %f %f  %f %f %f\n", pose->pitch, pose->heading, pose->roll, pose->tx, pose->ty, pose->tz);
   return true;
-}
-
-double clamp_angle(double angle)
-{
-  if(angle<-180.0){
-    return -180.0;
-  }else if(angle>180.0){
-    return 180.0;
-  }else{
-    return angle;
-  }
 }
 
 /*
