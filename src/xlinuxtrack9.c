@@ -25,6 +25,7 @@ static XPLMDataRef              head_y = NULL;
 static XPLMDataRef              head_z = NULL;
 static XPLMDataRef              head_psi = NULL;
 static XPLMDataRef              head_the = NULL;
+static XPLMDataRef              head_roll = NULL;
 static XPLMDataRef              view = NULL;
 
 static XPLMDataRef PV_Enabled_DR = NULL;
@@ -132,6 +133,7 @@ PLUGIN_API int XPluginStart(char *outName,
   head_psi = XPLMFindDataRef("sim/graphics/view/pilots_head_psi");
   head_the = XPLMFindDataRef("sim/graphics/view/pilots_head_the");
   
+  head_roll = XPLMFindDataRef("sim/graphics/view/field_of_view_roll_deg");
   view = XPLMFindDataRef("sim/graphics/view/view_type");
   
   if((head_x==NULL)||(head_y==NULL)||(head_z==NULL)||
@@ -246,6 +248,9 @@ static void deactivate(void)
           XPLMSetDataf(head_z,base_z);
           XPLMSetDataf(head_psi,base_psi);
           XPLMSetDataf(head_the,base_the);
+          if(head_roll != NULL){
+            XPLMSetDataf(head_roll, 0.0);
+          }
         }
     if(initialized){
       ltr_suspend();
@@ -363,6 +368,9 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
       XPLMSetDataf(head_z,base_z + tz);
       XPLMSetDataf(head_psi,-heading);
       XPLMSetDataf(head_the,pitch);
+      if(head_roll != NULL){
+        XPLMSetDataf(head_roll, -roll);
+      }
     }
   }
   return -1.0;
