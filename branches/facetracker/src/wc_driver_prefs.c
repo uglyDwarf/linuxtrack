@@ -18,8 +18,6 @@ static int fps_den = 0;
 static bool flip = false;
 static char *cascade = NULL;
 static float exp_filt = 0.1;
-static int moving_deadzone = 10;
-static int affinity = -1;
 
 static char max_blob_key[] = "Max-blob";
 static char min_blob_key[] = "Min-blob";
@@ -31,9 +29,6 @@ static char fps_key[] = "Fps";
 static char flip_key[] = "Upside-down";
 static char cascade_key[] = "Cascade";
 static char exp_filter_key[] = "Exp-filter-factor";
-static char moving_deadzone_key[] = "Moving-deadzone";
-static char processor_affinity_key[] = "Processor-affinity";
-
 
 bool ltr_int_wc_init_prefs()
 {
@@ -83,13 +78,6 @@ bool ltr_int_wc_init_prefs()
   if(!ltr_int_get_key_flt(dev, exp_filter_key, &exp_filt)){
     exp_filt = 0.1;
   }
-  if(!ltr_int_get_key_int(dev, moving_deadzone_key, &moving_deadzone)){
-    moving_deadzone = 10;
-  }
-  if(!ltr_int_get_key_int(dev, processor_affinity_key, &affinity)){
-    affinity = -1;
-  }
-  
   return true;
 }
 
@@ -247,39 +235,4 @@ bool ltr_int_wc_set_eff(float new_eff)
     return false;
   }
 }
-
-int ltr_int_wc_get_moving_deadzone()
-{
-  return moving_deadzone;
-}
-
-bool ltr_int_wc_set_moving_deadzone(int new_dz)
-{
-  char tmp[1024];
-  if(snprintf(tmp, sizeof(tmp), "%d", new_dz) != 0){
-    moving_deadzone = new_dz;
-    return ltr_int_change_key(ltr_int_get_device_section(), moving_deadzone_key, tmp);
-  }else{
-    return false;
-  }
-}
-
-int ltr_int_wc_get_proc_affinity()
-{
-  return affinity;
-}
-
-bool ltr_int_wc_set_proc_affinity(int new_aff)
-{
-  char tmp[1024];
-  if(snprintf(tmp, sizeof(tmp), "%d", new_aff) != 0){
-    affinity = new_aff;
-    return ltr_int_change_key(ltr_int_get_device_section(), processor_affinity_key, tmp);
-  }else{
-    return false;
-  }
-}
-
-
-
 

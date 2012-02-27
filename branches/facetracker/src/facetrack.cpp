@@ -27,12 +27,10 @@ static cv::Mat *cvimage;
 static cv::Mat scaled;
 static cv::Size minFace(40, 40);
 float expFiltFactor = 0.2;
-float dzone = 10;
 
 float expfilt(float x, 
               float y_minus_1,
               float filterfactor);
-float moving_dzone(float x, float *stable, float dzone);
 
 void detect(cv::Mat& img)
 {
@@ -51,26 +49,16 @@ void detect(cv::Mat& img)
   }
   if(candidate != NULL){
     expFiltFactor = ltr_int_wc_get_eff();
-    dzone = ltr_int_wc_get_moving_deadzone();
     
     float x = (candidate->x + candidate->width / 2) / scale - frame_w/2;
     float y = (candidate->y + candidate->height / 2) / scale - frame_h/2;
     float w = candidate->width / scale;
     float h = candidate->height / scale;
     
-    static float stable_x = 0.0;
-    static float stable_y = 0.0;
-    static float stable_w = 0.0;
-    static float stable_h = 0.0;
     static float last_face_x = 0.0f;
     static float last_face_y = 0.0f;
     static float last_face_w = 0.0f;
     static float last_face_h = 0.0f;
-    
-    x = moving_dzone(x, &stable_x, dzone);
-    y = moving_dzone(y, &stable_y, dzone);
-    w = moving_dzone(w, &stable_w, dzone);
-    h = moving_dzone(h, &stable_h, dzone);
     
     face_x = expfilt(x, last_face_x, expFiltFactor);
     face_y = expfilt(y, last_face_y, expFiltFactor);
@@ -179,17 +167,6 @@ float expfilt(float x,
   float y;
   
   y = y_minus_1*(1.0-filterfactor) + filterfactor*x;
-  return y;
-}
-
-float moving_dzone(float x, float *stable, float dzone)
-{
-  float y;
-  if(fabsf(x - *stable) > dzone){
-    y = *stable = x;
-  }else{
-    y = *stable;
-  }
   return y;
 }
 

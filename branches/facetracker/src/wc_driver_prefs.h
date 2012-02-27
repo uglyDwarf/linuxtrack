@@ -38,15 +38,6 @@ bool ltr_int_wc_set_cascade(const char *new_cascade);
 float ltr_int_wc_get_eff();
 bool ltr_int_wc_set_eff(float new_eff);
 
-int ltr_int_wc_get_moving_deadzone();
-bool ltr_int_wc_set_moving_deadzone(int new_dz);
-
-int ltr_int_wc_get_proc_affinity();
-bool ltr_int_wc_set_proc_affinity(int new_aff);
-
-
-
-
 #ifdef __cplusplus
 }
 #endif

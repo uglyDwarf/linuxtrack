@@ -26,8 +26,6 @@ class WebcamFtPrefs : public QObject{
   void on_FindCascade_pressed();
   void on_CascadePath_editingFinished();
   void on_ExpFilterFactor_valueChanged(int value);
-  void on_MovingDeadzone_valueChanged(int value);
-  void on_ProcessorAffinity_valueChanged(int value);
 };
 
 

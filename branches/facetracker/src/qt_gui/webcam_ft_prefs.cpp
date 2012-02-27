@@ -23,10 +23,6 @@ void WebcamFtPrefs::Connect()
     this, SLOT(on_CascadePath_editingFinished()));
   QObject::connect(gui.ExpFilterFactor, SIGNAL(valueChanged(int)),
     this, SLOT(on_ExpFilterFactor_valueChanged(int)));
-  QObject::connect(gui.MovingDeadzone, SIGNAL(valueChanged(int)),
-    this, SLOT(on_MovingDeadzone_valueChanged(int)));
-  QObject::connect(gui.ProcessorAffinity, SIGNAL(valueChanged(int)),
-    this, SLOT(on_ProcessorAffinity_valueChanged(int)));
 }
 
 WebcamFtPrefs::WebcamFtPrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
@@ -39,10 +35,6 @@ WebcamFtPrefs::WebcamFtPrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
   int n = (2.0 / ltr_int_wc_get_eff()) - 2;
   gui.ExpFilterFactor->setValue(n);
   on_ExpFilterFactor_valueChanged(n);
-  gui.MovingDeadzone->setValue(ltr_int_wc_get_moving_deadzone());
-  gui.ProcessorAffinity->setValue(ltr_int_wc_get_proc_affinity());
-  gui.ProcessorAffinity->hide();
-  gui.ProcessorAffinityLabel->hide();
   prefInit = false;
 }
 
@@ -204,21 +196,4 @@ void WebcamFtPrefs::on_ExpFilterFactor_valueChanged(int value)
     ltr_int_wc_set_eff(a);
   }
 }
-
-void WebcamFtPrefs::on_MovingDeadzone_valueChanged(int value)
-{
-  if(!prefInit){
-    ltr_int_wc_set_moving_deadzone(value);
-  }
-}
-
-void WebcamFtPrefs::on_ProcessorAffinity_valueChanged(int value)
-{
-  if(!prefInit){
-    ltr_int_wc_set_proc_affinity(value);
-  }
-}
-
-
-
 
