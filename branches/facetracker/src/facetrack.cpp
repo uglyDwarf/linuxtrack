@@ -35,9 +35,32 @@ float expfilt(float x,
 void detect(cv::Mat& img)
 {
   std::vector<cv::Rect> faces;
-  cv::resize(img, scaled, cv::Size(), scale, scale);
-  cv::equalizeHist(scaled, scaled);
-  cascade->detectMultiScale(scaled, faces, 1.2, 2, 0, minFace);
+  double current_scale;
+  switch(ltr_int_wc_get_optim_level()){
+    case 0:
+      cv::equalizeHist(img, img);
+      cascade->detectMultiScale(img, faces, 1.1, 2, 0, minFace);
+      current_scale = 1;
+      break;
+    case 1:
+      cv::equalizeHist(img, img);
+      cascade->detectMultiScale(img, faces, 1.2, 2, 0, minFace);
+      current_scale = 1;
+      break;
+    case 2:
+      cv::resize(img, scaled, cv::Size(), scale, scale);
+      cv::equalizeHist(scaled, scaled);
+      cascade->detectMultiScale(scaled, faces, 1.1, 2, 0, minFace);
+      current_scale = scale;
+      break;
+    case 3:
+    default:
+      cv::resize(img, scaled, cv::Size(), scale, scale);
+      cv::equalizeHist(scaled, scaled);
+      cascade->detectMultiScale(scaled, faces, 1.2, 2, 0, minFace);
+      current_scale = scale;
+      break;
+  }
   
   double area = -1;
   const cv::Rect *candidate = NULL;
@@ -50,10 +73,10 @@ void detect(cv::Mat& img)
   if(candidate != NULL){
     expFiltFactor = ltr_int_wc_get_eff();
     
-    float x = (candidate->x + candidate->width / 2) / scale - frame_w/2;
-    float y = (candidate->y + candidate->height / 2) / scale - frame_h/2;
-    float w = candidate->width / scale;
-    float h = candidate->height / scale;
+    float x = (candidate->x + candidate->width / 2) / current_scale - frame_w/2;
+    float y = (candidate->y + candidate->height / 2) / current_scale - frame_h/2;
+    float w = candidate->width / current_scale;
+    float h = candidate->height / current_scale;
     
     static float last_face_x = 0.0f;
     static float last_face_y = 0.0f;

@@ -18,6 +18,7 @@ static int fps_den = 0;
 static bool flip = false;
 static char *cascade = NULL;
 static float exp_filt = 0.1;
+static int optim_level = 0;
 
 static char max_blob_key[] = "Max-blob";
 static char min_blob_key[] = "Min-blob";
@@ -29,6 +30,7 @@ static char fps_key[] = "Fps";
 static char flip_key[] = "Upside-down";
 static char cascade_key[] = "Cascade";
 static char exp_filter_key[] = "Exp-filter-factor";
+static char optim_key[] = "Optimization-level";
 
 bool ltr_int_wc_init_prefs()
 {
@@ -77,6 +79,9 @@ bool ltr_int_wc_init_prefs()
   cascade = (tmp != NULL) ? ltr_int_my_strdup(tmp) : NULL;
   if(!ltr_int_get_key_flt(dev, exp_filter_key, &exp_filt)){
     exp_filt = 0.1;
+  }
+  if(!ltr_int_get_key_int(dev, optim_key, &optim_level)){
+    optim_level= 0;
   }
   return true;
 }
@@ -234,5 +239,16 @@ bool ltr_int_wc_set_eff(float new_eff)
   }else{
     return false;
   }
+}
+
+int ltr_int_wc_get_optim_level()
+{
+  return optim_level;
+}
+
+bool ltr_int_wc_set_optim_level(int opt)
+{
+  optim_level = opt;
+  return ltr_int_change_key_int(ltr_int_get_device_section(), optim_key, opt);
 }
 

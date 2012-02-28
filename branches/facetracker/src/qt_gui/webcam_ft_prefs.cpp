@@ -23,6 +23,8 @@ void WebcamFtPrefs::Connect()
     this, SLOT(on_CascadePath_editingFinished()));
   QObject::connect(gui.ExpFilterFactor, SIGNAL(valueChanged(int)),
     this, SLOT(on_ExpFilterFactor_valueChanged(int)));
+  QObject::connect(gui.OptimLevel, SIGNAL(valueChanged(int)),
+    this, SLOT(on_OptimLevel_valueChanged(int)));
 }
 
 WebcamFtPrefs::WebcamFtPrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
@@ -35,6 +37,7 @@ WebcamFtPrefs::WebcamFtPrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
   int n = (2.0 / ltr_int_wc_get_eff()) - 2;
   gui.ExpFilterFactor->setValue(n);
   on_ExpFilterFactor_valueChanged(n);
+  gui.OptimLevel->setValue(ltr_int_wc_get_optim_level());
   prefInit = false;
 }
 
@@ -196,4 +199,13 @@ void WebcamFtPrefs::on_ExpFilterFactor_valueChanged(int value)
     ltr_int_wc_set_eff(a);
   }
 }
+
+void WebcamFtPrefs::on_OptimLevel_valueChanged(int value)
+{
+  if(!prefInit){
+    ltr_int_wc_set_optim_level(value);
+  }
+}
+
+
 

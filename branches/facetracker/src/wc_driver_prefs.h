@@ -38,6 +38,9 @@ bool ltr_int_wc_set_cascade(const char *new_cascade);
 float ltr_int_wc_get_eff();
 bool ltr_int_wc_set_eff(float new_eff);
 
+int ltr_int_wc_get_optim_level();
+bool ltr_int_wc_set_optim_level(int opt);
+
 #ifdef __cplusplus
 }
 #endif
