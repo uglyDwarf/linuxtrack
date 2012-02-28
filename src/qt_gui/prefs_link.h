@@ -7,6 +7,7 @@
 typedef enum{
   NONE,
   WEBCAM,
+  WEBCAM_FT,
   WIIMOTE,
   TIR
 } deviceType_t;

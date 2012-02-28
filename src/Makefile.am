@@ -44,6 +44,9 @@ endif
 if V4L2
 if LIBV4L2
   pkglib_LTLIBRARIES += libwc.la
+if FACE_TRACKER
+  pkglib_LTLIBRARIES += libft.la
+endif
 endif 
 endif
 
@@ -127,6 +130,11 @@ libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 libwc_la_LIBADD = libltr.la -lv4l2
 libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
+
+libft_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h facetrack.cpp facetrack.h
+libft_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
+libft_la_LIBADD = libltr.la -lv4l2 $(OPENCV_LIBS)
+libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
 
 dist_pkgdata_DATA = linuxtrack.conf 51-TIR.rules linuxtrack.c
 

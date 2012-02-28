@@ -15,6 +15,7 @@ class LtrGuiForm;
 class LtrDevHelp;
 class TirPrefs;
 class WebcamPrefs;
+class WebcamFtPrefs;
 class ModelEdit;
 class LtrTracking;
 class LogView;
@@ -51,6 +52,7 @@ class LinuxtrackGui : public QWidget
   LtrDevHelp *helper;
   WiimotePrefs *wiip;
   WebcamPrefs *wcp;
+  WebcamFtPrefs *wcfp;
   TirPrefs *tirp;
   ModelEdit *me;
   LtrTracking *track;

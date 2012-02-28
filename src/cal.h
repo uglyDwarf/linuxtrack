@@ -46,6 +46,7 @@ typedef enum cal_device_category_type {
   tir4_camera,
   webcam,
   wiimote,
+  webcam_ft,
   tir,
   tir_open
 } cal_device_category_type;

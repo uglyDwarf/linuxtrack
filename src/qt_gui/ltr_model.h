@@ -21,6 +21,7 @@ class ModelCreate : public QWidget
   void on_Model3PtCap_pressed();
   void on_Model3PtClip_pressed();
   void on_Model1Pt_pressed();
+  void on_ModelFace_pressed();
   private:
   Ui::ModelCreation ui;
 };

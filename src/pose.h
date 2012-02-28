@@ -20,7 +20,7 @@ typedef struct reflector_model_type {
   double p2[3]; /* x,y,z */
   /* user's head center, again referenced to p0 */
   double hc[3];  /* x,y,z */
-  enum {CAP, CLIP, SINGLE} type;
+  enum {CAP, CLIP, SINGLE, FACE} type;
 } reflector_model_type;
 
 ///* like the reflector model, all units are in millimeters.  
@@ -53,6 +53,7 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
                         struct current_pose *pose,
                         bool centering);
 bool ltr_int_is_single_point();                        
+bool ltr_int_is_face();
 /*
 int ltr_int_pose_compute_camera_update(struct transform trans,
                                double *yaw,

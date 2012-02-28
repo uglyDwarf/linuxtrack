@@ -16,6 +16,9 @@ static int res_y = 0;
 static int fps_num = 0;
 static int fps_den = 0;
 static bool flip = false;
+static char *cascade = NULL;
+static float exp_filt = 0.1;
+static int optim_level = 0;
 
 static char max_blob_key[] = "Max-blob";
 static char min_blob_key[] = "Min-blob";
@@ -25,6 +28,9 @@ static char pix_fmt_key[] = "Pixel-format";
 static char res_key[] = "Resolution";
 static char fps_key[] = "Fps";
 static char flip_key[] = "Upside-down";
+static char cascade_key[] = "Cascade";
+static char exp_filter_key[] = "Exp-filter-factor";
+static char optim_key[] = "Optimization-level";
 
 bool ltr_int_wc_init_prefs()
 {
@@ -69,6 +75,14 @@ bool ltr_int_wc_init_prefs()
     flip = false;
   }
   
+  tmp = ltr_int_get_key(dev, cascade_key);
+  cascade = (tmp != NULL) ? ltr_int_my_strdup(tmp) : NULL;
+  if(!ltr_int_get_key_flt(dev, exp_filter_key, &exp_filt)){
+    exp_filt = 0.1;
+  }
+  if(!ltr_int_get_key_int(dev, optim_key, &optim_level)){
+    optim_level= 0;
+  }
   return true;
 }
 
@@ -196,3 +210,45 @@ bool ltr_int_wc_set_flip(bool new_flip)
   flip = new_flip;
   return ltr_int_change_key(ltr_int_get_device_section(), flip_key, val);
 }
+
+const char *ltr_int_wc_get_cascade()
+{
+  return cascade;
+}
+
+bool ltr_int_wc_set_cascade(const char *new_cascade)
+{
+  if(cascade != NULL){
+    free(cascade);
+  }
+  cascade = (new_cascade != NULL) ? ltr_int_my_strdup(new_cascade) : NULL;
+  return ltr_int_change_key(ltr_int_get_device_section(), cascade_key, new_cascade);
+}
+
+float ltr_int_wc_get_eff()
+{
+  return exp_filt;
+}
+
+bool ltr_int_wc_set_eff(float new_eff)
+{
+  char tmp[1024];
+  if(snprintf(tmp, sizeof(tmp), "%g", new_eff) != 0){
+    exp_filt = new_eff;
+    return ltr_int_change_key(ltr_int_get_device_section(), exp_filter_key, tmp);
+  }else{
+    return false;
+  }
+}
+
+int ltr_int_wc_get_optim_level()
+{
+  return optim_level;
+}
+
+bool ltr_int_wc_set_optim_level(int opt)
+{
+  optim_level = opt;
+  return ltr_int_change_key_int(ltr_int_get_device_section(), optim_key, opt);
+}
+

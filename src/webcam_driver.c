@@ -19,8 +19,14 @@
 #include "utils.h"
 #include "pref.h"
 #include "pref_global.h"
-#include "image_process.h"
 #include "runloop.h"
+
+#ifndef OPENCV
+#include "image_process.h"
+#else
+#include "facetrack.h"
+#endif
+
 #include <libv4l2.h>
 
 #define NUM_OF_BUFFERS 8
@@ -47,7 +53,6 @@ typedef struct{
 } webcam_info;
 
 static webcam_info wc_info;
-
 /*************/
 /* interface */
 /*************/
@@ -456,7 +461,11 @@ static bool release_buffers()
 
 static bool read_img_processing_prefs()
 {
+#ifdef OPENCV
+  wc_info.threshold = 0;
+#else
   wc_info.threshold = ltr_int_wc_get_threshold();
+#endif
   wc_info.min_blob_pixels = ltr_int_wc_get_min_blob();
   wc_info.max_blob_pixels = ltr_int_wc_get_max_blob();
   wc_info.flip = ltr_int_wc_get_flip();
@@ -469,7 +478,7 @@ static bool read_img_processing_prefs()
 int ltr_int_tracker_init(struct camera_control_block *ccb)
 {
   assert(ccb != NULL);
-  assert(ccb->device.category == webcam);
+  assert((ccb->device.category == webcam) || (ccb->device.category == webcam_ft));
   assert(ccb->device.device_id != NULL);
   int fd = search_for_webcam(ccb->device.device_id);
   if(fd == -1){
@@ -515,6 +524,10 @@ int ltr_int_tracker_close()
   release_buffers();
   free(wc_info.bw_frame);
   v4l2_close(wc_info.fd);
+#ifdef OPENCV
+  stop_detect();
+#endif
+  ltr_int_log_message("Webcam shut down!\n");
   return 0;
 }
 
@@ -667,7 +680,8 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
     fclose(ff);
   }
 #endif
-  
+ 
+#ifndef OPENCV 
   ltr_int_to_stripes(&img);
   ltr_int_stripes_to_blobs(3, &(f->bloblist), wc_info.min_blob_pixels, 
 		   wc_info.max_blob_pixels, &img);
@@ -678,5 +692,8 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
       f->bloblist.blobs[tmp].y *= -1;
     }
   }
+#else
+  face_detect(&img, &(f->bloblist));
+#endif
   return 0;
 }

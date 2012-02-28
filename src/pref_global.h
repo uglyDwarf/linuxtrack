@@ -21,6 +21,7 @@ void ltr_int_announce_model_change();
 bool ltr_int_model_changed(bool reset_flag);
 bool ltr_int_get_filter_factor(float *ff);
 int ltr_int_get_orientation();
+
 void ltr_int_close_prefs();
 
 #ifdef __cplusplus
