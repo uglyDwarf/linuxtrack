@@ -55,6 +55,8 @@ void ModelCreate::on_CreateButton_pressed()
         v = "no";
       }
       PREF.addKeyVal(sec, (char *)"Active", v);
+    }else if(ui.ModelFace->isChecked()){
+      PREF.addKeyVal(sec, (char *)"Model-type", (char *)"Face");
     }else{//1pt
       PREF.addKeyVal(sec, (char *)"Model-type", (char *)"SinglePoint");
       QString v;
@@ -87,6 +89,13 @@ void ModelCreate::on_Model1Pt_pressed()
   ui.ModelStack->setCurrentIndex(2);
   ui.ModelDescStack->setCurrentIndex(2);
 }
+
+void ModelCreate::on_ModelFace_pressed()
+{
+  ui.ModelStack->setCurrentIndex(3);
+  ui.ModelDescStack->setCurrentIndex(3);
+}
+
 
 ModelEdit::ModelEdit(const Ui::LinuxtrackMainForm &ui) : gui(ui), initializing(false)
 {
@@ -247,6 +256,11 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
     }else{
       gui.ClipLeds->setCheckState(Qt::Unchecked);
     }
+  }else if(type.compare("Face", Qt::CaseInsensitive) == 0){
+    gui.ModelTypeLabel->setText("Face");
+    gui.ModelStack->setCurrentIndex(3);
+    HelpViewer::ChangePage("1pt.htm");
+    //!!!gui.ModelDescStack->setCurrentIndex(2);
   }else{//1pt
     gui.ModelTypeLabel->setText("1 Point");
     gui.ModelStack->setCurrentIndex(2);

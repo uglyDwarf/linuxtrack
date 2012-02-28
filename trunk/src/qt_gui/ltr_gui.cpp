@@ -23,6 +23,7 @@
 #include "log_view.h"
 #include "scp_form.h"
 #include "webcam_prefs.h"
+#include "webcam_ft_prefs.h"
 #include "wiimote_prefs.h"
 #include "help_view.h"
 
@@ -64,6 +65,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   ui.setupUi(this);
   PREF; //init prefs
   wcp = new WebcamPrefs(ui);
+  wcfp = new WebcamFtPrefs(ui);
   wiip = new WiimotePrefs(ui);
   tirp = new TirPrefs(ui);
   me = new ModelEdit(ui);
@@ -175,6 +177,12 @@ void LinuxtrackGui::on_DeviceSelector_activated(int index)
 #endif
     wcp->Activate(pl.ID, !initialized);
   }else 
+  if(pl.deviceType == WEBCAM_FT){
+#ifndef DARWIN
+    ui.DeviceSetupStack->setCurrentIndex(4);
+    wcfp->Activate(pl.ID, !initialized);
+#endif
+  }else 
   if(pl.deviceType == WIIMOTE){
     ui.DeviceSetupStack->setCurrentIndex(1);
     wiip->Activate(pl.ID, !initialized);
@@ -198,6 +206,7 @@ void LinuxtrackGui::on_RefreshDevices_pressed()
   ui.DeviceSelector->clear();
   bool res = false; 
   res |= WebcamPrefs::AddAvailableDevices(*(ui.DeviceSelector));
+  res |= WebcamFtPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   res |= WiimotePrefs::AddAvailableDevices(*(ui.DeviceSelector));
   res |= TirPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   if(!res){

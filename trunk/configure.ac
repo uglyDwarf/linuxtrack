@@ -6,6 +6,7 @@ AC_INIT([LinuxTrack], [0.0], [http://code.google.com/p/linux-track/issues/list])
 AM_INIT_AUTOMAKE([no-dependencies -Wall -Werror])
 AC_CONFIG_SRCDIR([src/tir4_driver.h])
 AC_CONFIG_HEADERS([config.h])
+AC_PROG_CXX
 AC_PROG_OBJC
 AS_IF([test "$debug" != "no"],
       [CFLAGS+=" -g -O0 -Wall -Wextra"],
@@ -19,6 +20,7 @@ LT_INIT
 AC_PROG_LIBTOOL
 AC_CONFIG_MACRO_DIR([m4])
 AM_PROG_CC_C_O
+PKG_PROG_PKG_CONFIG
 
 # Checks for libraries.
 AC_CHECK_LIB([m], [sqrt], [LIBM=true], [AC_MSG_FAILURE([I need libm!])])
@@ -110,6 +112,20 @@ AC_ARG_ENABLE([ltr_32lib_on_x64],
 		[with_ltr_32lib_on_x64=yes]
 )
 
+#AC_ARG_ENABLE([face_tracker],
+#            [AS_HELP_STRING([--enable-face-tracker],
+#              [enables building of face tracker (requires OpenCV 2.X)])], 
+#            [with_face_tracker=yes],
+#            [with_face_tracker=no]
+#)
+
+PKG_CHECK_MODULES([OPENCV], [opencv >= 2.0],
+            [with_face_tracker=yes],
+            [with_face_tracker=no]
+)
+AC_SUBST([OPENCV_CFLAGS])
+AC_SUBST([OPENCV_LIBS])
+
 AS_IF([case $host_os in darwin*) true;; *) false;; esac],
   [    
     AC_DEFINE([DARWIN], [], [We are on Darwin])
@@ -142,6 +158,7 @@ AM_CONDITIONAL(X64, [test  "x$with_64_bit" = xyes])
 AM_CONDITIONAL([LTR32ON64], [test  "x$with_ltr_32lib_on_x64" = xyes])
 AM_CONDITIONAL([LTR_PIPE], [test  x$with_ltr_pipe = xyes])
 AM_CONDITIONAL([LINUX], [test x$with_linux = xyes])
+AM_CONDITIONAL(FACE_TRACKER, [test x$with_face_tracker = xyes])
 
 # Checks for library functions.
 AC_CHECK_FUNCS([atexit])

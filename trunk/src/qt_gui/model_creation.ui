@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>748</width>
+    <width>751</width>
     <height>474</height>
    </rect>
   </property>
@@ -66,13 +66,20 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QRadioButton" name="ModelFace">
+            <property name="text">
+             <string>Face</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
        <item>
         <widget class="QStackedWidget" name="ModelStack">
          <property name="currentIndex">
-          <number>2</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="page_3">
           <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -485,6 +492,7 @@
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="page_7"/>
         </widget>
        </item>
       </layout>
@@ -492,7 +500,7 @@
      <item>
       <widget class="QStackedWidget" name="ModelDescStack">
        <property name="currentIndex">
-        <number>2</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="page_5">
         <layout class="QHBoxLayout" name="horizontalLayout_10">
@@ -533,25 +541,36 @@ or similar.</string>
         </layout>
        </widget>
        <widget class="QWidget" name="page_2">
-        <widget class="QLabel" name="label_4">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>10</y>
-           <width>301</width>
-           <height>501</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Here you can select whether you single point
+        <layout class="QVBoxLayout" name="verticalLayout_8">
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Here you can select whether you single point
 is made of LED (or another light source),
 or reflective material.
 </string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
-        </widget>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page_8">
+        <layout class="QVBoxLayout" name="verticalLayout_7">
+         <item>
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Select this to use facetracking.
+</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </widget>
      </item>

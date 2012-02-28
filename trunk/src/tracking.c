@@ -13,6 +13,9 @@ static struct bloblist_type filtered_bloblist;
 static struct blob_type filtered_blobs[3];
 static bool first_frame = true;
 static bool recenter = false;
+static float cam_distance = 1000.0f;
+
+struct current_pose ltr_int_orig_pose;
 
 /*******************************/
 /* private function prototypes */
@@ -135,6 +138,7 @@ static int update_pose_1pt(struct frame_type *frame)
 {
   static float c_x = 0.0f;
   static float c_y = 0.0f;
+  static float c_z = 0.0f;
   bool recentering = false;
   
   ltr_int_check_pose();
@@ -142,7 +146,8 @@ static int update_pose_1pt(struct frame_type *frame)
   if(tracking_dbg_flag == DBG_ON){
     unsigned int i;
     for(i = 0; i < frame->bloblist.num_blobs; ++i){
-      ltr_int_log_message("*DBG_t* %d: %g %g\n", i, frame->bloblist.blobs[i].x, frame->bloblist.blobs[i].y);
+      ltr_int_log_message("*DBG_t* %d: %g %g %d\n", i, frame->bloblist.blobs[i].x, frame->bloblist.blobs[i].y,
+                          frame->bloblist.blobs[i].score);
     }
   }
   
@@ -161,19 +166,39 @@ static int update_pose_1pt(struct frame_type *frame)
   if(recentering){
     c_x = frame->bloblist.blobs[0].x;
     c_y = frame->bloblist.blobs[0].y;
+    c_z = cam_distance * sqrtf((float)frame->bloblist.blobs[0].score);
   }
   
-  angles[0] = frame->bloblist.blobs[0].x - c_x;
-  angles[1] = frame->bloblist.blobs[0].y - c_y;
+  angles[0] = c_y - frame->bloblist.blobs[0].y;
+  angles[1] = frame->bloblist.blobs[0].x - c_x;
   angles[2] = 0.0f;
   translations[0] = 0.0f;
   translations[1] = 0.0f;
-  translations[2] = 0.0f;
-
-  if(behind){
-    angles[1] *= -1;
+  if(ltr_int_is_face() && (frame->bloblist.blobs[0].score > 0)){
+      translations[2] = c_z / sqrtf((float)frame->bloblist.blobs[0].score) - cam_distance;
+  }else{
+    translations[2] = 0.0f;
   }
-
+  
+  if(behind){
+    angles[0] *= -1;
+  }
+  ltr_int_orig_pose.pitch = angles[0];
+  ltr_int_orig_pose.heading = angles[1];
+  ltr_int_orig_pose.roll = 0;
+  ltr_int_orig_pose.tx = 0;
+  ltr_int_orig_pose.ty = 0;
+  ltr_int_orig_pose.tz = translations[2];
+  
+  static double filtered[3] = {0.0f, 0.0f, 0.0f};
+  float filterfactor=1.0;
+  ltr_int_get_filter_factor(&filterfactor);
+  double filter_factors[3] = {filterfactor, filterfactor, filterfactor * 10};
+  double values[] = {angles[0], angles[1], translations[2]};
+  ltr_int_nonlinfilt_vec(values, filtered, filter_factors, filtered);
+  angles[0] = clamp_angle(ltr_int_val_on_axis(PITCH, filtered[0]));
+  angles[1] = clamp_angle(ltr_int_val_on_axis(PITCH, filtered[1]));
+  translations[2] = ltr_int_val_on_axis(TZ, filtered[2]);
   return 0;
 }
 
@@ -233,6 +258,7 @@ static int update_pose_3pt(struct frame_type *frame)
   return res;
 }
 
+
 static unsigned int counter_d;
 
 int ltr_int_update_pose(struct frame_type *frame)
@@ -272,28 +298,6 @@ int ltr_int_tracking_get_camera(float *heading,
 }
 
 
-/*
-double expfilt(double x, 
-              double y_minus_1,
-              double filterfactor) 
-{
-  double y;
-  
-  y = y_minus_1*(1.0-filterfactor) + filterfactor*x;
-
-  return y;
-}
-
-void expfilt_vec(double x[3], 
-              double y_minus_1[3],
-              double filterfactor,
-              double res[3]) 
-{
-  res[0] = expfilt(x[0], y_minus_1[0], filterfactor);
-  res[1] = expfilt(x[1], y_minus_1[1], filterfactor);
-  res[2] = expfilt(x[2], y_minus_1[2], filterfactor);
-}
-*/
 
 double ltr_int_nonlinfilt(double x, 
               double y_minus_1,

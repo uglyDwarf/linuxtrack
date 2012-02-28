@@ -106,6 +106,11 @@ bool ltr_int_get_device(struct camera_control_block *ccb)
       ccb->device.category = webcam;
       dev_ok = true;
     }
+    if(strcasecmp(dev_type, "Webcam-face") == 0){
+      ltr_int_log_message("Device Type: Webcam - facetrack\n");
+      ccb->device.category = webcam_ft;
+      dev_ok = true;
+    }
     if(strcasecmp(dev_type, "Wiimote") == 0){
       ltr_int_log_message("Device Type: Wiimote\n");
       ccb->device.category = wiimote;
@@ -235,6 +240,9 @@ bool ltr_int_get_model_setup(reflector_model_type *rm)
     res = setup_clip(rm, model_section);
   }else if(strcasecmp(model_type, "SinglePoint") == 0){
     rm->type = SINGLE;
+    res = true;
+  }else if(strcasecmp(model_type, "Face") == 0){
+    rm->type = FACE;
     res = true;
   }else{
     ltr_int_log_message("Unknown modeltype specified in section %s\n", model_section);

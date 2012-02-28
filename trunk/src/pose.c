@@ -23,11 +23,9 @@ static double model_base[3][3];
 static double center_ref[3] = {0.0, 0.0, 0.0};
 static double center_base[3][3];
 
-static enum {M_CAP, M_CLIP, M_SINGLE} type;
+static enum {M_CAP, M_CLIP, M_SINGLE, M_FACE} type;
 
-struct current_pose ltr_int_orig_pose;
-
-static double clamp_angle(double angle);
+extern struct current_pose ltr_int_orig_pose;
 
 void ltr_int_pose_init(struct reflector_model_type rm)
 {
@@ -48,6 +46,12 @@ void ltr_int_pose_init(struct reflector_model_type rm)
       type = M_SINGLE;
       #ifdef PT_DBG
         printf("MODEL:SINGLE\n");
+      #endif
+      break;
+    case FACE:
+      type = M_FACE;
+      #ifdef PT_DBG
+        printf("MODEL:FACE\n");
       #endif
       break;
     default:
@@ -101,7 +105,12 @@ void ltr_int_pose_init(struct reflector_model_type rm)
 
 bool ltr_int_is_single_point()
 {
-  return type == M_SINGLE;
+  return (type == M_SINGLE) || (type == M_FACE);
+}
+
+bool ltr_int_is_face()
+{
+  return type == M_FACE;
 }
 
 static double blob_dist(struct blob_type b0, struct blob_type b1)
@@ -449,17 +458,6 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
 //  ltr_int_print_vec(displacement, "tr");
 //  printf("%f %f %f  %f %f %f\n", pose->pitch, pose->heading, pose->roll, pose->tx, pose->ty, pose->tz);
   return true;
-}
-
-double clamp_angle(double angle)
-{
-  if(angle<-180.0){
-    return -180.0;
-  }else if(angle>180.0){
-    return 180.0;
-  }else{
-    return angle;
-  }
 }
 
 /*

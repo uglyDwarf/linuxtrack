@@ -225,4 +225,15 @@ bool ltr_int_is_finite(double f)
   }
 }
 
+double clamp_angle(double angle)
+{
+  if(angle<-180.0){
+    return -180.0;
+  }else if(angle>180.0){
+    return 180.0;
+  }else{
+    return angle;
+  }
+}
+
 

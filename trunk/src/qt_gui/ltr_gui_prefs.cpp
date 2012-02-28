@@ -321,6 +321,8 @@ bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id)
   QString dn = dev_name;
   if(dn.compare((char *)"Webcam", Qt::CaseInsensitive) == 0){
     devType = WEBCAM;
+  }else if(dn.compare((char *)"Webcam-face", Qt::CaseInsensitive) == 0){
+    devType = WEBCAM_FT;
   }else if(dn.compare((char *)"Wiimote", Qt::CaseInsensitive) == 0){
     devType = WIIMOTE;
   }else if(dn.compare((char *)"Tir", Qt::CaseInsensitive) == 0){

@@ -19,7 +19,7 @@ HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h help_view.h \
 	   ltr_gui_prefs.h prefs_link.h tir_prefs.h \
            ltr_model.h window.h glwidget.h objreader.h ltr_profiles.h\
            log_view.h ltr_state.h ltr_axis.h ltr_tracking.h scp_form.h \
-           scurve.h scview.h wiimote_prefs.h dlfirmware.h
+           scurve.h scview.h wiimote_prefs.h dlfirmware.h 
 
 FORMS += ltr_gui.ui dev_help.ui ltr.ui model_creation.ui scurve.ui scp_form.ui \
            logview.ui dl.ui
@@ -44,8 +44,8 @@ unix:!macx {
 
   target.path = @prefix@/bin
   INSTALLS += target data help
-  HEADERS += webcam_prefs.h webcam_info.h
-  SOURCES += webcam_info.cpp webcam_prefs.cpp 
+  HEADERS += webcam_prefs.h webcam_info.h webcam_ft_prefs.h
+  SOURCES += webcam_info.cpp webcam_prefs.cpp webcam_ft_prefs.cpp
 }
 
 macx {
