@@ -1,5 +1,0 @@
-<RCC>
-  <qresource prefix="newPrefix">
-    <file>../linuxtrack-wii.svg</file>
-  </qresource>
-</RCC>
