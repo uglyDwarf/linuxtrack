@@ -39,7 +39,7 @@ static void *safety_thread(void *param)
         dead_man_button_pressed = false;
         counter = 0;
       }else{
-        if(counter > 10){
+        if(counter > 60){
           ltr_int_log_message("No response for too long, exiting...\n");
           all_clients_gone = true;
           break;
