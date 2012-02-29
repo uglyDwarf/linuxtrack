@@ -27,6 +27,8 @@ static cv::Mat *cvimage;
 static cv::Mat scaled;
 static cv::Size minFace(40, 40);
 float expFiltFactor = 0.2;
+bool init = true;
+
 
 float expfilt(float x, 
               float y_minus_1,
@@ -83,14 +85,22 @@ void detect(cv::Mat& img)
     static float last_face_w = 0.0f;
     static float last_face_h = 0.0f;
     
-    face_x = expfilt(x, last_face_x, expFiltFactor);
-    face_y = expfilt(y, last_face_y, expFiltFactor);
-    face_w = expfilt(w, last_face_w, expFiltFactor);
-    face_h = expfilt(h, last_face_h, expFiltFactor);
-    last_face_x = face_x;
-    last_face_y = face_y;
-    last_face_w = face_w;
-    last_face_h = face_h;
+    if(init){
+      last_face_x = face_x = x;
+      last_face_y = face_y = y;
+      last_face_w = face_w = w;
+      last_face_h = face_h = h;
+      init = false;
+    }else{
+      face_x = expfilt(x, last_face_x, expFiltFactor);
+      face_y = expfilt(y, last_face_y, expFiltFactor);
+      face_w = expfilt(w, last_face_w, expFiltFactor);
+      face_h = expfilt(h, last_face_h, expFiltFactor);
+      last_face_x = face_x;
+      last_face_y = face_y;
+      last_face_w = face_w;
+      last_face_h = face_h;
+    }
   }
 //  std::cout<<"Done" <<std::endl;
 }
@@ -110,6 +120,7 @@ void *detector_thread(void *)
     ltr_int_log_message("Could't load cascade!\n");
     return NULL;
   }
+  init = true;
   while(run){
     pthread_mutex_lock(&frame_mx);
     while(frame_status != READY){
@@ -175,11 +186,15 @@ void face_detect(image *img, struct bloblist_type *blt)
     pthread_cond_broadcast(&frame_cv);
     pthread_mutex_unlock(&frame_mx);
   }
-  blt->num_blobs = 1;
-  blt->blobs[0].x = face_x;
-  blt->blobs[0].y = face_y;
-  blt->blobs[0].score = face_w * face_h;
-  ltr_int_draw_cross(img, face_x + frame_w/2, face_y + frame_h/2, 20);
+  if(face_w * face_h > 0){
+    blt->num_blobs = 1;
+    blt->blobs[0].x = face_x;
+    blt->blobs[0].y = face_y;
+    blt->blobs[0].score = face_w * face_h;
+    ltr_int_draw_cross(img, face_x + frame_w/2, face_y + frame_h/2, 20);
+  }else{
+    blt->num_blobs = 0;
+  }
 }
 
 
