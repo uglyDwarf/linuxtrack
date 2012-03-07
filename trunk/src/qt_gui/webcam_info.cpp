@@ -5,6 +5,7 @@
 
 #include <assert.h>
 #include <iostream>
+#include <QtDebug>
 
 typedef int (*enum_webcams_fun_t)(char **ids[]);
 typedef int (*enum_webcam_formats_fun_t)(char *id, webcam_formats *all_formats);
@@ -85,13 +86,13 @@ WebcamInfo::WebcamInfo(const QString &id)
 	fmt_descs.push_back(QList<webcam_format*>());
 	res_list.push_back(QStringList());
       }
-      fmt_descs[index].push_back(&(fmts.formats[j]));
+      fmt_descs.back().push_back(&(fmts.formats[j]));
       width = QString::number(fmts.formats[j].w);
       height = QString::number(fmts.formats[j].h);
       fps = QString::number((float)fmts.formats[j].fps_den 
 			    / fmts.formats[j].fps_num);
       item = QString("%2 x %3 @ %4").arg(width, height, fps);
-      res_list[index].push_back(item);
+      res_list.back().push_back(item);
     }
   }
 }
@@ -131,7 +132,7 @@ QString WebcamInfo::getFourcc(int index)
 
 int WebcamInfo::findFourcc(const QString &fcc)
 {
-  for(int i = 0; i <= fmt_index; ++i){
+  for(int i = 0; i < fmt_descs.length(); ++i){
     if(getFourcc(i) == fcc){
       return i;
     }
