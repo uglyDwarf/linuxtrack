@@ -33,7 +33,7 @@ WebcamPrefs::~WebcamPrefs()
 {
 }
 
-WebcamInfo *wc_info = NULL;
+static WebcamInfo *wc_info = NULL;
 
 void WebcamPrefs::on_WebcamResolutions_activated(int index)
 {

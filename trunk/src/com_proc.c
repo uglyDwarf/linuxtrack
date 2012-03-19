@@ -15,6 +15,8 @@ typedef struct{
   int              threshold;
   int              min_blob;
   int              max_blob;
+  float            exp_filt_factor;
+  int              opt_level;
   int              wii_indication;
   bool             frame_filled;
   int              frame_counter;
@@ -197,5 +199,39 @@ int ltr_int_getWiiIndication(struct mmap_s *mmm)
 int ltr_int_get_com_size()
 {
   return sizeof(comm_struct);
+}
+
+int ltr_int_getOptLevel(struct mmap_s *mmm)
+{
+  comm_struct *cs = (comm_struct*)mmm->data;
+  ltr_int_lockSemaphore(mmm->sem);
+  int res = cs->opt_level;
+  ltr_int_unlockSemaphore(mmm->sem);
+  return res;
+}
+
+void ltr_int_setOptLevel(struct mmap_s *mmm, int new_opt)
+{
+  comm_struct *cs = (comm_struct*)mmm->data;
+  ltr_int_lockSemaphore(mmm->sem);
+  cs->opt_level = new_opt;
+  ltr_int_unlockSemaphore(mmm->sem);
+}
+
+float ltr_int_getEff(struct mmap_s *mmm)
+{
+  comm_struct *cs = (comm_struct*)mmm->data;
+  ltr_int_lockSemaphore(mmm->sem);
+  float res = cs->exp_filt_factor;
+  ltr_int_unlockSemaphore(mmm->sem);
+  return res;
+}
+
+void ltr_int_setEff(struct mmap_s *mmm, float new_eff)
+{
+  comm_struct *cs = (comm_struct*)mmm->data;
+  ltr_int_lockSemaphore(mmm->sem);
+  cs->exp_filt_factor = new_eff;
+  ltr_int_unlockSemaphore(mmm->sem);
 }
 

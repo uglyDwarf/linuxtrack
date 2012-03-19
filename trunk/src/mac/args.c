@@ -6,8 +6,10 @@
 static bool enum_cams_flag = false;
 static bool capture = false;
 static bool map = false;
+static bool facetrack = false;
 static char *cam_id = NULL;
 static char *map_file = NULL;
+static char *cascade_file = NULL;
 static int w = -1;
 static int h = -1;
 
@@ -36,6 +38,16 @@ const char *getMapFileName()
   return map_file;
 }
 
+const char *getCascadeFileName()
+{
+  return cascade_file;
+}
+
+bool doFacetrack()
+{
+  return facetrack;
+}
+
 void getRes(int *x, int *y)
 {
   *x = w;
@@ -45,7 +57,7 @@ void getRes(int *x, int *y)
 bool checkCmdLine(int argc, char *argv[])
 {
   int ch;
-  while((ch = getopt(argc, argv, "ec:x:y:f:")) != -1){
+  while((ch = getopt(argc, argv, "ec:x:y:f:d:")) != -1){
     switch(ch){
       case 'e':
 	enum_cams_flag = true;
@@ -62,12 +74,16 @@ bool checkCmdLine(int argc, char *argv[])
 	h = atoi(optarg);
 	break;
       case 'f':
-	if((map_file = strdup(optarg)) != NULL){
-	  map = true;
-	}
+	  if((map_file = strdup(optarg)) != NULL){
+	    map = true;
+	  }
+	break;
+      case 'd':
+	  if((cascade_file = strdup(optarg)) != NULL){
+	    facetrack = true;
+	  }
 	break;
     }
   }
   return enum_cams_flag || (capture && map && (w != -1) && (h != -1));
 }
-

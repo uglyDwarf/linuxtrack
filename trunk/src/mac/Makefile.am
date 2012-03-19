@@ -14,10 +14,11 @@ if DARWIN
 endif
 
 qt_cam_SOURCES = qt_camera.m args.c args.h buffer.c buffer.h mac_camera.h ../com_proc.c \
-  com_proc.h ../ipc_utils.c ../ipc_utils.h processing.c processing.h macwebcam.c
-qt_cam_LDADD = -lltr -lobjc -lpthread
-qt_cam_LDFLAGS = ${AM_CFLAGS} ${LEOPARD_LDFLAG} -framework Cocoa -framework QTKit -framework QuartzCore
-qt_cam_CFLAGS = ${AM_CFLAGS} ${LEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
+  com_proc.h ../ipc_utils.c ../ipc_utils.h processing.c processing.h macwebcam.c ../facetrack.cpp ../facetrack.h
+qt_cam_LDADD = -lltr -lobjc -lpthread 
+qt_cam_LDFLAGS = ${AM_CFLAGS} ${LEOPARD_LDFLAG} -framework Cocoa -framework QTKit -framework QuartzCore $(OPENCV_LIBS) -headerpad_max_install_names
+qt_cam_CXXFLAGS = ${AM_CFLAGS} ${LEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..  -DOPENCV $(OPENCV_CFLAGS)
+qt_cam_CFLAGS = ${AM_CFLAGS} ${LEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..  -DOPENCV $(OPENCV_CFLAGS)
 qt_cam_OBJCFLAGS = ${AM_CFLAGS} ${LEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 
 sg_cam_SOURCES = sg_camera.c args.c args.h buffer.c buffer.h mac_camera.h ../com_proc.c \

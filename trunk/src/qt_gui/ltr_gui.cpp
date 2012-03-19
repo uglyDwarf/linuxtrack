@@ -180,8 +180,10 @@ void LinuxtrackGui::on_DeviceSelector_activated(int index)
   if(pl.deviceType == WEBCAM_FT){
 #ifndef DARWIN
     ui.DeviceSetupStack->setCurrentIndex(4);
-    wcfp->Activate(pl.ID, !initialized);
+#else
+    ui.DeviceSetupStack->setCurrentIndex(5);
 #endif
+    wcfp->Activate(pl.ID, !initialized);
   }else 
   if(pl.deviceType == WIIMOTE){
     ui.DeviceSetupStack->setCurrentIndex(1);
