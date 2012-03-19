@@ -19,7 +19,6 @@ class WebcamFtPrefs : public QObject{
   const Ui::LinuxtrackMainForm &gui;
   void Connect();
   bool initializing;
-  bool prefInit;
  private slots:
   void on_WebcamFtFormats_activated(int index);
   void on_WebcamFtResolutions_activated(int index);
