@@ -58,7 +58,7 @@ macx {
   help.path += ltr_gui.app/Contents/Resources/linuxtrack/help
   help.files += help/*
   INSTALLS += data help
-  HEADERS += macwebcam_prefs.h macwebcam_info.h 
-  SOURCES += macwebcam_info.cpp macwebcam_prefs.cpp
+  HEADERS += macwebcam_prefs.h macwebcamft_prefs.h macwebcam_info.h 
+  SOURCES += macwebcam_info.cpp macwebcamft_prefs.cpp macwebcam_prefs.cpp
   ICON = linuxtrack.icns
 }

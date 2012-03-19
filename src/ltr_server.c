@@ -12,13 +12,15 @@ static bool dead_man_button_pressed = false;
 static bool all_clients_gone = false;
 static bool active = false;
 static struct mmap_s mmm;
+static bool safety_cancel_flag = false;
 
 // Safety - if parent dies, we should follow
 static void *safety_thread(void *param)
 {
   (void)param;
   int counter = 0;
-  while(1){
+  safety_cancel_flag = false;
+  while(safety_cancel_flag == false){
     sleep(1);
     struct ltr_comm *com = mmm.data;
     //PID 1 means INIT process, and it means our parent process died.
@@ -188,6 +190,7 @@ static void main_loop(char *section)
 
  shutdown:
   //shutdown and wait till it is down (with timeout).
+  ltr_int_log_message("Staring the shutdown!\n");
   ltr_int_shutdown();
   int timeout_counter = 30;
   while(!ltr_int_is_inactive(com->state)){
@@ -221,9 +224,11 @@ int prep_main_loop(char *section)
     main_loop(section);
     ltr_int_log_message("Just left the main loop!\n");
     ltr_int_closeSemaphore(pfSem);
-#ifdef LTR_GUI    
-    pthread_cancel(st);
+#ifdef LTR_GUI
+    ltr_int_log_message("Going to cancel safety thread!\n");
+    safety_cancel_flag = true;
     pthread_join(st, NULL);
+    ltr_int_log_message("Safety thread just joined!\n");
 #endif
   }else{
 #ifndef LTR_GUI

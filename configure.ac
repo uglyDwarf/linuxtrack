@@ -20,6 +20,7 @@ LT_INIT
 AC_PROG_LIBTOOL
 AC_CONFIG_MACRO_DIR([m4])
 AM_PROG_CC_C_O
+FAKE_PKGCONF_IF_NEEDED
 PKG_PROG_PKG_CONFIG
 
 # Checks for libraries.
@@ -119,6 +120,26 @@ AC_ARG_ENABLE([ltr_32lib_on_x64],
 #            [with_face_tracker=no]
 #)
 
+
+AS_IF([case $host_os in darwin*) true;; *) false;; esac],
+  [    
+    AC_DEFINE([DARWIN], [], [We are on Darwin])
+    with_darwin=yes
+    OPENCV_LIBS=
+    OPENCV_CFLAGS=
+    AC_ARG_WITH([opencv-libs],
+            [AS_HELP_STRING([--with-opencv-libs],
+              [specify OpenCV libraries to link aginst])], 
+            [OPENCV_LIBS=${with_opencv_libs}]
+    )
+    AC_ARG_WITH([opencv-cflags],
+            [AS_HELP_STRING([--with-opencv-cflags],
+              [specify OpenCV includes])], 
+            [OPENCV_CFLAGS=${with_opencv_cflags}]
+    )
+  ]
+)
+
 PKG_CHECK_MODULES([OPENCV], [opencv >= 2.0],
             [with_face_tracker=yes],
             [with_face_tracker=no]
@@ -126,12 +147,6 @@ PKG_CHECK_MODULES([OPENCV], [opencv >= 2.0],
 AC_SUBST([OPENCV_CFLAGS])
 AC_SUBST([OPENCV_LIBS])
 
-AS_IF([case $host_os in darwin*) true;; *) false;; esac],
-  [    
-    AC_DEFINE([DARWIN], [], [We are on Darwin])
-    with_darwin=yes
-  ]
-)
 
 case "$host_cpu" in
 i[[3456]]86) with_64_bit=no ;;

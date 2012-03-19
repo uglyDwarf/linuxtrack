@@ -36,6 +36,10 @@ void ltr_int_printCmd(char *prefix, command_t cmd);
 void ltr_int_setWiiIndication(struct mmap_s *mmm, int new_ind);
 int ltr_int_getWiiIndication(struct mmap_s *mmm);
 int ltr_int_get_com_size();
+int ltr_int_getOptLevel(struct mmap_s *mmm);
+void ltr_int_setOptLevel(struct mmap_s *mmm, int new_opt);
+float ltr_int_getEff(struct mmap_s *mmm);
+void ltr_int_setEff(struct mmap_s *mmm, float new_eff);
 
 #ifdef __cplusplus
 }
