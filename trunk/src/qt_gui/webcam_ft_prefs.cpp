@@ -30,15 +30,6 @@ void WebcamFtPrefs::Connect()
 WebcamFtPrefs::WebcamFtPrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
 {
   Connect();
-  ltr_int_wc_init_prefs();
-  prefInit = true;
-  QString cascadePath(ltr_int_wc_get_cascade());
-  gui.CascadePath->setText(cascadePath);
-  int n = (2.0 / ltr_int_wc_get_eff()) - 2;
-  gui.ExpFilterFactor->setValue(n);
-  on_ExpFilterFactor_valueChanged(n);
-  gui.OptimLevel->setValue(ltr_int_wc_get_optim_level());
-  prefInit = false;
 }
 
 WebcamFtPrefs::~WebcamFtPrefs()
@@ -110,10 +101,10 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
       return false;
     }
   }
-//  if(!ltr_int_wc_init_prefs()){
-//    initializing = false;
-//    return false;
-//  }
+  if(!ltr_int_wc_init_prefs()){
+    initializing = false;
+    return false;
+  }
   currentId = ID;
   gui.WebcamFtFormats->clear();
   gui.WebcamFtResolutions->clear();
@@ -134,6 +125,12 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
       gui.WebcamFtFormats->setCurrentIndex(fmt_index);
     }
     on_WebcamFtFormats_activated(fmt_index);
+    QString cascadePath(ltr_int_wc_get_cascade());
+    gui.CascadePath->setText(cascadePath);
+    int n = (2.0 / ltr_int_wc_get_eff()) - 2;
+    gui.ExpFilterFactor->setValue(n);
+    on_ExpFilterFactor_valueChanged(n);
+    gui.OptimLevel->setValue(ltr_int_wc_get_optim_level());
   }
   initializing = false;
   return res;
@@ -186,7 +183,7 @@ void WebcamFtPrefs::on_FindCascade_pressed()
 
 void WebcamFtPrefs::on_CascadePath_editingFinished()
 {
-  if(!prefInit){
+  if(!initializing){
     ltr_int_wc_set_cascade(gui.CascadePath->text().toAscii().data());
   }
 }
@@ -195,14 +192,14 @@ void WebcamFtPrefs::on_ExpFilterFactor_valueChanged(int value)
 {
   float a = 2 / (value + 2.0); //EWMA window size
   gui.ExpFiltFactorVal->setText(QString("%1").arg(a, 0, 'g', 2));
-  if(!prefInit){
+  if(!initializing){
     ltr_int_wc_set_eff(a);
   }
 }
 
 void WebcamFtPrefs::on_OptimLevel_valueChanged(int value)
 {
-  if(!prefInit){
+  if(!initializing){
     ltr_int_wc_set_optim_level(value);
   }
 }
