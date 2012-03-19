@@ -2,9 +2,9 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <unistd.h>
-#include "ltlib_int.h"
 
 #ifndef LIBLINUXTRACK_SRC
+  #include "ltlib_int.h"
   #include "ipc_utils.h"
   #include "utils.h"
 #endif

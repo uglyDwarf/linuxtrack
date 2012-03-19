@@ -255,8 +255,6 @@ dbg_flag_type ltr_int_get_dbg_flag(const int flag)
   }
 }
 
-#endif
-
 void ltr_int_usleep(unsigned int usec)
 {
   struct timespec req, rem;
@@ -279,5 +277,7 @@ void ltr_int_usleep(unsigned int usec)
     }
   }
 }
+#endif
+
 
 
