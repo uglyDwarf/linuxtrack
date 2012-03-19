@@ -419,44 +419,71 @@ void ltr_int_free_prefs()
   }
 }
 
+bool ltr_int_add_new_custom_section(char *new_sec_name, char *name)
+{
+  if(!ltr_int_add_section(new_sec_name)){
+    ltr_int_log_message("Couldn't create new section '%s'!\n", new_sec_name);
+    return false;
+  }
+  if(!ltr_int_add_key(new_sec_name, "Title", name)){
+    ltr_int_log_message("Couldn't add Title key!\n");
+    return false;
+  }
+  return true;
+}
+
+
 bool ltr_int_set_custom_section(char *name)
 {
-  if(name != NULL){
-    assert(prefs_read_already);
-    assert(name != NULL);
-    //Find section with given title...
-    iterator i;
-    ltr_int_init_iterator(ltr_int_prefs, &i);
-    const char *title, *sec_name;
-    bool found = false;
-    pref_file_item *pfi;
-    while((pfi = (pref_file_item *)ltr_int_get_next(&i)) != NULL){
-      if(pfi->item_type == SECTION){
-        assert(pfi->section != NULL);
-        sec_name = pfi->section->name;
-        title = ltr_int_get_key(sec_name, "Title");
-        if(title != NULL){
-          if(strcasecmp(title, name) == 0){
-            found = true;
-            break;
-          }
-        }
+  if((custom_section_name != NULL) && (custom_section_name != def_section_name)){
+    free(custom_section_name);
+  }
+  if(name == NULL){
+    custom_section_name = def_section_name;
+    return true;
+  }
+  assert(prefs_read_already);
+  assert(name != NULL);
+  //Find section with given title...
+  iterator i;
+  ltr_int_init_iterator(ltr_int_prefs, &i);
+  const char *title, *sec_name;
+  bool found = false;
+  pref_file_item *pfi;
+  while((pfi = (pref_file_item *)ltr_int_get_next(&i)) != NULL){
+    if(pfi->item_type == SECTION){
+      assert(pfi->section != NULL);
+      sec_name = pfi->section->name;
+      title = ltr_int_get_key(sec_name, "Title");
+      if((title != NULL) && (strcasecmp(title, name) == 0)){
+        found = true;
+        break;
       }
     }
-    
-    if(found){
-      custom_section_name = ltr_int_my_strdup(sec_name);
-      ltr_int_log_message("Custom section '%s' found!\n", sec_name);
-    }else{
-      ltr_int_log_message("Attempted to set nonexistent section '%s'!\n", name);
-      return false;
-    }
-  }else{
-    if((custom_section_name != NULL) && (custom_section_name != def_section_name)){
-      free(custom_section_name);
-    }
-    custom_section_name = def_section_name;
   }
+  
+  if(found){
+    custom_section_name = ltr_int_my_strdup(sec_name);
+    ltr_int_log_message("Custom section '%s' found!\n", sec_name);
+    return true;
+  }
+  ltr_int_log_message("Attempted to set nonexistent section '%s', creating one!\n", name);
+  int j;
+  char *new_sec_name = NULL;
+  bool res;
+  for(j = 0; j < 100000; ++j){
+    asprintf(&new_sec_name, "Game%05d", j);
+    if((res = (!ltr_int_section_exists(new_sec_name)))){
+      break;
+    }
+    free(new_sec_name);
+  }
+      
+  if(res && ltr_int_add_new_custom_section(new_sec_name, name) && ltr_int_save_prefs()){
+    custom_section_name = new_sec_name;
+    return true;
+  }
+  custom_section_name = def_section_name;
   return true;
 }
 
