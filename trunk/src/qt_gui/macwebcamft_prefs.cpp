@@ -6,6 +6,7 @@
 #include "macwebcam_info.h"
 #include "ltr_gui_prefs.h"
 #include "wc_driver_prefs.h"
+#include <utils.h>
 
 static QString currentId = QString("None");
 static QString currentSection = QString();
@@ -137,7 +138,7 @@ void WebcamFtPrefs::on_FindCascade_pressed()
 {
   QString path = gui.CascadePathMac->text();
   if(path.isEmpty()){
-    path = "~";
+    path = QString(ltr_int_get_data_path(""));
   }else{
     QDir tmp(path);
     path = tmp.filePath(path);

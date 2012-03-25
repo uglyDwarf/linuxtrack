@@ -9,6 +9,7 @@ PREFIX=${BASE}/ltr
 LIB_DIR=ltr_gui.app/Contents/Frameworks
 BIN_DIR=ltr_gui.app/Contents/MacOS
 HELPER_DIR=ltr_gui.app/Contents/helper
+RSRC_DIR=ltr_gui.app/Contents/Resources
 WII_SRVR_DIR=
 export MACOSX_DEPLOYMENT_TARGET=10.4
 
@@ -89,6 +90,8 @@ cp -R ${PREFIX}/bin/sg_cam ${HELPER_DIR}
 find ${LIB_DIR} -type f -exec ${LTR_BASE}/deploy {} 'lib/:/Users/Michal/devel/ltr/lib' \;
 find ${BIN_DIR} -type f -exec ${LTR_BASE}/deploy {} 'lib/:/Users/Michal/devel/ltr/lib' \;
 find ${HELPER_DIR} -type f -exec ${LTR_BASE}/deploy {} 'lib/:/Users/Michal/devel/ltr/lib' \;
+
+cp -r ${PREFIX}/share/OpenCV/*cascades ${RSRC_DIR}/linuxtrack
 
 #Create archive image
 macdeployqt ltr_gui.app -no-strip
