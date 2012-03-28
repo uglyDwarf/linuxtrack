@@ -380,7 +380,7 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
   ltr_int_make_base(vec1, vec2, new_base);
   
 //  ltr_int_print_matrix(new_base, "new_base");
-  if(centering == true){
+  if((centering == true) && (ltr_int_is_matrix_finite(new_base))){
     ltr_int_assign_matrix(new_base, center_base);
   }
   
