@@ -230,11 +230,11 @@ static void iter_pose(struct bloblist_type blobs, double points[3][3], bool cent
   ltr_int_mul_vec(pp2, c, points[2]);
 
 /*   print_matrix(points, "alter92_result"); */
-//  #ifdef PT_DBG
+  #ifdef PT_DBG
     printf("RAW: %g %g %g\n", points[0][0], points[0][1], points[0][2]);
     printf("RAW: %g %g %g\n", points[1][0], points[1][1], points[1][2]);
     printf("RAW: %g %g %g\n", points[2][0], points[2][1], points[2][2]);
-//  #endif
+  #endif
 }
 
 
@@ -419,6 +419,7 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
   pitch *= 180.0 /M_PI;
   yaw *= 180.0 /M_PI;
   roll *= 180.0 /M_PI;
+  
 //  printf("Raw Pitch: %g   Yaw: %g  Roll: %g\n", pitch, yaw, roll);
   ltr_int_orig_pose.pitch = pitch;
   ltr_int_orig_pose.heading = yaw;
@@ -427,6 +428,13 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
   ltr_int_get_filter_factor(&filterfactor);
   static double filtered_angles[3] = {0.0f, 0.0f, 0.0f};
   static double filtered_translations[3] = {0.0f, 0.0f, 0.0f};
+  if(centering == true){
+    int i;
+    for(i = 0; i < 3; ++i){
+      filtered_angles[i] = filtered_translations[i] = 0.0f;
+    }
+  }
+
   double filter_factors_angles[3] = {filterfactor, filterfactor, filterfactor};
   double filter_factors_translations[3] = {filterfactor, filterfactor, filterfactor * 10};
   double raw_angles[3] = {pitch, yaw, roll};

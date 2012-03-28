@@ -305,6 +305,9 @@ double ltr_int_nonlinfilt(double x,
               double filterfactor) 
 {
   double y;
+  if(!ltr_int_is_finite(x)){
+    return y_minus_1;
+  }
   double delta = x - y_minus_1;
   y = y_minus_1 + delta * (fabsf(delta)/(fabsf(delta) + filterfactor));
 

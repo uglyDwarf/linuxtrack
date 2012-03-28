@@ -128,6 +128,7 @@ void WiiThread::pass_ir_data(struct cwiid_ir_src *data)
       ++valid;
     }
   }
+  bloblist.num_blobs = valid;
   ltr_int_setBlobs(mm, blobs_array, bloblist.num_blobs);
   if(!get_frame){
     ltr_int_setFrameFlag(mm);
