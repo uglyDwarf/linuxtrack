@@ -201,9 +201,12 @@ xlinuxtrack9_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@	$(pkglibdir)
 @LTR_PIPE_TRUE@am__EXEEXT_1 = ltr_pipe$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
-am__ltr_pipe_SOURCES_DIST = ltr_pipe.c linuxtrack.c
+am__ltr_pipe_SOURCES_DIST = ltr_pipe.c linuxtrack.h utils.h \
+	ipc_utils.h utils.c ipc_utils.c ltlib.c ltlib.h
 @LTR_PIPE_TRUE@am_ltr_pipe_OBJECTS = ltr_pipe-ltr_pipe.$(OBJEXT) \
-@LTR_PIPE_TRUE@	ltr_pipe-linuxtrack.$(OBJEXT)
+@LTR_PIPE_TRUE@	ltr_pipe-utils.$(OBJEXT) \
+@LTR_PIPE_TRUE@	ltr_pipe-ipc_utils.$(OBJEXT) \
+@LTR_PIPE_TRUE@	ltr_pipe-ltlib.$(OBJEXT)
 ltr_pipe_OBJECTS = $(am_ltr_pipe_OBJECTS)
 ltr_pipe_LDADD = $(LDADD)
 ltr_pipe_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
@@ -512,7 +515,7 @@ EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \
   xlinuxtrack.sym
 
 ltr_pipe_CPPFLAGS = $(am__append_12) $(am__append_13)
-@LTR_PIPE_TRUE@ltr_pipe_SOURCES = ltr_pipe.c linuxtrack.c
+@LTR_PIPE_TRUE@ltr_pipe_SOURCES = ltr_pipe.c linuxtrack.h utils.h ipc_utils.h utils.c ipc_utils.c ltlib.c ltlib.h
 @LTR_PIPE_TRUE@ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 @LTR_PIPE_TRUE@ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS}
 desktopdir = $(datadir)/applications
@@ -839,11 +842,23 @@ ltr_pipe-ltr_pipe.o: ltr_pipe.c
 ltr_pipe-ltr_pipe.obj: ltr_pipe.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-ltr_pipe.obj `if test -f 'ltr_pipe.c'; then $(CYGPATH_W) 'ltr_pipe.c'; else $(CYGPATH_W) '$(srcdir)/ltr_pipe.c'; fi`
 
-ltr_pipe-linuxtrack.o: linuxtrack.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-linuxtrack.o `test -f 'linuxtrack.c' || echo '$(srcdir)/'`linuxtrack.c
+ltr_pipe-utils.o: utils.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
 
-ltr_pipe-linuxtrack.obj: linuxtrack.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-linuxtrack.obj `if test -f 'linuxtrack.c'; then $(CYGPATH_W) 'linuxtrack.c'; else $(CYGPATH_W) '$(srcdir)/linuxtrack.c'; fi`
+ltr_pipe-utils.obj: utils.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
+
+ltr_pipe-ipc_utils.o: ipc_utils.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-ipc_utils.o `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
+
+ltr_pipe-ipc_utils.obj: ipc_utils.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-ipc_utils.obj `if test -f 'ipc_utils.c'; then $(CYGPATH_W) 'ipc_utils.c'; else $(CYGPATH_W) '$(srcdir)/ipc_utils.c'; fi`
+
+ltr_pipe-ltlib.o: ltlib.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-ltlib.o `test -f 'ltlib.c' || echo '$(srcdir)/'`ltlib.c
+
+ltr_pipe-ltlib.obj: ltlib.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-ltlib.obj `if test -f 'ltlib.c'; then $(CYGPATH_W) 'ltlib.c'; else $(CYGPATH_W) '$(srcdir)/ltlib.c'; fi`
 
 ltr_server-ltr_server.o: ltr_server.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server_CFLAGS) $(CFLAGS) -c -o ltr_server-ltr_server.o `test -f 'ltr_server.c' || echo '$(srcdir)/'`ltr_server.c

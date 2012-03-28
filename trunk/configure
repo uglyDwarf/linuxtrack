@@ -780,6 +780,8 @@ enable_xplane_plugin
 enable_ltr_pipe
 enable_snow_leopard
 enable_ltr_32lib_on_x64
+with_opencv_libs
+with_opencv_cflags
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1445,6 +1447,8 @@ Optional Packages:
   --with-sysroot=DIR Search for dependent libraries within DIR
                         (or the compiler's sysroot if not specified).
   --with-xplane-sdk       specify path to XPlane SDK [default=../SDK]
+  --with-opencv-libs      specify OpenCV libraries to link aginst
+  --with-opencv-cflags    specify OpenCV includes
 
 Some influential environment variables:
   CXX         C++ compiler command
@@ -16273,6 +16277,33 @@ fi
 #)
 
 
+if case $host_os in darwin*) true;; *) false;; esac; then :
+
+
+$as_echo "#define DARWIN /**/" >>confdefs.h
+
+    with_darwin=yes
+    OPENCV_LIBS=
+    OPENCV_CFLAGS=
+
+# Check whether --with-opencv-libs was given.
+if test "${with_opencv_libs+set}" = set; then :
+  withval=$with_opencv_libs; OPENCV_LIBS=${with_opencv_libs}
+
+fi
+
+
+# Check whether --with-opencv-cflags was given.
+if test "${with_opencv_cflags+set}" = set; then :
+  withval=$with_opencv_cflags; OPENCV_CFLAGS=${with_opencv_cflags}
+
+fi
+
+
+
+fi
+
+
 pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for OPENCV" >&5
 $as_echo_n "checking for OPENCV... " >&6; }
@@ -16348,15 +16379,6 @@ fi
 
 
 
-if case $host_os in darwin*) true;; *) false;; esac; then :
-
-
-$as_echo "#define DARWIN /**/" >>confdefs.h
-
-    with_darwin=yes
-
-
-fi
 
 case "$host_cpu" in
 i[3456]86) with_64_bit=no ;;

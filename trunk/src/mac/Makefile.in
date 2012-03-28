@@ -90,11 +90,11 @@ WiiServer_LINK = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 am_qt_cam_OBJECTS = qt_cam-qt_camera.$(OBJEXT) qt_cam-args.$(OBJEXT) \
 	qt_cam-buffer.$(OBJEXT) qt_cam-com_proc.$(OBJEXT) \
 	qt_cam-ipc_utils.$(OBJEXT) qt_cam-processing.$(OBJEXT) \
-	qt_cam-macwebcam.$(OBJEXT)
+	qt_cam-macwebcam.$(OBJEXT) qt_cam-facetrack.$(OBJEXT)
 qt_cam_OBJECTS = $(am_qt_cam_OBJECTS)
 qt_cam_DEPENDENCIES =
-qt_cam_LINK = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(OBJCLD) $(qt_cam_OBJCFLAGS) $(OBJCFLAGS) \
+qt_cam_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CXXLD) $(qt_cam_CXXFLAGS) $(CXXFLAGS) \
 	$(qt_cam_LDFLAGS) $(LDFLAGS) -o $@
 am_sg_cam_OBJECTS = sg_cam-sg_camera.$(OBJEXT) sg_cam-args.$(OBJEXT) \
 	sg_cam-buffer.$(OBJEXT) sg_cam-com_proc.$(OBJEXT) \
@@ -116,6 +116,15 @@ LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 OBJCCOMPILE = $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_OBJCFLAGS) $(OBJCFLAGS)
@@ -272,11 +281,12 @@ LEOPARD_LDFLAG = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk -mmacosx-version
 DARWINFLAGS = -undefined dynamic_lookup 
 @DARWIN_TRUE@pkglib_LTLIBRARIES = libmacwc.la
 qt_cam_SOURCES = qt_camera.m args.c args.h buffer.c buffer.h mac_camera.h ../com_proc.c \
-  com_proc.h ../ipc_utils.c ../ipc_utils.h processing.c processing.h macwebcam.c
+  com_proc.h ../ipc_utils.c ../ipc_utils.h processing.c processing.h macwebcam.c ../facetrack.cpp ../facetrack.h
 
-qt_cam_LDADD = -lltr -lobjc -lpthread
-qt_cam_LDFLAGS = ${AM_CFLAGS} ${LEOPARD_LDFLAG} -framework Cocoa -framework QTKit -framework QuartzCore
-qt_cam_CFLAGS = ${AM_CFLAGS} ${LEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
+qt_cam_LDADD = -lltr -lobjc -lpthread 
+qt_cam_LDFLAGS = ${AM_CFLAGS} ${LEOPARD_LDFLAG} -framework Cocoa -framework QTKit -framework QuartzCore $(OPENCV_LIBS) -headerpad_max_install_names
+qt_cam_CXXFLAGS = ${AM_CFLAGS} ${LEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..  -DOPENCV $(OPENCV_CFLAGS)
+qt_cam_CFLAGS = ${AM_CFLAGS} ${LEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..  -DOPENCV $(OPENCV_CFLAGS)
 qt_cam_OBJCFLAGS = ${AM_CFLAGS} ${LEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 sg_cam_SOURCES = sg_camera.c args.c args.h buffer.c buffer.h mac_camera.h ../com_proc.c \
   com_proc.h ../ipc_utils.c ../ipc_utils.h processing.c processing.h macwebcam.c
@@ -303,7 +313,7 @@ WiiServer_OBJCFLAGS = ${AM_CFLAGS} ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/.. -I.
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .lo .m .o .obj
+.SUFFIXES: .c .cpp .lo .m .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -518,6 +528,21 @@ sg_cam-macwebcam.o: macwebcam.c
 
 sg_cam-macwebcam.obj: macwebcam.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sg_cam_CFLAGS) $(CFLAGS) -c -o sg_cam-macwebcam.obj `if test -f 'macwebcam.c'; then $(CYGPATH_W) 'macwebcam.c'; else $(CYGPATH_W) '$(srcdir)/macwebcam.c'; fi`
+
+.cpp.o:
+	$(CXXCOMPILE) -c -o $@ $<
+
+.cpp.obj:
+	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+.cpp.lo:
+	$(LTCXXCOMPILE) -c -o $@ $<
+
+qt_cam-facetrack.o: ../facetrack.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(qt_cam_CXXFLAGS) $(CXXFLAGS) -c -o qt_cam-facetrack.o `test -f '../facetrack.cpp' || echo '$(srcdir)/'`../facetrack.cpp
+
+qt_cam-facetrack.obj: ../facetrack.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(qt_cam_CXXFLAGS) $(CXXFLAGS) -c -o qt_cam-facetrack.obj `if test -f '../facetrack.cpp'; then $(CYGPATH_W) '../facetrack.cpp'; else $(CYGPATH_W) '$(srcdir)/../facetrack.cpp'; fi`
 
 .m.o:
 	$(OBJCCOMPILE) -c -o $@ $<
