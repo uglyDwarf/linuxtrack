@@ -222,7 +222,8 @@ static int update_pose_3pt(struct frame_type *frame)
   if(tracking_dbg_flag == DBG_ON){
     unsigned int i;
     for(i = 0; i < frame->bloblist.num_blobs; ++i){
-      ltr_int_log_message("*DBG_t* %d: %g %g\n", i, frame->bloblist.blobs[i].x, frame->bloblist.blobs[i].y);
+      ltr_int_log_message("*DBG_t* %d: %g %g %d\n", i, frame->bloblist.blobs[i].x, frame->bloblist.blobs[i].y,
+                          frame->bloblist.blobs[i].score);
     }
   }
   
@@ -250,11 +251,11 @@ static int update_pose_3pt(struct frame_type *frame)
     translations[0] *= -1;
     translations[2] *= -1;
   }
-//  if(raw_dbg_flag == DBG_ON){
-//    printf("*DBG_r* yaw: %g pitch: %g roll: %g\n", angles[0], angles[1], angles[2]);
-//    ltr_int_log_message("*DBG_r* x: %g y: %g z: %g\n", 
-//                        translations[0], translations[1], translations[2]);
-//  }
+  if(raw_dbg_flag == DBG_ON){
+    printf("*DBG_r* yaw: %g pitch: %g roll: %g\n", angles[0], angles[1], angles[2]);
+    ltr_int_log_message("*DBG_r* x: %g y: %g z: %g\n", 
+                        translations[0], translations[1], translations[2]);
+  }
   
   return res;
 }
