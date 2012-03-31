@@ -3,7 +3,7 @@
 #include "facetrack.h"
 #include "wc_driver_prefs.h"
 
-#include <opencv/cv.h>
+#include <cv.h>
 
 #include <pthread.h>
 #include <string.h>
