@@ -4,7 +4,7 @@
 #include "ui_ltr_gui.h"
 #include "ui_ltr.h"
 #include <linuxtrack.h>
-
+#include <cal.h>
 #include <QThread>
 #include <QCloseEvent>
 #include "window.h"
@@ -13,6 +13,7 @@ class ScpForm;
 class LtrGuiForm;
 class QSettings;
 
+/*
 class CaptureThread : public QThread
 {
   Q_OBJECT
@@ -26,6 +27,7 @@ class CaptureThread : public QThread
   LtrGuiForm *parent;
   
 };
+*/
 
 class CameraView : public QWidget
 {
@@ -60,7 +62,8 @@ class LtrGuiForm : public QWidget
    void on_stopButton_pressed();
    void disableCamView_stateChanged(int state);
    void disable3DView_stateChanged(int state);
-   void stateChanged(ltr_state_type current_state);
+   void stateChangedz(int current_state);
+   void newFrameDelivered(struct frame_type *frame);
   protected:
    void closeEvent(QCloseEvent *event);
   private:

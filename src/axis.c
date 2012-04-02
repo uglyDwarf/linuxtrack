@@ -132,28 +132,6 @@ static bool save_val_str(enum axis_t id, axis_fields field, const char *val)
   return res;
 }
 
-void ltr_int_enable_axis(enum axis_t id)
-{
-  struct axis_def *axis = get_axis(id);
-  axis->enabled = true;
-  save_val_str(id, ENABLED, "Yes");
-  signal_change();
-}
-
-void ltr_int_disable_axis(enum axis_t id)
-{
-  struct axis_def *axis = get_axis(id);
-  axis->enabled = false;
-  save_val_str(id, ENABLED, "No");
-  signal_change();
-}
-
-bool ltr_int_is_enabled(enum axis_t id)
-{
-  struct axis_def *axis = get_axis(id);
-  return axis->enabled;
-}
-
 bool ltr_int_is_symetrical(enum axis_t id)
 {
   struct axis_def *axis = get_axis(id);
@@ -167,135 +145,118 @@ bool ltr_int_is_symetrical(enum axis_t id)
   }
 }
 
-bool ltr_int_set_deadzone(enum axis_t id, float dz)
-{
-  struct axis_def *axis = get_axis(id);
-  
-  axis->valid = false;
-  axis->curve_defs.dead_zone = dz;
-  save_val_flt(id, DEADZONE, dz);
-  signal_change();
-  
-  return true;
-}
-
-float ltr_int_get_deadzone(enum axis_t id)
-{
-  struct axis_def *axis = get_axis(id);
-  
-  return axis->curve_defs.dead_zone;
-}
-
-bool ltr_int_set_lcurv(enum axis_t id, float c)
+bool ltr_int_set_axis_param(enum axis_t id, enum axis_param_t param, float val)
 {
   struct axis_def *axis = get_axis(id);
   axis->valid = false;
-  axis->curve_defs.l_curvature = c;
-  save_val_flt(id, LCURV, c);
-  signal_change();
   
+  switch(param){
+    case AXIS_DEADZONE:
+      axis->curve_defs.dead_zone = val;
+      save_val_flt(id, DEADZONE, val);
+      signal_change();
+      break;
+    case AXIS_LCURV:
+      axis->curve_defs.l_curvature = val;
+      save_val_flt(id, LCURV, val);
+      signal_change();
+      break;
+    case AXIS_RCURV: 
+      axis->curve_defs.r_curvature = val;
+      save_val_flt(id, RCURV, val);
+      signal_change();
+      break;
+    case AXIS_LMULT:
+      axis->l_factor = val;
+      save_val_flt(id, LMULT, val);
+      signal_change();
+      break;
+    case AXIS_RMULT:
+      axis->r_factor = val;
+      save_val_flt(id, RMULT, val);
+      signal_change();
+      break;
+    case AXIS_LLIMIT:
+      axis->l_limit = val;
+      save_val_flt(id, LLIMIT, val);
+      signal_change();
+      break;
+    case AXIS_RLIMIT:
+      axis->r_limit = val;
+      save_val_flt(id, RLIMIT, val);
+      signal_change();
+      break;
+    default:
+      return false;
+      break;
+  }
   return true;
 }
 
-float ltr_int_get_lcurv(enum axis_t id)
+float ltr_int_get_axis_param(enum axis_t id, enum axis_param_t param)
 {
   struct axis_def *axis = get_axis(id);
-  
-  return axis->curve_defs.l_curvature;
+  switch(param){
+    case AXIS_DEADZONE: 
+      return axis->curve_defs.dead_zone;
+      break;
+    case AXIS_LCURV:
+      return axis->curve_defs.l_curvature;
+      break;
+    case AXIS_RCURV: 
+      return axis->curve_defs.r_curvature;
+      break;
+    case AXIS_LMULT:
+      return axis->l_factor;
+      break;
+    case AXIS_RMULT:
+      return axis->r_factor;
+      break;
+    case AXIS_LLIMIT:
+      return axis->l_limit;
+      break;
+    case AXIS_RLIMIT:
+      return axis->r_limit;
+      break;
+    default:
+      return 0.0;
+      break;
+  }
 }
 
-bool ltr_int_set_rcurv(enum axis_t id, float c)
+bool ltr_int_set_axis_bool_param(enum axis_t id, enum axis_param_t param, bool val)
 {
   struct axis_def *axis = get_axis(id);
-  
-  axis->valid = false;
-  axis->curve_defs.r_curvature = c;
-  save_val_flt(id, RCURV, c);
-  signal_change();
-  
+
+  switch(param){
+    case AXIS_ENABLED:
+      axis->enabled = val;
+      if(val){
+        save_val_str(id, ENABLED, "Yes");
+      }else{
+        save_val_str(id, ENABLED, "No");
+      }
+      signal_change();
+      break;
+    default:
+      return false;
+      break;
+  }
   return true;
 }
 
-float ltr_int_get_rcurv(enum axis_t id)
+bool ltr_int_get_axis_bool_param(enum axis_t id, enum axis_param_t param)
 {
   struct axis_def *axis = get_axis(id);
-  
-  return axis->curve_defs.r_curvature;
-}
-
-bool ltr_int_set_lmult(enum axis_t id, float m1)
-{
-  struct axis_def *axis = get_axis(id);
-  
-  axis->valid = false;
-  axis->l_factor = m1;
-  save_val_flt(id, LMULT, m1);
-  signal_change();
-  
-  return true;
-}
-
-float ltr_int_get_lmult(enum axis_t id)
-{
-  struct axis_def *axis = get_axis(id);
-  
-  return axis->l_factor;
-}
-
-bool ltr_int_set_rmult(enum axis_t id, float m1)
-{
-  struct axis_def *axis = get_axis(id);
-  
-  axis->valid = false;
-  axis->r_factor = m1;
-  save_val_flt(id, RMULT, m1);
-  signal_change();
-  
-  return true;
-}
-
-float ltr_int_get_rmult(enum axis_t id)
-{
-  struct axis_def *axis = get_axis(id);
-  
-  return axis->r_factor;
-}
-
-bool ltr_int_set_rlimit(enum axis_t id, float lim)
-{
-  struct axis_def *axis = get_axis(id);
-  
-  axis->valid = false;
-  axis->r_limit = lim;
-  save_val_flt(id, RLIMIT, lim);
-  signal_change();
-  
-  return true;
-}
-
-float ltr_int_get_rlimit(enum axis_t id)
-{
-  struct axis_def *axis = get_axis(id);
-  
-  return axis->r_limit;
-}
-
-bool ltr_int_set_llimit(enum axis_t id, float lim)
-{
-  struct axis_def *axis = get_axis(id);
-  
-  axis->valid = false;
-  axis->l_limit = lim;
-  save_val_flt(id, LLIMIT, lim);
-  signal_change();
-  
-  return true;
-}
-
-float ltr_int_get_llimit(enum axis_t id)
-{
-  struct axis_def *axis = get_axis(id);
-  return axis->l_limit;
+  switch(param){
+    case AXIS_ENABLED:
+      return axis->enabled;
+      break;
+    default:
+      return false;
+      break;
+  }
+  return false;
 }
 
 void ltr_int_init_axis(struct axis_def *axis, const char *prefix)

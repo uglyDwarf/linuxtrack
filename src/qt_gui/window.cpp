@@ -2,12 +2,18 @@
 
  #include "glwidget.h"
  #include "window.h"
-#include <ltlib_int.h>
+#include <ltlib.h>
 #include <iostream>
-Window::Window(QWidget *t, QCheckBox *b) : tab(t), control(b), constructed(false)
+
+Window::Window(QWidget *t, QCheckBox *b) : glWidget(NULL), tab(t), control(b), constructed(false)
 {
   dynamic_cast<QTabWidget*>(tab)->setTabEnabled(1, false);
   prepare_widget();
+}
+
+Window::~Window()
+{
+  close_widget();
 }
 
 void Window::prepare_widget()
@@ -16,6 +22,7 @@ void Window::prepare_widget()
     return;
   }
   if(!constructed){
+    inConstruction = true;
     control->setEnabled(false);
     dynamic_cast<QTabWidget*>(tab)->setTabEnabled(1, false);
     glWidget = new GLWidget;
@@ -26,21 +33,24 @@ void Window::prepare_widget()
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update_pic()));
     connect(glWidget, SIGNAL(ready()), this, SLOT(start_widget()));
+    connect(&TRACKER, SIGNAL(newPose(pose_t *)), this, SLOT(newPose(pose_t *)));
   }
 }
 
 void Window::close_widget()
 {
   if(constructed){
-    control->setEnabled(false);
-    timer->stop();
     disconnect(timer, SIGNAL(timeout()), this, SLOT(update_pic()));
     disconnect(glWidget, SIGNAL(ready()), this, SLOT(start_widget()));
+    control->setEnabled(false);
+    timer->stop();
     dynamic_cast<QTabWidget*>(tab)->setTabEnabled(1, false);
-    delete mainLayout;
-    delete glWidget;
     constructed = false;
     control->setEnabled(true);
+  }
+  delete mainLayout;
+  if(glWidget != NULL){
+    delete glWidget;
   }
 }
 
@@ -48,23 +58,23 @@ void Window::start_widget()
 {
   timer->start(20);
   dynamic_cast<QTabWidget*>(tab)->setTabEnabled(1, true);
+  inConstruction = false;
   constructed = true;
   control->setEnabled(true);
 }
 
+void Window::newPose(pose_t *p)
+{
+  glWidget->setXRotation(p->pitch);
+  glWidget->setYRotation(p->yaw);
+  glWidget->setZRotation(p->roll);
+  glWidget->setXTrans(p->tx/1000.0);
+  glWidget->setYTrans(p->ty/1000.0);
+  glWidget->setZTrans(p->tz/1000.0);
+}
+
 void Window::update_pic()
 {
-  float h,p,r;
-  float x,y,z;
-  unsigned int counter;
-  if(ltr_int_get_camera_update(&h, &p, &r, &x, &y, &z, &counter) != -1){
-    glWidget->setXRotation(p);
-    glWidget->setYRotation(h);
-    glWidget->setZRotation(r);
-    glWidget->setXTrans(x/1000.0);
-    glWidget->setYTrans(y/1000.0);
-    glWidget->setZTrans(z/1000.0);
-    glWidget->updateGL();
-  }
+  glWidget->updateGL();
 }
 

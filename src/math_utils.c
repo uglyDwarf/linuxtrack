@@ -216,6 +216,29 @@ Bezier usage example
   y = bezier(x, &b);
 */
 
+bool ltr_int_is_matrix_finite(double matrix[3][3])
+{
+  if(ltr_int_is_finite(matrix[0][0]) && ltr_int_is_finite(matrix[0][1]) &&
+     ltr_int_is_finite(matrix[0][2]) && ltr_int_is_finite(matrix[1][0]) &&
+     ltr_int_is_finite(matrix[1][1]) && ltr_int_is_finite(matrix[1][2]) &&
+     ltr_int_is_finite(matrix[2][0]) && ltr_int_is_finite(matrix[2][1]) &&
+     ltr_int_is_finite(matrix[2][2])){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+bool ltr_int_is_vector_finite(double vec[3])
+{
+  if(ltr_int_is_finite(vec[0]) && ltr_int_is_finite(vec[1]) &&
+     ltr_int_is_finite(vec[2])){
+    return true;
+  }else{
+    return false;
+  }
+}
+
 bool ltr_int_is_finite(double f)
 {
   if(finite(f) != 0){

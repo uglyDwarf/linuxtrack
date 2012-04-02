@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "pose.h"
 #include "math_utils.h"
-#include <tracking.h>
+#include "tracking.h"
 #include "cal.h"
 #include "utils.h"
 #include "pref_global.h"
@@ -24,8 +24,6 @@ static double center_ref[3] = {0.0, 0.0, 0.0};
 static double center_base[3][3];
 
 static enum {M_CAP, M_CLIP, M_SINGLE, M_FACE} type;
-
-extern struct current_pose ltr_int_orig_pose;
 
 void ltr_int_pose_init(struct reflector_model_type rm)
 {
@@ -230,11 +228,11 @@ static void iter_pose(struct bloblist_type blobs, double points[3][3], bool cent
   ltr_int_mul_vec(pp2, c, points[2]);
 
 /*   print_matrix(points, "alter92_result"); */
-//  #ifdef PT_DBG
+  #ifdef PT_DBG
     printf("RAW: %g %g %g\n", points[0][0], points[0][1], points[0][2]);
     printf("RAW: %g %g %g\n", points[1][0], points[1][1], points[1][2]);
     printf("RAW: %g %g %g\n", points[2][0], points[2][1], points[2][2]);
-//  #endif
+  #endif
 }
 
 
@@ -352,7 +350,7 @@ void ltr_int_pose_sort_blobs(struct bloblist_type bl)
 
 
 bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
-                        struct current_pose *pose, bool centering)
+                        pose_t *pose, bool centering)
 {
 //  double points[3][3];
   double points[3][3] = {{28.35380,    -1.24458,    -0.11606},
@@ -380,7 +378,7 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
   ltr_int_make_base(vec1, vec2, new_base);
   
 //  ltr_int_print_matrix(new_base, "new_base");
-  if(centering == true){
+  if((centering == true) && (ltr_int_is_matrix_finite(new_base))){
     ltr_int_assign_matrix(new_base, center_base);
   }
   
@@ -419,14 +417,28 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
   pitch *= 180.0 /M_PI;
   yaw *= 180.0 /M_PI;
   roll *= 180.0 /M_PI;
+  
 //  printf("Raw Pitch: %g   Yaw: %g  Roll: %g\n", pitch, yaw, roll);
-  ltr_int_orig_pose.pitch = pitch;
-  ltr_int_orig_pose.heading = yaw;
-  ltr_int_orig_pose.roll = roll;
+
+  pose->pitch = pitch;
+  pose->yaw = yaw;
+  pose->roll = roll;
+  pose->tx = displacement[0];
+  pose->ty = displacement[1];
+  pose->tz = displacement[2];
+  
+/*  
   static float filterfactor=1.0;
   ltr_int_get_filter_factor(&filterfactor);
   static double filtered_angles[3] = {0.0f, 0.0f, 0.0f};
   static double filtered_translations[3] = {0.0f, 0.0f, 0.0f};
+  if(centering == true){
+    int i;
+    for(i = 0; i < 3; ++i){
+      filtered_angles[i] = filtered_translations[i] = 0.0f;
+    }
+  }
+
   double filter_factors_angles[3] = {filterfactor, filterfactor, filterfactor};
   double filter_factors_translations[3] = {filterfactor, filterfactor, filterfactor * 10};
   double raw_angles[3] = {pitch, yaw, roll};
@@ -454,9 +466,9 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
   pose->tx = ltr_int_val_on_axis(TX, filtered_translations[0]);
   pose->ty = ltr_int_val_on_axis(TY, filtered_translations[1]);
   pose->tz = ltr_int_val_on_axis(TZ, filtered_translations[2]);
-
 //  ltr_int_print_vec(displacement, "tr");
   printf("%f %f %f  %f %f %f\n", pose->pitch, pose->heading, pose->roll, pose->tx, pose->ty, pose->tz);
+*/
   return true;
 }
 

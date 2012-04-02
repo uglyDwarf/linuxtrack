@@ -33,5 +33,7 @@ void ltr_int_add_vecs(double vec1[3],double vec2[3],double res[3]);
 bool ltr_int_make_bez(double deadzone, double k, bez_def *b);
 double ltr_int_bezier(double x, bez_def *b);
 bool ltr_int_is_finite(double f);
+bool ltr_int_is_vector_finite(double vec[3]);
+bool ltr_int_is_matrix_finite(double matrix[3][3]);
 double clamp_angle(double angle);
 #endif
