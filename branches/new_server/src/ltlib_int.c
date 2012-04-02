@@ -1,5 +1,6 @@
 
 //#include <stdarg.h>
+#include <pthread.h>
 #include "pref_global.h"
 #include "utils.h" 
 #include "pref_int.h"

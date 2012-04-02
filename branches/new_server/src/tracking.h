@@ -1,24 +1,15 @@
 #ifndef TRACKING__H
 #define TRACKING__H
 
-#include <pthread.h>
 #include <stdbool.h>
 #include "cal.h"
+#include "ltlib.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct current_pose{
-  double heading;
-  double pitch;
-  double roll;
-  double tx;
-  double ty;
-  double tz;
-};
-
-extern struct current_pose ltr_int_orig_pose;
+extern pose_t ltr_int_orig_pose;
 
 bool ltr_int_init_tracking();
 int ltr_int_update_pose(struct frame_type *frame);
@@ -30,6 +21,7 @@ int ltr_int_tracking_get_camera(float *heading,
                       float *ty,
                       float *tz,
                       unsigned int *counter);
+bool ltr_int_postprocess_axes(pose_t *pose);
 
 double ltr_int_nonlinfilt(double x, 
               double y_minus_1,

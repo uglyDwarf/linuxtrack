@@ -14,25 +14,26 @@ int main(int argc, char *argv[]) {
   unsigned int counter;
   int retval;
 
-  retval = ltr_init("default");
+  retval = ltr_init("Default");
   ltr_int_usleep(3000000);
   if (retval != 0) { 
     printf("Error %d detected! Aborting!\n", retval);
     return retval; 
   };  
+  printf("Trying to recenter!\n");
   ltr_recenter();
   int cntr=0; 
-  while (++cntr < 300) {
+  while (++cntr < 600) {
     retval = ltr_get_camera_update(&heading,&pitch,&roll,
                                   &tx, &ty, &tz, &counter);
     if (retval < 0) {
       printf("Not updated!\n"); 
-      ltr_int_usleep(90000);
+      ltr_int_usleep(100000);
       continue; 
     }
     printf("heading: %f\tpitch: %f\troll: %f\n", heading, pitch, roll);
     printf("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);
-    ltr_int_usleep(9000);
+    ltr_int_usleep(100000);
   }
   ltr_suspend();
   printf("Suspended\n");
@@ -40,17 +41,17 @@ int main(int argc, char *argv[]) {
   printf("Waking up\n");
   ltr_wakeup();
   cntr = 0;
-  while (++cntr < 100) {
+  while (++cntr < 600) {
     retval = ltr_get_camera_update(&heading,&pitch,&roll,
                                   &tx, &ty, &tz, &counter);
     if (retval < 0) {
       printf("Not updated!\n"); 
-      ltr_int_usleep(90000);
+      ltr_int_usleep(100000);
       continue; 
     }
     printf("heading: %f\tpitch: %f\troll: %f\n", heading, pitch, roll);
     printf("tx: %f\ty: %f\tz: %f\n", tx, ty, tz);
-    ltr_int_usleep(9000);
+    ltr_int_usleep(100000);
   }
   ltr_shutdown();
   return 0;

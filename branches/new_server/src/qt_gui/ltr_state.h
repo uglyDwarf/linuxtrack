@@ -12,7 +12,7 @@ class TrackerState : public QObject{
   Q_OBJECT
  public:
   static TrackerState& trackerStateInst();
-  ltr_state_type getCurrentState();
+  //ltr_state_type getCurrentState();
  private:
   TrackerState();
   ~TrackerState();

@@ -29,12 +29,20 @@ man_MANS = ltr_gui.1 ltr_server.1
 
 lib_LTLIBRARIES = liblinuxtrack.la
 pkglib_LTLIBRARIES = libltr.la libmacwii.la
-bin_PROGRAMS = ltr_server
+bin_PROGRAMS = ltr_server ltr_server1
 
 ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
 ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server_LDADD = -lpthread libltr.la
 ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG} ${LTR_SERVER_FLAGS}
+
+ltr_server1_SOURCES = ltr_srv_comm.c ltr_srv_comm.h ltr_srv_slave.c ltr_srv_slave.h \
+	ltr_srv_master.c ltr_srv_master.h ltr_server1.c
+ltr_server1_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+ltr_server1_LDADD = -lpthread libltr.la
+ltr_server1_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG} ${LTR_SERVER_FLAGS}
+	
+
 
 if CWIID
   pkglib_LTLIBRARIES += libwii.la
@@ -133,6 +141,7 @@ libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG}
 
 libft_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h facetrack.cpp facetrack.h
 libft_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
+libft_la_CXXFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_LIBADD = libltr.la -lv4l2 $(OPENCV_LIBS)
 libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
 

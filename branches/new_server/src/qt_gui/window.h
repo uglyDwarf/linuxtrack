@@ -5,6 +5,7 @@
  #include <QHBoxLayout>
  #include <QTimer>
  #include <QCheckBox>
+ #include "tracker.h"
  
  class GLWidget;
 
@@ -14,11 +15,13 @@
 
  public:
   Window(QWidget *t, QCheckBox *b);
+  ~Window();
   void prepare_widget();
   void close_widget();
  private slots:
   void update_pic();
   void start_widget();
+  void newPose(pose_t *p);
  private:
   GLWidget *glWidget;
   QTimer *timer;
@@ -26,6 +29,8 @@
   QHBoxLayout *mainLayout;
   QCheckBox *control;
   bool constructed;
+  bool inConstruction;
+  pose_t pose;
  };
 
  #endif

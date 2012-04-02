@@ -48,7 +48,10 @@ GLWidget::GLWidget(QWidget *parent)
 
  GLWidget::~GLWidget()
  {
-     rt->terminate();
+     //rt->terminate();
+     if(rt->isRunning()){
+       rt->wait();
+     }
      makeCurrent();
      std::vector<GLuint>::iterator i;
      for(i = objects.begin(); i != objects.end(); ++i){

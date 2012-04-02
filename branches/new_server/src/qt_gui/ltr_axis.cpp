@@ -21,18 +21,14 @@ void LtrAxis::reload()
 
 bool LtrAxis::changeEnabled(bool enabled)
 {
-  if(enabled){
-    ltr_int_enable_axis(axis);
-  }else{
-    ltr_int_disable_axis(axis);
-  }
+  ltr_int_set_axis_bool_param(axis, AXIS_ENABLED, enabled);
   emit axisChanged(ENABLED);
   return true; 
 }
 
 bool LtrAxis::changeLFactor(float val)
 {
-  bool res = ltr_int_set_lmult(axis, val);
+  bool res = ltr_int_set_axis_param(axis, AXIS_LMULT, val);
   if(res){
     emit axisChanged(LFACTOR);
   }
@@ -41,7 +37,7 @@ bool LtrAxis::changeLFactor(float val)
 
 bool LtrAxis::changeRFactor(float val)
 {
-  bool res = ltr_int_set_rmult(axis, val);
+  bool res = ltr_int_set_axis_param(axis, AXIS_RMULT, val);
   if(res){
     emit axisChanged(RFACTOR);
   }
@@ -50,7 +46,7 @@ bool LtrAxis::changeRFactor(float val)
 
 bool LtrAxis::changeLCurv(float val)
 {
-  bool res = ltr_int_set_lcurv(axis, val);
+  bool res = ltr_int_set_axis_param(axis, AXIS_LCURV, val);
   if(res){
     emit axisChanged(LCURV);
   }
@@ -59,7 +55,7 @@ bool LtrAxis::changeLCurv(float val)
 
 bool LtrAxis::changeRCurv(float val)
 {
-  bool res = ltr_int_set_rcurv(axis, val);
+  bool res = ltr_int_set_axis_param(axis, AXIS_RCURV, val);
   if(res){
     emit axisChanged(RCURV);
   }
@@ -68,7 +64,7 @@ bool LtrAxis::changeRCurv(float val)
 
 bool LtrAxis::changeDZone(float val)
 {
-  bool res = ltr_int_set_deadzone(axis, val);
+  bool res = ltr_int_set_axis_param(axis, AXIS_DEADZONE, val);
   if(res){
     emit axisChanged(DZONE);
   }
@@ -77,7 +73,7 @@ bool LtrAxis::changeDZone(float val)
 
 bool LtrAxis::changeLLimit(float val)
 {
-  bool res = ltr_int_set_llimit(axis, val);
+  bool res = ltr_int_set_axis_param(axis, AXIS_LLIMIT, val);
   if(res){
     emit axisChanged(LLIMIT);
   }
@@ -86,7 +82,7 @@ bool LtrAxis::changeLLimit(float val)
 
 bool LtrAxis::changeRLimit(float val)
 {
-  bool res = ltr_int_set_rlimit(axis, val);
+  bool res = ltr_int_set_axis_param(axis, AXIS_RLIMIT, val);
   if(res){
     emit axisChanged(RLIMIT);
   }
@@ -95,42 +91,42 @@ bool LtrAxis::changeRLimit(float val)
 
 bool LtrAxis::getEnabled()
 {
-  return ltr_int_is_enabled(axis);
+  return ltr_int_get_axis_bool_param(axis, AXIS_ENABLED);
 }
 
 float LtrAxis::getLFactor()
 {
-  return ltr_int_get_lmult(axis);
+  return ltr_int_get_axis_param(axis, AXIS_LMULT);
 }
 
 float LtrAxis::getRFactor()
 {
-  return ltr_int_get_rmult(axis);
+  return ltr_int_get_axis_param(axis, AXIS_RMULT);
 }
 
 float LtrAxis::getLCurv()
 {
-  return ltr_int_get_lcurv(axis);
+  return ltr_int_get_axis_param(axis, AXIS_LCURV);
 }
 
 float LtrAxis::getRCurv()
 {
-  return ltr_int_get_rcurv(axis);
+  return ltr_int_get_axis_param(axis, AXIS_RCURV);
 }
 
 float LtrAxis::getDZone()
 {
-  return ltr_int_get_deadzone(axis);
+  return ltr_int_get_axis_param(axis, AXIS_DEADZONE);
 }
 
 float LtrAxis::getLLimit()
 {
-  return ltr_int_get_llimit(axis);
+  return ltr_int_get_axis_param(axis, AXIS_LLIMIT);
 }
 
 float LtrAxis::getRLimit()
 {
-  return ltr_int_get_rlimit(axis);
+  return ltr_int_get_axis_param(axis, AXIS_RLIMIT);
 }
 
 float LtrAxis::getValue(float val)

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <pthread.h>
 #include "tracking.h"
 #include "math_utils.h"
 #include "pose.h"
@@ -9,13 +10,13 @@
 /* private Static members */
 /**************************/
 
-static struct bloblist_type filtered_bloblist;
-static struct blob_type filtered_blobs[3];
-static bool first_frame = true;
+//static struct bloblist_type filtered_bloblist;
+//static struct blob_type filtered_blobs[3];
+//static bool first_frame = true;
 static bool recenter = false;
 static float cam_distance = 1000.0f;
 
-struct current_pose ltr_int_orig_pose;
+pose_t ltr_int_orig_pose;
 
 /*******************************/
 /* private function prototypes */
@@ -72,9 +73,9 @@ bool ltr_int_init_tracking()
     return false;
   }
   ltr_int_init_axes();
-  filtered_bloblist.num_blobs = 3;
-  filtered_bloblist.blobs = filtered_blobs;
-  first_frame = true;
+//  filtered_bloblist.num_blobs = 3;
+//  filtered_bloblist.blobs = filtered_blobs;
+//  first_frame = true;
   ltr_int_log_message("Tracking initialized!\n");
   tracking_initialized = true;
   return true;
@@ -168,8 +169,10 @@ static int update_pose_1pt(struct frame_type *frame)
     c_x = frame->bloblist.blobs[0].x;
     c_y = frame->bloblist.blobs[0].y;
     c_z = cam_distance * sqrtf((float)frame->bloblist.blobs[0].score);
+    printf("Recentering! c_z = %f\n", c_z);
   }
-  
+//printf("cz = %f, z = %f\n", c_z, sqrtf((float)frame->bloblist.blobs[0].score));
+  pthread_mutex_lock(&pose_mutex);
   angles[0] = c_y - frame->bloblist.blobs[0].y;
   angles[1] = frame->bloblist.blobs[0].x - c_x;
   angles[2] = 0.0f;
@@ -184,6 +187,9 @@ static int update_pose_1pt(struct frame_type *frame)
   if(behind){
     angles[0] *= -1;
   }
+  
+  pthread_mutex_unlock(&pose_mutex);
+/*
   ltr_int_orig_pose.pitch = angles[0];
   ltr_int_orig_pose.heading = angles[1];
   ltr_int_orig_pose.roll = 0;
@@ -200,6 +206,7 @@ static int update_pose_1pt(struct frame_type *frame)
   angles[0] = clamp_angle(ltr_int_val_on_axis(PITCH, filtered[0]));
   angles[1] = clamp_angle(ltr_int_val_on_axis(PITCH, filtered[1]));
   translations[2] = ltr_int_val_on_axis(TZ, filtered[2]);
+*/
   return 0;
 }
 
@@ -222,7 +229,8 @@ static int update_pose_3pt(struct frame_type *frame)
   if(tracking_dbg_flag == DBG_ON){
     unsigned int i;
     for(i = 0; i < frame->bloblist.num_blobs; ++i){
-      ltr_int_log_message("*DBG_t* %d: %g %g\n", i, frame->bloblist.blobs[i].x, frame->bloblist.blobs[i].y);
+      ltr_int_log_message("*DBG_t* %d: %g %g %d\n", i, frame->bloblist.blobs[i].x, frame->bloblist.blobs[i].y,
+                          frame->bloblist.blobs[i].score);
     }
   }
   
@@ -234,10 +242,11 @@ static int update_pose_3pt(struct frame_type *frame)
   ltr_int_pose_sort_blobs(frame->bloblist);
 
   int res = 0;
-  struct current_pose t;
+  pose_t t;
   ltr_int_pose_process_blobs(frame->bloblist, &t, recentering);
+  pthread_mutex_lock(&pose_mutex);
   angles[0] = t.pitch;
-  angles[1] = t.heading;
+  angles[1] = t.yaw;
   angles[2] = t.roll;
   translations[0] = t.tx;
   translations[1] = t.ty;
@@ -250,13 +259,60 @@ static int update_pose_3pt(struct frame_type *frame)
     translations[0] *= -1;
     translations[2] *= -1;
   }
-//  if(raw_dbg_flag == DBG_ON){
-//    printf("*DBG_r* yaw: %g pitch: %g roll: %g\n", angles[0], angles[1], angles[2]);
-//    ltr_int_log_message("*DBG_r* x: %g y: %g z: %g\n", 
-//                        translations[0], translations[1], translations[2]);
-//  }
+  pthread_mutex_unlock(&pose_mutex);
+  if(raw_dbg_flag == DBG_ON){
+    printf("*DBG_r* yaw: %g pitch: %g roll: %g\n", angles[0], angles[1], angles[2]);
+    ltr_int_log_message("*DBG_r* x: %g y: %g z: %g\n", 
+                        translations[0], translations[1], translations[2]);
+  }
   
   return res;
+}
+
+bool ltr_int_postprocess_axes(pose_t *pose)
+{
+//  printf(">>%f %f %f  %f %f %f\n", pose->pitch, pose->heading, pose->roll, pose->tx, pose->ty, pose->tz);
+  static bool init = true;
+  if(init){
+    ltr_int_init_axes();
+    init = false;
+  }
+  static float filterfactor=1.0;
+  ltr_int_get_filter_factor(&filterfactor);
+  static double filtered_angles[3] = {0.0f, 0.0f, 0.0f};
+  static double filtered_translations[3] = {0.0f, 0.0f, 0.0f};
+  double filter_factors_angles[3] = {filterfactor, filterfactor, filterfactor};
+  double filter_factors_translations[3] = {filterfactor, filterfactor, filterfactor * 10};
+  double raw_angles[3] = {pose->pitch, pose->yaw, pose->roll};
+  ltr_int_nonlinfilt_vec(raw_angles, filtered_angles, filter_factors_angles, filtered_angles);
+  
+  pose->pitch = clamp_angle(ltr_int_val_on_axis(PITCH, filtered_angles[0]));
+  pose->yaw = clamp_angle(ltr_int_val_on_axis(YAW, filtered_angles[1]));
+  pose->roll = clamp_angle(ltr_int_val_on_axis(ROLL, filtered_angles[2]));
+//  printf("Pitch: %g   Yaw: %g  Roll: %g\n", pose->pitch, pose->heading, pose->roll);
+  
+  double rotated[3];
+  double transform[3][3];
+  double displacement[3] = {pose->tx, pose->ty, pose->tz};
+//  ltr_int_euler_to_matrix(pitch / 180.0 * M_PI, yaw / 180.0 * M_PI, 
+//                          roll / 180.0 * M_PI, transform);
+  ltr_int_euler_to_matrix(pose->pitch / 180.0 * M_PI, pose->yaw / 180.0 * M_PI, 
+                          pose->roll / 180.0 * M_PI, transform);
+  ltr_int_matrix_times_vec(transform, displacement, rotated);
+//  ltr_int_print_matrix(transform, "trf");
+//  ltr_int_print_vec(displacement, "mv");
+//  ltr_int_print_vec(rotated, "rotated");
+  ltr_int_nonlinfilt_vec(rotated, filtered_translations, filter_factors_translations, 
+        filtered_translations);
+  //ltr_int_orig_pose.tx = rotated[0];
+  //ltr_int_orig_pose.ty = rotated[1];
+  //ltr_int_orig_pose.tz = rotated[2];
+  pose->tx = ltr_int_val_on_axis(TX, filtered_translations[0]);
+  pose->ty = ltr_int_val_on_axis(TY, filtered_translations[1]);
+  pose->tz = ltr_int_val_on_axis(TZ, filtered_translations[2]);
+//  ltr_int_print_vec(displacement, "tr");
+//  printf(">>>%f %f %f  %f %f %f\n", pose->pitch, pose->heading, pose->roll, pose->tx, pose->ty, pose->tz);
+  return true;
 }
 
 
@@ -305,6 +361,9 @@ double ltr_int_nonlinfilt(double x,
               double filterfactor) 
 {
   double y;
+  if(!ltr_int_is_finite(x)){
+    return y_minus_1;
+  }
   double delta = x - y_minus_1;
   y = y_minus_1 + delta * (fabsf(delta)/(fabsf(delta) + filterfactor));
 

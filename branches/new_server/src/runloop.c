@@ -7,7 +7,8 @@
 
 static pthread_cond_t state_cv = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t state_mx = PTHREAD_MUTEX_INITIALIZER;
-bool change_flag = false;
+static bool change_flag = false;
+static struct frame_type frame;
 
 int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
 {
@@ -15,7 +16,6 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   assert(cbk != NULL);
   int retval;
   enum ltr_request_t my_request;
-  struct frame_type frame;
   bool stop_flag = false;
   unsigned int counter = 0;
   

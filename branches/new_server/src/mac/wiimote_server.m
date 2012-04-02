@@ -169,11 +169,11 @@ static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII
       ++valid;
     }
   }
+  bloblist.num_blobs = valid;
   ltr_int_setBlobs(mmm, blobs_array, bloblist.num_blobs);
   if(!get_frame){
     ltr_int_setFrameFlag(mmm);
   }
-
 }
 
 -(void) awakeFromNib

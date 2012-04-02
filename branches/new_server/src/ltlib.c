@@ -33,7 +33,7 @@ int ltr_init(char *cust_section)
   struct ltr_comm *com = mmm.data;
   com->preparing_start = true;
   initialized = true;
-  char *server = ltr_int_get_app_path("/ltr_server");
+  char *server = ltr_int_get_app_path("/ltr_server1");
   char *args[] = {server, cust_section, NULL};
   ltr_int_fork_child(args);
   free(server);
