@@ -4,6 +4,8 @@
 #include "ltr_srv_comm.h"
 
 #include <pthread.h>
+#include <time.h>
+#include <sys/time.h>
 #include <poll.h>
 #include <unistd.h>
 #include <errno.h>
@@ -97,6 +99,7 @@ void ltr_int_set_callback_hooks(ltr_new_frame_callback_t nfh, ltr_status_update_
   status_update_hook = suh;
 }
 
+
 static void new_frame(struct frame_type *frame, void *param)
 {
   (void)frame;
@@ -157,11 +160,20 @@ void *master_writer_thread(void *param)
     printf("Couldn't register! There will not be possibility to change prefs for %s (%p)!\n",
       slave_data->profile_name, slave_data->profile_name);
   }
+  if(sd_array_empty()){
+    printf("Problem registering writer!\n");
+  }
   pose_t local_pose;
   while(!stop_master_threads){
     pthread_mutex_lock(&new_data_mx);
     while(local_pose.counter == current_pose.counter){
-      pthread_cond_wait(&new_data_cv, &new_data_mx);
+      if(stop_master_threads){
+        break;
+      }
+      struct timeval now;
+      gettimeofday(&now, NULL);
+      struct timespec timeout = {.tv_sec = now.tv_sec + 1, .tv_nsec = now.tv_usec * 1000};
+      pthread_cond_timedwait(&new_data_cv, &new_data_mx, &timeout);
     }
     local_pose = current_pose;
     pthread_mutex_unlock(&new_data_mx);
@@ -246,10 +258,12 @@ bool master(bool daemonize)
   }
   printf("Shutting down tracking!\n");
   ltr_int_shutdown();
+  stop_master_threads = true;
   printf("Closing fifo %d\n", fifo);
   close(fifo);
   int i = 10;
   while(!sd_array_empty()){
+    printf("Waiting for the array to empty!\n");
     usleep(100000);
     --i;
     if(i < 0){

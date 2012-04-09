@@ -1,6 +1,10 @@
 #include <ltr_gui_prefs.h>
 #include <ltr_profiles.h>
+#include "tracker.h"
 #include <iostream>
+
+//TODO!!!: check the code, maybe move filterfactor to the TRACKER too...
+//         check switching profiles!!!
 
 Profile::Profile() : currentProfile(NULL)
 {
@@ -70,14 +74,7 @@ int Profile::isProfile(const QString &name)
 AppProfile::AppProfile(const QString &n, QWidget *parent) : QWidget(parent), name(n), filterFactor(0.0),
                                                             initializing(false)
 {
-  PREF.setCustomSection(name);
-  //std::cout<<"Cust section: "<<name.toAscii().data()<<std::endl;
-  pitch = new LtrAxis(this, PITCH);
-  roll = new LtrAxis(this, ROLL);
-  yaw = new LtrAxis(this, YAW);
-  tx = new LtrAxis(this, TX);
-  ty = new LtrAxis(this, TY);
-  tz = new LtrAxis(this, TZ);
+  TRACKER.setProfile(name);
   filterFactorReload();
 }
 
@@ -91,72 +88,6 @@ void AppProfile::filterFactorReload()
 
 AppProfile::~AppProfile()
 {
-  delete(pitch);
-  delete(roll);
-  delete(yaw);
-  delete(tx);
-  delete(ty);
-  delete(tz);
-}
-
-void AppProfile::on_pitchChange(AxisElem_t what)
-{
-  emit pitchChanged(what);
-}
-
-void AppProfile::on_rollChange(AxisElem_t what)
-{
-  emit rollChanged(what);
-}
-
-void AppProfile::on_yawChange(AxisElem_t what)
-{
-  emit yawChanged(what);
-}
-
-void AppProfile::on_txChange(AxisElem_t what)
-{
-  emit txChanged(what);
-}
-
-void AppProfile::on_tyChange(AxisElem_t what)
-{
-  emit tyChanged(what);
-}
-
-void AppProfile::on_tzChange(AxisElem_t what)
-{
-  emit tzChanged(what);
-}
-
-LtrAxis *AppProfile::getPitchAxis()
-{
-  return pitch;
-}
-
-LtrAxis *AppProfile::getRollAxis()
-{
-  return roll;
-}
-
-LtrAxis *AppProfile::getYawAxis()
-{
-  return yaw;
-}
-
-LtrAxis *AppProfile::getTxAxis()
-{
-  return tx;
-}
-
-LtrAxis *AppProfile::getTyAxis()
-{
-  return ty;
-}
-
-LtrAxis *AppProfile::getTzAxis()
-{
-  return tz;
 }
 
 const QString &AppProfile::getProfileName() const
@@ -167,12 +98,6 @@ const QString &AppProfile::getProfileName() const
 bool AppProfile::changeProfile(const QString &newName)
 {
   name = newName;
-  pitch->reload();
-  roll->reload();
-  yaw->reload();
-  tx->reload();
-  ty->reload();
-  tz->reload();
   filterFactorReload();
   return true;
 }

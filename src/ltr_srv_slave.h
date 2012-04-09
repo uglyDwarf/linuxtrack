@@ -7,10 +7,7 @@
 extern "C" {
 #endif
 
-//int open_slave_fifo(int master_fifo, const char *name_template, int max_fifos);
-//void try_start_master(const char *main_fifo);
-//void *slave_reader_thread(void *param);
-bool slave(const char *profile);
+bool slave(const char *profile, bool restart_master);
 
 #ifdef __cplusplus
 }

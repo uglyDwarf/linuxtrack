@@ -164,7 +164,8 @@ void LtrGuiForm::on_startButton_pressed()
   timer->start(50);
   fpsTimer->start(250);
   stopwatch->start();
-  TRACKER.start();
+  static QString sec("Default");
+  TRACKER.start(sec);
 }
 
 void LtrGuiForm::on_recenterButton_pressed()

@@ -15,6 +15,7 @@ class LtrTracking : public QObject
  signals:
   void customSectionChanged();
  private slots:
+  void axisChanged(int axis, int elem);
   void on_FilterSlider_valueChanged(int value);
   void ffChanged(float f);
   void on_Profiles_currentIndexChanged(const QString &text);
@@ -40,21 +41,9 @@ class LtrTracking : public QObject
   void on_MoveBackSpin_valueChanged(double d);
   void on_MoveForthSpin_valueChanged(double d);
   
-  void pitchChanged(AxisElem_t what);
-  void rollChanged(AxisElem_t what);
-  void yawChanged(AxisElem_t what);
-  void txChanged(AxisElem_t what);
-  void tyChanged(AxisElem_t what);
-  void tzChanged(AxisElem_t what);
  private:
   const Ui::LinuxtrackMainForm &gui;
   void Connect();
-  LtrAxis *pitch;
-  LtrAxis *roll;
-  LtrAxis *yaw;
-  LtrAxis *tx;
-  LtrAxis *ty;
-  LtrAxis *tz;
   bool initializing;
 };
 

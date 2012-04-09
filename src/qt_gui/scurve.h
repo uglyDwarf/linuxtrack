@@ -6,14 +6,14 @@
 
 #include "ui_scurve.h"
 #include "scview.h"
-#include "ltr_axis.h"
+#include <axis.h>
 
 class SCurve : public QWidget{
   Q_OBJECT
  public:
-  SCurve(LtrAxis *a, QString axis_name, QString left, QString right, QWidget *parent = 0);
+  SCurve(axis_t a, QString axis_name, QString left, QString right, QWidget *parent = 0);
   ~SCurve();
-  void movePoint(float new_x);
+  //void movePoint(float new_x);
  signals:
   void changed();
   //void movePoint(float new_x, float new_y);
@@ -28,10 +28,10 @@ class SCurve : public QWidget{
   void on_SCLeftLimit_valueChanged(double d);
   void on_SCRightLimit_valueChanged(double d);
   void setEnabled(int state);
-  void axisChanged(AxisElem_t what);
+  void axisChanged(int a, int elem);
  private:
   void setup_gui();
-  LtrAxis *axis;
+  axis_t axis;
   Ui::SCurveForm ui;
   bool symetrical;
   SCView *view;

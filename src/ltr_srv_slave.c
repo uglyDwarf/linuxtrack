@@ -14,6 +14,8 @@
 
 static char *profile_name = NULL;
 static struct mmap_s mmm;
+static bool try_restarting_master = true;
+static bool slave_reader_stopped = true;
 
 int open_slave_fifo(int master_fifo, const char *name_template, int max_fifos)
 {
@@ -34,6 +36,9 @@ int open_slave_fifo(int master_fifo, const char *name_template, int max_fifos)
 
 void try_start_master(const char *main_fifo)
 {
+  if(!try_restarting_master){
+    return;
+  }
   int fifo = open_fifo_exclusive(main_fifo);
   if(fifo > 0){
     close(fifo);
@@ -75,10 +80,12 @@ bool try_restart_master(struct pollfd *fifo_poll, int *fifo, int *master_fifo)
 
 static int master_fifo = -1;
 static bool stop_slave_reader_thread = false;
+static ltr_axes_t axes;
 
 void *slave_reader_thread(void *param)
 {
   (void) param;
+  slave_reader_stopped = false;
   pthread_detach(pthread_self());
   int fifo;
   if((fifo = open_slave_fifo(master_fifo, slave_fifo_name(), max_slave_fifos())) <= 0){
@@ -107,7 +114,7 @@ void *slave_reader_thread(void *param)
         switch(msg.cmd){
           case CMD_POSE:
             //printf("Have new pose!\n");
-            ltr_int_postprocess_axes(&(msg.pose));
+            ltr_int_postprocess_axes(axes, &(msg.pose));
             
             com = mmm.data;
             ltr_int_lockSemaphore(mmm.sem);
@@ -138,12 +145,15 @@ void *slave_reader_thread(void *param)
     
   }
   close(fifo);
+  ltr_int_unmap_file(&mmm);
+  slave_reader_stopped = true;
   return 0;
 }
 
 
-bool slave(const char *c_profile)
+bool slave(const char *c_profile, bool restart_master)
 {
+  try_restarting_master = restart_master;
   char *profile = ltr_int_my_strdup(c_profile);
   char *com_file = ltr_int_get_com_file_name();
   if(!ltr_int_mmap_file(com_file, sizeof(struct ltr_comm), &mmm)){
@@ -157,7 +167,7 @@ bool slave(const char *c_profile)
     return false;
   }
   ltr_int_set_custom_section(profile);
-
+  ltr_int_init_axes(&axes);
   if(master_fifo != -1){
     close(master_fifo);
   }
@@ -208,15 +218,20 @@ bool slave(const char *c_profile)
     recenter = false;
     if(getppid() == 1){
       printf("Parent died!\n");
-      stop_slave_reader_thread = true;
       break;
     }
     usleep(100000);
   }
+  slave_reader_stopped = false;
+  stop_slave_reader_thread = true;
+  int to = 20;
+  while((!slave_reader_stopped)&&(to > 0)){
+    usleep(100000);
+    --to;
+  }
   printf("Closing fifo %d\n", master_fifo);
   close(master_fifo);
   master_fifo = -1;
-  ltr_int_unmap_file(&mmm);
   return true;
 }
 
