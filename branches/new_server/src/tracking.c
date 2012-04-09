@@ -72,7 +72,6 @@ bool ltr_int_init_tracking()
     ltr_int_log_message("Can't get pose setup!\n");
     return false;
   }
-  ltr_int_init_axes();
 //  filtered_bloblist.num_blobs = 3;
 //  filtered_bloblist.blobs = filtered_blobs;
 //  first_frame = true;
@@ -269,14 +268,9 @@ static int update_pose_3pt(struct frame_type *frame)
   return res;
 }
 
-bool ltr_int_postprocess_axes(pose_t *pose)
+bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose)
 {
 //  printf(">>%f %f %f  %f %f %f\n", pose->pitch, pose->heading, pose->roll, pose->tx, pose->ty, pose->tz);
-  static bool init = true;
-  if(init){
-    ltr_int_init_axes();
-    init = false;
-  }
   static float filterfactor=1.0;
   ltr_int_get_filter_factor(&filterfactor);
   static double filtered_angles[3] = {0.0f, 0.0f, 0.0f};
@@ -286,9 +280,9 @@ bool ltr_int_postprocess_axes(pose_t *pose)
   double raw_angles[3] = {pose->pitch, pose->yaw, pose->roll};
   ltr_int_nonlinfilt_vec(raw_angles, filtered_angles, filter_factors_angles, filtered_angles);
   
-  pose->pitch = clamp_angle(ltr_int_val_on_axis(PITCH, filtered_angles[0]));
-  pose->yaw = clamp_angle(ltr_int_val_on_axis(YAW, filtered_angles[1]));
-  pose->roll = clamp_angle(ltr_int_val_on_axis(ROLL, filtered_angles[2]));
+  pose->pitch = clamp_angle(ltr_int_val_on_axis(axes, PITCH, filtered_angles[0]));
+  pose->yaw = clamp_angle(ltr_int_val_on_axis(axes, YAW, filtered_angles[1]));
+  pose->roll = clamp_angle(ltr_int_val_on_axis(axes, ROLL, filtered_angles[2]));
 //  printf("Pitch: %g   Yaw: %g  Roll: %g\n", pose->pitch, pose->heading, pose->roll);
   
   double rotated[3];
@@ -307,9 +301,9 @@ bool ltr_int_postprocess_axes(pose_t *pose)
   //ltr_int_orig_pose.tx = rotated[0];
   //ltr_int_orig_pose.ty = rotated[1];
   //ltr_int_orig_pose.tz = rotated[2];
-  pose->tx = ltr_int_val_on_axis(TX, filtered_translations[0]);
-  pose->ty = ltr_int_val_on_axis(TY, filtered_translations[1]);
-  pose->tz = ltr_int_val_on_axis(TZ, filtered_translations[2]);
+  pose->tx = ltr_int_val_on_axis(axes, TX, filtered_translations[0]);
+  pose->ty = ltr_int_val_on_axis(axes, TY, filtered_translations[1]);
+  pose->tz = ltr_int_val_on_axis(axes, TZ, filtered_translations[2]);
 //  ltr_int_print_vec(displacement, "tr");
 //  printf(">>>%f %f %f  %f %f %f\n", pose->pitch, pose->heading, pose->roll, pose->tx, pose->ty, pose->tz);
   return true;

@@ -30,6 +30,7 @@ static bool prefs_read_already = false;
 static char *def_section_name = "Default";
 static char *custom_section_name = NULL;
 
+static int ref_count = 0;
 
 static bool parse_prefs(char *fname)
 {
@@ -44,6 +45,7 @@ static bool parse_prefs(char *fname)
     free(parsed_file);
     parsed_file = NULL;
     if(res == 0){
+      ++ref_count;
       ltr_int_log_message("Preferences read OK!\n");
       return(true);
     }
@@ -95,6 +97,7 @@ bool ltr_int_new_prefs()
     ltr_int_free_prefs();
   }
   ltr_int_prefs = ltr_int_create_list();
+  ++ref_count;
   prefs_read_already = true;
   need_saving = true;
   return true;
@@ -393,6 +396,11 @@ void ltr_int_free_prefs()
   iterator i;
 
   assert(ltr_int_prefs != NULL);
+  ++ref_count;
+  if(ref_count > 0){
+    return;
+  }
+  ref_count = 0;
   ltr_int_init_iterator(ltr_int_prefs, &i);
   
   pref_file_item *pfi;

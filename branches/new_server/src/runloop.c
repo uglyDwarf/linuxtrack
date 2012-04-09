@@ -18,7 +18,6 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   enum ltr_request_t my_request;
   bool stop_flag = false;
   unsigned int counter = 0;
-  
   ltr_int_cal_set_state(INITIALIZING);
   if(ltr_int_tracker_init(ccb) != 0){
     ltr_int_log_message("Problem initializing tracker!\n");

@@ -3,27 +3,30 @@
 
 #include <QWidget>
 #include <QTimer>
-
-class LtrAxis;
+#include <axis.h>
+#include <ltlib.h>
 
 class SCView : public QWidget
 {
      Q_OBJECT
  public:
-  SCView(LtrAxis *a, QWidget *parent = 0);
+  SCView(axis_t a, QWidget *parent = 0);
   ~SCView();
 //  QSize sizeHint() const;
 //  QSize minimumSizeHint() const;
-  void movePoint(float new_x);
+//  void movePoint(float new_x);
  public slots:
   void redraw();
+  void newPose(pose_t *raw_pose, pose_t *pose);
  protected:
   void paintEvent(QPaintEvent *event);
 
  private:
+  int spline(QPointF points[], int num_points);
+  float spline(float x);
   QWidget *parentWidget;
-  LtrAxis *axis;
   float px;
+  axis_t axis;
   QTimer *timer;
 };
 

@@ -383,7 +383,6 @@ bool PrefProxy::getProfiles(QStringList &list)
 bool PrefProxy::setCustomSection(const QString &name)
 {
   bool res = ltr_int_set_custom_section(name.toAscii().data());
-  ltr_int_init_axes();
   return res;
 }
 

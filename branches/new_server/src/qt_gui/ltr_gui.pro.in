@@ -18,7 +18,7 @@ VPATH     = @srcdir@
 HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h help_view.h \
 	   ltr_gui_prefs.h prefs_link.h tir_prefs.h \
            ltr_model.h window.h glwidget.h objreader.h ltr_profiles.h\
-           log_view.h ltr_state.h ltr_axis.h ltr_tracking.h scp_form.h \
+           log_view.h ltr_state.h ltr_tracking.h scp_form.h \
            scurve.h scview.h wiimote_prefs.h dlfirmware.h tracker.h
 
 FORMS += ltr_gui.ui dev_help.ui ltr.ui model_creation.ui scurve.ui scp_form.ui \
@@ -26,7 +26,7 @@ FORMS += ltr_gui.ui dev_help.ui ltr.ui model_creation.ui scurve.ui scp_form.ui \
 SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            ltr_gui_prefs.cpp tir_prefs.cpp help_view.cpp \
            ltr_model.cpp window.cpp glwidget.cpp objreader.cpp ltr_profiles.cpp \
-           log_view.cpp ltr_state.cpp ltr_axis.cpp ltr_tracking.cpp scp_form.cpp \
+           log_view.cpp ltr_state.cpp ltr_tracking.cpp scp_form.cpp \
            scurve.cpp scview.cpp wiimote_prefs.cpp dlfirmware.cpp ../ipc_utils.c \
            ../linuxtrack.c tracker.cpp ../ltr_srv_master.c \
            ../ltr_srv_slave.c ../ltr_srv_comm.c

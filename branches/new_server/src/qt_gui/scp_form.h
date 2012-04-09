@@ -11,12 +11,14 @@ class ScpForm : public QWidget
  public:
   ScpForm(QWidget *parent = 0);
   ~ScpForm();
+/*
   void updatePitch(float newPitch);
   void updateRoll(float newRoll);
   void updateYaw(float newYaw);
   void updateX(float newX);
   void updateY(float newY);
   void updateZ(float newZ);
+*/
  private slots:
   void on_SCPCloseButton_pressed();
  private:

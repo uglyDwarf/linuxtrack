@@ -21,7 +21,7 @@
  private slots:
   void update_pic();
   void start_widget();
-  void newPose(pose_t *p);
+  void newPose(pose_t *raw, pose_t *processed);
  private:
   GLWidget *glWidget;
   QTimer *timer;

@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "cal.h"
 #include "ltlib.h"
+#include "axis.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,7 +22,7 @@ int ltr_int_tracking_get_camera(float *heading,
                       float *ty,
                       float *tz,
                       unsigned int *counter);
-bool ltr_int_postprocess_axes(pose_t *pose);
+bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose);
 
 double ltr_int_nonlinfilt(double x, 
               double y_minus_1,
