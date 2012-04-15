@@ -221,14 +221,13 @@ ltr_server_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ltr_server_CFLAGS) \
 	$(CFLAGS) $(ltr_server_LDFLAGS) $(LDFLAGS) -o $@
 am_ltr_server1_OBJECTS = ltr_server1-ltr_srv_comm.$(OBJEXT) \
-	ltr_server1-ltr_srv_slave.$(OBJEXT) \
-	ltr_server1-ltr_srv_master.$(OBJEXT) \
+	ltr_server1-ltr_srv_slave.$(OBJEXT) ltr_srv_master.$(OBJEXT) \
 	ltr_server1-ltr_server1.$(OBJEXT)
 ltr_server1_OBJECTS = $(am_ltr_server1_OBJECTS)
 ltr_server1_DEPENDENCIES = libltr.la
-ltr_server1_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ltr_server1_CFLAGS) \
-	$(CFLAGS) $(ltr_server1_LDFLAGS) $(LDFLAGS) -o $@
+ltr_server1_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(ltr_server1_LDFLAGS) $(LDFLAGS) -o $@
 SCRIPTS = $(noinst_SCRIPTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp =
@@ -437,7 +436,7 @@ ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server_LDADD = -lpthread libltr.la
 ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG} ${LTR_SERVER_FLAGS}
 ltr_server1_SOURCES = ltr_srv_comm.c ltr_srv_comm.h ltr_srv_slave.c ltr_srv_slave.h \
-	ltr_srv_master.c ltr_srv_master.h ltr_server1.c
+	ltr_srv_master.cpp ltr_srv_master.h ltr_server1.c
 
 ltr_server1_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server1_LDADD = -lpthread libltr.la
@@ -911,12 +910,6 @@ ltr_server1-ltr_srv_slave.o: ltr_srv_slave.c
 
 ltr_server1-ltr_srv_slave.obj: ltr_srv_slave.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server1_CFLAGS) $(CFLAGS) -c -o ltr_server1-ltr_srv_slave.obj `if test -f 'ltr_srv_slave.c'; then $(CYGPATH_W) 'ltr_srv_slave.c'; else $(CYGPATH_W) '$(srcdir)/ltr_srv_slave.c'; fi`
-
-ltr_server1-ltr_srv_master.o: ltr_srv_master.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server1_CFLAGS) $(CFLAGS) -c -o ltr_server1-ltr_srv_master.o `test -f 'ltr_srv_master.c' || echo '$(srcdir)/'`ltr_srv_master.c
-
-ltr_server1-ltr_srv_master.obj: ltr_srv_master.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server1_CFLAGS) $(CFLAGS) -c -o ltr_server1-ltr_srv_master.obj `if test -f 'ltr_srv_master.c'; then $(CYGPATH_W) 'ltr_srv_master.c'; else $(CYGPATH_W) '$(srcdir)/ltr_srv_master.c'; fi`
 
 ltr_server1-ltr_server1.o: ltr_server1.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server1_CFLAGS) $(CFLAGS) -c -o ltr_server1-ltr_server1.o `test -f 'ltr_server1.c' || echo '$(srcdir)/'`ltr_server1.c

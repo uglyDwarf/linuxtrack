@@ -24,6 +24,7 @@ SCurve::SCurve(axis_t a, QString axis_name, QString left_label, QString right_la
   ui.SCView->addWidget(view);
   QObject::connect(this, SIGNAL(changed()), view, SLOT(update()));
   initializing = true;
+  setup_gui();
   initializing = false;
 }
 

@@ -26,19 +26,27 @@ static int make_mmap()
   return 0;
 }
 
-int ltr_init(char *cust_section)
+int ltr_int_init_helper(const char *cust_section, bool standalone)
 {
   if(initialized) return 0;
   if(make_mmap() != 0) return -1;
   struct ltr_comm *com = mmm.data;
   com->preparing_start = true;
   initialized = true;
-  char *server = ltr_int_get_app_path("/ltr_server1");
-  char *args[] = {server, cust_section, NULL};
-  ltr_int_fork_child(args);
-  free(server);
+  if(standalone){
+    char *server = ltr_int_get_app_path("/ltr_server1");
+    char *section = ltr_int_my_strdup(cust_section);
+    char *args[] = {server, section, NULL};
+    ltr_int_fork_child(args);
+    free(server);
+  }
   ltr_wakeup();
   return 0;
+}
+
+int ltr_init(const char *cust_section)
+{
+  return ltr_int_init_helper(cust_section, true);
 }
 
 int ltr_get_camera_update(float *heading,
