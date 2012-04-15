@@ -2,7 +2,6 @@
 #define LTR_TRACKING__H
 
 #include "ltr_gui.h"
-#include "ltr_axis.h"
 
 
 class LtrTracking : public QObject

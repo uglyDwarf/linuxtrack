@@ -26,12 +26,24 @@ static char *pref_file = "linuxtrack.conf";
 
 static const char *logfile_template = "/tmp/linuxtrack%02d.log";
 static char *logfile_name = NULL;
+static FILE *output_stream = NULL;
 
 char* ltr_int_my_strdup(const char *s);
 
+static void ltr_int_atexit(void)
+{
+  if(logfile_name != NULL){
+    printf("ATEXIT: Freeing logfile name\n");
+    free(logfile_name);
+  }
+  if(output_stream != NULL){
+    printf("ATEXIT: Closing output stream\n");
+    fclose(output_stream);
+  }
+}
+
 void ltr_int_valog_message(const char *format, va_list va)
 {
-  static FILE *output_stream = NULL;
   int fd;
   if(output_stream == NULL){
     char *fname = NULL;
@@ -43,6 +55,7 @@ void ltr_int_valog_message(const char *format, va_list va)
         rewind(output_stream); //rewind to obtain lock on the whole file 
         fd = fileno(output_stream);
         if(lockf(fd, F_TLOCK, 0) == 0){
+          atexit(ltr_int_atexit);
           output_stream = freopen(fname, "w+", stderr);
           logfile_name = ltr_int_my_strdup(fname);
           free(fname);

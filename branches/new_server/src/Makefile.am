@@ -37,7 +37,7 @@ ltr_server_LDADD = -lpthread libltr.la
 ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG} ${LTR_SERVER_FLAGS}
 
 ltr_server1_SOURCES = ltr_srv_comm.c ltr_srv_comm.h ltr_srv_slave.c ltr_srv_slave.h \
-	ltr_srv_master.c ltr_srv_master.h ltr_server1.c
+	ltr_srv_master.cpp ltr_srv_master.h ltr_server1.c
 ltr_server1_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server1_LDADD = -lpthread libltr.la
 ltr_server1_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG} ${LTR_SERVER_FLAGS}

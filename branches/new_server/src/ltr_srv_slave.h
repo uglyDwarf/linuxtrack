@@ -1,5 +1,5 @@
-#ifndef LTR_SRV_LAVE__H
-#define LTR_SRV_LAVE__H
+#ifndef LTR_SRV_SLAVE__H
+#define LTR_SRV_SLAVE__H
 
 #include <stdbool.h>
 
@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-bool slave(const char *profile, bool restart_master);
+bool slave(const char *profile, bool in_gui);
 
 #ifdef __cplusplus
 }

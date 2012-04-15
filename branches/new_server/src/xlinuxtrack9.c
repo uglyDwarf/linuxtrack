@@ -387,8 +387,8 @@ static int			setupWindowOpened = 0;
 
 static int setupWindowHandler(XPWidgetMessage inMessage,
 			XPWidgetID inWidget,
-			long inParam1,
-			long inParam2)
+			intptr_t inParam1,
+			intptr_t inParam2)
 {
   (void) inWidget;
   (void) inWidget;
@@ -464,7 +464,7 @@ static int setupDialog()
     setupButton = XPCreateWidget(x+80, y2+40, x2-80, y2+20, 1, 
   				  "Close", 0, setupWindow,
   				  xpWidgetClass_Button);
-    XPAddWidgetCallback(setupWindow, setupWindowHandler);
+    XPAddWidgetCallback(setupWindow, (XPWidgetFunc_t)setupWindowHandler);
   }
   return 0;
 }

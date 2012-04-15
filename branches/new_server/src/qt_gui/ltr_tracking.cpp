@@ -13,7 +13,6 @@ LtrTracking::LtrTracking(const Ui::LinuxtrackMainForm &ui) : gui(ui), initializi
 {
   initializing = true;
   ffChanged(PROFILE.getCurrentProfile()->getFilterFactor());
-  initializing = false;
   Connect();
   gui.Profiles->addItems(Profile::getProfiles().getProfileNames());
   
@@ -35,6 +34,7 @@ LtrTracking::LtrTracking(const Ui::LinuxtrackMainForm &ui) : gui(ui), initializi
   gui.ZEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(TZ)));
   gui.MoveBackSpin->setValue(TRACKER.axisGet(TZ, AXIS_LMULT));
   gui.MoveForthSpin->setValue(TRACKER.axisGet(TZ, AXIS_RMULT));
+  initializing = false;
 }
 
 LtrTracking::~LtrTracking()

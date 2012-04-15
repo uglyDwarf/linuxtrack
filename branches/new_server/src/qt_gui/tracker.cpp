@@ -2,6 +2,7 @@
 #include <tracking.h>
 #include <pref_int.h>
 #include <axis.h>
+#include <ltlib.h>
 #include <../ltr_srv_master.h>
 #include <../ltr_srv_slave.h>
 #include <cstdio>
@@ -22,7 +23,7 @@ class SlaveThread : public QThread{
 
 void SlaveThread::run()
 {
-  slave(profile.toAscii().data(), false);
+  slave(profile.toAscii().data(), true);
 }
 
 
@@ -126,7 +127,7 @@ void Tracker::start(QString &section)
   masterShouldRun = true;
   master->start();
   slave->start();
-  ltr_init(NULL);
+  ltr_int_init_helper(NULL, false); //Like ltr_init, but doesn't invoke master...
 }
 
 void Tracker::pause()

@@ -9,6 +9,7 @@
 extern "C" {
 #endif
 
+void change(const char *profile, int axis, int elem, float val);
 bool master(bool daemonize);
 
 //For ltr_gui

@@ -15,7 +15,6 @@
 static char *profile_name = NULL;
 static struct mmap_s mmm;
 static bool try_restarting_master = true;
-static bool slave_reader_stopped = true;
 
 int open_slave_fifo(int master_fifo, const char *name_template, int max_fifos)
 {
@@ -23,6 +22,7 @@ int open_slave_fifo(int master_fifo, const char *name_template, int max_fifos)
   //Open the data passing fifo and pass it to the master...
   int fifo_number = -1;
   int data_fifo = open_unique_fifo(&data_fifo_name, &fifo_number, name_template, max_fifos);
+  free(data_fifo_name);
   if(data_fifo <= 0){
     return -1;
   }
@@ -47,6 +47,7 @@ void try_start_master(const char *main_fifo)
     args[0] = ltr_int_get_app_path("/ltr_server1");
     ltr_int_fork_child(args);
     int status;
+    //Disable the wait when not daemonizing!!!
     wait(&status);
   }
 }
@@ -85,8 +86,6 @@ static ltr_axes_t axes;
 void *slave_reader_thread(void *param)
 {
   (void) param;
-  slave_reader_stopped = false;
-  pthread_detach(pthread_self());
   int fifo;
   if((fifo = open_slave_fifo(master_fifo, slave_fifo_name(), max_slave_fifos())) <= 0){
     printf("Couldn't pass master our fifo!\n");
@@ -129,7 +128,11 @@ void *slave_reader_thread(void *param)
             ltr_int_unlockSemaphore(mmm.sem);
             break;
           case CMD_PARAM:
-            printf("Updating %d@%d to %f\n", msg.param.axis_id, msg.param.param_id, msg.param.flt_val);
+            if(msg.param.param_id == AXIS_ENABLED){
+              ltr_int_set_axis_bool_param(axes, msg.param.axis_id, msg.param.param_id, msg.param.flt_val > 0.5f);
+            }else{
+              ltr_int_set_axis_param(axes, msg.param.axis_id, msg.param.param_id, msg.param.flt_val);
+            }
             break;
           default:
             printf("Slave received unexpected message!\n");
@@ -146,14 +149,18 @@ void *slave_reader_thread(void *param)
   }
   close(fifo);
   ltr_int_unmap_file(&mmm);
-  slave_reader_stopped = true;
   return 0;
 }
 
 
-bool slave(const char *c_profile, bool restart_master)
+bool slave(const char *c_profile, bool in_gui)
 {
-  try_restarting_master = restart_master;
+  printf("Starting slave!\n");
+  if(in_gui){
+    try_restarting_master = false;
+  }else{
+    try_restarting_master = true;
+  }
   char *profile = ltr_int_my_strdup(c_profile);
   char *com_file = ltr_int_get_com_file_name();
   if(!ltr_int_mmap_file(com_file, sizeof(struct ltr_comm), &mmm)){
@@ -162,9 +169,11 @@ bool slave(const char *c_profile, bool restart_master)
   }
   free(com_file);
   struct ltr_comm *com = mmm.data;
-  if(!ltr_int_read_prefs(NULL, false)){
-    printf("Couldn't load preferences!\n");
-    return false;
+  if(!in_gui){
+    if(!ltr_int_read_prefs(NULL, false)){
+      printf("Couldn't load preferences!\n");
+      return false;
+    }
   }
   ltr_int_set_custom_section(profile);
   ltr_int_init_axes(&axes);
@@ -186,7 +195,7 @@ bool slave(const char *c_profile, bool restart_master)
   stop_slave_reader_thread = false;
   pthread_create(&reader_tid, NULL, slave_reader_thread, NULL);
   ltr_cmd cmd = NOP_CMD;
-  bool recenter;
+  bool recenter = false;
   bool quit_flag = false;
   while(!quit_flag){
     if((com->cmd != NOP_CMD) || com->recenter){
@@ -222,16 +231,18 @@ bool slave(const char *c_profile, bool restart_master)
     }
     usleep(100000);
   }
-  slave_reader_stopped = false;
+  printf("Stopping slave thread!\n");
   stop_slave_reader_thread = true;
-  int to = 20;
-  while((!slave_reader_stopped)&&(to > 0)){
-    usleep(100000);
-    --to;
-  }
-  printf("Closing fifo %d\n", master_fifo);
+  pthread_join(reader_tid, NULL);
+  printf("Slave closing fifo %d\n", master_fifo);
   close(master_fifo);
   master_fifo = -1;
+  ltr_int_close_axes(&axes);
+  free(profile);
+  if(!in_gui){
+    ltr_int_free_prefs();
+    ltr_int_set_custom_section(NULL);
+  }
   return true;
 }
 

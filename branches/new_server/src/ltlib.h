@@ -29,5 +29,16 @@ struct ltr_comm{
   uint8_t preparing_start;
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifndef LIBLINUXTRACK_SRC
+int ltr_int_init_helper(const char *cust_section, bool standalone);
+#endif
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

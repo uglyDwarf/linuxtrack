@@ -17,6 +17,7 @@
 #include "pref_int.h"
 
 int yyparse(void);
+int yylex_destroy(void);
 extern FILE* yyin;
 extern int yydebug;
 extern char* yytext;
@@ -78,6 +79,7 @@ bool ltr_int_read_prefs(char *file, bool force_read)
       return false;
     }
     prefs_ok = parse_prefs(pfile);
+    yylex_destroy();
     if(free_str){
       free(pfile);
     }
@@ -396,7 +398,7 @@ void ltr_int_free_prefs()
   iterator i;
 
   assert(ltr_int_prefs != NULL);
-  ++ref_count;
+  --ref_count;
   if(ref_count > 0){
     return;
   }
