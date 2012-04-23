@@ -9,44 +9,44 @@
   #include "utils.h"
 #endif
 
-static char *com_fname;
 static struct mmap_s mmm;
 static bool initialized = false;
 
 static int make_mmap()
 {
-  com_fname = ltr_int_get_com_file_name();
-  if(!ltr_int_mmap_file(com_fname, sizeof(struct mmap_s), &mmm)){
+  if(!ltr_int_mmap_file_exclusive(sizeof(struct mmap_s), &mmm)){
     perror("mmap_file: ");
     ltr_int_log_message("Couldn't mmap!\n");
-    free(com_fname);
     return -1;
   }
-  free(com_fname);
   return 0;
 }
 
-int ltr_int_init_helper(const char *cust_section, bool standalone)
+char *ltr_int_init_helper(const char *cust_section, bool standalone)
 {
-  if(initialized) return 0;
-  if(make_mmap() != 0) return -1;
+  if(initialized) return mmm.fname;
+  if(make_mmap() != 0) return NULL;
   struct ltr_comm *com = mmm.data;
   com->preparing_start = true;
   initialized = true;
   if(standalone){
     char *server = ltr_int_get_app_path("/ltr_server1");
     char *section = ltr_int_my_strdup(cust_section);
-    char *args[] = {server, section, NULL};
+    char *args[] = {server, section, mmm.fname, NULL};
     ltr_int_fork_child(args);
     free(server);
   }
   ltr_wakeup();
-  return 0;
+  return mmm.fname;
 }
 
 int ltr_init(const char *cust_section)
 {
-  return ltr_int_init_helper(cust_section, true);
+  if(ltr_int_init_helper(cust_section, true) != NULL){
+    return 0;
+  }else{
+    return -1;
+  }
 }
 
 int ltr_get_camera_update(float *heading,

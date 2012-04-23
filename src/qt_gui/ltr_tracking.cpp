@@ -150,10 +150,11 @@ void LtrTracking::on_FilterSlider_valueChanged(int value)
 
 void LtrTracking::on_Profiles_currentIndexChanged(const QString &text)
 {
+  bool prev = initializing;
   initializing = true;
   PROFILE.setCurrent(text);
   emit customSectionChanged();
-  initializing = false;
+  initializing = prev;
 }
 
 void LtrTracking::on_CreateNewProfile_pressed()

@@ -153,7 +153,7 @@ void *slave_reader_thread(void *param)
 }
 
 
-bool slave(const char *c_profile, bool in_gui)
+bool slave(const char *c_profile, const char *c_com_file, bool in_gui)
 {
   printf("Starting slave!\n");
   if(in_gui){
@@ -162,7 +162,7 @@ bool slave(const char *c_profile, bool in_gui)
     try_restarting_master = true;
   }
   char *profile = ltr_int_my_strdup(c_profile);
-  char *com_file = ltr_int_get_com_file_name();
+  char *com_file = ltr_int_my_strdup(c_com_file);
   if(!ltr_int_mmap_file(com_file, sizeof(struct ltr_comm), &mmm)){
     printf("Couldn't mmap file!!!\n");
     return false;

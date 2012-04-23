@@ -14,6 +14,7 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/file.h>
 #include <fcntl.h>
 #include <string.h>
 
@@ -192,41 +193,100 @@ void ltr_int_closeSemaphore(semaphore_p semaphore)
   free(semaphore);
 }
 
-bool ltr_int_mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
+//the fname argument should end with XXXXXX;
+//  it is also modified by the call to contain the actual filename.
+//
+//Returns opened file descriptor
+int ltr_int_open_tmp_file(char *fname)
 {
-  m->fname = ltr_int_my_strdup(fname);
   umask(S_IWGRP | S_IWOTH);
-  int fd = open(fname, O_RDWR | O_CREAT | O_NOFOLLOW, 0700);
-  if(fd < 0){
-    perror("open: ");
-    return false;
-  }
-  m->size = tmp_size;
-  
+  return mkstemp(fname);
+}
+
+//Closes and removes the file...
+void ltr_int_close_tmp_file(char *fname, int fd)
+{
+  close(fd);
+  unlink(fname);
+}
+
+static const char *mmapped_file_name()
+{
+  static const char name[] = "/tmp/ltr_mmapXXXXXX";
+  return name;
+}
+
+static bool ltr_int_mmap(int fd, ssize_t tmp_size, struct mmap_s *m)
+{
   //Check if file does have needed length...
   struct stat file_stat;
   bool truncate = true;
   if(fstat(fd, &file_stat) == 0){
-    if(file_stat.st_size == (ssize_t)m->size){
+    if(file_stat.st_size == (ssize_t)tmp_size){
       truncate = false;
     }
   }
   
   if(truncate){
-    int res = ftruncate(fd, m->size);
+    int res = ftruncate(fd, tmp_size);
     if (res == -1) {
       perror("ftruncate: ");
       close(fd);
       return false;
     }
   }
-  m->data = mmap(NULL, m->size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  m->data = mmap(NULL, tmp_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   if(m->data == (void*)-1){
     perror("mmap: ");
     close(fd);
     return false;
   }
-//  close(fd);
+  return true;
+}
+
+#ifndef LIBLINUXTRACK_SRC
+
+bool ltr_int_mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
+{
+  umask(S_IWGRP | S_IWOTH);
+  int fd = open(fname, O_RDWR | O_CREAT | O_NOFOLLOW, 0700);
+  if(fd < 0){
+    perror("open: ");
+    return false;
+  }
+  
+  if(!ltr_int_mmap(fd, tmp_size, m)){
+    close(fd);
+    return false;
+  }
+  m->fname = ltr_int_my_strdup(fname);
+  m->size = tmp_size;
+  m->sem = ltr_int_semaphoreFromFd(fd);
+  m->lock_sem = NULL;
+  m->sem->fd = fd;
+  return true;
+}
+
+#endif
+
+bool ltr_int_mmap_file_exclusive(size_t tmp_size, struct mmap_s *m)
+{
+  umask(S_IWGRP | S_IWOTH);
+  
+  char *file_name = ltr_int_my_strdup(mmapped_file_name());
+  int fd = ltr_int_open_tmp_file(file_name);
+  if(fd < 0){
+    perror("mkstemp");
+    return false;
+  }
+  
+  if(!ltr_int_mmap(fd, tmp_size, m)){
+    ltr_int_close_tmp_file(file_name, fd);
+    free(file_name);
+    return false;
+  }
+  m->fname = file_name;
+  m->size = tmp_size;
   m->sem = ltr_int_semaphoreFromFd(fd);
   m->lock_sem = NULL;
   m->sem->fd = fd;
@@ -255,27 +315,4 @@ bool ltr_int_unmap_file(struct mmap_s *m)
   return res == 0;
 }
 
-#ifndef LIBLINUXTRACK_SRC
 
-//the fname argument should end with XXXXXX;
-//  it is also modified by the call to contain the actual filename.
-//
-//Returns opened file descriptor
-int ltr_int_open_tmp_file(char *fname)
-{
-  umask(S_IWGRP | S_IWOTH);
-  return mkstemp(fname);
-}
-
-//Closes and removes the file...
-void ltr_int_close_tmp_file(char *fname, int fd)
-{
-  unlink(fname);
-  close(fd);
-}
-#endif
-
-char *ltr_int_get_com_file_name()
-{
-  return ltr_int_get_default_file_name("linuxtrack.comm");
-}

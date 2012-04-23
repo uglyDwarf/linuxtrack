@@ -38,8 +38,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = ltr_server$(EXEEXT) ltr_server1$(EXEEXT) \
-	$(am__EXEEXT_1)
+bin_PROGRAMS = ltr_server1$(EXEEXT) $(am__EXEEXT_1)
 @CWIID_TRUE@am__append_1 = libwii.la
 @CWIID_TRUE@am__append_2 = wii_server.1
 @LIBV4L2_TRUE@@V4L2_TRUE@am__append_3 = libwc.la
@@ -213,13 +212,6 @@ ltr_pipe_LDADD = $(LDADD)
 ltr_pipe_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(ltr_pipe_CFLAGS) $(CFLAGS) \
 	$(ltr_pipe_LDFLAGS) $(LDFLAGS) -o $@
-am_ltr_server_OBJECTS = ltr_server-ltr_server.$(OBJEXT) \
-	ltr_server-ipc_utils.$(OBJEXT) ltr_server-utils.$(OBJEXT)
-ltr_server_OBJECTS = $(am_ltr_server_OBJECTS)
-ltr_server_DEPENDENCIES = libltr.la
-ltr_server_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ltr_server_CFLAGS) \
-	$(CFLAGS) $(ltr_server_LDFLAGS) $(LDFLAGS) -o $@
 am_ltr_server1_OBJECTS = ltr_server1-ltr_srv_comm.$(OBJEXT) \
 	ltr_server1-ltr_srv_slave.$(OBJEXT) ltr_srv_master.$(OBJEXT) \
 	ltr_server1-ltr_server1.$(OBJEXT)
@@ -263,8 +255,7 @@ SOURCES = $(libfakeusb_la_SOURCES) $(libft_la_SOURCES) \
 	$(libmacwii_la_SOURCES) $(libtir_la_SOURCES) \
 	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(xlinuxtrack_la_SOURCES) $(xlinuxtrack9_la_SOURCES) \
-	$(ltr_pipe_SOURCES) $(ltr_server_SOURCES) \
-	$(ltr_server1_SOURCES)
+	$(ltr_pipe_SOURCES) $(ltr_server1_SOURCES)
 DIST_SOURCES = $(libfakeusb_la_SOURCES) $(libft_la_SOURCES) \
 	$(liblinuxtrack_la_SOURCES) $(libltopenusb_la_SOURCES) \
 	$(libltr_la_SOURCES) $(libltusb1_la_SOURCES) \
@@ -272,8 +263,7 @@ DIST_SOURCES = $(libfakeusb_la_SOURCES) $(libft_la_SOURCES) \
 	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(am__xlinuxtrack_la_SOURCES_DIST) \
 	$(am__xlinuxtrack9_la_SOURCES_DIST) \
-	$(am__ltr_pipe_SOURCES_DIST) $(ltr_server_SOURCES) \
-	$(ltr_server1_SOURCES)
+	$(am__ltr_pipe_SOURCES_DIST) $(ltr_server1_SOURCES)
 man1dir = $(mandir)/man1
 NROFF = nroff
 MANS = $(man_MANS)
@@ -431,10 +421,11 @@ lib_LTLIBRARIES = liblinuxtrack.la
 pkglib_LTLIBRARIES = libltr.la libmacwii.la $(am__append_1) \
 	$(am__append_3) $(am__append_4) $(am__append_5) \
 	$(am__append_6) $(am__append_7) libfakeusb.la $(am__append_8)
-ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
-ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
-ltr_server_LDADD = -lpthread libltr.la
-ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG} ${LTR_SERVER_FLAGS}
+
+#ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
+#ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+#ltr_server_LDADD = -lpthread libltr.la
+#ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG} ${LTR_SERVER_FLAGS}
 ltr_server1_SOURCES = ltr_srv_comm.c ltr_srv_comm.h ltr_srv_slave.c ltr_srv_slave.h \
 	ltr_srv_master.cpp ltr_srv_master.h ltr_server1.c
 
@@ -718,9 +709,6 @@ clean-binPROGRAMS:
 ltr_pipe$(EXEEXT): $(ltr_pipe_OBJECTS) $(ltr_pipe_DEPENDENCIES) 
 	@rm -f ltr_pipe$(EXEEXT)
 	$(ltr_pipe_LINK) $(ltr_pipe_OBJECTS) $(ltr_pipe_LDADD) $(LIBS)
-ltr_server$(EXEEXT): $(ltr_server_OBJECTS) $(ltr_server_DEPENDENCIES) 
-	@rm -f ltr_server$(EXEEXT)
-	$(ltr_server_LINK) $(ltr_server_OBJECTS) $(ltr_server_LDADD) $(LIBS)
 ltr_server1$(EXEEXT): $(ltr_server1_OBJECTS) $(ltr_server1_DEPENDENCIES) 
 	@rm -f ltr_server1$(EXEEXT)
 	$(ltr_server1_LINK) $(ltr_server1_OBJECTS) $(ltr_server1_LDADD) $(LIBS)
@@ -880,24 +868,6 @@ ltr_pipe-ltlib.o: ltlib.c
 
 ltr_pipe-ltlib.obj: ltlib.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-ltlib.obj `if test -f 'ltlib.c'; then $(CYGPATH_W) 'ltlib.c'; else $(CYGPATH_W) '$(srcdir)/ltlib.c'; fi`
-
-ltr_server-ltr_server.o: ltr_server.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server_CFLAGS) $(CFLAGS) -c -o ltr_server-ltr_server.o `test -f 'ltr_server.c' || echo '$(srcdir)/'`ltr_server.c
-
-ltr_server-ltr_server.obj: ltr_server.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server_CFLAGS) $(CFLAGS) -c -o ltr_server-ltr_server.obj `if test -f 'ltr_server.c'; then $(CYGPATH_W) 'ltr_server.c'; else $(CYGPATH_W) '$(srcdir)/ltr_server.c'; fi`
-
-ltr_server-ipc_utils.o: ipc_utils.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server_CFLAGS) $(CFLAGS) -c -o ltr_server-ipc_utils.o `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
-
-ltr_server-ipc_utils.obj: ipc_utils.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server_CFLAGS) $(CFLAGS) -c -o ltr_server-ipc_utils.obj `if test -f 'ipc_utils.c'; then $(CYGPATH_W) 'ipc_utils.c'; else $(CYGPATH_W) '$(srcdir)/ipc_utils.c'; fi`
-
-ltr_server-utils.o: utils.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server_CFLAGS) $(CFLAGS) -c -o ltr_server-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
-
-ltr_server-utils.obj: utils.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server_CFLAGS) $(CFLAGS) -c -o ltr_server-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
 
 ltr_server1-ltr_srv_comm.o: ltr_srv_comm.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server1_CFLAGS) $(CFLAGS) -c -o ltr_server1-ltr_srv_comm.o `test -f 'ltr_srv_comm.c' || echo '$(srcdir)/'`ltr_srv_comm.c

@@ -33,6 +33,12 @@ static char *custom_section_name = NULL;
 
 static int ref_count = 0;
 
+bool ltr_int_prefs_read_already(void)
+{
+  return prefs_read_already;
+}
+
+
 static bool parse_prefs(char *fname)
 {
   ltr_int_prefs = ltr_int_create_list();
@@ -93,7 +99,7 @@ bool ltr_int_read_prefs(char *file, bool force_read)
   return prefs_ok;
 }
 
-bool ltr_int_new_prefs()
+bool ltr_int_new_prefs(void)
 {
   if(prefs_read_already){
     ltr_int_free_prefs();
@@ -393,7 +399,7 @@ static void free_section(section_struct *section)
   ltr_int_free_list(section->contents, false);
 }
 
-void ltr_int_free_prefs()
+void ltr_int_free_prefs(void)
 {
   iterator i;
 
@@ -497,12 +503,12 @@ bool ltr_int_set_custom_section(char *name)
   return true;
 }
 
-const char *ltr_int_get_custom_section_name()
+const char *ltr_int_get_custom_section_name(void)
 {
   return custom_section_name;
 }
 
-bool ltr_int_save_prefs()
+bool ltr_int_save_prefs(void)
 {
   char *pfile = ltr_int_get_default_file_name(NULL);
   if(pfile == NULL){
@@ -553,7 +559,7 @@ bool ltr_int_add_section(const char *name)
   return true;
 }
 
-bool ltr_int_need_saving()
+bool ltr_int_need_saving(void)
 {
   return need_saving;
 }

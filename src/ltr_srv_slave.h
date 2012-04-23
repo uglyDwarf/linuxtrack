@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-bool slave(const char *profile, bool in_gui);
+bool slave(const char *c_profile, const char *c_com_file, bool in_gui);
 
 #ifdef __cplusplus
 }

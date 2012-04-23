@@ -169,13 +169,13 @@ int send_param_update(int fifo, uint32_t axis, uint32_t param, float value)
 
 const char *master_fifo_name()
 {
-  static const char main_fifo[] = "/tmp/fifi";
+  static const char main_fifo[] = "/tmp/ltr_fifi";
   return main_fifo;
 }
 
 const char *slave_fifo_name()
 {
-  static const char slave_fifo[] = "/tmp/sfifi%02d";
+  static const char slave_fifo[] = "/tmp/ltr_sfifi%02d";
   return slave_fifo;
 }
 
