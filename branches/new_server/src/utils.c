@@ -110,7 +110,7 @@ char* ltr_int_my_strdup(const char *s)
 
 #ifndef LIBLINUXTRACK_SRC
 
-const char *ltr_int_get_logfile_name()
+const char *ltr_int_get_logfile_name(void)
 {
   return logfile_name;
 }

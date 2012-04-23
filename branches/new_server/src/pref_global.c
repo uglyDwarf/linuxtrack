@@ -13,8 +13,7 @@
 
 void ltr_int_close_prefs()
 {
-  ltr_int_close_axes(NULL);
-  ltr_int_free_prefs(NULL);
+  ltr_int_free_prefs();
 }
 
 const char *ltr_int_get_device_section()

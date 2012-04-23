@@ -51,14 +51,15 @@ bool ltr_int_change_key(const char *section_name, const char *key_name, const ch
 bool ltr_int_change_key_flt(const char *section_name, const char *key_name, float new_value);
 bool ltr_int_change_key_int(const char *section_name, const char *key_name, int new_value);
 bool ltr_int_dump_prefs(char *file_name);
-void ltr_int_free_prefs();
+void ltr_int_free_prefs(void);
 
 bool ltr_int_set_custom_section(char *name);
-const char *ltr_int_get_custom_section_name();
+const char *ltr_int_get_custom_section_name(void);
 bool ltr_int_read_prefs(char *file, bool force_read);
-bool ltr_int_new_prefs();
-bool ltr_int_save_prefs();
-bool ltr_int_need_saving();
+bool ltr_int_new_prefs(void);
+bool ltr_int_save_prefs(void);
+bool ltr_int_need_saving(void);
+bool ltr_int_prefs_read_already(void);
 
 #ifdef __cplusplus
 }

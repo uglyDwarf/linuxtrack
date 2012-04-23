@@ -23,7 +23,7 @@ LIBLINUXTRACK_PRIVATE void* ltr_int_my_malloc(size_t size);
 LIBLINUXTRACK_PRIVATE char* ltr_int_my_strdup(const char* s);
 LIBLINUXTRACK_PRIVATE void ltr_int_log_message(const char *format, ...);
 LIBLINUXTRACK_PRIVATE void ltr_int_valog_message(const char *format, va_list va);
-const char *ltr_int_get_logfile_name();
+const char *ltr_int_get_logfile_name(void);
 void ltr_int_strlower(char *s);
 LIBLINUXTRACK_PRIVATE char *ltr_int_my_strcat(const char *str1, const char *str2);
 LIBLINUXTRACK_PRIVATE char *ltr_int_get_default_file_name(char *fname);

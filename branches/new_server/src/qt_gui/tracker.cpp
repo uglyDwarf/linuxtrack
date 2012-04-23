@@ -11,6 +11,7 @@
 #include <unistd.h>
 
 Tracker *Tracker::trr = NULL;
+char *com_fname = NULL;
 
 class SlaveThread : public QThread{
   public:
@@ -23,7 +24,7 @@ class SlaveThread : public QThread{
 
 void SlaveThread::run()
 {
-  slave(profile.toAscii().data(), true);
+  slave(profile.toAscii().data(), com_fname, true);
 }
 
 
@@ -126,8 +127,8 @@ void Tracker::start(QString &section)
   (void) section;
   masterShouldRun = true;
   master->start();
+  com_fname = ltr_int_init_helper(NULL, false); //Like ltr_init, but doesn't invoke master...
   slave->start();
-  ltr_int_init_helper(NULL, false); //Like ltr_init, but doesn't invoke master...
 }
 
 void Tracker::pause()
