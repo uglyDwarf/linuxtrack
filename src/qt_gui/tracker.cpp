@@ -64,6 +64,7 @@ static void ltr_int_new_frame(struct frame_type *frame, void *param)
   unsigned char *tmp = frame->bitmap;
   if(local_frame.bitmap != NULL){
     frame->bitmap = local_frame.bitmap;
+    local_frame.bitmap = NULL;
   }
   if(tmp != NULL){
     local_frame.bitmap = tmp;
@@ -82,7 +83,6 @@ Tracker::Tracker() : axes(LTR_AXES_T_INITIALIZER), axes_valid(false)
   master = new MasterThread();
   slave = new SlaveThread();
   ltr_int_set_callback_hooks(ltr_int_new_frame, ltr_int_state_changed);
-  connect(master, SIGNAL(finished()), this, SLOT(masterFinished()));
   setProfile(QString("Default"));
   axes_valid = true;
 }
@@ -94,19 +94,16 @@ Tracker::~Tracker()
 
 void Tracker::signalStateChange(ltr_state_type current_state)
 {
-  std::cout<<"Changing state to "<<current_state<<std::endl;
   emit stateChangedz(current_state);
 }
 
 void Tracker::signalNewFrame(struct frame_type *frame)
 {
-  //std::cout<<"Signalling new frame!"<<std::endl;
   emit newFrame(frame);
 }
 
 void Tracker::signalNewPose(pose_t *pose)
 {
-  //std::cout<<"Signalling new pose!"<<std::endl;
   static pose_t processed;
   processed = *pose;
   ltr_int_postprocess_axes(axes, &processed);
@@ -125,38 +122,29 @@ void Tracker::setProfile(QString p)
 void Tracker::start(QString &section)
 {
   (void) section;
-  masterShouldRun = true;
   master->start();
-  com_fname = ltr_int_init_helper(NULL, false); //Like ltr_init, but doesn't invoke master...
-  slave->start();
+  //com_fname = ltr_int_init_helper(NULL, false); //Like ltr_init, but doesn't invoke master...
+  //slave->start();
 }
 
 void Tracker::pause()
 {
-  ltr_suspend();
+  suspend_cmd();
 }
 
 void Tracker::wakeup()
 {
-  ltr_wakeup();
+  wakeup_cmd();
 }
 
 void Tracker::recenter()
 {
-  ltr_recenter();
+  recenter_cmd();
 }
 
 void Tracker::stop()
 {
-  masterShouldRun = false;
-  ltr_shutdown();
-}
-
-void Tracker::masterFinished()
-{
-  if(masterShouldRun){
-    master->start();
-  }
+  request_shutdown();
 }
 
 bool Tracker::axisChangeEnabled(axis_t axis, bool enabled)

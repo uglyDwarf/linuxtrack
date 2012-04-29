@@ -10,9 +10,14 @@ extern "C" {
 #endif
 
 void change(const char *profile, int axis, int elem, float val);
-bool master(bool daemonize);
+bool master(bool standalone);
 
 //For ltr_gui
+void suspend_cmd();
+void wakeup_cmd();
+void recenter_cmd();
+size_t request_shutdown();
+
 void ltr_int_set_callback_hooks(ltr_new_frame_callback_t nfh, ltr_status_update_callback_t suh);
 
 #ifdef __cplusplus

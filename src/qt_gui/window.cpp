@@ -5,7 +5,9 @@
 #include <ltlib.h>
 #include <iostream>
 
-Window::Window(QWidget *t, QCheckBox *b) : glWidget(NULL), tab(t), control(b), constructed(false)
+Window::Window(QWidget *t, QCheckBox *b) : glWidget(NULL), tab(t), mainLayout(NULL), control(b), 
+                                           constructed(false) 
+                                           
 {
   dynamic_cast<QTabWidget*>(tab)->setTabEnabled(1, false);
   prepare_widget();
@@ -48,9 +50,13 @@ void Window::close_widget()
     constructed = false;
     control->setEnabled(true);
   }
-  delete mainLayout;
+  if(mainLayout != NULL){
+    delete mainLayout;
+    mainLayout = NULL;
+  }
   if(glWidget != NULL){
     delete glWidget;
+    glWidget = NULL;
   }
 }
 

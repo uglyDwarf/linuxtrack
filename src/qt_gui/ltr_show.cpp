@@ -223,7 +223,6 @@ void LtrGuiForm::update()
   }
   if(img0 != NULL){
     cv->redraw(img0);
-    buffer_empty = true;
   }
 }
 
@@ -312,6 +311,7 @@ void CameraView::paintEvent(QPaintEvent * /* event */)
     QPainter painter(this);
     painter.drawPixmap(QPoint(0, 0), QPixmap::fromImage(*image));
     painter.end();
+    buffer_empty = true;
   }
 }
 
