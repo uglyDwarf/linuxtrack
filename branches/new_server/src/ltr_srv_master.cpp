@@ -110,8 +110,40 @@ bool register_slave(message_t &msg)
   return true;
 }
 
-bool master(bool daemonize)
+void suspend_cmd()
 {
+  ltr_int_suspend();
+}
+
+void wakeup_cmd()
+{
+  ltr_int_wakeup();
+}
+
+void recenter_cmd()
+{ 
+  ltr_int_recenter();
+}
+
+bool gui_shutdown_request = false;
+
+size_t request_shutdown()
+{
+  size_t res = slaves.size();
+  if(res == 0){
+    gui_shutdown_request = true;
+  }
+  return res;
+}
+
+//Try making sure, that gui will be the only master
+//  - opening and locking fifo in the gui constructor?
+//  - when master running already, make it close to let us jump to its place???
+
+
+bool master(bool standalone)
+{
+  gui_shutdown_request = false;
   //Open and lock the main communication fifo
   //  to make sure that only one master runs at a time. 
   int fifo = open_fifo_exclusive(master_fifo_name());
@@ -120,7 +152,7 @@ bool master(bool daemonize)
     return true;
   }
   printf("Starting as master!\n");
-  if(daemonize){
+  if(standalone){
     //Detach from the caller, retaining stdin/out/err
     if(daemon(0, 1) != 0){
       return false;
@@ -152,13 +184,19 @@ bool master(bool daemonize)
       if(fifo_receive(fifo, &msg, sizeof(message_t)) == 0){
         switch(msg.cmd){
           case CMD_PAUSE:
-            ltr_int_suspend();
+            if(standalone){
+              suspend_cmd();
+            }
             break;
           case CMD_WAKEUP:
-            ltr_int_wakeup();
+            if(standalone){
+              wakeup_cmd();
+            }
             break;
           case CMD_RECENTER:
-            ltr_int_recenter();
+            if(standalone){
+              recenter_cmd();
+            }
             break;
           case CMD_NEW_FIFO:
             register_slave(msg);
@@ -168,6 +206,11 @@ bool master(bool daemonize)
     }else if(fds < 0){
       perror("poll");
     }
+    
+    if(gui_shutdown_request){
+      break;
+    }
+    
   }
   printf("Shutting down tracking!\n");
   ltr_int_shutdown();

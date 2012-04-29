@@ -40,15 +40,12 @@ class Tracker : public QObject{
   SlaveThread *slave;
   ltr_axes_t axes;
   bool axes_valid;
-  bool masterShouldRun;
  public slots:
   void start(QString &section);
   void pause();
   void wakeup();
   void recenter();
   void stop();
- private slots:
-  void masterFinished();
  signals:
   void stateChangedz(int current_state);
   void newFrame(struct frame_type *frame);
