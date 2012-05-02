@@ -451,9 +451,9 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
   ltr_int_euler_to_matrix(pose->pitch / 180.0 * M_PI, pose->heading / 180.0 * M_PI, 
                           pose->roll / 180.0 * M_PI, transform);
   ltr_int_matrix_times_vec(transform, displacement, rotated);
-  ltr_int_print_matrix(transform, "trf");
-  ltr_int_print_vec(displacement, "mv");
-  ltr_int_print_vec(rotated, "rotated");
+  //ltr_int_print_matrix(transform, "trf");
+  //ltr_int_print_vec(displacement, "mv");
+  //ltr_int_print_vec(rotated, "rotated");
   ltr_int_nonlinfilt_vec(rotated, filtered_translations, filter_factors_translations, 
         filtered_translations);
   ltr_int_orig_pose.tx = rotated[0];
@@ -464,7 +464,7 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
   pose->tz = ltr_int_val_on_axis(TZ, filtered_translations[2]);
 
 //  ltr_int_print_vec(displacement, "tr");
-  printf("%f %f %f  %f %f %f\n", pose->pitch, pose->heading, pose->roll, pose->tx, pose->ty, pose->tz);
+  //printf("%f %f %f  %f %f %f\n", pose->pitch, pose->heading, pose->roll, pose->tx, pose->ty, pose->tz);
   return true;
 }
 
