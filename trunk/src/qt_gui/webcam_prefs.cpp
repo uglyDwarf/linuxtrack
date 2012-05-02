@@ -121,7 +121,7 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
     QString fourcc, thres, bmin, bmax, res, fps, flip;
     int fmt_index = 0;
     const char *tmp = ltr_int_wc_get_pixfmt();
-    std::cout<<"4CC: "<<tmp<<std::endl;
+    //std::cout<<"4CC: "<<tmp<<std::endl;
     if(tmp != NULL){
       fourcc = tmp;
       fmt_index = wc_info->findFourcc(fourcc);

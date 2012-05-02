@@ -89,7 +89,7 @@ void state_changed(void *param)
 void CaptureThread::run()
 {
   QString section = PREF.getCustomSectionTitle();
-  char *section_str = section.toAscii().data();
+  char *section_str = ltr_int_my_strdup(section.toAscii().data());
   std::cout<<"Opening section '"<<section_str<<"'"<<std::endl;
   //section_str = NULL;
   prep_main_loop(section_str);
@@ -98,6 +98,7 @@ void CaptureThread::run()
   w = 0;
   h = 0;
   clean_up();
+  free(section_str);
 }
 
 void CaptureThread::signal_new_frame()
