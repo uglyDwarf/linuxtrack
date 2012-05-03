@@ -9,10 +9,10 @@ ScpForm::ScpForm(QWidget *parent) :QWidget(parent)
   pitch = new SCurve(PROFILE.getCurrentProfile()->getPitchAxis(), 
                       "Pitch - looking up/down", "Down", "Up", this);
   yaw = new SCurve(PROFILE.getCurrentProfile()->getYawAxis(), 
-                    "Yaw - looking left/right", "Left", "Right", this);
+                    "Yaw - looking right/left", "Right", "Left", this);
   roll = new SCurve(PROFILE.getCurrentProfile()->getRollAxis(), 
                      "Roll - tilting head left/right", 
-		    "Counter-clockwise", "Clockwise", this);
+		     "Clockwise", "Counter-clockwise", this);
   x = new SCurve(PROFILE.getCurrentProfile()->getTxAxis(), 
                   "Sideways translation", "Left", "Right", this);
   y = new SCurve(PROFILE.getCurrentProfile()->getTyAxis(), 
