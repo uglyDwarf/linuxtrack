@@ -10,6 +10,8 @@
 #include <string.h>
 #include <signal.h>
 #include <cal.h>
+#include <ipc_utils.h>
+#include <utils.h>
 
 #include <map>
 #include <string>
@@ -20,6 +22,47 @@ static pose_t current_pose;
 
 ltr_new_frame_callback_t new_frame_hook = NULL;
 ltr_status_update_callback_t status_update_hook = NULL;
+
+static const char *lockName = "ltr_server.lock";
+static semaphore_p pfSem = NULL;
+
+bool ltr_int_gui_lock()
+{
+  switch(ltr_int_server_running_already(lockName, &pfSem, true)){
+    case 0:
+      return true;
+      break;
+    case 1:
+      ltr_int_log_message("Gui server runs already!");
+      return false;
+      break;
+    default:
+      ltr_int_log_message("Error locking gui server lock!");
+      return false;
+      break;
+  }
+}
+
+bool ltr_int_gui_lock_active()
+{
+  if(pfSem == NULL){
+    switch(ltr_int_server_running_already(lockName, &pfSem, false)){
+      case 0:
+        return true;
+        break;
+      case 1:
+        ltr_int_log_message("Gui server running!");
+        return false;
+        break;
+      default:
+        ltr_int_log_message("Error locking gui server lock!");
+        return false;
+        break;
+    }
+  }else{
+    return ltr_int_testLockSemaphore(pfSem);
+  }
+}
 
 void change(const char *profile, int axis, int elem, float val)
 {
@@ -144,9 +187,32 @@ size_t request_shutdown()
 bool master(bool standalone)
 {
   gui_shutdown_request = false;
+  int fifo;
+  
+  if(standalone){
+    if(!ltr_int_gui_lock_active()){
+      printf("Gui is active, quitting!\n");
+      return true;
+    }
+    fifo = open_fifo_exclusive(master_fifo_name());
+  }else{
+    if(!ltr_int_gui_lock()){
+      ltr_int_log_message("Couldn't lock gui lock!");
+      return false;
+    }
+    int counter = 10;
+    while((fifo = open_fifo_exclusive(master_fifo_name())) <= 0){
+      if((counter--) <= 0){
+        ltr_int_log_message("The other master doesn't give up!");
+        break;
+      }
+      sleep(1);
+    }
+    ltr_int_log_message("Other master gave up, gui master taking over!");
+  }
+  
   //Open and lock the main communication fifo
   //  to make sure that only one master runs at a time. 
-  int fifo = open_fifo_exclusive(master_fifo_name());
   if(fifo <= 0){
     printf("Master already running, quitting!\n");
     return true;
@@ -207,7 +273,7 @@ bool master(bool standalone)
       perror("poll");
     }
     
-    if(gui_shutdown_request){
+    if(gui_shutdown_request || (!ltr_int_gui_lock_active())){
       break;
     }
     

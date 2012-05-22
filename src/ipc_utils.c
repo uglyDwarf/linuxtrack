@@ -57,12 +57,12 @@ bool ltr_int_wait_child_exit(int limit)
 
 //Check if some server is not running by trying to lock specific file.
 // If psem is not NULL, return this way newly semaphore on the appropriate file.
-// If should lock is false, the file is not actually locked even if it can be.
+// If should_lock is false, the file is not actually locked even if it can be.
 //  Return values:
 //    -1 error
 //     0 server not running
 //     1 server running
-int ltr_int_server_running_already(char *lockName, semaphore_p *psem, bool should_lock)
+int ltr_int_server_running_already(const char *lockName, semaphore_p *psem, bool should_lock)
 {
   char *lockFile;
   semaphore_p pfSem;

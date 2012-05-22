@@ -9,24 +9,11 @@
 #include "ltr_gui_prefs.h"
 #include <iostream>
 #include <unistd.h>
+#include <QApplication>
+#include <QMessageBox>
 
 Tracker *Tracker::trr = NULL;
 char *com_fname = NULL;
-
-class SlaveThread : public QThread{
-  public:
-    SlaveThread():profile("Default"){};
-    void run();
-    void setProfile(QString p){profile = p;};
-  private:
-    QString profile;
-};
-
-void SlaveThread::run()
-{
-  slave(profile.toAscii().data(), com_fname, true);
-}
-
 
 class MasterThread : public QThread{
   public:
@@ -79,9 +66,11 @@ static void ltr_int_new_frame(struct frame_type *frame, void *param)
 
 Tracker::Tracker() : axes(LTR_AXES_T_INITIALIZER), axes_valid(false)
 {
-  
+  if(!ltr_int_gui_lock()){
+    QMessageBox::warning(NULL, "Linuxtrack", "Another linuxtrack gui is running already!",
+                         QMessageBox::Ok);
+  }
   master = new MasterThread();
-  slave = new SlaveThread();
   ltr_int_set_callback_hooks(ltr_int_new_frame, ltr_int_state_changed);
   setProfile(QString("Default"));
   axes_valid = true;
@@ -89,12 +78,11 @@ Tracker::Tracker() : axes(LTR_AXES_T_INITIALIZER), axes_valid(false)
 
 Tracker::~Tracker()
 {
-  
 }
 
 void Tracker::signalStateChange(ltr_state_type current_state)
 {
-  emit stateChangedz(current_state);
+  emit stateChanged(current_state);
 }
 
 void Tracker::signalNewFrame(struct frame_type *frame)
@@ -123,8 +111,6 @@ void Tracker::start(QString &section)
 {
   (void) section;
   master->start();
-  //com_fname = ltr_int_init_helper(NULL, false); //Like ltr_init, but doesn't invoke master...
-  //slave->start();
 }
 
 void Tracker::pause()

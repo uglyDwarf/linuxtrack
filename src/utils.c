@@ -133,7 +133,7 @@ char *ltr_int_my_strcat(const char *str1, const char *str2)
   return res;
 }
 
-char *ltr_int_get_default_file_name(char *fname)
+char *ltr_int_get_default_file_name(const char *fname)
 {
   char *home = getenv("HOME");
   char *pref_dir = ".linuxtrack";

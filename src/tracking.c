@@ -360,7 +360,9 @@ double ltr_int_nonlinfilt(double x,
   }
   double delta = x - y_minus_1;
   y = y_minus_1 + delta * (fabsf(delta)/(fabsf(delta) + filterfactor));
-
+  if(!ltr_int_is_finite(y)){
+    return y_minus_1;
+  }
   return y;
 }
 

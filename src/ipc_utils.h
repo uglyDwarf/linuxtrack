@@ -22,7 +22,7 @@ struct mmap_s{
   semaphore_p lock_sem;
 };
 
-int ltr_int_server_running_already(char *lockName, semaphore_p *psem, bool should_lock);
+int ltr_int_server_running_already(const char *lockName, semaphore_p *psem, bool should_lock);
 LIBLINUXTRACK_PRIVATE bool ltr_int_fork_child(char *args[]);
 bool ltr_int_wait_child_exit(int limit);
 

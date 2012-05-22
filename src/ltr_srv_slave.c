@@ -47,7 +47,7 @@ void try_start_master(const char *main_fifo)
     args[0] = ltr_int_get_app_path("/ltr_server1");
     ltr_int_fork_child(args);
     int status;
-    //Disable the wait when not daemonizing!!!
+    //Disable the wait when not daemonizing master!!!
     wait(&status);
   }
 }
@@ -61,7 +61,7 @@ bool try_restart_master(struct pollfd *fifo_poll, int *fifo, int *master_fifo)
     return false;
   }
   printf("Trying to restart master!\n");
-  //Close the data fifo before starting new master, otherwise master will retain it!
+  //Close the data fifo before starting new master, otherwise master will inherit it!
   close(*fifo);
   close(*master_fifo);
   *master_fifo = -1;
@@ -104,7 +104,7 @@ void *slave_reader_thread(void *param)
     if(fds > 0){
       if(fifo_poll.revents & POLLHUP){
         if(!try_restart_master(&fifo_poll, &fifo, &master_fifo)){
-          return false;
+          return 0;
         }
       }
       message_t msg;
@@ -156,11 +156,14 @@ void *slave_reader_thread(void *param)
 bool slave(const char *c_profile, const char *c_com_file, bool in_gui)
 {
   printf("Starting slave!\n");
+  //Don't try to restart master when inside gui
   if(in_gui){
     try_restarting_master = false;
   }else{
     try_restarting_master = true;
   }
+  
+  //Prepare communication channel with client
   char *profile = ltr_int_my_strdup(c_profile);
   char *com_file = ltr_int_my_strdup(c_com_file);
   if(!ltr_int_mmap_file(com_file, sizeof(struct ltr_comm), &mmm)){
@@ -169,6 +172,8 @@ bool slave(const char *c_profile, const char *c_com_file, bool in_gui)
   }
   free(com_file);
   struct ltr_comm *com = mmm.data;
+  
+  //Preferences are already loaded when in gui
   if(!in_gui){
     if(!ltr_int_read_prefs(NULL, false)){
       printf("Couldn't load preferences!\n");
@@ -177,10 +182,13 @@ bool slave(const char *c_profile, const char *c_com_file, bool in_gui)
   }
   ltr_int_set_custom_section(profile);
   ltr_int_init_axes(&axes);
+  
   if(master_fifo != -1){
     close(master_fifo);
   }
-  try_start_master(master_fifo_name());
+  if(!in_gui){
+    try_start_master(master_fifo_name());
+  }
   
   profile_name = profile;
   printf("Starting slave (profile: %s)!\n", profile_name);
@@ -190,10 +198,12 @@ bool slave(const char *c_profile, const char *c_com_file, bool in_gui)
     return false;
   }
 
-  //create reader thread (gets data from master andprocesses them).
+  //create reader thread (gets data from master and processes them).
   pthread_t reader_tid;
   stop_slave_reader_thread = false;
   pthread_create(&reader_tid, NULL, slave_reader_thread, NULL);
+  
+  //Prepare to process client requests
   ltr_cmd cmd = NOP_CMD;
   bool recenter = false;
   bool quit_flag = false;
