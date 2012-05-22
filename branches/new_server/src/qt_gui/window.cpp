@@ -44,6 +44,8 @@ void Window::close_widget()
   if(constructed){
     disconnect(timer, SIGNAL(timeout()), this, SLOT(update_pic()));
     disconnect(glWidget, SIGNAL(ready()), this, SLOT(start_widget()));
+    disconnect(&TRACKER, SIGNAL(newPose(pose_t *, pose_t *)), this, SLOT(newPose(pose_t *, pose_t *)));
+
     control->setEnabled(false);
     timer->stop();
     dynamic_cast<QTabWidget*>(tab)->setTabEnabled(1, false);

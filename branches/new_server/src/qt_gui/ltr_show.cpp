@@ -86,7 +86,7 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s, QSetti
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
   connect(fpsTimer, SIGNAL(timeout()), this, SLOT(updateFps()));
   camViewEnable = true;
-  if(!connect(&TRACKER, SIGNAL(stateChangedz(int)), this, SLOT(stateChangedz(int)))){
+  if(!connect(&TRACKER, SIGNAL(stateChanged(int)), this, SLOT(stateChanged(int)))){
     std::cout<<"Problem connecting signal1!"<<std::endl;
   }
   if(!connect(&TRACKER, SIGNAL(newFrame(struct frame_type *)), this, SLOT(newFrameDelivered(struct frame_type *)))){
@@ -226,7 +226,7 @@ void LtrGuiForm::update()
   }
 }
 
-void LtrGuiForm::stateChangedz(int current_state)
+void LtrGuiForm::stateChanged(int current_state)
 {
   switch(current_state){
     case STOPPED:

@@ -10,7 +10,6 @@
 #define TRACKER Tracker::trackerInst()
 
 class MasterThread;
-class SlaveThread;
 
 class Tracker : public QObject{
   Q_OBJECT
@@ -37,7 +36,6 @@ class Tracker : public QObject{
   ~Tracker();
   static Tracker *trr;
   MasterThread *master;
-  SlaveThread *slave;
   ltr_axes_t axes;
   bool axes_valid;
  public slots:
@@ -47,10 +45,11 @@ class Tracker : public QObject{
   void recenter();
   void stop();
  signals:
-  void stateChangedz(int current_state);
+  void stateChanged(int current_state);
   void newFrame(struct frame_type *frame);
   void newPose(pose_t *raw_pose, pose_t *pose);
   void axisChanged(int axis, int elem);
+  void quitRequest();
 };
 
 #endif

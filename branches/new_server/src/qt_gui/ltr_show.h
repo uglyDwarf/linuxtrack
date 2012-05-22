@@ -62,7 +62,7 @@ class LtrGuiForm : public QWidget
    void on_stopButton_pressed();
    void disableCamView_stateChanged(int state);
    void disable3DView_stateChanged(int state);
-   void stateChangedz(int current_state);
+   void stateChanged(int current_state);
    void newFrameDelivered(struct frame_type *frame);
   protected:
    void closeEvent(QCloseEvent *event);
