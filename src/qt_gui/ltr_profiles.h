@@ -7,6 +7,7 @@
 
 #define PROFILE Profile::getProfiles()
 
+
 class AppProfile : public QWidget{
   Q_OBJECT
  public:

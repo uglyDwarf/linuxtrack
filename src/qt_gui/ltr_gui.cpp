@@ -352,7 +352,7 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
       ui.DeviceSelector->setEnabled(true);
       ui.CameraOrientation->setEnabled(true);
       ui.ModelSelector->setEnabled(true);
-      ui.Profiles->setEnabled(true);
+      //ui.Profiles->setEnabled(true);
       ui.DefaultsButton->setEnabled(true);
       ui.DiscardChangesButton->setEnabled(true);
       ui.LegacyPose->setEnabled(true);
@@ -363,7 +363,7 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
       ui.DeviceSelector->setDisabled(true);
       ui.CameraOrientation->setDisabled(true);
       ui.ModelSelector->setDisabled(true);
-      ui.Profiles->setDisabled(true);
+      //ui.Profiles->setDisabled(true);
       ui.DefaultsButton->setDisabled(true);
       ui.DiscardChangesButton->setDisabled(true);
       ui.LegacyPose->setDisabled(true);

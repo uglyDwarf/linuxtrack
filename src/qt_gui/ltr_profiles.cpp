@@ -42,7 +42,8 @@ bool Profile::setCurrent(const QString &name)
     return false;
   }
   if(PREF.setCustomSection(name)){
-    currentProfile->changeProfile(PREF.getCustomSectionName());
+    currentProfile->changeProfile(PREF.getCustomSectionTitle());
+    std::cout<<"Set current profile !!!"<<name.toStdString().c_str()<<std::endl;
     return true;
   }
   return false;
@@ -71,6 +72,7 @@ int Profile::isProfile(const QString &name)
   return i;
 }
 
+
 AppProfile::AppProfile(const QString &n, QWidget *parent) : QWidget(parent), name(n), filterFactor(0.0),
                                                             initializing(false)
 {
@@ -98,6 +100,7 @@ const QString &AppProfile::getProfileName() const
 bool AppProfile::changeProfile(const QString &newName)
 {
   name = newName;
+  TRACKER.setProfile(name);
   filterFactorReload();
   return true;
 }
@@ -112,4 +115,6 @@ float AppProfile::getFilterFactor()
 {
   return filterFactor;
 }
+
+
 

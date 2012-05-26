@@ -101,34 +101,34 @@ void LtrTracking::axisChanged(int axis, int elem)
 {
   switch(axis){
     case PITCH:
-      if(elem == AXIS_ENABLED) gui.PitchEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(PITCH)));
-      if(elem == AXIS_LMULT) gui.PitchUpSpin->setValue(TRACKER.axisGet(PITCH, AXIS_LMULT));
-      if(elem == AXIS_RMULT) gui.PitchDownSpin->setValue(TRACKER.axisGet(PITCH, AXIS_RMULT));
+      if((elem == AXIS_ENABLED) || (elem == AXIS_FULL)) gui.PitchEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(PITCH)));
+      if((elem == AXIS_LMULT) || (elem == AXIS_FULL)) gui.PitchUpSpin->setValue(TRACKER.axisGet(PITCH, AXIS_LMULT));
+      if((elem == AXIS_RMULT) || (elem == AXIS_FULL)) gui.PitchDownSpin->setValue(TRACKER.axisGet(PITCH, AXIS_RMULT));
       break;
     case ROLL:
-      if(elem == AXIS_ENABLED) gui.RollEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(ROLL)));
-      if(elem == AXIS_LMULT) gui.TiltLeftSpin->setValue(TRACKER.axisGet(ROLL, AXIS_LMULT));
-      if(elem == AXIS_RMULT) gui.TiltRightSpin->setValue(TRACKER.axisGet(ROLL, AXIS_RMULT));
+      if((elem == AXIS_ENABLED) || (elem == AXIS_FULL)) gui.RollEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(ROLL)));
+      if((elem == AXIS_LMULT) || (elem == AXIS_FULL)) gui.TiltLeftSpin->setValue(TRACKER.axisGet(ROLL, AXIS_LMULT));
+      if((elem == AXIS_RMULT) || (elem == AXIS_FULL)) gui.TiltRightSpin->setValue(TRACKER.axisGet(ROLL, AXIS_RMULT));
       break;
     case YAW:
-      if(elem == AXIS_ENABLED) gui.YawEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(YAW)));
-      if(elem == AXIS_LMULT) gui.YawLeftSpin->setValue(TRACKER.axisGet(YAW, AXIS_LMULT));
-      if(elem == AXIS_RMULT) gui.YawRightSpin->setValue(TRACKER.axisGet(YAW, AXIS_RMULT));
+      if((elem == AXIS_ENABLED) || (elem == AXIS_FULL)) gui.YawEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(YAW)));
+      if((elem == AXIS_LMULT) || (elem == AXIS_FULL)) gui.YawLeftSpin->setValue(TRACKER.axisGet(YAW, AXIS_LMULT));
+      if((elem == AXIS_RMULT) || (elem == AXIS_FULL)) gui.YawRightSpin->setValue(TRACKER.axisGet(YAW, AXIS_RMULT));
       break;
     case TX:
-      if(elem == AXIS_ENABLED) gui.XEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(TX)));
-      if(elem == AXIS_LMULT) gui.MoveLeftSpin->setValue(TRACKER.axisGet(TX, AXIS_LMULT));
-      if(elem == AXIS_RMULT) gui.MoveRightSpin->setValue(TRACKER.axisGet(TX, AXIS_RMULT));
+      if((elem == AXIS_ENABLED) || (elem == AXIS_FULL)) gui.XEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(TX)));
+      if((elem == AXIS_LMULT) || (elem == AXIS_FULL)) gui.MoveLeftSpin->setValue(TRACKER.axisGet(TX, AXIS_LMULT));
+      if((elem == AXIS_RMULT) || (elem == AXIS_FULL)) gui.MoveRightSpin->setValue(TRACKER.axisGet(TX, AXIS_RMULT));
       break;
     case TY:
-      if(elem == AXIS_ENABLED) gui.YEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(TY)));
-      if(elem == AXIS_LMULT) gui.MoveUpSpin->setValue(TRACKER.axisGet(TY, AXIS_LMULT));
-      if(elem == AXIS_RMULT) gui.MoveDownSpin->setValue(TRACKER.axisGet(TY, AXIS_RMULT));
+      if((elem == AXIS_ENABLED) || (elem == AXIS_FULL)) gui.YEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(TY)));
+      if((elem == AXIS_LMULT) || (elem == AXIS_FULL)) gui.MoveUpSpin->setValue(TRACKER.axisGet(TY, AXIS_LMULT));
+      if((elem == AXIS_RMULT) || (elem == AXIS_FULL)) gui.MoveDownSpin->setValue(TRACKER.axisGet(TY, AXIS_RMULT));
       break;
     case TZ:
-      if(elem == AXIS_ENABLED) gui.ZEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(TZ)));
-      if(elem == AXIS_LMULT) gui.MoveBackSpin->setValue(TRACKER.axisGet(TZ, AXIS_LMULT));
-      if(elem == AXIS_RMULT) gui.MoveForthSpin->setValue(TRACKER.axisGet(TZ, AXIS_RMULT));
+      if((elem == AXIS_ENABLED) || (elem == AXIS_FULL)) gui.ZEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(TZ)));
+      if((elem == AXIS_LMULT) || (elem == AXIS_FULL)) gui.MoveBackSpin->setValue(TRACKER.axisGet(TZ, AXIS_LMULT));
+      if((elem == AXIS_RMULT) || (elem == AXIS_FULL)) gui.MoveForthSpin->setValue(TRACKER.axisGet(TZ, AXIS_RMULT));
       break;
     default:
       break;

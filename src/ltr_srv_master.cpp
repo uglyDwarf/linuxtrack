@@ -68,13 +68,14 @@ void change(const char *profile, int axis, int elem, float val)
 {
   std::pair<std::multimap<std::string, int>::iterator, std::multimap<std::string, int>::iterator> range;
   std::multimap<std::string, int>::iterator i;
+  //Finds all slaves belonging to the specific profile
   range = slaves.equal_range(profile);
   for(i = range.first; i != range.second; ++i){
     send_param_update(i->second, axis, elem, val);
   }
 }
 
-//When slave is started, in GUI its axes might have changed
+//When slave is started, in GUI its axes might have changed (so better send through all )
 
 
 

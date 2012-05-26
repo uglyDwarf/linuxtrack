@@ -382,6 +382,7 @@ bool PrefProxy::getProfiles(QStringList &list)
 
 bool PrefProxy::setCustomSection(const QString &name)
 {
+  //std::cout<<"Setting custom section "<<name.toStdString()<<std::endl;
   bool res = ltr_int_set_custom_section(name.toAscii().data());
   return res;
 }
@@ -395,6 +396,7 @@ bool PrefProxy::savePrefs()
 QString PrefProxy::getCustomSectionName()
 {
   const char *sec = ltr_int_get_custom_section_name();
+  //std::cout<<"Getting custom section name "<<sec<<std::endl;
   if(sec == NULL){
     return QString("Default");
   }else{
@@ -406,12 +408,15 @@ QString PrefProxy::getCustomSectionTitle()
 {
   const char *sec = ltr_int_get_custom_section_name();
   if(sec == NULL){
+    //std::cout<<"Getting custom section title Default (no section)"<<std::endl;
     return QString("Default");
   }else{
     QString title;
     if(getKeyVal("Title", title)){
+      //std::cout<<"Getting custom section title"<<title.toStdString()<<std::endl;
       return title;
     }else{
+      //std::cout<<"Getting custom section title Default (no title)"<<std::endl;
       return QString("Default");
     }
   }
