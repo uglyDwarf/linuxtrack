@@ -38,6 +38,7 @@ class Tracker : public QObject{
   MasterThread *master;
   ltr_axes_t axes;
   bool axes_valid;
+  QString currentProfile;
  public slots:
   void start(QString &section);
   void pause();

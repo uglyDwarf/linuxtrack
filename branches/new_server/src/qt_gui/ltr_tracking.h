@@ -25,8 +25,7 @@ class LtrTracking : public QObject
   void on_YawEnable_stateChanged(int state);
   void on_XEnable_stateChanged(int state);
   void on_YEnable_stateChanged(int state);
-  void on_ZEnable_stateChanged(int state);
-  
+  void on_ZEnable_stateChanged(int state);  
   void on_PitchUpSpin_valueChanged(double d);
   void on_PitchDownSpin_valueChanged(double d);
   void on_YawLeftSpin_valueChanged(double d);
@@ -39,7 +38,6 @@ class LtrTracking : public QObject
   void on_MoveDownSpin_valueChanged(double d);
   void on_MoveBackSpin_valueChanged(double d);
   void on_MoveForthSpin_valueChanged(double d);
-  
  private:
   const Ui::LinuxtrackMainForm &gui;
   void Connect();

@@ -64,7 +64,7 @@ static void ltr_int_new_frame(struct frame_type *frame, void *param)
   TRACKER.signalNewPose(&current_pose);
 }
 
-Tracker::Tracker() : axes(LTR_AXES_T_INITIALIZER), axes_valid(false)
+Tracker::Tracker() : axes(LTR_AXES_T_INITIALIZER), axes_valid(false), currentProfile("Default")
 {
   if(!ltr_int_gui_lock()){
     QMessageBox::warning(NULL, "Linuxtrack", "Another linuxtrack gui is running already!",
@@ -102,9 +102,19 @@ void Tracker::setProfile(QString p)
 {
   axes_valid = false;
   ltr_int_close_axes(&axes);
-  PREF.setCustomSection(p);
+  //PREF.setCustomSection(p);
+  currentProfile = PREF.getCustomSectionName();
+  std::cout<<"Set profile "<<currentProfile.toStdString()<<" - "<<p.toStdString()<<std::endl;
   ltr_int_init_axes(&axes);
   axes_valid = true;
+  
+  emit axisChanged(PITCH, AXIS_FULL);
+  emit axisChanged(ROLL, AXIS_FULL);
+  emit axisChanged(YAW, AXIS_FULL);
+  emit axisChanged(TX, AXIS_FULL);
+  emit axisChanged(TY, AXIS_FULL);
+  emit axisChanged(TZ, AXIS_FULL);
+
 }
 
 void Tracker::start(QString &section)
@@ -137,6 +147,9 @@ bool Tracker::axisChangeEnabled(axis_t axis, bool enabled)
 {
   ltr_int_set_axis_bool_param(axes, axis, AXIS_ENABLED, enabled);
   emit axisChanged(axis, AXIS_ENABLED);
+  QString section(PREF.getCustomSectionTitle());
+  std::cout<<"Section1: "<<section.toStdString()<<std::endl;
+  change(section.toStdString().c_str(), axis, AXIS_ENABLED, enabled?1.0:0.0);
   return true; 
 }
 
@@ -144,6 +157,9 @@ bool Tracker::axisChange(axis_t axis, axis_param_t elem, float val)
 {
   bool res = ltr_int_set_axis_param(axes, axis, elem, val);
   emit axisChanged(axis, elem);
+  QString section(PREF.getCustomSectionTitle());
+  std::cout<<"Section2: "<<section.toStdString()<<std::endl;
+  change(section.toStdString().c_str(), axis, elem, val);
   return res;
 }
 
