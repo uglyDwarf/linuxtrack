@@ -16,6 +16,7 @@ class PrefProxy{
  public:
   static PrefProxy& Pref();
   static void ClosePrefs();
+  static void SavePrefsOnExit();
   bool activateDevice(const QString &sectionName);
   bool getActiveDevice(deviceType_t &devType, QString &id);
   bool activateModel(const QString &sectionName);
@@ -42,7 +43,7 @@ class PrefProxy{
   QString getCustomSectionName();
   QString getCustomSectionTitle();
   bool setCustomSection(const QString &name);
-  bool savePrefs();
+  static bool savePrefs();
   bool rereadPrefs();
   bool makeRsrcDir();
   bool copyDefaultPrefs();

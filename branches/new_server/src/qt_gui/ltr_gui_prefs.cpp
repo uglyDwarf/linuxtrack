@@ -134,16 +134,6 @@ bool PrefProxy::copyDefaultPrefs()
 
 PrefProxy::~PrefProxy()
 {
-  if(ltr_int_need_saving()){
-    QMessageBox::StandardButton res;
-    res = QMessageBox::warning(NULL, "Linuxtrack",
-       QString("Preferences were modified,") +
-       QString("Do you want to save them?"), 
-       QMessageBox::Save | QMessageBox::Close, QMessageBox::Save);
-    if(res == QMessageBox::Save){
-      savePrefs();
-    }
-  }
 }
 
 PrefProxy& PrefProxy::Pref()
@@ -160,6 +150,20 @@ void PrefProxy::ClosePrefs()
     delete prf;
     prf = NULL;
     ltr_int_free_prefs();
+  }
+}
+
+void PrefProxy::SavePrefsOnExit()
+{
+  if(ltr_int_need_saving()){
+    QMessageBox::StandardButton res;
+    res = QMessageBox::warning(NULL, "Linuxtrack",
+       QString("Preferences were modified,") +
+       QString("Do you want to save them?"), 
+       QMessageBox::Save | QMessageBox::Close, QMessageBox::Save);
+    if(res == QMessageBox::Save){
+      savePrefs();
+    }
   }
 }
 
