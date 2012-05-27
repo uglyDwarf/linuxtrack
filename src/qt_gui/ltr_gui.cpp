@@ -104,6 +104,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
 
 LinuxtrackGui::~LinuxtrackGui()
 {
+  PrefProxy::ClosePrefs();
 }
 
 void LinuxtrackGui::initOrientations()
@@ -158,7 +159,6 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   delete me;
   delete sc;
   delete helper;
-  PrefProxy::ClosePrefs();
   event->accept();
 }
 
@@ -220,6 +220,8 @@ void LinuxtrackGui::on_RefreshDevices_pressed()
 
 void LinuxtrackGui::on_QuitButton_pressed()
 {
+  TRACKER.stop();
+  PREF.SavePrefsOnExit();
   close();
 }
 
