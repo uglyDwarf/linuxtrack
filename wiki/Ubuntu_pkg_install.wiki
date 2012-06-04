@@ -42,6 +42,9 @@ Go to the "Other software" tab and click "Add..." button.
 
 In the dialog, enter one of the following:
 
+ * on Ubuntu 12.04 Precise Pangolin
+{{{deb http://www.linuxtrack.eu/repositories/ubuntu precise main}}}
+
  * on Ubuntu 11.10 Oneiric Ocelot
 {{{deb http://www.linuxtrack.eu/repositories/ubuntu oneiric main}}}
 
