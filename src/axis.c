@@ -358,7 +358,33 @@ static void set_axis_field(struct axis_def *axis, axis_fields field, float val, 
   }
 }
 
-static bool ltr_int_get_axis(enum axis_t id, struct axis_def *axis)
+static bool ltr_int_axis_get_key_flt(const char *section, const char *key_name, float *res)
+{
+  if(ltr_int_get_key_flt(section, key_name, res)){
+    return true;
+  }
+  if(ltr_int_get_key_flt("Default", key_name, res)){
+    return true;
+  }
+  return false;
+}
+
+static const char *ltr_int_axis_get_key(const char *section, const char *key_name)
+{
+  const char *res = NULL;
+  res = ltr_int_get_key(section, key_name);
+  if(res != NULL){
+    return res;
+  }
+  res = ltr_int_get_key("Default", key_name);
+  if(res != NULL){
+    return res;
+  }
+  return false;
+}
+
+
+static bool ltr_int_get_axis(const char *sec_name, enum axis_t id, struct axis_def *axis)
 {
   axis_fields i;
   char *field_name = NULL;
@@ -373,11 +399,11 @@ static bool ltr_int_get_axis(enum axis_t id, struct axis_def *axis)
   for(i = DEADZONE; i <= ENABLED; ++i){
     field_name = ltr_int_my_strcat(prefix, fields[i]);
     if(i != ENABLED){
-      if(ltr_int_get_key_flt(NULL, field_name, &val)){
+      if(ltr_int_axis_get_key_flt(sec_name, field_name, &val)){
         set_axis_field(axis, i, val, id);
       }
     }else{
-      string = ltr_int_get_key(NULL, field_name);
+      string = ltr_int_axis_get_key(sec_name, field_name);
       if((string == NULL) || (strcasecmp(string, "No") != 0)){
         axis->enabled = true;
       }else{
@@ -401,14 +427,13 @@ bool ltr_int_axes_changed(ltr_axes_t axes, bool reset_flag)
   return flag;
 }
 
-void ltr_int_init_axes(ltr_axes_t *axes)
+void ltr_int_init_axes(ltr_axes_t *axes, const char *profile)
 {
   if(axes == NULL){
     ltr_int_log_message("Don't pass NULL to ltr_int_init_axes!\n");
     return;
   }
   ltr_int_log_message("Initializing axes!\n");
-  printf("Inititializing axes of %s\n", ltr_int_get_custom_section_name());
   if(((*axes) != NULL) && ((*axes)->initialized)){
     ltr_int_close_axes(axes);
   }
@@ -416,12 +441,14 @@ void ltr_int_init_axes(ltr_axes_t *axes)
   pthread_mutex_lock(&axes_mutex);
   bool res = true;
   (*axes)->axes_changed_flag = false;
-  res &= ltr_int_get_axis(PITCH, &((*axes)->pitch_axis));
-  res &= ltr_int_get_axis(YAW, &((*axes)->yaw_axis));
-  res &= ltr_int_get_axis(ROLL, &((*axes)->roll_axis));
-  res &= ltr_int_get_axis(TX, &((*axes)->tx_axis));
-  res &= ltr_int_get_axis(TY, &((*axes)->ty_axis));
-  res &= ltr_int_get_axis(TZ, &((*axes)->tz_axis));
+  const char *sec_name = ltr_int_find_profile(profile);
+  printf("Inititializing axes of %s (section %s)\n", profile, sec_name);
+  res &= ltr_int_get_axis(sec_name, PITCH, &((*axes)->pitch_axis));
+  res &= ltr_int_get_axis(sec_name, YAW, &((*axes)->yaw_axis));
+  res &= ltr_int_get_axis(sec_name, ROLL, &((*axes)->roll_axis));
+  res &= ltr_int_get_axis(sec_name, TX, &((*axes)->tx_axis));
+  res &= ltr_int_get_axis(sec_name, TY, &((*axes)->ty_axis));
+  res &= ltr_int_get_axis(sec_name, TZ, &((*axes)->tz_axis));
   (*axes)->initialized = res;
   pthread_mutex_unlock(&axes_mutex);
 }

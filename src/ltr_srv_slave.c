@@ -136,7 +136,7 @@ void *slave_reader_thread(void *param)
             }
             break;
           default:
-            printf("Slave received unexpected message!\n");
+            printf("Slave received unexpected message %d!\n", msg.cmd);
             break;
         }
         //printf("Received: '%s'\n", msg.str);
@@ -182,7 +182,7 @@ bool slave(const char *c_profile, const char *c_com_file, bool in_gui)
     }
   }
   ltr_int_set_custom_section(profile);
-  ltr_int_init_axes(&axes);
+  ltr_int_init_axes(&axes, profile);
   
   if(master_fifo != -1){
     close(master_fifo);
