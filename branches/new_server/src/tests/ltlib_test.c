@@ -41,14 +41,18 @@ void *kbd_reader(void *param)
 
 
 int main(int argc, char *argv[]) {
-  (void) argc;
-  (void) argv;
+  char *section = "Default";
   float heading, pitch, roll;
   float tx, ty, tz;
   unsigned int counter;
   int retval;
-
-  retval = ltr_init("Default");
+  
+  if(argc > 1){
+    section = argv[1];
+  }
+  printf("Section: %s\n", section);
+  
+  retval = ltr_init(section);
   while(ltr_get_tracking_state() == INITIALIZING){
     ltr_int_usleep(333333);
   }

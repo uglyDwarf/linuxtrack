@@ -448,6 +448,26 @@ bool ltr_int_add_new_custom_section(char *new_sec_name, char *name)
   return true;
 }
 
+const char *ltr_int_find_profile(const char *title)
+{
+  //Find section with given title...
+  iterator i;
+  ltr_int_init_iterator(ltr_int_prefs, &i);
+  const char *sec_title, *sec_name;
+  pref_file_item *pfi;
+  while((pfi = (pref_file_item *)ltr_int_get_next(&i)) != NULL){
+    if(pfi->item_type == SECTION){
+      assert(pfi->section != NULL);
+      sec_name = pfi->section->name;
+      sec_title = ltr_int_get_key(sec_name, "Title");
+      if((sec_title != NULL) && (strcasecmp(sec_title, title) == 0)){
+        return sec_title;
+      }
+    }
+  }
+  return NULL;
+}
+
 
 bool ltr_int_set_custom_section(char *name)
 {
@@ -460,25 +480,9 @@ bool ltr_int_set_custom_section(char *name)
   }
   assert(prefs_read_already);
   assert(name != NULL);
-  //Find section with given title...
-  iterator i;
-  ltr_int_init_iterator(ltr_int_prefs, &i);
-  const char *title, *sec_name;
-  bool found = false;
-  pref_file_item *pfi;
-  while((pfi = (pref_file_item *)ltr_int_get_next(&i)) != NULL){
-    if(pfi->item_type == SECTION){
-      assert(pfi->section != NULL);
-      sec_name = pfi->section->name;
-      title = ltr_int_get_key(sec_name, "Title");
-      if((title != NULL) && (strcasecmp(title, name) == 0)){
-        found = true;
-        break;
-      }
-    }
-  }
-  
-  if(found){
+
+  const char *sec_name = ltr_int_find_profile(name);
+  if(sec_name != NULL){
     custom_section_name = ltr_int_my_strdup(sec_name);
     ltr_int_log_message("Custom section '%s' found!\n", sec_name);
     return true;
@@ -563,3 +567,6 @@ bool ltr_int_need_saving(void)
 {
   return need_saving;
 }
+
+
+

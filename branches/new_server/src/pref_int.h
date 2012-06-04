@@ -61,6 +61,8 @@ bool ltr_int_save_prefs(void);
 bool ltr_int_need_saving(void);
 bool ltr_int_prefs_read_already(void);
 
+const char *ltr_int_find_profile(const char *title);
+
 #ifdef __cplusplus
 }
 #endif

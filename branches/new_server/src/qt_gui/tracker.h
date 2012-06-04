@@ -19,6 +19,7 @@ class Tracker : public QObject{
   void signalStateChange(ltr_state_type current_state);
   void signalNewFrame(struct frame_type *frame);
   void signalNewPose(pose_t *pose);
+  void signalNewSlave(const char *name);
   //Profile related stuff
   void setProfile(QString p);
   

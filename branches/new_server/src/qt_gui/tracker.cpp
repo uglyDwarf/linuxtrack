@@ -33,6 +33,11 @@ Tracker& Tracker::trackerInst()
   return *trr;
 }
 
+static void ltr_int_new_slave(char *name)
+{
+  TRACKER.signalNewSlave(name);
+}
+
 static void ltr_int_state_changed(void *param)
 {
   (void) param;
@@ -71,7 +76,7 @@ Tracker::Tracker() : axes(LTR_AXES_T_INITIALIZER), axes_valid(false), currentPro
                          QMessageBox::Ok);
   }
   master = new MasterThread();
-  ltr_int_set_callback_hooks(ltr_int_new_frame, ltr_int_state_changed);
+  ltr_int_set_callback_hooks(ltr_int_new_frame, ltr_int_state_changed, ltr_int_new_slave);
   setProfile(QString("Default"));
   axes_valid = true;
 }
@@ -98,6 +103,22 @@ void Tracker::signalNewPose(pose_t *pose)
   emit newPose(pose, &processed);
 }
 
+
+void Tracker::signalNewSlave(const char *name)
+{
+  ltr_axes_t tmp_axes;
+  tmp_axes = NULL;
+  ltr_int_init_axes(&tmp_axes, name);
+  for(int i = PITCH; i <= TZ; ++i){
+    change(name, i, AXIS_ENABLED, ltr_int_get_axis_bool_param(tmp_axes, (axis_t)i, AXIS_ENABLED)?1.0:0.0);
+    for(int j = AXIS_DEADZONE; j <= AXIS_RLIMIT; ++j){
+      change(name, i, j, ltr_int_get_axis_param(tmp_axes, (axis_t)i, (axis_param_t)j));
+    }
+  }
+  ltr_int_close_axes(&tmp_axes);
+}
+
+
 void Tracker::setProfile(QString p)
 {
   axes_valid = false;
@@ -105,16 +126,14 @@ void Tracker::setProfile(QString p)
   //PREF.setCustomSection(p);
   currentProfile = PREF.getCustomSectionName();
   std::cout<<"Set profile "<<currentProfile.toStdString()<<" - "<<p.toStdString()<<std::endl;
-  ltr_int_init_axes(&axes);
+  ltr_int_init_axes(&axes, currentProfile.toStdString().c_str());
   axes_valid = true;
-  
   emit axisChanged(PITCH, AXIS_FULL);
   emit axisChanged(ROLL, AXIS_FULL);
   emit axisChanged(YAW, AXIS_FULL);
   emit axisChanged(TX, AXIS_FULL);
   emit axisChanged(TY, AXIS_FULL);
   emit axisChanged(TZ, AXIS_FULL);
-
 }
 
 void Tracker::start(QString &section)

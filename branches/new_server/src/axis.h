@@ -18,7 +18,7 @@ enum axis_param_t {AXIS_ENABLED, AXIS_DEADZONE,
                    AXIS_LLIMIT, AXIS_RLIMIT,
                    AXIS_FULL};
 
-void ltr_int_init_axes(ltr_axes_t *axes);
+void ltr_int_init_axes(ltr_axes_t *axes, const char *sec_name);
 void ltr_int_close_axes(ltr_axes_t *axes);
 float ltr_int_val_on_axis(ltr_axes_t axes, enum axis_t id, float x);
 

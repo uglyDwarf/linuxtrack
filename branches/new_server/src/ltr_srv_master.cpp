@@ -22,6 +22,7 @@ static pose_t current_pose;
 
 ltr_new_frame_callback_t new_frame_hook = NULL;
 ltr_status_update_callback_t status_update_hook = NULL;
+ltr_new_slave_callback_t new_slave_hook = NULL;
 
 static const char *lockName = "ltr_server.lock";
 static semaphore_p pfSem = NULL;
@@ -79,10 +80,12 @@ void change(const char *profile, int axis, int elem, float val)
 
 
 
-void ltr_int_set_callback_hooks(ltr_new_frame_callback_t nfh, ltr_status_update_callback_t suh)
+void ltr_int_set_callback_hooks(ltr_new_frame_callback_t nfh, ltr_status_update_callback_t suh,
+                                ltr_new_slave_callback_t nsh)
 {
   new_frame_hook = nfh;
   status_update_hook = suh;
+  new_slave_hook = nsh;
 }
 
 bool broadcast_pose(pose_t &pose)
@@ -151,6 +154,9 @@ bool register_slave(message_t &msg)
   }
   printf("Slave @fifo %d registered!\n", fifo);
   slaves.insert(std::pair<std::string, int>(msg.str, fifo));
+  if(new_slave_hook != NULL){
+    new_slave_hook(msg.str);
+  }
   return true;
 }
 
