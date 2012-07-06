@@ -280,7 +280,9 @@ void LtrTracking::setCommonFFVal(float val)
 void LtrTracking::on_CommonFF_valueChanged(int value)
 {
   float val = ((float)value)/gui.CommonFF->maximum();
-  TRACKER.setCommonFilterFactor(val);
+  if(!initializing){
+    TRACKER.setCommonFilterFactor(val);
+  }
   setCommonFFVal(val);
 }
 
