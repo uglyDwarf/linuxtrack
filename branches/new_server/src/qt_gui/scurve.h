@@ -30,6 +30,7 @@ class SCurve : public QWidget{
   void on_SCRightLimit_valueChanged(double d);
   void setEnabled(int state);
   void axisChanged(int a, int elem);
+  void initAxes();
  private:
   void setup_gui();
   axis_t axis;

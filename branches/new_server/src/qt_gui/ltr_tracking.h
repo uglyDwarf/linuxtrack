@@ -38,6 +38,7 @@ class LtrTracking : public QObject
   void on_MoveForthSpin_valueChanged(double d);
   void on_CommonFF_valueChanged(int value);
   void setCommonFF(float val);
+  void initAxes();
  private:
   const Ui::LinuxtrackMainForm &gui;
   void Connect();

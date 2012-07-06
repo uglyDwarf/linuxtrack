@@ -33,11 +33,11 @@ char* ltr_int_my_strdup(const char *s);
 static void ltr_int_atexit(void)
 {
   if(logfile_name != NULL){
-    printf("ATEXIT: Freeing logfile name\n");
+    ltr_int_log_message("ATEXIT: Freeing logfile name\n");
     free(logfile_name);
   }
   if(output_stream != NULL){
-    printf("ATEXIT: Closing output stream\n");
+    ltr_int_log_message("ATEXIT: Closing output stream\n");
     fclose(output_stream);
   }
 }

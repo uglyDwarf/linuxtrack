@@ -33,6 +33,7 @@ class Tracker : public QObject{
   
   bool axisIsSymetrical(axis_t axis);
   bool setCommonFilterFactor(float c_f);
+  float getCommonFilterFactor();
  private:
   Tracker();
   ~Tracker();
@@ -55,6 +56,7 @@ class Tracker : public QObject{
   void newPose(pose_t *raw_pose, pose_t *pose);
   void axisChanged(int axis, int elem);
   void setCommonFF(float val);
+  void initAxes();
   void quitRequest();
 };
 

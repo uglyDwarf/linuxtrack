@@ -17,15 +17,14 @@ SCurve::SCurve(axis_t a, QString axis_name, QString left_label, QString right_la
   ui.SCRightLabel->setText(right_label);
   QObject::connect(&TRACKER, SIGNAL(axisChanged(int, int)),
                     this, SLOT(axisChanged(int, int)));
+  QObject::connect(&TRACKER, SIGNAL(initAxes(void)),
+                    this, SLOT(initAxes(void)));
   
   first = false;
   view = new SCView(axis, this);
   ui.SCView->removeItem(ui.SCViewSpacer);
   ui.SCView->addWidget(view);
   QObject::connect(this, SIGNAL(changed()), view, SLOT(update()));
-  initializing = true;
-  setup_gui();
-  initializing = false;
 }
 
 SCurve::~SCurve()
@@ -259,4 +258,13 @@ void SCurve::axisChanged(int a, int elem)
   }
   emit changed();
 }
+
+void SCurve::initAxes()
+{
+  initializing = true;
+  setup_gui();
+  initializing = false;
+}
+
+
 

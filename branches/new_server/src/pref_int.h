@@ -53,7 +53,7 @@ bool ltr_int_change_key_int(const char *section_name, const char *key_name, int 
 bool ltr_int_dump_prefs(char *file_name);
 void ltr_int_free_prefs(void);
 
-bool ltr_int_set_custom_section(char *name);
+bool ltr_int_set_custom_section(const char *name);
 const char *ltr_int_get_custom_section_name(void);
 bool ltr_int_read_prefs(char *file, bool force_read);
 bool ltr_int_new_prefs(void);
