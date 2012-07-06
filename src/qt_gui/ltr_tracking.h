@@ -15,8 +15,6 @@ class LtrTracking : public QObject
   void customSectionChanged();
  private slots:
   void axisChanged(int axis, int elem);
-  void on_FilterSlider_valueChanged(int value);
-  void ffChanged(float f);
   void on_Profiles_currentIndexChanged(const QString &text);
   void on_CreateNewProfile_pressed();
   
@@ -38,9 +36,12 @@ class LtrTracking : public QObject
   void on_MoveDownSpin_valueChanged(double d);
   void on_MoveBackSpin_valueChanged(double d);
   void on_MoveForthSpin_valueChanged(double d);
+  void on_CommonFF_valueChanged(int value);
+  void setCommonFF(float val);
  private:
   const Ui::LinuxtrackMainForm &gui;
   void Connect();
+  void setCommonFFVal(float val);
   bool initializing;
 };
 

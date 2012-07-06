@@ -68,7 +68,6 @@ float SCView::spline(float x)
   return fabs(TRACKER.axisGetValue(axis, x));
 }
 
-
 //Should be odd...
 static const int spline_points = 101;
 static QPointF points[spline_points];
@@ -101,6 +100,8 @@ void SCView::paintEvent(QPaintEvent * /* event */)
   float kr = (TRACKER.axisGet(axis, AXIS_RMULT) != 0.0) ? 
         TRACKER.axisGet(axis, AXIS_RLIMIT) / TRACKER.axisGet(axis, AXIS_RMULT) : 0.0;
   float max_k = kl > kr ? kl : kr;
+  
+  //Draw cross with current position
   float nx = w + w * px/max_k;
   float ny = (max_f != 0.0) ? h - fabs(spline(px) * (h / max_f)) : h;
   painter.drawLine(QLineF(nx, ny - 5, nx, ny + 5));

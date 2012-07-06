@@ -69,7 +69,7 @@ static void ltr_int_new_frame(struct frame_type *frame, void *param)
   TRACKER.signalNewPose(&current_pose);
 }
 
-Tracker::Tracker() : axes(LTR_AXES_T_INITIALIZER), axes_valid(false), currentProfile("Default")
+Tracker::Tracker() : axes(LTR_AXES_T_INITIALIZER), axes_valid(false), currentProfile("Default"), common_ff(0.0)
 {
   if(!ltr_int_gui_lock()){
     QMessageBox::warning(NULL, "Linuxtrack", "Another linuxtrack gui is running already!",
@@ -123,10 +123,22 @@ void Tracker::setProfile(QString p)
 {
   axes_valid = false;
   ltr_int_close_axes(&axes);
-  //PREF.setCustomSection(p);
+  PREF.setCustomSection(p);
   currentProfile = PREF.getCustomSectionName();
   std::cout<<"Set profile "<<currentProfile.toStdString()<<" - "<<p.toStdString()<<std::endl;
   ltr_int_init_axes(&axes, currentProfile.toStdString().c_str());
+  
+  common_ff = 1.0;
+  int i;
+  for(i = PITCH; i <= TZ; ++i){
+    ffs[i] = ltr_int_get_axis_param(axes, (axis_t)i, AXIS_FILTER);
+    if(common_ff > ffs[i]){
+      common_ff = ffs[i];
+    }
+  }
+  for(i = PITCH; i <= TZ; ++i){
+    ffs[i] -= common_ff;
+  }
   axes_valid = true;
   emit axisChanged(PITCH, AXIS_FULL);
   emit axisChanged(ROLL, AXIS_FULL);
@@ -134,6 +146,7 @@ void Tracker::setProfile(QString p)
   emit axisChanged(TX, AXIS_FULL);
   emit axisChanged(TY, AXIS_FULL);
   emit axisChanged(TZ, AXIS_FULL);
+  emit setCommonFF(common_ff);
 }
 
 void Tracker::start(QString &section)
@@ -167,17 +180,26 @@ bool Tracker::axisChangeEnabled(axis_t axis, bool enabled)
   ltr_int_set_axis_bool_param(axes, axis, AXIS_ENABLED, enabled);
   emit axisChanged(axis, AXIS_ENABLED);
   QString section(PREF.getCustomSectionTitle());
-  std::cout<<"Section1: "<<section.toStdString()<<std::endl;
   change(section.toStdString().c_str(), axis, AXIS_ENABLED, enabled?1.0:0.0);
   return true; 
 }
 
+static float limit_ff(float val)
+{
+  if(val < 0.0) return 0.0;
+  if(val > 1.0) return 1.0;
+  return val;
+}
+
 bool Tracker::axisChange(axis_t axis, axis_param_t elem, float val)
 {
+  if(elem == AXIS_FILTER){
+    ffs[axis] = val;
+    val = limit_ff(val + common_ff);
+  }
   bool res = ltr_int_set_axis_param(axes, axis, elem, val);
   emit axisChanged(axis, elem);
   QString section(PREF.getCustomSectionTitle());
-  std::cout<<"Section2: "<<section.toStdString()<<std::endl;
   change(section.toStdString().c_str(), axis, elem, val);
   return res;
 }
@@ -189,7 +211,11 @@ bool Tracker::axisGetEnabled(axis_t axis)
 
 float Tracker::axisGet(axis_t axis, axis_param_t elem)
 {
-  return ltr_int_get_axis_param(axes, axis, elem);
+  if(elem == AXIS_FILTER){
+    return ffs[axis];
+  }else{
+    return ltr_int_get_axis_param(axes, axis, elem);
+  }
 }
 
 float Tracker::axisGetValue(axis_t axis, float val)
@@ -200,6 +226,21 @@ float Tracker::axisGetValue(axis_t axis, float val)
 bool Tracker::axisIsSymetrical(axis_t axis)
 {
   return ltr_int_is_symetrical(axes, axis);
+}
+
+bool Tracker::setCommonFilterFactor(float c_f)
+{
+  common_ff = c_f;
+  bool res = true;
+  QString section(PREF.getCustomSectionTitle());
+  float val;
+  for(int i = PITCH; i <= TZ; ++i){
+    val = limit_ff(ffs[i] + common_ff);
+    res &= ltr_int_set_axis_param(axes, (axis_t)i, AXIS_FILTER, val);
+    emit axisChanged(i, AXIS_FILTER);
+    change(section.toStdString().c_str(), i, AXIS_FILTER, val);
+  }
+  return res;
 }
 
 

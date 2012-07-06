@@ -23,7 +23,7 @@ int ltr_int_tracking_get_camera(float *heading,
                       float *tz,
                       unsigned int *counter);
 bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose);
-
+/*
 double ltr_int_nonlinfilt(double x, 
               double y_minus_1,
               double filtfactor);
@@ -32,7 +32,7 @@ void ltr_int_nonlinfilt_vec(double x[3],
               double y_minus_1[3],
               double filtfactor[3],
               double res[3]);
-
+*/
 #ifdef __cplusplus
 }
 #endif
