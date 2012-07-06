@@ -91,6 +91,7 @@ static pthread_mutex_t pose_mutex = PTHREAD_MUTEX_INITIALIZER;
 static double angles[3] = {0.0f, 0.0f, 0.0f};
 static double translations[3] = {0.0f, 0.0f, 0.0f};
 
+/*
 static void filter_frame(struct frame_type *frame)
 {
   static float memory_x[3] = {0.0f, 0.0f, 0.0f};
@@ -108,7 +109,7 @@ static void filter_frame(struct frame_type *frame)
     }
   }
 }
-
+*/
 
 static void ltr_int_rotate_camera(float *x, float *y, int orientation)
 {
@@ -270,21 +271,25 @@ static int update_pose_3pt(struct frame_type *frame)
 
 bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose)
 {
-//  printf(">>%f %f %f  %f %f %f\n", pose->pitch, pose->heading, pose->roll, pose->tx, pose->ty, pose->tz);
-  static float filterfactor=1.0;
-  ltr_int_get_filter_factor(&filterfactor);
+//  printf(">>Pre: %f %f %f  %f %f %f\n", pose->pitch, pose->yaw, pose->roll, pose->tx, pose->ty, pose->tz);
+//  static float filterfactor=1.0;
+//  ltr_int_get_filter_factor(&filterfactor);
   static double filtered_angles[3] = {0.0f, 0.0f, 0.0f};
   static double filtered_translations[3] = {0.0f, 0.0f, 0.0f};
-  double filter_factors_angles[3] = {filterfactor, filterfactor, filterfactor};
-  double filter_factors_translations[3] = {filterfactor, filterfactor, filterfactor * 10};
-  double raw_angles[3] = {pose->pitch, pose->yaw, pose->roll};
-  ltr_int_nonlinfilt_vec(raw_angles, filtered_angles, filter_factors_angles, filtered_angles);
-  
-  pose->pitch = clamp_angle(ltr_int_val_on_axis(axes, PITCH, filtered_angles[0]));
-  pose->yaw = clamp_angle(ltr_int_val_on_axis(axes, YAW, filtered_angles[1]));
-  pose->roll = clamp_angle(ltr_int_val_on_axis(axes, ROLL, filtered_angles[2]));
-//  printf("Pitch: %g   Yaw: %g  Roll: %g\n", pose->pitch, pose->heading, pose->roll);
-  
+  //ltr_int_get_axes_ff(axes, filter_factors);
+  double raw_angles[3];
+
+  raw_angles[0] = ltr_int_val_on_axis(axes, PITCH, pose->pitch);
+  raw_angles[1] = ltr_int_val_on_axis(axes, YAW, pose->yaw);
+  raw_angles[2] = ltr_int_val_on_axis(axes, ROLL, pose->roll);
+
+  pose->pitch = filtered_angles[0] = 
+    clamp_angle(ltr_int_filter_axis(axes, PITCH, raw_angles[0], filtered_angles[0]));
+  pose->pitch = filtered_angles[1] = 
+    clamp_angle(ltr_int_filter_axis(axes, YAW, raw_angles[1], filtered_angles[1]));
+  pose->pitch = filtered_angles[2] = 
+    clamp_angle(ltr_int_filter_axis(axes, ROLL, raw_angles[2], filtered_angles[2]));
+    
   double rotated[3];
   double transform[3][3];
   double displacement[3] = {pose->tx, pose->ty, pose->tz};
@@ -296,16 +301,10 @@ bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose)
 //  ltr_int_print_matrix(transform, "trf");
 //  ltr_int_print_vec(displacement, "mv");
 //  ltr_int_print_vec(rotated, "rotated");
-  ltr_int_nonlinfilt_vec(rotated, filtered_translations, filter_factors_translations, 
-        filtered_translations);
-  //ltr_int_orig_pose.tx = rotated[0];
-  //ltr_int_orig_pose.ty = rotated[1];
-  //ltr_int_orig_pose.tz = rotated[2];
-  pose->tx = ltr_int_val_on_axis(axes, TX, filtered_translations[0]);
-  pose->ty = ltr_int_val_on_axis(axes, TY, filtered_translations[1]);
-  pose->tz = ltr_int_val_on_axis(axes, TZ, filtered_translations[2]);
-//  ltr_int_print_vec(displacement, "tr");
-//  printf(">>>%f %f %f  %f %f %f\n", pose->pitch, pose->heading, pose->roll, pose->tx, pose->ty, pose->tz);
+  
+  pose->tx = ltr_int_filter_axis(axes, TX, ltr_int_val_on_axis(axes, TX, rotated[0]), filtered_translations[0]);
+  pose->ty = ltr_int_filter_axis(axes, TY, ltr_int_val_on_axis(axes, TY, rotated[1]), filtered_translations[1]);
+  pose->tz = ltr_int_filter_axis(axes, TZ, ltr_int_val_on_axis(axes, TZ, rotated[2]), filtered_translations[2]);
   return true;
 }
 
@@ -315,7 +314,7 @@ static unsigned int counter_d;
 int ltr_int_update_pose(struct frame_type *frame)
 {
   counter_d = frame->counter;
-  filter_frame(frame);
+  //!!!filter_frame(frame);
   if(ltr_int_is_single_point()){
     return update_pose_1pt(frame);
   }else{
@@ -349,23 +348,7 @@ int ltr_int_tracking_get_camera(float *heading,
 }
 
 
-
-double ltr_int_nonlinfilt(double x, 
-              double y_minus_1,
-              double filterfactor) 
-{
-  double y;
-  if(!ltr_int_is_finite(x)){
-    return y_minus_1;
-  }
-  double delta = x - y_minus_1;
-  y = y_minus_1 + delta * (fabsf(delta)/(fabsf(delta) + filterfactor));
-  if(!ltr_int_is_finite(y)){
-    return y_minus_1;
-  }
-  return y;
-}
-
+/*
 void ltr_int_nonlinfilt_vec(double x[3], 
               double y_minus_1[3],
               double filterfactor[3],
@@ -376,4 +359,5 @@ void ltr_int_nonlinfilt_vec(double x[3],
   res[2] = ltr_int_nonlinfilt(x[2], y_minus_1[2], filterfactor[2]);
 }
 
+*/
 

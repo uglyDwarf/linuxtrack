@@ -5,6 +5,7 @@
 #include "spline.h"
 #include "utils.h"
 #include "pref_int.h"
+#include "math_utils.h"
 
 //The "singleton" solution was chosen to allow easy monitoring of axis changes - 
 //  - there is no need to track other apps that might have open the same axes...
@@ -18,6 +19,8 @@ struct axis_def{
   bool valid;
   float l_factor, r_factor;
   float l_limit, r_limit;
+  float filter_factor;
+//  float last_val;
   char *prefix;
 };
 
@@ -33,15 +36,30 @@ struct ltr_axes {
 };
 
 typedef enum{
-  SENTRY1, DEADZONE, LCURV, RCURV, LMULT, RMULT, LIMITS, LLIMIT, RLIMIT, ENABLED, SENTRY_2
+  SENTRY1, DEADZONE, LCURV, RCURV, LMULT, RMULT, LIMITS, LLIMIT, RLIMIT, FILTER, ENABLED, SENTRY_2
 }axis_fields;
 static const char *fields[] = {NULL, "-deadzone",
 				"-left-curvature", "-right-curvature", 
 				"-left-multiplier", "-right-multiplier",
-				"-limits", "-left-limit", "-right-limit", "-enabled", NULL};
+				"-limits", "-left-limit", "-right-limit", "-filter", "-enabled", NULL};
+static const char *axes_desc[] = {"PITCH", "ROLL", "YAW", "TX", "TY", "TZ"};
+static const char *axis_param_desc[] = {"Enabled", "Deadzone", "Left curvature", "Right curvature",
+                   "Left sensitivity", "Right sensitivity", "Left limit", "Right Limit", "Filter factor", 
+                   "FULL"};
+
 //static struct lt_axes ltr_int_axes;
 //static bool ltr_int_axes_changed_flag = false;
 //static bool initialized = false;
+
+const char *ltr_int_axis_get_desc(enum axis_t id)
+{
+  return axes_desc[id];
+}
+
+const char *ltr_int_axis_param_get_desc(enum axis_param_t id)
+{
+  return axis_param_desc[id];
+}
 
 static struct axis_def *get_axis(ltr_axes_t axes, enum axis_t id)
 {
@@ -97,6 +115,56 @@ static char *get_axis_prefix(enum axis_t id)
   }
 }
 
+/*
+bool ltr_int_get_axes_ff(ltr_axes_t axes, double ffs[])
+{
+  ffs[0] = ffs[1] = ffs[2] = ffs[3] = ffs[4] = ffs[5] = 0.0;
+  pthread_mutex_lock(&axes_mutex);
+  int i;
+  struct axis_def *axis;
+  for(i = PITCH; i <= TZ; ++i){
+    axis = get_axis(axes, i);
+    ffs[i] = axis->filter_factor;
+  }
+  pthread_mutex_unlock(&axes_mutex);
+  return true;
+}
+*/
+
+static float ltr_int_nonlinfilt(float x, 
+              float y_minus_1,
+              float filterfactor) 
+{
+  float y;
+  if(!ltr_int_is_finite(x)){
+    return y_minus_1;
+  }
+  float delta = x - y_minus_1;
+  y = y_minus_1 + delta * (fabsf(delta)/(fabsf(delta) + filterfactor));
+  if(!ltr_int_is_finite(y)){
+    if(ltr_int_is_finite(y_minus_1)){
+      return y_minus_1;
+    }else{
+      return 0.0f;
+    }
+  }
+  return y;
+}
+
+float ltr_int_filter_axis(ltr_axes_t axes, enum axis_t id, float x, float y_minus_1)
+{
+  pthread_mutex_lock(&axes_mutex);
+  struct axis_def *axis = get_axis(axes, id);
+  if(!axis->enabled){
+    pthread_mutex_unlock(&axes_mutex);
+    return 0.0f;
+  }
+  
+  pthread_mutex_unlock(&axes_mutex);
+  float ff = (axis->filter_factor) * fabsf(axis->l_limit - axis->r_limit);
+  return ltr_int_nonlinfilt(x, y_minus_1, ff);
+}
+
 float ltr_int_val_on_axis(ltr_axes_t axes, enum axis_t id, float x)
 {
   pthread_mutex_lock(&axes_mutex);
@@ -122,9 +190,10 @@ float ltr_int_val_on_axis(ltr_axes_t axes, enum axis_t id, float x)
   if(x > 1.0){
     x = 1.0;
   }
-  float res = ltr_int_spline_point(&(axis->curves), x) * lim;
+  float raw = ltr_int_spline_point(&(axis->curves), x) * lim;
+//  float res = ltr_int_nonlinfilt(raw, axis->last_val, axis->filter_factor);
   pthread_mutex_unlock(&axes_mutex);
-  return res;
+  return raw;
 }
 
 static void signal_change(ltr_axes_t axes)
@@ -206,6 +275,11 @@ bool ltr_int_set_axis_param(ltr_axes_t axes, enum axis_t id, enum axis_param_t p
       save_val_flt(id, RLIMIT, val);
       signal_change(axes);
       break;
+    case AXIS_FILTER:
+      axis->filter_factor = val;
+      save_val_flt(id, FILTER, val);
+      signal_change(axes);
+      break;
     default:
       pthread_mutex_unlock(&axes_mutex);
       return false;
@@ -241,6 +315,9 @@ float ltr_int_get_axis_param(ltr_axes_t axes, enum axis_t id, enum axis_param_t 
       break;
     case AXIS_RLIMIT:
       res = axis->r_limit;
+      break;
+    case AXIS_FILTER:
+      res = axis->filter_factor;
       break;
     default:
       res = 0.0;
@@ -291,7 +368,35 @@ bool ltr_int_get_axis_bool_param(ltr_axes_t axes, enum axis_t id, enum axis_para
   return res;
 }
 
-static void ltr_int_init_axis(struct axis_def *axis, const char *prefix)
+static bool ltr_int_axis_get_key_flt(const char *section, const char *key_name, float *res)
+{
+  if(ltr_int_get_key_flt(section, key_name, res)){
+    return true;
+  }
+  if(ltr_int_get_key_flt("Default", key_name, res)){
+    return true;
+  }
+  return false;
+}
+
+static const char *ltr_int_axis_get_key(const char *section, const char *key_name)
+{
+  const char *res = NULL;
+  res = ltr_int_get_key(section, key_name);
+  if(res != NULL){
+    return res;
+  }
+  res = ltr_int_get_key("Default", key_name);
+  if(res != NULL){
+    return res;
+  }
+  return false;
+}
+
+
+
+
+static void ltr_int_init_axis(const char *sec_name, struct axis_def *axis, const char *prefix)
 {
   assert(axis != NULL);
   axis->valid = false;
@@ -301,6 +406,13 @@ static void ltr_int_init_axis(struct axis_def *axis, const char *prefix)
   axis->r_factor = 1.0f;
   axis->r_limit = 50.0f;
   axis->l_limit = 50.0f;
+  axis->filter_factor = 0.2f;
+  //Either exists -> default gets overwritten normally,
+  // or not -> default stays...
+  ltr_int_axis_get_key_flt(sec_name, "Filter-factor", &(axis->filter_factor));
+  if(axis->filter_factor > 1.0){
+    axis->filter_factor = 1.0;
+  }
   axis->curve_defs.dead_zone = 0.0f;
   axis->curve_defs.l_curvature = 0.5f;
   axis->curve_defs.r_curvature = 0.5f;
@@ -352,37 +464,14 @@ static void set_axis_field(struct axis_def *axis, axis_fields field, float val, 
         axis->r_limit = 300.0f;
       }
       break;
+    case(FILTER):
+      axis->filter_factor = (val > 1.0) ? 1.0 : val;
+      break;
     default:
       assert(0);
       break;
   }
 }
-
-static bool ltr_int_axis_get_key_flt(const char *section, const char *key_name, float *res)
-{
-  if(ltr_int_get_key_flt(section, key_name, res)){
-    return true;
-  }
-  if(ltr_int_get_key_flt("Default", key_name, res)){
-    return true;
-  }
-  return false;
-}
-
-static const char *ltr_int_axis_get_key(const char *section, const char *key_name)
-{
-  const char *res = NULL;
-  res = ltr_int_get_key(section, key_name);
-  if(res != NULL){
-    return res;
-  }
-  res = ltr_int_get_key("Default", key_name);
-  if(res != NULL){
-    return res;
-  }
-  return false;
-}
-
 
 static bool ltr_int_get_axis(const char *sec_name, enum axis_t id, struct axis_def *axis)
 {
@@ -394,7 +483,7 @@ static bool ltr_int_get_axis(const char *sec_name, enum axis_t id, struct axis_d
   assert(prefix != NULL);
   assert(axis != NULL);
   
-  ltr_int_init_axis(axis, prefix);
+  ltr_int_init_axis(sec_name, axis, prefix);
 //  axis->prefix = ltr_int_my_strdup(prefix);
   for(i = DEADZONE; i <= ENABLED; ++i){
     field_name = ltr_int_my_strcat(prefix, fields[i]);
@@ -413,7 +502,7 @@ static bool ltr_int_get_axis(const char *sec_name, enum axis_t id, struct axis_d
     free(field_name);
     field_name = NULL;
   }
-  //Shouldn't be needed... (and causes deadlock nows)
+  //Shouldn't be needed... (and causes deadlock now)
   //ltr_int_val_on_axis(id, 0.0f);
   return true;
 }

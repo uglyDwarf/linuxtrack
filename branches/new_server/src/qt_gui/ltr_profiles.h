@@ -15,14 +15,8 @@ class AppProfile : public QWidget{
   ~AppProfile();
   bool changeProfile(const QString &newName);
   const QString &getProfileName() const;
-  float getFilterFactor();
-  void setFilterFactor(float f);
- signals:
-  void filterFactorChanged(float f);
  private:
   QString name;
-  float filterFactor;
-  void filterFactorReload();
   bool initializing;
 };
 

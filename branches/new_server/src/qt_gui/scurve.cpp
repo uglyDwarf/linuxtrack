@@ -46,12 +46,11 @@ void SCurve::setup_gui()
   ui.SCLeftCurv->setValue(TRACKER.axisGet(axis, AXIS_LCURV) * 100);
   ui.SCRightFactor->setValue(TRACKER.axisGet(axis, AXIS_RMULT));
   ui.SCRightCurv->setValue(TRACKER.axisGet(axis, AXIS_RCURV) * 100);
-  ui.SCDeadZone->setValue(TRACKER.axisGet(axis, AXIS_DEADZONE) * 101);
+  
+  setDeadzone(TRACKER.axisGet(axis, AXIS_DEADZONE));
+  setFilter(TRACKER.axisGet(axis, AXIS_FILTER));
   ui.SCRightLimit->setValue(TRACKER.axisGet(axis, AXIS_LLIMIT));
   ui.SCLeftLimit->setValue(TRACKER.axisGet(axis, AXIS_RLIMIT));
-  ui.SCCurvL->setText(QString("Curvature: %1").arg(TRACKER.axisGet(axis, AXIS_LCURV), 2, 'f', 2));
-  ui.SCCurvR->setText(QString("Curvature: %1").arg(TRACKER.axisGet(axis, AXIS_RCURV), 2, 'f', 2));
-  ui.SCDZoneLabel->setText(QString("DeadZone: %1").arg(TRACKER.axisGet(axis, AXIS_DEADZONE), 2, 'f', 2));
 }
 
 void SCurve::setEnabled(int state)
@@ -128,11 +127,34 @@ void SCurve::on_SCRightCurv_valueChanged(int value)
   emit changed();
 }
 
+void SCurve::setFilter(float val, bool signal)
+{
+  if(!signal){
+    ui.SCFilterSlider->setValue(round(val * 100.0));
+  }
+  ui.SCFilterLabel->setText(QString("%1%").arg(val * 100.0, 5, 'f', 1));
+}
+
+void SCurve::on_SCFilterSlider_valueChanged(int value)
+{
+  if(!initializing) TRACKER.axisChange(axis, AXIS_FILTER, value / 100.0);
+  setFilter(value/100.0, true);
+  emit changed();
+}
+
+void SCurve::setDeadzone(float val, bool signal)
+{
+  if(!signal){
+    ui.SCDeadZone->setValue(round(val * 101.0));
+  }
+  ui.SCDZoneLabel->setText(QString("%1").arg(val, 2, 'f', 2));
+}
+
 void SCurve::on_SCDeadZone_valueChanged(int value)
 {
-  //std::cout<<"DeadZone = "<<value<<std::endl;
-  if(!initializing) TRACKER.axisChange(axis, AXIS_DEADZONE, value / 101.0);
-  ui.SCDZoneLabel->setText(QString("DeadZone: %1").arg(value / 101.0, 2, 'f', 2));
+  float fval = value / 101.0;
+  if(!initializing) TRACKER.axisChange(axis, AXIS_DEADZONE, fval);
+  setDeadzone(value / 101.0, true);
   emit changed();
 }
 
@@ -192,8 +214,10 @@ void SCurve::axisChanged(int a, int elem)
       ui.SCCurvR->setText(QString("Curvature: %1").arg(TRACKER.axisGet(axis, AXIS_RCURV), 2, 'f', 2));
       break;
     case AXIS_DEADZONE:
-      ui.SCDeadZone->setValue(round(TRACKER.axisGet(axis, AXIS_DEADZONE) * 101.0));
-      ui.SCDZoneLabel->setText(QString("DeadZone: %1").arg(TRACKER.axisGet(axis, AXIS_DEADZONE), 2, 'f', 2));
+      setDeadzone(TRACKER.axisGet(axis, AXIS_DEADZONE));
+      break;
+    case AXIS_FILTER:
+      setFilter(TRACKER.axisGet(axis, AXIS_FILTER));
       break;
     case AXIS_LLIMIT:
       ui.SCLeftLimit->setValue(TRACKER.axisGet(axis, AXIS_LLIMIT));
@@ -211,14 +235,15 @@ void SCurve::axisChanged(int a, int elem)
       }
       break;
     case AXIS_FULL:
+      std::cout << "FULL!"<<std::endl;
       ui.SCLeftFactor->setValue(TRACKER.axisGet(axis, AXIS_LMULT));
       ui.SCRightFactor->setValue(TRACKER.axisGet(axis, AXIS_RMULT));
       ui.SCLeftCurv->setValue(round(TRACKER.axisGet(axis, AXIS_LCURV) * 100.0));
       ui.SCRightCurv->setValue(round(TRACKER.axisGet(axis, AXIS_RCURV) * 100.0));
-      ui.SCDeadZone->setValue(round(TRACKER.axisGet(axis, AXIS_DEADZONE) * 101.0));
       ui.SCCurvL->setText(QString("Curvature: %1").arg(TRACKER.axisGet(axis, AXIS_LCURV), 2, 'f', 2));
       ui.SCCurvR->setText(QString("Curvature: %1").arg(TRACKER.axisGet(axis, AXIS_RCURV), 2, 'f', 2));
-      ui.SCDZoneLabel->setText(QString("DeadZone: %1").arg(TRACKER.axisGet(axis, AXIS_DEADZONE), 2, 'f', 2));
+      setDeadzone(TRACKER.axisGet(axis, AXIS_DEADZONE));
+      setFilter(TRACKER.axisGet(axis, AXIS_FILTER));
       ui.SCLeftLimit->setValue(TRACKER.axisGet(axis, AXIS_LLIMIT));
       ui.SCRightLimit->setValue(TRACKER.axisGet(axis, AXIS_RLIMIT));
       if(TRACKER.axisIsSymetrical(axis)){

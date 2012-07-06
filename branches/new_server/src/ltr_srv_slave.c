@@ -128,7 +128,8 @@ void *slave_reader_thread(void *param)
             ltr_int_unlockSemaphore(mmm.sem);
             break;
           case CMD_PARAM:
-            printf("Changing param!!!\n");
+            //printf("Changing %s of %s to %f!!!\n", ltr_int_axis_param_get_desc(msg.param.param_id), 
+            //  ltr_int_axis_get_desc(msg.param.axis_id), msg.param.flt_val);
             if(msg.param.param_id == AXIS_ENABLED){
               ltr_int_set_axis_bool_param(axes, msg.param.axis_id, msg.param.param_id, msg.param.flt_val > 0.5f);
             }else{

@@ -73,19 +73,10 @@ int Profile::isProfile(const QString &name)
 }
 
 
-AppProfile::AppProfile(const QString &n, QWidget *parent) : QWidget(parent), name(n), filterFactor(0.0),
+AppProfile::AppProfile(const QString &n, QWidget *parent) : QWidget(parent), name(n),
                                                             initializing(false)
 {
   TRACKER.setProfile(name);
-  filterFactorReload();
-}
-
-void AppProfile::filterFactorReload()
-{
-  QString val;
-  PREF.getKeyVal("Filter-factor", val);
-  float filterFactor = val.toFloat();
-  emit filterFactorChanged(filterFactor);
 }
 
 AppProfile::~AppProfile()
@@ -101,20 +92,7 @@ bool AppProfile::changeProfile(const QString &newName)
 {
   name = newName;
   TRACKER.setProfile(name);
-  filterFactorReload();
   return true;
 }
-
-void AppProfile::setFilterFactor(float f)
-{
-  filterFactor = f;
-  emit filterFactorChanged(f);
-}
-
-float AppProfile::getFilterFactor()
-{
-  return filterFactor;
-}
-
 
 

@@ -250,12 +250,6 @@ bool ltr_int_get_model_setup(reflector_model_type *rm)
   return res;
 }
 
-
-bool ltr_int_get_filter_factor(float *ff)
-{
-  return ltr_int_get_key_flt(NULL, "Filter-factor", ff);
-}
-
 int ltr_int_get_orientation()
 {
   int orientation = 0;

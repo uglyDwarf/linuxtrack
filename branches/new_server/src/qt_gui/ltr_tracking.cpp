@@ -12,7 +12,6 @@ static Qt::CheckState bool2state(bool v);
 LtrTracking::LtrTracking(const Ui::LinuxtrackMainForm &ui) : gui(ui), initializing(false)
 {
   initializing = true;
-  ffChanged(PROFILE.getCurrentProfile()->getFilterFactor());
   Connect();
   gui.Profiles->addItems(Profile::getProfiles().getProfileNames());
   
@@ -49,12 +48,8 @@ void LtrTracking::refresh()
 
 void LtrTracking::Connect()
 {
-  QObject::connect(PROFILE.getCurrentProfile(), 
-                    SIGNAL(filterFactorChanged(float)),this, SLOT(ffChanged(float)));
   QObject::connect(&TRACKER, SIGNAL(axisChanged(int, int)), 
                     this, SLOT(axisChanged(int, int)));
-  QObject::connect(gui.FilterSlider, SIGNAL(valueChanged(int)), 
-                    this, SLOT(on_FilterSlider_valueChanged(int)));
   QObject::connect(gui.Profiles, SIGNAL(currentIndexChanged(const QString &)), 
                     this, SLOT(on_Profiles_currentIndexChanged(const QString &)));
   QObject::connect(gui.CreateNewProfile, SIGNAL(pressed()), 
@@ -95,6 +90,10 @@ void LtrTracking::Connect()
                     this, SLOT(on_MoveBackSpin_valueChanged(double)));
   QObject::connect(gui.MoveForthSpin, SIGNAL(valueChanged(double)),
                     this, SLOT(on_MoveForthSpin_valueChanged(double)));
+  QObject::connect(&TRACKER, SIGNAL(setCommonFF(float)),
+                    this, SLOT(setCommonFF(float)));
+  QObject::connect(gui.CommonFF, SIGNAL(valueChanged(int)),
+                    this, SLOT(on_CommonFF_valueChanged(int)));
 }
 
 void LtrTracking::axisChanged(int axis, int elem)
@@ -133,19 +132,6 @@ void LtrTracking::axisChanged(int axis, int elem)
     default:
       break;
   }
-}
-
-void LtrTracking::ffChanged(float f)
-{
-  gui.FilterValue->setText(QString::number(f));
-  gui.FilterSlider->setValue(f * 10);
-  if(!initializing) PREF.setKeyVal(PROFILE.getCurrentProfile()->getProfileName(), "Filter-factor", f);
-}
-
-void LtrTracking::on_FilterSlider_valueChanged(int value)
-{
-  gui.FilterValue->setText(QString::number(value / 10.0f));
-  PROFILE.getCurrentProfile()->setFilterFactor(value / 10.0f);
 }
 
 void LtrTracking::on_Profiles_currentIndexChanged(const QString &text)
@@ -286,4 +272,21 @@ static Qt::CheckState bool2state(bool v)
   }
 }
 
+void LtrTracking::setCommonFFVal(float val)
+{
+  gui.CommonFFVal->setText(QString("%1%").arg(val * 100.0, 5, 'f', 1));
+}
+
+void LtrTracking::on_CommonFF_valueChanged(int value)
+{
+  float val = ((float)value)/gui.CommonFF->maximum();
+  TRACKER.setCommonFilterFactor(val);
+  setCommonFFVal(val);
+}
+
+void LtrTracking::setCommonFF(float val)
+{
+  gui.CommonFF->setValue(val * gui.CommonFF->maximum());
+  setCommonFFVal(val);
+}
 

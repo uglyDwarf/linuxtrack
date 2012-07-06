@@ -24,6 +24,7 @@ class SCurve : public QWidget{
   void on_SCRightFactor_valueChanged(double d);
   void on_SCLeftCurv_valueChanged(int value);
   void on_SCRightCurv_valueChanged(int value);
+  void on_SCFilterSlider_valueChanged(int value);
   void on_SCDeadZone_valueChanged(int value);
   void on_SCLeftLimit_valueChanged(double d);
   void on_SCRightLimit_valueChanged(double d);
@@ -37,6 +38,10 @@ class SCurve : public QWidget{
   SCView *view;
   bool first;
   bool initializing;
+  
+  void setDeadzone(float val, bool signal = false);
+  void setFilter(float val, bool signal = false);
+
 };
 
 #endif
