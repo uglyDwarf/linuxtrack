@@ -121,11 +121,12 @@ void Tracker::signalNewSlave(const char *name)
 
 void Tracker::setProfile(QString p)
 {
+  (void)p;
   axes_valid = false;
   ltr_int_close_axes(&axes);
-  PREF.setCustomSection(p);
-  currentProfile = PREF.getCustomSectionName();
-  std::cout<<"Set profile "<<currentProfile.toStdString()<<" - "<<p.toStdString()<<std::endl;
+  //PREF.setCustomSection(p);
+  currentProfile = PREF.getCustomSectionTitle();
+  //std::cout<<"Set profile "<<currentProfile.toStdString()<<" - "<<p.toStdString()<<std::endl;
   ltr_int_init_axes(&axes, currentProfile.toStdString().c_str());
   
   common_ff = 1.0;
@@ -140,6 +141,7 @@ void Tracker::setProfile(QString p)
     ffs[i] -= common_ff;
   }
   axes_valid = true;
+  /*
   emit axisChanged(PITCH, AXIS_FULL);
   emit axisChanged(ROLL, AXIS_FULL);
   emit axisChanged(YAW, AXIS_FULL);
@@ -147,6 +149,8 @@ void Tracker::setProfile(QString p)
   emit axisChanged(TY, AXIS_FULL);
   emit axisChanged(TZ, AXIS_FULL);
   emit setCommonFF(common_ff);
+  */
+  emit initAxes();
 }
 
 void Tracker::start(QString &section)
@@ -241,6 +245,11 @@ bool Tracker::setCommonFilterFactor(float c_f)
     change(section.toStdString().c_str(), i, AXIS_FILTER, val);
   }
   return res;
+}
+
+float Tracker::getCommonFilterFactor()
+{
+  return common_ff;
 }
 
 

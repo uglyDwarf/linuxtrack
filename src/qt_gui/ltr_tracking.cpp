@@ -11,28 +11,9 @@ static Qt::CheckState bool2state(bool v);
 
 LtrTracking::LtrTracking(const Ui::LinuxtrackMainForm &ui) : gui(ui), initializing(false)
 {
-  initializing = true;
   Connect();
+  initializing= true;
   gui.Profiles->addItems(Profile::getProfiles().getProfileNames());
-  
-  gui.PitchEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(PITCH)));
-  gui.PitchUpSpin->setValue(TRACKER.axisGet(PITCH, AXIS_LMULT));
-  gui.PitchDownSpin->setValue(TRACKER.axisGet(PITCH, AXIS_RMULT));
-  gui.RollEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(ROLL)));
-  gui.TiltLeftSpin->setValue(TRACKER.axisGet(ROLL, AXIS_LMULT));
-  gui.TiltRightSpin->setValue(TRACKER.axisGet(ROLL, AXIS_RMULT));
-  gui.YawEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(YAW)));
-  gui.YawLeftSpin->setValue(TRACKER.axisGet(YAW, AXIS_LMULT));
-  gui.YawRightSpin->setValue(TRACKER.axisGet(YAW, AXIS_RMULT));
-  gui.XEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(TX)));
-  gui.MoveLeftSpin->setValue(TRACKER.axisGet(TX, AXIS_LMULT));
-  gui.MoveRightSpin->setValue(TRACKER.axisGet(TX, AXIS_RMULT));
-  gui.YEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(TY)));
-  gui.MoveUpSpin->setValue(TRACKER.axisGet(TY, AXIS_LMULT));
-  gui.MoveDownSpin->setValue(TRACKER.axisGet(TY, AXIS_RMULT));
-  gui.ZEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(TZ)));
-  gui.MoveBackSpin->setValue(TRACKER.axisGet(TZ, AXIS_LMULT));
-  gui.MoveForthSpin->setValue(TRACKER.axisGet(TZ, AXIS_RMULT));
   initializing = false;
 }
 
@@ -94,6 +75,8 @@ void LtrTracking::Connect()
                     this, SLOT(setCommonFF(float)));
   QObject::connect(gui.CommonFF, SIGNAL(valueChanged(int)),
                     this, SLOT(on_CommonFF_valueChanged(int)));
+  QObject::connect(&TRACKER, SIGNAL(initAxes(void)),
+                    this, SLOT(initAxes(void)));
 }
 
 void LtrTracking::axisChanged(int axis, int elem)
@@ -138,6 +121,7 @@ void LtrTracking::on_Profiles_currentIndexChanged(const QString &text)
 {
   bool prev = initializing;
   initializing = true;
+  //std::cout<<"Index changed to "<<text.toStdString()<<std::endl;
   PROFILE.setCurrent(text);
   emit customSectionChanged();
   initializing = prev;
@@ -290,5 +274,30 @@ void LtrTracking::setCommonFF(float val)
 {
   gui.CommonFF->setValue(val * gui.CommonFF->maximum());
   setCommonFFVal(val);
+}
+
+void LtrTracking::initAxes()
+{
+  initializing = true;
+  gui.PitchEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(PITCH)));
+  gui.PitchUpSpin->setValue(TRACKER.axisGet(PITCH, AXIS_LMULT));
+  gui.PitchDownSpin->setValue(TRACKER.axisGet(PITCH, AXIS_RMULT));
+  gui.RollEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(ROLL)));
+  gui.TiltLeftSpin->setValue(TRACKER.axisGet(ROLL, AXIS_LMULT));
+  gui.TiltRightSpin->setValue(TRACKER.axisGet(ROLL, AXIS_RMULT));
+  gui.YawEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(YAW)));
+  gui.YawLeftSpin->setValue(TRACKER.axisGet(YAW, AXIS_LMULT));
+  gui.YawRightSpin->setValue(TRACKER.axisGet(YAW, AXIS_RMULT));
+  gui.XEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(TX)));
+  gui.MoveLeftSpin->setValue(TRACKER.axisGet(TX, AXIS_LMULT));
+  gui.MoveRightSpin->setValue(TRACKER.axisGet(TX, AXIS_RMULT));
+  gui.YEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(TY)));
+  gui.MoveUpSpin->setValue(TRACKER.axisGet(TY, AXIS_LMULT));
+  gui.MoveDownSpin->setValue(TRACKER.axisGet(TY, AXIS_RMULT));
+  gui.ZEnable->setCheckState(bool2state(TRACKER.axisGetEnabled(TZ)));
+  gui.MoveBackSpin->setValue(TRACKER.axisGet(TZ, AXIS_LMULT));
+  gui.MoveForthSpin->setValue(TRACKER.axisGet(TZ, AXIS_RMULT));
+  setCommonFF(TRACKER.getCommonFilterFactor());
+  initializing = false;
 }
 

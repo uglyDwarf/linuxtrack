@@ -531,7 +531,7 @@ void ltr_int_init_axes(ltr_axes_t *axes, const char *profile)
   bool res = true;
   (*axes)->axes_changed_flag = false;
   const char *sec_name = ltr_int_find_profile(profile);
-  printf("Inititializing axes of %s (section %s)\n", profile, sec_name);
+  //printf("Inititializing axes of %s (section %s)\n", profile, sec_name);
   res &= ltr_int_get_axis(sec_name, PITCH, &((*axes)->pitch_axis));
   res &= ltr_int_get_axis(sec_name, YAW, &((*axes)->yaw_axis));
   res &= ltr_int_get_axis(sec_name, ROLL, &((*axes)->roll_axis));

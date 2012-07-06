@@ -387,7 +387,14 @@ bool PrefProxy::getProfiles(QStringList &list)
 bool PrefProxy::setCustomSection(const QString &name)
 {
   //std::cout<<"Setting custom section "<<name.toStdString()<<std::endl;
-  bool res = ltr_int_set_custom_section(name.toAscii().data());
+  bool res = ltr_int_set_custom_section(name.toStdString().c_str());
+  /*
+  if(res){
+    std::cout<<"Custom section set OK!!!"<<std::endl;
+  }else{
+    std::cout<<"Custom section not set!!!"<<std::endl;
+  }
+  */
   return res;
 }
 

@@ -42,8 +42,9 @@ bool Profile::setCurrent(const QString &name)
     return false;
   }
   if(PREF.setCustomSection(name)){
+    //std::cout<<"Custom section title ("<<name.toStdString()<<"): "<<PREF.getCustomSectionTitle().toStdString()<<std::endl;
     currentProfile->changeProfile(PREF.getCustomSectionTitle());
-    std::cout<<"Set current profile !!!"<<name.toStdString().c_str()<<std::endl;
+    //std::cout<<"Set current profile !!!"<<name.toStdString().c_str()<<std::endl;
     return true;
   }
   return false;
@@ -90,6 +91,8 @@ const QString &AppProfile::getProfileName() const
 
 bool AppProfile::changeProfile(const QString &newName)
 {
+  //std::cout<<"Approfile changing profile to "<<newName.toStdString()<<std::endl;
+
   name = newName;
   TRACKER.setProfile(name);
   return true;
