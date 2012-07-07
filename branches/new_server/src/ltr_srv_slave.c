@@ -113,6 +113,7 @@ void *slave_reader_thread(void *param)
         switch(msg.cmd){
           case CMD_POSE:
             //printf("Have new pose!\n");
+            //printf(">>>>%f %f %f\n", msg.pose.yaw, msg.pose.pitch, msg.pose.tz);
             ltr_int_postprocess_axes(axes, &(msg.pose));
             
             com = mmm.data;

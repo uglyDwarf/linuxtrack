@@ -151,7 +151,7 @@ static float ltr_int_nonlinfilt(float x,
   return y;
 }
 
-float ltr_int_filter_axis(ltr_axes_t axes, enum axis_t id, float x, float y_minus_1)
+float ltr_int_filter_axis(ltr_axes_t axes, enum axis_t id, float x, float *y_minus_1)
 {
   pthread_mutex_lock(&axes_mutex);
   struct axis_def *axis = get_axis(axes, id);
@@ -162,7 +162,7 @@ float ltr_int_filter_axis(ltr_axes_t axes, enum axis_t id, float x, float y_minu
   
   pthread_mutex_unlock(&axes_mutex);
   float ff = (axis->filter_factor) * fabsf(axis->l_limit - axis->r_limit);
-  return ltr_int_nonlinfilt(x, y_minus_1, ff);
+  return *y_minus_1 = ltr_int_nonlinfilt(x, *y_minus_1, ff);
 }
 
 float ltr_int_val_on_axis(ltr_axes_t axes, enum axis_t id, float x)

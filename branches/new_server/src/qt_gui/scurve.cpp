@@ -25,6 +25,7 @@ SCurve::SCurve(axis_t a, QString axis_name, QString left_label, QString right_la
   ui.SCView->removeItem(ui.SCViewSpacer);
   ui.SCView->addWidget(view);
   QObject::connect(this, SIGNAL(changed()), view, SLOT(update()));
+  initAxes();
 }
 
 SCurve::~SCurve()
