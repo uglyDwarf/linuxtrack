@@ -1,0 +1,28 @@
+Linuxtrack - wine bridge
+------------------------
+At the moment this is only experimental thing, so no autotools support is available.
+To compile the package, following prerequisities must be met:
+ - Wine installed, along with development files (winegcc/wineg++ available)
+ - libmxml installed for dumper (not mandatory)
+ - linuxtrack must be built first
+ - Nullsoft installator compiler (makensis available)
+
+Just run 'make' in the wine_bridge directory and if all goes well, linuxtrack-wine.exe is created.
+This executable is to be run in wine and it will install the linuxtrack support in the wine.
+
+Make sure to install it in each of the wine "prefixes" you need the linuxtrack support in.
+
+Dumper is to be used to dump new application data; go to the NaturalPoint site, and look for Game Updates.
+Download the latest update and unpack it somewhere. Then take the sgl.dat contained in the archive, 
+copy it next to the dumper and run dumper using 'dumper sgl.dat > data.txt'(no need for wine there, it is native 
+linux app). Resulting file data.txt is to be copied in the linuxtrack support directory.
+
+Controller allows you to controll the tracking using keyboard (no joystick support); just run it, select keys 
+to controll the actions (press button, then a key). No Ctrl/Shift/Alt is taken into account - the first 
+key to be pressed is used.
+
+Tester is used to check how the link works. Write an application number (from data.txt) and after 
+pressing start, the link is activated and you should see the numbers moving...
+
+If you have any questions, reach me through http://linuxtrack.eu or the google code project page...
+ 

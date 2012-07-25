@@ -18,7 +18,10 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
-#include "utils.h"
+
+#ifndef LIBLINUXTRACK_SRC
+  #include "utils.h"
+#endif
 
 #define IOCTL_RETRY_COUNT 5
 

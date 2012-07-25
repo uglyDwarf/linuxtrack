@@ -24,6 +24,7 @@ static int make_mmap()
 
 char *ltr_int_init_helper(const char *cust_section, bool standalone)
 {
+  bool is_child;
   if(initialized) return mmm.fname;
   if(make_mmap() != 0) return NULL;
   struct ltr_comm *com = mmm.data;
@@ -33,7 +34,14 @@ char *ltr_int_init_helper(const char *cust_section, bool standalone)
     char *server = ltr_int_get_app_path("/ltr_server1");
     char *section = ltr_int_my_strdup(cust_section);
     char *args[] = {server, section, mmm.fname, NULL};
-    ltr_int_fork_child(args);
+    if(!ltr_int_fork_child(args, &is_child)){
+      com->state = ERROR;
+      free(server);
+      if(is_child){
+        exit(1);
+      }
+      return false;
+    }
     free(server);
   }
   ltr_wakeup();

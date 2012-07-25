@@ -36,6 +36,7 @@ int open_slave_fifo(int master_fifo, const char *name_template, int max_fifos)
 
 void try_start_master(const char *main_fifo)
 {
+  bool is_child;
   if(!try_restarting_master){
     return;
   }
@@ -45,7 +46,10 @@ void try_start_master(const char *main_fifo)
     printf("Master is not running, start it\n"); 
     char *args[] = {"srv", NULL};
     args[0] = ltr_int_get_app_path("/ltr_server1");
-    ltr_int_fork_child(args);
+    ltr_int_fork_child(args, &is_child);
+    if(is_child){
+      exit(1);
+    }
     int status;
     //Disable the wait when not daemonizing master!!!
     wait(&status);
