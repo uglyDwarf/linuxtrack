@@ -25,12 +25,14 @@
 
 static pid_t child;
 
-bool ltr_int_fork_child(char *args[])
+bool ltr_int_fork_child(char *args[], bool *is_child)
 {
   if((child = fork()) == 0){
     //Child here
+    *is_child = true;
     execv(args[0], args);
     perror("execv");
+    printf("Child should quit now...\n");
     return false;
   }
   return true;
