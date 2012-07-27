@@ -269,7 +269,7 @@ static int update_pose_3pt(struct frame_type *frame)
   return res;
 }
 
-bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose)
+bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose, pose_t *unfiltered)
 {
   //printf(">>Pre: %f %f %f  %f %f %f\n", pose->pitch, pose->yaw, pose->roll, pose->tx, pose->ty, pose->tz);
 //  static float filterfactor=1.0;
@@ -278,16 +278,16 @@ bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose)
   static float filtered_translations[3] = {0.0f, 0.0f, 0.0f};
   //ltr_int_get_axes_ff(axes, filter_factors);
   double raw_angles[3];
-
-  raw_angles[0] = ltr_int_val_on_axis(axes, PITCH, pose->pitch);
-  raw_angles[1] = ltr_int_val_on_axis(axes, YAW, pose->yaw);
-  raw_angles[2] = ltr_int_val_on_axis(axes, ROLL, pose->roll);
+  
+  raw_angles[0] = unfiltered->pitch = ltr_int_val_on_axis(axes, PITCH, pose->pitch);
+  raw_angles[1] = unfiltered->yaw = ltr_int_val_on_axis(axes, YAW, pose->yaw);
+  raw_angles[2] = unfiltered->roll = ltr_int_val_on_axis(axes, ROLL, pose->roll);
   //printf(">>Raw: %f %f %f\n", raw_angles[0], raw_angles[1], raw_angles[2]);
-
+  
   pose->pitch = clamp_angle(ltr_int_filter_axis(axes, PITCH, raw_angles[0], &(filtered_angles[0])));
   pose->yaw = clamp_angle(ltr_int_filter_axis(axes, YAW, raw_angles[1], &(filtered_angles[1])));
   pose->roll = clamp_angle(ltr_int_filter_axis(axes, ROLL, raw_angles[2], &(filtered_angles[2])));
-    
+  
   double rotated[3];
   double transform[3][3];
   double displacement[3] = {pose->tx, pose->ty, pose->tz};
@@ -300,12 +300,17 @@ bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose)
 //  ltr_int_print_vec(displacement, "mv");
 //  ltr_int_print_vec(rotated, "rotated");
   
+  unfiltered->tx = ltr_int_val_on_axis(axes, TX, rotated[0]);
+  unfiltered->ty = ltr_int_val_on_axis(axes, TY, rotated[1]);
+  unfiltered->tz = ltr_int_val_on_axis(axes, TZ, rotated[2]);
+  
   pose->tx = 
-    ltr_int_filter_axis(axes, TX, ltr_int_val_on_axis(axes, TX, rotated[0]), &(filtered_translations[0]));
+    ltr_int_filter_axis(axes, TX, unfiltered->tx, &(filtered_translations[0]));
   pose->ty = 
-    ltr_int_filter_axis(axes, TY, ltr_int_val_on_axis(axes, TY, rotated[1]), &(filtered_translations[1]));
+    ltr_int_filter_axis(axes, TY, unfiltered->ty, &(filtered_translations[1]));
   pose->tz = 
-    ltr_int_filter_axis(axes, TZ, ltr_int_val_on_axis(axes, TZ, rotated[2]), &(filtered_translations[2]));
+    ltr_int_filter_axis(axes, TZ, unfiltered->tz, &(filtered_translations[2]));
+  //printf(">>Post: %f %f %f  %f %f %f\n", pose->pitch, pose->yaw, pose->roll, pose->tx, pose->ty, pose->tz);
   return true;
 }
 

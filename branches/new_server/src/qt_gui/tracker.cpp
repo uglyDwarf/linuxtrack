@@ -98,9 +98,11 @@ void Tracker::signalNewFrame(struct frame_type *frame)
 void Tracker::signalNewPose(pose_t *pose)
 {
   static pose_t processed;
+  static pose_t unfiltered;
   processed = *pose;
-  ltr_int_postprocess_axes(axes, &processed);
-  emit newPose(pose, &processed);
+  ltr_int_postprocess_axes(axes, &processed, &unfiltered);
+  //std::cout<<"TRACKER: "<<pose->pitch<<" "<<unfiltered.pitch<<" "<<processed.pitch<<std::endl;
+  emit newPose(pose, &unfiltered, &processed);
 }
 
 

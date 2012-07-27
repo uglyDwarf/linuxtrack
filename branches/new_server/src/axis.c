@@ -161,7 +161,7 @@ float ltr_int_filter_axis(ltr_axes_t axes, enum axis_t id, float x, float *y_min
   }
   
   pthread_mutex_unlock(&axes_mutex);
-  float ff = (axis->filter_factor) * fabsf(axis->l_limit - axis->r_limit);
+  float ff = (axis->filter_factor) * (axis->l_limit > axis->r_limit ? axis->l_limit : axis->r_limit);
   return *y_minus_1 = ltr_int_nonlinfilt(x, *y_minus_1, ff);
 }
 

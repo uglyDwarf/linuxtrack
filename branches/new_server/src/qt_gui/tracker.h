@@ -53,7 +53,7 @@ class Tracker : public QObject{
  signals:
   void stateChanged(int current_state);
   void newFrame(struct frame_type *frame);
-  void newPose(pose_t *raw_pose, pose_t *pose);
+  void newPose(pose_t *raw_pose, pose_t *unfiltered, pose_t *pose);
   void axisChanged(int axis, int elem);
   void setCommonFF(float val);
   void initAxes();

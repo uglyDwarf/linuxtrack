@@ -13,7 +13,8 @@ SCView::SCView(axis_t a, QWidget *parent)
   setAutoFillBackground(true);
   timer = new QTimer(this);
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-  connect(&TRACKER, SIGNAL(newPose(pose_t *, pose_t *)), this, SLOT(newPose(pose_t *, pose_t *)));
+  connect(&TRACKER, SIGNAL(newPose(pose_t *, pose_t *, pose_t *)), 
+          this, SLOT(newPose(pose_t *, pose_t *, pose_t *)));
   timer->start(50);
   setMinimumSize(400, 100);
 }
@@ -102,36 +103,56 @@ void SCView::paintEvent(QPaintEvent * /* event */)
   float max_k = kl > kr ? kl : kr;
   
   //Draw cross with current position
-  float nx = w + w * px/max_k;
-  float ny = (max_f != 0.0) ? h - fabs(spline(px) * (h / max_f)) : h;
+  float nx = w + w * rx/max_k;
+  float ny = (max_f != 0.0) ? h - fabs(px * (h / max_f)) : h;
+  float unx = w + w * rx/max_k;
+  float uny = (max_f != 0.0) ? h - fabs(upx * (h / max_f)) : h;
   painter.drawLine(QLineF(nx, ny - 5, nx, ny + 5));
   painter.drawLine(QLineF(nx - 5, ny, nx + 5, ny));
-  painter.drawText(QPoint(100,10), QString("Real: %1").arg(px));
-  painter.drawText(QPoint(100,20), QString("Simulated: %1").arg(spline(px)));
+  painter.drawText(QPoint(100,10), QString("Real: %1").arg(rx));
+  painter.drawText(QPoint(100,20), QString("Raw: %1").arg(upx));
+  painter.drawText(QPoint(100,30), QString("Simulated: %1").arg(px));
+  
+  painter.setPen(Qt::blue);
+  painter.drawLine(QLineF(unx, uny - 5, unx, uny + 5));
+  painter.drawLine(QLineF(unx - 5, uny, unx + 5, uny));
+
   painter.end();
 }
 
-void SCView::newPose(pose_t *raw_pose, pose_t *pose)
+void SCView::newPose(pose_t *raw_pose, pose_t *unfiltered, pose_t *pose)
 {
   (void) pose;
   switch(axis){
     case PITCH:
-      px = raw_pose->pitch;
+      rx = raw_pose->pitch;
+      px = pose->pitch;
+      upx = unfiltered->pitch;
       break;
     case ROLL:
-      px = raw_pose->roll;
+      rx = raw_pose->roll;
+      px = pose->roll;
+      upx = unfiltered->roll;
       break;
     case YAW:
-      px = raw_pose->yaw;
+      rx = raw_pose->yaw;
+      px = pose->yaw;
+      upx = unfiltered->yaw;
       break;
     case TX:
-      px = raw_pose->tx;
+      rx = raw_pose->tx;
+      px = pose->tx;
+      upx = unfiltered->tx;
       break;
     case TY:
-      px = raw_pose->ty;
+      rx = raw_pose->ty;
+      px = pose->ty;
+      upx = unfiltered->ty;
       break;
     case TZ:
-      px = raw_pose->tz;
+      rx = raw_pose->tz;
+      px = pose->tz;
+      upx = unfiltered->tz;
       break;
   }
 }

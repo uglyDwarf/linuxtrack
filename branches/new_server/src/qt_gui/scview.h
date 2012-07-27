@@ -17,7 +17,7 @@ class SCView : public QWidget
 //  void movePoint(float new_x);
  public slots:
   void redraw();
-  void newPose(pose_t *raw_pose, pose_t *pose);
+  void newPose(pose_t *raw_pose, pose_t *unfiltered, pose_t *pose);
  protected:
   void paintEvent(QPaintEvent *event);
 
@@ -25,7 +25,9 @@ class SCView : public QWidget
   int spline(QPointF points[], int num_points);
   float spline(float x);
   QWidget *parentWidget;
-  float px;
+  float rx; //raw value
+  float px; //processed value
+  float upx; //unfiltered value
   axis_t axis;
   QTimer *timer;
 };
