@@ -35,7 +35,8 @@ void Window::prepare_widget()
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update_pic()));
     connect(glWidget, SIGNAL(ready()), this, SLOT(start_widget()));
-    connect(&TRACKER, SIGNAL(newPose(pose_t *, pose_t *)), this, SLOT(newPose(pose_t *, pose_t *)));
+    connect(&TRACKER, SIGNAL(newPose(pose_t *, pose_t *, pose_t *)), 
+             this, SLOT(newPose(pose_t *, pose_t *, pose_t *)));
   }
 }
 
@@ -44,7 +45,8 @@ void Window::close_widget()
   if(constructed){
     disconnect(timer, SIGNAL(timeout()), this, SLOT(update_pic()));
     disconnect(glWidget, SIGNAL(ready()), this, SLOT(start_widget()));
-    disconnect(&TRACKER, SIGNAL(newPose(pose_t *, pose_t *)), this, SLOT(newPose(pose_t *, pose_t *)));
+    disconnect(&TRACKER, SIGNAL(newPose(pose_t *, pose_t *, pose_t *)), 
+                this, SLOT(newPose(pose_t *, pose_t *, pose_t *)));
 
     control->setEnabled(false);
     timer->stop();
@@ -71,9 +73,10 @@ void Window::start_widget()
   control->setEnabled(true);
 }
 
-void Window::newPose(pose_t *raw, pose_t *processed)
+void Window::newPose(pose_t *raw, pose_t *unfiltered, pose_t *processed)
 {
   (void) raw;
+  (void) unfiltered;
   glWidget->setXRotation(processed->pitch);
   glWidget->setYRotation(processed->yaw);
   glWidget->setZRotation(processed->roll);

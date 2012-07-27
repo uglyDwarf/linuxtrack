@@ -113,12 +113,13 @@ void *slave_reader_thread(void *param)
       }
       message_t msg;
       struct ltr_comm *com;
+      pose_t unfiltered;
       if(fifo_receive(fifo, &msg, sizeof(message_t)) == 0){
         switch(msg.cmd){
           case CMD_POSE:
             //printf("Have new pose!\n");
             //printf(">>>>%f %f %f\n", msg.pose.yaw, msg.pose.pitch, msg.pose.tz);
-            ltr_int_postprocess_axes(axes, &(msg.pose));
+            ltr_int_postprocess_axes(axes, &(msg.pose), &unfiltered);
             
             com = mmm.data;
             ltr_int_lockSemaphore(mmm.sem);
