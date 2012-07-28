@@ -7,6 +7,10 @@ endif
 endif
 endif
 
+if WINE_PLUGIN
+  SUBDIRS +=src/wine_bridge
+endif
+
 
 dist_pkgdata_DATA = README README.devel README.xplane
 

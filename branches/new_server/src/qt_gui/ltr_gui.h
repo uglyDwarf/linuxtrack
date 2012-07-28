@@ -22,6 +22,7 @@ class LogView;
 class ScpForm;
 class QSettings;
 class HelpViewer;
+class PluginInstall;
 
 class LinuxtrackGui : public QWidget
 {
@@ -58,6 +59,7 @@ class LinuxtrackGui : public QWidget
   LtrTracking *track;
   ScpForm *sc;
   LogView *lv;
+  PluginInstall *pi;
   bool initialized;
   QSettings *gui_settings;
   void rereadPrefs();
