@@ -26,6 +26,7 @@
 #include "webcam_ft_prefs.h"
 #include "wiimote_prefs.h"
 #include "help_view.h"
+#include "plugin_install.h"
 
 static QMessageBox::StandardButton warnQuestion(const QString &message)
 {
@@ -72,6 +73,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   track = new LtrTracking(ui);
   sc = new ScpForm();
   lv = new LogView();
+  pi = new PluginInstall(ui, this);
 //  QObject::connect(this, SIGNAL(customSectionChanged()), sc, SLOT(reinit()));
   
 //  QObject::connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));

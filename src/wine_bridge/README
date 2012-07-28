@@ -1,14 +1,12 @@
 Linuxtrack - wine bridge
 ------------------------
-At the moment this is only experimental thing, so no autotools support is available.
+At the moment this is only experimental thing!
 To compile the package, following prerequisities must be met:
  - Wine installed, along with development files (winegcc/wineg++ available)
  - libmxml installed for dumper (not mandatory)
- - linuxtrack must be built first
  - Nullsoft installator compiler (makensis available)
 
-Just run 'make' in the wine_bridge directory and if all goes well, linuxtrack-wine.exe is created.
-This executable is to be run in wine and it will install the linuxtrack support in the wine.
+To build it, specify --enable-wine-plugin to the linuxtrack configure command.
 
 Make sure to install it in each of the wine "prefixes" you need the linuxtrack support in.
 
