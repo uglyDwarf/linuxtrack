@@ -41,6 +41,9 @@
 *Sapam* (Sapam, x-plane.org forum)
   Thank you for helping me debug unresponsive TrackIR4...
 
+*Giovanni*
+ Thank you for your help getting wiimote to work on Mountain Lion.
+
 == Donors ==
 
 *Michael* (Macmichael, x-plane.org forum)
