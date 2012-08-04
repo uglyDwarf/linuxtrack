@@ -28,7 +28,22 @@ WINE_DEFAULT_DEBUG_CHANNEL(NPClient);
 static short game_id = 0;
 bool crypted = false;
 static unsigned char table[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static dbg_flag;
 
+static void dbg_report(const char *msg,...)
+{
+  static FILE *f = NULL;
+  if(dbg_flag){
+    if(f == NULL){
+      f = fopen("NPClient.log", "w");
+    }
+    va_list ap;
+    va_start(ap,msg);
+    vfprintf(f, msg, ap);
+    fflush(f);
+    va_end(ap);
+  }
+}
 
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
@@ -41,6 +56,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
             return TRUE;
         case DLL_PROCESS_ATTACH:
             DisableThreadLibraryCalls(hinstDLL);
+            dbg_flag = getDebugFlag('w');
+            dbg_report("Attach request\n");
             break;
         case DLL_PROCESS_DETACH:
             ltr_shutdown();
@@ -248,6 +265,7 @@ int __stdcall NPCLIENT_NP_GetData(tir_data_t * data)
  */
 int __stdcall NPCLIENT_NP_GetParameter(int arg0, int arg1)
 {
+        dbg_report("GetParameter request: %d %d\n", arg0, arg1);
 	TRACE("(void): stub\n");
 	return (int) 0;
 }
@@ -259,6 +277,7 @@ int __stdcall NPCLIENT_NP_GetParameter(int arg0, int arg1)
  */
 int __stdcall NPCLIENT_NP_GetSignature(tir_signature_t * sig)
 {
+  dbg_report("GetSignature request\n");
   char *home = getenv("HOME");
   char *path = malloc(200 + strlen(home));
   sprintf(path, "%s/.linuxtrack/tir_firmware/sig.bin", home);
@@ -282,6 +301,7 @@ int __stdcall NPCLIENT_NP_GetSignature(tir_signature_t * sig)
  */
 int __stdcall NPCLIENT_NP_QueryVersion(unsigned short * version)
 {
+        dbg_report("QueryVersion request\n");
 	*version=0x0500;
 	return 0;
 }
@@ -292,6 +312,7 @@ int __stdcall NPCLIENT_NP_QueryVersion(unsigned short * version)
  */
 int __stdcall NPCLIENT_NP_ReCenter(void)
 {
+  dbg_report("ReCenter request\n");
   ltr_recenter();
   return 0;
 }
@@ -303,6 +324,7 @@ int __stdcall NPCLIENT_NP_ReCenter(void)
  */
 int __stdcall NPCLIENT_NP_RegisterProgramProfileID(unsigned short id)
 {
+  dbg_report("RegisterProgramProfileID request: %d\n", id);
   game_desc_t gd;
   if(game_data_get_desc(id, &gd)){
     printf("Application ID: %d - %s!!!\n", id, gd.name);
@@ -341,6 +363,7 @@ int __stdcall NPCLIENT_NP_RegisterProgramProfileID(unsigned short id)
  */
 int __stdcall NPCLIENT_NP_RegisterWindowHandle(HWND hwnd)
 {
+        dbg_report("RegisterWindowHandle request: 0x%X\n", hwnd);
 	TRACE("((HWND)%p): stub\n",hwnd);
 	return (int) 0;
 }
@@ -351,6 +374,7 @@ int __stdcall NPCLIENT_NP_RegisterWindowHandle(HWND hwnd)
  */
 int __stdcall NPCLIENT_NP_RequestData(unsigned short req)
 {
+        dbg_report("RequestData request: %d\n", req);
 	TRACE("((unsigned short)%d): stub\n",req);
 	return (int) 0;
 }
@@ -361,6 +385,7 @@ int __stdcall NPCLIENT_NP_RequestData(unsigned short req)
  */
 int __stdcall NPCLIENT_NP_SetParameter(int arg0, int arg1)
 {
+        dbg_report("SetParameter request: %d %d\n", arg0, arg1);
 	TRACE("(void): stub\n");
 	return (int) 0;
 }
@@ -371,6 +396,7 @@ int __stdcall NPCLIENT_NP_SetParameter(int arg0, int arg1)
  */
 int __stdcall NPCLIENT_NP_StartCursor(void)
 {
+        dbg_report("StartCursor request\n");
 	TRACE("(void): stub\n");
 	return (int) 0;
 }
@@ -381,6 +407,7 @@ int __stdcall NPCLIENT_NP_StartCursor(void)
  */
 int __stdcall NPCLIENT_NP_StartDataTransmission(void)
 {
+  dbg_report("StartDataTransmission request\n");
   ltr_wakeup();
   return 0;
 }
@@ -391,6 +418,7 @@ int __stdcall NPCLIENT_NP_StartDataTransmission(void)
  */
 int __stdcall NPCLIENT_NP_StopCursor(void)
 {
+        dbg_report("StopCursor request\n");
 	TRACE("(void): stub\n");
 	return (int) 0;
 }
@@ -401,6 +429,7 @@ int __stdcall NPCLIENT_NP_StopCursor(void)
  */
 int __stdcall NPCLIENT_NP_StopDataTransmission(void)
 {
+  dbg_report("StopDataTransmission request\n");
   ltr_suspend();
   return 0;
 }
@@ -411,6 +440,7 @@ int __stdcall NPCLIENT_NP_StopDataTransmission(void)
  */
 int __stdcall NPCLIENT_NP_UnregisterWindowHandle(void)
 {
+        dbg_report("UnregisterWindowHandle request\n");
 	TRACE("(void): stub\n");
 	return (int) 0;
 }

@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 bool game_data_get_desc(int id, game_desc_t *gd);
+bool getDebugFlag(const int flag);
 
 #ifdef __cplusplus
 }

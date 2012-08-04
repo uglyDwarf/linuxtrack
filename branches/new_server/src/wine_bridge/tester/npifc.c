@@ -129,6 +129,9 @@ bool npifc_init(HWND wnd, int id)
     return false;
   }
   printf("Program profile registered!\n");
+  tir_signature_t sig;
+  NP_GetSignature(&sig);
+  printf("Sig1:\n %s\nSig2:\n %s\n", sig.DllSignature, sig.AppSignature);
   NP_RequestData(65535);
   NP_StopCursor();
   NP_StartDataTransmission();
