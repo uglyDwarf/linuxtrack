@@ -69,3 +69,16 @@ bool game_data_get_desc(int id, game_desc_t *gd)
 }
 
 
+bool getDebugFlag(const int flag)
+{
+  char *dbg_flags = getenv("LINUXTRACK_DBG");
+  if(dbg_flags == NULL) return false;
+  if(strchr(dbg_flags, flag) != NULL){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+
+
