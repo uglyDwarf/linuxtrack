@@ -36,10 +36,10 @@ static bool is_tir(libusb_device *dev, unsigned int devid)
   }
   ltr_int_log_message("Device descriptor received.\n");
   if((desc.idVendor == 0x131D) && (desc.idProduct == devid)){
-    ltr_int_log_message("Device is a TrackIR.\n");
+    ltr_int_log_message("Device is a TrackIR (%04X:%04X).\n", desc.idVendor, desc.idProduct);
     return true;
   }else{
-    ltr_int_log_message("Device is not a TrackIR.\n");
+    ltr_int_log_message("Device is not a TrackIR(%04X:%04X).\n", desc.idVendor, desc.idProduct);
     return false;
   }
 }
@@ -120,7 +120,7 @@ dev_found ltr_int_find_tir(unsigned int devid)
     err = libusb_open(found, &handle);
     if(err){
       ltr_int_log_message("Error opening device!\n");
-      return NONE;
+      return dev | NOT_PERMITTED;
     }
     ltr_int_log_message("Handle opened successfully.\n");
   }else{

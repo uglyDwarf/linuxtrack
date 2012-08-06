@@ -7,13 +7,15 @@
 #include "pathconfig.h"
 #include "dyn_load.h"
 #include <QFile>
+#include <QMessageBox>
 
 static QString currentId = QString("None");
 static QString currentSection = QString();
 static int tirType = 0;
 bool TirPrefs::firmwareOK = false;
+bool TirPrefs::permsOK = false;
 
-typedef int (*probe_tir_fun_t)(bool *have_firmware);
+typedef int (*probe_tir_fun_t)(bool *have_firmware, bool *have_permissions);
 static probe_tir_fun_t probe_tir_fun = NULL;
 static lib_fun_def_t functions[] = {
   {(char *)"ltr_int_tir_found", (void*) &probe_tir_fun},
@@ -21,12 +23,12 @@ static lib_fun_def_t functions[] = {
 };
 
 
-static int probeTir(bool &fwOK)
+static int probeTir(bool &fwOK, bool &permOK)
 {
   void *libhandle = NULL;
   int res = 0;
   if((libhandle = ltr_int_load_library((char *)"libtir", functions)) != NULL){
-    res = probe_tir_fun(&fwOK);
+    res = probe_tir_fun(&fwOK, &permOK);
     ltr_int_unload_library(libhandle, functions);
   }
   return res;
@@ -131,7 +133,16 @@ bool TirPrefs::AddAvailableDevices(QComboBox &combo)
   deviceType_t dt;
   bool tir_selected = false;
   
-  tirType = probeTir(firmwareOK);
+  tirType = probeTir(firmwareOK, permsOK);
+  if(!permsOK){
+    QMessageBox::warning(NULL, QString("TrackIR permissions problem"), 
+        QString("TrackIR device was found, but you don't have permissions to access it.\n \
+Please install the file 51-TIR.rules to the udev rules directory\n\
+(consult help and your distro documentation for details).\n\
+You are going to need administrator privileges to do that.")
+                        );
+    return false;
+  }
   if(tirType == 0){
     return res;
   }
@@ -187,7 +198,7 @@ void TirPrefs::on_TirFirmwareDLFinished(bool state)
 {
   if(state){
     dlfw->hide();
-    probeTir(firmwareOK);    
+    probeTir(firmwareOK, permsOK);    
     if(firmwareOK){
       gui.TirFwLabel->setText("Firmware found!");
       gui.TirInstallFirmware->setDisabled(true);
