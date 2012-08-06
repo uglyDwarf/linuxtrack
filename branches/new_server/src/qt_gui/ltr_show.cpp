@@ -312,6 +312,8 @@ void CameraView::paintEvent(QPaintEvent * /* event */)
     painter.drawPixmap(QPoint(0, 0), QPixmap::fromImage(*image));
     painter.end();
     buffer_empty = true;
+    memset(buffer0, 0, h * w);
+
   }
 }
 

@@ -20,6 +20,7 @@ class TirPrefs : public QObject{
   bool initializing;
   dlfwGui *dlfw;
   static bool firmwareOK;
+  static bool permsOK;
  signals:
   void pressRefresh();
  private slots:

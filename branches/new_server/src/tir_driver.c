@@ -127,7 +127,7 @@ int ltr_int_tracker_close()
   return res;
 }
 
-int ltr_int_tir_found(bool *have_firmware)
+int ltr_int_tir_found(bool *have_firmware, bool *have_permissions)
 {
   char *libname = NULL;
   dbg_flag_type fakeusb_dbg_flag = ltr_int_get_dbg_flag('f');
@@ -145,6 +145,12 @@ int ltr_int_tir_found(bool *have_firmware)
   }
   int res = 0;
   dev_found device = ltr_int_find_tir();
+  if(device & NOT_PERMITTED){
+    device ^= NOT_PERMITTED;
+    *have_permissions = false;
+  }else{
+    *have_permissions = true;
+  }
   switch(device){
     case TIR2:
       res = 2;
@@ -181,3 +187,4 @@ int ltr_int_tir_found(bool *have_firmware)
   libhandle = NULL;
   return res;
 }
+

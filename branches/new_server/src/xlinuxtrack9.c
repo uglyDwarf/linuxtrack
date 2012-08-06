@@ -349,11 +349,11 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
     if (retval < 0) {
       return -1.0;
     }
+    tx *= 1e-3;
+    ty *= 1e-3;
+    tz *= 1e-3;
   }
   
-  tx *= 1e-3;
-  ty *= 1e-3;
-  tz *= 1e-3;
   if(pv_present){
     XPLMSetDataf(PV_TIR_X_DR, tx);
     XPLMSetDataf(PV_TIR_Y_DR, ty);
