@@ -19,6 +19,7 @@ Section "Linuxtrack"
   File "Tester.exe.so"
   File "NPClient.dll"
   File "data.txt"
+  File "linuxtrack.ico"
   WriteRegStr HKLM SOFTWARE\Linuxtrack "Install_dir" "$INSTDIR"
   WriteRegStr HKLM "Software\Linuxtrack" "Data" "$INSTDIR\data.txt"
   WriteRegStr HKCU "Software\NaturalPoint\NATURALPOINT\NPClient Location" "Path" "$INSTDIR\"
@@ -32,7 +33,7 @@ SectionEnd
 Section "Start Menu Shortcuts"
   CreateDirectory "$SMPROGRAMS\Linuxtrack"
   CreateShortCut "$SMPROGRAMS\Linuxtrack\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\Linuxtrack\Controller.lnk" "$INSTDIR\Controller.exe" "" "$INSTDIR\Controller.exe"
+  CreateShortCut "$SMPROGRAMS\Linuxtrack\Controller.lnk" "$INSTDIR\Controller.exe" "" "$INSTDIR\linuxtrack.ico" 0
   CreateShortCut "$SMPROGRAMS\Linuxtrack\Tester.lnk" "$INSTDIR\Tester.exe" "" "$INSTDIR\Tester.exe"
 SectionEnd
 
@@ -46,6 +47,7 @@ Section "Uninstall"
   Delete $INSTDIR\NPClient.dll
   Delete $INSTDIR\uninstall.exe
   Delete $INSTDIR\data.txt
+  Delete $INSTDIR\linuxtrack.ico
   Delete "$SMPROGRAMS\Linuxtrack\*.*"
   RMDir "$SMPROGRAMS\Linuxtrack"
   RMDir "$INSTDIR"

@@ -26,12 +26,15 @@
 #include <tracker.h>
 
 QImage *img0;
+QImage *img1;
+QImage *current_img = NULL;
 //QPixmap *pic;
 QWidget *label;
 QVector<QRgb> colors;
 
 static unsigned char *buffer0 = NULL;
-//static unsigned char *buffer1 = NULL;
+static unsigned char *buffer1 = NULL;
+static unsigned char *current_buffer = NULL;
 static unsigned int w = 0;
 static unsigned int h = 0;
 static ScpForm *scp;
@@ -42,15 +45,21 @@ static int frames = 0;
 static float fps_buffer[8] ={0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 static int fps_ptr = 0;
 
+//!!!TBD multithread sync!!!
 
-static bool buffer_empty;
 
 void clean_up()
 {
   unsigned char *tmp;
   if(buffer0 != NULL){
+    //to avoid problem is someone is using it...
     tmp = buffer0;
     buffer0 = NULL;
+    free(tmp);
+  }
+  if(buffer1 != NULL){
+    tmp = buffer1;
+    buffer1 = NULL;
     free(tmp);
   }
   if(img0 != NULL){
@@ -111,18 +120,28 @@ void LtrGuiForm::newFrameDelivered(struct frame_type *frame)
     clean_up();
     buffer0 = (unsigned char*)ltr_int_my_malloc(h * w);
     memset(buffer0, 0, h * w);
+    buffer1 = (unsigned char*)ltr_int_my_malloc(h * w);
+    memset(buffer1, 0, h * w);
     img0 = new QImage(buffer0, w, h, w, QImage::Format_Indexed8);
+    img1 = new QImage(buffer1, w, h, w, QImage::Format_Indexed8);
     colors.clear();
     for(int col = 0; col < 256; ++col){
       colors.push_back(qRgb(col, col, col));
     }
     img0->setColorTable(colors);
+    img1->setColorTable(colors);
   }
   if((frame->bitmap != NULL) && camViewEnable){
-    buffer_empty = false;
-    frame->bitmap = NULL;
-  }
-  if(buffer_empty){
+    current_buffer = frame->bitmap;
+    if(frame->bitmap == buffer0){
+      current_img = img0;
+      frame->bitmap = buffer1;
+    }else{
+      current_img = img1;
+      frame->bitmap = buffer0;
+    }
+    memset(frame->bitmap, 0, h * w);
+  }else{
     frame->bitmap = buffer0;
   }
   return;
@@ -218,12 +237,7 @@ void LtrGuiForm::update()
   }
   int fps = fps_mean / 8.0;
   ui.status->setText(QString("%1.frame @ %2 fps").arg(cnt).arg(fps, 4));
-  if(buffer_empty){
-    return;
-  }
-  if(img0 != NULL){
-    cv->redraw(img0);
-  }
+  cv->redraw();
 }
 
 void LtrGuiForm::stateChanged(int current_state)
@@ -296,24 +310,24 @@ CameraView::CameraView(QWidget *parent)
   setAutoFillBackground(true);
 }
 
-void CameraView::redraw(QImage *img)
+void CameraView::redraw()
 {
-  image = img;
-  if(size() != img->size()){
-    resize(img->size());
-  }
   update();
 }
 
 void CameraView::paintEvent(QPaintEvent * /* event */)
 {
-  if((image != NULL) && (running)){
+  image = current_img;
+  if(image == NULL){
+    return;
+  }
+  if(size() != image->size()){
+    resize(image->size());
+  }
+  if((image != NULL)/* && (running)*/){
     QPainter painter(this);
     painter.drawPixmap(QPoint(0, 0), QPixmap::fromImage(*image));
     painter.end();
-    buffer_empty = true;
-    memset(buffer0, 0, h * w);
-
   }
 }
 

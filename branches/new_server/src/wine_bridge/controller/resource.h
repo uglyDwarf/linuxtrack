@@ -8,3 +8,4 @@
 #define IDC_REDEFINE_RECENTER                   1006
 #define IDC_PAUSE_LABEL                         1007
 #define IDC_RECENTER_LABEL                      1008
+
