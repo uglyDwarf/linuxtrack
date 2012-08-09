@@ -35,7 +35,7 @@ class CameraView : public QWidget
  public:
   CameraView(QWidget *parent = 0);
 // public slots:
-  void redraw(QImage *img);
+  void redraw();
  protected:
   void paintEvent(QPaintEvent *event);
  private:

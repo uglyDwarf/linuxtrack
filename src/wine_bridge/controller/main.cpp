@@ -1,10 +1,11 @@
-#include "linuxtrack.h"
 #include <windows.h>
 #include <commctrl.h>
 #include <stdio.h>
 #include <string.h>
+#include <wchar.h>
 #include "utils.h"
 #include "resource.h"
+#include "kbi_interface.h"
 
 /*  Declare Windows procedure  */
 LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
@@ -34,64 +35,9 @@ bool paused = false;
 enum redef_state_t{REDEF_NONE, REDEF_PAUSE, REDEF_RECENTER} redef_state = REDEF_NONE;
 
 char *prefs;
+NOTIFYICONDATA nid = {0};
 
-bool read_prefs()
-{
-  HKEY hkey = 0;
-  int res = 0;
-  RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Linuxtrack", 0, 
-    KEY_QUERY_VALUE, &hkey);
-  if(!hkey){
-    printf("Can't open registry key\n");
-    return false;
-  }
-  
-  unsigned char buf[1024];
-  DWORD buf_len = sizeof(buf)-1; //To be sure there is a space for null
-  LONG result = RegQueryValueEx(hkey, "Keys", NULL, NULL, buf, &buf_len);
-  if((result == ERROR_SUCCESS) && (buf_len > 0)){
-    res = sscanf((char *)buf, "%d %d %d %d", 
-                 &pause_vkey, &pause_scancode, &recenter_vkey, &recenter_scancode);
-  }
-  RegCloseKey(hkey);
-  if(res == 4){
-    have_pause_key = true;
-    have_recenter_key = true;
-    GetKeyNameText(pause_scancode, pause_key_desc, 250);
-    GetKeyNameText(recenter_scancode, recenter_key_desc, 250);
-    return true;
-  }else{
-    have_pause_key = false;
-    have_recenter_key = false;
-    return false;
-  }
-}
-
-void write_prefs()
-{
-  HKEY  hkey   = 0;
-  if(!(have_pause_key && have_recenter_key)){
-    return;
-  }
-  
-  LONG result = RegCreateKeyEx(HKEY_LOCAL_MACHINE, "Software\\Linuxtrack", 0, NULL, 
-                               REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, NULL);
-  if(result != ERROR_SUCCESS){
-    printf("Can't create registry key...\n");
-    return;
-  }
-  char *val = NULL;
-  
-  asprintf(&val, "%d %d\n%d %d\n", pause_vkey, pause_scancode, recenter_vkey, recenter_scancode);
-  result = RegSetValueEx(hkey, "Keys", 0, REG_SZ, (unsigned char *)val, strlen(val)+1);
-  free(val);
-  val = NULL;
-  if(result != ERROR_SUCCESS){
-    printf("Can't store registry key...\n");
-    return;
-  }
-  RegCloseKey(hkey);
-}
+#define WM_TRAY_DBL_CLICK WM_USER+1
 
 int WINAPI WinMain (HINSTANCE hThisInstance,
                      HINSTANCE hPrevInstance,
@@ -104,13 +50,9 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
   /* The Window structure */
   hInst = hThisInstance;
   
-  read_prefs();
+  /*
   printf("Prefs read!\n");
-  if(ltr_init("Default") != 0){
-    printf("Can't start linuxtrack!!!\n");
-    exit(1);
-  }
-  printf(">>>Linuxtrack initialized!?!\n");
+  */
   wincl.hInstance = hThisInstance;
   wincl.lpszClassName = szClassName;
   wincl.lpfnWndProc = WindowProcedure;      /* This function is called by windows */
@@ -118,8 +60,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
   wincl.cbSize = sizeof (WNDCLASSEX);
   
   /* Use default icon and mouse-pointer */
-  wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
-  wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
+  wincl.hIcon = LoadIcon (hThisInstance, MAKEINTRESOURCE(1002));
+  wincl.hIconSm = LoadIcon (hThisInstance, MAKEINTRESOURCE(1001));
   wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
   wincl.lpszMenuName = NULL;                 /* No menu */
   wincl.cbClsExtra = 0;                      /* No extra bytes after the window class */
@@ -149,46 +91,11 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
   
   /* Make the window visible on the screen */
   ShowWindow (hwnd, nCmdShow);
-  
-  /* Run the message loop. It will run until GetMessage() returns 0 */
-  while (GetMessage (&messages, NULL, 0, 0)){
-    /* Translate virtual-key messages into character messages */
-    TranslateMessage(&messages);
-    /* Send message to WindowProcedure */
-    DispatchMessage(&messages);
-  }
-
+  kbi_init(hwnd);
+  kbi_msg_loop();
+  kbi_close();
   /* The program return-value is 0 - The value that PostQuitMessage() gave */
   return messages.wParam;
-}
-
-
-VOID CALLBACK TimerProcedure(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
-{
-  if(have_pause_key){
-    if(GetAsyncKeyState(pause_vkey) | 1 > 1){
-      if(pause_debouncer == 0){
-        paused = !paused;
-        printf("Pause key pressed!\n");
-        if(paused){
-          ltr_suspend();
-        }else{
-          ltr_wakeup();
-        }
-      }
-      pause_debouncer = 5;
-    }else{
-      if(pause_debouncer > 0){
-        --pause_debouncer;
-      }
-    }
-  }
-  if(have_recenter_key){
-    if(GetAsyncKeyState(recenter_vkey) | 1 > 1){
-      printf("Recenter key pressed!\n");
-      ltr_recenter();
-    }
-  }
 }
 
 /*  This function is called by the Windows function DispatchMessage()  */
@@ -198,10 +105,6 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
   static int cntr1 = 0;
   //printf("Msg: %d  %d\n", hwnd, message);
   switch(message){                  /* handle the messages */
-    case WM_DESTROY:
-      PostQuitMessage (0);       /* send a WM_QUIT to the message queue */
-      ltr_shutdown();
-      break;
     case WM_CREATE:
       hCtrl0_0 = CreateWindowEx(0, WC_BUTTON, ("Quit"), WS_VISIBLE | WS_CHILD | WS_TABSTOP | 0x00000001, 
                                 336, 117, 83, 23, hwnd, (HMENU)IDQUIT, hInst, 0);
@@ -221,42 +124,45 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         snprintf(msg, 380, "Recenter: %s", recenter_key_desc);
         SetWindowText(hCtrl0_4, msg);
       }
-      SetTimer(hwnd, 0, 50, TimerProcedure);
-        break;
-    case WM_KEYDOWN:
-      //sprintf(msg, "Pressed %d times!", cntr1);
-      //printf("Keydown %s!\n",msg);
-      switch(redef_state){
-        case REDEF_PAUSE:
-          pause_vkey = wParam;
-          pause_scancode = lParam;
-          have_pause_key = true;
-          GetKeyNameText(lParam, pause_key_desc, 250);
-          snprintf(msg, 380, "Pause: %s", pause_key_desc);
-          SetWindowText(hCtrl0_3, msg);
-          break;
-        case REDEF_RECENTER:
-          recenter_vkey = wParam;
-          recenter_scancode = lParam;
-          have_recenter_key = true;
-          GetKeyNameText(lParam, recenter_key_desc, 250);
-          snprintf(msg, 380, "Recenter: %s", recenter_key_desc);
-          SetWindowText(hCtrl0_4, msg);
-          break;
-      }
-      redef_state = REDEF_NONE;
+      
+      nid.cbSize = sizeof(nid);
+      nid.hWnd = hwnd;
+      nid.uFlags = NIF_ICON | NIF_MESSAGE;
+      nid.uCallbackMessage = WM_TRAY_DBL_CLICK;
+      strncpy(nid.szInfo, "Info", 256);
+      strncpy(nid.szInfoTitle, "Title", 64);
+      nid.dwInfoFlags = 0;
+      nid.hIcon = LoadIcon (hInst, MAKEINTRESOURCE(1001));
+      return 0;
       break;
+    case WM_SYSCOMMAND:
+      if(wParam == SC_MINIMIZE){
+        ShowWindow(hwnd, SW_HIDE);
+        Shell_NotifyIcon(NIM_ADD, &nid);
+      }
+      break;
+    case WM_TRAY_DBL_CLICK:
+      if(lParam == WM_LBUTTONDOWN){
+        ShowWindow(hwnd, SW_SHOW);
+        Shell_NotifyIcon(NIM_DELETE, &nid);
+        SetForegroundWindow(hwnd);
+      }
+      break;
+    case WM_DESTROY:
+      Shell_NotifyIcon(NIM_DELETE, &nid);
+      PostQuitMessage(0);
+      return 0;
+      break;      
     case WM_COMMAND:
       SetFocus(hwnd);
       switch(wParam){
         case IDC_REDEFINE_PAUSE:
-          redef_state = REDEF_PAUSE;
+          kbi_set_state(DEF_PAUSE);
           break;
         case IDC_REDEFINE_RECENTER:
-          redef_state = REDEF_RECENTER;
+          kbi_set_state(DEF_RECENTER);
           break;
         case IDQUIT:
-          write_prefs();
           DestroyWindow(hwnd);
           break;
       }
@@ -266,4 +172,11 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
   }
   return 0;
 }
+
+void set_names(const std::string pause_keys, const std::string recenter_keys)
+{
+  SetWindowText(hCtrl0_3, pause_keys.c_str());
+  SetWindowText(hCtrl0_4, recenter_keys.c_str());
+}
+
 

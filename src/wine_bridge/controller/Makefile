@@ -2,11 +2,17 @@
 
 all : Controller.exe
 
-Controller.exe : main.cpp linuxtrack.o
-	wineg++ -m32 -o Controller -I../../ linuxtrack.o main.cpp
+Controller.exe : main.cpp linuxtrack.o resources.o dinput.o
+	wineg++ -m32 -o Controller -I../../ linuxtrack.o resources.o dinput.o -lshell32 -ldxguid -l dinput -l dinput8 -l uuid main.cpp
 
 linuxtrack.o : ../../linuxtrack.c ../../linuxtrack.h
 	winegcc -c -m32 -o linuxtrack.o -I../../ ../../linuxtrack.c
+
+dinput.o : dinput.cpp kbi_interface.h
+	wineg++ -m32 -c -o dinput.o -I../../ dinput.cpp
+	
+resources.o : resources.rc
+	wrc -o resources.o resources.rc
 
 clean :
 	@rm -rf *.exe* *.o
