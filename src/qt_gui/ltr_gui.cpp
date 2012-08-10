@@ -73,7 +73,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   track = new LtrTracking(ui);
   sc = new ScpForm();
   lv = new LogView();
-  pi = new PluginInstall(ui, this);
+  pi = new PluginInstall(ui);
 //  QObject::connect(this, SIGNAL(customSectionChanged()), sc, SLOT(reinit()));
   
 //  QObject::connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));

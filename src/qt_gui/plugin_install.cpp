@@ -4,8 +4,8 @@
 #include <QProcess>
 #include <QFileDialog>
 
-PluginInstall::PluginInstall(const Ui::LinuxtrackMainForm &ui, QWidget *parent):
-  QWidget(parent), gui(ui), inst(NULL)
+PluginInstall::PluginInstall(const Ui::LinuxtrackMainForm &ui):
+  gui(ui), inst(NULL)
 {
   if(QFile::exists(PREF.getDataPath("linuxtrack-wine.exe"))){
     inst = new QProcess(this);
@@ -37,7 +37,7 @@ void PluginInstall::instFinished(int exitCode, QProcess::ExitStatus exitStatus)
 void PluginInstall::installWinePlugin()
 {
   gui.pushButton_2->setEnabled(false);
-  QString prefix = QFileDialog::getExistingDirectory(this, QString("Select Wine Prefix..."), 
+  QString prefix = QFileDialog::getExistingDirectory(NULL, QString("Select Wine Prefix..."), 
                      QDir::homePath()+"/.wine", QFileDialog::ShowDirsOnly);
   QString installerPath = PREF.getDataPath("linuxtrack-wine.exe");
   

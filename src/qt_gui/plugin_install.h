@@ -1,15 +1,15 @@
 #ifndef PLUGIN_INSTALL
 #define PLUGIN_INSTALL
 
-#include <QWidget>
+#include <QObject>
 #include <QProcess>
 #include "ui_ltr.h"
 
-class PluginInstall : public QWidget
+class PluginInstall : public QObject
 {
   Q_OBJECT
  public:
-  PluginInstall(const Ui::LinuxtrackMainForm &ui, QWidget *parent = 0);
+  PluginInstall(const Ui::LinuxtrackMainForm &ui);
   ~PluginInstall();
  private slots:
   void installWinePlugin();
