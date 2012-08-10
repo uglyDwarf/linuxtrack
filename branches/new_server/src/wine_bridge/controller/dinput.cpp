@@ -201,7 +201,7 @@ const std::string &kbi_check(int num)
   if(i != keymap.end()){
     return i->second;
   }
-  std::cout<<"Key "<<num<<" unknown!"<<std::endl;
+  //std::cout<<"Key "<<num<<" unknown!"<<std::endl;
   return unkn;
 }
 
@@ -237,7 +237,7 @@ void kbi_msg_loop()
             }
           }else{
             //key released
-            std::cout<<"KEY(s): "<< str_code(get_code()) << std::endl;
+            //std::cout<<"KEY(s): "<< str_code(get_code()) << std::endl;
             if(state != RECEIVING){
               if(state == DEF_PAUSE){
                 pause_code = get_code();
@@ -245,6 +245,7 @@ void kbi_msg_loop()
               if(state == DEF_RECENTER){
                 recenter_code = get_code();
               }
+              send_keys_desc();
               state = RECEIVING;
             }
             reset_code();
