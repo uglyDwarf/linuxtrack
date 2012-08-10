@@ -136,13 +136,18 @@ int fifo_receive(int fifo, void *buf, size_t size)
 
 int send_message(int fifo, uint32_t cmd, uint32_t data)
 {
-  message_t msg = {.cmd = cmd, .data = data, .str[0] = '\0'};
+  message_t msg;
+  msg.cmd = cmd;
+  msg.data = data;
+  msg.str[0] = '\0';
   return fifo_send(fifo, &msg, sizeof(message_t));
 }
 
 int send_message_w_str(int fifo, uint32_t cmd, uint32_t data, char *str)
 {
-  message_t msg = {.cmd = cmd, .data = data};
+  message_t msg;
+  msg.cmd = cmd;
+  msg.data = data;
   if(str != NULL){
     strncpy(&(msg.str[0]), str, 500);
     msg.str[499] = '\0'; //in case the str is longer than 500 bytes, 
@@ -156,14 +161,21 @@ int send_message_w_str(int fifo, uint32_t cmd, uint32_t data, char *str)
 
 int send_data(int fifo, const pose_t *data)
 {
-  message_t msg = {.cmd = CMD_POSE, .data = 0, .pose = *data};
+  message_t msg;
+  msg.cmd = CMD_POSE;
+  msg.data = 0;
+  msg.pose = *data;
   return fifo_send(fifo, &msg, sizeof(message_t));
 }
 
 int send_param_update(int fifo, uint32_t axis, uint32_t param, float value)
 {
-  message_t msg = {.cmd = CMD_PARAM, .data = 0, 
-                   .param = {.axis_id = axis, .param_id = param, .flt_val = value}};
+  message_t msg;
+  msg.cmd = CMD_PARAM;
+  msg.data = 0; 
+  msg.param.axis_id = axis;
+  msg.param.param_id = param;
+  msg.param.flt_val = value;
   return fifo_send(fifo, &msg, sizeof(message_t));
 }
 
