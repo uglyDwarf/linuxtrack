@@ -74,12 +74,15 @@ int open_fifo_for_writing(const char *name){
   //Open the pipe (handling the wait for the other party to open reading end)
   //  Todo: add some timeout?
   int fifo = -1;
-  while(1){
+  int timeout = 3;
+  while(timeout > 0){
+    --timeout;
     if((fifo = open(name, O_WRONLY | O_NONBLOCK)) < 0){
       if(errno != ENXIO){
         perror("open@open_fifo_for_writing");
         return -1;
       }
+      fifo = -1;
       sleep(1);
     }else{
       break;
