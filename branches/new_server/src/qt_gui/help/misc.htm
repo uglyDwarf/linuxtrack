@@ -2,11 +2,58 @@
 <html>
 
 <head>
-  <title>Device setup</title>
+  <title>Miscelaneous</title>
   <meta name="generator" content="Bluefish 2.0.2" >
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
 <body>
+<h1>Miscelaneous</h1>
+The last pane contains things that didn't fit into the other panes. 
+
+<h2>Xplane plugin installation</h2>
+This button installs the XPlane plugin. When pressed, a dialog appears asking you to browse to your XPlane
+executable. When there, select the executable and press button <b>Open</b>.
+In case of problem, a message is shown, otherwise you can close ltr_gui and start XPlane.
+<p>
+In case you use several XPlane installations, install the plugin into each of them.
+<p>
+The plugin is itself a link, which brings these two effects:
+<ul>
+<li>When you update linuxtrack, the plugin is updated too (provided you don't relocate the linuxtrack)...</li>
+<li>Whenever you move linuxtrack to a different directory, you have to reinstall the plugin!</li>
+</ul>
+
+<h2>Wine plugin installation</h2>
+This button lets you install the linuxtrack-wine bridge. It allows TrackIR enabled games in wine to utilize
+linuxtrack.
+<p>
+When you press the button, you'll be asked to go to the "wine prefix" (or bottle on Mac) of your choice.
+If you are unsure what I'm talking about, just press enter and the default one is used.
+An installator shows up - follow the instructions and when done, start the Controller.
+
+<p>
+Controller window shows and you should specify pause key and recenter key - just press the appropriate button
+followed by key/keys of your choice (max 2 keys). These keys will be used ingame to pause the tracker (e.g. 
+when playing with avionics).
+<p>
+When the controller is running, start the program/game and the tracking should work!
+<p>
+When using more prefixes, always make sure to install the plugin into all of them and also make sure you use
+Controller from the same prefix, otherwise you'll not be able to controll the linuxtrack!
+
+<h2>Logfile viewer</h2>
+Press the button to see the ltr_gui log - can contain some interesting informations when debuggin a problem.
+
+<h2>Disable camera and 3D tracking preview</h2>
+These checkboxes allow you to deactivate the corresponding panes of <b>Tracking window</b>.
+Especially the second one might get handy on machines with weak GPU (gma950 and so on) - when deactivated 
+the machine load goes down considerably.
+
+<h2>Legacy pose computation method</h2>
+You should never need this - use it only when directly asked by linuxtrack team member.
+It reenables old pose computation method - weak perspective method based on Alter's article from '92.
+
+
 
 </body>
 </html>
