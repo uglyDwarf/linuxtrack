@@ -71,7 +71,7 @@ static void ltr_int_new_frame(struct frame_type *frame, void *param)
 
 Tracker::Tracker() : axes(LTR_AXES_T_INITIALIZER), axes_valid(false), currentProfile("Default"), common_ff(0.0)
 {
-  if(!ltr_int_gui_lock()){
+  if(!ltr_int_gui_lock(true)){
     QMessageBox::warning(NULL, "Linuxtrack", "Another linuxtrack gui is running already!",
                          QMessageBox::Ok);
   }

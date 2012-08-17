@@ -114,6 +114,9 @@ int open_unique_fifo(char **name, int *num, const char *template, int max)
 
 int fifo_send(int fifo, void *buf, size_t size)
 {
+  if(fifo <= 0){
+    return -1;
+  }
   if(write(fifo, buf, size) < 0){
     printf("Write @fd %d failed:\n", fifo);
     perror("write@pipe_send");

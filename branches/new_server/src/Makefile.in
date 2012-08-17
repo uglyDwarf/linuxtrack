@@ -93,7 +93,8 @@ am__base_list = \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" \
 	"$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" \
 	"$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" \
-	"$(DESTDIR)$(icondir)" "$(DESTDIR)$(includedir)"
+	"$(DESTDIR)$(icondir)" "$(DESTDIR)$(pkgdatadir)" \
+	"$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES) $(pkglib_LTLIBRARIES)
 libfakeusb_la_DEPENDENCIES = libltr.la
 am_libfakeusb_la_OBJECTS = libfakeusb_la-fakeusb.lo
@@ -267,7 +268,8 @@ DIST_SOURCES = $(libfakeusb_la_SOURCES) $(libft_la_SOURCES) \
 man1dir = $(mandir)/man1
 NROFF = nroff
 MANS = $(man_MANS)
-DATA = $(desktop_DATA) $(dist_pkgdata_DATA) $(icon_DATA)
+DATA = $(desktop_DATA) $(dist_pkgdata_DATA) $(icon_DATA) \
+	$(nodist_pkgdata_DATA)
 HEADERS = $(include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -478,7 +480,7 @@ libmacwii_la_SOURCES = macwii_driver.c wii_com.h com_proc.h \
 
 libmacwii_la_CFLAGS = ${AM_CFLAGS} ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/mac -I..
 libmacwii_la_LIBADD = libltr.la
-libmacwii_la_LDFLAGS = -export-symbols drivers.sym ${AM_CFLAGS} ${TIGER_LDFLAG}
+libmacwii_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${AM_CFLAGS} ${TIGER_LDFLAG}
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 libwc_la_LIBADD = libltr.la -lv4l2
@@ -488,7 +490,8 @@ libft_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_CXXFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_LIBADD = libltr.la -lv4l2 $(OPENCV_LIBS)
 libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
-dist_pkgdata_DATA = linuxtrack.conf 51-TIR.rules linuxtrack.c
+dist_pkgdata_DATA = linuxtrack.conf 51-TIR.rules 
+nodist_pkgdata_DATA = linuxtrack.c
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@			    linuxtrack.c
 
@@ -503,25 +506,33 @@ AM_YFLAGS = -d
 AM_LFLAGS = -i
 BUILT_SOURCES = pref_flex.c pref_bison.c pref_bison.h
 noinst_SCRIPTS = qt_gui/ltr_gui $(am__append_9)
-EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \
-  qt_gui/objreader.cpp qt_gui/window.h qt_gui/webcam_prefs.cpp \
-  qt_gui/xm8_detail.png qt_gui/ltr_profiles.cpp qt_gui/scp_form.h \
-  qt_gui/prefs_link.h qt_gui/webcam_info.cpp qt_gui/scp_form.cpp \
-  qt_gui/ltr_axis.h qt_gui/main.cpp qt_gui/wiimote_prefs.h qt_gui/ltr_tracking.cpp \
-  qt_gui/scurve.cpp qt_gui/ltr_state.cpp qt_gui/scurve.h qt_gui/scurve.ui \
-  qt_gui/ltr_show.h qt_gui/ltr_gui.cpp qt_gui/ltr_profiles.h qt_gui/scp_form.ui \
-  qt_gui/XM8_cockpit.obj qt_gui/macwebcam_prefs.cpp qt_gui/tir_prefs.cpp \
-  qt_gui/macwebcam_info.h qt_gui/objreader.h qt_gui/log_view.h qt_gui/scview.cpp \
-  qt_gui/ltr_dev_help.cpp qt_gui/xm8d_body.obj qt_gui/ltr_gui.h qt_gui/ltr_gui_prefs.h \
-  qt_gui/wiimote_prefs.cpp qt_gui/cap.png qt_gui/ltr_model.h qt_gui/ltr_gui.ui \
-  qt_gui/ltr_tracking.h qt_gui/clip.png qt_gui/log_view.cpp qt_gui/ltr_rc.qrc \
-  qt_gui/ltr.ui qt_gui/dev_help.ui qt_gui/tir_prefs.h qt_gui/window.cpp \
-  qt_gui/webcam_prefs.h qt_gui/macwebcam_info.cpp qt_gui/webcam_info.h \
-  qt_gui/ltr_model.cpp qt_gui/ltr_gui_prefs.cpp qt_gui/ltr_show.cpp \
-  qt_gui/logview.ui qt_gui/ltr_state.h qt_gui/ltr_dev_help.h qt_gui/scview.h \
-  qt_gui/macwebcam_prefs.h qt_gui/glwidget.cpp qt_gui/model_creation.ui \
-  tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
-  xlinuxtrack.sym
+EXTRA_DIST = qt_gui/ltr_show.h qt_gui/help_view.cpp qt_gui/ltr_tracking.h \
+qt_gui/scp_form.ui qt_gui/logview.ui qt_gui/clip.png qt_gui/webcam_prefs.cpp \
+qt_gui/scview.h qt_gui/webcam_ft_prefs.h qt_gui/scview.cpp qt_gui/dl.ui \
+qt_gui/ltr_model.h qt_gui/ltr_gui.cpp qt_gui/glwidget.h qt_gui/wiimote_prefs.h \
+qt_gui/macwebcam_info.cpp qt_gui/ltr_gui_prefs.cpp qt_gui/objreader.cpp qt_gui/clip_small.png \
+qt_gui/cap_small.png qt_gui/dlfirmware.cpp qt_gui/window.cpp qt_gui/model_wizzard.ui \
+qt_gui/ltr_tracking.cpp qt_gui/ltr_profiles.cpp qt_gui/objreader.h qt_gui/plugin_install.cpp \
+qt_gui/ltr_gui_prefs.h qt_gui/scp_form.h qt_gui/ltr_gui.pro.in qt_gui/scurve.h \
+qt_gui/ltr_rc.qrc qt_gui/macwebcamft_prefs.h qt_gui/ltr_state.h qt_gui/model_creation.ui \
+qt_gui/macwebcamft_prefs.cpp qt_gui/log_view.cpp qt_gui/ltr_gui.h qt_gui/tracker.h \
+qt_gui/macwebcam_info.h qt_gui/webcam_ft_prefs.cpp qt_gui/xm8d_body.obj qt_gui/ltr_dev_help.cpp \
+qt_gui/scp_form.cpp qt_gui/linuxtrack.icns qt_gui/window.h qt_gui/ltr_model.cpp \
+qt_gui/help_view.h qt_gui/wiimote_prefs.cpp qt_gui/cap.png qt_gui/ltr_dev_help.h  \
+qt_gui/glwidget.cpp qt_gui/scurve.ui qt_gui/tir_prefs.h \
+qt_gui/scurve.cpp qt_gui/ltr_gui.ui qt_gui/dev_help.ui qt_gui/ltr_profiles.h \
+qt_gui/ltr.ui qt_gui/ltr_state.cpp qt_gui/tir_prefs.cpp qt_gui/ltr_show.cpp \
+qt_gui/xm8_detail.png qt_gui/main.cpp qt_gui/prefs_link.h qt_gui/macwebcam_prefs.h \
+qt_gui/webcam_info.h qt_gui/help/misc.htm qt_gui/help/dev_setup.htm qt_gui/help/axes_setup.htm \
+qt_gui/help/model_setup.htm qt_gui/dlfirmware.h qt_gui/webcam_info.cpp qt_gui/plugin_install.h \
+qt_gui/XM8_cockpit.obj qt_gui/tracker.cpp qt_gui/webcam_prefs.h qt_gui/macwebcam_prefs.cpp \
+qt_gui/log_view.h tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
+xlinuxtrack.sym linuxtrack_pre.c \
+wii_server/wii_server.cpp wii_server/wiimote.h wii_server/wiimote.cpp wii_server/wii_server.pro.in \
+wii_server/main.cpp wii_server/wii_server.h wii_server/wii_server.ui wii_server/wii_server.qrc \
+linuxtrack-wii.desktop linuxtrack-wii.png linuxtrack-wii.svg linuxtrack-wii.xpm \
+linuxtrack.desktop linuxtrack.png linuxtrack.svg linuxtrack.xpm \
+ltr_gui.1 ltr_pipe.1 ltr_server.1 wii_server.1
 
 ltr_pipe_CPPFLAGS = $(am__append_12) $(am__append_13)
 @LTR_PIPE_TRUE@ltr_pipe_SOURCES = ltr_pipe.c linuxtrack.h utils.h ipc_utils.h utils.c ipc_utils.c ltlib.c ltlib.h
@@ -1008,6 +1019,26 @@ uninstall-iconDATA:
 	test -n "$$files" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(icondir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(icondir)" && rm -f $$files
+install-nodist_pkgdataDATA: $(nodist_pkgdata_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(pkgdatadir)" || $(MKDIR_P) "$(DESTDIR)$(pkgdatadir)"
+	@list='$(nodist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgdatadir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgdatadir)" || exit $$?; \
+	done
+
+uninstall-nodist_pkgdataDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(nodist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(pkgdatadir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(pkgdatadir)" && rm -f $$files
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(includedir)" || $(MKDIR_P) "$(DESTDIR)$(includedir)"
@@ -1132,7 +1163,7 @@ all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) \
 install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(icondir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(icondir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -1189,7 +1220,8 @@ info: info-am
 info-am:
 
 install-data-am: install-desktopDATA install-dist_pkgdataDATA \
-	install-iconDATA install-includeHEADERS install-man
+	install-iconDATA install-includeHEADERS install-man \
+	install-nodist_pkgdataDATA
 
 install-dvi: install-dvi-am
 
@@ -1239,7 +1271,8 @@ ps-am:
 uninstall-am: uninstall-binPROGRAMS uninstall-desktopDATA \
 	uninstall-dist_pkgdataDATA uninstall-iconDATA \
 	uninstall-includeHEADERS uninstall-libLTLIBRARIES \
-	uninstall-man uninstall-pkglibLTLIBRARIES
+	uninstall-man uninstall-nodist_pkgdataDATA \
+	uninstall-pkglibLTLIBRARIES
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
 uninstall-man: uninstall-man1
@@ -1258,16 +1291,17 @@ uninstall-man: uninstall-man1
 	install-exec-hook install-html install-html-am \
 	install-iconDATA install-includeHEADERS install-info \
 	install-info-am install-libLTLIBRARIES install-man \
-	install-man1 install-pdf install-pdf-am \
-	install-pkglibLTLIBRARIES install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags uninstall uninstall-am \
-	uninstall-binPROGRAMS uninstall-desktopDATA \
+	install-man1 install-nodist_pkgdataDATA install-pdf \
+	install-pdf-am install-pkglibLTLIBRARIES install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
+	uninstall-am uninstall-binPROGRAMS uninstall-desktopDATA \
 	uninstall-dist_pkgdataDATA uninstall-hook uninstall-iconDATA \
 	uninstall-includeHEADERS uninstall-libLTLIBRARIES \
-	uninstall-man uninstall-man1 uninstall-pkglibLTLIBRARIES
+	uninstall-man uninstall-man1 uninstall-nodist_pkgdataDATA \
+	uninstall-pkglibLTLIBRARIES
 
 @DARWIN_TRUE@  #If ltr_server is not linked against CoreFoundation, loading libusb-1.0 would
 @DARWIN_TRUE@  #  cause SIG_TRAP, since CoreFoundation expects the init takes place 

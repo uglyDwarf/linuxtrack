@@ -22,6 +22,7 @@ struct axis_def{
   float filter_factor;
 //  float last_val;
   char *prefix;
+  int from_default;
 };
 
 struct ltr_axes {

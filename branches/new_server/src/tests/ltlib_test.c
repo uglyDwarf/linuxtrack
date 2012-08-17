@@ -14,7 +14,7 @@ pthread_t reader;
 void *kbd_reader(void *param)
 {
   (void)param;
-  while(1){
+  while(!quit_flag){
     switch(fgetc(stdin)){
       case 'p':
         ltr_suspend();
@@ -27,6 +27,7 @@ void *kbd_reader(void *param)
       case 's':
         ltr_shutdown();
         printf("Shutting!\n");
+        quit_flag = true;
         return NULL;
         break;
       case 'r':
@@ -37,6 +38,7 @@ void *kbd_reader(void *param)
         break;
     }
   }
+  return NULL;
 }
 
 
@@ -78,6 +80,7 @@ int main(int argc, char *argv[]) {
     }
     ltr_int_usleep(100000);
   }
-
+  pthread_join(reader, NULL);
   return 0;
 }
+

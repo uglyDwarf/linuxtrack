@@ -24,30 +24,14 @@ ltr_new_frame_callback_t new_frame_hook = NULL;
 ltr_status_update_callback_t status_update_hook = NULL;
 ltr_new_slave_callback_t new_slave_hook = NULL;
 
-static const char *lockName = "ltr_server.lock";
-static semaphore_p pfSem = NULL;
-
-bool ltr_int_gui_lock()
+bool ltr_int_gui_lock(bool do_lock)
 {
-  switch(ltr_int_server_running_already(lockName, &pfSem, true)){
-    case 0:
-      return true;
-      break;
-    case 1:
-      ltr_int_log_message("Gui server runs already!");
-      return false;
-      break;
-    default:
-      ltr_int_log_message("Error locking gui server lock!");
-      return false;
-      break;
-  }
-}
+  static const char *lockName = "ltr_server.lock";
+  static semaphore_p pfSem = NULL;
 
-bool ltr_int_gui_lock_active()
-{
-  if(pfSem == NULL){
-    switch(ltr_int_server_running_already(lockName, &pfSem, false)){
+  if((pfSem == NULL) ){
+    //just check...
+    switch(ltr_int_server_running_already(lockName, &pfSem, do_lock)){
       case 0:
         return true;
         break;
@@ -61,7 +45,11 @@ bool ltr_int_gui_lock_active()
         break;
     }
   }else{
-    return ltr_int_testLockSemaphore(pfSem);
+    if(do_lock){
+      return ltr_int_tryLockSemaphore(pfSem);
+    }else{
+      return ltr_int_testLockSemaphore(pfSem);
+    }
   }
 }
 
@@ -90,25 +78,20 @@ void ltr_int_set_callback_hooks(ltr_new_frame_callback_t nfh, ltr_status_update_
 
 bool broadcast_pose(pose_t &pose)
 {
-  bool prune = false;
-  std::multimap<std::string, int>::iterator i;
+  std::multimap<std::string, int>::iterator i, j;
   int res;
   //Send updated pose to all clients
-  for(i = slaves.begin(); i != slaves.end(); ++i){
+  for(i = slaves.begin(); i != slaves.end();){
     res = send_data(i->second, &pose);
     if(res == EPIPE){
       printf("Slave @fifo %d left!\n", i->second);
       close(i->second);
       i->second = -1;
-      prune = true;
-    }
-  }
-  //When some of clients exit, clean up
-  if(prune){
-    for(i = slaves.begin(); i != slaves.end(); ++i){
-      if(i->second == -1){
-        slaves.erase(i);
-      }
+      j = i;
+      ++i;
+      slaves.erase(j);
+    }else{
+      ++i;
     }
   }
   return true;
@@ -177,6 +160,7 @@ void recenter_cmd()
 
 bool gui_shutdown_request = false;
 
+//should account for the gui client!
 size_t request_shutdown()
 {
   size_t res = slaves.size();
@@ -197,21 +181,21 @@ bool master(bool standalone)
   int fifo;
   
   if(standalone){
-    if(!ltr_int_gui_lock_active()){
+    if(!ltr_int_gui_lock(false)){
       printf("Gui is active, quitting!\n");
       return true;
     }
     fifo = open_fifo_exclusive(master_fifo_name());
   }else{
-    if(!ltr_int_gui_lock()){
-      ltr_int_log_message("Couldn't lock gui lock!");
+    if(!ltr_int_gui_lock(true)){
+      ltr_int_log_message("Couldn't lock gui lockfile!");
       return false;
     }
     int counter = 10;
     while((fifo = open_fifo_exclusive(master_fifo_name())) <= 0){
       if((counter--) <= 0){
         ltr_int_log_message("The other master doesn't give up!");
-        break;
+        return false;
       }
       sleep(1);
     }
@@ -227,6 +211,7 @@ bool master(bool standalone)
   printf("Starting as master!\n");
   if(standalone){
     //Detach from the caller, retaining stdin/out/err
+    // Does weird things to gui ;)
     if(daemon(0, 1) != 0){
       return false;
     }
@@ -250,28 +235,26 @@ bool master(bool standalone)
     int fds = poll(&fifo_poll, 1, 1000);
     if(fds > 0){
       if(fifo_poll.revents & POLLHUP){
-        //printf("We have HUP in Master!\n");
-        break;
+        if(standalone){
+          printf("We have HUP in Master!\n");
+          break;
+        }
       }
       message_t msg;
+      msg.cmd = CMD_NOP;
       if(fifo_receive(fifo, &msg, sizeof(message_t)) == 0){
         switch(msg.cmd){
           case CMD_PAUSE:
-            if(standalone){
-              suspend_cmd();
-            }
+            suspend_cmd();
             break;
           case CMD_WAKEUP:
-            if(standalone){
-              wakeup_cmd();
-            }
+            wakeup_cmd();
             break;
           case CMD_RECENTER:
-            if(standalone){
-              recenter_cmd();
-            }
+            recenter_cmd();
             break;
           case CMD_NEW_FIFO:
+            printf("Cmd to register new slave...\n");
             register_slave(msg);
             break;
         }
@@ -280,7 +263,7 @@ bool master(bool standalone)
       perror("poll");
     }
     
-    if(gui_shutdown_request || (!ltr_int_gui_lock_active())){
+    if(gui_shutdown_request || (!ltr_int_gui_lock(false))){
       break;
     }
     
@@ -289,6 +272,12 @@ bool master(bool standalone)
   ltr_int_shutdown();
   printf("Master closing fifo %d\n", fifo);
   close(fifo);
+  int cntr = 10;
+  while((ltr_int_get_tracking_state() != STOPPED) && (cntr > 0)){
+    --cntr;
+    ltr_int_log_message("Tracker not stopped yet, waiting for the stop...");
+    sleep(1);
+  }
   return true;
 }
 

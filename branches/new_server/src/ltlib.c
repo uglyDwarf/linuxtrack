@@ -71,7 +71,7 @@ int ltr_get_camera_update(float *heading,
   ltr_int_lockSemaphore(mmm.sem);
   tmp = *com;
   ltr_int_unlockSemaphore(mmm.sem);
-  if(tmp.state != STOPPED){
+  if(tmp.state != ERROR){
     *heading = tmp.heading;
     *pitch = tmp.pitch;
     *roll = tmp.roll;

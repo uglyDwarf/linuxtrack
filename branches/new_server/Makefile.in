@@ -36,12 +36,10 @@ build_triplet = @build@
 host_triplet = @host@
 @DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@am__append_1 = src/helper
 @WINE_PLUGIN_TRUE@am__append_2 = src/wine_bridge
-@TIR_FW_TRUE@am__append_3 = MD5SUM SHA1SUM  tir4.fw.gz tir5.fw.gz copyright_and_terms_of_use.txt
 subdir = .
-DIST_COMMON = README $(am__configure_deps) \
-	$(am__dist_pkgdata_DATA_DIST) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
-	$(top_srcdir)/configure \
+DIST_COMMON = README $(am__configure_deps) $(dist_pkgdata_DATA) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(srcdir)/config.h.in $(top_srcdir)/configure \
 	$(top_srcdir)/src/qt_gui/ltr_gui.pro.in \
 	$(top_srcdir)/src/wii_server/wii_server.pro.in AUTHORS COPYING \
 	ChangeLog INSTALL NEWS compile config.guess config.sub depcomp \
@@ -68,8 +66,6 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-pdf-recursive install-ps-recursive install-recursive \
 	installcheck-recursive installdirs-recursive pdf-recursive \
 	ps-recursive uninstall-recursive
-am__dist_pkgdata_DATA_DIST = README README.devel README.xplane MD5SUM \
-	SHA1SUM tir4.fw.gz tir5.fw.gz copyright_and_terms_of_use.txt
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -266,7 +262,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = src src/mac src/tests doc $(am__append_1) $(am__append_2)
-dist_pkgdata_DATA = README README.devel README.xplane $(am__append_3)
+dist_pkgdata_DATA = README README.devel README.xplane
+EXTRA_DIST = Readme.rtf deploy mac_build pkgconf_extract mac_m4/fake_pkg_conf.m4
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
