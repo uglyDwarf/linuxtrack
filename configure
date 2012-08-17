@@ -628,8 +628,6 @@ LTR32ON64_FALSE
 LTR32ON64_TRUE
 X64_FALSE
 X64_TRUE
-TIR_FW_FALSE
-TIR_FW_TRUE
 LIBZ_FALSE
 LIBZ_TRUE
 OPENUSB_FALSE
@@ -16487,14 +16485,6 @@ else
   LIBZ_FALSE=
 fi
 
- if test  "x$with_tir_fw" = xyes; then
-  TIR_FW_TRUE=
-  TIR_FW_FALSE='#'
-else
-  TIR_FW_TRUE='#'
-  TIR_FW_FALSE=
-fi
-
  if test  "x$with_64_bit" = xyes; then
   X64_TRUE=
   X64_FALSE='#'
@@ -16770,10 +16760,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${LIBZ_TRUE}" && test -z "${LIBZ_FALSE}"; then
   as_fn_error $? "conditional \"LIBZ\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${TIR_FW_TRUE}" && test -z "${TIR_FW_FALSE}"; then
-  as_fn_error $? "conditional \"TIR_FW\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${X64_TRUE}" && test -z "${X64_FALSE}"; then

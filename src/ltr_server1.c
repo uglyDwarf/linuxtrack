@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     master(true);
   }else{
     //Parameter is name of profile
-    slave(argv[1], argv[2], false);
+    slave(argv[1], argv[2]);
   }
   return 0;
 }
