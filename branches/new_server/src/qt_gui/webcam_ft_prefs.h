@@ -5,7 +5,7 @@
 #include <QComboBox>
 #include <QFileDialog>
 #include "ui_ltr.h"
-#include "pref_int.h"
+#include "pref.hpp"
 #include "prefs_link.h"
 
 class WebcamFtPrefs : public QObject{

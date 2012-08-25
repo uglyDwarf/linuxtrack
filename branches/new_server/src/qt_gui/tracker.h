@@ -42,6 +42,7 @@ class Tracker : public QObject{
   ltr_axes_t axes;
   bool axes_valid;
   QString currentProfile;
+  QString profileSection;
   float common_ff;
   float ffs[6];
  public slots:

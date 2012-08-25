@@ -93,8 +93,8 @@ liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LIBLINUXTRACK_FLAGS)
 liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" ${TIGER_LDFLAG}
 
 libltr_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
-  math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
-  pref_flex.l pref_global.c pref_global.h pref_int.h \
+  math_utils.c math_utils.h pose.c pose.h pref.cpp pref.hpp pref.h pref_bison.ypp \
+  pref_flex.lpp pref_global.c pref_global.h \
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
   ltlib_int.c ltlib_int.h spline.c spline.h axis.c axis.h wii_driver_prefs.c \
   wii_driver_prefs.h tir_driver_prefs.c tir_driver_prefs.h wc_driver_prefs.c \
@@ -163,9 +163,9 @@ if LTR32ON64
 endif
 endif
 
-AM_YFLAGS = -d
+AM_YFLAGS = -d --name-prefix ltr_int_parser_
 AM_LFLAGS = -i
-BUILT_SOURCES = pref_flex.c pref_bison.c pref_bison.h
+BUILT_SOURCES = pref_flex.cpp pref_bison.cpp linuxtrack.c
 
 #dirty hack to integrate qt_gui
 

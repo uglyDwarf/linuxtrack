@@ -1,5 +1,6 @@
 #include <string.h>
-#include "pref_int.h"
+#include <stdlib.h>
+#include "pref.h"
 #include "pref_global.h"
 
 static void decode(char *val, bool *d1, bool *d2, bool *d3, bool *d4)
@@ -31,13 +32,15 @@ bool ltr_int_wii_init_prefs()
   if(dev == NULL){
     return false;
   }
-  const char *tmp = ltr_int_get_key(dev, run_id_key);
+  char *tmp = ltr_int_get_key(dev, run_id_key);
   if(tmp != NULL){
     strncpy(run_indication, tmp, 5);
+    free(tmp);
   }
   tmp = ltr_int_get_key(dev, pause_id_key);
   if(tmp != NULL){
     strncpy(pause_indication, tmp, 5);
+    free(tmp);
   }
   return true;
 }

@@ -1,6 +1,6 @@
 #include "tracker.h"
 #include <tracking.h>
-#include <pref_int.h>
+#include <pref.hpp>
 #include <axis.h>
 #include <ltlib.h>
 #include <../ltr_srv_master.h>
@@ -123,11 +123,11 @@ void Tracker::signalNewSlave(const char *name)
 
 void Tracker::setProfile(QString p)
 {
-  (void)p;
   axes_valid = false;
   ltr_int_close_axes(&axes);
   //PREF.setCustomSection(p);
-  currentProfile = PREF.getCustomSectionTitle();
+  currentProfile = p;
+  PREF.getProfileSection(currentProfile, profileSection);
   //std::cout<<"Set profile "<<currentProfile.toStdString()<<" - "<<p.toStdString()<<std::endl;
   ltr_int_init_axes(&axes, currentProfile.toStdString().c_str());
   
@@ -185,8 +185,7 @@ bool Tracker::axisChangeEnabled(axis_t axis, bool enabled)
 {
   ltr_int_set_axis_bool_param(axes, axis, AXIS_ENABLED, enabled);
   emit axisChanged(axis, AXIS_ENABLED);
-  QString section(PREF.getCustomSectionTitle());
-  change(section.toStdString().c_str(), axis, AXIS_ENABLED, enabled?1.0:0.0);
+  change(profileSection.toStdString().c_str(), axis, AXIS_ENABLED, enabled?1.0:0.0);
   return true; 
 }
 
@@ -205,8 +204,7 @@ bool Tracker::axisChange(axis_t axis, axis_param_t elem, float val)
   }
   bool res = ltr_int_set_axis_param(axes, axis, elem, val);
   emit axisChanged(axis, elem);
-  QString section(PREF.getCustomSectionTitle());
-  change(section.toStdString().c_str(), axis, elem, val);
+  change(profileSection.toStdString().c_str(), axis, elem, val);
   return res;
 }
 
@@ -238,13 +236,12 @@ bool Tracker::setCommonFilterFactor(float c_f)
 {
   common_ff = c_f;
   bool res = true;
-  QString section(PREF.getCustomSectionTitle());
   float val;
   for(int i = PITCH; i <= TZ; ++i){
     val = limit_ff(ffs[i] + common_ff);
     res &= ltr_int_set_axis_param(axes, (axis_t)i, AXIS_FILTER, val);
     emit axisChanged(i, AXIS_FILTER);
-    change(section.toStdString().c_str(), i, AXIS_FILTER, val);
+    change(profileSection.toStdString().c_str(), i, AXIS_FILTER, val);
   }
   return res;
 }

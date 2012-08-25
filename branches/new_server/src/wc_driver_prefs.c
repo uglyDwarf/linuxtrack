@@ -1,10 +1,12 @@
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 
 #include "tir_driver_prefs.h"
-#include "pref_int.h"
+#include "pref.h"
 #include "pref_global.h"
+#include "utils.h"
 
 static int max_blob = 0;
 static int min_blob = 0;
@@ -48,35 +50,38 @@ bool ltr_int_wc_init_prefs()
   if(!ltr_int_get_key_int(dev, threshold_key, &threshold_val)){
     threshold_val = 140;
   }
-  const char *tmp = ltr_int_get_key(dev, id_key);
+  char *tmp = ltr_int_get_key(dev, id_key);
   if(tmp != NULL){
-    camera_id = ltr_int_my_strdup(tmp);
+    camera_id = tmp;
   }
   tmp = ltr_int_get_key(dev, pix_fmt_key);
   if(tmp != NULL){
-    pix_fmt = ltr_int_my_strdup(tmp);
+    pix_fmt = tmp;
   }
   tmp = ltr_int_get_key(dev, res_key);
   if(tmp != NULL){
     if(sscanf(tmp, "%d x %d", &res_x, &res_y)!= 2){
       res_x = res_y = -1;
     }
+    free(tmp);
   }
   tmp = ltr_int_get_key(dev, fps_key);
   if(tmp != NULL){
     if(sscanf(tmp, "%d/%d", &fps_num, &fps_den)!= 2){
       fps_num = fps_den = -1;
     }
+    free(tmp);
   }
   tmp = ltr_int_get_key(dev, flip_key);
   if(tmp != NULL){
     flip = (strcasecmp(tmp, "Yes") == 0) ? true : false;
+    free(tmp);
   }else{
     flip = false;
   }
   
   tmp = ltr_int_get_key(dev, cascade_key);
-  cascade = (tmp != NULL) ? ltr_int_my_strdup(tmp) : NULL;
+  cascade = tmp;
   if(!ltr_int_get_key_flt(dev, exp_filter_key, &exp_filt)){
     exp_filt = 0.1;
   }

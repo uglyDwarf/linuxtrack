@@ -1,6 +1,7 @@
 #ifndef LTR_GUI_PREFS__H
 #define LTR_GUI_PREFS__H
 
+#include "pref.hpp"
 #include "prefs_link.h"
 #include "pref_global.h"
 #include <QString>
@@ -12,6 +13,7 @@ class PrefProxy{
   PrefProxy();
   ~PrefProxy();
   static PrefProxy *prf;
+  static prefs &ltrPrefs;
   QString prefix;
  public:
   static PrefProxy& Pref();
@@ -23,7 +25,7 @@ class PrefProxy{
   bool getActiveModel(QString &model);
   bool getKeyVal(const QString &sectionName, const QString &keyName, 
                  QString &result);
-  bool getKeyVal(const QString &keyName, QString &result);
+//  bool getKeyVal(const QString &keyName, QString &result);
   bool setKeyVal(const QString &sectionName, const QString &keyName, 
 		 const QString &value);
   bool setKeyVal(const QString &sectionName, const QString &keyName, 
@@ -40,9 +42,11 @@ class PrefProxy{
 		 const QString &value);
   bool getModelList(QStringList &list);
   bool getProfiles(QStringList &list);
-  QString getCustomSectionName();
-  QString getCustomSectionTitle();
-  bool setCustomSection(const QString &name);
+  
+  bool getProfileSection(const QString &name, QString &section);
+//  QString getCustomSectionName();
+//  QString getCustomSectionTitle();
+//  bool setCustomSection(const QString &name);
   static bool savePrefs();
   bool rereadPrefs();
   bool makeRsrcDir();

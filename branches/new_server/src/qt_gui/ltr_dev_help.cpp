@@ -1,4 +1,4 @@
-#include "pref_int.h"
+#include "pref.hpp"
 #include "ltr_dev_help.h"
 
 LtrDevHelp::LtrDevHelp(QWidget *parent) : QWidget(parent)
@@ -8,5 +8,5 @@ LtrDevHelp::LtrDevHelp(QWidget *parent) : QWidget(parent)
 
 void LtrDevHelp::on_DumpPrefsButton_pressed()
 {
-  ltr_int_dump_prefs(NULL);
+  ltr_int_dump_prefs("");
 }

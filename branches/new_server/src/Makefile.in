@@ -60,7 +60,7 @@ subdir = src
 DIST_COMMON = $(dist_pkgdata_DATA) $(include_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/local_config.h.in $(srcdir)/pathconfig.h.in \
-	pref_bison.c pref_bison.h pref_flex.c
+	pref_bison.cpp pref_bison.h pref_flex.cpp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -130,18 +130,17 @@ libltopenusb_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 libltr_la_DEPENDENCIES =
 am_libltr_la_OBJECTS = libltr_la-cal.lo libltr_la-list.lo \
 	libltr_la-dyn_load.lo libltr_la-math_utils.lo \
-	libltr_la-pose.lo libltr_la-pref.lo libltr_la-pref_bison.lo \
-	libltr_la-pref_flex.lo libltr_la-pref_global.lo \
-	libltr_la-utils.lo libltr_la-image_process.lo \
-	libltr_la-tracking.lo libltr_la-ltlib_int.lo \
-	libltr_la-spline.lo libltr_la-axis.lo \
+	libltr_la-pose.lo pref.lo pref_bison.lo pref_flex.lo \
+	libltr_la-pref_global.lo libltr_la-utils.lo \
+	libltr_la-image_process.lo libltr_la-tracking.lo \
+	libltr_la-ltlib_int.lo libltr_la-spline.lo libltr_la-axis.lo \
 	libltr_la-wii_driver_prefs.lo libltr_la-tir_driver_prefs.lo \
 	libltr_la-wc_driver_prefs.lo libltr_la-ipc_utils.lo \
 	libltr_la-com_proc.lo libltr_la-wii_com.lo
 libltr_la_OBJECTS = $(am_libltr_la_OBJECTS)
-libltr_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libltr_la_CFLAGS) \
-	$(CFLAGS) $(libltr_la_LDFLAGS) $(LDFLAGS) -o $@
+libltr_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(libltr_la_LDFLAGS) $(LDFLAGS) -o $@
 libltusb1_la_DEPENDENCIES = libltr.la
 am_libltusb1_la_OBJECTS = libltusb1_la-libusb_ifc.lo
 libltusb1_la_OBJECTS = $(am_libltusb1_la_OBJECTS)
@@ -442,8 +441,8 @@ liblinuxtrack_la_SOURCES = linuxtrack.c linuxtrack.h utils.h ipc_utils.h
 liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LIBLINUXTRACK_FLAGS) 
 liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" ${TIGER_LDFLAG}
 libltr_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
-  math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
-  pref_flex.l pref_global.c pref_global.h pref_int.h \
+  math_utils.c math_utils.h pose.c pose.h pref.cpp pref.hpp pref.h pref_bison.ypp \
+  pref_flex.lpp pref_global.c pref_global.h \
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
   ltlib_int.c ltlib_int.h spline.c spline.h axis.c axis.h wii_driver_prefs.c \
   wii_driver_prefs.h tir_driver_prefs.c tir_driver_prefs.h wc_driver_prefs.c \
@@ -502,9 +501,9 @@ nodist_pkgdata_DATA = linuxtrack.c
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@xlinuxtrack9_la_LIBADD = -lm -ldl
-AM_YFLAGS = -d
+AM_YFLAGS = -d --name-prefix ltr_int_parser_
 AM_LFLAGS = -i
-BUILT_SOURCES = pref_flex.c pref_bison.c pref_bison.h
+BUILT_SOURCES = pref_flex.cpp pref_bison.cpp linuxtrack.c
 noinst_SCRIPTS = qt_gui/ltr_gui $(am__append_9)
 EXTRA_DIST = qt_gui/ltr_show.h qt_gui/help_view.cpp qt_gui/ltr_tracking.h \
 qt_gui/scp_form.ui qt_gui/logview.ui qt_gui/clip.png qt_gui/webcam_prefs.cpp \
@@ -548,7 +547,7 @@ all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .cpp .l .lo .o .obj .y
+.SUFFIXES: .c .cpp .lo .lpp .o .obj .ypp
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -653,10 +652,10 @@ liblinuxtrack.la: $(liblinuxtrack_la_OBJECTS) $(liblinuxtrack_la_DEPENDENCIES)
 	$(liblinuxtrack_la_LINK) -rpath $(libdir) $(liblinuxtrack_la_OBJECTS) $(liblinuxtrack_la_LIBADD) $(LIBS)
 libltopenusb.la: $(libltopenusb_la_OBJECTS) $(libltopenusb_la_DEPENDENCIES) 
 	$(libltopenusb_la_LINK) $(am_libltopenusb_la_rpath) $(libltopenusb_la_OBJECTS) $(libltopenusb_la_LIBADD) $(LIBS)
-pref_bison.h: pref_bison.c
+pref_bison.h: pref_bison.cpp
 	@if test ! -f $@; then \
-	  rm -f pref_bison.c; \
-	  $(MAKE) $(AM_MAKEFLAGS) pref_bison.c; \
+	  rm -f pref_bison.cpp; \
+	  $(MAKE) $(AM_MAKEFLAGS) pref_bison.cpp; \
 	else :; fi
 libltr.la: $(libltr_la_OBJECTS) $(libltr_la_DEPENDENCIES) 
 	$(libltr_la_LINK) -rpath $(pkglibdir) $(libltr_la_OBJECTS) $(libltr_la_LIBADD) $(LIBS)
@@ -768,15 +767,6 @@ libltr_la-math_utils.lo: math_utils.c
 
 libltr_la-pose.lo: pose.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltr_la_CFLAGS) $(CFLAGS) -c -o libltr_la-pose.lo `test -f 'pose.c' || echo '$(srcdir)/'`pose.c
-
-libltr_la-pref.lo: pref.c
-	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltr_la_CFLAGS) $(CFLAGS) -c -o libltr_la-pref.lo `test -f 'pref.c' || echo '$(srcdir)/'`pref.c
-
-libltr_la-pref_bison.lo: pref_bison.c
-	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltr_la_CFLAGS) $(CFLAGS) -c -o libltr_la-pref_bison.lo `test -f 'pref_bison.c' || echo '$(srcdir)/'`pref_bison.c
-
-libltr_la-pref_flex.lo: pref_flex.c
-	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltr_la_CFLAGS) $(CFLAGS) -c -o libltr_la-pref_flex.lo `test -f 'pref_flex.c' || echo '$(srcdir)/'`pref_flex.c
 
 libltr_la-pref_global.lo: pref_global.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltr_la_CFLAGS) $(CFLAGS) -c -o libltr_la-pref_global.lo `test -f 'pref_global.c' || echo '$(srcdir)/'`pref_global.c
@@ -910,10 +900,10 @@ ltr_server1-ltr_server1.obj: ltr_server1.c
 libft_la-facetrack.lo: facetrack.cpp
 	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libft_la_CXXFLAGS) $(CXXFLAGS) -c -o libft_la-facetrack.lo `test -f 'facetrack.cpp' || echo '$(srcdir)/'`facetrack.cpp
 
-.l.c:
+.lpp.cpp:
 	$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ -- $(LEXCOMPILE)
 
-.y.c:
+.ypp.cpp:
 	$(am__skipyacc) $(SHELL) $(YLWRAP) $< y.tab.c $@ y.tab.h $*.h y.output $*.output -- $(YACCCOMPILE)
 
 mostlyclean-libtool:
@@ -1192,9 +1182,9 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-	-rm -f pref_bison.c
+	-rm -f pref_bison.cpp
 	-rm -f pref_bison.h
-	-rm -f pref_flex.c
+	-rm -f pref_flex.cpp
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
