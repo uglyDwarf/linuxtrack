@@ -271,7 +271,7 @@ static int update_pose_3pt(struct frame_type *frame)
 
 bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose, pose_t *unfiltered)
 {
-  //printf(">>Pre: %f %f %f  %f %f %f\n", pose->pitch, pose->yaw, pose->roll, pose->tx, pose->ty, pose->tz);
+//  printf(">>Pre: %f %f %f  %f %f %f\n", pose->pitch, pose->yaw, pose->roll, pose->tx, pose->ty, pose->tz);
 //  static float filterfactor=1.0;
 //  ltr_int_get_filter_factor(&filterfactor);
   static float filtered_angles[3] = {0.0f, 0.0f, 0.0f};

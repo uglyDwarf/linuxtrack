@@ -10,7 +10,7 @@
 #include <ltlib.h>
 #include <utils.h>
 #include <tracking.h>
-#include <pref_int.h>
+#include <pref.h>
 
 static struct mmap_s mmm;
 static int master_uplink = -1;
@@ -60,6 +60,7 @@ bool start_master(int *master_uplink, int *master_downlink)
       //Disable the wait when not daemonizing master!!!
       wait(&status);
       //At this point master is either running or exited (depending on the state of fifo)
+      free(args[0]);
     }
   }
   *master_uplink = open_fifo_for_writing(master_fifo_name());
@@ -237,13 +238,12 @@ void slave_main_loop()
 
 bool slave(const char *c_profile, const char *c_com_file)
 {
-  char *profile = ltr_int_my_strdup(c_profile);
+  profile_name = ltr_int_my_strdup(c_profile);
   if(!ltr_int_read_prefs(NULL, false)){
     printf("Couldn't load preferences!\n");
     return false;
   }
-  ltr_int_set_custom_section(profile);
-  ltr_int_init_axes(&axes, profile);
+  ltr_int_init_axes(&axes, profile_name);
   //Prepare client comm channel
   char *com_file = ltr_int_my_strdup(c_com_file);
   if(!ltr_int_mmap_file(com_file, sizeof(struct ltr_comm), &mmm)){
@@ -267,8 +267,7 @@ bool slave(const char *c_profile, const char *c_com_file)
   //finish prefs
   ltr_int_close_axes(&axes);
   ltr_int_free_prefs();
-  ltr_int_set_custom_section(NULL);
-  free(profile);
+  free(profile_name);
   return true;
 }
 

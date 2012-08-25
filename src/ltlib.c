@@ -43,6 +43,7 @@ char *ltr_int_init_helper(const char *cust_section, bool standalone)
       return false;
     }
     free(server);
+    free(section);
   }
   ltr_wakeup();
   return mmm.fname;

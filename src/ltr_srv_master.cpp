@@ -12,6 +12,7 @@
 #include <cal.h>
 #include <ipc_utils.h>
 #include <utils.h>
+#include <axis.h>
 
 #include <map>
 #include <string>
@@ -137,6 +138,13 @@ bool register_slave(message_t &msg)
   }
   printf("Slave @fifo %d registered!\n", fifo);
   slaves.insert(std::pair<std::string, int>(msg.str, fifo));
+  
+  //Make sure the new section is created if needed...
+  ltr_axes_t tmp_axes;
+  tmp_axes = NULL;
+  ltr_int_init_axes(&tmp_axes, msg.str);
+  ltr_int_close_axes(&tmp_axes);
+  
   if(new_slave_hook != NULL){
     new_slave_hook(msg.str);
   }
@@ -216,7 +224,7 @@ bool master(bool standalone)
       return false;
     }
   }
-  if(ltr_int_init(NULL) != 0){
+  if(ltr_int_init() != 0){
     printf("Could not initialize tracking!\n");
     printf("Closing fifo %d\n", fifo);
     close(fifo);
@@ -269,7 +277,7 @@ bool master(bool standalone)
     
   }
   printf("Shutting down tracking!\n");
-  ltr_int_shutdown();
+  ltr_int_shutdown(standalone);
   printf("Master closing fifo %d\n", fifo);
   close(fifo);
   int cntr = 10;

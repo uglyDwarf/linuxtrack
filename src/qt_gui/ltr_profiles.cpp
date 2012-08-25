@@ -41,13 +41,8 @@ bool Profile::setCurrent(const QString &name)
   if(!names.contains(name, Qt::CaseInsensitive)){
     return false;
   }
-  if(PREF.setCustomSection(name)){
-    //std::cout<<"Custom section title ("<<name.toStdString()<<"): "<<PREF.getCustomSectionTitle().toStdString()<<std::endl;
-    currentProfile->changeProfile(PREF.getCustomSectionTitle());
-    //std::cout<<"Set current profile !!!"<<name.toStdString().c_str()<<std::endl;
-    return true;
-  }
-  return false;
+  currentProfile->changeProfile(name);
+  return true;
 }
 
 AppProfile *Profile::getCurrentProfile()
