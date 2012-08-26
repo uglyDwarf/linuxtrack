@@ -152,8 +152,8 @@ static int update_pose_1pt(struct frame_type *frame)
     }
   }
   
-  if(ltr_int_is_finite(frame->bloblist.blobs[0].x) && ltr_int_is_finite(frame->bloblist.blobs[0].y)
-      && (frame->bloblist.num_blobs > 0)){
+  if((frame->bloblist.num_blobs > 0) && ltr_int_is_finite(frame->bloblist.blobs[0].x) 
+     && ltr_int_is_finite(frame->bloblist.blobs[0].y)){
   }else{
     return -1;
   }

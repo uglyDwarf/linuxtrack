@@ -100,6 +100,7 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
                        Qt::Checked : Qt::Unchecked;
     gui.FlipWebcamMac->setCheckState(state);
   }
+  ltr_int_wc_close_prefs();
   initializing = false;
   return true;
 }

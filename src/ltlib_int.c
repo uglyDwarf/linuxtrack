@@ -32,7 +32,7 @@ static void *cal_thread_fun(void *param)
     ltr_int_cal_run(&ccb, frame_callback);
     free(ccb.device.device_id);
   }
-  pthread_detach(pthread_self());
+  //pthread_detach(pthread_self());
   return NULL;
 }
 
@@ -89,7 +89,9 @@ int ltr_int_shutdown(bool save_prefs)
       ltr_int_save_prefs(NULL);
     }
   }
-  return ltr_int_cal_shutdown();
+  int res = ltr_int_cal_shutdown();
+  pthread_join(cal_thread, NULL);
+  return res;
 }
 
 void ltr_int_recenter(void)

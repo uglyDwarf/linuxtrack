@@ -618,6 +618,8 @@ int ltr_int_tracker_close()
   stop_detect();
 #endif
   ltr_int_log_message("Webcam shut down!\n");
+  ltr_int_cleanup_after_processing();
+  ltr_int_wc_close_prefs();
   return 0;
 }
 

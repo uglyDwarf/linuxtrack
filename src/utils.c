@@ -41,6 +41,7 @@ static void ltr_int_atexit(void)
   }
   if(output_stream != NULL){
     ltr_int_log_message("ATEXIT: Closing output stream\n");
+    printf("ATEXIT: Closing output stream (%d)\n", getpid());
     fclose(output_stream);
   }
 }

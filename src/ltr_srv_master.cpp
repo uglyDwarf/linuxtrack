@@ -13,22 +13,23 @@
 #include <ipc_utils.h>
 #include <utils.h>
 #include <axis.h>
+#include <pref.h>
 
 #include <map>
 #include <string>
 
-std::multimap<std::string, int> slaves;
+static std::multimap<std::string, int> slaves;
+static semaphore_p pfSem = NULL;
 
 static pose_t current_pose;
 
-ltr_new_frame_callback_t new_frame_hook = NULL;
-ltr_status_update_callback_t status_update_hook = NULL;
-ltr_new_slave_callback_t new_slave_hook = NULL;
+static ltr_new_frame_callback_t new_frame_hook = NULL;
+static ltr_status_update_callback_t status_update_hook = NULL;
+static ltr_new_slave_callback_t new_slave_hook = NULL;
 
 bool ltr_int_gui_lock(bool do_lock)
 {
   static const char *lockName = "ltr_server.lock";
-  static semaphore_p pfSem = NULL;
 
   if((pfSem == NULL) ){
     //just check...
@@ -51,6 +52,14 @@ bool ltr_int_gui_lock(bool do_lock)
     }else{
       return ltr_int_testLockSemaphore(pfSem);
     }
+  }
+}
+
+void ltr_int_gui_lock_clean()
+{
+  if(pfSem != NULL){
+    ltr_int_closeSemaphore(pfSem);
+    pfSem= NULL;
   }
 }
 
@@ -185,6 +194,14 @@ size_t request_shutdown()
 
 bool master(bool standalone)
 {
+  current_pose.pitch = 0.0;
+  current_pose.yaw = 0.0;
+  current_pose.roll = 0.0;
+  current_pose.tx = 0.0;
+  current_pose.ty = 0.0;
+  current_pose.tz = 0.0;
+  current_pose.counter = 0;
+  current_pose.status = STOPPED;
   gui_shutdown_request = false;
   int fifo;
   
@@ -220,6 +237,7 @@ bool master(bool standalone)
   if(standalone){
     //Detach from the caller, retaining stdin/out/err
     // Does weird things to gui ;)
+    ltr_int_gui_lock_clean();
     if(daemon(0, 1) != 0){
       return false;
     }
@@ -286,6 +304,8 @@ bool master(bool standalone)
     ltr_int_log_message("Tracker not stopped yet, waiting for the stop...");
     sleep(1);
   }
+  ltr_int_gui_lock_clean();
+  ltr_int_free_prefs();
   return true;
 }
 

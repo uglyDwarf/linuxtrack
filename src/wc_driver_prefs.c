@@ -36,7 +36,7 @@ static char optim_key[] = "Optimization-level";
 
 bool ltr_int_wc_init_prefs()
 {
-  const char *dev = ltr_int_get_device_section();
+  char *dev = ltr_int_get_device_section();
   if(dev == NULL){
     return false;
   }
@@ -88,7 +88,15 @@ bool ltr_int_wc_init_prefs()
   if(!ltr_int_get_key_int(dev, optim_key, &optim_level)){
     optim_level= 0;
   }
+  free(dev);
   return true;
+}
+
+void ltr_int_wc_close_prefs()
+{
+  free(camera_id);
+  free(pix_fmt);
+  free(cascade);
 }
 
 int ltr_int_wc_get_max_blob()

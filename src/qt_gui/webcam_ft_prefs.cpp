@@ -132,6 +132,7 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
     on_ExpFilterFactor_valueChanged(n);
     gui.OptimLevel->setValue(ltr_int_wc_get_optim_level());
   }
+  ltr_int_wc_close_prefs();
   initializing = false;
   return res;
 }
