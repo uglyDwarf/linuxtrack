@@ -15,7 +15,7 @@ void ltr_int_close_prefs()
   ltr_int_free_prefs();
 }
 
-const char *ltr_int_get_device_section()
+char *ltr_int_get_device_section()
 {
   return ltr_int_get_key("Global", "Input");
 }
@@ -85,7 +85,7 @@ void ltr_int_set_use_alter(bool state)
 bool ltr_int_get_device(struct camera_control_block *ccb)
 {
   bool dev_ok = false;
-  const char *dev_section = ltr_int_get_device_section();
+  char *dev_section = ltr_int_get_device_section();
   if(dev_section == NULL){
     return false;
   }
@@ -126,6 +126,7 @@ bool ltr_int_get_device(struct camera_control_block *ccb)
   }
   
   char *dev_id = ltr_int_get_key(dev_section, "Capture-device-id");
+  free(dev_section);
   if (dev_id == NULL) {
     dev_ok = false;
   }else{

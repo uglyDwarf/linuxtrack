@@ -21,7 +21,7 @@ typedef struct{
   uint32_t data;
   union{
     char str[500];
-    pose_t pose; 
+    pose_t pose;
     param_t param;
   };
 } message_t;

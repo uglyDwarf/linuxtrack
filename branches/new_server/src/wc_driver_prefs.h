@@ -8,6 +8,7 @@ extern "C" {
 #include <stdbool.h>
 
 bool ltr_int_wc_init_prefs();
+void ltr_int_wc_close_prefs();
 
 int ltr_int_wc_get_max_blob();
 bool ltr_int_wc_set_max_blob(int val);

@@ -268,6 +268,7 @@ bool slave(const char *c_profile, const char *c_com_file)
   ltr_int_close_axes(&axes);
   ltr_int_free_prefs();
   free(profile_name);
+  ltr_int_gui_lock_clean();
   return true;
 }
 

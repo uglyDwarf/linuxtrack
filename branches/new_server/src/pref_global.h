@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-const char *ltr_int_get_device_section();
+char *ltr_int_get_device_section();
 bool ltr_int_is_model_active();
 bool ltr_int_use_alter();
 void ltr_int_set_use_alter(bool state);

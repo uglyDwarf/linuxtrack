@@ -324,6 +324,18 @@ void ltr_int_prepare_for_processing(int w, int h)
   }
 }
 
+void ltr_int_cleanup_after_processing()
+{
+  if(current.ranges != NULL){
+    free(current.ranges);
+    current.ranges = NULL;
+  }
+  if(next.ranges != NULL){
+    free(next.ranges);
+    next.ranges = NULL;
+  }
+}
+
 void ltr_int_to_stripes(image *img)
 {
   assert(img != NULL);

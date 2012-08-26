@@ -168,6 +168,7 @@ int send_message_w_str(int fifo, uint32_t cmd, uint32_t data, char *str)
 int send_data(int fifo, const pose_t *data)
 {
   message_t msg;
+  memset(&msg, 0, sizeof(message_t));
   msg.cmd = CMD_POSE;
   msg.data = 0;
   msg.pose = *data;

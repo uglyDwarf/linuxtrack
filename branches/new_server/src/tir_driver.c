@@ -122,6 +122,7 @@ int ltr_int_tracker_resume()
 int ltr_int_tracker_close()
 {
   int res = ltr_int_close_tir() ? 0 : -1;;
+  ltr_int_cleanup_after_processing();
   ltr_int_unload_library(libhandle, functions);
   libhandle = NULL;
   return res;

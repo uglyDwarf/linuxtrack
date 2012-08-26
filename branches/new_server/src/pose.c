@@ -45,12 +45,14 @@ void ltr_int_pose_init(struct reflector_model_type rm)
       #ifdef PT_DBG
         printf("MODEL:SINGLE\n");
       #endif
+      return;
       break;
     case FACE:
       type = M_FACE;
       #ifdef PT_DBG
         printf("MODEL:FACE\n");
       #endif
+      return;
       break;
     default:
       assert(0);
@@ -74,8 +76,8 @@ void ltr_int_pose_init(struct reflector_model_type rm)
   ltr_int_make_vec(rm.p2, ref, model_point2);
 
   /* Out of model points create orthonormal base */
-  double vec1[3];
-  double vec2[3];
+  double vec1[3] = {0.0, 0.0, 0.0};
+  double vec2[3] = {0.0, 0.0, 0.0};
   ltr_int_make_vec(model_point1, model_point0, vec1);
   ltr_int_make_vec(model_point2, model_point0, vec2);
   ltr_int_make_base(vec1, vec2, model_base);
