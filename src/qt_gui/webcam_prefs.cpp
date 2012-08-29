@@ -10,29 +10,14 @@
 static QString currentId = QString("None");
 static QString currentSection = QString();
 
-void WebcamPrefs::Connect()
+WebcamPrefs::WebcamPrefs(QWidget *parent) : QWidget(parent)
 {
-  QObject::connect(gui.WebcamFormats, SIGNAL(activated(int)),
-    this, SLOT(on_WebcamFormats_activated(int)));
-  QObject::connect(gui.WebcamResolutions, SIGNAL(activated(int)),
-    this, SLOT(on_WebcamResolutions_activated(int)));
-  QObject::connect(gui.WebcamThreshold, SIGNAL(valueChanged(int)),
-    this, SLOT(on_WebcamThreshold_valueChanged(int)));
-  QObject::connect(gui.WebcamMinBlob, SIGNAL(valueChanged(int)),
-    this, SLOT(on_WebcamMinBlob_valueChanged(int)));
-  QObject::connect(gui.WebcamMaxBlob, SIGNAL(valueChanged(int)),
-    this, SLOT(on_WebcamMaxBlob_valueChanged(int)));
-  QObject::connect(gui.FlipWebcam, SIGNAL(stateChanged(int)),
-    this, SLOT(on_FlipWebcam_stateChanged(int)));
-}
-
-WebcamPrefs::WebcamPrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
-{
-  Connect();
+  ui.setupUi(this);
 }
 
 WebcamPrefs::~WebcamPrefs()
 {
+  ltr_int_wc_close_prefs();
 }
 
 
@@ -40,11 +25,11 @@ static WebcamInfo *wc_info = NULL;
 
 void WebcamPrefs::on_WebcamFormats_activated(int index)
 {
-  gui.WebcamResolutions->clear();
+  ui.WebcamResolutions->clear();
   if(currentId == "None"){
     return;
   }
-  gui.WebcamResolutions->addItems(wc_info->getResolutions(index));
+  ui.WebcamResolutions->addItems(wc_info->getResolutions(index));
   int res_index = 0;
   int res_x, res_y;
   int fps_num, fps_den;
@@ -52,18 +37,18 @@ void WebcamPrefs::on_WebcamFormats_activated(int index)
     ltr_int_wc_get_fps(&fps_num, &fps_den)){
     res_index = wc_info->findRes(res_x, res_y, fps_num, fps_den, 
 				 wc_info->getFourcc(index));
-    gui.WebcamResolutions->setCurrentIndex(res_index);
+    ui.WebcamResolutions->setCurrentIndex(res_index);
   }
   on_WebcamResolutions_activated(res_index);
 }
 
 void WebcamPrefs::on_WebcamResolutions_activated(int index)
 {
-  if(gui.WebcamFormats->currentIndex() == -1){
+  if(ui.WebcamFormats->currentIndex() == -1){
     return;
   }
   QString res, fps, fmt;
-  if(wc_info->findFmtSpecs(gui.WebcamFormats->currentIndex(), 
+  if(wc_info->findFmtSpecs(ui.WebcamFormats->currentIndex(), 
                            index, res, fps, fmt)){
     int x,y, num, den;
     WebcamInfo::decodeRes(res, x, y);
@@ -95,7 +80,6 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Threshold", QString::number(140));
       PREF.addKeyVal(sec, (char *)"Min-blob", QString::number(4));
       PREF.addKeyVal(sec, (char *)"Max-blob", QString::number(230));
-      PREF.addKeyVal(sec, (char *)"Upside-down", (char *)"No");
       PREF.activateDevice(sec);
       currentSection = sec;
     }else{
@@ -108,8 +92,8 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
     return false;
   }
   currentId = ID;
-  gui.WebcamFormats->clear();
-  gui.WebcamResolutions->clear();
+  ui.WebcamFormats->clear();
+  ui.WebcamResolutions->clear();
   if((currentId != "None") && (currentId.size() != 0)){
     if(wc_info != NULL){
       delete(wc_info);
@@ -117,27 +101,22 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
     wc_info = new WebcamInfo(currentId);
     
     
-    gui.WebcamFormats->addItems(wc_info->getFormats());
+    ui.WebcamFormats->addItems(wc_info->getFormats());
     QString fourcc, thres, bmin, bmax, res, fps, flip;
     int fmt_index = 0;
     const char *tmp = ltr_int_wc_get_pixfmt();
-    std::cout<<"4CC: "<<tmp<<std::endl;
+    //std::cout<<"4CC: "<<tmp<<std::endl;
     if(tmp != NULL){
       fourcc = tmp;
       fmt_index = wc_info->findFourcc(fourcc);
-      gui.WebcamFormats->setCurrentIndex(fmt_index);
+      ui.WebcamFormats->setCurrentIndex(fmt_index);
     }
     on_WebcamFormats_activated(fmt_index);
     
-    gui.WebcamThreshold->setValue(ltr_int_wc_get_threshold());
-    gui.WebcamMaxBlob->setValue(ltr_int_wc_get_max_blob());
-    gui.WebcamMinBlob->setValue(ltr_int_wc_get_min_blob());
-    
-    Qt::CheckState state = (ltr_int_wc_get_flip()) ? 
-                       Qt::Checked : Qt::Unchecked;
-    gui.FlipWebcam->setCheckState(state);
+    ui.WebcamThreshold->setValue(ltr_int_wc_get_threshold());
+    ui.WebcamMaxBlob->setValue(ltr_int_wc_get_max_blob());
+    ui.WebcamMinBlob->setValue(ltr_int_wc_get_min_blob());
   }
-  ltr_int_wc_close_prefs();
   initializing = false;
   return res;
 }
@@ -155,11 +134,6 @@ void WebcamPrefs::on_WebcamMinBlob_valueChanged(int i)
 void WebcamPrefs::on_WebcamMaxBlob_valueChanged(int i)
 {
   if(!initializing) ltr_int_wc_set_max_blob(i);
-}
-
-void WebcamPrefs::on_FlipWebcam_stateChanged(int state)
-{
-  if(!initializing) ltr_int_wc_set_flip(state == Qt::Checked);
 }
 
 bool WebcamPrefs::AddAvailableDevices(QComboBox &combo)

@@ -65,11 +65,11 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
 {
   ui.setupUi(this);
   PREF; //init prefs
-  wcp = new WebcamPrefs(ui);
-  wcfp = new WebcamFtPrefs(ui);
-  wiip = new WiimotePrefs(ui);
-  tirp = new TirPrefs(ui);
-  me = new ModelEdit(ui);
+  wcp = new WebcamPrefs(this);
+  wcfp = new WebcamFtPrefs(this);
+  wiip = new WiimotePrefs(this);
+  tirp = new TirPrefs(this);
+  me = new ModelEdit(this);
   track = new LtrTracking(ui);
   sc = new ScpForm();
   lv = new LogView();
@@ -79,6 +79,12 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
 //  QObject::connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
 //  QObject::connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
   QObject::connect(&STATE, SIGNAL(stateChanged(ltr_state_type)), this, SLOT(trackerStateHandler(ltr_state_type)));
+  ui.DeviceSetupStack->insertWidget(0, wcp);
+  ui.DeviceSetupStack->insertWidget(1, wiip);
+  ui.DeviceSetupStack->insertWidget(2, tirp);
+  ui.DeviceSetupStack->insertWidget(3, wcfp);
+  
+  ui.ModelEditSite->addWidget(me);
   
   gui_settings = new QSettings("ltr", "linuxtrack");
   showWindow = new LtrGuiForm(ui, sc, *gui_settings);
@@ -161,6 +167,7 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   delete me;
   delete sc;
   delete helper;
+  delete gui_settings;
   event->accept();
 }
 
@@ -172,19 +179,11 @@ void LinuxtrackGui::on_DeviceSelector_activated(int index)
   QVariant v = ui.DeviceSelector->itemData(index);
   PrefsLink pl = v.value<PrefsLink>();
   if(pl.deviceType == WEBCAM){
-#ifndef DARWIN
     ui.DeviceSetupStack->setCurrentIndex(0);
-#else
-    ui.DeviceSetupStack->setCurrentIndex(3);
-#endif
     wcp->Activate(pl.ID, !initialized);
   }else 
   if(pl.deviceType == WEBCAM_FT){
-#ifndef DARWIN
-    ui.DeviceSetupStack->setCurrentIndex(4);
-#else
-    ui.DeviceSetupStack->setCurrentIndex(5);
-#endif
+    ui.DeviceSetupStack->setCurrentIndex(3);
     wcfp->Activate(pl.ID, !initialized);
   }else 
   if(pl.deviceType == WIIMOTE){
@@ -355,7 +354,7 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
     case ERROR:
       ui.DeviceSelector->setEnabled(true);
       ui.CameraOrientation->setEnabled(true);
-      ui.ModelSelector->setEnabled(true);
+      //ui.ModelSelector->setEnabled(true);
       //ui.Profiles->setEnabled(true);
       ui.DefaultsButton->setEnabled(true);
       ui.DiscardChangesButton->setEnabled(true);
@@ -366,7 +365,7 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
     case PAUSED:
       ui.DeviceSelector->setDisabled(true);
       ui.CameraOrientation->setDisabled(true);
-      ui.ModelSelector->setDisabled(true);
+      //ui.ModelSelector->setDisabled(true);
       //ui.Profiles->setDisabled(true);
       ui.DefaultsButton->setDisabled(true);
       ui.DiscardChangesButton->setDisabled(true);

@@ -10,10 +10,11 @@ typedef enum{
 
 static QString currentSection = QString();
 
-WiimotePrefs::WiimotePrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui), initializing(false)
+WiimotePrefs::WiimotePrefs(QWidget *parent) : QWidget(parent), initializing(false)
 {
-  PREF;
+  ui.setupUi(this);
   Connect();
+  PREF;
 }
 
 WiimotePrefs::~WiimotePrefs()
@@ -51,16 +52,16 @@ bool WiimotePrefs::Activate(const QString &ID, bool init)
   QString indication;
   bool d1, d2, d3, d4;
   if(ltr_int_get_run_indication(&d1, &d2, &d3, &d4)){
-    setCheckBox(gui.Wii_r1, d1);
-    setCheckBox(gui.Wii_r2, d2);
-    setCheckBox(gui.Wii_r3, d3);
-    setCheckBox(gui.Wii_r4, d4);
+    setCheckBox(ui.Wii_r1, d1);
+    setCheckBox(ui.Wii_r2, d2);
+    setCheckBox(ui.Wii_r3, d3);
+    setCheckBox(ui.Wii_r4, d4);
   }  
   if(ltr_int_get_pause_indication(&d1, &d2, &d3, &d4)){
-    setCheckBox(gui.Wii_p1, d1);
-    setCheckBox(gui.Wii_p2, d2);
-    setCheckBox(gui.Wii_p3, d3);
-    setCheckBox(gui.Wii_p4, d4);
+    setCheckBox(ui.Wii_p1, d1);
+    setCheckBox(ui.Wii_p2, d2);
+    setCheckBox(ui.Wii_p3, d3);
+    setCheckBox(ui.Wii_p4, d4);
   }
   initializing = false;
   return true;
@@ -102,33 +103,33 @@ void WiimotePrefs::runIndicationChanged(int state)
 {
   (void) state;
   if(!initializing)
-    ltr_int_set_run_indication(getState(gui.Wii_r1), getState(gui.Wii_r2), getState(gui.Wii_r3), getState(gui.Wii_r4));
+    ltr_int_set_run_indication(getState(ui.Wii_r1), getState(ui.Wii_r2), getState(ui.Wii_r3), getState(ui.Wii_r4));
 }
 
 void WiimotePrefs::pauseIndicationChanged(int state)
 {
   (void) state;
   if(!initializing)
-    ltr_int_set_pause_indication(getState(gui.Wii_p1), getState(gui.Wii_p2), getState(gui.Wii_p3), getState(gui.Wii_p4));
+    ltr_int_set_pause_indication(getState(ui.Wii_p1), getState(ui.Wii_p2), getState(ui.Wii_p3), getState(ui.Wii_p4));
 }
 
 void WiimotePrefs::Connect()
 {
-  QObject::connect(gui.Wii_r1, SIGNAL(stateChanged(int)),
+  QObject::connect(ui.Wii_r1, SIGNAL(stateChanged(int)),
     this, SLOT(runIndicationChanged(int)));
-  QObject::connect(gui.Wii_r2, SIGNAL(stateChanged(int)),
+  QObject::connect(ui.Wii_r2, SIGNAL(stateChanged(int)),
     this, SLOT(runIndicationChanged(int)));
-  QObject::connect(gui.Wii_r3, SIGNAL(stateChanged(int)),
+  QObject::connect(ui.Wii_r3, SIGNAL(stateChanged(int)),
     this, SLOT(runIndicationChanged(int)));
-  QObject::connect(gui.Wii_r4, SIGNAL(stateChanged(int)),
+  QObject::connect(ui.Wii_r4, SIGNAL(stateChanged(int)),
     this, SLOT(runIndicationChanged(int)));
-  QObject::connect(gui.Wii_p1, SIGNAL(stateChanged(int)),
+  QObject::connect(ui.Wii_p1, SIGNAL(stateChanged(int)),
     this, SLOT(pauseIndicationChanged(int)));
-  QObject::connect(gui.Wii_p2, SIGNAL(stateChanged(int)),
+  QObject::connect(ui.Wii_p2, SIGNAL(stateChanged(int)),
     this, SLOT(pauseIndicationChanged(int)));
-  QObject::connect(gui.Wii_p3, SIGNAL(stateChanged(int)),
+  QObject::connect(ui.Wii_p3, SIGNAL(stateChanged(int)),
     this, SLOT(pauseIndicationChanged(int)));
-  QObject::connect(gui.Wii_p4, SIGNAL(stateChanged(int)),
+  QObject::connect(ui.Wii_p4, SIGNAL(stateChanged(int)),
     this, SLOT(pauseIndicationChanged(int)));
 }
 

@@ -51,10 +51,16 @@ bool ltr_int_wc_init_prefs()
     threshold_val = 140;
   }
   char *tmp = ltr_int_get_key(dev, id_key);
+  if(camera_id != NULL){
+    free(camera_id);
+  }
   if(tmp != NULL){
     camera_id = tmp;
   }
   tmp = ltr_int_get_key(dev, pix_fmt_key);
+  if(pix_fmt != NULL){
+    free(pix_fmt);
+  }
   if(tmp != NULL){
     pix_fmt = tmp;
   }
@@ -81,6 +87,9 @@ bool ltr_int_wc_init_prefs()
   }
   
   tmp = ltr_int_get_key(dev, cascade_key);
+  if(cascade != NULL){
+    free(cascade);
+  }
   cascade = tmp;
   if(!ltr_int_get_key_flt(dev, exp_filter_key, &exp_filt)){
     exp_filt = 0.1;
@@ -95,8 +104,11 @@ bool ltr_int_wc_init_prefs()
 void ltr_int_wc_close_prefs()
 {
   free(camera_id);
+  camera_id = NULL;
   free(pix_fmt);
+  pix_fmt = NULL;
   free(cascade);
+  cascade = NULL;
 }
 
 int ltr_int_wc_get_max_blob()

@@ -97,10 +97,12 @@ void ModelCreate::on_ModelFace_pressed()
 }
 
 
-ModelEdit::ModelEdit(const Ui::LinuxtrackMainForm &ui) : gui(ui), initializing(false)
+ModelEdit::ModelEdit(QWidget *parent) : QWidget(parent), modelEditor(0), initializing(false)
 {
+  ui.setupUi(this);
   mcw = new ModelCreate();
-  Connect();
+  QObject::connect(mcw, SIGNAL(ModelCreated(const QString &)),
+    this, SLOT(on_ModelCreated(const QString &)));
   refresh();
 }
 
@@ -115,7 +117,6 @@ void ModelEdit::refresh()
     on_ModelSelector_activated(str);
   }else{
     on_ModelCreated("");
-    gui.ModelStack->setCurrentIndex(3);
   }
   initializing = false;
 }
@@ -128,20 +129,20 @@ void ModelEdit::on_CreateModelButton_pressed()
 void ModelEdit::on_ModelCreated(const QString &section)
 {
   QStringList list;
-  gui.ModelSelector->clear();
+  ui.ModelSelector->clear();
   if(PREF.getModelList(list)){
-    gui.ModelSelector->addItems(list);
+    ui.ModelSelector->addItems(list);
   }
   int i = list.indexOf(currentSection);
   if(i != -1){
-    gui.ModelSelector->setCurrentIndex(i);
+    ui.ModelSelector->setCurrentIndex(i);
   }else{
     i = list.indexOf(section);
     if(i != -1){
-      gui.ModelSelector->setCurrentIndex(i);
+      ui.ModelSelector->setCurrentIndex(i);
       on_ModelSelector_activated(section);
     }else{
-      gui.ModelSelector->setCurrentIndex(-1);
+      ui.ModelSelector->setCurrentIndex(-1);
     }
   }
 }
@@ -149,48 +150,88 @@ void ModelEdit::on_ModelCreated(const QString &section)
 
 ModelEdit::~ModelEdit()
 {
+  if(mcw != NULL){
+    delete mcw;
+  }
 }
 
-void ModelEdit::Connect()
+CapEdit::CapEdit(const QString &section, QWidget *parent) : QWidget(parent), currentSection(section),
+  initializing(true)
 {
-  QObject::connect(gui.CreateModelButton, SIGNAL(pressed()),
-    this, SLOT(on_CreateModelButton_pressed()));
-  QObject::connect(mcw, SIGNAL(ModelCreated(const QString &)),
-    this, SLOT(on_ModelCreated(const QString &)));
-  QObject::connect(gui.ModelSelector, SIGNAL(activated(const QString&)),
-    this, SLOT(on_ModelSelector_activated(const QString&)));
-  
-  QObject::connect(gui.CapA, SIGNAL(valueChanged(double)),
-    this, SLOT(on_CapA_valueChanged(double)));
-  QObject::connect(gui.CapB, SIGNAL(valueChanged(double)),
-    this, SLOT(on_CapB_valueChanged(double)));
-  QObject::connect(gui.CapC, SIGNAL(valueChanged(double)),
-    this, SLOT(on_CapC_valueChanged(double)));
-  QObject::connect(gui.CapHy, SIGNAL(valueChanged(double)),
-    this, SLOT(on_CapHy_valueChanged(double)));
-  QObject::connect(gui.CapHz, SIGNAL(valueChanged(double)),
-    this, SLOT(on_CapHz_valueChanged(double)));
+  ui.setupUi(this);
+  QString val;
+  if(PREF.getKeyVal(currentSection, "Cap-X", val))
+    ui.CapB->setValue(val.toFloat());
+  if(PREF.getKeyVal(currentSection, "Cap-Y", val))
+    ui.CapA->setValue(val.toFloat());
+  if(PREF.getKeyVal(currentSection, "Cap-Z", val))
+    ui.CapC->setValue(val.toFloat());
+  if(PREF.getKeyVal(currentSection, "Head-Y", val))
+    ui.CapHy->setValue(val.toFloat());
+  if(PREF.getKeyVal(currentSection, "Head-Z", val))
+    ui.CapHz->setValue(val.toFloat());
+  if(PREF.getKeyVal(currentSection, "Active", val)){
+    ui.CapLeds->setCheckState(
+      (val.compare("yes", Qt::CaseInsensitive) == 0) ? Qt::Checked : Qt::Unchecked);
+  }else{
+    ui.CapLeds->setCheckState(Qt::Unchecked);
+  }
+  initializing = false;
+}
 
-  QObject::connect(gui.ClipA, SIGNAL(valueChanged(double)),
-    this, SLOT(on_ClipA_valueChanged(double)));
-  QObject::connect(gui.ClipB, SIGNAL(valueChanged(double)),
-    this, SLOT(on_ClipB_valueChanged(double)));
-  QObject::connect(gui.ClipC, SIGNAL(valueChanged(double)),
-    this, SLOT(on_ClipC_valueChanged(double)));
-  QObject::connect(gui.ClipD, SIGNAL(valueChanged(double)),
-    this, SLOT(on_ClipD_valueChanged(double)));
-  QObject::connect(gui.ClipHx, SIGNAL(valueChanged(double)),
-    this, SLOT(on_ClipHx_valueChanged(double)));
-  QObject::connect(gui.ClipHy, SIGNAL(valueChanged(double)),
-    this, SLOT(on_ClipHy_valueChanged(double)));
-  QObject::connect(gui.ClipHz, SIGNAL(valueChanged(double)),
-    this, SLOT(on_ClipHz_valueChanged(double)));
-  
-  QObject::connect(gui.CapLeds, SIGNAL(stateChanged(int)),
-    this, SLOT(on_CapLeds_stateChanged(int)));
-  QObject::connect(gui.ClipLeds, SIGNAL(stateChanged(int)),
-    this, SLOT(on_ClipLeds_stateChanged(int)));
-} 
+CapEdit::~CapEdit()
+{
+}
+
+void CapEdit::on_CapA_valueChanged(double val)
+{ 
+  if(!initializing)
+    PREF.setKeyVal(currentSection, (char *)"Cap-Y", val);
+  PREF.announceModelChange();
+}
+
+void CapEdit::on_CapB_valueChanged(double val)
+{
+  if(!initializing)
+    PREF.setKeyVal(currentSection, (char *)"Cap-X", val);
+  PREF.announceModelChange();
+}
+
+void CapEdit::on_CapC_valueChanged(double val)
+{
+  if(!initializing)
+    PREF.setKeyVal(currentSection, (char *)"Cap-Z", val);
+  PREF.announceModelChange();
+}
+
+void CapEdit::on_CapHy_valueChanged(double val)
+{
+  if(!initializing)
+    PREF.setKeyVal(currentSection, (char *)"Head-Y", val);
+  PREF.announceModelChange();
+}
+
+void CapEdit::on_CapHz_valueChanged(double val)
+{
+  if(!initializing)
+    PREF.setKeyVal(currentSection, (char *)"Head-Z", val);
+  PREF.announceModelChange();
+}
+
+void CapEdit::on_CapLeds_stateChanged(int state)
+{
+  QString v;
+  if(state == Qt::Checked){
+    v = "yes";
+  }else{
+    v = "no";
+  }
+  if(!initializing)
+    PREF.setKeyVal(currentSection, (char *)"Active", v);
+  PREF.announceModelChange();
+}
+
+
 
 void ModelEdit::on_ModelSelector_activated(const QString &text)
 {
@@ -200,139 +241,88 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
     return;
   }
   QString val;
+  if(modelEditor != NULL){
+    ui.ModelEditorSite->removeWidget(modelEditor);
+    delete modelEditor;
+    modelEditor = NULL;
+  }
   if(type.compare("Cap", Qt::CaseInsensitive) == 0){
-    gui.ModelTypeLabel->setText("3 Point Cap");
-    gui.ModelStack->setCurrentIndex(0);
+    ui.ModelTypeLabel->setText("3 Point Cap");
     HelpViewer::ChangePage("3ptcap.htm");
-    //!!!gui.ModelDescStack->setCurrentIndex(0);
-    if(PREF.getKeyVal(currentSection, "Cap-X", val))
-      gui.CapB->setValue(val.toFloat());
-    if(PREF.getKeyVal(currentSection, "Cap-Y", val))
-      gui.CapA->setValue(val.toFloat());
-    if(PREF.getKeyVal(currentSection, "Cap-Z", val))
-      gui.CapC->setValue(val.toFloat());
-    if(PREF.getKeyVal(currentSection, "Head-Y", val))
-      gui.CapHy->setValue(val.toFloat());
-    if(PREF.getKeyVal(currentSection, "Head-Z", val))
-      gui.CapHz->setValue(val.toFloat());
-    if(PREF.getKeyVal(currentSection, "Active", val)){
-      gui.CapLeds->setCheckState(
-        (val.compare("yes", Qt::CaseInsensitive) == 0) ? Qt::Checked : Qt::Unchecked);
-    }else{
-      gui.CapLeds->setCheckState(Qt::Unchecked);
-    }
+    modelEditor = new CapEdit(currentSection, this);
   }else if(type.compare("Clip", Qt::CaseInsensitive) == 0){
-    gui.ModelTypeLabel->setText("3 Point Clip");
-    gui.ModelStack->setCurrentIndex(1);
+    ui.ModelTypeLabel->setText("3 Point Clip");
     HelpViewer::ChangePage("3ptclip.htm");
-    //!!!gui.ModelDescStack->setCurrentIndex(1);
-    float y1 = 40;
-    float y2 = 110;
-    float z1 = 30;
-    float z2 = 50;
-    if(PREF.getKeyVal(currentSection, "Clip-Y1", val))
-      y1 = val.toFloat();
-    if(PREF.getKeyVal(currentSection, "Clip-Y2", val))
-      y2 = val.toFloat();
-    if(PREF.getKeyVal(currentSection, "Clip-Z1", val))
-      z1 = val.toFloat();
-    if(PREF.getKeyVal(currentSection, "Clip-Z2", val))
-      z2 = val.toFloat();
-
-    gui.ClipA->setValue(z1);
-    gui.ClipB->setValue(y1);
-    gui.ClipC->setValue(y2-y1);
-    gui.ClipD->setValue(z1 + z2);
-    
-    if(PREF.getKeyVal(currentSection, "Head-X", val))
-      gui.ClipHx->setValue(val.toFloat());
-    if(PREF.getKeyVal(currentSection, "Head-Y", val))
-      gui.ClipHy->setValue(val.toFloat());
-    if(PREF.getKeyVal(currentSection, "Head-Z", val))
-      gui.ClipHz->setValue(val.toFloat());
-    if(PREF.getKeyVal(currentSection, "Active", val)){
-      gui.ClipLeds->setCheckState(
-        (val.compare("yes", Qt::CaseInsensitive) == 0) ? Qt::Checked : Qt::Unchecked);
-    }else{
-      gui.ClipLeds->setCheckState(Qt::Unchecked);
-    }
+    modelEditor = new ClipEdit(currentSection, this);
   }else if(type.compare("Face", Qt::CaseInsensitive) == 0){
-    gui.ModelTypeLabel->setText("Face");
-    gui.ModelStack->setCurrentIndex(3);
+#warning Add face to model help files!!!
+    ui.ModelTypeLabel->setText("Face");
     HelpViewer::ChangePage("1pt.htm");
-    //!!!gui.ModelDescStack->setCurrentIndex(2);
-  }else{//1pt
-    gui.ModelTypeLabel->setText("1 Point");
-    gui.ModelStack->setCurrentIndex(2);
+  }else if(type.compare("SinglePoint", Qt::CaseInsensitive) == 0){
+    ui.ModelTypeLabel->setText("1 Point");
     HelpViewer::ChangePage("1pt.htm");
-    //!!!gui.ModelDescStack->setCurrentIndex(2);
-    if(PREF.getKeyVal(currentSection, "Active", val)){
-      gui.SinglePtLeds->setCheckState(
-        (val.compare("yes", Qt::CaseInsensitive) == 0) ? Qt::Checked : Qt::Unchecked);
-    }else{
-      gui.SinglePtLeds->setCheckState(Qt::Unchecked);
-    }
+    modelEditor = new SingleEdit(currentSection, this);
+  }
+  if(modelEditor != NULL){
+    ui.ModelEditorSite->addWidget(modelEditor);
   }
   if(!initializing) PREF.activateModel(currentSection);
   PREF.announceModelChange();
 }
 
-void ModelEdit::on_CapA_valueChanged(double val)
-{ 
-  if(!initializing)
-    PREF.setKeyVal(currentSection, (char *)"Cap-Y", val);
-  PREF.announceModelChange();
-}
 
-void ModelEdit::on_CapB_valueChanged(double val)
+ClipEdit::ClipEdit(const QString &section, QWidget *parent) : QWidget(parent), currentSection(section),
+  initializing(true)
 {
-  if(!initializing)
-    PREF.setKeyVal(currentSection, (char *)"Cap-X", val);
-  PREF.announceModelChange();
-}
-
-void ModelEdit::on_CapC_valueChanged(double val)
-{
-  if(!initializing)
-    PREF.setKeyVal(currentSection, (char *)"Cap-Z", val);
-  PREF.announceModelChange();
-}
-
-void ModelEdit::on_CapHy_valueChanged(double val)
-{
-  if(!initializing)
-    PREF.setKeyVal(currentSection, (char *)"Head-Y", val);
-  PREF.announceModelChange();
-}
-
-void ModelEdit::on_CapHz_valueChanged(double val)
-{
-  if(!initializing)
-    PREF.setKeyVal(currentSection, (char *)"Head-Z", val);
-  PREF.announceModelChange();
-}
-
-void ModelEdit::on_CapLeds_stateChanged(int state)
-{
-  QString v;
-  if(state == Qt::Checked){
-    v = "yes";
+  ui.setupUi(this);
+  QString val;
+  float y1 = 40;
+  float y2 = 110;
+  float z1 = 30;
+  float z2 = 50;
+  if(PREF.getKeyVal(currentSection, "Clip-Y1", val))
+    y1 = val.toFloat();
+  if(PREF.getKeyVal(currentSection, "Clip-Y2", val))
+    y2 = val.toFloat();
+  if(PREF.getKeyVal(currentSection, "Clip-Z1", val))
+    z1 = val.toFloat();
+  if(PREF.getKeyVal(currentSection, "Clip-Z2", val))
+    z2 = val.toFloat();
+  
+  ui.ClipA->setValue(z1);
+  ui.ClipB->setValue(y1);
+  ui.ClipC->setValue(y2-y1);
+  ui.ClipD->setValue(z1 + z2);
+  
+  if(PREF.getKeyVal(currentSection, "Head-X", val))
+    ui.ClipHx->setValue(val.toFloat());
+  if(PREF.getKeyVal(currentSection, "Head-Y", val))
+    ui.ClipHy->setValue(val.toFloat());
+  if(PREF.getKeyVal(currentSection, "Head-Z", val))
+    ui.ClipHz->setValue(val.toFloat());
+  if(PREF.getKeyVal(currentSection, "Active", val)){
+    ui.ClipLeds->setCheckState(
+      (val.compare("yes", Qt::CaseInsensitive) == 0) ? Qt::Checked : Qt::Unchecked);
   }else{
-    v = "no";
+    ui.ClipLeds->setCheckState(Qt::Unchecked);
   }
-  if(!initializing)
-    PREF.setKeyVal(currentSection, (char *)"Active", v);
-  PREF.announceModelChange();
+  initializing = false;
 }
 
-void ModelEdit::on_ClipA_valueChanged(double val)
+
+ClipEdit::~ClipEdit()
+{
+}
+
+
+void ClipEdit::on_ClipA_valueChanged(double val)
 {
   if(!initializing)
     PREF.setKeyVal(currentSection, (char *)"Clip-Z1", val);
   PREF.announceModelChange();
 }
 
-void ModelEdit::on_ClipB_valueChanged(double val)
+void ClipEdit::on_ClipB_valueChanged(double val)
 {
   if(!initializing)
     PREF.setKeyVal(currentSection, (char *)"Clip-Y1", val);
@@ -340,44 +330,44 @@ void ModelEdit::on_ClipB_valueChanged(double val)
 }
 //                 gui.ClipC->value() + val);
 
-void ModelEdit::on_ClipC_valueChanged(double val)
+void ClipEdit::on_ClipC_valueChanged(double val)
 {
   if(!initializing)
     PREF.setKeyVal(currentSection, (char *)"Clip-Y2", 
-                  gui.ClipB->value() + val);
+                  ui.ClipB->value() + val);
   PREF.announceModelChange();
 }
 
-void ModelEdit::on_ClipD_valueChanged(double val)
+void ClipEdit::on_ClipD_valueChanged(double val)
 {
   if(!initializing)
     PREF.setKeyVal(currentSection, (char *)"Clip-Z2", 
-       val - gui.ClipA->value());
+       val - ui.ClipA->value());
   PREF.announceModelChange();
 }
 
-void ModelEdit::on_ClipHx_valueChanged(double val)
+void ClipEdit::on_ClipHx_valueChanged(double val)
 {
   if(!initializing)
     PREF.setKeyVal(currentSection, (char *)"Head-X", val);
   PREF.announceModelChange();
 }
 
-void ModelEdit::on_ClipHy_valueChanged(double val)
+void ClipEdit::on_ClipHy_valueChanged(double val)
 {
   if(!initializing)
     PREF.setKeyVal(currentSection, (char *)"Head-Y", val);
   PREF.announceModelChange();
 }
 
-void ModelEdit::on_ClipHz_valueChanged(double val)
+void ClipEdit::on_ClipHz_valueChanged(double val)
 {
   if(!initializing)
     PREF.setKeyVal(currentSection, (char *)"Head-Z", val);
   PREF.announceModelChange();
 }
 
-void ModelEdit::on_ClipLeds_stateChanged(int state)
+void ClipEdit::on_ClipLeds_stateChanged(int state)
 {
   QString v;
   if(state == Qt::Checked){
@@ -390,7 +380,27 @@ void ModelEdit::on_ClipLeds_stateChanged(int state)
   PREF.announceModelChange();
 }
 
-void ModelEdit::on_SinglePtLeds_stateChanged(int state)
+
+SingleEdit::SingleEdit(const QString &section, QWidget *parent) : QWidget(parent), currentSection(section),
+  initializing(true)
+{
+  ui.setupUi(this);
+  QString val;
+  if(PREF.getKeyVal(currentSection, "Active", val)){
+    ui.SinglePtLeds->setCheckState(
+      (val.compare("yes", Qt::CaseInsensitive) == 0) ? Qt::Checked : Qt::Unchecked);
+  }else{
+    ui.SinglePtLeds->setCheckState(Qt::Unchecked);
+  }
+  initializing = false;
+}
+
+SingleEdit::~SingleEdit()
+{
+}
+
+
+void SingleEdit::on_SinglePtLeds_stateChanged(int state)
 {
   QString v;
   if(state == Qt::Checked){
@@ -402,4 +412,5 @@ void ModelEdit::on_SinglePtLeds_stateChanged(int state)
     PREF.setKeyVal(currentSection, (char *)"Active", v);
   PREF.announceModelChange();
 }
+
 

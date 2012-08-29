@@ -3,20 +3,20 @@
 
 #include <QObject>
 #include <QComboBox>
-#include "ui_ltr.h"
+#include "ui_tir_setup.h"
 #include "prefs_link.h"
 #include "dlfirmware.h"
 
-class TirPrefs : public QObject{
+class TirPrefs : public QWidget{
   Q_OBJECT
  public:
-  TirPrefs(const Ui::LinuxtrackMainForm &ui);
+  TirPrefs(QWidget *parent = 0);
   ~TirPrefs();
   bool Activate(const QString &ID, bool init = false);
   static bool AddAvailableDevices(QComboBox &combo);
  private:
-  const Ui::LinuxtrackMainForm &gui;
-  void Connect();
+  Ui::TirSetupForm ui;
+  //void Connect();
   bool initializing;
   dlfwGui *dlfw;
   static bool firmwareOK;
