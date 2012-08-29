@@ -117,6 +117,7 @@
     bool findSection(const std::string &key, const std::string &value, std::string &name);
     bool changed()const;
     void resetChangeFlag();
+    void setChangeFlag();
     void clear();
   };
 

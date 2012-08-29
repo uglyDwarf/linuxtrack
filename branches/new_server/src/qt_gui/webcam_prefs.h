@@ -3,20 +3,19 @@
 
 #include <QObject>
 #include <QComboBox>
-#include "ui_ltr.h"
+#include "ui_l_wc_setup.h"
 #include "pref.hpp"
 #include "prefs_link.h"
 
-class WebcamPrefs : public QObject{
+class WebcamPrefs : public QWidget{
   Q_OBJECT
  public:
-  WebcamPrefs(const Ui::LinuxtrackMainForm &ui);
+  WebcamPrefs(QWidget *parent = 0);
   ~WebcamPrefs();
   bool Activate(const QString &ID, bool init = false);
   static bool AddAvailableDevices(QComboBox &combo);
  private:
-  const Ui::LinuxtrackMainForm &gui;
-  void Connect();
+  Ui::WebcamSetupForm ui;
   bool initializing;
  private slots:
   void on_WebcamFormats_activated(int index);
@@ -24,7 +23,6 @@ class WebcamPrefs : public QObject{
   void on_WebcamThreshold_valueChanged(int i);
   void on_WebcamMinBlob_valueChanged(int i);
   void on_WebcamMaxBlob_valueChanged(int i);
-  void on_FlipWebcam_stateChanged(int state);
 };
 
 

@@ -111,6 +111,11 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     return res;
   }
   
+  void prefs::setChangeFlag()
+  {
+    changed_flag = true;
+  }
+  
   void prefs::resetChangeFlag()
   {
     write_lock();
@@ -127,7 +132,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
   void prefs::addItem(prefItem *pi)
   {
     write_lock();
-    changed_flag = true;
+    setChangeFlag();
     items.push_back(pi);
     pi->registerItself(*this);
     unlock();
@@ -303,7 +308,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
       addSection(sec);
     }
     write_lock();
-    changed_flag = true;
+    setChangeFlag();
     std::map<std::string, section&>::iterator i = index.find(sec);
     (i->second).setValue(key, value);
     unlock();
@@ -315,7 +320,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
       addSection(sec);
     }
     write_lock();
-    changed_flag = true;
+    setChangeFlag();
     std::map<std::string, section&>::iterator i = index.find(sec);
     std::ostringstream os;
     os<<value;
@@ -329,7 +334,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
       addSection(sec);
     }
     write_lock();
-    changed_flag = true;
+    setChangeFlag();
     std::map<std::string, section&>::iterator i = index.find(sec);
     std::ostringstream os;
     os<<value;
@@ -343,7 +348,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
       addSection(sec);
     }
     write_lock();
-    changed_flag = true;
+    setChangeFlag();
     std::map<std::string, section&>::iterator i = index.find(sec);
     (i->second).addKey(key, value);
     unlock();
@@ -388,6 +393,7 @@ static bool parse_prefs(const std::string fname, prefs *prf)
     ltr_int_parser_lex_destroy();
     if((res == 0) && (!parser_error)){
       ltr_int_log_message("Preferences read OK!\n");
+      prf->resetChangeFlag();
       return(true);
     }
   }

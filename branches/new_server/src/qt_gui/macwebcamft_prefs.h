@@ -4,28 +4,27 @@
 #include <QObject>
 #include <QComboBox>
 #include <QFileDialog>
-#include "ui_ltr.h"
+#include "ui_m_wcft_setup.h"
 #include "pref.hpp"
 #include "prefs_link.h"
 
-class WebcamFtPrefs : public QObject{
+class WebcamFtPrefs : public QWidget{
   Q_OBJECT
  public:
-  WebcamFtPrefs(const Ui::LinuxtrackMainForm &ui);
+  WebcamFtPrefs(QWidget *parent = 0);
   ~WebcamFtPrefs();
   bool Activate(const QString &ID, bool init = false);
   static bool AddAvailableDevices(QComboBox &combo);
  private:
-  const Ui::LinuxtrackMainForm &gui;
-  void Connect();
+  UI::MacWebcamFtSetupForm ui;
   bool initializing;
   bool prefInit;
  private slots:
-  void on_WebcamResolutions_activated(int index);
-  void on_FindCascade_pressed();
-  void on_CascadePath_editingFinished();
-  void on_ExpFilterFactor_valueChanged(int value);
-  void on_OptimLevel_valueChanged(int value);
+  void on_WebcamFtResolutionsMac_activated(int index);
+  void on_FindCascadeMac_pressed();
+  void on_CascadePathMac_editingFinished();
+  void on_ExpFilterFactorMac_valueChanged(int value);
+  void on_OptimLevelMac_valueChanged(int value);
 };
 
 

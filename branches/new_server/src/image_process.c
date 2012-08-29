@@ -53,9 +53,9 @@ static void draw_stripe(image *img, int x, int y, int x_end, unsigned char color
 {
   assert(img != NULL);
   y *= img->ratio;
-  clip_coord(&x, 0, img->w);
-  clip_coord(&y, 0, img->h);
-  clip_coord(&x_end, 0, img->w);
+  clip_coord(&x, 0, img->w-1);
+  clip_coord(&y, 0, img->h-1);
+  clip_coord(&x_end, 0, img->w-1);
   unsigned char *ptr = img->bitmap + y * img->w + x;
   x_end -= x;
   while(x_end > 0){
@@ -76,10 +76,10 @@ void ltr_int_draw_square(image *img, int x, int y, int size)
   int y2 = (y * img->ratio) + size;
   
 //  clip_coord(&x, 0, img->w);
-  clip_coord(&x1, 0, img->w);
-  clip_coord(&y1, 0, img->h);
-  clip_coord(&x2, 0, img->w);
-  clip_coord(&y2, 0, img->h);
+  clip_coord(&x1, 0, img->w-1);
+  clip_coord(&y1, 0, img->h-1);
+  clip_coord(&x2, 0, img->w-1);
+  clip_coord(&y2, 0, img->h-1);
   
   while(y1 < y2){
     draw_stripe(img, x1, y1, x2, 0xFF);

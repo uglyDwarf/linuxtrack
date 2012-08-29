@@ -1,7 +1,7 @@
 #include <QMessageBox>
 #include <iostream>
 #include <QByteArray>
-#include "ltr_gui.h"
+#include "ui_m_wcft_setup.h"
 #include "macwebcamft_prefs.h"
 #include "macwebcam_info.h"
 #include "ltr_gui_prefs.h"
@@ -11,44 +11,48 @@
 static QString currentId = QString("None");
 static QString currentSection = QString();
 
+/*
 void WebcamFtPrefs::Connect()
 {
-  QObject::connect(gui.WebcamFtResolutionsMac, SIGNAL(activated(int)),
+  QObject::connect(ui.WebcamFtResolutionsMac, SIGNAL(activated(int)),
     this, SLOT(on_WebcamResolutions_activated(int)));
-  QObject::connect(gui.FindCascadeMac, SIGNAL(pressed()),
+  QObject::connect(ui.FindCascadeMac, SIGNAL(pressed()),
     this, SLOT(on_FindCascade_pressed()));
-  QObject::connect(gui.CascadePathMac, SIGNAL(editingFinished()),
+  QObject::connect(ui.CascadePathMac, SIGNAL(editingFinished()),
     this, SLOT(on_CascadePath_editingFinished()));
-  QObject::connect(gui.ExpFilterFactorMac, SIGNAL(valueChanged(int)),
+  QObject::connect(ui.ExpFilterFactorMac, SIGNAL(valueChanged(int)),
     this, SLOT(on_ExpFilterFactor_valueChanged(int)));
-  QObject::connect(gui.OptimLevelMac, SIGNAL(valueChanged(int)),
+  QObject::connect(ui.OptimLevelMac, SIGNAL(valueChanged(int)),
     this, SLOT(on_OptimLevel_valueChanged(int)));
 }
+*/
 
-WebcamFtPrefs::WebcamFtPrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
+WebcamFtPrefs::WebcamFtPrefs(QWidget *parent = 0) : QWidget(parent)
 {
-  Connect();
+//  Connect();
+  ui.setupUi(this);
   prefInit = true;
   QString cascadePath(ltr_int_wc_get_cascade());
-  gui.CascadePathMac->setText(cascadePath);
+  ui.CascadePathMac->setText(cascadePath);
   int n = (2.0 / ltr_int_wc_get_eff()) - 2;
-  gui.ExpFilterFactorMac->setValue(n);
+  ui.ExpFilterFactorMac->setValue(n);
   on_ExpFilterFactor_valueChanged(n);
-  gui.OptimLevelMac->setValue(ltr_int_wc_get_optim_level());
+  ui.OptimLevelMac->setValue(ltr_int_wc_get_optim_level());
   prefInit = false;
 }
 
 WebcamFtPrefs::~WebcamFtPrefs()
 {
+  ltr_int_wc_close_prefs();
 }
 
 static WebcamInfo *wc_info = NULL;
 
-void WebcamFtPrefs::on_WebcamResolutions_activated(int index)
+void WebcamFtPrefs::on_WebcamFtResolutionsMac_activated(int index)
 {
   (void) index;
   QString res;
-  res = gui.WebcamFtResolutionsMac->currentText();
+  res = ui.WebcamFtResolutionsMac->currentText();
   
   int x,y;
   WebcamInfo::decodeRes(res, x, y);
@@ -80,29 +84,29 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
     return false;
   }
   currentId = ID;
-  gui.WebcamFtResolutionsMac->clear();
+  ui.WebcamFtResolutionsMac->clear();
   if((currentId != "None") && (currentId.size() != 0)){
     if(wc_info != NULL){
       delete(wc_info);
     }
     wc_info = new WebcamInfo(currentId);
-    gui.WebcamFtResolutionsMac->clear();
-    gui.WebcamFtResolutionsMac->addItems(wc_info->getResolutions());
+    ui.WebcamFtResolutionsMac->clear();
+    ui.WebcamFtResolutionsMac->addItems(wc_info->getResolutions());
     int res_index = 0;
     int res_x, res_y;
     if(ltr_int_wc_get_resolution(&res_x, &res_y)){
       res_index = wc_info->findRes(res_x, res_y);
-      gui.WebcamFtResolutionsMac->setCurrentIndex(res_index);
+      ui.WebcamFtResolutionsMac->setCurrentIndex(res_index);
     }
     on_WebcamResolutions_activated(res_index);
   }
   prefInit = true;
   QString cascadePath(ltr_int_wc_get_cascade());
-  gui.CascadePathMac->setText(cascadePath);
+  ui.CascadePathMac->setText(cascadePath);
   int n = (2.0 / ltr_int_wc_get_eff()) - 2;
-  gui.ExpFilterFactorMac->setValue(n);
+  ui.ExpFilterFactorMac->setValue(n);
   on_ExpFilterFactor_valueChanged(n);
-  gui.OptimLevelMac->setValue(ltr_int_wc_get_optim_level());
+  ui.OptimLevelMac->setValue(ltr_int_wc_get_optim_level());
   prefInit = false;
   ltr_int_wc_close_prefs();
   initializing = false;
@@ -135,9 +139,9 @@ bool WebcamFtPrefs::AddAvailableDevices(QComboBox &combo)
   return res;
 }
 
-void WebcamFtPrefs::on_FindCascade_pressed()
+void WebcamFtPrefs::on_FindCascadeMac_pressed()
 {
-  QString path = gui.CascadePathMac->text();
+  QString path = ui.CascadePathMac->text();
   if(path.isEmpty()){
     path = QString(ltr_int_get_data_path(""));
   }else{
@@ -146,27 +150,27 @@ void WebcamFtPrefs::on_FindCascade_pressed()
   }
   QString fileName = QFileDialog::getOpenFileName(NULL,
      "Find Harr/LBP cascade", path, "xml Files (*.xml)");
-  gui.CascadePathMac->setText(fileName);
+  ui.CascadePathMac->setText(fileName);
   on_CascadePath_editingFinished();
 }
 
-void WebcamFtPrefs::on_CascadePath_editingFinished()
+void WebcamFtPrefs::on_CascadePathMac_editingFinished()
 {
   if(!prefInit){
-    ltr_int_wc_set_cascade(gui.CascadePathMac->text().toAscii().data());
+    ltr_int_wc_set_cascade(ui.CascadePathMac->text().toAscii().data());
   }
 }
 
-void WebcamFtPrefs::on_ExpFilterFactor_valueChanged(int value)
+void WebcamFtPrefs::on_ExpFilterFactorMac_valueChanged(int value)
 {
   float a = 2 / (value + 2.0); //EWMA window size
-  gui.ExpFiltFactorValMac->setText(QString("%1").arg(a, 0, 'g', 2));
+  //ui.ExpFiltFactorValMac->setText(QString("%1").arg(a, 0, 'g', 2));
   if(!prefInit){
     ltr_int_wc_set_eff(a);
   }
 }
 
-void WebcamFtPrefs::on_OptimLevel_valueChanged(int value)
+void WebcamFtPrefs::on_OptimLevelMac_valueChanged(int value)
 {
   if(!prefInit){
     ltr_int_wc_set_optim_level(value);

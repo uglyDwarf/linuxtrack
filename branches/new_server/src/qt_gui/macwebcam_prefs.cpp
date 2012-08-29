@@ -1,7 +1,7 @@
 #include <QMessageBox>
 #include <iostream>
 #include <QByteArray>
-#include "ltr_gui.h"
+#include "ui_m_wc_setup.h"
 #include "macwebcam_prefs.h"
 #include "macwebcam_info.h"
 #include "ltr_gui_prefs.h"
@@ -10,36 +10,39 @@
 static QString currentId = QString("None");
 static QString currentSection = QString();
 
+/*
 void WebcamPrefs::Connect()
 {
-  QObject::connect(gui.WebcamResolutionsMac, SIGNAL(activated(int)),
+  QObject::connect(ui.WebcamResolutionsMac, SIGNAL(activated(int)),
     this, SLOT(on_WebcamResolutions_activated(int)));
-  QObject::connect(gui.WebcamThresholdMac, SIGNAL(valueChanged(int)),
+  QObject::connect(ui.WebcamThresholdMac, SIGNAL(valueChanged(int)),
     this, SLOT(on_WebcamThreshold_valueChanged(int)));
-  QObject::connect(gui.WebcamMinBlobMac, SIGNAL(valueChanged(int)),
+  QObject::connect(ui.WebcamMinBlobMac, SIGNAL(valueChanged(int)),
     this, SLOT(on_WebcamMinBlob_valueChanged(int)));
-  QObject::connect(gui.WebcamMaxBlobMac, SIGNAL(valueChanged(int)),
+  QObject::connect(ui.WebcamMaxBlobMac, SIGNAL(valueChanged(int)),
     this, SLOT(on_WebcamMaxBlob_valueChanged(int)));
-  QObject::connect(gui.FlipWebcamMac, SIGNAL(stateChanged(int)),
+  QObject::connect(ui.FlipWebcamMac, SIGNAL(stateChanged(int)),
     this, SLOT(on_FlipWebcam_stateChanged(int)));
 }
+*/
 
-WebcamPrefs::WebcamPrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
+WebcamPrefs::WebcamPrefs(QWidget parent) : QWidget(parent)
 {
-  Connect();
+  ui.setupUi(this);
 }
 
 WebcamPrefs::~WebcamPrefs()
 {
+  ltr_int_wc_close_prefs();
 }
 
 static WebcamInfo *wc_info = NULL;
 
-void WebcamPrefs::on_WebcamResolutions_activated(int index)
+void WebcamPrefs::on_WebcamResolutionsMac_activated(int index)
 {
   (void) index;
   QString res;
-  res = gui.WebcamResolutionsMac->currentText();
+  res = ui.WebcamResolutionsMac->currentText();
   
   int x,y;
   WebcamInfo::decodeRes(res, x, y);
@@ -75,54 +78,44 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
     return false;
   }
   currentId = ID;
-  gui.WebcamResolutionsMac->clear();
+  ui.WebcamResolutionsMac->clear();
   if((currentId != "None") && (currentId.size() != 0)){
     if(wc_info != NULL){
       delete(wc_info);
     }
     wc_info = new WebcamInfo(currentId);
-    gui.WebcamResolutionsMac->clear();
-    gui.WebcamResolutionsMac->addItems(wc_info->getResolutions());
+    ui.WebcamResolutionsMac->clear();
+    ui.WebcamResolutionsMac->addItems(wc_info->getResolutions());
     int res_index = 0;
     int res_x, res_y;
     if(ltr_int_wc_get_resolution(&res_x, &res_y)){
       res_index = wc_info->findRes(res_x, res_y);
-      gui.WebcamResolutionsMac->setCurrentIndex(res_index);
+      ui.WebcamResolutionsMac->setCurrentIndex(res_index);
     }
     on_WebcamResolutions_activated(res_index);
     
     QString thres, bmin, bmax, flip;
-    gui.WebcamThresholdMac->setValue(ltr_int_wc_get_threshold());
-    gui.WebcamMaxBlobMac->setValue(ltr_int_wc_get_max_blob());
-    gui.WebcamMinBlobMac->setValue(ltr_int_wc_get_min_blob());
-    
-    Qt::CheckState state = (ltr_int_wc_get_flip()) ? 
-                       Qt::Checked : Qt::Unchecked;
-    gui.FlipWebcamMac->setCheckState(state);
+    ui.WebcamThresholdMac->setValue(ltr_int_wc_get_threshold());
+    ui.WebcamMaxBlobMac->setValue(ltr_int_wc_get_max_blob());
+    ui.WebcamMinBlobMac->setValue(ltr_int_wc_get_min_blob());
   }
-  ltr_int_wc_close_prefs();
   initializing = false;
   return true;
 }
 
-void WebcamPrefs::on_WebcamThreshold_valueChanged(int i)
+void WebcamPrefs::on_WebcamThresholdMac_valueChanged(int i)
 {
   if(!initializing) ltr_int_wc_set_threshold(i);
 }
 
-void WebcamPrefs::on_WebcamMinBlob_valueChanged(int i)
+void WebcamPrefs::on_WebcamMinBlobMac_valueChanged(int i)
 {
   if(!initializing) ltr_int_wc_set_min_blob(i);
 }
 
-void WebcamPrefs::on_WebcamMaxBlob_valueChanged(int i)
+void WebcamPrefs::on_WebcamMaxBlobMac_valueChanged(int i)
 {
   if(!initializing) ltr_int_wc_set_max_blob(i);
-}
-
-void WebcamPrefs::on_FlipWebcam_stateChanged(int state)
-{
-  if(!initializing) ltr_int_wc_set_flip(state == Qt::Checked);
 }
 
 bool WebcamPrefs::AddAvailableDevices(QComboBox &combo)

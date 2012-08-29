@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ltr_gui.h"
+#include "ui_tir_setup.h"
 #include "ltr_gui_prefs.h"
 #include "tir_driver_prefs.h"
 #include "ltr_gui_prefs.h"
@@ -34,28 +34,30 @@ static int probeTir(bool &fwOK, bool &permOK)
   return res;
 }
 
-
+/*
 void TirPrefs::Connect()
 {
-  QObject::connect(gui.TirThreshold, SIGNAL(valueChanged(int)),
+  QObject::connect(ui.TirThreshold, SIGNAL(valueChanged(int)),
     this, SLOT(on_TirThreshold_valueChanged(int)));
-  QObject::connect(gui.TirMinBlob, SIGNAL(valueChanged(int)),
+  QObject::connect(ui.TirMinBlob, SIGNAL(valueChanged(int)),
     this, SLOT(on_TirMinBlob_valueChanged(int)));
-  QObject::connect(gui.TirMaxBlob, SIGNAL(valueChanged(int)),
+  QObject::connect(ui.TirMaxBlob, SIGNAL(valueChanged(int)),
     this, SLOT(on_TirMaxBlob_valueChanged(int)));
-  QObject::connect(gui.TirStatusBright, SIGNAL(valueChanged(int)),
+  QObject::connect(ui.TirStatusBright, SIGNAL(valueChanged(int)),
     this, SLOT(on_TirStatusBright_valueChanged(int)));
-  QObject::connect(gui.TirIrBright, SIGNAL(valueChanged(int)),
+  QObject::connect(ui.TirIrBright, SIGNAL(valueChanged(int)),
     this, SLOT(on_TirIrBright_valueChanged(int)));
-  QObject::connect(gui.TirSignalizeStatus, SIGNAL(stateChanged(int)),
+  QObject::connect(ui.TirSignalizeStatus, SIGNAL(stateChanged(int)),
     this, SLOT(on_TirSignalizeStatus_stateChanged(int)));
-  QObject::connect(gui.TirInstallFirmware, SIGNAL(pressed()),
+  QObject::connect(ui.TirInstallFirmware, SIGNAL(pressed()),
     this, SLOT(on_TirInstallFirmware_pressed()));
 }
+*/
 
-TirPrefs::TirPrefs(const Ui::LinuxtrackMainForm &ui) : gui(ui)
+TirPrefs::TirPrefs(QWidget *parent) : QWidget(parent)
 {
-  Connect();
+  ui.setupUi(this);
+  //Connect();
   dlfw = NULL;
 }
 
@@ -81,10 +83,10 @@ bool TirPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
       PREF.addKeyVal(sec, (char *)"Threshold", QString::number(140));
       PREF.addKeyVal(sec, (char *)"Min-blob", QString::number(4));
-      PREF.addKeyVal(sec, (char *)"Max-blob", QString::number(230));
+      PREF.addKeyVal(sec, (char *)"Max-blob", QString::number(2500));
       PREF.addKeyVal(sec, (char *)"Status-led-brightness", QString::number(0));
       PREF.addKeyVal(sec, (char *)"Ir-led-brightness", QString::number(7));
-      PREF.addKeyVal(sec, (char *)"Status-signals", (char *)"on");
+      PREF.addKeyVal(sec, (char *)"Status-signgui.als", (char *)"on");
       PREF.activateDevice(sec);
       currentSection = sec;
     }else{
@@ -94,31 +96,31 @@ bool TirPrefs::Activate(const QString &ID, bool init)
   }
   ltr_int_tir_init_prefs();
   currentId = ID;
-  gui.TirThreshold->setValue(ltr_int_tir_get_threshold());
-  gui.TirMaxBlob->setValue(ltr_int_tir_get_max_blob());
-  gui.TirMinBlob->setValue(ltr_int_tir_get_min_blob());
-  gui.TirIrBright->setValue(ltr_int_tir_get_ir_brightness());
-  gui.TirStatusBright->setValue(ltr_int_tir_get_status_brightness());
+  ui.TirThreshold->setValue(ltr_int_tir_get_threshold());
+  ui.TirMaxBlob->setValue(ltr_int_tir_get_max_blob());
+  ui.TirMinBlob->setValue(ltr_int_tir_get_min_blob());
+  ui.TirIrBright->setValue(ltr_int_tir_get_ir_brightness());
+  ui.TirStatusBright->setValue(ltr_int_tir_get_status_brightness());
   Qt::CheckState state = (ltr_int_tir_get_status_indication()) ? 
                           Qt::Checked : Qt::Unchecked;
-  gui.TirSignalizeStatus->setCheckState(state);
+  ui.TirSignalizeStatus->setCheckState(state);
   if(firmwareOK){
     if(tirType < 4){
-      gui.TirFwLabel->setText("Firmware not needed!");
+      ui.TirFwLabel->setText("Firmware not needed!");
     }else{
-      gui.TirFwLabel->setText("Firmware found!");
+      ui.TirFwLabel->setText("Firmware found!");
     }
-    gui.TirInstallFirmware->setDisabled(true);
+    ui.TirInstallFirmware->setDisabled(true);
   }else{
-    gui.TirFwLabel->setText("Firmware not found - TrackIr will not work!");
+    ui.TirFwLabel->setText("Firmware not found - TrackIr will not work!");
   }
   if(tirType < 5){
-    gui.TirIrBright->setDisabled(true);
-    gui.TirIrBright->setHidden(true);
-    gui.TirStatusBright->setDisabled(true);
-    gui.TirStatusBright->setHidden(true);
-    gui.StatusBrightLabel->setHidden(true);
-    gui.IRBrightLabel->setHidden(true);
+    ui.TirIrBright->setDisabled(true);
+    ui.TirIrBright->setHidden(true);
+    ui.TirStatusBright->setDisabled(true);
+    ui.TirStatusBright->setHidden(true);
+    ui.StatusBrightLabel->setHidden(true);
+    ui.IRBrightLabel->setHidden(true);
   }
   initializing = false;
   return true;
@@ -200,10 +202,10 @@ void TirPrefs::on_TirFirmwareDLFinished(bool state)
     dlfw->hide();
     probeTir(firmwareOK, permsOK);    
     if(firmwareOK){
-      gui.TirFwLabel->setText("Firmware found!");
-      gui.TirInstallFirmware->setDisabled(true);
+      ui.TirFwLabel->setText("Firmware found!");
+      ui.TirInstallFirmware->setDisabled(true);
     }else{
-      gui.TirFwLabel->setText("Firmware not found - TrackIr will not work!");
+      ui.TirFwLabel->setText("Firmware not found - TrackIr will not work!");
     }
   }
 }
@@ -217,3 +219,4 @@ void TirPrefs::on_TirInstallFirmware_pressed()
   }
   dlfw->show();
 }
+
