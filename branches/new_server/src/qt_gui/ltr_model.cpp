@@ -102,7 +102,7 @@ ModelEdit::ModelEdit(QWidget *parent) : QWidget(parent), modelEditor(0), initial
   ui.setupUi(this);
   mcw = new ModelCreate();
   QObject::connect(mcw, SIGNAL(ModelCreated(const QString &)),
-    this, SLOT(on_ModelCreated(const QString &)));
+    this, SLOT(ModelCreated(const QString &)));
   refresh();
 }
 
@@ -113,10 +113,10 @@ void ModelEdit::refresh()
 
   if(PREF.getActiveModel(str)){
     currentSection = str;
-    on_ModelCreated(str);
+    ModelCreated(str);
     on_ModelSelector_activated(str);
   }else{
-    on_ModelCreated("");
+    ModelCreated("");
   }
   initializing = false;
 }
@@ -126,7 +126,7 @@ void ModelEdit::on_CreateModelButton_pressed()
   mcw->show();
 }
 
-void ModelEdit::on_ModelCreated(const QString &section)
+void ModelEdit::ModelCreated(const QString &section)
 {
   QStringList list;
   ui.ModelSelector->clear();
@@ -152,6 +152,11 @@ ModelEdit::~ModelEdit()
 {
   if(mcw != NULL){
     delete mcw;
+  }
+  if(modelEditor != NULL){
+    ui.ModelEditorSite->removeWidget(modelEditor);
+    delete modelEditor;
+    modelEditor = NULL;
   }
 }
 

@@ -10,7 +10,6 @@
 #include <QMessageBox>
 
 static QString currentId = QString("None");
-static QString currentSection = QString();
 static int tirType = 0;
 bool TirPrefs::firmwareOK = false;
 bool TirPrefs::permsOK = false;
@@ -54,10 +53,11 @@ void TirPrefs::Connect()
 }
 */
 
-TirPrefs::TirPrefs(QWidget *parent) : QWidget(parent)
+TirPrefs::TirPrefs(const QString &dev_id, QWidget *parent) : QWidget(parent), id(dev_id)
 {
   ui.setupUi(this);
   //Connect();
+  Activate(id, true);
   dlfw = NULL;
 }
 
@@ -74,8 +74,11 @@ bool TirPrefs::Activate(const QString &ID, bool init)
   initializing = init;
   QString sec;
   if(PREF.getFirstDeviceSection(QString("Tir"), sec)){
-    if(!initializing) PREF.activateDevice(sec);
-    currentSection = sec;
+    QString currentDev, currentSection;
+    deviceType_t devType;
+    if(!PREF.getActiveDevice(devType, currentDev, currentSection) || (sec !=currentSection)){
+      PREF.activateDevice(sec);
+    }
   }else{
     sec = "TrackIR";
     if(PREF.createSection(sec)){
@@ -88,7 +91,6 @@ bool TirPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Ir-led-brightness", QString::number(7));
       PREF.addKeyVal(sec, (char *)"Status-signgui.als", (char *)"on");
       PREF.activateDevice(sec);
-      currentSection = sec;
     }else{
       initializing = false;
       return false;
@@ -120,7 +122,11 @@ bool TirPrefs::Activate(const QString &ID, bool init)
     ui.TirStatusBright->setDisabled(true);
     ui.TirStatusBright->setHidden(true);
     ui.StatusBrightLabel->setHidden(true);
+    ui.StatusBrightLabelOff->setHidden(true);
+    ui.StatusBrightLabelBright->setHidden(true);
     ui.IRBrightLabel->setHidden(true);
+    ui.IRBrightLabelLow->setHidden(true);
+    ui.IRBrightLabelHigh->setHidden(true);
   }
   initializing = false;
   return true;
@@ -196,7 +202,7 @@ void TirPrefs::on_TirSignalizeStatus_stateChanged(int state)
   if(!initializing) ltr_int_tir_set_status_indication(state == Qt::Checked);
 }
 
-void TirPrefs::on_TirFirmwareDLFinished(bool state)
+void TirPrefs::TirFirmwareDLFinished(bool state)
 {
   if(state){
     dlfw->hide();
@@ -215,7 +221,7 @@ void TirPrefs::on_TirInstallFirmware_pressed()
   if(dlfw == NULL){
     dlfw = new dlfwGui();
     QObject::connect(dlfw, SIGNAL(finished(bool)),
-      this, SLOT(on_TirFirmwareDLFinished(bool)));
+      this, SLOT(TirFirmwareDLFinished(bool)));
   }
   dlfw->show();
 }
