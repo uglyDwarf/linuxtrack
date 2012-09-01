@@ -17,7 +17,7 @@ struct axis_def{
   splines_def curve_defs;
   splines curves;
   bool valid;
-  float l_factor, r_factor;
+  float factor;
   float l_limit, r_limit;
   float filter_factor;
   char *prefix;
@@ -42,48 +42,42 @@ char *def_section[][2] = {
   {"Pitch-deadzone", "0.0"},
   {"Pitch-left-curvature", "0.5"},
   {"Pitch-right-curvature", "0.5"},
-  {"Pitch-left-multiplier", "5.000000"},
-  {"Pitch-right-multiplier", "5.000000"},
+  {"Pitch-sensitivity", "5.000000"},
   {"Pitch-left-limit", "80.000000"},
   {"Pitch-right-limit", "80.000000"},
   {"Yaw-enabled", "Yes"},
   {"Yaw-deadzone", "0.0"},
   {"Yaw-left-curvature", "0.5"},
   {"Yaw-right-curvature", "0.5"},
-  {"Yaw-left-multiplier", "5.000000"},
-  {"Yaw-right-multiplier", "5.000000"},
+  {"Yaw-sensitivity", "5.000000"},
   {"Yaw-left-limit", "130.000000"},
   {"Yaw-right-limit", "130.000000"},
   {"Roll-enabled", "Yes"},
   {"Roll-deadzone", "0.0"},
   {"Roll-left-curvature", "0.5"},
   {"Roll-right-curvature", "0.5"},
-  {"Roll-left-multiplier", "1.500000"},
-  {"Roll-right-multiplier", "1.500000"},
+  {"Roll-sensitivity", "1.500000"},
   {"Roll-left-limit", "45.000000"},
   {"Roll-right-limit", "45.000000"},
   {"Xtranslation-enabled", "Yes"},
   {"Xtranslation-deadzone", "0.0"},
   {"Xtranslation-left-curvature", "0.5"},
   {"Xtranslation-right-curvature", "0.5"},
-  {"Xtranslation-left-multiplier", "5.000000"},
-  {"Xtranslation-right-multiplier", "5.000000"},
+  {"Xtranslation-sensitivity", "5.000000"},
   {"Xtranslation-left-limit", "300.000000"},
   {"Xtranslation-right-limit", "300.000000"},
   {"Ytranslation-enabled", "Yes"},
   {"Ytranslation-deadzone", "0.0"},
   {"Ytranslation-left-curvature", "0.5"},
   {"Ytranslation-right-curvature", "0.5"},
-  {"Ytranslation-left-multiplier", "5.000000"},
-  {"Ytranslation-right-multiplier", "5.000000"},
+  {"Ytranslation-sensitivity", "5.000000"},
   {"Ytranslation-left-limit", "300.000000"},
   {"Ytranslation-right-limit", "300.000000"},
   {"Ztranslation-enabled", "Yes"},
   {"Ztranslation-deadzone", "0.0"},
   {"Ztranslation-left-curvature", "0.5"},
   {"Ztranslation-right-curvature", "0.5"},
-  {"Ztranslation-left-multiplier", "2.000000"},
-  {"Ztranslation-right-multiplier", "0.0"},
+  {"Ztranslation-sensitivity", "2.000000"},
   {"Ztranslation-left-limit", "300.000000"},
   {"Ztranslation-right-limit", "1.000000"},
   {NULL, NULL}
@@ -91,15 +85,15 @@ char *def_section[][2] = {
 
 
 typedef enum{
-  SENTRY1, DEADZONE, LCURV, RCURV, LMULT, RMULT, LIMITS, LLIMIT, RLIMIT, FILTER, ENABLED, SENTRY_2
+  SENTRY1, DEADZONE, LCURV, RCURV, MULT, LIMITS, LLIMIT, RLIMIT, FILTER, ENABLED, SENTRY_2
 }axis_fields;
 static const char *fields[] = {NULL, "-deadzone",
 				"-left-curvature", "-right-curvature", 
-				"-left-multiplier", "-right-multiplier",
+				"-sensitivity",
 				"-limits", "-left-limit", "-right-limit", "-filter", "-enabled", NULL};
 static const char *axes_desc[] = {"PITCH", "ROLL", "YAW", "TX", "TY", "TZ"};
 static const char *axis_param_desc[] = {"Enabled", "Deadzone", "Left curvature", "Right curvature",
-                   "Left sensitivity", "Right sensitivity", "Left limit", "Right Limit", "Filter factor", 
+                   "Sensitivity", "Left limit", "Right Limit", "Filter factor", 
                    "FULL"};
 
 //static struct lt_axes ltr_int_axes;
@@ -231,7 +225,7 @@ float ltr_int_val_on_axis(ltr_axes_t axes, enum axis_t id, float x)
   if(!(axis->valid)){
     ltr_int_curve2pts(&(axis->curve_defs), &(axis->curves));
   }
-  float mf = x < 0 ? axis->l_factor : axis->r_factor;
+  float mf = axis->factor;
   float lim = x < 0 ? axis->l_limit : axis->r_limit;
   if(lim == 0.0){
     pthread_mutex_unlock(&axes_mutex);
@@ -277,8 +271,7 @@ bool ltr_int_is_symetrical(ltr_axes_t axes, enum axis_t id)
   pthread_mutex_lock(&axes_mutex);
   struct axis_def *axis = get_axis(axes, id);
   
-  if((axis->l_factor == axis->r_factor) && 
-     (axis->curve_defs.l_curvature == axis->curve_defs.r_curvature) &&
+  if((axis->curve_defs.l_curvature == axis->curve_defs.r_curvature) &&
      (axis->l_limit == axis->r_limit)){
     pthread_mutex_unlock(&axes_mutex);
     return true;
@@ -310,14 +303,9 @@ bool ltr_int_set_axis_param(ltr_axes_t axes, enum axis_t id, enum axis_param_t p
       save_val_flt(axes, id, RCURV, val);
       signal_change(axes);
       break;
-    case AXIS_LMULT:
-      axis->l_factor = val;
-      save_val_flt(axes, id, LMULT, val);
-      signal_change(axes);
-      break;
-    case AXIS_RMULT:
-      axis->r_factor = val;
-      save_val_flt(axes, id, RMULT, val);
+    case AXIS_MULT:
+      axis->factor = val;
+      save_val_flt(axes, id, MULT, val);
       signal_change(axes);
       break;
     case AXIS_LLIMIT:
@@ -359,11 +347,8 @@ float ltr_int_get_axis_param(ltr_axes_t axes, enum axis_t id, enum axis_param_t 
     case AXIS_RCURV: 
       res = axis->curve_defs.r_curvature;
       break;
-    case AXIS_LMULT:
-      res = axis->l_factor;
-      break;
-    case AXIS_RMULT:
-      res = axis->r_factor;
+    case AXIS_MULT:
+      res = axis->factor;
       break;
     case AXIS_LLIMIT:
       res = axis->l_limit;
@@ -459,8 +444,7 @@ static void ltr_int_init_axis(const char *sec_name, struct axis_def *axis, const
   axis->valid = false;
   axis->enabled = true;
   axis->prefix = ltr_int_my_strdup(prefix);
-  axis->l_factor = 1.0f;
-  axis->r_factor = 1.0f;
+  axis->factor = 1.0f;
   axis->r_limit = 50.0f;
   axis->l_limit = 50.0f;
   axis->filter_factor = 0.2f;
@@ -499,11 +483,8 @@ static void set_axis_field(struct axis_def *axis, axis_fields field, float val, 
     case(RCURV):
       axis->curve_defs.r_curvature = val;
       break;
-    case(LMULT):
-      axis->l_factor = val;
-      break;
-    case(RMULT):
-      axis->r_factor = val;
+    case(MULT):
+      axis->factor = val;
       break;
     case(LLIMIT):
       axis->l_limit = val;

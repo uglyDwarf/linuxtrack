@@ -8,7 +8,6 @@
 #include "wc_driver_prefs.h"
 
 static QString currentId = QString("None");
-static QString currentSection = QString();
 
 /*
 void WebcamPrefs::Connect()
@@ -26,9 +25,10 @@ void WebcamPrefs::Connect()
 }
 */
 
-WebcamPrefs::WebcamPrefs(QWidget parent) : QWidget(parent)
+WebcamPrefs::WebcamPrefs(const QString &dev_id, QWidget parent) : QWidget(parent), id(dev_id)
 {
   ui.setupUi(this);
+  Activate(id, true);
 }
 
 WebcamPrefs::~WebcamPrefs()
@@ -54,8 +54,11 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
   QString sec;
   initializing = init;
   if(PREF.getFirstDeviceSection(QString("Webcam"), ID, sec)){
-    if(!initializing) PREF.activateDevice(sec);
-    currentSection = sec;
+    QString currentDev, currentSection;
+    deviceType_t devType;
+    if(!PREF.getActiveDevice(devType, currentDev, currentSection) || (sec !=currentSection)){
+      PREF.activateDevice(sec);
+    }
   }else{
     sec = "Webcam";
     if(PREF.createSection(sec)){
@@ -67,7 +70,6 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Max-blob", QString::number(231));
       PREF.addKeyVal(sec, (char *)"Upside-down", (char *)"No");
       PREF.activateDevice(sec);
-      currentSection = sec;
     }else{
       initializing = false;
       return false;

@@ -39,7 +39,7 @@ class ModelEdit : public QWidget
  protected:
  private slots:
   void on_CreateModelButton_pressed();
-  void on_ModelCreated(const QString &section);
+  void ModelCreated(const QString &section);
   void on_ModelSelector_activated(const QString &text);
   private:
   Ui::ModelEditForm ui;

@@ -20,8 +20,7 @@ class SCurve : public QWidget{
   void symetryChanged(bool symetrical);
  private slots:
   void on_SCSymetrical_stateChanged(int state);
-  void on_SCLeftFactor_valueChanged(double d);
-  void on_SCRightFactor_valueChanged(double d);
+  void on_SCFactor_valueChanged(int value);
   void on_SCLeftCurv_valueChanged(int value);
   void on_SCRightCurv_valueChanged(int value);
   void on_SCFilterSlider_valueChanged(int value);

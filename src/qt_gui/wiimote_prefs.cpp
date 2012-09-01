@@ -8,13 +8,11 @@ typedef enum{
   OFF_LED1, OFF_LED2, OFF_LED3, OFF_LED4
 } wii_leds_t;
 
-static QString currentSection = QString();
-
-WiimotePrefs::WiimotePrefs(QWidget *parent) : QWidget(parent), initializing(false)
+WiimotePrefs::WiimotePrefs(const QString &dev_id, QWidget *parent) : QWidget(parent), id(dev_id), initializing(false)
 {
   ui.setupUi(this);
   Connect();
-  PREF;
+  Activate(id, true);
 }
 
 WiimotePrefs::~WiimotePrefs()
@@ -30,13 +28,20 @@ static void setCheckBox(QCheckBox *box, bool val)
   }
 }
 
+
+
+
+
 bool WiimotePrefs::Activate(const QString &ID, bool init)
 {
   QString sec;
-  initializing= init;
+  initializing = init;
   if(PREF.getFirstDeviceSection(QString("Wiimote"), sec)){
-    if(!initializing) PREF.activateDevice(sec);
-    currentSection = sec;
+    QString currentDev, currentSection;
+    deviceType_t devType;
+    if(!PREF.getActiveDevice(devType, currentDev, currentSection) || (sec !=currentSection)){
+      PREF.activateDevice(sec);
+    }
   }else{
     sec = "Wiimote";
     if(PREF.createSection(sec)){
@@ -45,7 +50,6 @@ bool WiimotePrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Running-indication", (char *)"0100");
       PREF.addKeyVal(sec, (char *)"Paused-indication", (char *)"0010");
       PREF.activateDevice(sec);
-      currentSection = sec;
     }
   }
   ltr_int_wii_init_prefs();

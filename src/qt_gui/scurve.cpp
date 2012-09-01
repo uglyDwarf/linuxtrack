@@ -22,7 +22,7 @@ SCurve::SCurve(axis_t a, QString axis_name, QString left_label, QString right_la
   
   first = false;
   view = new SCView(axis, this);
-  ui.SCView->removeItem(ui.SCViewSpacer);
+  //ui.SCView->removeItem(ui.SCViewSpacer);
   ui.SCView->addWidget(view);
   QObject::connect(this, SIGNAL(changed()), view, SLOT(update()));
   initAxes();
@@ -42,9 +42,8 @@ void SCurve::setup_gui()
     ui.SCSymetrical->setCheckState(Qt::Unchecked);
     symetrical = false;
   }
-  ui.SCLeftFactor->setValue(TRACKER.axisGet(axis, AXIS_LMULT));
+  ui.SCFactor->setValue(TRACKER.axisGet(axis, AXIS_MULT));
   ui.SCLeftCurv->setValue(TRACKER.axisGet(axis, AXIS_LCURV) * 100);
-  ui.SCRightFactor->setValue(TRACKER.axisGet(axis, AXIS_RMULT));
   ui.SCRightCurv->setValue(TRACKER.axisGet(axis, AXIS_RCURV) * 100);
   
   setDeadzone(TRACKER.axisGet(axis, AXIS_DEADZONE));
@@ -69,8 +68,6 @@ void SCurve::on_SCSymetrical_stateChanged(int state)
   switch(state){
     case Qt::Checked:
       symetrical = true;
-      ui.SCRightFactor->setDisabled(true);
-      ui.SCRightFactor->setValue(ui.SCLeftFactor->value());
       ui.SCRightLimit->setDisabled(true);
       ui.SCRightLimit->setValue(ui.SCLeftLimit->value());
       ui.SCRightCurv->setDisabled(true);
@@ -78,7 +75,6 @@ void SCurve::on_SCSymetrical_stateChanged(int state)
       break;
     case Qt::Unchecked:
       symetrical = false;
-      ui.SCRightFactor->setDisabled(false);
       ui.SCRightLimit->setDisabled(false);
       ui.SCRightCurv->setDisabled(false);
       break;
@@ -87,23 +83,10 @@ void SCurve::on_SCSymetrical_stateChanged(int state)
   }
 }
 
-void SCurve::on_SCLeftFactor_valueChanged(double d)
+void SCurve::on_SCFactor_valueChanged(int value)
 {
   //std::cout<<"LeftFactor = "<<d<<std::endl;
-  if(!initializing) TRACKER.axisChange(axis, AXIS_LMULT, d);
-  if(symetrical){
-    ui.SCRightFactor->setValue(d);
-  }
-  emit changed();
-}
-
-void SCurve::on_SCRightFactor_valueChanged(double d)
-{
-  //std::cout<<"RightFactor = "<<d<<std::endl;
-  if(!initializing) TRACKER.axisChange(axis, AXIS_RMULT, d);
-  if(symetrical){
-    ui.SCLeftFactor->setValue(d);
-  }
+  if(!initializing) TRACKER.axisChange(axis, AXIS_MULT, value / 8.0);
   emit changed();
 }
 
@@ -132,7 +115,7 @@ void SCurve::setFilter(float val, bool signal)
   if(!signal){
     ui.SCFilterSlider->setValue(round(val * 100.0));
   }
-  ui.SCFilterLabel->setText(QString("%1%").arg(val * 100.0, 5, 'f', 1));
+  //ui.SCFilterLabel->setText(QString("%1%").arg(val * 100.0, 5, 'f', 1));
 }
 
 void SCurve::on_SCFilterSlider_valueChanged(int value)
@@ -147,7 +130,7 @@ void SCurve::setDeadzone(float val, bool signal)
   if(!signal){
     ui.SCDeadZone->setValue(round(val * 101.0));
   }
-  ui.SCDZoneLabel->setText(QString("%1").arg(val, 2, 'f', 2));
+  //ui.SCDZoneLabel->setText(QString("%1").arg(val, 2, 'f', 2));
 }
 
 void SCurve::on_SCDeadZone_valueChanged(int value)
@@ -199,11 +182,8 @@ void SCurve::axisChanged(int a, int elem)
     return;
   }
   switch(elem){
-    case AXIS_LMULT:
-      ui.SCLeftFactor->setValue(TRACKER.axisGet(axis, AXIS_LMULT));
-      break;
-    case AXIS_RMULT:
-      ui.SCRightFactor->setValue(TRACKER.axisGet(axis, AXIS_RMULT));
+    case AXIS_MULT:
+      ui.SCFactor->setValue(TRACKER.axisGet(axis, AXIS_MULT) * 8.0);
       break;
     case AXIS_LCURV:
       ui.SCLeftCurv->setValue(round(TRACKER.axisGet(axis, AXIS_LCURV) * 100.0));
@@ -236,8 +216,7 @@ void SCurve::axisChanged(int a, int elem)
       break;
     case AXIS_FULL:
       std::cout << "FULL!"<<std::endl;
-      ui.SCLeftFactor->setValue(TRACKER.axisGet(axis, AXIS_LMULT));
-      ui.SCRightFactor->setValue(TRACKER.axisGet(axis, AXIS_RMULT));
+      ui.SCFactor->setValue(TRACKER.axisGet(axis, AXIS_MULT) / 8.0);
       ui.SCLeftCurv->setValue(round(TRACKER.axisGet(axis, AXIS_LCURV) * 100.0));
       ui.SCRightCurv->setValue(round(TRACKER.axisGet(axis, AXIS_RCURV) * 100.0));
       ui.SCCurvL->setText(QString("Curvature: %1").arg(TRACKER.axisGet(axis, AXIS_LCURV), 2, 'f', 2));

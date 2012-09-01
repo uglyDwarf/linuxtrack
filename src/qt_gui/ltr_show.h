@@ -9,32 +9,14 @@
 #include <QCloseEvent>
 #include "window.h"
 
-class ScpForm;
 class LtrGuiForm;
 class QSettings;
-
-/*
-class CaptureThread : public QThread
-{
-  Q_OBJECT
- public:
-  CaptureThread(LtrGuiForm *p);
-  void run();
-  void signal_new_frame();
- signals:
-  void new_frame();  
- private:
-  LtrGuiForm *parent;
-  
-};
-*/
 
 class CameraView : public QWidget
 {
   Q_OBJECT
  public:
   CameraView(QWidget *parent = 0);
-// public slots:
   void redraw();
  protected:
   void paintEvent(QPaintEvent *event);
@@ -46,7 +28,7 @@ class LtrGuiForm : public QWidget
 {
    Q_OBJECT
   public:
-   LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s, QSettings &settings);
+   LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, QSettings &settings);
    ~LtrGuiForm();
    void allowCloseWindow();
    void StorePrefs(QSettings &settings);
@@ -68,7 +50,6 @@ class LtrGuiForm : public QWidget
    void closeEvent(QCloseEvent *event);
   private:
    Ui::Ltr_gui ui;
-   ScpForm *sens;
    Window *glw;
    QTimer *timer;
    QTimer *fpsTimer;

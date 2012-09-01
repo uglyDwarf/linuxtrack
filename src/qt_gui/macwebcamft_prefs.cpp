@@ -9,7 +9,6 @@
 #include <utils.h>
 
 static QString currentId = QString("None");
-static QString currentSection = QString();
 
 /*
 void WebcamFtPrefs::Connect()
@@ -27,17 +26,12 @@ void WebcamFtPrefs::Connect()
 }
 */
 
-WebcamFtPrefs::WebcamFtPrefs(QWidget *parent = 0) : QWidget(parent)
+WebcamFtPrefs::WebcamFtPrefs(const QString &dev_id, QWidget parent) : QWidget(parent), id(dev_id)
 {
 //  Connect();
   ui.setupUi(this);
   prefInit = true;
-  QString cascadePath(ltr_int_wc_get_cascade());
-  ui.CascadePathMac->setText(cascadePath);
-  int n = (2.0 / ltr_int_wc_get_eff()) - 2;
-  ui.ExpFilterFactorMac->setValue(n);
-  on_ExpFilterFactor_valueChanged(n);
-  ui.OptimLevelMac->setValue(ltr_int_wc_get_optim_level());
+  Activate(id, prefInit);
   prefInit = false;
 }
 
@@ -64,8 +58,11 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
   QString sec;
   initializing = init;
   if(PREF.getFirstDeviceSection(QString("Webcam-face"), ID, sec)){
-    if(!initializing) PREF.activateDevice(sec);
-    currentSection = sec;
+    QString currentDev, currentSection;
+    deviceType_t devType;
+    if(!PREF.getActiveDevice(devType, currentDev, currentSection) || (sec !=currentSection)){
+      PREF.activateDevice(sec);
+    }
   }else{
     sec = "Webcam-face";
     if(PREF.createSection(sec)){
@@ -73,7 +70,6 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
       PREF.addKeyVal(sec, (char *)"Resolution", (char *)"");
       PREF.activateDevice(sec);
-      currentSection = sec;
     }else{
       initializing = false;
       return false;

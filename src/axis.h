@@ -14,7 +14,7 @@ typedef struct ltr_axes *ltr_axes_t;
 enum axis_t {PITCH, ROLL, YAW, TX, TY, TZ};
 enum axis_param_t {AXIS_ENABLED, AXIS_DEADZONE,
                    AXIS_LCURV, AXIS_RCURV,
-                   AXIS_LMULT, AXIS_RMULT,
+                   AXIS_MULT,
                    AXIS_LLIMIT, AXIS_RLIMIT,
                    AXIS_FILTER,
                    AXIS_FULL, AXIS_DEFAULT = 1024};

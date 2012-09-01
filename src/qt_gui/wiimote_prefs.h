@@ -11,11 +11,12 @@
 class WiimotePrefs : public QWidget{
   Q_OBJECT
  public:
-  WiimotePrefs(QWidget *parent = 0);
+  WiimotePrefs(const QString &dev_id, QWidget *parent = 0);
   ~WiimotePrefs();
-  bool Activate(const QString &ID, bool init = false);
   static bool AddAvailableDevices(QComboBox &combo);
  private:
+  const QString id;
+  bool Activate(const QString &ID, bool init = false);
   void Connect();
   Ui::WiiSetupForm ui;
   bool initializing;

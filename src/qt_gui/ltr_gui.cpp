@@ -15,18 +15,15 @@
 #include "pathconfig.h"
 #include "ltr_state.h"
 
-#include "tir_prefs.h"
 #include "ltr_show.h"
 #include "ltr_dev_help.h"
 #include "ltr_model.h"
 #include "ltr_tracking.h"
 #include "log_view.h"
-#include "scp_form.h"
-#include "webcam_prefs.h"
-#include "webcam_ft_prefs.h"
-#include "wiimote_prefs.h"
 #include "help_view.h"
 #include "plugin_install.h"
+#include "device_setup.h"
+#include "profile_selector.h"
 
 static QMessageBox::StandardButton warnQuestion(const QString &message)
 {
@@ -41,55 +38,40 @@ static QMessageBox::StandardButton warningMessage(const QString &message)
 }
 
 
-/* Coding:
-            bit0 (lsb) - invert camera X values
-            bit1       - invert camera Y values
-            bit2       - switch X and Y values (applied first!)
-            bit4       - invert pitch, roll, X and Z translations (for tracking from behind)
-*/
-QString LinuxtrackGui::descs[8] = {
-    "Normal",                        //0
-    "Top to the right",              //6
-    "Upside-down",                   //3
-    "Top to the left",               //5
-    "Normal, from behind",           //8
-    "Top to the right, from behind", //14
-    "Upside-down, from behind",      //11
-    "Top to the left, from behind"   //12
-  };
-
-int LinuxtrackGui::orientValues[] = {0, 6, 3, 5, 8, 14, 11, 13};
-
 LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   initialized(false)
 {
   ui.setupUi(this);
   PREF; //init prefs
+/*
   wcp = new WebcamPrefs(this);
   wcfp = new WebcamFtPrefs(this);
   wiip = new WiimotePrefs(this);
   tirp = new TirPrefs(this);
+*/
+  ds = new DeviceSetup(this);
   me = new ModelEdit(this);
-  track = new LtrTracking(ui);
-  sc = new ScpForm();
+  //track = new LtrTracking(ui);
   lv = new LogView();
   pi = new PluginInstall(ui);
+  ps = new ProfileSelector(this);
 //  QObject::connect(this, SIGNAL(customSectionChanged()), sc, SLOT(reinit()));
   
 //  QObject::connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
 //  QObject::connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
   QObject::connect(&STATE, SIGNAL(stateChanged(ltr_state_type)), this, SLOT(trackerStateHandler(ltr_state_type)));
-  ui.DeviceSetupStack->insertWidget(0, wcp);
+/*  ui.DeviceSetupStack->insertWidget(0, wcp);
   ui.DeviceSetupStack->insertWidget(1, wiip);
   ui.DeviceSetupStack->insertWidget(2, tirp);
   ui.DeviceSetupStack->insertWidget(3, wcfp);
-  
+*/
+  ui.DeviceSetupSite->addWidget(ds);  
   ui.ModelEditSite->addWidget(me);
+  ui.ProfileSetupSite->addWidget(ps); 
   
   gui_settings = new QSettings("ltr", "linuxtrack");
-  showWindow = new LtrGuiForm(ui, sc, *gui_settings);
+  showWindow = new LtrGuiForm(ui, *gui_settings);
   helper = new LtrDevHelp();
-  on_RefreshDevices_pressed();
   showWindow->show();
   //helper->show();
   gui_settings->beginGroup("MainWindow");
@@ -106,7 +88,6 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   gui_settings->endGroup();
   HelpViewer::LoadPrefs(*gui_settings);
   HelpViewer::ChangePage("dev_setup.htm");
-  initOrientations();
   ui.LegacyPose->setChecked(ltr_int_use_alter());
 }
 
@@ -115,28 +96,6 @@ LinuxtrackGui::~LinuxtrackGui()
   PrefProxy::ClosePrefs();
 }
 
-void LinuxtrackGui::initOrientations()
-{
-  int i;
-  int orientVal = 0;
-  int orientIndex = 0;
-  
-  QString orient;
-  if(PREF.getKeyVal("Global", "Camera-orientation", orient)){
-    orientVal=orient.toInt();
-  }
-
-  //Initialize Orientations combobox and lookup saved val
-  ui.CameraOrientation->clear();
-  for(i = 0; i < 8; ++i){
-    ui.CameraOrientation->addItem(descs[i]);
-    if(orientValues[i] == orientVal){
-      orientIndex = i;
-    }
-  }
-  
-  ui.CameraOrientation->setCurrentIndex(orientIndex);
-}
 
 void LinuxtrackGui::closeEvent(QCloseEvent *event)
 {
@@ -158,77 +117,21 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   showWindow->allowCloseWindow();
   showWindow->close();
   helper->close();
-  sc->close();
   lv->close();
-  delete wcp;
-  delete wiip;
-  delete tirp;
   delete showWindow;
   delete me;
-  delete sc;
   delete helper;
   delete gui_settings;
+  delete ps;
   event->accept();
 }
 
-void LinuxtrackGui::on_DeviceSelector_activated(int index)
-{
-  if(index < 0){
-    return;
-  }
-  QVariant v = ui.DeviceSelector->itemData(index);
-  PrefsLink pl = v.value<PrefsLink>();
-  if(pl.deviceType == WEBCAM){
-    ui.DeviceSetupStack->setCurrentIndex(0);
-    wcp->Activate(pl.ID, !initialized);
-  }else 
-  if(pl.deviceType == WEBCAM_FT){
-    ui.DeviceSetupStack->setCurrentIndex(3);
-    wcfp->Activate(pl.ID, !initialized);
-  }else 
-  if(pl.deviceType == WIIMOTE){
-    ui.DeviceSetupStack->setCurrentIndex(1);
-    wiip->Activate(pl.ID, !initialized);
-  }else 
-  if(pl.deviceType == TIR){
-    ui.DeviceSetupStack->setCurrentIndex(2);
-    tirp->Activate(pl.ID, !initialized);
-  }
-}
-
-void LinuxtrackGui::on_CameraOrientation_activated(int index)
-{
-  if(index < 0){
-    return;
-  }
-  PREF.setKeyVal("Global", "Camera-orientation", orientValues[index]);
-}
-
-void LinuxtrackGui::on_RefreshDevices_pressed()
-{
-  ui.DeviceSelector->clear();
-  bool res = false; 
-  res |= WebcamPrefs::AddAvailableDevices(*(ui.DeviceSelector));
-  res |= WebcamFtPrefs::AddAvailableDevices(*(ui.DeviceSelector));
-  res |= WiimotePrefs::AddAvailableDevices(*(ui.DeviceSelector));
-  res |= TirPrefs::AddAvailableDevices(*(ui.DeviceSelector));
-  if(!res){
-    initialized = true;
-  }
-  on_DeviceSelector_activated(ui.DeviceSelector->currentIndex());
-  initialized = true;
-}
 
 void LinuxtrackGui::on_QuitButton_pressed()
 {
   TRACKER.stop();
   PREF.SavePrefsOnExit();
   close();
-}
-
-void LinuxtrackGui::on_EditSCButton_pressed()
-{
-  sc->show();
 }
 
 void LinuxtrackGui::on_XplanePluginButton_pressed()
@@ -298,10 +201,8 @@ void LinuxtrackGui::rereadPrefs()
 {
   PREF.rereadPrefs();
   if(initialized){
-    on_RefreshDevices_pressed();
-    me->refresh();
-    track->refresh();
-    initOrientations();
+    ds->refresh();
+    //track->refresh();
   }
 }
 
@@ -352,8 +253,8 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
   switch(current_state){
     case STOPPED:
     case ERROR:
-      ui.DeviceSelector->setEnabled(true);
-      ui.CameraOrientation->setEnabled(true);
+      //ui.DeviceSelector->setEnabled(true);
+      //ui.CameraOrientation->setEnabled(true);
       //ui.ModelSelector->setEnabled(true);
       //ui.Profiles->setEnabled(true);
       ui.DefaultsButton->setEnabled(true);
@@ -363,8 +264,8 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
     case INITIALIZING:
     case RUNNING:
     case PAUSED:
-      ui.DeviceSelector->setDisabled(true);
-      ui.CameraOrientation->setDisabled(true);
+      //ui.DeviceSelector->setDisabled(true);
+      //ui.CameraOrientation->setDisabled(true);
       //ui.ModelSelector->setDisabled(true);
       //ui.Profiles->setDisabled(true);
       ui.DefaultsButton->setDisabled(true);

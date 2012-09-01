@@ -8,7 +8,6 @@
 #include "ltr_gui_prefs.h"
 
 static QString currentId = QString("None");
-static QString currentSection = QString();
 
 /*
 void WebcamFtPrefs::Connect()
@@ -27,9 +26,10 @@ void WebcamFtPrefs::Connect()
     this, SLOT(on_OptimLevel_valueChanged(int)));
 }
 */
-WebcamFtPrefs::WebcamFtPrefs(QWidget *parent) : QWidget(parent)
+WebcamFtPrefs::WebcamFtPrefs(const QString &dev_id, QWidget *parent) : QWidget(parent), id(dev_id)
 {
   ui.setupUi(this);
+  Activate(id, true);
   //Connect();
 }
 
@@ -86,8 +86,11 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
   QString sec;
   initializing = init;
   if(PREF.getFirstDeviceSection(QString("Webcam-face"), ID, sec)){
-    if(!initializing) PREF.activateDevice(sec);
-    currentSection = sec;
+    QString currentDev, currentSection;
+    deviceType_t devType;
+    if(!PREF.getActiveDevice(devType, currentDev, currentSection) || (sec !=currentSection)){
+      PREF.activateDevice(sec);
+    }
   }else{
     sec = "Webcam-face";
     if(PREF.createSection(sec)){
@@ -97,7 +100,6 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Resolution", (char *)"");
       PREF.addKeyVal(sec, (char *)"Fps", (char *)"");
       PREF.activateDevice(sec);
-      currentSection = sec;
     }else{
       initializing = false;
       return false;

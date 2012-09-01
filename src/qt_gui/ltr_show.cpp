@@ -71,10 +71,9 @@ void clean_up()
 
 
 
-LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s, QSettings &settings)
+LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, QSettings &settings)
               : cv(NULL), allowClose(false), main_gui(tmp_gui)
 {
-  scp = s;
   ui.setupUi(this);
   label = new QWidget();
   cv = new CameraView(label);

@@ -21,6 +21,7 @@ class PrefProxy{
   static void SavePrefsOnExit();
   bool activateDevice(const QString &sectionName);
   bool getActiveDevice(deviceType_t &devType, QString &id);
+  bool getActiveDevice(deviceType_t &devType, QString &id, QString &secName);
   bool activateModel(const QString &sectionName);
   bool getActiveModel(QString &model);
   bool getKeyVal(const QString &sectionName, const QString &keyName, 

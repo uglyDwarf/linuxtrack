@@ -298,7 +298,7 @@ bool PrefProxy::getFirstDeviceSection(const QString &devType,
   return false;
 }
 
-bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id)
+bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id, QString &secName)
 {
   std::string devSection, devName, devId;
   if(!ltrPrefs.getValue("Global", "Input", devSection)){
@@ -323,7 +323,14 @@ bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id)
     devType = NONE;
   }
   id = QString::fromStdString(devId);
+  secName = QString::fromStdString(devSection);
   return true;
+}
+
+bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id)
+{
+  QString tmp;
+  return getActiveDevice(devType, id, tmp);
 }
 
 bool PrefProxy::getActiveModel(QString &model)

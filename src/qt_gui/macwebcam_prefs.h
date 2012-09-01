@@ -10,11 +10,12 @@
 class WebcamPrefs : public QWidget{
   Q_OBJECT
  public:
-  WebcamPrefs(QWidget *parent = 0);
+  WebcamPrefs(const QString &dev_id, QWidget *parent = 0);
   ~WebcamPrefs();
-  bool Activate(const QString &ID, bool init = false);
   static bool AddAvailableDevices(QComboBox &combo);
  private:
+  const QString id;
+  bool Activate(const QString &ID, bool init = false);
   Ui::MacWebcamSetupForm ui;
   bool initializing;
  private slots:

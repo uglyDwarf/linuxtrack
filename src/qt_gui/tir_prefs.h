@@ -10,11 +10,12 @@
 class TirPrefs : public QWidget{
   Q_OBJECT
  public:
-  TirPrefs(QWidget *parent = 0);
+  TirPrefs(const QString &dev_id, QWidget *parent = 0);
   ~TirPrefs();
-  bool Activate(const QString &ID, bool init = false);
   static bool AddAvailableDevices(QComboBox &combo);
  private:
+  const QString id;
+  bool Activate(const QString &ID, bool init = false);
   Ui::TirSetupForm ui;
   //void Connect();
   bool initializing;
@@ -31,7 +32,7 @@ class TirPrefs : public QWidget{
   void on_TirIrBright_valueChanged(int i);
   void on_TirSignalizeStatus_stateChanged(int state);
   void on_TirInstallFirmware_pressed();
-  void on_TirFirmwareDLFinished(bool state);
+  void TirFirmwareDLFinished(bool state);
 };
 
 
