@@ -73,7 +73,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   showWindow = new LtrGuiForm(ui, *gui_settings);
   helper = new LtrDevHelp();
   showWindow->show();
-  //helper->show();
+  helper->show();
   gui_settings->beginGroup("MainWindow");
   resize(gui_settings->value("size", QSize(763, 627)).toSize());
   move(gui_settings->value("pos", QPoint(100, 100)).toPoint());
