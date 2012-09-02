@@ -2,10 +2,17 @@
 #include "profile_selector.h"
 #include "profile_setup.h"
 #include "ltr_profiles.h"
+#include "ltr_gui_prefs.h"
+#include "utils.h"
+#include "tracker.h"
 
 ProfileSelector::ProfileSelector(QWidget *parent) : QWidget(parent), ps(NULL), initializing(true)
 {
   ui.setupUi(this);
+  
+  //To make sure that at least default exists
+  TRACKER.setProfile("Default");
+  
   QStringList profiles;
   ui.Profiles->addItems(Profile::getProfiles().getProfileNames());
   initializing = false;
@@ -33,7 +40,7 @@ void ProfileSelector::on_Profiles_currentIndexChanged(const QString &text)
     delete ps;
     ps = NULL;
   }
-  ps = new ProfileSetup(this);
+  ps = new ProfileSetup(text, this);
   ui.AxesSetup->addWidget(ps);
 }
 

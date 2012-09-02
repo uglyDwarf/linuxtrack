@@ -155,6 +155,12 @@ void Tracker::setProfile(QString p)
   emit initAxes();
 }
 
+void Tracker::fromDefault()
+{
+  ltr_int_axes_from_default(&axes);
+  emit initAxes();
+}
+
 void Tracker::start(QString &section)
 {
   (void) section;

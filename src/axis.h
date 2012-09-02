@@ -38,6 +38,8 @@ bool ltr_int_get_axes_ff(ltr_axes_t axes, double ffs[]);
 const char *ltr_int_axis_get_desc(enum axis_t id);
 const char *ltr_int_axis_param_get_desc(enum axis_param_t id);
 
+void ltr_int_axes_from_default(ltr_axes_t *axes);
+
 #ifdef __cplusplus
 }
 #endif

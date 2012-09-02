@@ -37,7 +37,6 @@ struct ltr_axes {
 
 char *def_section[][2] = {
   {"Title", "Default"},
-  {"Filter-factor", "5.0"},
   {"Pitch-enabled", "Yes"},
   {"Pitch-deadzone", "0.0"},
   {"Pitch-left-curvature", "0.5"},
@@ -45,6 +44,7 @@ char *def_section[][2] = {
   {"Pitch-sensitivity", "5.000000"},
   {"Pitch-left-limit", "80.000000"},
   {"Pitch-right-limit", "80.000000"},
+  {"Pitch-filter", "0.3"},
   {"Yaw-enabled", "Yes"},
   {"Yaw-deadzone", "0.0"},
   {"Yaw-left-curvature", "0.5"},
@@ -52,6 +52,7 @@ char *def_section[][2] = {
   {"Yaw-sensitivity", "5.000000"},
   {"Yaw-left-limit", "130.000000"},
   {"Yaw-right-limit", "130.000000"},
+  {"Yaw-filter", "0.3"},
   {"Roll-enabled", "Yes"},
   {"Roll-deadzone", "0.0"},
   {"Roll-left-curvature", "0.5"},
@@ -59,6 +60,7 @@ char *def_section[][2] = {
   {"Roll-sensitivity", "1.500000"},
   {"Roll-left-limit", "45.000000"},
   {"Roll-right-limit", "45.000000"},
+  {"Roll-filter", "0.3"},
   {"Xtranslation-enabled", "Yes"},
   {"Xtranslation-deadzone", "0.0"},
   {"Xtranslation-left-curvature", "0.5"},
@@ -66,6 +68,7 @@ char *def_section[][2] = {
   {"Xtranslation-sensitivity", "5.000000"},
   {"Xtranslation-left-limit", "300.000000"},
   {"Xtranslation-right-limit", "300.000000"},
+  {"Xtranslation-filter", "0.3"},
   {"Ytranslation-enabled", "Yes"},
   {"Ytranslation-deadzone", "0.0"},
   {"Ytranslation-left-curvature", "0.5"},
@@ -73,6 +76,7 @@ char *def_section[][2] = {
   {"Ytranslation-sensitivity", "5.000000"},
   {"Ytranslation-left-limit", "300.000000"},
   {"Ytranslation-right-limit", "300.000000"},
+  {"Ytranslation-filter", "0.3"},
   {"Ztranslation-enabled", "Yes"},
   {"Ztranslation-deadzone", "0.0"},
   {"Ztranslation-left-curvature", "0.5"},
@@ -80,6 +84,7 @@ char *def_section[][2] = {
   {"Ztranslation-sensitivity", "2.000000"},
   {"Ztranslation-left-limit", "300.000000"},
   {"Ztranslation-right-limit", "1.000000"},
+  {"Ztranslation-filter", "0.7"},
   {NULL, NULL}
 };
 
@@ -568,16 +573,17 @@ static void ltr_int_create_default()
 
 static char *ltr_int_prepare_section(const char *profile)
 {
-  char *sec_name = ltr_int_find_section("Title", profile);
-  if(sec_name != NULL){
-    return sec_name;
-  }
-  //the profile doesn't exist, check for the existence of "Default" profile
-  sec_name = ltr_int_find_section("Title", "Default");
+  //first check for the existence of "Default" profile
+  char *sec_name = ltr_int_find_section("Title", "Default");
   if(sec_name == NULL){
     //"Default" doesn't exist, create one...
     ltr_int_log_message("Default profile not existing, creating a new one...\n");
     ltr_int_create_default();
+  }
+
+  sec_name = ltr_int_find_section("Title", profile);
+  if(sec_name != NULL){
+    return sec_name;
   }
   //Default exists now, so create the new profile
   ltr_int_log_message("Creating new profile '%s'.\n", profile);
@@ -641,4 +647,13 @@ void ltr_int_close_axes(ltr_axes_t *axes)
   *axes = NULL;
   pthread_mutex_unlock(&axes_mutex);
 }
+
+void ltr_int_axes_from_default(ltr_axes_t *axes)
+{
+  char *profile = ltr_int_my_strdup((*axes)->section);
+  ltr_int_init_axes(axes, "Default");
+  free((*axes)->section);
+  (*axes)->section = profile;
+}
+
 

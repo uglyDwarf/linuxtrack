@@ -50,10 +50,10 @@ int SCView::spline(QPointF points[], int num_points)
 {
   float x, kl, kr, max_k;
   float k = 2.0f / (num_points - 1);
-  kl = (TRACKER.axisGet(axis, AXIS_LMULT) != 0.0) ? 
-        TRACKER.axisGet(axis, AXIS_LLIMIT) / TRACKER.axisGet(axis, AXIS_LMULT) : 0.0;
-  kr = (TRACKER.axisGet(axis, AXIS_RMULT) != 0.0) ? 
-        TRACKER.axisGet(axis, AXIS_RLIMIT) / TRACKER.axisGet(axis, AXIS_RMULT) : 0.0;
+  kl = (TRACKER.axisGet(axis, AXIS_MULT) != 0.0) ? 
+        TRACKER.axisGet(axis, AXIS_LLIMIT) / TRACKER.axisGet(axis, AXIS_MULT) : 0.0;
+  kr = (TRACKER.axisGet(axis, AXIS_MULT) != 0.0) ? 
+        TRACKER.axisGet(axis, AXIS_RLIMIT) / TRACKER.axisGet(axis, AXIS_MULT) : 0.0;
   max_k = kl > kr ? kl : kr;
   for(int i = 0; i < num_points; ++i){
     x = -1.0f + k * i;
@@ -96,10 +96,10 @@ void SCView::paintEvent(QPaintEvent * /* event */)
   painter.drawPolyline(points, spline_points);
   painter.setPen(Qt::red);
   
-  float kl = (TRACKER.axisGet(axis, AXIS_LMULT) != 0.0) ? 
-        TRACKER.axisGet(axis, AXIS_LLIMIT) / TRACKER.axisGet(axis, AXIS_LMULT) : 0.0;
-  float kr = (TRACKER.axisGet(axis, AXIS_RMULT) != 0.0) ? 
-        TRACKER.axisGet(axis, AXIS_RLIMIT) / TRACKER.axisGet(axis, AXIS_RMULT) : 0.0;
+  float kl = (TRACKER.axisGet(axis, AXIS_MULT) != 0.0) ? 
+        TRACKER.axisGet(axis, AXIS_LLIMIT) / TRACKER.axisGet(axis, AXIS_MULT) : 0.0;
+  float kr = (TRACKER.axisGet(axis, AXIS_MULT) != 0.0) ? 
+        TRACKER.axisGet(axis, AXIS_RLIMIT) / TRACKER.axisGet(axis, AXIS_MULT) : 0.0;
   float max_k = kl > kr ? kl : kr;
   
   //Draw cross with current position
