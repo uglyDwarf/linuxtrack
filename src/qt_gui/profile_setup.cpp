@@ -23,6 +23,8 @@ ProfileSetup::~ProfileSetup()
 void ProfileSetup::connect()
 {
   QObject::connect(&TRACKER, SIGNAL(initAxes(void)), this, SLOT(initAxes(void)));
+  QObject::connect(&TRACKER, SIGNAL(axisChanged(int, int)), this, SLOT(axisChanged(int, int)));
+  QObject::connect(&TRACKER, SIGNAL(setCommonFF(float)), this, SLOT(setCommonFF(float)));
 }
 
 void ProfileSetup::on_DetailedAxisSetup_pressed()
