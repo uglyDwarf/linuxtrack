@@ -198,7 +198,7 @@ bool Tracker::axisChangeEnabled(axis_t axis, bool enabled)
 static float limit_ff(float val)
 {
   if(val < 0.0) return 0.0;
-  if(val > 1.0) return 1.0;
+  if(val > 2.0) return 2.0;
   return val;
 }
 
