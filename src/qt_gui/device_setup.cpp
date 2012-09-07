@@ -1,6 +1,8 @@
 #include "device_setup.h"
 #include "webcam_prefs.h"
 #include "webcam_ft_prefs.h"
+#include "macwebcam_prefs.h"
+#include "macwebcamft_prefs.h"
 #include "tir_prefs.h"
 #include "wiimote_prefs.h"
 #include "help_view.h"
@@ -85,6 +87,12 @@ void DeviceSetup::on_DeviceSelector_activated(int index)
   }else 
   if(pl.deviceType == WEBCAM_FT){
     devPrefs = new WebcamFtPrefs(pl.ID, this);
+  }else 
+  if(pl.deviceType == MACWEBCAM){
+    devPrefs = new MacWebcamPrefs(pl.ID, this);
+  }else 
+  if(pl.deviceType == MACWEBCAM_FT){
+    devPrefs = new MacWebcamFtPrefs(pl.ID, this);
   }else 
   if(pl.deviceType == WIIMOTE){
     devPrefs = new WiimotePrefs(pl.ID, this);

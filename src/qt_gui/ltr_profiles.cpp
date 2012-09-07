@@ -25,10 +25,16 @@ Profile& Profile::getProfiles()
 
 void Profile::addProfile(const QString &newSec)
 {
+  ltr_axes_t tmp_axes = LTR_AXES_T_INITIALIZER;
+  ltr_int_init_axes(&tmp_axes, qPrintable(newSec));
+  ltr_int_close_axes(&tmp_axes);
+  PREF.getProfiles(names);
+/*  
   QString section_name = "Profile";
   PREF.createSection(section_name);
   PREF.addKeyVal(section_name, "Title", newSec);
   names.append(newSec);
+*/
 }
 
 const QStringList &Profile::getProfileNames()
@@ -57,15 +63,7 @@ const QString &Profile::getCurrentProfileName()
 
 int Profile::isProfile(const QString &name)
 {
-  int i = -1;
-  if(names.contains(name, Qt::CaseInsensitive)){
-    for(i = 0; i < names.size(); ++i){
-      if(names[i].compare(name, Qt::CaseInsensitive) == 0){
-        break;
-      }
-    }
-  }
-  return i;
+  return names.indexOf(name);
 }
 
 

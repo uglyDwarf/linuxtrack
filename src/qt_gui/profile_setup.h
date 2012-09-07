@@ -12,6 +12,9 @@ class ProfileSetup : public QWidget
  public:
   ProfileSetup(const QString &name, QWidget *parent = 0);
   ~ProfileSetup();
+   void copyFromDefault();
+   void importProfile(QTextStream &tf);
+   void exportProfile(QTextStream &tf);
  private:
    void connect();
    Ui::ProfileSetupForm ui;
@@ -20,7 +23,6 @@ class ProfileSetup : public QWidget
    bool initializing;
  private slots:
    void on_DetailedAxisSetup_pressed();
-   void on_CopyFromDefault_pressed();
    void on_PitchEnable_stateChanged(int state);
    void on_YawEnable_stateChanged(int state);
    void on_RollEnable_stateChanged(int state);

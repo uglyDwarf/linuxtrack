@@ -7,11 +7,11 @@
 #include "pref.hpp"
 #include "prefs_link.h"
 
-class WebcamPrefs : public QWidget{
+class MacWebcamPrefs : public QWidget{
   Q_OBJECT
  public:
-  WebcamPrefs(const QString &dev_id, QWidget *parent = 0);
-  ~WebcamPrefs();
+  MacWebcamPrefs(const QString &dev_id, QWidget *parent = 0);
+  ~MacWebcamPrefs();
   static bool AddAvailableDevices(QComboBox &combo);
  private:
   const QString id;

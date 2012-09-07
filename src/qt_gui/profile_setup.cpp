@@ -1,7 +1,10 @@
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QTextStream>
 #include "profile_setup.h"
 #include "scp_form.h"
 #include "tracker.cpp"
+#include "ltr_profiles.h"
 
 
 ProfileSetup::ProfileSetup(const QString &name, QWidget *parent) : QWidget(parent), sc(NULL), profileName(name),
@@ -32,7 +35,7 @@ void ProfileSetup::on_DetailedAxisSetup_pressed()
   sc->show();
 }
 
-void ProfileSetup::on_CopyFromDefault_pressed()
+void ProfileSetup::copyFromDefault()
 {
   if(QMessageBox::warning(this, "Warning:", 
         "Are you sure, you want to overwrite the current profile by default values?", 
@@ -89,6 +92,7 @@ void ProfileSetup::axisChanged(int axis, int elem)
 
 void ProfileSetup::setCommonFF(float val)
 {
+  std::cout<<"Setting common ff "<<val<<std::endl;
   ui.Smoothing->setValue(val * ui.Smoothing->maximum());
 }
 
@@ -155,5 +159,38 @@ void ProfileSetup::on_TzSens_valueChanged(int val)
 void ProfileSetup::on_Smoothing_valueChanged(int val)
 {
   if(!initializing) TRACKER.setCommonFilterFactor((float)val / ui.Smoothing->maximum());
+}
+
+void ProfileSetup::importProfile(QTextStream &tf)
+{
+  int version;
+  int ival;
+  float fval;
+  tf>>version;
+  tf>>fval;
+  TRACKER.setCommonFilterFactor(fval);
+  for(int i = PITCH; i <= TZ; ++i){
+    tf>>ival;
+    TRACKER.axisChangeEnabled((axis_t)i, ival != 0);
+    for(int j = AXIS_DEADZONE; j <= AXIS_FILTER; ++j){
+      tf>>fval;
+      TRACKER.axisChange((axis_t)i, (axis_param_t)j, fval);
+    }
+  }
+  
+}
+
+void ProfileSetup::exportProfile(QTextStream &tf)
+{
+  tf<<profileName<<endl;
+  tf<<"1"<<endl; //Version of the profile format
+  tf<<TRACKER.getCommonFilterFactor()<<endl;
+  for(int i = PITCH; i <= TZ; ++i){
+    tf<<(TRACKER.axisGetEnabled((axis_t)i) ? "1" : "0")<<" ";
+    for(int j = AXIS_DEADZONE; j < AXIS_FILTER; ++j){
+      tf<<TRACKER.axisGet((axis_t)i, (axis_param_t)j)<<" ";
+    }
+    tf<<TRACKER.axisGet((axis_t)i, AXIS_FILTER)<<endl;
+  }
 }
 

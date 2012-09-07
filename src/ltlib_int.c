@@ -36,7 +36,7 @@ static void *cal_thread_fun(void *param)
   return NULL;
 }
 
-int ltr_int_init()
+int ltr_int_init(void)
 {
   if(!ltr_int_read_prefs(NULL, false)){
     ltr_int_log_message("Couldn't load preferences!\n");
@@ -79,16 +79,9 @@ int ltr_int_wakeup(void)
   return ltr_int_cal_wakeup();
 }
 
-int ltr_int_shutdown(bool save_prefs)
+int ltr_int_shutdown(void)
 {
   ltr_int_log_message("Shutting down tracking...\n");
-  if(save_prefs){
-    ltr_int_log_message("Checking for changed prefs...\n");
-    if(ltr_int_need_saving()){
-      ltr_int_log_message("Master is about to save changed preferences.\n");
-      ltr_int_save_prefs(NULL);
-    }
-  }
   int res = ltr_int_cal_shutdown();
   pthread_join(cal_thread, NULL);
   return res;

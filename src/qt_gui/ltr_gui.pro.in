@@ -20,7 +20,9 @@ HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h help_view.h \
            ltr_model.h window.h glwidget.h objreader.h ltr_profiles.h\
            log_view.h ltr_state.h scp_form.h \
            scurve.h scview.h wiimote_prefs.h dlfirmware.h tracker.h plugin_install.h \
-           profile_setup.h profile_selector.h
+           profile_setup.h profile_selector.h \
+           webcam_prefs.h webcam_info.h webcam_ft_prefs.h \
+           macwebcam_prefs.h macwebcamft_prefs.h macwebcam_info.h 
 
 FORMS += ltr_gui.ui dev_help.ui ltr.ui model_creation.ui scurve.ui scp_form.ui \
            logview.ui dl.ui l_wc_setup.ui wii_setup.ui tir_setup.ui l_wcft_setup.ui \
@@ -34,7 +36,9 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            scurve.cpp scview.cpp wiimote_prefs.cpp dlfirmware.cpp \
            ../linuxtrack.c tracker.cpp ../ltr_srv_master.cpp  device_setup.cpp \
            ../ltr_srv_slave.c ../ltr_srv_comm.c plugin_install.cpp profile_setup.cpp \
-           profile_selector.cpp
+           profile_selector.cpp webcam_info.cpp webcam_prefs.cpp webcam_ft_prefs.cpp \
+           macwebcam_info.cpp macwebcamft_prefs.cpp macwebcam_prefs.cpp
+
 
 QMAKE_CXXFLAGS += -DHAVE_CONFIG_H 
 QMAKE_CFLAGS += -DLTR_GUI
@@ -47,11 +51,8 @@ unix:!macx {
   data.files += XM8_cockpit.obj xm8d_body.obj xm8_detail.png
   help.path += @prefix@/share/linuxtrack/help
   help.files += help/*
-
   target.path = @prefix@/bin
   INSTALLS += target data help
-  HEADERS += webcam_prefs.h webcam_info.h webcam_ft_prefs.h
-  SOURCES += webcam_info.cpp webcam_prefs.cpp webcam_ft_prefs.cpp
 }
 
 macx {
@@ -64,7 +65,6 @@ macx {
   help.path += ltr_gui.app/Contents/Resources/linuxtrack/help
   help.files += help/*
   INSTALLS += data help
-  HEADERS += macwebcam_prefs.h macwebcamft_prefs.h macwebcam_info.h 
-  SOURCES += macwebcam_info.cpp macwebcamft_prefs.cpp macwebcam_prefs.cpp
   ICON = linuxtrack.icns
 }
+

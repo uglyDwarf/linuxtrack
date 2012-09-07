@@ -10,7 +10,7 @@
 static QString currentId = QString("None");
 
 /*
-void WebcamPrefs::Connect()
+void MacWebcamPrefs::Connect()
 {
   QObject::connect(ui.WebcamResolutionsMac, SIGNAL(activated(int)),
     this, SLOT(on_WebcamResolutions_activated(int)));
@@ -25,31 +25,31 @@ void WebcamPrefs::Connect()
 }
 */
 
-WebcamPrefs::WebcamPrefs(const QString &dev_id, QWidget parent) : QWidget(parent), id(dev_id)
+MacWebcamPrefs::MacWebcamPrefs(const QString &dev_id, QWidget *parent) : QWidget(parent), id(dev_id)
 {
   ui.setupUi(this);
   Activate(id, true);
 }
 
-WebcamPrefs::~WebcamPrefs()
+MacWebcamPrefs::~MacWebcamPrefs()
 {
   ltr_int_wc_close_prefs();
 }
 
-static WebcamInfo *wc_info = NULL;
+static MacWebcamInfo *wc_info = NULL;
 
-void WebcamPrefs::on_WebcamResolutionsMac_activated(int index)
+void MacWebcamPrefs::on_WebcamResolutionsMac_activated(int index)
 {
   (void) index;
   QString res;
   res = ui.WebcamResolutionsMac->currentText();
   
   int x,y;
-  WebcamInfo::decodeRes(res, x, y);
+  MacWebcamInfo::decodeRes(res, x, y);
   if(!initializing) ltr_int_wc_set_resolution(x, y);
 }
 
-bool WebcamPrefs::Activate(const QString &ID, bool init)
+bool MacWebcamPrefs::Activate(const QString &ID, bool init)
 {
   QString sec;
   initializing = init;
@@ -60,9 +60,9 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
       PREF.activateDevice(sec);
     }
   }else{
-    sec = "Webcam";
+    sec = "MacWebcam";
     if(PREF.createSection(sec)){
-      PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"Webcam");
+      PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"MacWebcam");
       PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
       PREF.addKeyVal(sec, (char *)"Resolution", (char *)"");
       PREF.addKeyVal(sec, (char *)"Threshold", QString::number(130));
@@ -85,7 +85,7 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
     if(wc_info != NULL){
       delete(wc_info);
     }
-    wc_info = new WebcamInfo(currentId);
+    wc_info = new MacWebcamInfo(currentId);
     ui.WebcamResolutionsMac->clear();
     ui.WebcamResolutionsMac->addItems(wc_info->getResolutions());
     int res_index = 0;
@@ -94,7 +94,7 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
       res_index = wc_info->findRes(res_x, res_y);
       ui.WebcamResolutionsMac->setCurrentIndex(res_index);
     }
-    on_WebcamResolutions_activated(res_index);
+    on_WebcamResolutionsMac_activated(res_index);
     
     QString thres, bmin, bmax, flip;
     ui.WebcamThresholdMac->setValue(ltr_int_wc_get_threshold());
@@ -105,36 +105,36 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
   return true;
 }
 
-void WebcamPrefs::on_WebcamThresholdMac_valueChanged(int i)
+void MacWebcamPrefs::on_WebcamThresholdMac_valueChanged(int i)
 {
   if(!initializing) ltr_int_wc_set_threshold(i);
 }
 
-void WebcamPrefs::on_WebcamMinBlobMac_valueChanged(int i)
+void MacWebcamPrefs::on_WebcamMinBlobMac_valueChanged(int i)
 {
   if(!initializing) ltr_int_wc_set_min_blob(i);
 }
 
-void WebcamPrefs::on_WebcamMaxBlobMac_valueChanged(int i)
+void MacWebcamPrefs::on_WebcamMaxBlobMac_valueChanged(int i)
 {
   if(!initializing) ltr_int_wc_set_max_blob(i);
 }
 
-bool WebcamPrefs::AddAvailableDevices(QComboBox &combo)
+bool MacWebcamPrefs::AddAvailableDevices(QComboBox &combo)
 {
   bool res = false;
   QString id;
   deviceType_t dt;
   bool webcam_selected = false;
-  if(PREF.getActiveDevice(dt,id) && (dt == WEBCAM)){
+  if(PREF.getActiveDevice(dt,id) && (dt == MACWEBCAM)){
     webcam_selected = true;
   }
-  QStringList &webcams = WebcamInfo::EnumerateWebcams();
+  QStringList &webcams = MacWebcamInfo::EnumerateWebcams();
   QStringList::iterator i;
   PrefsLink *pl;
   QVariant v;
   for(i = webcams.begin(); i != webcams.end(); ++i){
-    pl = new PrefsLink(WEBCAM, *i);
+    pl = new PrefsLink(MACWEBCAM, *i);
     v.setValue(*pl);
     combo.addItem(*i, v);
     if(webcam_selected && (*i == id)){

@@ -27,6 +27,7 @@ class ModelCreate : public QWidget
   void on_ModelFace_pressed();
   private:
   Ui::ModelCreation ui;
+  QRegExpValidator *validator;
 };
 
 class ModelEdit : public QWidget

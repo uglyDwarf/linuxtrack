@@ -8,16 +8,16 @@
 #include "pref.hpp"
 #include "prefs_link.h"
 
-class WebcamFtPrefs : public QWidget{
+class MacWebcamFtPrefs : public QWidget{
   Q_OBJECT
  public:
-  WebcamFtPrefs(const QString &dev_id, QWidget *parent = 0);
-  ~WebcamFtPrefs();
+  MacWebcamFtPrefs(const QString &dev_id, QWidget *parent = 0);
+  ~MacWebcamFtPrefs();
   static bool AddAvailableDevices(QComboBox &combo);
  private:
   bool Activate(const QString &ID, bool init = false);
   const QString id;
-  UI::MacWebcamFtSetupForm ui;
+  Ui::MacWebcamFtSetupForm ui;
   bool initializing;
   bool prefInit;
  private slots:
