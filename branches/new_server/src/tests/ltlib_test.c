@@ -43,7 +43,7 @@ void *kbd_reader(void *param)
 
 
 int main(int argc, char *argv[]) {
-  char *section = "Default";
+  char *section = "Default [ \nblablabla";
   float heading, pitch, roll;
   float tx, ty, tz;
   unsigned int counter;

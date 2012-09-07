@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 
 #ifndef LIBLINUXTRACK_SRC
   #include "ltlib_int.h"
@@ -22,6 +23,13 @@ static int make_mmap()
   return 0;
 }
 
+static void ltr_int_sanitize_name(char *name)
+{
+  char *forbidden = "\r\n";
+  size_t len = strcspn(name, forbidden);
+  name[len] = '\0';
+}
+
 char *ltr_int_init_helper(const char *cust_section, bool standalone)
 {
   bool is_child;
@@ -33,6 +41,7 @@ char *ltr_int_init_helper(const char *cust_section, bool standalone)
   if(standalone){
     char *server = ltr_int_get_app_path("/ltr_server1");
     char *section = ltr_int_my_strdup(cust_section);
+    ltr_int_sanitize_name(section);
     char *args[] = {server, section, mmm.fname, NULL};
     if(!ltr_int_fork_child(args, &is_child)){
       com->state = ERROR;

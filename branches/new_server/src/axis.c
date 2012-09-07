@@ -587,7 +587,7 @@ static char *ltr_int_prepare_section(const char *profile)
   }
   //Default exists now, so create the new profile
   ltr_int_log_message("Creating new profile '%s'.\n", profile);
-  sec_name = ltr_int_add_unique_section("Game");
+  sec_name = ltr_int_add_unique_section("Profile");
   if(sec_name != NULL){
     ltr_int_change_key(sec_name, "Title", profile);
   }

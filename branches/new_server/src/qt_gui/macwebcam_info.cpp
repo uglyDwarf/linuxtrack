@@ -19,7 +19,7 @@ resolution_t makeRes(int x, int y)
   return res;
 }
 
-WebcamInfo::WebcamInfo(const QString &id)
+MacWebcamInfo::MacWebcamInfo(const QString &id)
 {
   webcam_id = id;
   resolutions.clear();
@@ -37,12 +37,12 @@ WebcamInfo::WebcamInfo(const QString &id)
   }
 }
 
-const QStringList& WebcamInfo::getResolutions()
+const QStringList& MacWebcamInfo::getResolutions()
 {
   return res_list;
 }
 
-bool WebcamInfo::decodeRes(const QString &res, int &res_x, int &res_y)
+bool MacWebcamInfo::decodeRes(const QString &res, int &res_x, int &res_y)
 {
   const QRegExp &res_rexp = QRegExp("^\\s*(\\d+)\\s*[xX]\\s*(\\d+)\\s*$");
   if(res_rexp.indexIn(res) == -1){
@@ -53,7 +53,7 @@ bool WebcamInfo::decodeRes(const QString &res, int &res_x, int &res_y)
   return true;
 }
 
-int WebcamInfo::findRes(const int &res_x, const int &res_y)
+int MacWebcamInfo::findRes(const int &res_x, const int &res_y)
 {
   QList<resolution_t>::const_iterator i;
   int counter = 0;
@@ -65,11 +65,11 @@ int WebcamInfo::findRes(const int &res_x, const int &res_y)
   return 0;
 }
 
-WebcamInfo::~WebcamInfo()
+MacWebcamInfo::~MacWebcamInfo()
 {
 }
 
-QStringList& WebcamInfo::EnumerateWebcams()
+QStringList& MacWebcamInfo::EnumerateWebcams()
 {
   QStringList *res = new QStringList();
   QProcess *enum_proc = new QProcess();

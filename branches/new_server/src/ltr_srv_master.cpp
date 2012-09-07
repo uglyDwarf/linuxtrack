@@ -27,6 +27,8 @@ static ltr_new_frame_callback_t new_frame_hook = NULL;
 static ltr_status_update_callback_t status_update_hook = NULL;
 static ltr_new_slave_callback_t new_slave_hook = NULL;
 
+static bool save_prefs = true;
+
 bool ltr_int_gui_lock(bool do_lock)
 {
   static const char *lockName = "ltr_server.lock";
@@ -154,6 +156,14 @@ bool register_slave(message_t &msg)
   ltr_int_init_axes(&tmp_axes, msg.str);
   ltr_int_close_axes(&tmp_axes);
   
+  if(save_prefs){
+    ltr_int_log_message("Checking for changed prefs...\n");
+    if(ltr_int_need_saving()){
+      ltr_int_log_message("Master is about to save changed preferences.\n");
+      ltr_int_save_prefs(NULL);
+    }
+  }
+
   if(new_slave_hook != NULL){
     new_slave_hook(msg.str);
   }
@@ -205,6 +215,7 @@ bool master(bool standalone)
   gui_shutdown_request = false;
   int fifo;
   
+  save_prefs = standalone;
   if(standalone){
     if(!ltr_int_gui_lock(false)){
       printf("Gui is active, quitting!\n");
@@ -295,7 +306,7 @@ bool master(bool standalone)
     
   }
   printf("Shutting down tracking!\n");
-  ltr_int_shutdown(standalone);
+  ltr_int_shutdown();
   printf("Master closing fifo %d\n", fifo);
   close(fifo);
   int cntr = 10;

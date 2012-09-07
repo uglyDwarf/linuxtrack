@@ -37,7 +37,6 @@ static unsigned char *buffer1 = NULL;
 static unsigned char *current_buffer = NULL;
 static unsigned int w = 0;
 static unsigned int h = 0;
-static ScpForm *scp;
 static bool running = false;
 static bool camViewEnable = true;
 static int cnt = 0;

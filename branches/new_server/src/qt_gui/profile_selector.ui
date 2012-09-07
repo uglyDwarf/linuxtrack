@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>448</width>
-    <height>51</height>
+    <height>86</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -44,6 +44,31 @@
          </property>
          <property name="editable">
           <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_9">
+       <item>
+        <widget class="QPushButton" name="ImportProfile">
+         <property name="text">
+          <string>Import Profile</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="ExportProfile">
+         <property name="text">
+          <string>Export Profile</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="CopyFromDefault">
+         <property name="text">
+          <string>Copy From Default Profile</string>
          </property>
         </widget>
        </item>

@@ -112,9 +112,12 @@ bool TirPrefs::Activate(const QString &ID, bool init)
     }else{
       ui.TirFwLabel->setText("Firmware found!");
     }
-    ui.TirInstallFirmware->setDisabled(true);
+    //ui.TirInstallFirmware->setDisabled(true);
   }else{
     ui.TirFwLabel->setText("Firmware not found - TrackIr will not work!");
+    QMessageBox::warning(NULL, QString("TrackIR Firmware Installation"), 
+        QString("TrackIR device was found, but you don't have the firmware installed."));
+    on_TirInstallFirmware_pressed();
   }
   if(tirType < 5){
     ui.TirIrBright->setDisabled(true);
@@ -209,7 +212,8 @@ void TirPrefs::TirFirmwareDLFinished(bool state)
     probeTir(firmwareOK, permsOK);    
     if(firmwareOK){
       ui.TirFwLabel->setText("Firmware found!");
-      ui.TirInstallFirmware->setDisabled(true);
+      //ui.TirInstallFirmware->setDisabled(true);
+      ui.TirInstallFirmware->setText("Reinstall Firmware");
     }else{
       ui.TirFwLabel->setText("Firmware not found - TrackIr will not work!");
     }

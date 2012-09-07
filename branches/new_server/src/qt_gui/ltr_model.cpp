@@ -2,15 +2,19 @@
 #include "help_view.h"
 #include "ltr_gui_prefs.h"
 #include <iostream>
+#include <QRegExpValidator>
 
-ModelCreate::ModelCreate(QWidget *parent) : QWidget(parent)
+ModelCreate::ModelCreate(QWidget *parent) : QWidget(parent), validator(NULL)
 {
   ui.setupUi(this);
   ui.Model3PtCap->click();
+  validator = new QRegExpValidator(QRegExp("^[^\\[\\]]*$"), this);
+  ui.ModelName->setValidator(validator);
 }
 
 ModelCreate::~ModelCreate()
 {
+  delete validator;
 }
 
 void ModelCreate::on_CancelButton_pressed()

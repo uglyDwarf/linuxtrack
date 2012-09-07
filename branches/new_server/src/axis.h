@@ -19,7 +19,7 @@ enum axis_param_t {AXIS_ENABLED, AXIS_DEADZONE,
                    AXIS_FILTER,
                    AXIS_FULL, AXIS_DEFAULT = 1024};
 
-void ltr_int_init_axes(ltr_axes_t *axes, const char *sec_name);
+void ltr_int_init_axes(ltr_axes_t *axes, const char *profile);
 void ltr_int_close_axes(ltr_axes_t *axes);
 float ltr_int_val_on_axis(ltr_axes_t axes, enum axis_t id, float x);
 float ltr_int_filter_axis(ltr_axes_t axes, enum axis_t id, float x, float *y_minus_1);

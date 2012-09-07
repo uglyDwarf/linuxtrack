@@ -108,8 +108,7 @@ void Tracker::signalNewPose(pose_t *pose)
 
 void Tracker::signalNewSlave(const char *name)
 {
-  ltr_axes_t tmp_axes;
-  tmp_axes = NULL;
+  ltr_axes_t tmp_axes = LTR_AXES_T_INITIALIZER;
   ltr_int_init_axes(&tmp_axes, name);
   for(int i = PITCH; i <= TZ; ++i){
     change(name, i, AXIS_ENABLED, ltr_int_get_axis_bool_param(tmp_axes, (axis_t)i, AXIS_ENABLED)?1.0:0.0);
@@ -143,15 +142,6 @@ void Tracker::setProfile(QString p)
     ffs[i] -= common_ff;
   }
   axes_valid = true;
-  /*
-  emit axisChanged(PITCH, AXIS_FULL);
-  emit axisChanged(ROLL, AXIS_FULL);
-  emit axisChanged(YAW, AXIS_FULL);
-  emit axisChanged(TX, AXIS_FULL);
-  emit axisChanged(TY, AXIS_FULL);
-  emit axisChanged(TZ, AXIS_FULL);
-  emit setCommonFF(common_ff);
-  */
   emit initAxes();
 }
 
@@ -249,6 +239,7 @@ bool Tracker::setCommonFilterFactor(float c_f)
     emit axisChanged(i, AXIS_FILTER);
     change(profileSection.toStdString().c_str(), i, AXIS_FILTER, val);
   }
+  emit setCommonFF(c_f);
   return res;
 }
 
