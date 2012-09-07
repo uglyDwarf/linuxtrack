@@ -410,7 +410,7 @@ bool ltr_int_read_prefs(const char *file, bool force_read)
     prefs::getPrefs().clear();
     char *pfile;
     if(file != NULL){
-      pfile = ltr_int_my_strdup(file);
+      pfile = ltr_int_get_default_file_name(file);
     }else{
       pfile = ltr_int_get_default_file_name(NULL);
     }
