@@ -28,7 +28,14 @@ PrefProxy::PrefProxy()
     checkPrefix(true);
     return;
   }
-  ltr_int_log_message("Couldn't load preferences (GUI)!\n");
+  ltr_int_log_message("Pref file not found, trying linuxtrack.conf\n");
+  if(ltr_int_read_prefs("linuxtrack.conf", false)){
+    ltrPrefs.setChangeFlag();
+    checkPrefix(true);
+    return;
+  }
+  
+  ltr_int_log_message("Couldn't load preferences (GUI), copying default!\n");
   if(!makeRsrcDir()){
     throw;
   }
@@ -107,8 +114,8 @@ bool PrefProxy::copyDefaultPrefs()
   if(targetDir.endsWith("/")){
     targetDir.chop(1);
   }
-  QString target = targetDir + "/linuxtrack.conf";
-  QString source = PrefProxy::getDataPath("linuxtrack.conf");
+  QString target = targetDir + "/linuxtrack1.conf";
+  QString source = PrefProxy::getDataPath("linuxtrack1.conf");
   QFileInfo target_info(target);
   if(target_info.exists() || target_info.isSymLink()){
     QString bck = target + ".backup";

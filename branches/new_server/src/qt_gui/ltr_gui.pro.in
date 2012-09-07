@@ -61,7 +61,7 @@ macx {
   CONFIG+=x86 ppc
   LIBS += -L../.libs -lm -lltr
   data.path += ltr_gui.app/Contents/Resources/linuxtrack
-  data.files += XM8_cockpit.obj xm8d_body.obj xm8_detail.png ../linuxtrack.conf
+  data.files += XM8_cockpit.obj xm8d_body.obj xm8_detail.png ../linuxtrack1.conf
   help.path += ltr_gui.app/Contents/Resources/linuxtrack/help
   help.files += help/*
   INSTALLS += data help

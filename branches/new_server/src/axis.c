@@ -90,16 +90,16 @@ char *def_section[][2] = {
 
 
 typedef enum{
-  SENTRY1, DEADZONE, LCURV, RCURV, MULT, LIMITS, LLIMIT, RLIMIT, FILTER, ENABLED, SENTRY_2
+  SENTRY1, DEADZONE, LCURV, RCURV, MULT, LMULT, RMULT, LIMITS, LLIMIT, RLIMIT, FILTER, ENABLED, SENTRY_2
 }axis_fields;
 static const char *fields[] = {NULL, "-deadzone",
 				"-left-curvature", "-right-curvature", 
-				"-sensitivity",
+				"-sensitivity", "-left-multiplier", "-right-multiplier",
 				"-limits", "-left-limit", "-right-limit", "-filter", "-enabled", NULL};
 static const char *axes_desc[] = {"PITCH", "ROLL", "YAW", "TX", "TY", "TZ"};
-static const char *axis_param_desc[] = {"Enabled", "Deadzone", "Left curvature", "Right curvature",
-                   "Sensitivity", "Left limit", "Right Limit", "Filter factor", 
-                   "FULL"};
+static const char *axis_param_desc[] = {"Deadzone", "Left Curvature", "Right Curvature",
+                   "Sensitivity", "Left Sensitivity", "Right Sensitivity", "Limit", "Left Limit", "Right Limit", 
+                   "Filter Factor", "Enabled", "FULL"};
 
 //static struct lt_axes ltr_int_axes;
 //static bool ltr_int_axes_changed_flag = false;
@@ -456,8 +456,8 @@ static void ltr_int_init_axis(const char *sec_name, struct axis_def *axis, const
   //Either exists -> default gets overwritten normally,
   // or not -> default stays...
   ltr_int_axis_get_key_flt(sec_name, "Filter-factor", &(axis->filter_factor));
-  if(axis->filter_factor > 1.0){
-    axis->filter_factor = 1.0;
+  if(axis->filter_factor > 2.0){
+    axis->filter_factor = 2.0;
   }
   axis->curve_defs.dead_zone = 0.0f;
   axis->curve_defs.l_curvature = 0.5f;
@@ -478,6 +478,7 @@ static void set_axis_field(struct axis_def *axis, axis_fields field, float val, 
 {
   assert(axis != NULL);
   axis->valid = false;
+  axis->factor = 0;
   switch(field){
     case(DEADZONE):
       axis->curve_defs.dead_zone = val;
@@ -490,6 +491,12 @@ static void set_axis_field(struct axis_def *axis, axis_fields field, float val, 
       break;
     case(MULT):
       axis->factor = val;
+      break;
+    case(LMULT):
+      axis->factor += val/2;
+      break;
+    case(RMULT):
+      axis->factor += val/2;
       break;
     case(LLIMIT):
       axis->l_limit = val;
@@ -508,7 +515,7 @@ static void set_axis_field(struct axis_def *axis, axis_fields field, float val, 
       }
       break;
     case(FILTER):
-      axis->filter_factor = (val > 1.0) ? 1.0 : val;
+      axis->filter_factor = (val > 2.0) ? 2.0 : val;
       break;
     default:
       assert(0);
@@ -548,6 +555,9 @@ static bool ltr_int_get_axis(const char *sec_name, enum axis_t id, struct axis_d
     free(field_name);
     field_name = NULL;
   }
+  
+  
+  
   //Shouldn't be needed... (and causes deadlock now)
   //ltr_int_val_on_axis(id, 0.0f);
   return true;
