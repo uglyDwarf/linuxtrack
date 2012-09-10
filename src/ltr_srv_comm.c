@@ -143,6 +143,7 @@ int fifo_receive(int fifo, void *buf, size_t size)
 int send_message(int fifo, uint32_t cmd, uint32_t data)
 {
   message_t msg;
+  memset(&msg, 0, sizeof(message_t));
   msg.cmd = cmd;
   msg.data = data;
   msg.str[0] = '\0';
@@ -152,6 +153,7 @@ int send_message(int fifo, uint32_t cmd, uint32_t data)
 int send_message_w_str(int fifo, uint32_t cmd, uint32_t data, char *str)
 {
   message_t msg;
+  memset(&msg, 0, sizeof(message_t));
   msg.cmd = cmd;
   msg.data = data;
   if(str != NULL){
