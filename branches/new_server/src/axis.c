@@ -589,6 +589,8 @@ static char *ltr_int_prepare_section(const char *profile)
     //"Default" doesn't exist, create one...
     ltr_int_log_message("Default profile not existing, creating a new one...\n");
     ltr_int_create_default();
+  }else{
+    free(sec_name);
   }
 
   sec_name = ltr_int_find_section("Title", profile);

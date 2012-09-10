@@ -304,15 +304,16 @@ bool ltr_int_unmap_file(struct mmap_s *m)
   if(m->lock_sem != NULL){
     ltr_int_closeSemaphore(m->lock_sem);
   }
-  if(m->fname != NULL){
-    free(m->fname);
-    m->fname = NULL;
-  }
   int res = munmap(m->data, m->size);
   m->data = NULL;
   m->size = 0;
   if(res < 0){
     perror("munmap: ");
+  }
+  unlink(m->fname);
+  if(m->fname != NULL){
+    free(m->fname);
+    m->fname = NULL;
   }
   return res == 0;
 }

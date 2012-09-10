@@ -42,29 +42,13 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   initialized(false)
 {
   ui.setupUi(this);
-  PREF; //init prefs
-/*
-  wcp = new WebcamPrefs(this);
-  wcfp = new WebcamFtPrefs(this);
-  wiip = new WiimotePrefs(this);
-  tirp = new TirPrefs(this);
-*/
+  PREF;
   ds = new DeviceSetup(this);
   me = new ModelEdit(this);
-  //track = new LtrTracking(ui);
   lv = new LogView();
   pi = new PluginInstall(ui);
   ps = new ProfileSelector(this);
-//  QObject::connect(this, SIGNAL(customSectionChanged()), sc, SLOT(reinit()));
-  
-//  QObject::connect(&STATE, SIGNAL(trackerStopped()), this, SLOT(trackerStopped()));
-//  QObject::connect(&STATE, SIGNAL(trackerRunning()), this, SLOT(trackerRunning()));
   QObject::connect(&STATE, SIGNAL(stateChanged(ltr_state_type)), this, SLOT(trackerStateHandler(ltr_state_type)));
-/*  ui.DeviceSetupStack->insertWidget(0, wcp);
-  ui.DeviceSetupStack->insertWidget(1, wiip);
-  ui.DeviceSetupStack->insertWidget(2, tirp);
-  ui.DeviceSetupStack->insertWidget(3, wcfp);
-*/
   ui.DeviceSetupSite->addWidget(ds);  
   ui.ModelEditSite->addWidget(me);
   ui.ProfileSetupSite->addWidget(ps); 
@@ -77,6 +61,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   gui_settings->beginGroup("MainWindow");
   resize(gui_settings->value("size", QSize(763, 627)).toSize());
   move(gui_settings->value("pos", QPoint(100, 100)).toPoint());
+  bool welcome = gui_settings->value("welcome", true).toBool();
   gui_settings->endGroup();
   gui_settings->beginGroup("TrackingWindow");
   showWindow->resize(gui_settings->value("size", QSize(800, 600)).toSize());
@@ -87,7 +72,13 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   helper->move(gui_settings->value("pos", QPoint(0, 0)).toPoint());
   gui_settings->endGroup();
   HelpViewer::LoadPrefs(*gui_settings);
-  HelpViewer::ChangePage("dev_setup.htm");
+  if(welcome){
+    HelpViewer::ChangePage("welcome.htm");
+    HelpViewer::ShowWindow();
+    HelpViewer::RaiseWindow();
+  }else{
+    HelpViewer::ChangePage("dev_setup.htm");
+  }
   ui.LegacyPose->setChecked(ltr_int_use_alter());
 }
 
@@ -103,6 +94,7 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   gui_settings->beginGroup("MainWindow");
   gui_settings->setValue("size", size());
   gui_settings->setValue("pos", pos());
+//  gui_settings->setValue("welcome", false);
   gui_settings->endGroup();  
   gui_settings->beginGroup("TrackingWindow");
   gui_settings->setValue("size", showWindow->size());
@@ -111,7 +103,7 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   gui_settings->beginGroup("HelperWindow");
   gui_settings->setValue("size", helper->size());
   gui_settings->setValue("pos", helper->pos());
-  gui_settings->endGroup();  
+  gui_settings->endGroup();
   HelpViewer::StorePrefs(*gui_settings);
   showWindow->StorePrefs(*gui_settings);
   showWindow->allowCloseWindow();

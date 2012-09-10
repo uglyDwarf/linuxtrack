@@ -3,6 +3,9 @@
 #endif
 
 #include <QSettings>
+#include <QRegExp>
+#include <QDesktopServices>
+
 #include "ltr_gui_prefs.h"
 #include "help_view.h"
 #include "iostream"
@@ -22,6 +25,12 @@ void HelpViewer::ShowWindow()
   getHlp().show();
 }
 
+void HelpViewer::RaiseWindow()
+{
+  getHlp().raise();
+  getHlp().activateWindow();
+}
+
 void HelpViewer::ChangePage(QString name)
 {
   getHlp().ChangeHelpPage(name);
@@ -30,7 +39,6 @@ void HelpViewer::ChangePage(QString name)
 void HelpViewer::ChangeHelpPage(QString name)
 {
   QString tmp = QString("file://") + PREF.getDataPath(QString("/help/") + name);
-  //std::cout<<tmp.toAscii().data()<<std::endl;
   viewer->load(QUrl(tmp));
 }
 
@@ -57,15 +65,56 @@ void HelpViewer::StorePrefs(QSettings &settings)
   settings.endGroup();
 }
 
-HelpViewer::HelpViewer(QWidget *parent) : QWidget(parent)
+HelpViewer::HelpViewer(QWidget *parent) : QWidget(parent), contents(NULL), layout(NULL)
 {
   ui.setupUi(this);
   setWindowTitle("Help viewer");
   viewer = new QWebView(this);
-  ui.verticalLayout->insertWidget(0, viewer);
-  ChangeHelpPage("help.htm");
+  contents = new QListWidget(this);
+  ReadContents();
+  layout = new QHBoxLayout(this);
+  layout->addWidget(contents);
+  layout->addWidget(viewer);
+  ui.verticalLayout->insertLayout(0, layout);
+  QObject::connect(contents, SIGNAL(currentTextChanged(const QString &)), 
+                   this, SLOT(currentTextChanged(const QString &)));
+  
   QObject::connect(viewer, SIGNAL(linkClicked(const QUrl&)), this, SLOT(followLink(const QUrl&)));
   viewer->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+}
+
+bool HelpViewer::ReadContents()
+{
+  QFile contentsFile(PREF.getDataPath(QString("/help/contents.txt")));
+  if(!contentsFile.open(QFile::ReadOnly)){
+    return false;
+  }
+  bool res = false;
+  QTextStream contents(&contentsFile);
+  QString line;
+  QRegExp pattern("^\"([^\"]+)\"\\s+\"([^\"]+)\"$");
+  QStringList captured;
+  while(!(line = contents.readLine()).isNull()){
+    if(pattern.exactMatch(line)){
+      captured = pattern.capturedTexts();
+      if(captured.length() == 3){
+        addPage(captured[2], captured[1]);
+        res = true;
+      }
+    }
+  }
+  return res;
+}
+
+void HelpViewer::addPage(QString name, QString page)
+{
+  pages[name] = page;
+  contents->addItem(name);
+}
+
+void HelpViewer::currentTextChanged(const QString &currentText)
+{
+  ChangeHelpPage(pages[currentText]);
 }
 
 void HelpViewer::on_CloseButton_pressed()
@@ -75,12 +124,20 @@ void HelpViewer::on_CloseButton_pressed()
 
 void HelpViewer::followLink(const QUrl &url)
 {
-  viewer->load(url);
+  if(QString("http").compare(url.scheme(), Qt::CaseInsensitive) == 0){
+    QDesktopServices::openUrl(url);
+  }else{
+    viewer->load(url);
+  }
 }
 
 HelpViewer::~HelpViewer()
 {
-  ui.verticalLayout->removeWidget(viewer);
+  ui.verticalLayout->removeItem(layout);
+  layout->removeWidget(contents);
+  layout->removeWidget(viewer);
+  delete(layout);
+  delete(contents);
   delete(viewer);
 }
 
