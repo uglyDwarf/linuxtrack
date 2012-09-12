@@ -4,12 +4,13 @@
 #include <QWidget>
 #include <ui_device_setup.h>
 
+class Guardian;
 
 class DeviceSetup : public QWidget
 {
   Q_OBJECT
  public:
-  DeviceSetup(QWidget *parent = 0);
+  DeviceSetup(Guardian *grd, QWidget *parent = 0);
   ~DeviceSetup();
   void refresh();
  private:
@@ -23,6 +24,8 @@ class DeviceSetup : public QWidget
   void on_DeviceSelector_activated(int index);
   void on_CameraOrientation_activated(int index);
   void on_RefreshDevices_pressed();
+ signals:
+  void deviceTypeChanged(int deviceType, const QString &desc);
 };
 
 #endif

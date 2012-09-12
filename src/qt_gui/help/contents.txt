@@ -1,4 +1,5 @@
 "welcome.htm" "Welcome"
+"news.htm" "What's new"
 "dev_setup.htm" "Tracker Setup"
 "model_setup.htm" "Model Setup"
 "axes_setup.htm" "Tracking Setup"

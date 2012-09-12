@@ -9,6 +9,9 @@
 #include "ui_clip_edit.h"
 #include "ui_single_edit.h"
 
+typedef enum {MDL_1PT, MDL_3PT_CLIP, MDL_3PT_CAP, MDL_FACE} modelType_t;
+class Guardian;
+
 class ModelCreate : public QWidget
 {
   Q_OBJECT
@@ -34,7 +37,7 @@ class ModelEdit : public QWidget
 {
   Q_OBJECT
  public:
-  ModelEdit(QWidget *parent = 0);
+  ModelEdit(Guardian *grd, QWidget *parent = 0);
   ~ModelEdit();
   void refresh();
  protected:
@@ -42,7 +45,9 @@ class ModelEdit : public QWidget
   void on_CreateModelButton_pressed();
   void ModelCreated(const QString &section);
   void on_ModelSelector_activated(const QString &text);
-  private:
+ signals:
+  void modelSelected(int modelType);
+ private:
   Ui::ModelEditForm ui;
   QWidget *modelEditor;
   //void Connect();

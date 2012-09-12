@@ -203,6 +203,7 @@ AC_CONFIG_FILES([
  src/helper/Makefile
  src/wine_bridge/Makefile
  doc/Makefile
+ src/linuxtrack.pc
 ])
 AC_OUTPUT
 

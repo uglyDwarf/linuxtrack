@@ -21,6 +21,7 @@ class HelpViewer;
 class PluginInstall;
 class DeviceSetup;
 class ProfileSelector;
+class Guardian;
 
 class LinuxtrackGui : public QWidget
 {
@@ -30,6 +31,8 @@ class LinuxtrackGui : public QWidget
   ~LinuxtrackGui();
  protected:
   void closeEvent(QCloseEvent *event);
+ public slots:
+  void show();
  private slots:
   void on_QuitButton_pressed();
   //void on_EditSCButton_pressed();
@@ -48,6 +51,7 @@ class LinuxtrackGui : public QWidget
   LtrDevHelp *helper;
   DeviceSetup *ds;
   ModelEdit *me;
+  Guardian *grd;
   //LtrTracking *track;
   //ScpForm *sc;
   LogView *lv;
@@ -56,7 +60,8 @@ class LinuxtrackGui : public QWidget
   bool initialized;
   QSettings *gui_settings;
   void rereadPrefs();
+  bool welcome;
+  int news_serial;
 };
-
 
 #endif

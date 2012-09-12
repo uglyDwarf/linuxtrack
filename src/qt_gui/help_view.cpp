@@ -72,7 +72,7 @@ HelpViewer::HelpViewer(QWidget *parent) : QWidget(parent), contents(NULL), layou
   viewer = new QWebView(this);
   contents = new QListWidget(this);
   ReadContents();
-  layout = new QHBoxLayout(this);
+  layout = new QHBoxLayout();
   layout->addWidget(contents);
   layout->addWidget(viewer);
   ui.verticalLayout->insertLayout(0, layout);

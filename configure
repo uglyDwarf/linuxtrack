@@ -16603,7 +16603,7 @@ done
 
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/pathconfig.h src/tests/Makefile src/mac/Makefile src/local_config.h src/qt_gui/ltr_gui.pro src/wii_server/wii_server.pro src/helper/Makefile src/wine_bridge/Makefile doc/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile src/pathconfig.h src/tests/Makefile src/mac/Makefile src/local_config.h src/qt_gui/ltr_gui.pro src/wii_server/wii_server.pro src/helper/Makefile src/wine_bridge/Makefile doc/Makefile src/linuxtrack.pc"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -17779,6 +17779,7 @@ do
     "src/helper/Makefile") CONFIG_FILES="$CONFIG_FILES src/helper/Makefile" ;;
     "src/wine_bridge/Makefile") CONFIG_FILES="$CONFIG_FILES src/wine_bridge/Makefile" ;;
     "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
+    "src/linuxtrack.pc") CONFIG_FILES="$CONFIG_FILES src/linuxtrack.pc" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

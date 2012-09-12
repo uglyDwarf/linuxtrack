@@ -1,6 +1,7 @@
 #include "ltr_model.h"
 #include "help_view.h"
 #include "ltr_gui_prefs.h"
+#include "guardian.h"
 #include <iostream>
 #include <QRegExpValidator>
 
@@ -101,8 +102,9 @@ void ModelCreate::on_ModelFace_pressed()
 }
 
 
-ModelEdit::ModelEdit(QWidget *parent) : QWidget(parent), modelEditor(0), initializing(false)
+ModelEdit::ModelEdit(Guardian *grd, QWidget *parent) : QWidget(parent), modelEditor(0), initializing(false)
 {
+  grd->regTgt(this);
   ui.setupUi(this);
   mcw = new ModelCreate();
   QObject::connect(mcw, SIGNAL(ModelCreated(const QString &)),
@@ -259,18 +261,22 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
     ui.ModelTypeLabel->setText("3 Point Cap");
     HelpViewer::ChangePage("3ptcap.htm");
     modelEditor = new CapEdit(currentSection, this);
+    emit modelSelected(MDL_3PT_CAP);
   }else if(type.compare("Clip", Qt::CaseInsensitive) == 0){
     ui.ModelTypeLabel->setText("3 Point Clip");
     HelpViewer::ChangePage("3ptclip.htm");
     modelEditor = new ClipEdit(currentSection, this);
+    emit modelSelected(MDL_3PT_CLIP);
   }else if(type.compare("Face", Qt::CaseInsensitive) == 0){
 #warning Add face to model help files!!!
     ui.ModelTypeLabel->setText("Face");
     HelpViewer::ChangePage("1pt.htm");
+    emit modelSelected(MDL_FACE);
   }else if(type.compare("SinglePoint", Qt::CaseInsensitive) == 0){
     ui.ModelTypeLabel->setText("1 Point");
     HelpViewer::ChangePage("1pt.htm");
     modelEditor = new SingleEdit(currentSection, this);
+    emit modelSelected(MDL_1PT);
   }
   if(modelEditor != NULL){
     ui.ModelEditorSite->addWidget(modelEditor);

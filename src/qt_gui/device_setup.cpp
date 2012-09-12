@@ -7,6 +7,7 @@
 #include "wiimote_prefs.h"
 #include "help_view.h"
 #include "ltr_gui_prefs.h"
+#include "guardian.h"
 #include <iostream>
 
 
@@ -30,8 +31,9 @@ QString DeviceSetup::descs[8] = {
 
 int DeviceSetup::orientValues[] = {0, 6, 3, 5, 8, 14, 11, 13};
 
-DeviceSetup::DeviceSetup(QWidget *parent) : QWidget(parent), devPrefs(NULL)
+DeviceSetup::DeviceSetup(Guardian *grd, QWidget *parent) : QWidget(parent), devPrefs(NULL)
 {
+  grd->regTgt(this);
   ui.setupUi(this);
   on_RefreshDevices_pressed();
   initOrientations();
@@ -84,21 +86,27 @@ void DeviceSetup::on_DeviceSelector_activated(int index)
   PrefsLink pl = v.value<PrefsLink>();
   if(pl.deviceType == WEBCAM){
     devPrefs = new WebcamPrefs(pl.ID, this);
+    emit deviceTypeChanged(pl.deviceType, "Webcam");
   }else 
   if(pl.deviceType == WEBCAM_FT){
     devPrefs = new WebcamFtPrefs(pl.ID, this);
+    emit deviceTypeChanged(pl.deviceType, "Webcam Face Tracker");
   }else 
   if(pl.deviceType == MACWEBCAM){
     devPrefs = new MacWebcamPrefs(pl.ID, this);
+    emit deviceTypeChanged(pl.deviceType, "Webcam");
   }else 
   if(pl.deviceType == MACWEBCAM_FT){
     devPrefs = new MacWebcamFtPrefs(pl.ID, this);
+    emit deviceTypeChanged(pl.deviceType, "Webcam Face Tracker");
   }else 
   if(pl.deviceType == WIIMOTE){
     devPrefs = new WiimotePrefs(pl.ID, this);
+    emit deviceTypeChanged(pl.deviceType, "Wiimote");
   }else 
   if(pl.deviceType == TIR){
     devPrefs = new TirPrefs(pl.ID, this);
+    emit deviceTypeChanged(pl.deviceType, "TrackIR");
   }
   if(devPrefs != NULL){
     ui.DeviceSetupSite->addWidget(devPrefs);
