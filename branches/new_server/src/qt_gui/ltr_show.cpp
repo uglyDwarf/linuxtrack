@@ -108,7 +108,7 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, QSettings &setting
 void LtrGuiForm::newFrameDelivered(struct frame_type *frame)
 {
   if(cnt == 0){
-    ltr_recenter();
+    TRACKER.recenter();
   }
   ++cnt;
   ++frames;
@@ -159,7 +159,7 @@ void LtrGuiForm::updateFps()
 LtrGuiForm::~LtrGuiForm()
 {
   if(running){
-    ltr_shutdown();
+    TRACKER.stop();
   }
   delete glw;
 }

@@ -1,3 +1,5 @@
+#define NEWS_SERIAL 1
+
 #ifdef HAVE_CONFIG_H
   #include "../../config.h"
 #endif
@@ -24,6 +26,7 @@
 #include "plugin_install.h"
 #include "device_setup.h"
 #include "profile_selector.h"
+#include "guardian.h"
 
 static QMessageBox::StandardButton warnQuestion(const QString &message)
 {
@@ -39,12 +42,13 @@ static QMessageBox::StandardButton warningMessage(const QString &message)
 
 
 LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
-  initialized(false)
+  initialized(false), news_serial(-1)
 {
   ui.setupUi(this);
   PREF;
-  ds = new DeviceSetup(this);
-  me = new ModelEdit(this);
+  grd = new Guardian(this);
+  ds = new DeviceSetup(grd, this);
+  me = new ModelEdit(grd, this);
   lv = new LogView();
   pi = new PluginInstall(ui);
   ps = new ProfileSelector(this);
@@ -61,7 +65,8 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   gui_settings->beginGroup("MainWindow");
   resize(gui_settings->value("size", QSize(763, 627)).toSize());
   move(gui_settings->value("pos", QPoint(100, 100)).toPoint());
-  bool welcome = gui_settings->value("welcome", true).toBool();
+  welcome = gui_settings->value("welcome", true).toBool();
+  news_serial = gui_settings->value("news", -1).toInt();
   gui_settings->endGroup();
   gui_settings->beginGroup("TrackingWindow");
   showWindow->resize(gui_settings->value("size", QSize(800, 600)).toSize());
@@ -72,14 +77,22 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   helper->move(gui_settings->value("pos", QPoint(0, 0)).toPoint());
   gui_settings->endGroup();
   HelpViewer::LoadPrefs(*gui_settings);
+  ui.LegacyPose->setChecked(ltr_int_use_alter());
+}
+
+void LinuxtrackGui::show()
+{
+  QWidget::show();
   if(welcome){
     HelpViewer::ChangePage("welcome.htm");
     HelpViewer::ShowWindow();
-    HelpViewer::RaiseWindow();
+  }else if(news_serial < NEWS_SERIAL){
+    HelpViewer::ChangePage("news.htm");
+    HelpViewer::ShowWindow();
   }else{
     HelpViewer::ChangePage("dev_setup.htm");
   }
-  ui.LegacyPose->setChecked(ltr_int_use_alter());
+
 }
 
 LinuxtrackGui::~LinuxtrackGui()
@@ -94,7 +107,8 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   gui_settings->beginGroup("MainWindow");
   gui_settings->setValue("size", size());
   gui_settings->setValue("pos", pos());
-//  gui_settings->setValue("welcome", false);
+  gui_settings->setValue("welcome", false);
+  gui_settings->setValue("news", NEWS_SERIAL);
   gui_settings->endGroup();  
   gui_settings->beginGroup("TrackingWindow");
   gui_settings->setValue("size", showWindow->size());
@@ -115,6 +129,7 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   delete helper;
   delete gui_settings;
   delete ps;
+  delete grd;
   event->accept();
 }
 

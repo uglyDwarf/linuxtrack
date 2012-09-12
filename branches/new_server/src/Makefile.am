@@ -253,4 +253,6 @@ desktop_DATA = linuxtrack.desktop linuxtrack-wii.desktop
 icondir = $(datadir)/pixmaps
 icon_DATA = linuxtrack.svg linuxtrack.png linuxtrack.xpm \
             linuxtrack-wii.svg linuxtrack-wii.png linuxtrack-wii.xpm
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = linuxtrack.pc
 
