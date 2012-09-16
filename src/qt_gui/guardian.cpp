@@ -2,7 +2,7 @@
 #include "device_setup.h"
 #include "prefs_link.h"
 #include "ltr_model.h"
-
+#include <cstdio>
 #include <QMessageBox>
 
 Guardian::Guardian(QWidget *parent) : parentWidget(parent), mdlType(-1), devType(-1), devDesc("")
@@ -22,7 +22,7 @@ void Guardian::regTgt(DeviceSetup *ds)
 
 void Guardian::checkDeviceNModel()
 {
-  if((devType == WEBCAM_FT) || (devType == WEBCAM_FT)){
+  if((devType == WEBCAM_FT) || (devType == MACWEBCAM_FT)){
     //face tracker needs face model
     if(mdlType != MDL_FACE){
       QMessageBox::warning(parentWidget, "Linuxtrack",

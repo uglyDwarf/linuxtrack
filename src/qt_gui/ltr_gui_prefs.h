@@ -55,6 +55,7 @@ class PrefProxy{
   static QString getDataPath(QString file);
   static QString getLibPath(QString file);
   static QString getRsrcDirPath();
+  void getSectionList(QStringList &list);
  private:
   bool checkPrefix(bool save);
 };
