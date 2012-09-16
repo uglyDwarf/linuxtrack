@@ -445,3 +445,15 @@ void PrefProxy::announceModelChange()
   ltr_int_announce_model_change();
 }
 
+void PrefProxy::getSectionList(QStringList &list)
+{
+  std::vector<std::string> tmpList;
+  ltrPrefs.getSectionList(tmpList);
+  list.clear();
+  for(size_t i = 0; i < tmpList.size(); ++i){
+    list.append(QString::fromStdString(tmpList[i]));
+  }
+}
+
+
+
