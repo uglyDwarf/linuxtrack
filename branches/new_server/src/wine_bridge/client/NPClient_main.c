@@ -30,6 +30,8 @@ bool crypted = false;
 static unsigned char table[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 static dbg_flag;
 
+#include "secret.c"
+
 static void dbg_report(const char *msg,...)
 {
   static FILE *f = NULL;
@@ -282,17 +284,24 @@ int __stdcall NPCLIENT_NP_GetSignature(tir_signature_t * sig)
   char *path = malloc(200 + strlen(home));
   sprintf(path, "%s/.linuxtrack/tir_firmware/sig.bin", home);
   FILE *f = fopen(path, "rb");
-  if(f == NULL){
-    fprintf(stderr, "Couldn't open file '%s' containing signature!\n", path);
-    return 1;
+  if(f != NULL){
+    fread(sig->DllSignature, 200, 1, f);
+    fread(sig->AppSignature, 200, 1, f);
+    
+    fclose(f);
+    return 0;
   }
   
-  fread(sig->DllSignature, 200, 1, f);
-  fread(sig->AppSignature, 200, 1, f);
-  
-  fclose(f);
-  
-  return 0;
+  sprintf(path, "%s/.linuxtrack/tir_firmware/sig.key", home);
+  f = fopen(path, "rb");
+  if(f != NULL){
+    fread(sig, 1, sizeof(*sig), f);
+    fclose(f);
+    unsigned int i;
+    for(i = 0; i < sizeof(*sig); ++i) ((uint8_t*)sig)[i] ^= secret[i];
+    return 0;
+  }
+  return 1;
 }
 /******************************************************************
  *		NP_QueryVersion (NPCLIENT.11)

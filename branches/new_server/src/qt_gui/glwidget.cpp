@@ -197,6 +197,7 @@ static void make_triangle(int index1, int index2, int index3)
 
 bool GLWidget::makeObjects()
  {
+   int triangles = 0;
      std::vector<object_t>::const_iterator obj_index;
      std::vector<tri_t>::const_iterator tris_index;
      for(obj_index = object_table.begin(); obj_index != object_table.end(); ++obj_index){
@@ -215,6 +216,8 @@ bool GLWidget::makeObjects()
        }
        for(tris_index = obj.tris_table.begin(); 
            tris_index != obj.tris_table.end(); ++tris_index){
+//trying to remove glass to see what speedup we'll gain...
+//         if(tris_index->glass) continue;
          glNewList(list, GL_COMPILE);
 	 if(tris_index->glass){
            glEnable (GL_BLEND); 
@@ -228,6 +231,7 @@ bool GLWidget::makeObjects()
          for(int i = 0; i < count; i+=3){
            make_triangle(obj.vtx_indices[offset + i], obj.vtx_indices[offset + i + 1], 
                      obj.vtx_indices[offset + i + 2]);
+           triangles++;
 	 }
          glEnd();
          glDepthMask (GL_TRUE);
@@ -237,7 +241,7 @@ bool GLWidget::makeObjects()
          ++list;
        }
      }
-     
+     std::cout<<triangles<<" triangles."<<std::endl;
      return true;
  }
 
