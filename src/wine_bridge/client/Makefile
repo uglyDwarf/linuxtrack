@@ -4,8 +4,7 @@
 all : NPClient.dll.so
 
 NPClient.dll.so : NPClient.spec NPClient_dll.o linuxtrack.o rest.o
-	winegcc -v -m32 -g -o NPClient.dll.so -shared NPClient.spec NPClient_dll.o \
-	             linuxtrack.o rest.o
+	winegcc -v -m32 -g -o NPClient.dll.so -shared NPClient.spec NPClient_dll.o linuxtrack.o rest.o
 
 NPClient_dll.o : NPClient_dll.h NPClient_main.c
 	winegcc -c -m32 -g -o NPClient_dll.o -I../../ NPClient_main.c
