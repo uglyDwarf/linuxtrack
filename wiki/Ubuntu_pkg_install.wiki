@@ -12,17 +12,17 @@ To install linuxtrack packages for Ubuntu versions 10.04 to 11.10 the following 
 
 Start by downloading the public key, used to verify authenticity of linuxtrack packages.
 This key is available in the download section of linuxtrack google code home, or at
-http://www.linuxtrack.eu/repositories/pubkey.gpg
+http://www.linuxtrack.eu/repositories/new_pubkey.gpg
 
 When you have the key file, verify its fingerprint by issuing the following commands in the terminal (assuming the key was downloaded to the Downloads directory in your home directory):
 {{{
 cd ~/Downloads
-gpg --with-fingerprint pubkey.gpg
+gpg --with-fingerprint new_pubkey.gpg
 }}}
 
 The fingerprint should be exactly:
 {{{
-75F1 25BC 8DA3 D1A7 CE86  042B 9F15 AEEE 5A1D B617
+7546 4AFF 0819 6C02 8537  EAF3 EF44 396A 9F27 60DC
 }}}
 
 *If the fingerprint doesn't match, please contact me immediately and don't import the key!*
@@ -31,7 +31,7 @@ When you have verified the authenticity of the key, open the "Software sources" 
 
 [http://linux-track.googlecode.com/svn/wiki/img/inst_auth_pre.png]
 
-Press the "Import key file..." and select the pubkey.gpg file you just downloaded. You'll be prompted for your password and when finished, you should see something like this:
+Press the "Import key file..." and select the new_pubkey.gpg file you just downloaded. You'll be prompted for your password and when finished, you should see something like this:
 
 [http://linux-track.googlecode.com/svn/wiki/img/inst_auth_post.png]
 
