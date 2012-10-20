@@ -137,7 +137,8 @@ libft_la_CXXFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_LIBADD = libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
 libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
 
-dist_pkgdata_DATA = linuxtrack.conf 51-TIR.rules linuxtrack.c
+dist_pkgdata_DATA = linuxtrack.conf 51-TIR.rules haarcascade_frontalface_alt2.xml
+nodist_pkgdata_DATA = linuxtrack.c
 
 if XPLANE_PLUGIN
 if LTR32ON64
