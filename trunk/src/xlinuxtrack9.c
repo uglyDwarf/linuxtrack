@@ -349,11 +349,11 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
     if (retval < 0) {
       return -1.0;
     }
+    tx *= 1e-3;
+    ty *= 1e-3;
+    tz *= 1e-3;
   }
   
-  tx *= 1e-3;
-  ty *= 1e-3;
-  tz *= 1e-3;
   if(pv_present){
     XPLMSetDataf(PV_TIR_X_DR, tx);
     XPLMSetDataf(PV_TIR_Y_DR, ty);
@@ -387,8 +387,8 @@ static int			setupWindowOpened = 0;
 
 static int setupWindowHandler(XPWidgetMessage inMessage,
 			XPWidgetID inWidget,
-			long inParam1,
-			long inParam2)
+			intptr_t inParam1,
+			intptr_t inParam2)
 {
   (void) inWidget;
   (void) inWidget;
@@ -464,7 +464,7 @@ static int setupDialog()
     setupButton = XPCreateWidget(x+80, y2+40, x2-80, y2+20, 1, 
   				  "Close", 0, setupWindow,
   				  xpWidgetClass_Button);
-    XPAddWidgetCallback(setupWindow, setupWindowHandler);
+    XPAddWidgetCallback(setupWindow, (XPWidgetFunc_t)setupWindowHandler);
   }
   return 0;
 }

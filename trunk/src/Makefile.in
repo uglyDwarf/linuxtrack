@@ -93,7 +93,8 @@ am__base_list = \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" \
 	"$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" \
 	"$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" \
-	"$(DESTDIR)$(icondir)" "$(DESTDIR)$(includedir)"
+	"$(DESTDIR)$(icondir)" "$(DESTDIR)$(pkgdatadir)" \
+	"$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES) $(pkglib_LTLIBRARIES)
 libfakeusb_la_DEPENDENCIES = libltr.la
 am_libfakeusb_la_OBJECTS = libfakeusb_la-fakeusb.lo
@@ -266,7 +267,8 @@ DIST_SOURCES = $(libfakeusb_la_SOURCES) $(libft_la_SOURCES) \
 man1dir = $(mandir)/man1
 NROFF = nroff
 MANS = $(man_MANS)
-DATA = $(desktop_DATA) $(dist_pkgdata_DATA) $(icon_DATA)
+DATA = $(desktop_DATA) $(dist_pkgdata_DATA) $(icon_DATA) \
+	$(nodist_pkgdata_DATA)
 HEADERS = $(include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -480,7 +482,8 @@ libft_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_CXXFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_LIBADD = libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
 libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
-dist_pkgdata_DATA = linuxtrack.conf 51-TIR.rules linuxtrack.c
+dist_pkgdata_DATA = linuxtrack.conf 51-TIR.rules haarcascade_frontalface_alt2.xml
+nodist_pkgdata_DATA = linuxtrack.c
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@			    linuxtrack.c
 
@@ -1000,6 +1003,26 @@ uninstall-iconDATA:
 	test -n "$$files" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(icondir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(icondir)" && rm -f $$files
+install-nodist_pkgdataDATA: $(nodist_pkgdata_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(pkgdatadir)" || $(MKDIR_P) "$(DESTDIR)$(pkgdatadir)"
+	@list='$(nodist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgdatadir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgdatadir)" || exit $$?; \
+	done
+
+uninstall-nodist_pkgdataDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(nodist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(pkgdatadir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(pkgdatadir)" && rm -f $$files
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(includedir)" || $(MKDIR_P) "$(DESTDIR)$(includedir)"
@@ -1124,7 +1147,7 @@ all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) \
 install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(icondir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(icondir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -1181,7 +1204,8 @@ info: info-am
 info-am:
 
 install-data-am: install-desktopDATA install-dist_pkgdataDATA \
-	install-iconDATA install-includeHEADERS install-man
+	install-iconDATA install-includeHEADERS install-man \
+	install-nodist_pkgdataDATA
 
 install-dvi: install-dvi-am
 
@@ -1231,7 +1255,8 @@ ps-am:
 uninstall-am: uninstall-binPROGRAMS uninstall-desktopDATA \
 	uninstall-dist_pkgdataDATA uninstall-iconDATA \
 	uninstall-includeHEADERS uninstall-libLTLIBRARIES \
-	uninstall-man uninstall-pkglibLTLIBRARIES
+	uninstall-man uninstall-nodist_pkgdataDATA \
+	uninstall-pkglibLTLIBRARIES
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
 uninstall-man: uninstall-man1
@@ -1250,16 +1275,17 @@ uninstall-man: uninstall-man1
 	install-exec-hook install-html install-html-am \
 	install-iconDATA install-includeHEADERS install-info \
 	install-info-am install-libLTLIBRARIES install-man \
-	install-man1 install-pdf install-pdf-am \
-	install-pkglibLTLIBRARIES install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags uninstall uninstall-am \
-	uninstall-binPROGRAMS uninstall-desktopDATA \
+	install-man1 install-nodist_pkgdataDATA install-pdf \
+	install-pdf-am install-pkglibLTLIBRARIES install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
+	uninstall-am uninstall-binPROGRAMS uninstall-desktopDATA \
 	uninstall-dist_pkgdataDATA uninstall-hook uninstall-iconDATA \
 	uninstall-includeHEADERS uninstall-libLTLIBRARIES \
-	uninstall-man uninstall-man1 uninstall-pkglibLTLIBRARIES
+	uninstall-man uninstall-man1 uninstall-nodist_pkgdataDATA \
+	uninstall-pkglibLTLIBRARIES
 
 @DARWIN_TRUE@  #If ltr_server is not linked against CoreFoundation, loading libusb-1.0 would
 @DARWIN_TRUE@  #  cause SIG_TRAP, since CoreFoundation expects the init takes place 
