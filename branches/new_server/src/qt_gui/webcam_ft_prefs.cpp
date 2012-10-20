@@ -9,28 +9,10 @@
 
 static QString currentId = QString("None");
 
-/*
-void WebcamFtPrefs::Connect()
-{
-  QObject::connect(ui.WebcamFtFormats, SIGNAL(activated(int)),
-    this, SLOT(on_WebcamFtFormats_activated(int)));
-  QObject::connect(ui.WebcamFtResolutions, SIGNAL(activated(int)),
-    this, SLOT(on_WebcamFtResolutions_activated(int)));
-  QObject::connect(ui.FindCascade, SIGNAL(pressed()),
-    this, SLOT(on_FindCascade_pressed()));
-  QObject::connect(ui.CascadePath, SIGNAL(editingFinished()),
-    this, SLOT(on_CascadePath_editingFinished()));
-  QObject::connect(ui.ExpFilterFactor, SIGNAL(valueChanged(int)),
-    this, SLOT(on_ExpFilterFactor_valueChanged(int)));
-  QObject::connect(ui.OptimLevel, SIGNAL(valueChanged(int)),
-    this, SLOT(on_OptimLevel_valueChanged(int)));
-}
-*/
 WebcamFtPrefs::WebcamFtPrefs(const QString &dev_id, QWidget *parent) : QWidget(parent), id(dev_id)
 {
   ui.setupUi(this);
   Activate(id, true);
-  //Connect();
 }
 
 WebcamFtPrefs::~WebcamFtPrefs()
@@ -129,7 +111,13 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
       ui.WebcamFtFormats->setCurrentIndex(fmt_index);
     }
     on_WebcamFtFormats_activated(fmt_index);
-    QString cascadePath(ltr_int_wc_get_cascade());
+    const char *cascade = ltr_int_wc_get_cascade();
+    QString cascadePath;
+    if(cascade == NULL){
+      cascadePath = PrefProxy::getDataPath("haarcascade_frontalface_alt2.xml");
+    }else{
+      cascadePath = cascade;
+    }
     ui.CascadePath->setText(cascadePath);
     int n = (2.0 / ltr_int_wc_get_eff()) - 2;
     ui.ExpFilterFactor->setValue(n);
