@@ -6,6 +6,7 @@
 #include "ui_ltr.h"
 #include "prefs_link.h"
 #include "dlfirmware.h"
+#include <../usb_ifc.h>
 
 class TirPrefs : public QObject{
   Q_OBJECT

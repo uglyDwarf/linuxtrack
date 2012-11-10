@@ -45,12 +45,13 @@ static unsigned char unk_8[] =  {0x19, 0x03, 0x03, 0x00, 0x00};
 
 static bool ir_on = true;
 
-static dev_found device = NONE;
+static dev_found device = NOT_TIR;
 
 static tir_interface tir2;
 static tir_interface tir3;
 static tir_interface tir4;
 static tir_interface tir5;
+static tir_interface smartnav4;
 static tir_interface *tir_iface = NULL;
 
 typedef struct{
@@ -203,7 +204,7 @@ static bool read_rom_data_tir()
 static bool load_firmware(firmware_t *fw)
 {
   assert(fw != NULL);
-  gzFile *f;
+  gzFile f;
   unsigned int tsize = FW_SIZE_INCREMENT;
   unsigned char *tbuf = ltr_int_my_malloc(tsize);
   unsigned char *ptr = tbuf;
@@ -355,6 +356,13 @@ static bool set_status_led_tir4(bool running)
   return true;
 }
 
+static bool set_status_led_sn4(bool running)
+{
+  (void)running;
+  ltr_int_log_message("Setting status led on SmartNav4!\n");
+  return true;
+}
+
 bool set_status_led_tir(bool running)
 {
   assert(tir_iface != NULL);
@@ -495,6 +503,12 @@ static bool stop_camera_tir5()
   return true;
 }
 
+static bool stop_camera_sn4()
+{
+  ltr_int_log_message("Stopping SmartNav4 camera!\n");
+  return true;
+}
+
 static bool stop_camera_tir()
 {
   assert(tir_iface != NULL);
@@ -569,6 +583,13 @@ static bool start_camera_tir5()
     set_status_led_tir5(true);
   return true;
 }
+
+static bool start_camera_sn4()
+{
+  ltr_int_log_message("Starting SmartNav camera!\n");
+  return true;
+}
+
 
 bool start_camera_tir()
 {
@@ -763,6 +784,14 @@ static bool init_camera_tir5(bool force_fw_load, bool p_ir_on)
   return true;
 }
 
+static bool init_camera_sn4(bool force_fw_load, bool p_ir_on)
+{
+  (void) force_fw_load;
+  (void) p_ir_on;
+  ltr_int_log_message("Initializing SmartNav4...\n");
+  return true;
+}
+
 bool init_camera_tir(bool force_fw_load, bool p_ir_on)
 {
   assert(tir_iface != NULL);
@@ -775,7 +804,7 @@ bool ltr_int_open_tir(bool force_fw_load, bool ir_on)
     ltr_int_log_message("Init failed!\n");
     return false;
   }
-  if((device = ltr_int_find_tir()) == NONE){
+  if((device = ltr_int_find_tir()) == NOT_TIR){
     ltr_int_log_message("Tir not found!\n");
     return false;
   }
@@ -800,6 +829,9 @@ bool ltr_int_open_tir(bool force_fw_load, bool ir_on)
     case TIR5:
     case TIR5V2:
       tir_iface = &tir5;
+      break;
+    case SMARTNAV4:
+      tir_iface = &smartnav4;
       break;
     default:
       ltr_int_log_message("No device!\n");
@@ -888,6 +920,16 @@ static bool close_camera_tir5()
   return true;
 }
 
+static bool close_camera_sn4()
+{
+  ltr_int_log_message("Closing the SmartNav4 camera.\n");
+  ltr_int_finish_usb(TIR_INTERFACE);
+  ltr_int_log_message("SmartNav4 camera closed.\n");
+  return true;
+}
+
+
+
 bool ltr_int_close_tir()
 {
   assert(tir_iface != NULL);
@@ -925,6 +967,14 @@ static void get_tir5_info(tir_info *info)
   info->height = 480;
   info->hf = 1.0f;
   info->dev_type = TIR5;
+}
+
+static void get_sn4_info(tir_info *info)
+{
+  info->width = 640;
+  info->height = 480;
+  info->hf = 2.0f;
+  info->dev_type = SMARTNAV4;
 }
 
 void ltr_int_get_tir_info(tir_info *info)
@@ -988,6 +1038,9 @@ char *ltr_int_find_firmware(dev_found device)
     case TIR5V2:
       fw_file = "tir5v2.fw.gz";
       break;
+    case SMARTNAV4:
+      fw_file = "sn4.fw.gz";
+      break;
     default:
       ltr_int_log_message("Unknown device!\n");
       return false;
@@ -1038,4 +1091,12 @@ static tir_interface tir5 = {
   .set_status_led_tir = set_status_led_tir5
 };
 
+static tir_interface smartnav4 = {
+  .stop_camera_tir = stop_camera_sn4,
+  .start_camera_tir = start_camera_sn4,
+  .init_camera_tir = init_camera_sn4,
+  .close_camera_tir = close_camera_sn4,
+  .get_tir_info = get_sn4_info,
+  .set_status_led_tir = set_status_led_sn4
+};
 

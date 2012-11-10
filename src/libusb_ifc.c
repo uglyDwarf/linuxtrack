@@ -50,7 +50,7 @@ dev_found ltr_int_find_tir(unsigned int devid)
   // discover devices
   libusb_device **list;
   libusb_device *found = NULL;
-  dev_found dev = NONE;
+  dev_found dev = NOT_TIR;
   
   ltr_int_log_message("Requesting device list.\n");
   ssize_t cnt = libusb_get_device_list(usb_context, &list);
@@ -59,7 +59,7 @@ dev_found ltr_int_find_tir(unsigned int devid)
   int err = 0;
   if (cnt < 0){
     ltr_int_log_message("Error enumerating devices!\n");
-    return NONE;
+    return NOT_TIR;
   }
 
   for(i = 0; i < cnt; i++){
@@ -115,12 +115,23 @@ dev_found ltr_int_find_tir(unsigned int devid)
     }
   }
 
+  if(!found){
+    for(i = 0; i < cnt; i++){
+      libusb_device *device = list[i];
+      if(is_tir(device, 0x0106)){
+        found = device;
+        dev = SMARTNAV4;
+        break;
+      }
+    }
+  }
+
   if(found){
     ltr_int_log_message("Opening handle to the device found.\n");
     err = libusb_open(found, &handle);
     if(err){
       ltr_int_log_message("Error opening device!\n");
-      return NONE;
+      return NOT_TIR;
     }
     ltr_int_log_message("Handle opened successfully.\n");
   }else{
@@ -133,7 +144,7 @@ dev_found ltr_int_find_tir(unsigned int devid)
     return dev;
   }else{
     ltr_int_log_message("Bad handle!\n");
-    return NONE;
+    return NOT_TIR;
   }
 }
 
