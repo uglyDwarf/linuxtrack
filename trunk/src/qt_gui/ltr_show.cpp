@@ -111,9 +111,9 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s, QSetti
 {
   scp = s;
   ui.setupUi(this);
-  label = new QWidget();
   cv = new CameraView(label);
-  ui.pix_box->addWidget(label);
+  
+  ui.pix_box->addWidget(cv);
   ui.pauseButton->setDisabled(true);
   ui.wakeButton->setDisabled(true);
   ui.stopButton->setDisabled(true);
@@ -352,7 +352,7 @@ void LtrGuiForm::allowCloseWindow()
 }
 
 CameraView::CameraView(QWidget *parent)
-  : QWidget(parent), image(NULL)
+  : QWidget(parent)
 {  
   setBackgroundRole(QPalette::Base);
   setAutoFillBackground(true);
@@ -360,10 +360,11 @@ CameraView::CameraView(QWidget *parent)
 
 void CameraView::redraw(QImage *img)
 {
+  //if(size() != img->size()){
+    //image = img->scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  //}else{
   image = img;
-  if(size() != img->size()){
-    resize(img->size());
-  }
+  //}
   update();
 }
 

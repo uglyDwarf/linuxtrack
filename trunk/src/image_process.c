@@ -52,7 +52,8 @@ static void clip_coord(int *coord, int min,
 static void draw_stripe(image *img, int x, int y, int x_end, unsigned char color)
 {
   assert(img != NULL);
-  y *= img->ratio;
+  x /= img->ratio;
+  x_end /= img->ratio;
   clip_coord(&x, 0, img->w);
   clip_coord(&y, 0, img->h);
   clip_coord(&x_end, 0, img->w);
@@ -72,8 +73,8 @@ void ltr_int_draw_square(image *img, int x, int y, int size)
   assert(y >= 0);
   int x1 = (int)x - size;
   int x2 = (int)x + size;
-  int y1 = (y * img->ratio) - size;
-  int y2 = (y * img->ratio) + size;
+  int y1 = (x / img->ratio) - size;
+  int y2 = (x / img->ratio) + size;
   
 //  clip_coord(&x, 0, img->w);
   clip_coord(&x1, 0, img->w);
@@ -405,13 +406,13 @@ int ltr_int_stripes_to_blobs(int num_blobs, struct bloblist_type *blt,
       float y = pb->sum_y / pb->sum;
       //printf("%f\t\t%f\t\t%d\n", x, y, pb->points);
       cal_b = &(blt->blobs[counter]);
-      cal_b->x = (((img->w - 1) / 2.0) - x);
-      cal_b->y = (((img->h - 1) / 2.0) - (y * img->ratio));
+      cal_b->x = (((img->w - 1) / 2.0) - (x / img->ratio));
+      cal_b->y = (((img->h - 1) / 2.0) - y);
       #ifdef PT_DBG
         printf("PT: %g %g\n", cal_b->x, cal_b->y);
       #endif
       if(img->bitmap != NULL){
-	ltr_int_draw_cross(img, x, y * img->ratio, (int) img->w/100.0);
+	ltr_int_draw_cross(img, x / img->ratio, y, (int) img->w/100.0);
       }
       cal_b->score = pb->points;
     }

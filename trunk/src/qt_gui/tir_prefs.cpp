@@ -101,7 +101,7 @@ bool TirPrefs::Activate(const QString &ID, bool init)
                           Qt::Checked : Qt::Unchecked;
   gui.TirSignalizeStatus->setCheckState(state);
   if(firmwareOK){
-    if(tirType < 4){
+    if(tirType < TIR4){
       gui.TirFwLabel->setText("Firmware not needed!");
     }else{
       gui.TirFwLabel->setText("Firmware found!");
@@ -110,7 +110,8 @@ bool TirPrefs::Activate(const QString &ID, bool init)
   }else{
     gui.TirFwLabel->setText("Firmware not found - TrackIr will not work!");
   }
-  if(tirType < 5){
+  printf("Type: %d\n", tirType);
+  if((tirType < TIR5) || (tirType == SMARTNAV4)){
     gui.TirIrBright->setDisabled(true);
     gui.TirIrBright->setHidden(true);
     gui.TirStatusBright->setDisabled(true);
