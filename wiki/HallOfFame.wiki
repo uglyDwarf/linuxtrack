@@ -44,6 +44,9 @@
 *Giovanni*
  Thank you for your help getting wiimote to work on Mountain Lion.
 
+*Bill*
+ Thank you for your help making SmartNav4 support possible.
+
 == Donors ==
 
 *Michael* (Macmichael, x-plane.org forum)
