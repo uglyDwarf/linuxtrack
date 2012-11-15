@@ -141,18 +141,23 @@ dist_pkgdata_DATA = linuxtrack.conf 51-TIR.rules haarcascade_frontalface_alt2.xm
 nodist_pkgdata_DATA = linuxtrack.c
 
 if XPLANE_PLUGIN
+pkglib_LTLIBRARIES += xlinuxtrack9.la
 if LTR32ON64
-  pkglib_LTLIBRARIES += xlinuxtrack.la xlinuxtrack9.la
+  pkglib_LTLIBRARIES += xlinuxtrack.la xlinuxtrack9_32.la
   xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
 			    linuxtrack.c
   xlinuxtrack_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
   xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
   xlinuxtrack_la_LIBADD = -lm -ldl
-  xlinuxtrack9_la_SOURCES = xlinuxtrack9.c linuxtrack.c
-  xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
-  xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
-  xlinuxtrack9_la_LIBADD = -lm -ldl
+  xlinuxtrack9_32_la_SOURCES = xlinuxtrack9.c linuxtrack.c
+  xlinuxtrack9_32_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+  xlinuxtrack9_32_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
+  xlinuxtrack9_32_la_LIBADD = -lm -ldl
 endif
+xlinuxtrack9_la_SOURCES = xlinuxtrack9.c linuxtrack.c
+xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
+xlinuxtrack9_la_LIBADD = -lm -ldl
 endif
 
 AM_YFLAGS = -d
