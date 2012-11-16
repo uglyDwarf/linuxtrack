@@ -1,5 +1,5 @@
 if DARWIN
-  AM_CFLAGS = -arch i386 -arch ppc
+  AM_CFLAGS = -arch i386 -arch ppc -arch x86_64
   TIGER_CFLAG = -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4
   TIGER_LDFLAG = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 -headerpad_max_install_names
   LEOPARD_CFLAG = -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5
