@@ -371,6 +371,13 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
       if(head_roll != NULL){
         XPLMSetDataf(head_roll, -roll);
       }
+    }else{
+      //Make sure to cancel any roll, unless bad things start to happening
+      //  e.g. mising HUD in forward with HUD view or rolled view in other
+      //  views... Also the roll seems to be persistent!
+      if(head_roll != NULL){
+        XPLMSetDataf(head_roll, 0);
+      }
     }
   }
   return -1.0;
