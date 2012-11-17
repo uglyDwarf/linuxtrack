@@ -6,12 +6,17 @@
 #include "usb_ifc.h"
 #include "utils.h"
 #include <string.h>
+#include "tir_model.h"
 
 #define PKT_MAX 16384
+
+  int current_model = 0;
+  char *data_file = NULL;
 
 static int get_tir_type()
 {
   char *fname = getenv("LINUXTRACK_STIMULI");
+  data_file = fname;
   if(fname == NULL){
     return TIR2;
   }
@@ -96,6 +101,10 @@ static int read_packet(uint8_t buffer[], int length)
 
 bool ltr_int_init_usb()
 {
+  current_model = get_tir_type();
+  if(current_model == SMARTNAV4){
+    init_model(data_file);
+  }
   return true;
 }
 
@@ -119,6 +128,10 @@ bool send_cfg = false;
 
 bool ltr_int_send_data(unsigned char data[], size_t size)
 {
+  if(current_model == SMARTNAV4){
+    fakeusb_send(data, size);
+    return true;
+  }
   unsigned int i;
   for(i = 0; i <size; ++i){
     printf("%02X ", data[i]);
@@ -142,6 +155,12 @@ uint8_t pkt_buf[PKT_MAX];
 bool ltr_int_receive_data(unsigned char data[], size_t size, size_t *transferred,
                   unsigned int timeout)
 {
+  if(current_model == SMARTNAV4){
+    fakeusb_receive(data, size, transferred, timeout);
+    ltr_int_usleep(10000);
+    return true;
+  }
+
   (void) timeout;
   size_t i;
   
@@ -166,6 +185,13 @@ bool ltr_int_receive_data(unsigned char data[], size_t size, size_t *transferred
 void ltr_int_finish_usb(unsigned int interface)
 {
   (void) interface;
+  if(current_model == SMARTNAV4){
+    close_model();
+  }
 }
+
+
+
+
 
 

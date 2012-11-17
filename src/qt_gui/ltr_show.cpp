@@ -352,7 +352,7 @@ void LtrGuiForm::allowCloseWindow()
 }
 
 CameraView::CameraView(QWidget *parent)
-  : QWidget(parent)
+  : QWidget(parent), image(NULL)
 {  
   setBackgroundRole(QPalette::Base);
   setAutoFillBackground(true);
@@ -372,7 +372,14 @@ void CameraView::paintEvent(QPaintEvent * /* event */)
 {
   if((image != NULL) && (running)){
     QPainter painter(this);
-    painter.drawImage(QPoint(0, 0), *image);
+    int width = size().width();
+    int height = size().height();
+    if((image->width() > width) || (image->height() > height)){
+      painter.drawImage(QPoint(0, 0), 
+        image->scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }else{
+      painter.drawImage(QPoint(0, 0), *image);
+    }
     painter.end();
   }
 }
