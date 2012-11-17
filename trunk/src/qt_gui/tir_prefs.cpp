@@ -47,6 +47,8 @@ void TirPrefs::Connect()
     this, SLOT(on_TirIrBright_valueChanged(int)));
   QObject::connect(gui.TirSignalizeStatus, SIGNAL(stateChanged(int)),
     this, SLOT(on_TirSignalizeStatus_stateChanged(int)));
+  QObject::connect(gui.TirUseGrayscale, SIGNAL(stateChanged(int)),
+    this, SLOT(on_TirUseGrayscale_stateChanged(int)));
   QObject::connect(gui.TirInstallFirmware, SIGNAL(pressed()),
     this, SLOT(on_TirInstallFirmware_pressed()));
 }
@@ -83,6 +85,7 @@ bool TirPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Status-led-brightness", QString::number(0));
       PREF.addKeyVal(sec, (char *)"Ir-led-brightness", QString::number(7));
       PREF.addKeyVal(sec, (char *)"Status-signals", (char *)"on");
+      PREF.addKeyVal(sec, (char *)"Grayscale", (char *)"on");
       PREF.activateDevice(sec);
       currentSection = sec;
     }else{
@@ -100,6 +103,9 @@ bool TirPrefs::Activate(const QString &ID, bool init)
   Qt::CheckState state = (ltr_int_tir_get_status_indication()) ? 
                           Qt::Checked : Qt::Unchecked;
   gui.TirSignalizeStatus->setCheckState(state);
+  Qt::CheckState grayscale = (ltr_int_tir_get_use_grayscale()) ? 
+                          Qt::Checked : Qt::Unchecked;
+  gui.TirUseGrayscale->setCheckState(grayscale);
   if(firmwareOK){
     if(tirType < TIR4){
       gui.TirFwLabel->setText("Firmware not needed!");
@@ -118,6 +124,10 @@ bool TirPrefs::Activate(const QString &ID, bool init)
     gui.TirStatusBright->setHidden(true);
     gui.StatusBrightLabel->setHidden(true);
     gui.IRBrightLabel->setHidden(true);
+  }
+  if(tirType != SMARTNAV4){
+    gui.TirUseGrayscale->setDisabled(true);
+    gui.TirUseGrayscale->setHidden(true);
   }
   initializing = false;
   return true;
@@ -182,6 +192,11 @@ void TirPrefs::on_TirIrBright_valueChanged(int i)
 void TirPrefs::on_TirSignalizeStatus_stateChanged(int state)
 {
   if(!initializing) ltr_int_tir_set_status_indication(state == Qt::Checked);
+}
+
+void TirPrefs::on_TirUseGrayscale_stateChanged(int state)
+{
+  if(!initializing) ltr_int_tir_set_use_grayscale(state == Qt::Checked);
 }
 
 void TirPrefs::on_TirFirmwareDLFinished(bool state)

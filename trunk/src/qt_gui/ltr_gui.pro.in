@@ -28,7 +28,7 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            ltr_model.cpp window.cpp glwidget.cpp objreader.cpp ltr_profiles.cpp \
            log_view.cpp ltr_state.cpp ltr_axis.cpp ltr_tracking.cpp scp_form.cpp \
            scurve.cpp scview.cpp wiimote_prefs.cpp dlfirmware.cpp ../ipc_utils.c \
-           ../linuxtrack.c ../ltr_server.c
+           ../ltr_server.c ../ltlib.c
 
 QMAKE_CXXFLAGS += -DHAVE_CONFIG_H 
 QMAKE_CFLAGS += -DLTR_GUI
