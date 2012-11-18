@@ -31,6 +31,9 @@ static unsigned char Get_status[] = {0x1d};
 static unsigned char Get_conf[] = {0x17};
 static unsigned char Precision_mode[] = {0x19, 0x03, 0x10, 0x00, 0x05};
 static unsigned char Set_ir_brightness[] =  {0x10, 0x00, 0x02, 0x00, 0xA0};
+static unsigned char SN4_normal_mode[] = {0x19, 0x03, 0x0F, 0x00, 0x00};
+static unsigned char SN4_grayscale_mode[] = {0x19, 0x03, 0x0F, 0x00, 0x04};
+
 
 //Unknown packets
 static unsigned char unk_1[] =  {0x17, 0x01};
@@ -183,6 +186,10 @@ static bool read_rom_data_tir3()
 static bool read_rom_data_tir()
 {
   size_t t;
+  ltr_int_log_message("Flushing packets...\n");
+  do{
+    ltr_int_receive_data(ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
+  }while(t > 0);
   ltr_int_log_message("Sending get_conf request.\n");
   int counter = 0;
   while(counter < 10){
@@ -607,6 +614,11 @@ static bool start_camera_tir5()
 static bool start_camera_sn4()
 {
   ltr_int_log_message("Starting SmartNav4 camera!\n");
+  if(ltr_int_tir_get_use_grayscale()){
+    ltr_int_send_data(SN4_grayscale_mode,sizeof(SN4_grayscale_mode));
+  }else{
+    ltr_int_send_data(SN4_normal_mode,sizeof(SN4_normal_mode));
+  }
   ltr_int_send_data(Video_on,sizeof(Video_on));
   if(ir_on){ 
     turn_led_on_tir(TIR_LED_IR);
@@ -838,6 +850,7 @@ static bool init_camera_sn4(bool force_fw_load, bool p_ir_on)
   do{
     ltr_int_receive_data(ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
   }while(t > 0);
+  
   if(!read_status_tir(&status)){
     return false;
   }
@@ -846,45 +859,47 @@ static bool init_camera_sn4(bool force_fw_load, bool p_ir_on)
     ltr_int_log_message("Error loading firmware!\n");
     return false;
   }
-  
   if(force_fw_load | (!status.fw_loaded) | (status.fw_cksum != firmware.cksum)){
     upload_firmware(&firmware);
-  }
-
-  ltr_int_log_message("Flushing packets...\n");
-  do{
-    ltr_int_receive_data(ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
-  }while(t > 0);
-  if(!read_status_tir(&status)){
-    ltr_int_log_message("Couldn't retrieve status!\n");
-    return false;
-  }
-  
-  if(status.fw_cksum != firmware.cksum){
-    ltr_int_log_message("Firmware not loaded correctly!\n");
-    return false;
-  }
-  
-  if(status.cfg_flag == 1){
-    ltr_int_send_data(Cfg_reload,sizeof(Cfg_reload));
-    while(status.cfg_flag != 2){
-      if(!read_status_tir(&status)){
-	return false;
-      }
+    ltr_int_send_data(unk_7,sizeof(unk_7));
+    ltr_int_send_data(unk_e,sizeof(unk_e));
+    
+    ltr_int_log_message("Flushing packets...\n");
+    do{
+      ltr_int_receive_data(ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
+    }while(t > 0);
+    if(!read_status_tir(&status)){
+      ltr_int_log_message("Couldn't retrieve status!\n");
+      return false;
     }
-    ltr_int_set_threshold_tir(0x78);
-    ltr_int_send_data(unk_9, sizeof(unk_9));
-    ltr_int_send_data(unk_a, sizeof(unk_a));
-    ltr_int_send_data(unk_b, sizeof(unk_b));
-    ltr_int_send_data(unk_c, sizeof(unk_c));
-    ltr_int_send_data(unk_d, sizeof(unk_d));
-
+    
+    if(status.fw_cksum != firmware.cksum){
+      ltr_int_log_message("Firmware not loaded correctly!\n");
+      return false;
+    }
+    
+    if(status.cfg_flag == 1){
+      ltr_int_send_data(Cfg_reload,sizeof(Cfg_reload));
+      while(status.cfg_flag != 2){
+        if(!read_status_tir(&status)){
+          return false;
+        }
+      }
+      ltr_int_send_data(unk_9, sizeof(unk_9));
+      ltr_int_send_data(unk_a, sizeof(unk_a));
+      ltr_int_send_data(unk_b, sizeof(unk_b));
+      ltr_int_send_data(unk_c, sizeof(unk_c));
+      ltr_int_send_data(unk_d, sizeof(unk_d));
+      ltr_int_set_threshold_tir(0x78);
+      
     }else if(status.cfg_flag != 2){
-    ltr_int_log_message("SmatrNav4 configuration problem!\n");
-    return false;
+      ltr_int_log_message("SmatrNav4 configuration problem!\n");
+      return false;
+    }
+    
+    free(firmware.firmware);
   }
   
-  free(firmware.firmware);
   ltr_int_log_message("SmartNav4 camera initialized.\n");
   return true;
 }
