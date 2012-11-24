@@ -5,6 +5,7 @@
 #include "tir_img.h"
 #include "utils.h"
 #include "image_process.h"
+#include "sn4_com.h"
 #include <assert.h>
 
 static unsigned int pkt_no = 0;
@@ -282,12 +283,15 @@ static bool process_packet_sn4(unsigned char data[], size_t *ptr, unsigned int p
 {
   bool have_frame = false;
   unsigned int ps = 0;
+  static unsigned char prev_btns = 3; 
+  unsigned char btns = data[*ptr];
   unsigned char type = data[*ptr + 1];
 
   if((limit < 12) || !check_paket_header_sn4(&(data[*ptr]))){
     *ptr += limit;
     return false;
   }
+  
   ps = data[limit - 4];
   ps = (ps << 8) + data[limit - 3];
   ps = (ps << 8) + data[limit - 2];
@@ -297,6 +301,16 @@ static bool process_packet_sn4(unsigned char data[], size_t *ptr, unsigned int p
     ltr_int_log_message("Bad packet size! %d x %d\n", ps, pktsize - 8);
     return false;
   }
+  
+  if(btns != prev_btns){
+    sn4_btn_event_t ev;
+    ev.btns = btns;
+    prev_btns = btns;
+    gettimeofday(&(ev.timestamp), NULL);
+    ltr_int_send_sn4_data((void*)&ev, sizeof(ev));
+    printf("Sending %d!\n", btns);
+  }
+  
   ps -= 8; // header
   switch(type){
     case 4:
@@ -529,7 +543,7 @@ int ltr_int_read_blobs_tir(struct bloblist_type *blt, int min, int max, image *i
   while(1){
     if(ptr >= size){
       ptr = 0;
-      if(!ltr_int_receive_data(ltr_int_packet, sizeof(ltr_int_packet), &size, 1000)){
+      if(!ltr_int_receive_data(ltr_int_data_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &size, 1000)){
 	ltr_int_log_message("Problem reading data from USB!\n");
         return -1;
       }
