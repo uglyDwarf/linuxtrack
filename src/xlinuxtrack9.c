@@ -201,7 +201,7 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFromWho,
   if(inFromWho == XPLM_PLUGIN_XPLANE){
     switch(inMessage){
       case XPLM_MSG_PLANE_LOADED:
-        if((int)inParam == XPLM_PLUGIN_XPLANE){
+        if((intptr_t)inParam == XPLM_PLUGIN_XPLANE){
 
           PV_Enabled_DR = XPLMFindDataRef("sandybarbour/pv/enabled");
           PV_TIR_X_DR = XPLMFindDataRef("sandybarbour/pv/tir_x");
@@ -259,7 +259,7 @@ static void deactivate(void)
 
 static void MyHotKeyCallback(void *inRefcon)
 {
-  switch((int)inRefcon){
+  switch((intptr_t)inRefcon){
     case START:
       if(active_flag==false){
         activate();
@@ -370,6 +370,13 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
       XPLMSetDataf(head_the,pitch);
       if(head_roll != NULL){
         XPLMSetDataf(head_roll, -roll);
+      }
+    }else{
+      //Make sure to cancel any roll, unless bad things start to happening
+      //  e.g. mising HUD in forward with HUD view or rolled view in other
+      //  views... Also the roll seems to be persistent!
+      if(head_roll != NULL){
+        XPLMSetDataf(head_roll, 0);
       }
     }
   }

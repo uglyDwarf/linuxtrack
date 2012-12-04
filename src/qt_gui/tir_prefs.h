@@ -6,6 +6,7 @@
 #include "ui_tir_setup.h"
 #include "prefs_link.h"
 #include "dlfirmware.h"
+#include <../usb_ifc.h>
 
 class TirPrefs : public QWidget{
   Q_OBJECT
@@ -31,6 +32,7 @@ class TirPrefs : public QWidget{
   void on_TirStatusBright_valueChanged(int i);
   void on_TirIrBright_valueChanged(int i);
   void on_TirSignalizeStatus_stateChanged(int state);
+  void on_TirUseGrayscale_stateChanged(int state);
   void on_TirInstallFirmware_pressed();
   void TirFirmwareDLFinished(bool state);
 };

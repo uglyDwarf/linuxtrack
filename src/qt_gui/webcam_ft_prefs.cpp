@@ -81,6 +81,9 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Pixel-format", (char *)"");
       PREF.addKeyVal(sec, (char *)"Resolution", (char *)"");
       PREF.addKeyVal(sec, (char *)"Fps", (char *)"");
+      QString cascadePath = PrefProxy::getDataPath("haarcascade_frontalface_alt2.xml");
+      QFileInfo finf = QFileInfo(cascadePath);
+      PREF.addKeyVal(sec, (char *)"Cascade", qPrintable(finf.canonicalFilePath()));
       PREF.activateDevice(sec);
     }else{
       initializing = false;

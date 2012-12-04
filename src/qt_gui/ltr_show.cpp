@@ -74,9 +74,9 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, QSettings &setting
               : cv(NULL), allowClose(false), main_gui(tmp_gui)
 {
   ui.setupUi(this);
-  label = new QWidget();
   cv = new CameraView(label);
-  ui.pix_box->addWidget(label);
+  
+  ui.pix_box->addWidget(cv);
   trackerStopped();
   settings.beginGroup("TrackingWindow");
   camViewEnable = ! settings.value("camera_view", false).toBool();
@@ -308,23 +308,28 @@ CameraView::CameraView(QWidget *parent)
   setAutoFillBackground(true);
 }
 
-void CameraView::redraw()
+void CameraView::redraw(QImage *img)
 {
+  //if(size() != img->size()){
+    //image = img->scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  //}else{
+  image = img;
+  //}
   update();
 }
 
 void CameraView::paintEvent(QPaintEvent * /* event */)
 {
-  image = current_img;
-  if(image == NULL){
-    return;
-  }
-  if(size() != image->size()){
-    resize(image->size());
-  }
-  if((image != NULL)/* && (running)*/){
+  if((image != NULL) && (running)){
     QPainter painter(this);
-    painter.drawPixmap(QPoint(0, 0), QPixmap::fromImage(*image));
+    int width = size().width();
+    int height = size().height();
+    if((image->width() > width) || (image->height() > height)){
+      painter.drawImage(QPoint(0, 0), 
+        image->scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }else{
+      painter.drawImage(QPoint(0, 0), *image);
+    }
     painter.end();
   }
 }

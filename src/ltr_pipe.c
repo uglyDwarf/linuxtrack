@@ -855,7 +855,7 @@ static void write_data_flightgear(const struct ltr_data *d)
 
 	int r = snprintf(buf, sizeof(buf),
 			"%f\t%f\t%f\t%f\t%f\t%f\n",
-			d->h * -1, d->p, d->r, d->x, d->y, d->z);
+			d->h, d->p, -d->r, d->x, d->y, d->z);
 
 	xwrite(buf, r);
 }
@@ -873,7 +873,7 @@ static void write_data_il2(const struct ltr_data *d)
 
 	r = snprintf(buf, sizeof(buf),
 			"R/11\\%f\\%f\\%f",
-			d->h * -1, d->p * -1, d->r);
+			d->h, -d->p, d->r);
 
 	xwrite(buf, r);
 }
@@ -936,7 +936,7 @@ static void write_data_silentwings(const struct ltr_data *d)
 
 	int r = snprintf(buf, sizeof(buf),
 			"PANH %f\nPANV %f\n",
-			d->h, d->p);
+			-d->h, d->p);
 
 	xwrite(buf, r);
 }
@@ -948,8 +948,8 @@ static void write_data_silentwings(const struct ltr_data *d)
  **/
 static void write_data_mouse(const struct ltr_data *d)
 {
-        int8_t x  = (int8_t) d->h;
-        int8_t y  = (int8_t) d->p;
+        int8_t x  = (int8_t) -d->h;
+        int8_t y  = (int8_t)  d->p;
         int8_t zx = 0;
         int8_t zy = 0;
 
@@ -991,7 +991,7 @@ static void write_data_uinput(const struct ltr_data *d)
 
 	/* heading */
 	ie.code  = (Args.format == FORMAT_UINPUT_REL) ? REL_X : ABS_X;
-	ie.value = (int32_t) d->h;
+	ie.value = (int32_t) -d->h;
 	xwrite(&ie, sizeof(ie));
 
 	/* pitch */
@@ -1001,7 +1001,7 @@ static void write_data_uinput(const struct ltr_data *d)
 
 	/* roll */
 	ie.code  = (Args.format == FORMAT_UINPUT_REL) ? REL_Z : ABS_Z;
-	ie.value = (int32_t) d->r;
+	ie.value = (int32_t) -d->r;
 	xwrite(&ie, sizeof(ie));
 
 	if (Args.format == FORMAT_UINPUT_ABS) {

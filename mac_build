@@ -25,8 +25,8 @@ if [ -f ${PREFIX}/lib/libusb-1.0.dylib ]; then
   echo 'Libusb-1.0 already exists!'
 else
   export CFLAGS=" -arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 "
-  tar xfj libusb-1.0.8.tar.bz2
-  pushd libusb-1.0.8
+  tar xfj libusb-1.0.9.tar.bz2
+  pushd libusb-1.0.9
   ./configure --prefix=${PREFIX} --disable-dependency-tracking >/dev/null
   make >/dev/null
   make install >/dev/null
@@ -87,9 +87,9 @@ cp -R ${PREFIX}/lib/linuxtrack/*.dylib ${LIB_DIR}
 cp -R ${PREFIX}/bin/qt_cam ${HELPER_DIR}
 cp -R ${PREFIX}/bin/sg_cam ${HELPER_DIR}
 
-find ${LIB_DIR} -type f -exec ${LTR_BASE}/deploy {} 'lib/:/Users/Michal/devel/ltr/lib' \;
-find ${BIN_DIR} -type f -exec ${LTR_BASE}/deploy {} 'lib/:/Users/Michal/devel/ltr/lib' \;
-find ${HELPER_DIR} -type f -exec ${LTR_BASE}/deploy {} 'lib/:/Users/Michal/devel/ltr/lib' \;
+find ${LIB_DIR} -type f -exec ${LTR_BASE}/deploy {} 'lib/:'${PREFIX}'/lib' \;
+find ${BIN_DIR} -type f -exec ${LTR_BASE}/deploy {} 'lib/:'${PREFIX}'/lib' \;
+find ${HELPER_DIR} -type f -exec ${LTR_BASE}/deploy {} 'lib/:'${PREFIX}'/lib' \;
 
 cp -r ${PREFIX}/share/OpenCV/*cascades ${RSRC_DIR}/linuxtrack
 

@@ -1,6 +1,7 @@
 #ifndef TIRHW__H
 #define TIRHW__H
 
+#include <stdint.h>
 #include "usb_ifc.h"
 
 #define TIR_LED_RED    0x10
@@ -23,6 +24,7 @@ typedef struct {
 
 void ltr_int_get_tir_info(tir_info *info);
 char *ltr_int_find_firmware(dev_found device);
+extern int ltr_int_data_in_ep; 
 
 typedef bool (*stop_camera_tir_fun)();
 typedef bool (*start_camera_tir_fun)();
@@ -48,6 +50,7 @@ bool ltr_int_resume_tir();
 bool ltr_int_close_tir();
 bool ltr_int_set_threshold_tir(unsigned int val);
 
+void ltr_int_send_sn4_data(uint8_t data[], size_t length);
 
 #endif
 
