@@ -1,0 +1,140 @@
+#!/bin/bash
+#
+#Assumes you have libusb-1.0.8.tar.bz2 and XPlane SDK in the parent directory.
+#
+LTR_BASE=`pwd`
+cd ..
+BASE=`pwd`
+PREFIX=${BASE}/ltr
+LIB_DIR=ltr_gui.app/Contents/Frameworks
+BIN_DIR=ltr_gui.app/Contents/MacOS
+HELPER_DIR=ltr_gui.app/Contents/helper
+RSRC_DIR=ltr_gui.app/Contents/Resources
+WII_SRVR_DIR=
+export MACOSX_DEPLOYMENT_TARGET=10.4
+
+OS_NUM=$(sw_vers -productVersion | sed -E 's/\.[0-9]+$//')
+if test x${OS_NUM} = x10.6; then
+  export CC=gcc-4.0
+  export CXX=g++-4.0
+  export CPP=cpp-4.0
+  export OBJC=gcc-4.0
+fi;
+##Build libusb-1.0
+if [ -f ${PREFIX}/lib/libusb-1.0.dylib ]; then
+  echo 'Libusb-1.0 already exists!'
+else
+  export CFLAGS=" -arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 "
+  tar xfj libusb-1.0.8.tar.bz2
+  pushd libusb-1.0.8
+  ./configure --prefix=${PREFIX} --disable-dependency-tracking >/dev/null
+  make >/dev/null
+  make install >/dev/null
+  unset CFLAGS
+  popd
+fi
+
+##Build OpenCV
+if [ -f ${PREFIX}/bin/opencv_traincascade ]; then
+  echo 'OpenCV already exists!'
+else
+  tar xfj OpenCV-2.3.1a.tar.bz2
+  pushd OpenCV-2.3.1
+  mkdir build
+  pushd build
+  cmake "-DCMAKE_OSX_ARCHITECTURES=i386;ppc" "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.5" \
+        "-DCMAKE_OSX_SYSROOT=/Developer/SDKs/MacOSX10.5.sdk" \
+        "-DCMAKE_INSTALL_PREFIX=${PREFIX}" ..
+  make >/dev/null
+  make install >/dev/null
+  popd
+  popd
+fi
+
+
+#Build linuxtrack
+pushd "$LTR_BASE"
+#have to use this hack, because autoreconf on Mac doesn't pass -I ... to the aclocal
+export ACLOCAL="aclocal -I ./mac_m4"
+autoreconf -if
+unset ACLOCAL
+export CFLAGS="-I${PREFIX}/include "
+export LDFLAGS="-L${PREFIX}/lib "
+OPENCV_CFLAGS=$(./pkgconf_extract ${PREFIX}/lib/pkgconfig/opencv.pc --with-opencv_cflags Cflags)
+OPENCV_LIBS=$(./pkgconf_extract ${PREFIX}/lib/pkgconfig/opencv.pc --with-opencv-libs Libs)
+if test x${OS_NUM} = x10.6; then
+  ./configure --prefix=${PREFIX} --with-xplane-sdk=${BASE}/SDK/CHeaders --enable-snow-leopard --enable-ltr-pipe $OPENCV_STUFF #>/dev/null
+else
+  ./configure --prefix=${PREFIX} --with-xplane-sdk=${BASE}/SDK/CHeaders --enable-ltr-pipe "${OPENCV_CFLAGS}" "${OPENCV_LIBS}"
+fi;
+make>build.log
+make install>install.log
+#Build gui - should not be needed anymore
+pushd src/qt_gui
+#qmake -spec macx-g++
+#rm -rf ltr_gui.app
+#make install >/dev/null
+
+#Prepare the image
+mkdir -p ${LIB_DIR}
+mkdir -p ${HELPER_DIR}
+
+cp -R ${PREFIX}/lib/linuxtrack/xlinuxtrack.0.so ${LIB_DIR}/xlinuxtrack.0.dylib
+cp -R ${PREFIX}/lib/linuxtrack/xlinuxtrack9.0.so ${LIB_DIR}/xlinuxtrack9.0.dylib
+cp -R ${PREFIX}/lib/*.dylib ${LIB_DIR}
+cp -R ${PREFIX}/lib/linuxtrack/*.dylib ${LIB_DIR}
+
+cp -R ${PREFIX}/bin/qt_cam ${HELPER_DIR}
+cp -R ${PREFIX}/bin/sg_cam ${HELPER_DIR}
+
+find ${LIB_DIR} -type f -exec ${LTR_BASE}/deploy {} 'lib/:/Users/Michal/devel/ltr/lib' \;
+find ${BIN_DIR} -type f -exec ${LTR_BASE}/deploy {} 'lib/:/Users/Michal/devel/ltr/lib' \;
+find ${HELPER_DIR} -type f -exec ${LTR_BASE}/deploy {} 'lib/:/Users/Michal/devel/ltr/lib' \;
+
+cp -r ${PREFIX}/share/OpenCV/*cascades ${RSRC_DIR}/linuxtrack
+
+#Create archive image
+macdeployqt ltr_gui.app -no-strip
+
+popd
+rm -rf dist
+mkdir dist
+pushd dist
+  mkdir -p WiiServer.app/Contents/MacOS
+  mkdir -p WiiServer.app/Contents/Frameworks/
+  mkdir -p WiiServer.app/Contents/Resources/
+  cp -r ../src/mac/English.lproj WiiServer.app/Contents/Resources
+  cp ../src/mac/linuxtrack_wii.icns WiiServer.app/Contents/Resources
+  cp ../src/mac/Info.plist WiiServer.app/Contents
+  cp ../src/mac/PkgInfo WiiServer.app/Contents
+  cp -R ${PREFIX}/bin/WiiServer WiiServer.app/Contents/MacOS
+  cp -R ${PREFIX}/lib/linuxtrack/libltr.0.dylib WiiServer.app/Contents/Frameworks/
+  install_name_tool -id @executable_path/../Frameworks/libltr.0.dylib \
+    WiiServer.app/Contents/Frameworks/libltr.0.dylib
+  install_name_tool -change ${PREFIX}/lib/linuxtrack/libltr.0.dylib \
+    @executable_path/../Frameworks/libltr.0.dylib WiiServer.app/Contents/MacOS/WiiServer
+
+  mv ../src/qt_gui/ltr_gui.app .
+  cp -R ${PREFIX}/bin/ltr_server ${BIN_DIR}
+  install_name_tool -change ${PREFIX}/lib/linuxtrack/libltr.0.dylib \
+    @executable_path/../Frameworks/libltr.0.dylib ${BIN_DIR}/ltr_server
+  if [ -f "${BASE}/bulk_config_data.tar.gz" ]; then
+    pushd ltr_gui.app/Contents/Resources/linuxtrack
+      tar xfz ${BASE}/bulk_config_data.tar.gz
+    popd 
+  fi
+  mkdir develop
+  cp ../src/linuxtrack.h develop
+  cp ../src/linuxtrack.c develop
+  cp ${PREFIX}/lib/liblinuxtrack.a develop
+  cp ../Readme.rtf .
+  cp ../src/ltr_pipe .
+popd
+
+rm -f linuxtrack*.dmg
+DMG=linuxtrack$(date +%y%m%d).dmg
+hdiutil create ${DMG} -srcfolder dist -format UDZO -volname linuxtrack
+ln -s ${DMG} linuxtrack.dmg
+
+popd
+#
