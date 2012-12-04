@@ -38,6 +38,15 @@ LIBLINUXTRACK_PRIVATE bool ltr_int_mmap_file_exclusive(size_t tmp_size, struct m
 LIBLINUXTRACK_PRIVATE bool ltr_int_unmap_file(struct mmap_s *m);
 int ltr_int_open_tmp_file(char *fname);
 void ltr_int_close_tmp_file(char *fname, int fd);
+LIBLINUXTRACK_PRIVATE char *ltr_int_get_com_file_name();
+
+bool ltr_int_make_fifo(const char *name);
+int ltr_int_open_fifo_exclusive(const char *name);
+int ltr_int_open_fifo_for_writing(const char *name, bool wait);
+int ltr_int_open_unique_fifo(char **name, int *num, const char *name_template, int max);
+int ltr_int_fifo_send(int fifo, void *buf, size_t size);
+ssize_t ltr_int_fifo_receive(int fifo, void *buf, size_t size);
+int ltr_int_pipe_poll(int pipe, int timeout, bool *hup);
 
 #ifdef __cplusplus
 }

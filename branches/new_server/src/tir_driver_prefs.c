@@ -10,6 +10,7 @@ static int status_bright = 0;
 static int ir_bright = 0;
 static int threshold = 0;
 static bool status = false;
+static bool grayscale = false;
 
 static char max_blob_key[] = "Max-blob";
 static char min_blob_key[] = "Min-blob";
@@ -17,8 +18,7 @@ static char status_bright_key[] = "Status-led-brightness";
 static char ir_bright_key[] = "Ir-led-brightness";
 static char threshold_key[] = "Threshold";
 static char status_key[] = "Status-signals";
-
-
+static char grayscale_key[] = "Grayscale";
 
 bool ltr_int_tir_init_prefs()
 {
@@ -48,6 +48,12 @@ bool ltr_int_tir_init_prefs()
     free(tmp);
   }else{
     status = true;
+  }
+  tmp = ltr_int_get_key(dev, grayscale_key);
+  if(tmp != NULL){
+    grayscale = (strcasecmp(tmp, "Yes") == 0) ? true : false;
+  }else{
+    grayscale = false;
   }
   return true;
 }
@@ -143,4 +149,18 @@ bool ltr_int_tir_set_status_indication(bool ind)
   char *res = ind ? on_val : off_val;
   status = ind;
   return ltr_int_change_key(ltr_int_get_device_section(), status_key, res);
+}
+
+bool ltr_int_tir_set_use_grayscale(bool gs)
+{
+  char on_val[] = "Yes";
+  char off_val[] = "No";
+  char *res = gs ? on_val : off_val;
+  grayscale = gs;
+  return ltr_int_change_key(ltr_int_get_device_section(), grayscale_key, res);
+}
+
+bool ltr_int_tir_get_use_grayscale()
+{
+  return grayscale;
 }

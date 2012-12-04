@@ -89,7 +89,8 @@ bool TirPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Max-blob", QString::number(2500));
       PREF.addKeyVal(sec, (char *)"Status-led-brightness", QString::number(0));
       PREF.addKeyVal(sec, (char *)"Ir-led-brightness", QString::number(7));
-      PREF.addKeyVal(sec, (char *)"Status-signgui.als", (char *)"on");
+      PREF.addKeyVal(sec, (char *)"Status-signals", (char *)"on");
+      PREF.addKeyVal(sec, (char *)"Grayscale", (char *)"on");
       PREF.activateDevice(sec);
     }else{
       initializing = false;
@@ -105,7 +106,10 @@ bool TirPrefs::Activate(const QString &ID, bool init)
   ui.TirStatusBright->setValue(ltr_int_tir_get_status_brightness());
   Qt::CheckState state = (ltr_int_tir_get_status_indication()) ? 
                           Qt::Checked : Qt::Unchecked;
-  ui.TirSignalizeStatus->setCheckState(state);
+  gui.TirSignalizeStatus->setCheckState(state);
+  Qt::CheckState grayscale = (ltr_int_tir_get_use_grayscale()) ? 
+                          Qt::Checked : Qt::Unchecked;
+  gui.TirUseGrayscale->setCheckState(grayscale);
   if(firmwareOK){
     if(tirType < 4){
       ui.TirFwLabel->setText("Firmware not needed!");
@@ -119,7 +123,8 @@ bool TirPrefs::Activate(const QString &ID, bool init)
         QString("TrackIR device was found, but you don't have the firmware installed."));
     on_TirInstallFirmware_pressed();
   }
-  if(tirType < 5){
+  printf("Type: %d\n", tirType);
+  if((tirType < TIR5) || (tirType == SMARTNAV4)){
     ui.TirIrBright->setDisabled(true);
     ui.TirIrBright->setHidden(true);
     ui.TirStatusBright->setDisabled(true);
@@ -130,6 +135,10 @@ bool TirPrefs::Activate(const QString &ID, bool init)
     ui.IRBrightLabel->setHidden(true);
     ui.IRBrightLabelLow->setHidden(true);
     ui.IRBrightLabelHigh->setHidden(true);
+  }
+  if(tirType != SMARTNAV4){
+    gui.TirUseGrayscale->setDisabled(true);
+    gui.TirUseGrayscale->setHidden(true);
   }
   initializing = false;
   return true;
@@ -205,7 +214,12 @@ void TirPrefs::on_TirSignalizeStatus_stateChanged(int state)
   if(!initializing) ltr_int_tir_set_status_indication(state == Qt::Checked);
 }
 
-void TirPrefs::TirFirmwareDLFinished(bool state)
+void TirPrefs::on_TirUseGrayscale_stateChanged(int state)
+{
+  if(!initializing) ltr_int_tir_set_use_grayscale(state == Qt::Checked);
+}
+
+void TirPrefs::on_TirFirmwareDLFinished(bool state)
 {
   if(state){
     dlfw->hide();

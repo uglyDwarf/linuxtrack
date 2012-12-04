@@ -204,6 +204,7 @@ AC_CONFIG_FILES([
  src/wine_bridge/Makefile
  doc/Makefile
  src/linuxtrack.pc
+ src/mickey/mickey.pro
 ])
 AC_OUTPUT
 

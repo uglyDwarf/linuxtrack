@@ -27,6 +27,9 @@ bool ltr_int_tir_set_threshold(int val);
 bool ltr_int_tir_get_status_indication();
 bool ltr_int_tir_set_status_indication(bool ind);
 
+bool ltr_int_tir_set_use_grayscale(bool gs);
+bool ltr_int_tir_get_use_grayscale();
+
 #ifdef __cplusplus
 }
 #endif
