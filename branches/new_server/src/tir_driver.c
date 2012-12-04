@@ -172,7 +172,7 @@ int ltr_int_tir_found(bool *have_firmware, bool *have_permissions)
       res = 0;
       break;
   }
-  if(res < 4){
+  if(res < TIR4){
     *have_firmware = true;
   }else{
     char *fw = ltr_int_find_firmware(device);

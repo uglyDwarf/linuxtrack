@@ -111,7 +111,7 @@ bool TirPrefs::Activate(const QString &ID, bool init)
                           Qt::Checked : Qt::Unchecked;
   gui.TirUseGrayscale->setCheckState(grayscale);
   if(firmwareOK){
-    if(tirType < 4){
+    if(tirType < TIR4){
       ui.TirFwLabel->setText("Firmware not needed!");
     }else{
       ui.TirFwLabel->setText("Firmware found!");
