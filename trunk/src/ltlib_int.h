@@ -13,8 +13,9 @@ extern "C" {
 struct frame_type;
 typedef void (*ltr_new_frame_callback_t)(struct frame_type *frame, void *);
 typedef void (*ltr_status_update_callback_t)(void *);
+typedef void (*ltr_new_slave_callback_t)(char *);
 
-int ltr_int_init(char *cust_section);
+int ltr_int_init(void);
 int ltr_int_shutdown(void);
 int ltr_int_suspend(void);
 int ltr_int_wakeup(void);

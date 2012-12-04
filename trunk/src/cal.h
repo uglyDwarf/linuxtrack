@@ -48,7 +48,9 @@ typedef enum cal_device_category_type {
   wiimote,
   webcam_ft,
   tir,
-  tir_open
+  tir_open,
+  mac_webcam,
+  mac_webcam_ft
 } cal_device_category_type;
 
 struct cal_device_type {

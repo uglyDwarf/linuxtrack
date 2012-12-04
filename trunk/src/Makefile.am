@@ -29,12 +29,20 @@ man_MANS = ltr_gui.1 ltr_server.1
 
 lib_LTLIBRARIES = liblinuxtrack.la
 pkglib_LTLIBRARIES = libltr.la libmacwii.la
-bin_PROGRAMS = ltr_server
+bin_PROGRAMS = ltr_server1
 
-ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
-ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
-ltr_server_LDADD = -lpthread libltr.la
-ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG} ${LTR_SERVER_FLAGS}
+#ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
+#ltr_server_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+#ltr_server_LDADD = -lpthread libltr.la
+#ltr_server_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG} ${LTR_SERVER_FLAGS}
+
+ltr_server1_SOURCES = ltr_srv_comm.c ltr_srv_comm.h ltr_srv_slave.c ltr_srv_slave.h \
+	ltr_srv_master.cpp ltr_srv_master.h ltr_server1.c
+ltr_server1_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+ltr_server1_LDADD = -lpthread libltr.la
+ltr_server1_LDFLAGS = $(LINUXFLAGS) ${TIGER_LDFLAG} ${LTR_SERVER_FLAGS}
+	
+
 
 if CWIID
   pkglib_LTLIBRARIES += libwii.la
@@ -85,8 +93,8 @@ liblinuxtrack_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LIBLINUXTRACK_FLAGS)
 liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" ${TIGER_LDFLAG}
 
 libltr_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
-  math_utils.c math_utils.h pose.c pose.h pref.c pref.h pref_bison.y \
-  pref_flex.l pref_global.c pref_global.h pref_int.h \
+  math_utils.c math_utils.h pose.c pose.h pref.cpp pref.hpp pref.h pref_bison.ypp \
+  pref_flex.lpp pref_global.c pref_global.h \
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
   ltlib_int.c ltlib_int.h spline.c spline.h axis.c axis.h wii_driver_prefs.c \
   wii_driver_prefs.h tir_driver_prefs.c tir_driver_prefs.h wc_driver_prefs.c \
@@ -124,7 +132,7 @@ libmacwii_la_SOURCES = macwii_driver.c wii_com.h com_proc.h \
   runloop.c runloop.h wii_driver_prefs.c wii_driver_prefs.h ipc_utils.h
 libmacwii_la_CFLAGS = ${AM_CFLAGS} ${TIGER_CFLAG} -I${srcdir} -I${srcdir}/mac -I..
 libmacwii_la_LIBADD = libltr.la
-libmacwii_la_LDFLAGS = -export-symbols drivers.sym ${AM_CFLAGS} ${TIGER_LDFLAG}
+libmacwii_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${AM_CFLAGS} ${TIGER_LDFLAG}
 
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
@@ -137,7 +145,7 @@ libft_la_CXXFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_LIBADD = libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
 libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
 
-dist_pkgdata_DATA = linuxtrack.conf 51-TIR.rules haarcascade_frontalface_alt2.xml
+dist_pkgdata_DATA = linuxtrack1.conf 51-TIR.rules haarcascade_frontalface_alt2.xml
 nodist_pkgdata_DATA = linuxtrack.c
 
 if XPLANE_PLUGIN
@@ -160,9 +168,9 @@ xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC $(DARWINFLAGS) -dynamiclib -expo
 xlinuxtrack9_la_LIBADD = -lm -ldl
 endif
 
-AM_YFLAGS = -d
+AM_YFLAGS = -d --name-prefix ltr_int_parser_
 AM_LFLAGS = -i
-BUILT_SOURCES = pref_flex.c pref_bison.c pref_bison.h
+BUILT_SOURCES = pref_flex.cpp pref_bison.cpp linuxtrack.c
 
 #dirty hack to integrate qt_gui
 
@@ -206,26 +214,33 @@ uninstall-hook:
 	pushd mickey;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
 
 
-EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \
-  qt_gui/objreader.cpp qt_gui/window.h qt_gui/webcam_prefs.cpp \
-  qt_gui/xm8_detail.png qt_gui/ltr_profiles.cpp qt_gui/scp_form.h \
-  qt_gui/prefs_link.h qt_gui/webcam_info.cpp qt_gui/scp_form.cpp \
-  qt_gui/ltr_axis.h qt_gui/main.cpp qt_gui/wiimote_prefs.h qt_gui/ltr_tracking.cpp \
-  qt_gui/scurve.cpp qt_gui/ltr_state.cpp qt_gui/scurve.h qt_gui/scurve.ui \
-  qt_gui/ltr_show.h qt_gui/ltr_gui.cpp qt_gui/ltr_profiles.h qt_gui/scp_form.ui \
-  qt_gui/XM8_cockpit.obj qt_gui/macwebcam_prefs.cpp qt_gui/tir_prefs.cpp \
-  qt_gui/macwebcam_info.h qt_gui/objreader.h qt_gui/log_view.h qt_gui/scview.cpp \
-  qt_gui/ltr_dev_help.cpp qt_gui/xm8d_body.obj qt_gui/ltr_gui.h qt_gui/ltr_gui_prefs.h \
-  qt_gui/wiimote_prefs.cpp qt_gui/cap.png qt_gui/ltr_model.h qt_gui/ltr_gui.ui \
-  qt_gui/ltr_tracking.h qt_gui/clip.png qt_gui/log_view.cpp qt_gui/ltr_rc.qrc \
-  qt_gui/ltr.ui qt_gui/dev_help.ui qt_gui/tir_prefs.h qt_gui/window.cpp \
-  qt_gui/webcam_prefs.h qt_gui/macwebcam_info.cpp qt_gui/webcam_info.h \
-  qt_gui/ltr_model.cpp qt_gui/ltr_gui_prefs.cpp qt_gui/ltr_show.cpp \
-  qt_gui/logview.ui qt_gui/ltr_state.h qt_gui/ltr_dev_help.h qt_gui/scview.h \
-  qt_gui/macwebcam_prefs.h qt_gui/glwidget.cpp qt_gui/model_creation.ui \
-  tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
-  xlinuxtrack.sym
-
+EXTRA_DIST = qt_gui/ltr_show.h qt_gui/help_view.cpp qt_gui/ltr_tracking.h \
+qt_gui/scp_form.ui qt_gui/logview.ui qt_gui/clip.png qt_gui/webcam_prefs.cpp \
+qt_gui/scview.h qt_gui/webcam_ft_prefs.h qt_gui/scview.cpp qt_gui/dl.ui \
+qt_gui/ltr_model.h qt_gui/ltr_gui.cpp qt_gui/glwidget.h qt_gui/wiimote_prefs.h \
+qt_gui/macwebcam_info.cpp qt_gui/ltr_gui_prefs.cpp qt_gui/objreader.cpp qt_gui/clip_small.png \
+qt_gui/cap_small.png qt_gui/dlfirmware.cpp qt_gui/window.cpp qt_gui/model_wizzard.ui \
+qt_gui/ltr_tracking.cpp qt_gui/ltr_profiles.cpp qt_gui/objreader.h qt_gui/plugin_install.cpp \
+qt_gui/ltr_gui_prefs.h qt_gui/scp_form.h qt_gui/ltr_gui.pro.in qt_gui/scurve.h \
+qt_gui/ltr_rc.qrc qt_gui/macwebcamft_prefs.h qt_gui/ltr_state.h qt_gui/model_creation.ui \
+qt_gui/macwebcamft_prefs.cpp qt_gui/log_view.cpp qt_gui/ltr_gui.h qt_gui/tracker.h \
+qt_gui/macwebcam_info.h qt_gui/webcam_ft_prefs.cpp qt_gui/xm8d_body.obj qt_gui/ltr_dev_help.cpp \
+qt_gui/scp_form.cpp qt_gui/linuxtrack.icns qt_gui/window.h qt_gui/ltr_model.cpp \
+qt_gui/help_view.h qt_gui/wiimote_prefs.cpp qt_gui/cap.png qt_gui/ltr_dev_help.h  \
+qt_gui/glwidget.cpp qt_gui/scurve.ui qt_gui/tir_prefs.h \
+qt_gui/scurve.cpp qt_gui/ltr_gui.ui qt_gui/dev_help.ui qt_gui/ltr_profiles.h \
+qt_gui/ltr.ui qt_gui/ltr_state.cpp qt_gui/tir_prefs.cpp qt_gui/ltr_show.cpp \
+qt_gui/xm8_detail.png qt_gui/main.cpp qt_gui/prefs_link.h qt_gui/macwebcam_prefs.h \
+qt_gui/webcam_info.h qt_gui/help/misc.htm qt_gui/help/dev_setup.htm qt_gui/help/axes_setup.htm \
+qt_gui/help/model_setup.htm qt_gui/dlfirmware.h qt_gui/webcam_info.cpp qt_gui/plugin_install.h \
+qt_gui/XM8_cockpit.obj qt_gui/tracker.cpp qt_gui/webcam_prefs.h qt_gui/macwebcam_prefs.cpp \
+qt_gui/log_view.h tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
+xlinuxtrack.sym linuxtrack_pre.c \
+wii_server/wii_server.cpp wii_server/wiimote.h wii_server/wiimote.cpp wii_server/wii_server.pro.in \
+wii_server/main.cpp wii_server/wii_server.h wii_server/wii_server.ui wii_server/wii_server.qrc \
+linuxtrack-wii.desktop linuxtrack-wii.png linuxtrack-wii.svg linuxtrack-wii.xpm \
+linuxtrack.desktop linuxtrack.png linuxtrack.svg linuxtrack.xpm \
+ltr_gui.1 ltr_pipe.1 ltr_server.1 wii_server.1
 
 
 ltr_pipe_CPPFLAGS =
@@ -248,4 +263,6 @@ desktop_DATA = linuxtrack.desktop linuxtrack-wii.desktop
 icondir = $(datadir)/pixmaps
 icon_DATA = linuxtrack.svg linuxtrack.png linuxtrack.xpm \
             linuxtrack-wii.svg linuxtrack-wii.png linuxtrack-wii.xpm
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = linuxtrack.pc
 

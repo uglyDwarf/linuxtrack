@@ -2,10 +2,11 @@
   #include "../../config.h"
 #endif
 
-#include "pref_int.h"
+#include "pref.hpp"
 #include "pref_global.h"
 #include "ltr_gui_prefs.h"
 #include "map"
+#include "utils.h"
 
 #include <QStringList>
 #include <QApplication>
@@ -14,6 +15,7 @@
 #include <iostream>
 
 PrefProxy *PrefProxy::prf = NULL;
+prefs &PrefProxy::ltrPrefs = prefs::getPrefs();
 
 static int warnMessage(const QString &message){
  return QMessageBox::warning(NULL, "Linuxtrack",
@@ -26,7 +28,14 @@ PrefProxy::PrefProxy()
     checkPrefix(true);
     return;
   }
-  ltr_int_log_message("Couldn't load preferences!\n");
+  ltr_int_log_message("Pref file not found, trying linuxtrack.conf\n");
+  if(ltr_int_read_prefs("linuxtrack.conf", false)){
+    ltrPrefs.setChangeFlag();
+    checkPrefix(true);
+    return;
+  }
+  
+  ltr_int_log_message("Couldn't load preferences (GUI), copying default!\n");
   if(!makeRsrcDir()){
     throw;
   }
@@ -43,12 +52,15 @@ bool PrefProxy::checkPrefix(bool save)
   QString appPath = QApplication::applicationDirPath();
   appPath.prepend("\"");
   appPath += "\"";
-  if(getKeyVal("Global", "Prefix", prefix) && (prefix == appPath)){
+  std::string tmp_prefix("");
+  bool res = ltrPrefs.getValue("Global", "Prefix", tmp_prefix);
+  prefix = QString::fromStdString(tmp_prefix);
+  if(res && (prefix == appPath)){
     //Intentionaly left empty
   }else{
     prefix = appPath;
     bool res = true;
-    res &= setKeyVal("Global", "Prefix", appPath);
+    ltrPrefs.setValue("Global", "Prefix", appPath.toStdString());
     if(save){
       res &= savePrefs();
     }
@@ -102,8 +114,8 @@ bool PrefProxy::copyDefaultPrefs()
   if(targetDir.endsWith("/")){
     targetDir.chop(1);
   }
-  QString target = targetDir + "/linuxtrack.conf";
-  QString source = PrefProxy::getDataPath("linuxtrack.conf");
+  QString target = targetDir + "/linuxtrack1.conf";
+  QString source = PrefProxy::getDataPath("linuxtrack1.conf");
   QFileInfo target_info(target);
   if(target_info.exists() || target_info.isSymLink()){
     QString bck = target + ".backup";
@@ -134,16 +146,6 @@ bool PrefProxy::copyDefaultPrefs()
 
 PrefProxy::~PrefProxy()
 {
-  if(ltr_int_need_saving()){
-    QMessageBox::StandardButton res;
-    res = QMessageBox::warning(NULL, "Linuxtrack",
-       QString("Preferences were modified,") +
-       QString("Do you want to save them?"), 
-       QMessageBox::Save | QMessageBox::Close, QMessageBox::Save);
-    if(res == QMessageBox::Save){
-      savePrefs();
-    }
-  }
 }
 
 PrefProxy& PrefProxy::Pref()
@@ -163,16 +165,30 @@ void PrefProxy::ClosePrefs()
   }
 }
 
+void PrefProxy::SavePrefsOnExit()
+{
+  if(ltrPrefs.changed()){
+    QMessageBox::StandardButton res;
+    res = QMessageBox::warning(NULL, "Linuxtrack",
+       QString("Preferences were modified,") +
+       QString("Do you want to save them?"), 
+       QMessageBox::Save | QMessageBox::Close, QMessageBox::Save);
+    if(res == QMessageBox::Save){
+      savePrefs();
+    }
+  }
+}
+
 bool PrefProxy::activateDevice(const QString &sectionName)
 {
-  return ltr_int_change_key((char *)"Global", (char *)"Input", 
-			    sectionName.toAscii().data());
+  ltrPrefs.setValue("Global", "Input", sectionName.toStdString());
+  return true;
 }
 
 bool PrefProxy::activateModel(const QString &sectionName)
 {
-  return ltr_int_change_key((char *)"Global", (char *)"Model", 
-			    sectionName.toAscii().data());
+  ltrPrefs.setValue("Global", "Model", sectionName.toStdString());
+  return true;
 }
 
 bool PrefProxy::createSection(QString 
@@ -181,13 +197,13 @@ bool PrefProxy::createSection(QString
   int i = 0;
   QString newSecName = sectionName;
   while(1){
-    if(!ltr_int_section_exists(newSecName.toAscii().data())){
+    if(!ltrPrefs.sectionExists(newSecName.toStdString())){
       break;
     }
     newSecName = QString("%1_%2").arg(sectionName).
                                            arg(QString::number(++i));
   }
-  ltr_int_add_section(newSecName.toAscii().data());
+  ltrPrefs.addSection(newSecName.toStdString());
   sectionName = newSecName;
   return true;
 }
@@ -195,16 +211,16 @@ bool PrefProxy::createSection(QString
 bool PrefProxy::getKeyVal(const QString &sectionName, const QString &keyName, 
 			  QString &result)
 {
-  const char *val = ltr_int_get_key(sectionName.toAscii().data(), 
-                      keyName.toAscii().data());
-  if(val != NULL){
-    result = val;
+  std::string val;
+  if(ltrPrefs.getValue(sectionName.toStdString(), keyName.toStdString(), val)){
+    result = QString::fromStdString(val);
     return true;
   }else{
     return false;
   }
 }
 
+/*
 bool PrefProxy::getKeyVal(const QString &keyName, QString &result)
 {
   const char *val = ltr_int_get_key(NULL, keyName.toAscii().data());
@@ -215,110 +231,91 @@ bool PrefProxy::getKeyVal(const QString &keyName, QString &result)
     return false;
   }
 }
+*/
 
 bool PrefProxy::addKeyVal(const QString &sectionName, const QString &keyName, 
 			  const QString &value)
 {
-  return ltr_int_add_key(sectionName.toAscii().data(), keyName.toAscii().data(), 
-		 value.toAscii().data());
+  ltrPrefs.addKey(sectionName.toStdString(), keyName.toStdString(), 
+		 value.toStdString());
+  return true;
 }
-
-
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
 			  const QString &value)
 {
-  return ltr_int_change_key(sectionName.toAscii().data(), keyName.toAscii().data(),
-			    value.toAscii().data());
+  ltrPrefs.setValue(sectionName.toStdString(), keyName.toStdString(),
+			    value.toStdString());
+  return true;
 }
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
                           const int &value)
 {
-  return ltr_int_change_key_int(sectionName.toAscii().data(), keyName.toAscii().data(),
-			    value);
+  ltrPrefs.setValue(sectionName.toStdString(), keyName.toStdString(), value);
+  return true;
 }
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
                           const float &value)
 {
-  return ltr_int_change_key_flt(sectionName.toAscii().data(), keyName.toAscii().data(),
-			    value);
+  ltrPrefs.setValue(sectionName.toStdString(), keyName.toStdString(), value);
+  return true;
 }
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
                           const double &value)
 {
-  return ltr_int_change_key_flt(sectionName.toAscii().data(), keyName.toAscii().data(),
-			    (float)value);
+  ltrPrefs.setValue(sectionName.toStdString(), keyName.toStdString(), (float)value);
+  return true;
 }
 
 bool PrefProxy::getFirstDeviceSection(const QString &devType, QString &result)
 {
-  char **sections = NULL;
-  ltr_int_get_section_list(&sections);
-  char *name;
-  int i = 0;
-  while((name = sections[i]) != NULL){
-    const char *dev_name;
-    if((dev_name = ltr_int_get_key(name, (char *)"Capture-device")) != NULL){
-      if(QString(dev_name) == devType){
-	break;
+  std::vector<std::string> sections;
+  ltrPrefs.getSectionList(sections);
+  std::string devName;
+  for(size_t i = 0; i < sections.size(); ++i){
+    if(ltrPrefs.getValue(sections[i], "Capture-device", devName)){
+      if(QString::fromStdString(devName) == devType){
+	result = QString::fromStdString(sections[i]);
+	return true;
       }
     }
-    ++i;
   }
-  bool res;
-  if(name != NULL){
-    result = QString(name);
-    res = true;
-  }else{
-    res = false;
-  }
-  ltr_int_array_cleanup(&sections);
-  return res;
+  return false;
 }
 
 bool PrefProxy::getFirstDeviceSection(const QString &devType, 
 				      const QString &devId, QString &result)
 {
-  char **sections = NULL;
-  ltr_int_get_section_list(&sections);
-  char *name;
-  int i = 0;
-  while((name = sections[i]) != NULL){
-    const char *dev_name = ltr_int_get_key(name, (char *)"Capture-device");
-    const char *dev_id = ltr_int_get_key(name, (char *)"Capture-device-id");
-    if((dev_name != NULL) && (dev_id != NULL)){
-      if((QString(dev_name) == devType) && (QString(dev_id) == devId)){
-	break;
+  std::vector<std::string> sections;
+  ltrPrefs.getSectionList(sections);
+  std::string devName, devIdStr;
+  for(size_t i = 0; i < sections.size(); ++i){
+    if(ltrPrefs.getValue(sections[i], "Capture-device", devName) &&
+       ltrPrefs.getValue(sections[i], "Capture-device-id", devIdStr)){
+      if((QString::fromStdString(devName) == devType) && 
+         (QString::fromStdString(devIdStr) == devId)){
+	result = QString::fromStdString(sections[i]);
+	return true;
       }
     }
-    ++i;
   }
-  bool res;
-  if(name != NULL){
-    result = QString(name);
-    res = true;
-  }else{
-    res = false;
-  }
-  ltr_int_array_cleanup(&sections);
-  return res;
+  return false;
 }
 
-bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id)
+bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id, QString &secName)
 {
-  const char *dev_section = ltr_int_get_key((char *)"Global", (char *)"Input");
-  if(dev_section == NULL){
+  std::string devSection, devName, devId;
+  if(!ltrPrefs.getValue("Global", "Input", devSection)){
     return false;
   }
-  const char *dev_name = ltr_int_get_key(dev_section, (char *)"Capture-device");
-  const char *dev_id = ltr_int_get_key(dev_section, (char *)"Capture-device-id");
-  if((dev_name == NULL) || (dev_id == NULL)){
+  if(!ltrPrefs.getValue(devSection, "Capture-device", devName) ||
+     !ltrPrefs.getValue(devSection, "Capture-device-id", devId)){
     return false;
   }
-  QString dn = dev_name;
+  QString dn = QString::fromStdString(devName);
   if(dn.compare((char *)"Webcam", Qt::CaseInsensitive) == 0){
     devType = WEBCAM;
   }else if(dn.compare((char *)"Webcam-face", Qt::CaseInsensitive) == 0){
@@ -332,96 +329,75 @@ bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id)
   }else{
     devType = NONE;
   }
-  id = dev_id;
+  id = QString::fromStdString(devId);
+  secName = QString::fromStdString(devSection);
   return true;
+}
+
+bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id)
+{
+  QString tmp;
+  return getActiveDevice(devType, id, tmp);
 }
 
 bool PrefProxy::getActiveModel(QString &model)
 {
-  const char *mod_section = ltr_int_get_key((char *)"Global", (char *)"Model");
-  if(mod_section == NULL){
+  std::string modelSection;
+  if(!ltrPrefs.getValue("Global", "Model", modelSection)){
     return false;
   }
-  model = mod_section;
+  model = QString::fromStdString(modelSection);
   return true;
 }
 
 bool PrefProxy::getModelList(QStringList &list)
 {
-  char **sections = NULL;
+  std::vector<std::string> sections;
+  std::string modelType;
+  ltrPrefs.getSectionList(sections);
   list.clear();
-  ltr_int_get_section_list(&sections);
-  char *name;
-  int i = 0;
-  while((name = sections[i]) != NULL){
-    const char *model_type = ltr_int_get_key(name, (char *)"Model-type");
-    if(model_type != NULL){
-      list.append(name);
+  for(size_t i = 0; i < sections.size(); ++i){
+    if(ltrPrefs.getValue(sections[i], "Model-type", modelType)){
+      list.append(QString::fromStdString(sections[i]));
     }
-    ++i;
   }
   return (list.size() != 0);
 }
 
 bool PrefProxy::getProfiles(QStringList &list)
 {
-  char **sections = NULL;
+  std::vector<std::string> sections;
+  std::string profileName;
+  ltrPrefs.getSectionList(sections);
   list.clear();
-  ltr_int_get_section_list(&sections);
-  char *name;
-  int i = 0;
-  while((name = sections[i]) != NULL){
-    const char *title = ltr_int_get_key(name, (char *)"Title");
-    if(title != NULL){
-      list.append(title);
+  for(size_t i = 0; i < sections.size(); ++i){
+    if(ltrPrefs.getValue(sections[i], "Title", profileName)){
+      list.append(QString::fromStdString(profileName));
     }
-    ++i;
   }
   return (list.size() != 0);
 }
 
-bool PrefProxy::setCustomSection(const QString &name)
+bool PrefProxy::getProfileSection(const QString &name, QString &section)
 {
-  bool res = ltr_int_set_custom_section(name.toAscii().data());
-  ltr_int_init_axes();
-  return res;
+  std::string secName;
+  if(ltrPrefs.findSection("Title", name.toStdString(), secName)){
+    section = QString::fromStdString(secName);
+    return true;
+  }
+  return false;
 }
 
 bool PrefProxy::savePrefs()
 {
-  bool res = ltr_int_save_prefs();
+  bool res = ltr_int_save_prefs(NULL);
   return res;
-}
-
-QString PrefProxy::getCustomSectionName()
-{
-  const char *sec = ltr_int_get_custom_section_name();
-  if(sec == NULL){
-    return QString("Default");
-  }else{
-    return QString(sec);
-  }
-}
-
-QString PrefProxy::getCustomSectionTitle()
-{
-  const char *sec = ltr_int_get_custom_section_name();
-  if(sec == NULL){
-    return QString("Default");
-  }else{
-    QString title;
-    if(getKeyVal("Title", title)){
-      return title;
-    }else{
-      return QString("Default");
-    }
-  }
 }
 
 QString PrefProxy::getDataPath(QString file)
 {
-  char *path = ltr_int_get_data_path_prefix(file.toAscii().data(), 
-                                            QApplication::applicationDirPath().toAscii().data());
+  char *path = ltr_int_get_data_path_prefix(file.toStdString().c_str(), 
+                                            QApplication::applicationDirPath().toStdString().c_str());
   QString res = path;
   free(path);
   return res; 
@@ -437,7 +413,7 @@ QString PrefProxy::getDataPath(QString file)
 
 QString PrefProxy::getLibPath(QString file)
 {
-  char *path = ltr_int_get_lib_path(file.toAscii().data());
+  char *path = ltr_int_get_lib_path(file.toStdString().c_str());
   QString res = path;
   free(path);
   return res;   
@@ -458,8 +434,7 @@ QString PrefProxy::getRsrcDirPath()
 
 bool PrefProxy::rereadPrefs()
 {
-  ltr_int_close_prefs();
-  ltr_int_new_prefs();
+  ltr_int_free_prefs();
   ltr_int_read_prefs(NULL, true);
   checkPrefix(true);
   return true;
@@ -469,3 +444,16 @@ void PrefProxy::announceModelChange()
 {
   ltr_int_announce_model_change();
 }
+
+void PrefProxy::getSectionList(QStringList &list)
+{
+  std::vector<std::string> tmpList;
+  ltrPrefs.getSectionList(tmpList);
+  list.clear();
+  for(size_t i = 0; i < tmpList.size(); ++i){
+    list.append(QString::fromStdString(tmpList[i]));
+  }
+}
+
+
+

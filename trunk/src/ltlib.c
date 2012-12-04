@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 
 #ifndef LIBLINUXTRACK_SRC
   #include "ltlib_int.h"
@@ -9,36 +10,61 @@
   #include "utils.h"
 #endif
 
-static char *com_fname;
 static struct mmap_s mmm;
 static bool initialized = false;
 
 static int make_mmap()
 {
-  com_fname = ltr_int_get_com_file_name();
-  if(!ltr_int_mmap_file(com_fname, sizeof(struct mmap_s), &mmm)){
+  if(!ltr_int_mmap_file_exclusive(sizeof(struct mmap_s), &mmm)){
     perror("mmap_file: ");
     ltr_int_log_message("Couldn't mmap!\n");
-    free(com_fname);
     return -1;
   }
-  free(com_fname);
   return 0;
 }
 
-int ltr_init(char *cust_section)
+static void ltr_int_sanitize_name(char *name)
 {
-  if(initialized) return 0;
-  if(make_mmap() != 0) return -1;
+  char *forbidden = "\r\n";
+  size_t len = strcspn(name, forbidden);
+  name[len] = '\0';
+}
+
+char *ltr_int_init_helper(const char *cust_section, bool standalone)
+{
+  bool is_child;
+  if(initialized) return mmm.fname;
+  if(make_mmap() != 0) return NULL;
   struct ltr_comm *com = mmm.data;
   com->preparing_start = true;
   initialized = true;
-  char *server = ltr_int_get_app_path("/ltr_server");
-  char *args[] = {server, cust_section, NULL};
-  ltr_int_fork_child(args);
-  free(server);
+  if(standalone){
+    char *server = ltr_int_get_app_path("/ltr_server1");
+    char *section = ltr_int_my_strdup(cust_section);
+    ltr_int_sanitize_name(section);
+    char *args[] = {server, section, mmm.fname, NULL};
+    if(!ltr_int_fork_child(args, &is_child)){
+      com->state = ERROR;
+      free(server);
+      if(is_child){
+        exit(1);
+      }
+      return false;
+    }
+    free(server);
+    free(section);
+  }
   ltr_wakeup();
-  return 0;
+  return mmm.fname;
+}
+
+int ltr_init(const char *cust_section)
+{
+  if(ltr_int_init_helper(cust_section, true) != NULL){
+    return 0;
+  }else{
+    return -1;
+  }
 }
 
 int ltr_get_camera_update(float *heading,
@@ -55,7 +81,7 @@ int ltr_get_camera_update(float *heading,
   ltr_int_lockSemaphore(mmm.sem);
   tmp = *com;
   ltr_int_unlockSemaphore(mmm.sem);
-  if(tmp.state != STOPPED){
+  if(tmp.state != ERROR){
     *heading = tmp.heading;
     *pitch = tmp.pitch;
     *roll = tmp.roll;

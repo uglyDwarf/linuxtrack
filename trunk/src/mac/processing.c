@@ -91,6 +91,7 @@ static void *processingThreadFun(void *param)
   if(facetrack){
     stop_detect();
   }
+  ltr_int_cleanup_after_processing();
 #endif
   return NULL;
 }
@@ -118,6 +119,7 @@ void endProcessing()
 {
 //  printf("Signaling end to the processing thread!\n");
   end_flag = true;
+  pthread_join(&processing_thread, NULL);
 }
 
 bool newFrame(unsigned char *ptr)

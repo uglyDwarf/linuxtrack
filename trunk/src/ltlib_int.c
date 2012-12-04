@@ -1,8 +1,9 @@
 
 //#include <stdarg.h>
+#include <pthread.h>
 #include "pref_global.h"
 #include "utils.h" 
-#include "pref_int.h"
+#include "pref.h"
 #include "cal.h"
 #include "tracking.h"
 #include "ltlib_int.h"
@@ -31,19 +32,18 @@ static void *cal_thread_fun(void *param)
     ltr_int_cal_run(&ccb, frame_callback);
     free(ccb.device.device_id);
   }
-  pthread_detach(pthread_self());
+  //pthread_detach(pthread_self());
   return NULL;
 }
 
-int ltr_int_init(char *cust_section)
+int ltr_int_init(void)
 {
   if(!ltr_int_read_prefs(NULL, false)){
     ltr_int_log_message("Couldn't load preferences!\n");
     return -1;
   }
-  ltr_int_set_custom_section(cust_section);
   if(!ltr_int_init_tracking()){
-    ltr_int_log_message("Couldn't initialize trcking!\n");
+    ltr_int_log_message("Couldn't initialize tracking!\n");
     return -1;
   }
   pthread_create(&cal_thread, NULL, cal_thread_fun, NULL);
@@ -81,7 +81,10 @@ int ltr_int_wakeup(void)
 
 int ltr_int_shutdown(void)
 {
-  return ltr_int_cal_shutdown();
+  ltr_int_log_message("Shutting down tracking...\n");
+  int res = ltr_int_cal_shutdown();
+  pthread_join(cal_thread, NULL);
+  return res;
 }
 
 void ltr_int_recenter(void)

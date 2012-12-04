@@ -26,12 +26,14 @@
 
 static pid_t child;
 
-bool ltr_int_fork_child(char *args[])
+bool ltr_int_fork_child(char *args[], bool *is_child)
 {
   if((child = fork()) == 0){
     //Child here
+    *is_child = true;
     execv(args[0], args);
     perror("execv");
+    printf("Child should quit now...\n");
     return false;
   }
   return true;
@@ -250,6 +252,8 @@ static bool ltr_int_mmap(int fd, ssize_t tmp_size, struct mmap_s *m)
   return true;
 }
 
+#ifndef LIBLINUXTRACK_SRC
+
 bool ltr_int_mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
 {
   umask(S_IWGRP | S_IWOTH);
@@ -270,6 +274,8 @@ bool ltr_int_mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
   m->sem->fd = fd;
   return true;
 }
+
+#endif
 
 bool ltr_int_mmap_file_exclusive(size_t tmp_size, struct mmap_s *m)
 {
@@ -304,15 +310,16 @@ bool ltr_int_unmap_file(struct mmap_s *m)
   if(m->lock_sem != NULL){
     ltr_int_closeSemaphore(m->lock_sem);
   }
-  if(m->fname != NULL){
-    free(m->fname);
-    m->fname = NULL;
-  }
   int res = munmap(m->data, m->size);
   m->data = NULL;
   m->size = 0;
   if(res < 0){
     perror("munmap: ");
+  }
+  unlink(m->fname);
+  if(m->fname != NULL){
+    free(m->fname);
+    m->fname = NULL;
   }
   return res == 0;
 }

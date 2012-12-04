@@ -2,7 +2,6 @@
 #define LTR_TRACKING__H
 
 #include "ltr_gui.h"
-#include "ltr_axis.h"
 
 
 class LtrTracking : public QObject
@@ -15,8 +14,7 @@ class LtrTracking : public QObject
  signals:
   void customSectionChanged();
  private slots:
-  void on_FilterSlider_valueChanged(int value);
-  void ffChanged(float f);
+  void axisChanged(int axis, int elem);
   void on_Profiles_currentIndexChanged(const QString &text);
   void on_CreateNewProfile_pressed();
   
@@ -25,8 +23,7 @@ class LtrTracking : public QObject
   void on_YawEnable_stateChanged(int state);
   void on_XEnable_stateChanged(int state);
   void on_YEnable_stateChanged(int state);
-  void on_ZEnable_stateChanged(int state);
-  
+  void on_ZEnable_stateChanged(int state);  
   void on_PitchUpSpin_valueChanged(double d);
   void on_PitchDownSpin_valueChanged(double d);
   void on_YawLeftSpin_valueChanged(double d);
@@ -39,22 +36,13 @@ class LtrTracking : public QObject
   void on_MoveDownSpin_valueChanged(double d);
   void on_MoveBackSpin_valueChanged(double d);
   void on_MoveForthSpin_valueChanged(double d);
-  
-  void pitchChanged(AxisElem_t what);
-  void rollChanged(AxisElem_t what);
-  void yawChanged(AxisElem_t what);
-  void txChanged(AxisElem_t what);
-  void tyChanged(AxisElem_t what);
-  void tzChanged(AxisElem_t what);
+  void on_CommonFF_valueChanged(int value);
+  void setCommonFF(float val);
+  void initAxes();
  private:
   const Ui::LinuxtrackMainForm &gui;
   void Connect();
-  LtrAxis *pitch;
-  LtrAxis *roll;
-  LtrAxis *yaw;
-  LtrAxis *tx;
-  LtrAxis *ty;
-  LtrAxis *tz;
+  void setCommonFFVal(float val);
   bool initializing;
 };
 

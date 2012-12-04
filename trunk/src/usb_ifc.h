@@ -4,8 +4,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-typedef enum {NOT_TIR = 0, TIR2, TIR3, TIR4, TIR5, TIR5V2, SMARTNAV4} dev_found;
-
+typedef enum {NOT_TIR = 0, TIR2, TIR3, TIR4, TIR5, TIR5V2, SMARTNAV4, NOT_PERMITTED = 16384} dev_found;
 
 #ifndef USB_IMPL_ONLY
 typedef bool (*init_usb_fun)();
@@ -31,6 +30,7 @@ bool ltr_int_receive_data(int in_ep, unsigned char data[], size_t size, size_t *
                          unsigned int timeout);
 void ltr_int_finish_usb(unsigned int interface);
 #endif
+
 
 
 #endif

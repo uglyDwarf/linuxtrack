@@ -116,7 +116,12 @@ static pthread_t detect_thread_handle;
 void *detector_thread(void *)
 {
   cascade = new cv::CascadeClassifier();
-  if(!cascade->load(ltr_int_wc_get_cascade())){
+  const char *cascade_path = ltr_int_wc_get_cascade();
+  if(cascade_path == NULL){
+    ltr_int_log_message("Cascade path not specified!\n");
+    return false;
+  }
+  if(!cascade->load(cascade_path)){
     ltr_int_log_message("Could't load cascade!\n");
     return NULL;
   }

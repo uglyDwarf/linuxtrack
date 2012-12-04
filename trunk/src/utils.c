@@ -28,7 +28,7 @@
 
 #define MAX_LOGS 5
 
-static char *pref_file = "linuxtrack.conf";
+static char *pref_file = "linuxtrack1.conf";
 
 static const char *logfile_template = "/tmp/linuxtrack%02d.log";
 static char *logfile_name = NULL;

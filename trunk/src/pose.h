@@ -5,6 +5,7 @@
 #include "axis.h"
 #include "tracking.h"
 #include "cal.h"
+#include "ltlib.h"
 
 /* all units are  in millimeters.  
  * The common, camera centric coordinate system is used:
@@ -50,7 +51,7 @@ void ltr_int_pose_init(struct reflector_model_type rm);
 void ltr_int_pose_sort_blobs(struct bloblist_type bl);
 
 bool ltr_int_pose_process_blobs(struct bloblist_type blobs, 
-                        struct current_pose *pose,
+                        pose_t *pose,
                         bool centering);
 bool ltr_int_is_single_point();                        
 bool ltr_int_is_face();

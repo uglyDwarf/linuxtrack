@@ -1,6 +1,10 @@
 #include <ltr_gui_prefs.h>
 #include <ltr_profiles.h>
+#include "tracker.h"
 #include <iostream>
+
+//TODO!!!: check the code, maybe move filterfactor to the TRACKER too...
+//         check switching profiles!!!
 
 Profile::Profile() : currentProfile(NULL)
 {
@@ -21,10 +25,16 @@ Profile& Profile::getProfiles()
 
 void Profile::addProfile(const QString &newSec)
 {
+  ltr_axes_t tmp_axes = LTR_AXES_T_INITIALIZER;
+  ltr_int_init_axes(&tmp_axes, qPrintable(newSec));
+  ltr_int_close_axes(&tmp_axes);
+  PREF.getProfiles(names);
+/*  
   QString section_name = "Profile";
   PREF.createSection(section_name);
   PREF.addKeyVal(section_name, "Title", newSec);
   names.append(newSec);
+*/
 }
 
 const QStringList &Profile::getProfileNames()
@@ -37,11 +47,8 @@ bool Profile::setCurrent(const QString &name)
   if(!names.contains(name, Qt::CaseInsensitive)){
     return false;
   }
-  if(PREF.setCustomSection(name)){
-    currentProfile->changeProfile(PREF.getCustomSectionName());
-    return true;
-  }
-  return false;
+  currentProfile->changeProfile(name);
+  return true;
 }
 
 AppProfile *Profile::getCurrentProfile()
@@ -56,107 +63,18 @@ const QString &Profile::getCurrentProfileName()
 
 int Profile::isProfile(const QString &name)
 {
-  int i = -1;
-  if(names.contains(name, Qt::CaseInsensitive)){
-    for(i = 0; i < names.size(); ++i){
-      if(names[i].compare(name, Qt::CaseInsensitive) == 0){
-        break;
-      }
-    }
-  }
-  return i;
+  return names.indexOf(name);
 }
 
-AppProfile::AppProfile(const QString &n, QWidget *parent) : QWidget(parent), name(n), filterFactor(0.0),
+
+AppProfile::AppProfile(const QString &n, QWidget *parent) : QWidget(parent), name(n),
                                                             initializing(false)
 {
-  PREF.setCustomSection(name);
-  //std::cout<<"Cust section: "<<name.toAscii().data()<<std::endl;
-  pitch = new LtrAxis(this, PITCH);
-  roll = new LtrAxis(this, ROLL);
-  yaw = new LtrAxis(this, YAW);
-  tx = new LtrAxis(this, TX);
-  ty = new LtrAxis(this, TY);
-  tz = new LtrAxis(this, TZ);
-  filterFactorReload();
-}
-
-void AppProfile::filterFactorReload()
-{
-  QString val;
-  PREF.getKeyVal("Filter-factor", val);
-  float filterFactor = val.toFloat();
-  emit filterFactorChanged(filterFactor);
+  TRACKER.setProfile(name);
 }
 
 AppProfile::~AppProfile()
 {
-  delete(pitch);
-  delete(roll);
-  delete(yaw);
-  delete(tx);
-  delete(ty);
-  delete(tz);
-}
-
-void AppProfile::on_pitchChange(AxisElem_t what)
-{
-  emit pitchChanged(what);
-}
-
-void AppProfile::on_rollChange(AxisElem_t what)
-{
-  emit rollChanged(what);
-}
-
-void AppProfile::on_yawChange(AxisElem_t what)
-{
-  emit yawChanged(what);
-}
-
-void AppProfile::on_txChange(AxisElem_t what)
-{
-  emit txChanged(what);
-}
-
-void AppProfile::on_tyChange(AxisElem_t what)
-{
-  emit tyChanged(what);
-}
-
-void AppProfile::on_tzChange(AxisElem_t what)
-{
-  emit tzChanged(what);
-}
-
-LtrAxis *AppProfile::getPitchAxis()
-{
-  return pitch;
-}
-
-LtrAxis *AppProfile::getRollAxis()
-{
-  return roll;
-}
-
-LtrAxis *AppProfile::getYawAxis()
-{
-  return yaw;
-}
-
-LtrAxis *AppProfile::getTxAxis()
-{
-  return tx;
-}
-
-LtrAxis *AppProfile::getTyAxis()
-{
-  return ty;
-}
-
-LtrAxis *AppProfile::getTzAxis()
-{
-  return tz;
 }
 
 const QString &AppProfile::getProfileName() const
@@ -166,25 +84,11 @@ const QString &AppProfile::getProfileName() const
 
 bool AppProfile::changeProfile(const QString &newName)
 {
+  //std::cout<<"Approfile changing profile to "<<newName.toStdString()<<std::endl;
+
   name = newName;
-  pitch->reload();
-  roll->reload();
-  yaw->reload();
-  tx->reload();
-  ty->reload();
-  tz->reload();
-  filterFactorReload();
+  TRACKER.setProfile(name);
   return true;
 }
 
-void AppProfile::setFilterFactor(float f)
-{
-  filterFactor = f;
-  emit filterFactorChanged(f);
-}
-
-float AppProfile::getFilterFactor()
-{
-  return filterFactor;
-}
 

@@ -4,20 +4,21 @@
 #include <QObject>
 #include <QComboBox>
 #include <QFileDialog>
-#include "ui_ltr.h"
-#include "pref_int.h"
+#include "ui_l_wcft_setup.h"
+#include "pref.hpp"
 #include "prefs_link.h"
 
-class WebcamFtPrefs : public QObject{
+class WebcamFtPrefs : public QWidget{
   Q_OBJECT
  public:
-  WebcamFtPrefs(const Ui::LinuxtrackMainForm &ui);
+  WebcamFtPrefs(const QString &dev_id, QWidget *parent = 0);
   ~WebcamFtPrefs();
-  bool Activate(const QString &ID, bool init = false);
   static bool AddAvailableDevices(QComboBox &combo);
  private:
-  const Ui::LinuxtrackMainForm &gui;
-  void Connect();
+  const QString id;
+  bool Activate(const QString &ID, bool init = false);
+  Ui::WebcamFtSetupForm ui;
+  //void Connect();
   bool initializing;
  private slots:
   void on_WebcamFtFormats_activated(int index);

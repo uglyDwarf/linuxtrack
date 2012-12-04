@@ -37,6 +37,7 @@ AC_CHECK_HEADERS([stdlib.h unistd.h netdb.h sys/socket.h fcntl.h sys/ioctl.h])
 
 AC_PATH_PROGS(QMAKE_PATH, [qmake qmake-qt4])
 
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
 AC_TYPE_UINT16_T
@@ -112,6 +113,13 @@ AC_ARG_ENABLE([ltr_32lib_on_x64],
 		[with_ltr_32lib_on_x64=yes]
 )
 
+AC_ARG_ENABLE([wine_plugin],
+            [AS_HELP_STRING([--enable-wine-plugin],
+              [build wine plugin (requires winegcc, wineg++ and makensis) @<:@default=no@:>@])], 
+            [with_wine_plugin=yes],
+            [with_wine_plugin=no]
+)
+
 #AC_ARG_ENABLE([face_tracker],
 #            [AS_HELP_STRING([--enable-face-tracker],
 #              [enables building of face tracker (requires OpenCV 2.X)])], 
@@ -167,12 +175,12 @@ AM_CONDITIONAL(LIBUSB, [test "x$ac_cv_lib_usb_usb_open" = xyes])
 AM_CONDITIONAL(LIBUSB10, [test "x$ac_cv_lib_usb_1_0_libusb_init" = xyes])
 AM_CONDITIONAL(OPENUSB, [test  "x$ac_cv_lib_openusb_openusb_init" = xyes])
 AM_CONDITIONAL(LIBZ, [test  "x$ac_cv_lib_z_gzopen" = xyes])
-AM_CONDITIONAL(TIR_FW, [test  "x$with_tir_fw" = xyes])
 AM_CONDITIONAL(X64, [test  "x$with_64_bit" = xyes])
 AM_CONDITIONAL([LTR32ON64], [test  "x$with_ltr_32lib_on_x64" = xyes])
 AM_CONDITIONAL([LTR_PIPE], [test  x$with_ltr_pipe = xyes])
 AM_CONDITIONAL([LINUX], [test x$with_linux = xyes])
 AM_CONDITIONAL(FACE_TRACKER, [test x$with_face_tracker = xyes])
+AM_CONDITIONAL(WINE_PLUGIN, [test x$with_wine_plugin = xyes])
 
 # Checks for library functions.
 AC_CHECK_FUNCS([atexit])
@@ -193,7 +201,10 @@ AC_CONFIG_FILES([
  src/qt_gui/ltr_gui.pro
  src/wii_server/wii_server.pro
  src/helper/Makefile
+ src/wine_bridge/Makefile
  doc/Makefile
+ src/linuxtrack.pc
  src/mickey/mickey.pro
 ])
 AC_OUTPUT
+

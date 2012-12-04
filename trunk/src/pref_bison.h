@@ -45,7 +45,8 @@
      TOKEN_KEY = 261,
      TOKEN_EQ = 262,
      TOKEN_VALUE = 263,
-     TOKEN_SECNAME = 264
+     TOKEN_SECNAME = 264,
+     LOW_PRIO = 265
    };
 #endif
 /* Tokens.  */
@@ -56,6 +57,7 @@
 #define TOKEN_EQ 262
 #define TOKEN_VALUE 263
 #define TOKEN_SECNAME 264
+#define LOW_PRIO 265
 
 
 
@@ -65,20 +67,37 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 16 "pref_bison.y"
+#line 16 "pref_bison.ypp"
 
-  char *str;
+  std::string *str;
+  keyVal *kv;
+  section *sec;
+  prefs *prf;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 76 "pref_bison.h"
+#line 81 "pref_bison.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
-extern YYSTYPE yylval;
+
+
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+typedef struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+} YYLTYPE;
+# define yyltype YYLTYPE /* obsolescent; will be withdrawn */
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
+
 
 

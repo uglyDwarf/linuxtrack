@@ -3,24 +3,26 @@
 
 #include <QObject>
 #include <QComboBox>
-#include "ui_ltr.h"
+#include "ui_tir_setup.h"
 #include "prefs_link.h"
 #include "dlfirmware.h"
 #include <../usb_ifc.h>
 
-class TirPrefs : public QObject{
+class TirPrefs : public QWidget{
   Q_OBJECT
  public:
-  TirPrefs(const Ui::LinuxtrackMainForm &ui);
+  TirPrefs(const QString &dev_id, QWidget *parent = 0);
   ~TirPrefs();
-  bool Activate(const QString &ID, bool init = false);
   static bool AddAvailableDevices(QComboBox &combo);
  private:
-  const Ui::LinuxtrackMainForm &gui;
-  void Connect();
+  const QString id;
+  bool Activate(const QString &ID, bool init = false);
+  Ui::TirSetupForm ui;
+  //void Connect();
   bool initializing;
   dlfwGui *dlfw;
   static bool firmwareOK;
+  static bool permsOK;
  signals:
   void pressRefresh();
  private slots:
@@ -32,7 +34,7 @@ class TirPrefs : public QObject{
   void on_TirSignalizeStatus_stateChanged(int state);
   void on_TirUseGrayscale_stateChanged(int state);
   void on_TirInstallFirmware_pressed();
-  void on_TirFirmwareDLFinished(bool state);
+  void TirFirmwareDLFinished(bool state);
 };
 
 
