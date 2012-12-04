@@ -97,7 +97,7 @@ libltr_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 #libtir4_la_SOURCES = tir4_driver.c tir4_driver.h new_cal.c new_cal.h
 #libtir4_la_LIBADD = -lusb  libltr.la
 
-libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h \
+libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h sn4_com.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
 libtir_la_LIBADD = -lz libltr.la
 libtir_la_LDFLAGS = -export-symbols "${srcdir}/tir.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
@@ -180,7 +180,7 @@ distclean-local-check:
 	-cd wii_server;make distclean
 	rm -f linuxtrack.c
 
-noinst_SCRIPTS = qt_gui/ltr_gui
+noinst_SCRIPTS = qt_gui/ltr_gui mickey/mickey
 
 if CWIID
   noinst_SCRIPTS += wii_server/wii_server
@@ -192,13 +192,18 @@ qt_gui/ltr_gui : ${pkglib_LTLIBRARIES}
 wii_server/wii_server : ${pkglib_LTLIBRARIES}
 	pushd wii_server; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
 
+mickey/mickey : ${pkglib_LTLIBRARIES}
+	pushd mickey; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
+
 install-exec-hook:
 	pushd qt_gui;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} install; popd
 	pushd wii_server;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} install; popd
+	pushd mickey;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} install; popd
 
 uninstall-hook:
 	pushd qt_gui;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
 	pushd wii_server;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
+	pushd mickey;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
 
 
 EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \

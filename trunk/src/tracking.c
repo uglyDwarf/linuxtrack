@@ -198,7 +198,7 @@ static int update_pose_1pt(struct frame_type *frame)
   double values[] = {angles[0], angles[1], translations[2]};
   ltr_int_nonlinfilt_vec(values, filtered, filter_factors, filtered);
   angles[0] = clamp_angle(ltr_int_val_on_axis(PITCH, filtered[0]));
-  angles[1] = clamp_angle(ltr_int_val_on_axis(PITCH, filtered[1]));
+  angles[1] = clamp_angle(ltr_int_val_on_axis(YAW, filtered[1]));
   translations[2] = ltr_int_val_on_axis(TZ, filtered[2]);
   return 0;
 }
