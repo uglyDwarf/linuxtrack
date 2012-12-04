@@ -1,18 +1,20 @@
 #include <QPainter>
 
 #include "scview.h"
-#include "ltr_axis.h"
 #include <math.h>
 #include <iostream>
+#include "tracker.h"
 
-SCView::SCView(LtrAxis *a, QWidget *parent)
-  : QWidget(parent), parentWidget(parent), axis(a), px(0.0), timer(NULL)
+SCView::SCView(axis_t a, QWidget *parent)
+  : QWidget(parent), parentWidget(parent), px(0.0), axis(a), timer(NULL)
 {
   setBackgroundRole(QPalette::Base);
   setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
   setAutoFillBackground(true);
   timer = new QTimer(this);
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+  connect(&TRACKER, SIGNAL(newPose(pose_t *, pose_t *, pose_t *)), 
+          this, SLOT(newPose(pose_t *, pose_t *, pose_t *)));
   timer->start(50);
   setMinimumSize(400, 100);
 }
@@ -44,26 +46,28 @@ void SCView::redraw()
 //}   
 
 
-static int spline(LtrAxis *a, QPointF points[], int num_points)
+int SCView::spline(QPointF points[], int num_points)
 {
   float x, kl, kr, max_k;
   float k = 2.0f / (num_points - 1);
-  kl = (a->getLFactor() != 0.0) ? a->getLLimit() / a->getLFactor() : 0.0;
-  kr = (a->getRFactor() != 0.0) ? a->getRLimit() / a->getRFactor() : 0.0;
+  kl = (TRACKER.axisGet(axis, AXIS_MULT) != 0.0) ? 
+        TRACKER.axisGet(axis, AXIS_LLIMIT) / TRACKER.axisGet(axis, AXIS_MULT) : 0.0;
+  kr = (TRACKER.axisGet(axis, AXIS_MULT) != 0.0) ? 
+        TRACKER.axisGet(axis, AXIS_RLIMIT) / TRACKER.axisGet(axis, AXIS_MULT) : 0.0;
   max_k = kl > kr ? kl : kr;
   for(int i = 0; i < num_points; ++i){
     x = -1.0f + k * i;
     points[i].rx() = x;
-    points[i].ry() = fabs(a->getValue(x * max_k));
+    points[i].ry() = fabs(TRACKER.axisGetValue(axis, x * max_k));
   }
   return 0;
 }
 
-static float spline(LtrAxis *a, float x)
-{
-  return fabs(a->getValue(x));
-}
 
+float SCView::spline(float x)
+{
+  return fabs(TRACKER.axisGetValue(axis, x));
+}
 
 //Should be odd...
 static const int spline_points = 101;
@@ -76,10 +80,10 @@ void SCView::paintEvent(QPaintEvent * /* event */)
   float w = floor((sz.width() / 2) - 1);
 //  float max_f = (axis->getLFactor() > axis->getRFactor()) ? 
 //                 axis->getLFactor() : axis->getRFactor();
-  float max_f = (axis->getLLimit() > axis->getRLimit()) ? 
-                 axis->getLLimit() : axis->getRLimit();
+  float max_f = (TRACKER.axisGet(axis, AXIS_LLIMIT) > TRACKER.axisGet(axis, AXIS_RLIMIT)) ? 
+                 TRACKER.axisGet(axis, AXIS_LLIMIT) : TRACKER.axisGet(axis, AXIS_RLIMIT);
   
-  spline(axis, points, spline_points);
+  spline(points, spline_points);
   float x,y;
   for(int i = 0; i < spline_points; ++i){
     x = points[i].x();
@@ -91,20 +95,72 @@ void SCView::paintEvent(QPaintEvent * /* event */)
   painter.setPen(Qt::black);
   painter.drawPolyline(points, spline_points);
   painter.setPen(Qt::red);
-  float kl = (axis->getLFactor() != 0.0) ? axis->getLLimit() / axis->getLFactor() : 0.0;
-  float kr = (axis->getRFactor() != 0.0) ? axis->getRLimit() / axis->getRFactor() : 0.0;
+  
+  float kl = (TRACKER.axisGet(axis, AXIS_MULT) != 0.0) ? 
+        TRACKER.axisGet(axis, AXIS_LLIMIT) / TRACKER.axisGet(axis, AXIS_MULT) : 0.0;
+  float kr = (TRACKER.axisGet(axis, AXIS_MULT) != 0.0) ? 
+        TRACKER.axisGet(axis, AXIS_RLIMIT) / TRACKER.axisGet(axis, AXIS_MULT) : 0.0;
   float max_k = kl > kr ? kl : kr;
-  float nx = w + w * px/max_k;
-  float ny = (max_f != 0.0) ? h - fabs(spline(axis, px) * (h / max_f)) : h;
+  
+  //Draw cross with current position
+  float nx = w + w * rx/max_k;
+  float ny = (max_f != 0.0) ? h - fabs(px * (h / max_f)) : h;
+  float unx = w + w * rx/max_k;
+  float uny = (max_f != 0.0) ? h - fabs(upx * (h / max_f)) : h;
   painter.drawLine(QLineF(nx, ny - 5, nx, ny + 5));
   painter.drawLine(QLineF(nx - 5, ny, nx + 5, ny));
-  painter.drawText(QPoint(100,10), QString("Real: %1").arg(px));
-  painter.drawText(QPoint(100,20), QString("Simulated: %1").arg(spline(axis, px)));
+  painter.drawText(QPoint(100,10), QString("Real: %1").arg(rx));
+  painter.drawText(QPoint(100,20), QString("Raw: %1").arg(upx));
+  painter.drawText(QPoint(100,30), QString("Simulated: %1").arg(px));
+  
+  painter.setPen(Qt::blue);
+  painter.drawLine(QLineF(unx, uny - 5, unx, uny + 5));
+  painter.drawLine(QLineF(unx - 5, uny, unx + 5, uny));
+
   painter.end();
 }
 
+void SCView::newPose(pose_t *raw_pose, pose_t *unfiltered, pose_t *pose)
+{
+  (void) pose;
+  switch(axis){
+    case PITCH:
+      rx = raw_pose->pitch;
+      px = pose->pitch;
+      upx = unfiltered->pitch;
+      break;
+    case ROLL:
+      rx = raw_pose->roll;
+      px = pose->roll;
+      upx = unfiltered->roll;
+      break;
+    case YAW:
+      rx = raw_pose->yaw;
+      px = pose->yaw;
+      upx = unfiltered->yaw;
+      break;
+    case TX:
+      rx = raw_pose->tx;
+      px = pose->tx;
+      upx = unfiltered->tx;
+      break;
+    case TY:
+      rx = raw_pose->ty;
+      px = pose->ty;
+      upx = unfiltered->ty;
+      break;
+    case TZ:
+      rx = raw_pose->tz;
+      px = pose->tz;
+      upx = unfiltered->tz;
+      break;
+  }
+}
+
+/*
 void SCView::movePoint(float new_x)
 {
   px = new_x;
 }
+*/
 

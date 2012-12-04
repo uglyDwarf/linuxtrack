@@ -18,7 +18,7 @@ typedef enum {
 
 
 
-int ltr_init(char *cust_section);
+int ltr_init(const char *cust_section);
 int ltr_shutdown(void);
 int ltr_suspend(void);
 int ltr_wakeup(void);

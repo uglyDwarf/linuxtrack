@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "pose.h"
 #include "math_utils.h"
-#include <tracking.h>
+#include "tracking.h"
 #include "cal.h"
 #include "utils.h"
 #include "pref_global.h"
@@ -25,8 +25,6 @@ static double center_base[3][3];
 
 static enum {M_CAP, M_CLIP, M_SINGLE, M_FACE} type;
 
-extern struct current_pose ltr_int_orig_pose;
-
 void ltr_int_pose_init(struct reflector_model_type rm)
 {
   switch(rm.type){
@@ -47,12 +45,14 @@ void ltr_int_pose_init(struct reflector_model_type rm)
       #ifdef PT_DBG
         printf("MODEL:SINGLE\n");
       #endif
+      return;
       break;
     case FACE:
       type = M_FACE;
       #ifdef PT_DBG
         printf("MODEL:FACE\n");
       #endif
+      return;
       break;
     default:
       assert(0);
@@ -76,8 +76,8 @@ void ltr_int_pose_init(struct reflector_model_type rm)
   ltr_int_make_vec(rm.p2, ref, model_point2);
 
   /* Out of model points create orthonormal base */
-  double vec1[3];
-  double vec2[3];
+  double vec1[3] = {0.0, 0.0, 0.0};
+  double vec2[3] = {0.0, 0.0, 0.0};
   ltr_int_make_vec(model_point1, model_point0, vec1);
   ltr_int_make_vec(model_point2, model_point0, vec2);
   ltr_int_make_base(vec1, vec2, model_base);
@@ -352,7 +352,7 @@ void ltr_int_pose_sort_blobs(struct bloblist_type bl)
 
 
 bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
-                        struct current_pose *pose, bool centering)
+                        pose_t *pose, bool centering)
 {
 //  double points[3][3];
   double points[3][3] = {{28.35380,    -1.24458,    -0.11606},
@@ -421,9 +421,15 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
   roll *= 180.0 /M_PI;
   
 //  printf("Raw Pitch: %g   Yaw: %g  Roll: %g\n", pitch, yaw, roll);
-  ltr_int_orig_pose.pitch = pitch;
-  ltr_int_orig_pose.heading = yaw;
-  ltr_int_orig_pose.roll = roll;
+
+  pose->pitch = pitch;
+  pose->yaw = yaw;
+  pose->roll = roll;
+  pose->tx = displacement[0];
+  pose->ty = displacement[1];
+  pose->tz = displacement[2];
+  
+/*  
   static float filterfactor=1.0;
   ltr_int_get_filter_factor(&filterfactor);
   static double filtered_angles[3] = {0.0f, 0.0f, 0.0f};
@@ -462,9 +468,9 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
   pose->tx = ltr_int_val_on_axis(TX, filtered_translations[0]);
   pose->ty = ltr_int_val_on_axis(TY, filtered_translations[1]);
   pose->tz = ltr_int_val_on_axis(TZ, filtered_translations[2]);
-
 //  ltr_int_print_vec(displacement, "tr");
   //printf("%f %f %f  %f %f %f\n", pose->pitch, pose->heading, pose->roll, pose->tx, pose->ty, pose->tz);
+*/
   return true;
 }
 

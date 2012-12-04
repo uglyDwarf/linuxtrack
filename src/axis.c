@@ -1,59 +1,140 @@
 #include <assert.h>
 #include <string.h>
+#include <pthread.h>
 #include "axis.h"
 #include "spline.h"
 #include "utils.h"
-#include "pref_int.h"
+#include "pref.h"
+#include "math_utils.h"
+
+//The "singleton" solution was chosen to allow easy monitoring of axis changes - 
+//  - there is no need to track other apps that might have open the same axes...
+
+static pthread_mutex_t axes_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 struct axis_def{
   bool enabled;
   splines_def curve_defs;
   splines curves;
   bool valid;
-  float l_factor, r_factor;
+  float factor;
   float l_limit, r_limit;
+  float filter_factor;
   char *prefix;
 };
 
-struct lt_axes {
+struct ltr_axes {
   struct axis_def pitch_axis;
   struct axis_def yaw_axis;
   struct axis_def roll_axis;
   struct axis_def tx_axis;
   struct axis_def ty_axis;
   struct axis_def tz_axis;
+  bool initialized;
+  bool axes_changed_flag;
+  char *section;
 };
 
+char *def_section[][2] = {
+  {"Title", "Default"},
+  {"Pitch-enabled", "Yes"},
+  {"Pitch-deadzone", "0.0"},
+  {"Pitch-left-curvature", "0.5"},
+  {"Pitch-right-curvature", "0.5"},
+  {"Pitch-sensitivity", "5.000000"},
+  {"Pitch-left-limit", "80.000000"},
+  {"Pitch-right-limit", "80.000000"},
+  {"Pitch-filter", "0.3"},
+  {"Yaw-enabled", "Yes"},
+  {"Yaw-deadzone", "0.0"},
+  {"Yaw-left-curvature", "0.5"},
+  {"Yaw-right-curvature", "0.5"},
+  {"Yaw-sensitivity", "5.000000"},
+  {"Yaw-left-limit", "130.000000"},
+  {"Yaw-right-limit", "130.000000"},
+  {"Yaw-filter", "0.3"},
+  {"Roll-enabled", "Yes"},
+  {"Roll-deadzone", "0.0"},
+  {"Roll-left-curvature", "0.5"},
+  {"Roll-right-curvature", "0.5"},
+  {"Roll-sensitivity", "1.500000"},
+  {"Roll-left-limit", "45.000000"},
+  {"Roll-right-limit", "45.000000"},
+  {"Roll-filter", "0.3"},
+  {"Xtranslation-enabled", "Yes"},
+  {"Xtranslation-deadzone", "0.0"},
+  {"Xtranslation-left-curvature", "0.5"},
+  {"Xtranslation-right-curvature", "0.5"},
+  {"Xtranslation-sensitivity", "5.000000"},
+  {"Xtranslation-left-limit", "300.000000"},
+  {"Xtranslation-right-limit", "300.000000"},
+  {"Xtranslation-filter", "0.3"},
+  {"Ytranslation-enabled", "Yes"},
+  {"Ytranslation-deadzone", "0.0"},
+  {"Ytranslation-left-curvature", "0.5"},
+  {"Ytranslation-right-curvature", "0.5"},
+  {"Ytranslation-sensitivity", "5.000000"},
+  {"Ytranslation-left-limit", "300.000000"},
+  {"Ytranslation-right-limit", "300.000000"},
+  {"Ytranslation-filter", "0.3"},
+  {"Ztranslation-enabled", "Yes"},
+  {"Ztranslation-deadzone", "0.0"},
+  {"Ztranslation-left-curvature", "0.5"},
+  {"Ztranslation-right-curvature", "0.5"},
+  {"Ztranslation-sensitivity", "2.000000"},
+  {"Ztranslation-left-limit", "300.000000"},
+  {"Ztranslation-right-limit", "1.000000"},
+  {"Ztranslation-filter", "0.7"},
+  {NULL, NULL}
+};
+
+
 typedef enum{
-  SENTRY1, DEADZONE, LCURV, RCURV, LMULT, RMULT, LIMITS, LLIMIT, RLIMIT, ENABLED, SENTRY_2
+  SENTRY1, DEADZONE, LCURV, RCURV, MULT, LMULT, RMULT, LIMITS, LLIMIT, RLIMIT, FILTER, ENABLED, SENTRY_2
 }axis_fields;
 static const char *fields[] = {NULL, "-deadzone",
 				"-left-curvature", "-right-curvature", 
-				"-left-multiplier", "-right-multiplier",
-				"-limits", "-left-limit", "-right-limit", "-enabled", NULL};
-static struct lt_axes ltr_int_axes;
-static bool ltr_int_axes_changed_flag = false;
+				"-sensitivity", "-left-multiplier", "-right-multiplier",
+				"-limits", "-left-limit", "-right-limit", "-filter", "-enabled", NULL};
+static const char *axes_desc[] = {"PITCH", "ROLL", "YAW", "TX", "TY", "TZ"};
+static const char *axis_param_desc[] = {"Deadzone", "Left Curvature", "Right Curvature",
+                   "Sensitivity", "Left Sensitivity", "Right Sensitivity", "Limit", "Left Limit", "Right Limit", 
+                   "Filter Factor", "Enabled", "FULL"};
 
-static struct axis_def *get_axis(enum axis_t id)
+//static struct lt_axes ltr_int_axes;
+//static bool ltr_int_axes_changed_flag = false;
+//static bool initialized = false;
+
+const char *ltr_int_axis_get_desc(enum axis_t id)
+{
+  return axes_desc[id];
+}
+
+const char *ltr_int_axis_param_get_desc(enum axis_param_t id)
+{
+  return axis_param_desc[id];
+}
+
+static struct axis_def *get_axis(ltr_axes_t axes, enum axis_t id)
 {
   switch(id){
     case PITCH:
-      return &(ltr_int_axes.pitch_axis);
+      return &(axes->pitch_axis);
       break;
     case ROLL:
-      return &(ltr_int_axes.roll_axis);
+      return &(axes->roll_axis);
       break;
     case YAW:
-      return &(ltr_int_axes.yaw_axis);
+      return &(axes->yaw_axis);
       break;
     case TX:
-      return &(ltr_int_axes.tx_axis);
+      return &(axes->tx_axis);
       break;
     case TY:
-      return &(ltr_int_axes.ty_axis);
+      return &(axes->ty_axis);
       break;
     case TZ:
-      return &(ltr_int_axes.tz_axis);
+      return &(axes->tz_axis);
       break;
     default:
       assert(0);
@@ -88,18 +169,73 @@ static char *get_axis_prefix(enum axis_t id)
   }
 }
 
-float ltr_int_val_on_axis(enum axis_t id, float x)
+/*
+bool ltr_int_get_axes_ff(ltr_axes_t axes, double ffs[])
 {
-  struct axis_def *axis = get_axis(id);
+  ffs[0] = ffs[1] = ffs[2] = ffs[3] = ffs[4] = ffs[5] = 0.0;
+  pthread_mutex_lock(&axes_mutex);
+  int i;
+  struct axis_def *axis;
+  for(i = PITCH; i <= TZ; ++i){
+    axis = get_axis(axes, i);
+    ffs[i] = axis->filter_factor;
+  }
+  pthread_mutex_unlock(&axes_mutex);
+  return true;
+}
+*/
+
+static float ltr_int_nonlinfilt(float x, 
+              float y_minus_1,
+              float filterfactor) 
+{
+  float y;
+  if(!ltr_int_is_finite(x)){
+    return y_minus_1;
+  }
+  float delta = x - y_minus_1;
+  y = y_minus_1 + delta * (fabsf(delta)/(fabsf(delta) + filterfactor));
+  if(!ltr_int_is_finite(y)){
+    if(ltr_int_is_finite(y_minus_1)){
+      return y_minus_1;
+    }else{
+      return 0.0f;
+    }
+  }
+  return y;
+}
+
+float ltr_int_filter_axis(ltr_axes_t axes, enum axis_t id, float x, float *y_minus_1)
+{
+  pthread_mutex_lock(&axes_mutex);
+  struct axis_def *axis = get_axis(axes, id);
   if(!axis->enabled){
+    pthread_mutex_unlock(&axes_mutex);
+    return 0.0f;
+  }
+  
+  pthread_mutex_unlock(&axes_mutex);
+  float ff = (axis->filter_factor) * (axis->l_limit > axis->r_limit ? axis->l_limit : axis->r_limit);
+  return *y_minus_1 = ltr_int_nonlinfilt(x, *y_minus_1, ff);
+}
+
+float ltr_int_val_on_axis(ltr_axes_t axes, enum axis_t id, float x)
+{
+  pthread_mutex_lock(&axes_mutex);
+  struct axis_def *axis = get_axis(axes, id);
+  if(!axis->enabled){
+    pthread_mutex_unlock(&axes_mutex);
     return 0.0f;
   }
   if(!(axis->valid)){
     ltr_int_curve2pts(&(axis->curve_defs), &(axis->curves));
   }
-  float mf = x < 0 ? axis->l_factor : axis->r_factor;
+  float mf = axis->factor;
   float lim = x < 0 ? axis->l_limit : axis->r_limit;
-  if(lim == 0.0) return 0.0;
+  if(lim == 0.0){
+    pthread_mutex_unlock(&axes_mutex);
+    return 0.0;
+  }
   x *= mf; //apply factor (sensitivity)
   x /= lim; //normalize to apply the spline
   if(x < -1.0){
@@ -108,214 +244,229 @@ float ltr_int_val_on_axis(enum axis_t id, float x)
   if(x > 1.0){
     x = 1.0;
   }
-  return ltr_int_spline_point(&(axis->curves), x) * lim;
+  float raw = ltr_int_spline_point(&(axis->curves), x) * lim;
+//  float res = ltr_int_nonlinfilt(raw, axis->last_val, axis->filter_factor);
+  pthread_mutex_unlock(&axes_mutex);
+  return raw;
 }
 
-static void signal_change()
+static void signal_change(ltr_axes_t axes)
 {
-  ltr_int_axes_changed_flag = true;
+  axes->axes_changed_flag = true;
 }
 
-static bool save_val_flt(enum axis_t id, axis_fields field, float val)
+static bool save_val_flt(ltr_axes_t axes, enum axis_t id, axis_fields field, float val)
 {
   const char *field_name = ltr_int_my_strcat(get_axis_prefix(id), fields[field]);
-  bool res = ltr_int_change_key_flt(ltr_int_get_custom_section_name(), field_name, val);
+  bool res = ltr_int_change_key_flt(axes->section, field_name, val);
   free((void*)field_name);
   return res;
 }
 
-static bool save_val_str(enum axis_t id, axis_fields field, const char *val)
+static bool save_val_str(ltr_axes_t axes, enum axis_t id, axis_fields field, const char *val)
 {
   const char *field_name = ltr_int_my_strcat(get_axis_prefix(id), fields[field]);
-  bool res = ltr_int_change_key(ltr_int_get_custom_section_name(), field_name, val);
+  bool res = ltr_int_change_key(axes->section, field_name, val);
   free((void*)field_name);
   return res;
 }
 
-void ltr_int_enable_axis(enum axis_t id)
+bool ltr_int_is_symetrical(ltr_axes_t axes, enum axis_t id)
 {
-  struct axis_def *axis = get_axis(id);
-  axis->enabled = true;
-  save_val_str(id, ENABLED, "Yes");
-  signal_change();
-}
-
-void ltr_int_disable_axis(enum axis_t id)
-{
-  struct axis_def *axis = get_axis(id);
-  axis->enabled = false;
-  save_val_str(id, ENABLED, "No");
-  signal_change();
-}
-
-bool ltr_int_is_enabled(enum axis_t id)
-{
-  struct axis_def *axis = get_axis(id);
-  return axis->enabled;
-}
-
-bool ltr_int_is_symetrical(enum axis_t id)
-{
-  struct axis_def *axis = get_axis(id);
+  pthread_mutex_lock(&axes_mutex);
+  struct axis_def *axis = get_axis(axes, id);
   
-  if((axis->l_factor == axis->r_factor) && 
-     (axis->curve_defs.l_curvature == axis->curve_defs.r_curvature) &&
+  if((axis->curve_defs.l_curvature == axis->curve_defs.r_curvature) &&
      (axis->l_limit == axis->r_limit)){
+    pthread_mutex_unlock(&axes_mutex);
     return true;
   }else{
+    pthread_mutex_unlock(&axes_mutex);
     return false;
   }
 }
 
-bool ltr_int_set_deadzone(enum axis_t id, float dz)
+bool ltr_int_set_axis_param(ltr_axes_t axes, enum axis_t id, enum axis_param_t param, float val)
 {
-  struct axis_def *axis = get_axis(id);
-  
+  pthread_mutex_lock(&axes_mutex);
+  struct axis_def *axis = get_axis(axes, id);
   axis->valid = false;
-  axis->curve_defs.dead_zone = dz;
-  save_val_flt(id, DEADZONE, dz);
-  signal_change();
   
+  switch(param){
+    case AXIS_DEADZONE:
+      axis->curve_defs.dead_zone = val;
+      save_val_flt(axes, id, DEADZONE, val);
+      signal_change(axes);
+      break;
+    case AXIS_LCURV:
+      axis->curve_defs.l_curvature = val;
+      save_val_flt(axes, id, LCURV, val);
+      signal_change(axes);
+      break;
+    case AXIS_RCURV: 
+      axis->curve_defs.r_curvature = val;
+      save_val_flt(axes, id, RCURV, val);
+      signal_change(axes);
+      break;
+    case AXIS_MULT:
+      axis->factor = val;
+      save_val_flt(axes, id, MULT, val);
+      signal_change(axes);
+      break;
+    case AXIS_LLIMIT:
+      axis->l_limit = val;
+      save_val_flt(axes, id, LLIMIT, val);
+      signal_change(axes);
+      break;
+    case AXIS_RLIMIT:
+      axis->r_limit = val;
+      save_val_flt(axes, id, RLIMIT, val);
+      signal_change(axes);
+      break;
+    case AXIS_FILTER:
+      axis->filter_factor = val;
+      save_val_flt(axes, id, FILTER, val);
+      signal_change(axes);
+      break;
+    default:
+      pthread_mutex_unlock(&axes_mutex);
+      return false;
+      break;
+  }
+  pthread_mutex_unlock(&axes_mutex);
   return true;
 }
 
-float ltr_int_get_deadzone(enum axis_t id)
+float ltr_int_get_axis_param(ltr_axes_t axes, enum axis_t id, enum axis_param_t param)
 {
-  struct axis_def *axis = get_axis(id);
-  
-  return axis->curve_defs.dead_zone;
+  pthread_mutex_lock(&axes_mutex);
+  struct axis_def *axis = get_axis(axes, id);
+  float res;
+  switch(param){
+    case AXIS_DEADZONE: 
+      res = axis->curve_defs.dead_zone;
+      break;
+    case AXIS_LCURV:
+      res = axis->curve_defs.l_curvature;
+      break;
+    case AXIS_RCURV: 
+      res = axis->curve_defs.r_curvature;
+      break;
+    case AXIS_MULT:
+      res = axis->factor;
+      break;
+    case AXIS_LLIMIT:
+      res = axis->l_limit;
+      break;
+    case AXIS_RLIMIT:
+      res = axis->r_limit;
+      break;
+    case AXIS_FILTER:
+      res = axis->filter_factor;
+      break;
+    default:
+      res = 0.0;
+      break;
+  }
+  pthread_mutex_unlock(&axes_mutex);
+  return res;
 }
 
-bool ltr_int_set_lcurv(enum axis_t id, float c)
+bool ltr_int_set_axis_bool_param(ltr_axes_t axes, enum axis_t id, enum axis_param_t param, bool val)
 {
-  struct axis_def *axis = get_axis(id);
-  axis->valid = false;
-  axis->curve_defs.l_curvature = c;
-  save_val_flt(id, LCURV, c);
-  signal_change();
-  
+  pthread_mutex_lock(&axes_mutex);
+  struct axis_def *axis = get_axis(axes, id);
+
+  switch(param){
+    case AXIS_ENABLED:
+      axis->enabled = val;
+      if(val){
+        save_val_str(axes, id, ENABLED, "Yes");
+      }else{
+        save_val_str(axes, id, ENABLED, "No");
+      }
+      signal_change(axes);
+      break;
+    default:
+      pthread_mutex_unlock(&axes_mutex);
+      return false;
+      break;
+  }
+  pthread_mutex_unlock(&axes_mutex);
   return true;
 }
 
-float ltr_int_get_lcurv(enum axis_t id)
+bool ltr_int_get_axis_bool_param(ltr_axes_t axes, enum axis_t id, enum axis_param_t param)
 {
-  struct axis_def *axis = get_axis(id);
-  
-  return axis->curve_defs.l_curvature;
+  pthread_mutex_lock(&axes_mutex);
+  bool res = false;
+  struct axis_def *axis = get_axis(axes, id);
+  switch(param){
+    case AXIS_ENABLED:
+      res = axis->enabled;
+      break;
+    default:
+      res = false;
+      break;
+  }
+  pthread_mutex_unlock(&axes_mutex);
+  return res;
 }
 
-bool ltr_int_set_rcurv(enum axis_t id, float c)
+static bool ltr_int_axis_get_key_flt(const char *section, const char *key_name, float *res)
 {
-  struct axis_def *axis = get_axis(id);
-  
-  axis->valid = false;
-  axis->curve_defs.r_curvature = c;
-  save_val_flt(id, RCURV, c);
-  signal_change();
-  
-  return true;
+  if(ltr_int_get_key_flt(section, key_name, res)){
+    return true;
+  }
+  if(ltr_int_get_key_flt("Default", key_name, res)){
+    ltr_int_change_key_flt(section, key_name, *res);
+    return true;
+  }
+  return false;
 }
 
-float ltr_int_get_rcurv(enum axis_t id)
+static char *ltr_int_axis_get_key(const char *section, const char *key_name)
 {
-  struct axis_def *axis = get_axis(id);
-  
-  return axis->curve_defs.r_curvature;
+  char *res = NULL;
+  res = ltr_int_get_key(section, key_name);
+  if(res != NULL){
+    return res;
+  }
+  res = ltr_int_get_key("Default", key_name);
+  if(res != NULL){
+    ltr_int_change_key(section, key_name, res);
+    return res;
+  }
+  return false;
 }
 
-bool ltr_int_set_lmult(enum axis_t id, float m1)
-{
-  struct axis_def *axis = get_axis(id);
-  
-  axis->valid = false;
-  axis->l_factor = m1;
-  save_val_flt(id, LMULT, m1);
-  signal_change();
-  
-  return true;
-}
 
-float ltr_int_get_lmult(enum axis_t id)
-{
-  struct axis_def *axis = get_axis(id);
-  
-  return axis->l_factor;
-}
 
-bool ltr_int_set_rmult(enum axis_t id, float m1)
-{
-  struct axis_def *axis = get_axis(id);
-  
-  axis->valid = false;
-  axis->r_factor = m1;
-  save_val_flt(id, RMULT, m1);
-  signal_change();
-  
-  return true;
-}
 
-float ltr_int_get_rmult(enum axis_t id)
-{
-  struct axis_def *axis = get_axis(id);
-  
-  return axis->r_factor;
-}
-
-bool ltr_int_set_rlimit(enum axis_t id, float lim)
-{
-  struct axis_def *axis = get_axis(id);
-  
-  axis->valid = false;
-  axis->r_limit = lim;
-  save_val_flt(id, RLIMIT, lim);
-  signal_change();
-  
-  return true;
-}
-
-float ltr_int_get_rlimit(enum axis_t id)
-{
-  struct axis_def *axis = get_axis(id);
-  
-  return axis->r_limit;
-}
-
-bool ltr_int_set_llimit(enum axis_t id, float lim)
-{
-  struct axis_def *axis = get_axis(id);
-  
-  axis->valid = false;
-  axis->l_limit = lim;
-  save_val_flt(id, LLIMIT, lim);
-  signal_change();
-  
-  return true;
-}
-
-float ltr_int_get_llimit(enum axis_t id)
-{
-  struct axis_def *axis = get_axis(id);
-  return axis->l_limit;
-}
-
-void ltr_int_init_axis(struct axis_def *axis, const char *prefix)
+static void ltr_int_init_axis(const char *sec_name, struct axis_def *axis, const char *prefix)
 {
   assert(axis != NULL);
   axis->valid = false;
   axis->enabled = true;
   axis->prefix = ltr_int_my_strdup(prefix);
-  axis->l_factor = 1.0f;
-  axis->r_factor = 1.0f;
+  axis->factor = 1.0f;
   axis->r_limit = 50.0f;
   axis->l_limit = 50.0f;
+  axis->filter_factor = 0.2f;
+  //Either exists -> default gets overwritten normally,
+  // or not -> default stays...
+  ltr_int_axis_get_key_flt(sec_name, "Filter-factor", &(axis->filter_factor));
+  if(axis->filter_factor > 2.0){
+    axis->filter_factor = 2.0;
+  }
   axis->curve_defs.dead_zone = 0.0f;
   axis->curve_defs.l_curvature = 0.5f;
   axis->curve_defs.r_curvature = 0.5f;
 }
 
-void ltr_int_close_axis(enum axis_t id)
+static void ltr_int_close_axis(ltr_axes_t axes, enum axis_t id)
 {
-  struct axis_def *axis = get_axis(id);
+  struct axis_def *axis = get_axis(axes, id);
   assert(axis != NULL);
   
   free(axis->prefix);
@@ -327,6 +478,7 @@ static void set_axis_field(struct axis_def *axis, axis_fields field, float val, 
 {
   assert(axis != NULL);
   axis->valid = false;
+  axis->factor = 0;
   switch(field){
     case(DEADZONE):
       axis->curve_defs.dead_zone = val;
@@ -337,11 +489,14 @@ static void set_axis_field(struct axis_def *axis, axis_fields field, float val, 
     case(RCURV):
       axis->curve_defs.r_curvature = val;
       break;
+    case(MULT):
+      axis->factor = val;
+      break;
     case(LMULT):
-      axis->l_factor = val;
+      axis->factor += val/2;
       break;
     case(RMULT):
-      axis->r_factor = val;
+      axis->factor += val/2;
       break;
     case(LLIMIT):
       axis->l_limit = val;
@@ -359,75 +514,158 @@ static void set_axis_field(struct axis_def *axis, axis_fields field, float val, 
         axis->r_limit = 300.0f;
       }
       break;
+    case(FILTER):
+      axis->filter_factor = (val > 2.0) ? 2.0 : val;
+      break;
     default:
       assert(0);
       break;
   }
 }
 
-bool ltr_int_get_axis(enum axis_t id, struct axis_def *axis)
+static bool ltr_int_get_axis(const char *sec_name, enum axis_t id, struct axis_def *axis)
 {
   axis_fields i;
   char *field_name = NULL;
-  const char *string;
+  char *string;
   float val;
   char *prefix = get_axis_prefix(id);
   assert(prefix != NULL);
   assert(axis != NULL);
   
-  ltr_int_init_axis(axis, prefix);
+  ltr_int_init_axis(sec_name, axis, prefix);
 //  axis->prefix = ltr_int_my_strdup(prefix);
   for(i = DEADZONE; i <= ENABLED; ++i){
     field_name = ltr_int_my_strcat(prefix, fields[i]);
     if(i != ENABLED){
-      if(ltr_int_get_key_flt(NULL, field_name, &val)){
+      if(ltr_int_axis_get_key_flt(sec_name, field_name, &val)){
         set_axis_field(axis, i, val, id);
       }
     }else{
-      string = ltr_int_get_key(NULL, field_name);
+      string = ltr_int_axis_get_key(sec_name, field_name);
       if((string == NULL) || (strcasecmp(string, "No") != 0)){
         axis->enabled = true;
       }else{
         axis->enabled = false;
       }
+      if(string != NULL){
+        free(string);
+      }
     }
     free(field_name);
     field_name = NULL;
   }
-  ltr_int_val_on_axis(id, 0.0f);
+  
+  
+  
+  //Shouldn't be needed... (and causes deadlock now)
+  //ltr_int_val_on_axis(id, 0.0f);
   return true;
 }
 
-bool ltr_int_axes_changed(bool reset_flag)
+bool ltr_int_axes_changed(ltr_axes_t axes, bool reset_flag)
 {
-  bool flag = ltr_int_axes_changed_flag;
+  bool flag = axes->axes_changed_flag;
   if(reset_flag){
-    ltr_int_axes_changed_flag = false;
+    axes->axes_changed_flag = false;
   }
   return flag;
 }
 
-void ltr_int_init_axes()
+static void ltr_int_create_default()
 {
-  ltr_int_log_message("Initializing axes!\n");
-  bool res = true;
-  ltr_int_axes_changed_flag = false;
-  res &= ltr_int_get_axis(PITCH, &(ltr_int_axes.pitch_axis));
-  res &= ltr_int_get_axis(YAW, &(ltr_int_axes.yaw_axis));
-  res &= ltr_int_get_axis(ROLL, &(ltr_int_axes.roll_axis));
-  res &= ltr_int_get_axis(TX, &(ltr_int_axes.tx_axis));
-  res &= ltr_int_get_axis(TY, &(ltr_int_axes.ty_axis));
-  res &= ltr_int_get_axis(TZ, &(ltr_int_axes.tz_axis));
+  int i = 0;
+  while(def_section[i][0] != NULL){
+    ltr_int_change_key("Default", def_section[i][0], def_section[i][1]);
+    ++i;
+  }
 }
 
-void ltr_int_close_axes()
+static char *ltr_int_prepare_section(const char *profile)
 {
-  ltr_int_log_message("Closing axes!\n");
-  ltr_int_close_axis(PITCH);
-  ltr_int_close_axis(ROLL);
-  ltr_int_close_axis(YAW);
-  ltr_int_close_axis(TX);
-  ltr_int_close_axis(TY);
-  ltr_int_close_axis(TZ);
+  //first check for the existence of "Default" profile
+  char *sec_name = ltr_int_find_section("Title", "Default");
+  if(sec_name == NULL){
+    //"Default" doesn't exist, create one...
+    ltr_int_log_message("Default profile not existing, creating a new one...\n");
+    ltr_int_create_default();
+  }else{
+    free(sec_name);
+  }
+
+  sec_name = ltr_int_find_section("Title", profile);
+  if(sec_name != NULL){
+    return sec_name;
+  }
+  //Default exists now, so create the new profile
+  ltr_int_log_message("Creating new profile '%s'.\n", profile);
+  sec_name = ltr_int_add_unique_section("Profile");
+  if(sec_name != NULL){
+    ltr_int_change_key(sec_name, "Title", profile);
+  }
+  return sec_name;
 }
+
+void ltr_int_init_axes(ltr_axes_t *axes, const char *profile)
+{
+  if(axes == NULL){
+    ltr_int_log_message("Don't pass NULL to ltr_int_init_axes!\n");
+    return;
+  }
+  ltr_int_log_message("Initializing axes for profile '%s'!\n", profile);
+  if(((*axes) != NULL) && ((*axes)->initialized)){
+    ltr_int_close_axes(axes);
+  }
+  *axes = ltr_int_my_malloc(sizeof(struct ltr_axes));
+  pthread_mutex_lock(&axes_mutex);
+  bool res = true;
+  (*axes)->axes_changed_flag = false;
+  
+  char *sec_name = ltr_int_prepare_section(profile);
+  if(sec_name != NULL){
+    //printf("Inititializing axes of %s (section %s)\n", profile, sec_name);
+    res &= ltr_int_get_axis(sec_name, PITCH, &((*axes)->pitch_axis));
+    res &= ltr_int_get_axis(sec_name, YAW, &((*axes)->yaw_axis));
+    res &= ltr_int_get_axis(sec_name, ROLL, &((*axes)->roll_axis));
+    res &= ltr_int_get_axis(sec_name, TX, &((*axes)->tx_axis));
+    res &= ltr_int_get_axis(sec_name, TY, &((*axes)->ty_axis));
+    res &= ltr_int_get_axis(sec_name, TZ, &((*axes)->tz_axis));
+    (*axes)->initialized = res;
+    //now the section should exist anyway...
+    (*axes)->section = sec_name;
+  }
+  pthread_mutex_unlock(&axes_mutex);
+}
+
+void ltr_int_close_axes(ltr_axes_t *axes)
+{
+  if(axes == NULL){
+    ltr_int_log_message("Don't pass NULL to ltr_int_close_axes!\n");
+    return;
+  }
+  if(((*axes == NULL)) || (!(*axes)->initialized)){
+    return;
+  }
+  pthread_mutex_lock(&axes_mutex);
+  ltr_int_log_message("Closing axes!\n");
+  ltr_int_close_axis(*axes, PITCH);
+  ltr_int_close_axis(*axes, ROLL);
+  ltr_int_close_axis(*axes, YAW);
+  ltr_int_close_axis(*axes, TX);
+  ltr_int_close_axis(*axes, TY);
+  ltr_int_close_axis(*axes, TZ);
+  free((*axes)->section);
+  free(*axes);
+  *axes = NULL;
+  pthread_mutex_unlock(&axes_mutex);
+}
+
+void ltr_int_axes_from_default(ltr_axes_t *axes)
+{
+  char *profile = ltr_int_my_strdup((*axes)->section);
+  ltr_int_init_axes(axes, "Default");
+  free((*axes)->section);
+  (*axes)->section = profile;
+}
+
 

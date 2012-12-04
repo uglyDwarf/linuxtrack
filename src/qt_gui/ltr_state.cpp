@@ -25,11 +25,12 @@ TrackerState::~TrackerState()
   delete timer;
 }
 
+/*
 ltr_state_type TrackerState::getCurrentState()
 {
   return ltr_int_get_tracking_state();
 }
-
+*/
 
 void TrackerState::pollState()
 {

@@ -1,6 +1,7 @@
 #include <string.h>
+#include <stdlib.h>
 #include "tir_driver_prefs.h"
-#include "pref_int.h"
+#include "pref.h"
 #include "pref_global.h"
 
 static int max_blob = 0;
@@ -41,9 +42,10 @@ bool ltr_int_tir_init_prefs()
   if(!ltr_int_get_key_int(dev, threshold_key, &threshold)){
     threshold = 140;
   }
-  const char *tmp = ltr_int_get_key(dev, status_key);
+  char *tmp = ltr_int_get_key(dev, status_key);
   if(tmp != NULL){
     status = (strcasecmp(tmp, "On") == 0) ? true : false;
+    free(tmp);
   }else{
     status = true;
   }

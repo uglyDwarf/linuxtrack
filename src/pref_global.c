@@ -4,7 +4,6 @@
 #include <assert.h>
 #include "pose.h"
 #include "pref.h"
-#include "pref_int.h"
 #include "pref_global.h"
 #include "utils.h"
 #include "axis.h"
@@ -13,11 +12,10 @@
 
 void ltr_int_close_prefs()
 {
-  ltr_int_close_axes(NULL);
-  ltr_int_free_prefs(NULL);
+  ltr_int_free_prefs();
 }
 
-const char *ltr_int_get_device_section()
+char *ltr_int_get_device_section()
 {
   return ltr_int_get_key("Global", "Input");
 }
@@ -38,27 +36,30 @@ void ltr_int_announce_model_change()
   model_changed = true;
 }
 
-static const char *ltr_int_get_model_section()
+static char *ltr_int_get_model_section()
 {
   return ltr_int_get_key("Global", "Model");
 }
 
 bool ltr_int_is_model_active()
 {
-  const char *section = ltr_int_get_model_section();
-  const char *active = ltr_int_get_key(section, "Active");
-  if(!active){
+  char *section = ltr_int_get_model_section();
+  char *active = ltr_int_get_key(section, "Active");
+  free(section);
+  section = NULL;
+  if(active == NULL){
     ltr_int_log_message("Unspecified if model is active, assuming it is not...\n");
     return false;
   }
   bool res = (strcasecmp(active, "yes") == 0) ? true : false;
+  free(active);
   return res;
 }
 
 static bool use_alter = false;
 bool ltr_int_use_alter()
 {
-  static const char *pose_method = NULL;
+  static char *pose_method = NULL;
   if(pose_method == NULL){
     pose_method = ltr_int_get_key("Global", "Legacy-pose-computation");
     if(pose_method == NULL){
@@ -69,6 +70,7 @@ bool ltr_int_use_alter()
       }else{
         use_alter = false;
       }
+      free(pose_method);
     }
   }
   return use_alter;
@@ -83,11 +85,11 @@ void ltr_int_set_use_alter(bool state)
 bool ltr_int_get_device(struct camera_control_block *ccb)
 {
   bool dev_ok = false;
-  const char *dev_section = ltr_int_get_device_section();
+  char *dev_section = ltr_int_get_device_section();
   if(dev_section == NULL){
     return false;
   }
-  const char *dev_type = ltr_int_get_key(dev_section, "Capture-device");
+  char *dev_type = ltr_int_get_key(dev_section, "Capture-device");
   if (dev_type == NULL) {
     dev_ok = false;
   } else {
@@ -111,6 +113,16 @@ bool ltr_int_get_device(struct camera_control_block *ccb)
       ccb->device.category = webcam_ft;
       dev_ok = true;
     }
+    if(strcasecmp(dev_type, "MacWebcam") == 0){
+      ltr_int_log_message("Device Type: Webcam\n");
+      ccb->device.category = mac_webcam;
+      dev_ok = true;
+    }
+    if(strcasecmp(dev_type, "MacWebcam-face") == 0){
+      ltr_int_log_message("Device Type: Webcam - facetrack\n");
+      ccb->device.category = mac_webcam_ft;
+      dev_ok = true;
+    }
     if(strcasecmp(dev_type, "Wiimote") == 0){
       ltr_int_log_message("Device Type: Wiimote\n");
       ccb->device.category = wiimote;
@@ -120,36 +132,40 @@ bool ltr_int_get_device(struct camera_control_block *ccb)
       ltr_int_log_message("Wrong device type found: '%s'\n", dev_type);
       ltr_int_log_message(" Valid options are: 'Tir4', 'Tir', 'Tir_openusb', 'Webcam', 'Wiimote'.\n");
     }
+    free(dev_type);
   }
   
-  const char *dev_id = ltr_int_get_key(dev_section, "Capture-device-id");
+  char *dev_id = ltr_int_get_key(dev_section, "Capture-device-id");
+  free(dev_section);
   if (dev_id == NULL) {
     dev_ok = false;
   }else{
-    ccb->device.device_id = ltr_int_my_strdup(dev_id);//!!! Benign memory leak!!!
+    ccb->device.device_id = dev_id;
   }
-  
   return dev_ok;
 }
 
 bool ltr_int_get_coord(char *coord_id, float *f)
 {
-  const char *model_section = ltr_int_get_model_section();
+  char *model_section = ltr_int_get_model_section();
   if(model_section == NULL){
     return false;
   }
-  const char *str = ltr_int_get_key(model_section, coord_id);
+  char *str = ltr_int_get_key(model_section, coord_id);
+  free(model_section);
+  model_section = NULL;
   if(str == NULL){
     ltr_int_log_message("Cannot find key %s in section %s!\n", coord_id, model_section);
     return false;
   }
   *f = atof(str);
+  free(str);
   return true;
 }
 
 typedef enum {X, Y, Z, H_Y, H_Z} cap_index;
 
-static bool setup_cap(reflector_model_type *rm, const char *model_section)
+static bool setup_cap(reflector_model_type *rm, char *model_section)
 {
   static char *ids[] = {"Cap-X", "Cap-Y", "Cap-Z", "Head-Y", "Head-Z"};
   ltr_int_log_message("Setting up Cap\n");
@@ -183,7 +199,7 @@ static bool setup_cap(reflector_model_type *rm, const char *model_section)
 
 typedef enum {Y1, Y2, Z1, Z2, HX, HY, HZ} clip_index;
 
-static bool setup_clip(reflector_model_type *rm, const char *model_section)
+static bool setup_clip(reflector_model_type *rm, char *model_section)
 {
   ltr_int_log_message("Setting up Clip...\n");
   static char *ids[] = {"Clip-Y1", "Clip-Y2", "Clip-Z1", "Clip-Z2", 
@@ -228,10 +244,10 @@ static bool setup_clip(reflector_model_type *rm, const char *model_section)
 bool ltr_int_get_model_setup(reflector_model_type *rm)
 {
   assert(rm != NULL);
-  const char *model_section = ltr_int_get_model_section();
+  char *model_section = ltr_int_get_model_section();
   assert(model_section != NULL);
   static bool res = false;
-  const char *model_type = ltr_int_get_key(model_section, "Model-type");
+  char *model_type = ltr_int_get_key(model_section, "Model-type");
   assert(model_type != NULL);
   
   if(strcasecmp(model_type, "Cap") == 0){
@@ -248,13 +264,9 @@ bool ltr_int_get_model_setup(reflector_model_type *rm)
     ltr_int_log_message("Unknown modeltype specified in section %s\n", model_section);
     res = false;
   }
+  free(model_type);
+  free(model_section);
   return res;
-}
-
-
-bool ltr_int_get_filter_factor(float *ff)
-{
-  return ltr_int_get_key_flt(NULL, "Filter-factor", ff);
 }
 
 int ltr_int_get_orientation()

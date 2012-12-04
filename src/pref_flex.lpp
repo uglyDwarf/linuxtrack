@@ -1,14 +1,18 @@
 %{
-
-  #include <stdlib.h>
-  #include <string.h>
+  #include <string>
+  #include "pref.hpp"
   #include "pref_bison.h"
-  #include "utils.h"
-  extern int line_num;
+  //extern int line_num;
 %}
+%option bison-bridge
+%option bison-locations
 %option noyywrap
 %option nounput
 %option noinput
+%option yylineno
+%option outfile="lex.yy.c"
+%option header-file="../pref_flex.h"
+%option prefix="ltr_int_parser_"
 
 %x VALUE SEC_NAME
 
@@ -19,32 +23,33 @@ KEY			[_a-zA-Z0-9-]+
 \]                      {return(TOKEN_RIGHT_BRACKET);}  
 
 {KEY}			{
-			  yylval.str=ltr_int_my_strdup(yytext);
+			  yylval->str=new std::string(ltr_int_parser_text);
 			  return(TOKEN_KEY);
 			}
 #.*			{
-			  yylval.str=ltr_int_my_strdup(yytext);
+			  yylval->str=new std::string(ltr_int_parser_text);
 			  return(TOKEN_COMMENT);
 			}
-  
+
 [[:blank:]]		/* eat up whitespace */
 
 <VALUE>[^\n]*           {
-                          yylval.str=ltr_int_my_strdup(yytext);
+			  yylval->str=new std::string(ltr_int_parser_text);
                           return(TOKEN_VALUE);
                         }
 
 
 <INITIAL,VALUE>\n       {
-                          line_num++;
+                          //line_num++;
+                          (void)yylloc;
                           BEGIN(INITIAL);
                         }
-<SEC_NAME>[^\]]*        {
-                          yylval.str=ltr_int_my_strdup(yytext);
+<SEC_NAME>[^\]\n]*      {
+			  yylval->str=new std::string(ltr_int_parser_text);
                           BEGIN(INITIAL);
                           return(TOKEN_SECNAME);
                         }
   
-.			ltr_int_log_message( "Unrecognized character: %s\n", yytext );
+.			//ltr_int_log_message( "Unrecognized character: %s\n", ltr_int_parser_text );
 %%
 

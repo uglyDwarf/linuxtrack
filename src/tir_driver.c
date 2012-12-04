@@ -122,12 +122,13 @@ int ltr_int_tracker_resume()
 int ltr_int_tracker_close()
 {
   int res = ltr_int_close_tir() ? 0 : -1;;
+  ltr_int_cleanup_after_processing();
   ltr_int_unload_library(libhandle, functions);
   libhandle = NULL;
   return res;
 }
 
-int ltr_int_tir_found(bool *have_firmware)
+int ltr_int_tir_found(bool *have_firmware, bool *have_permissions)
 {
   char *libname = NULL;
   dbg_flag_type fakeusb_dbg_flag = ltr_int_get_dbg_flag('f');
@@ -145,7 +146,32 @@ int ltr_int_tir_found(bool *have_firmware)
   }
   int res = 0;
   dev_found device = ltr_int_find_tir();
-  res = device;
+  if(device & NOT_PERMITTED){
+    device ^= NOT_PERMITTED;
+    *have_permissions = false;
+  }else{
+    *have_permissions = true;
+  }
+  switch(device){
+    case TIR2:
+      res = 2;
+      break;
+    case TIR3:
+      res = 3;
+      break;
+    case TIR4:
+      res = 4;
+      break;
+    case TIR5:
+      res = 5;
+      break;
+    case TIR5V2:
+      res = 5;
+      break;
+    default:
+      res = 0;
+      break;
+  }
   if(res < TIR4){
     *have_firmware = true;
   }else{
@@ -162,3 +188,4 @@ int ltr_int_tir_found(bool *have_firmware)
   libhandle = NULL;
   return res;
 }
+

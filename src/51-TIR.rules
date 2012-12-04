@@ -1,2 +1,1 @@
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="131d", MODE="0666"
-
+SUBSYSTEM=="usb", ATTRS{idVendor}=="131d", MODE="0666"

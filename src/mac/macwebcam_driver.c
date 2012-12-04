@@ -99,6 +99,7 @@ int ltr_int_tracker_close()
 {
   ltr_int_setCommand(&mmm, STOP);
   ltr_int_wait_child_exit(1000);
+  ltr_int_wc_close_prefs();
   return 0;
 }
 

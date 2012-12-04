@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <pthread.h>
 #include "tracking.h"
 #include "math_utils.h"
 #include "pose.h"
@@ -9,13 +10,13 @@
 /* private Static members */
 /**************************/
 
-static struct bloblist_type filtered_bloblist;
-static struct blob_type filtered_blobs[3];
-static bool first_frame = true;
+//static struct bloblist_type filtered_bloblist;
+//static struct blob_type filtered_blobs[3];
+//static bool first_frame = true;
 static bool recenter = false;
 static float cam_distance = 1000.0f;
 
-struct current_pose ltr_int_orig_pose;
+pose_t ltr_int_orig_pose;
 
 /*******************************/
 /* private function prototypes */
@@ -71,10 +72,9 @@ bool ltr_int_init_tracking()
     ltr_int_log_message("Can't get pose setup!\n");
     return false;
   }
-  ltr_int_init_axes();
-  filtered_bloblist.num_blobs = 3;
-  filtered_bloblist.blobs = filtered_blobs;
-  first_frame = true;
+//  filtered_bloblist.num_blobs = 3;
+//  filtered_bloblist.blobs = filtered_blobs;
+//  first_frame = true;
   ltr_int_log_message("Tracking initialized!\n");
   tracking_initialized = true;
   return true;
@@ -91,6 +91,7 @@ static pthread_mutex_t pose_mutex = PTHREAD_MUTEX_INITIALIZER;
 static double angles[3] = {0.0f, 0.0f, 0.0f};
 static double translations[3] = {0.0f, 0.0f, 0.0f};
 
+/*
 static void filter_frame(struct frame_type *frame)
 {
   static float memory_x[3] = {0.0f, 0.0f, 0.0f};
@@ -108,7 +109,7 @@ static void filter_frame(struct frame_type *frame)
     }
   }
 }
-
+*/
 
 static void ltr_int_rotate_camera(float *x, float *y, int orientation)
 {
@@ -151,8 +152,8 @@ static int update_pose_1pt(struct frame_type *frame)
     }
   }
   
-  if(ltr_int_is_finite(frame->bloblist.blobs[0].x) && ltr_int_is_finite(frame->bloblist.blobs[0].y)
-      && (frame->bloblist.num_blobs > 0)){
+  if((frame->bloblist.num_blobs > 0) && ltr_int_is_finite(frame->bloblist.blobs[0].x) 
+     && ltr_int_is_finite(frame->bloblist.blobs[0].y)){
   }else{
     return -1;
   }
@@ -168,8 +169,10 @@ static int update_pose_1pt(struct frame_type *frame)
     c_x = frame->bloblist.blobs[0].x;
     c_y = frame->bloblist.blobs[0].y;
     c_z = cam_distance * sqrtf((float)frame->bloblist.blobs[0].score);
+    printf("Recentering! c_z = %f\n", c_z);
   }
-  
+//printf("cz = %f, z = %f\n", c_z, sqrtf((float)frame->bloblist.blobs[0].score));
+  pthread_mutex_lock(&pose_mutex);
   angles[0] = c_y - frame->bloblist.blobs[0].y;
   angles[1] = frame->bloblist.blobs[0].x - c_x;
   angles[2] = 0.0f;
@@ -184,6 +187,9 @@ static int update_pose_1pt(struct frame_type *frame)
   if(behind){
     angles[0] *= -1;
   }
+  
+  pthread_mutex_unlock(&pose_mutex);
+/*
   ltr_int_orig_pose.pitch = angles[0];
   ltr_int_orig_pose.heading = angles[1];
   ltr_int_orig_pose.roll = 0;
@@ -200,6 +206,7 @@ static int update_pose_1pt(struct frame_type *frame)
   angles[0] = clamp_angle(ltr_int_val_on_axis(PITCH, filtered[0]));
   angles[1] = clamp_angle(ltr_int_val_on_axis(YAW, filtered[1]));
   translations[2] = ltr_int_val_on_axis(TZ, filtered[2]);
+*/
   return 0;
 }
 
@@ -235,10 +242,11 @@ static int update_pose_3pt(struct frame_type *frame)
   ltr_int_pose_sort_blobs(frame->bloblist);
 
   int res = 0;
-  struct current_pose t;
+  pose_t t;
   ltr_int_pose_process_blobs(frame->bloblist, &t, recentering);
+  pthread_mutex_lock(&pose_mutex);
   angles[0] = t.pitch;
-  angles[1] = t.heading;
+  angles[1] = t.yaw;
   angles[2] = t.roll;
   translations[0] = t.tx;
   translations[1] = t.ty;
@@ -251,6 +259,7 @@ static int update_pose_3pt(struct frame_type *frame)
     translations[0] *= -1;
     translations[2] *= -1;
   }
+  pthread_mutex_unlock(&pose_mutex);
   if(raw_dbg_flag == DBG_ON){
     printf("*DBG_r* yaw: %g pitch: %g roll: %g\n", angles[0], angles[1], angles[2]);
     ltr_int_log_message("*DBG_r* x: %g y: %g z: %g\n", 
@@ -260,13 +269,58 @@ static int update_pose_3pt(struct frame_type *frame)
   return res;
 }
 
+bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose, pose_t *unfiltered)
+{
+//  printf(">>Pre: %f %f %f  %f %f %f\n", pose->pitch, pose->yaw, pose->roll, pose->tx, pose->ty, pose->tz);
+//  static float filterfactor=1.0;
+//  ltr_int_get_filter_factor(&filterfactor);
+  static float filtered_angles[3] = {0.0f, 0.0f, 0.0f};
+  static float filtered_translations[3] = {0.0f, 0.0f, 0.0f};
+  //ltr_int_get_axes_ff(axes, filter_factors);
+  double raw_angles[3];
+  
+  raw_angles[0] = unfiltered->pitch = ltr_int_val_on_axis(axes, PITCH, pose->pitch);
+  raw_angles[1] = unfiltered->yaw = ltr_int_val_on_axis(axes, YAW, pose->yaw);
+  raw_angles[2] = unfiltered->roll = ltr_int_val_on_axis(axes, ROLL, pose->roll);
+  //printf(">>Raw: %f %f %f\n", raw_angles[0], raw_angles[1], raw_angles[2]);
+  
+  pose->pitch = clamp_angle(ltr_int_filter_axis(axes, PITCH, raw_angles[0], &(filtered_angles[0])));
+  pose->yaw = clamp_angle(ltr_int_filter_axis(axes, YAW, raw_angles[1], &(filtered_angles[1])));
+  pose->roll = clamp_angle(ltr_int_filter_axis(axes, ROLL, raw_angles[2], &(filtered_angles[2])));
+  
+  double rotated[3];
+  double transform[3][3];
+  double displacement[3] = {pose->tx, pose->ty, pose->tz};
+//  ltr_int_euler_to_matrix(pitch / 180.0 * M_PI, yaw / 180.0 * M_PI, 
+//                          roll / 180.0 * M_PI, transform);
+  ltr_int_euler_to_matrix(pose->pitch / 180.0 * M_PI, pose->yaw / 180.0 * M_PI, 
+                          pose->roll / 180.0 * M_PI, transform);
+  ltr_int_matrix_times_vec(transform, displacement, rotated);
+//  ltr_int_print_matrix(transform, "trf");
+//  ltr_int_print_vec(displacement, "mv");
+//  ltr_int_print_vec(rotated, "rotated");
+  
+  unfiltered->tx = ltr_int_val_on_axis(axes, TX, rotated[0]);
+  unfiltered->ty = ltr_int_val_on_axis(axes, TY, rotated[1]);
+  unfiltered->tz = ltr_int_val_on_axis(axes, TZ, rotated[2]);
+  
+  pose->tx = 
+    ltr_int_filter_axis(axes, TX, unfiltered->tx, &(filtered_translations[0]));
+  pose->ty = 
+    ltr_int_filter_axis(axes, TY, unfiltered->ty, &(filtered_translations[1]));
+  pose->tz = 
+    ltr_int_filter_axis(axes, TZ, unfiltered->tz, &(filtered_translations[2]));
+  //printf(">>Post: %f %f %f  %f %f %f\n", pose->pitch, pose->yaw, pose->roll, pose->tx, pose->ty, pose->tz);
+  return true;
+}
+
 
 static unsigned int counter_d;
 
 int ltr_int_update_pose(struct frame_type *frame)
 {
   counter_d = frame->counter;
-  filter_frame(frame);
+  //!!!filter_frame(frame);
   if(ltr_int_is_single_point()){
     return update_pose_1pt(frame);
   }else{
@@ -300,21 +354,7 @@ int ltr_int_tracking_get_camera(float *heading,
 }
 
 
-
-double ltr_int_nonlinfilt(double x, 
-              double y_minus_1,
-              double filterfactor) 
-{
-  double y;
-  if(!ltr_int_is_finite(x)){
-    return y_minus_1;
-  }
-  double delta = x - y_minus_1;
-  y = y_minus_1 + delta * (fabsf(delta)/(fabsf(delta) + filterfactor));
-
-  return y;
-}
-
+/*
 void ltr_int_nonlinfilt_vec(double x[3], 
               double y_minus_1[3],
               double filterfactor[3],
@@ -325,4 +365,5 @@ void ltr_int_nonlinfilt_vec(double x[3],
   res[2] = ltr_int_nonlinfilt(x[2], y_minus_1[2], filterfactor[2]);
 }
 
+*/
 

@@ -1,9 +1,74 @@
-B<html>
+<html>
 <body>
 
-<h1>Axes setup</h1>
+<h1>Tracking setup</h1>
+When you have the device and model set up, then you can proceed to the tracking customization.
+Here you can set sensitivities, dead zones, nonlinearities and the amount of filtration for each
+axis separately; you can also turn unwanted axes off, specify limits of each axis and so on...
+All this can be done separately for each target program/game.
+<p>
 
-<p>My first paragraph.</p>
+<h2>Default profile concept</h2>
+Default profile is quite special - when an unknown game/program is run for the first time,
+the Default profile is used. Also new profile is created for you to allow you to customize 
+the tracking only in that particular game/program.
+<p>
+This means, that the Default profile should be as generic as possible and only changes needed 
+for particular game/program should be done in the specific profile.
+<p>
+Please note, that at first the new profile doesn't contain any data on its own, at first it fully reflects
+the default profile; this means, that if you change something in the Default profile now, 
+you'll see the change in the new profile as well.
+<p>
+However, whenever you change something in the new profile, the link is broken and the changed value
+would no longer follow the Default profile anymore.
+
+<h2>General setup</h2>
+Make sure you have selcted the desired profile. 
+Controlls in the Tracking setup pane lets you do the following:
+
+<ul>
+  <li>Checkbox in the front allows you to enable/disable an axis.</li>
+  <li>Sensitivity controlls allow you to change controll responsivenes - the higher the number, the more 
+    sensitive the particular axis will be. Some axes allow you to set both parts independently - that can
+    be enabled in the <b>Detailed axes setup</b> dialog.</li>
+  <li><b>Detailed axes setup</b> button opens a dialog allowing you to set all aspects of the axes.</li>
+  <li><b>Filter Factor</b> slider lets you set amount of "smoothing" common for all axes.</li>
+</ul> 
+<p>
+All the controlls have immediate effect on the tracking, so you can directly see the impact of the change.
+Also note, that while it is possible to run ltr_gui in parallel with a client program/game, it is not 
+recommended. Tracking works without the GUI running, unlike other popular alternatives (NP, free-track, ...).
+<p>
+<h2>Detailed axes setup</h2>
+When <b>Detailed axes setup</b> button is pressed, new dialog pops up allowing you to set all aspects of 
+all axes.
+<ul>
+<li><b>Symetrical</b> checkbox allows you to specify if the axis should be symetrical (changes on one side 
+influence the other side too). For example back/forth movement should not be symetrical if you simulate being 
+strapped to a chair, like in the cockpit, since your movement back is limited by the chair.</li>
+<li><b>Sensitivity</b> dial changes the responsiveness of the selected axis. Usualy the value is between 3 and 5.</li>
+<li><b>Limit</b> dial sets how much your simulated head can rotate/move.</li>
+<li><b>Curvature</b> slider controlls the nonlinearity of the axis - 50% is linear; check the curve above the 
+  controlls to see how the curve changes.</li>
+<li><b>Dead zone</b> slider lets you specify a size of the area around the center, where the rotation/movement
+  is ignored.</li>
+<li><b>Additional filtration</b> slider allows you to increase the amount of smoothing applied to an axis.</li>
+</ul>
+<p>
+Again, all the changes are effective immediately.
+ 
+<h2>Troubleshooting</h2>
+If the view is jumping unpredictably even when your head is still, check the sensitivities - a value higher than
+say 5-7 is suspect. Try lowering the sensitivities and see if it helps.
+<p>
+It is possible that you'll experience a "pumping" effect - moving the view back and forth with no 
+apparent reason. It is an inherent problem in the three point 3D pose 
+tracking - Z axis (back/forth movement) is the least precise and is the most sensitive to small input changes
+(especially on low resolution devices like TrackIR4). To get around this problem, use the 
+<b>Edit sensitivity curves</b> button and set the Z axis filter factor higher or increase the dead zone 
+(probably combination of both will yield the best results).
+<p>
 
 </body>
 </html> 
