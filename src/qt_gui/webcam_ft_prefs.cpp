@@ -94,9 +94,6 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Pixel-format", (char *)"");
       PREF.addKeyVal(sec, (char *)"Resolution", (char *)"");
       PREF.addKeyVal(sec, (char *)"Fps", (char *)"");
-      QString cascadePath = PrefProxy::getDataPath("haarcascade_frontalface_alt2.xml");
-      QFileInfo finf = QFileInfo(cascadePath);
-      PREF.addKeyVal(sec, (char *)"Cascade", qPrintable(finf.canonicalFilePath()));
       PREF.activateDevice(sec);
       currentSection = sec;
     }else{
@@ -128,8 +125,7 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
       gui.WebcamFtFormats->setCurrentIndex(fmt_index);
     }
     on_WebcamFtFormats_activated(fmt_index);
-    const char *cascade = ltr_int_wc_get_cascade();
-    QString cascadePath = QString(cascade);
+    QString cascadePath(ltr_int_wc_get_cascade());
     gui.CascadePath->setText(cascadePath);
     int n = (2.0 / ltr_int_wc_get_eff()) - 2;
     gui.ExpFilterFactor->setValue(n);

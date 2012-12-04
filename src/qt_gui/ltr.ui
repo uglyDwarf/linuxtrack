@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>550</width>
-    <height>546</height>
+    <width>551</width>
+    <height>579</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -122,7 +122,7 @@
             <item>
              <widget class="QStackedWidget" name="DeviceSetupStack">
               <property name="currentIndex">
-               <number>2</number>
+               <number>5</number>
               </property>
               <widget class="QWidget" name="LinuxWebcamPrefs">
                <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -687,37 +687,6 @@
                   </item>
                   <item>
                    <widget class="QCheckBox" name="TirSignalizeStatus">
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_36">
-                  <item>
-                   <spacer name="horizontalSpacer_15">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_62">
-                    <property name="text">
-                     <string>Grayscale</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="TirUseGrayscale">
                     <property name="text">
                      <string/>
                     </property>

@@ -1,6 +1,5 @@
-SUBDIRS = src src/mac src/tests doc 
+SUBDIRS = src src/mac src/tests doc
 if ! DARWIN
-SUBDIRS += src/mickey
 if X64
 if LTR32ON64
   SUBDIRS += src/helper

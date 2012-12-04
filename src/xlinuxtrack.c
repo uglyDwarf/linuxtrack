@@ -149,8 +149,8 @@ static bool updateButtonCaption(int index, int button)
 
 static int jmWindowHandler(XPWidgetMessage inMessage,
 			XPWidgetID inWidget,
-			intptr_t inParam1,
-			intptr_t inParam2)
+			long inParam1,
+			long inParam2)
 {
   (void) inWidget;
   (void) inParam1;
@@ -201,7 +201,7 @@ static int joyMapDialog(char *caption)
   				  "Cancel", 0, jmWindow,
   				  xpWidgetClass_Button);
     XPLMGetDatavi(joy_buttons, buttons, 0, button_array_size);
-    XPAddWidgetCallback(jmWindow, (XPWidgetFunc_t)jmWindowHandler);
+    XPAddWidgetCallback(jmWindow, jmWindowHandler);
   }
   jmRun = 1;
   return 0;
@@ -209,8 +209,8 @@ static int joyMapDialog(char *caption)
 
 static int setupWindowHandler(XPWidgetMessage inMessage,
 			XPWidgetID inWidget,
-			intptr_t inParam1,
-			intptr_t inParam2)
+			long inParam1,
+			long inParam2)
 {
   (void) inWidget;
   (void) inParam2;
@@ -221,15 +221,15 @@ static int setupWindowHandler(XPWidgetMessage inMessage,
     return 1;
   }
   if(inMessage == xpMsg_PushButtonPressed){
-    if(inParam1 == (intptr_t)btArray[0].button){
+    if(inParam1 == (long)btArray[0].button){
       buttonIndex = 0;
       joyMapDialog("Remap joystick button for Start/Stop Tracking");
     }
-    if(inParam1 == (intptr_t)btArray[1].button){
+    if(inParam1 == (long)btArray[1].button){
       buttonIndex = 1;
       joyMapDialog("Remap joystick button for Tracking freeze");
     }
-    if(inParam1 == (intptr_t)saveButton){
+    if(inParam1 == (long)saveButton){
       xltr_save_pref(pref_fname, xltrprefs);
     }
   }

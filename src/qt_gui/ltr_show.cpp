@@ -111,9 +111,9 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, ScpForm *s, QSetti
 {
   scp = s;
   ui.setupUi(this);
+  label = new QWidget();
   cv = new CameraView(label);
-  
-  ui.pix_box->addWidget(cv);
+  ui.pix_box->addWidget(label);
   ui.pauseButton->setDisabled(true);
   ui.wakeButton->setDisabled(true);
   ui.stopButton->setDisabled(true);
@@ -360,11 +360,10 @@ CameraView::CameraView(QWidget *parent)
 
 void CameraView::redraw(QImage *img)
 {
-  //if(size() != img->size()){
-    //image = img->scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-  //}else{
   image = img;
-  //}
+  if(size() != img->size()){
+    resize(img->size());
+  }
   update();
 }
 
@@ -372,14 +371,7 @@ void CameraView::paintEvent(QPaintEvent * /* event */)
 {
   if((image != NULL) && (running)){
     QPainter painter(this);
-    int width = size().width();
-    int height = size().height();
-    if((image->width() > width) || (image->height() > height)){
-      painter.drawImage(QPoint(0, 0), 
-        image->scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    }else{
-      painter.drawImage(QPoint(0, 0), *image);
-    }
+    painter.drawImage(QPoint(0, 0), *image);
     painter.end();
   }
 }

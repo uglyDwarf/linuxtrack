@@ -194,6 +194,5 @@ AC_CONFIG_FILES([
  src/wii_server/wii_server.pro
  src/helper/Makefile
  doc/Makefile
- src/mickey/mickey.pro
 ])
 AC_OUTPUT

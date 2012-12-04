@@ -6,7 +6,6 @@
 #include "ui_ltr.h"
 #include "prefs_link.h"
 #include "dlfirmware.h"
-#include <../usb_ifc.h>
 
 class TirPrefs : public QObject{
   Q_OBJECT
@@ -30,7 +29,6 @@ class TirPrefs : public QObject{
   void on_TirStatusBright_valueChanged(int i);
   void on_TirIrBright_valueChanged(int i);
   void on_TirSignalizeStatus_stateChanged(int state);
-  void on_TirUseGrayscale_stateChanged(int state);
   void on_TirInstallFirmware_pressed();
   void on_TirFirmwareDLFinished(bool state);
 };

@@ -5,13 +5,12 @@
 #include "tir_img.h"
 #include "utils.h"
 #include "image_process.h"
-#include "sn4_com.h"
 #include <assert.h>
 
-static unsigned int pkt_no = 0;
+static int pkt_no = 0;
 static image *p_img = NULL;
 static unsigned int current_line = 0;
-static dev_found device = NOT_TIR;
+static dev_found device = NONE;
 
 static bool process_stripe_tir2(unsigned char p_stripe[])
 {
@@ -27,99 +26,6 @@ static bool process_stripe_tir2(unsigned char p_stripe[])
     }
   return true;
 }
-static bool process_stripe_sn4(unsigned char p_stripe[])
-{
-  stripe_t stripe;
-  unsigned char rest;
-  
-    stripe.vline = p_stripe[0];
-    stripe.hstart = p_stripe[1];
-    stripe.hstop = p_stripe[2];
-    rest = p_stripe[3];
-    if(rest & 0x01)
-      stripe.hstop |= 0x100;
-    if(rest & 0x02)
-      stripe.hstart |= 0x100;
-    if(rest & 0x04)
-      stripe.vline |= 0x100;
-    if(rest & 0x08)
-      stripe.hstop |= 0x200;
-    if(rest & 0x10)
-      stripe.hstart |= 0x200;
-    if(rest & 0x20)
-      stripe.vline |= 0x200;
-    if(rest & 0x40)
-      stripe.hstop |= 0x400;
-    if(rest & 0x80)
-      stripe.hstart |= 0x400;
-    stripe.sum = stripe.hstop - stripe.hstart + 1;
-    stripe.sum_x = (unsigned int)(stripe.sum * (stripe.sum - 1) / 2.0);
-    stripe.points = stripe.sum;
-    if(!ltr_int_add_stripe(&stripe, p_img)){
-      ltr_int_log_message("Couldn't add stripe!\n");
-    }
-  return true;
-}
-
-static bool process_stripe_sn4gr(unsigned char p_stripe[], size_t size)
-{
-  stripe_t stripe;
-  unsigned char rest;
-  size_t i, j;
-  unsigned int last_vline = 0;
-    
-  if(size < 4){
-    return false;
-  }
-  i = 0;
-  
-  while(i < (size - 4)){
-    stripe.hstart = p_stripe[i];
-    stripe.vline = p_stripe[i + 1];
-    rest = p_stripe[i + 2];
-    if(rest & 0x01)
-      stripe.hstart |= 0x100;
-    if(rest & 0x02)
-      stripe.hstart |= 0x200;
-    if(rest & 0x04)
-      stripe.vline |= 0x100;
-    stripe.sum = stripe.sum_x = 0;
-    if(stripe.vline < last_vline){
-      printf("%d x %d!!!!\n", stripe.vline, last_vline);
-      for(i = 0; i < size; ++i){
-        printf("%02X ", p_stripe[i]);
-      }
-      break;
-    }
-    last_vline = stripe.vline;
-    i += 3;
-    j = 1;
-    while((p_stripe[i] != 0)&&(i < size)){
-      stripe.sum += p_stripe[i];
-      stripe.sum_x += (j * p_stripe[i]);
-      ++i;
-      ++j;
-    }
-    stripe.points = j - 1;
-    stripe.hstop = stripe.hstart + stripe.points - 1;
-    if(p_stripe[i] == 0){
-      ++i;
-      //printf("%ld x (%d %d) y %d (%d points)\n", i, stripe.hstart, 
-      //  stripe.hstop, stripe.vline, stripe.points);
-      if(!ltr_int_add_stripe(&stripe, p_img)){
-        ltr_int_log_message("Couldn't add stripe!\n");
-      }
-    }else{
-      //reached the end of packet...
-      //printf(">> %02X <<(%ld %ld)\n", p_stripe[i], i, size);
-      break;
-    }
-    
-  }  
-  return true;
-}
-
-
 
 static bool process_stripe_tir4(unsigned char p_stripe[])
 {
@@ -215,21 +121,6 @@ static bool check_paket_header_tir5(unsigned char data[])
   }
 }
 
-static bool check_paket_header_sn4(unsigned char data[])
-{
-  unsigned char csum = 0;
-  int i;
-  for(i = 0; i < 8; ++i){
-    csum ^= data[i];
-  }
-  if(csum != 0xAA){
-    ltr_int_log_message("Bad packet header!\n");
-    return false;
-  }else{
-    return true;
-  }
-}
-
 
 static bool process_packet_tir5(unsigned char data[], size_t *ptr, unsigned int pktsize, int limit)
 {
@@ -238,8 +129,9 @@ static bool process_packet_tir5(unsigned char data[], size_t *ptr, unsigned int 
   unsigned char type = data[*ptr + 2];
 
   if((type == 0) || (type == 5)){
-    if((limit < 4) || !check_paket_header_tir5(&(data[*ptr]))){
+    if(!check_paket_header_tir5(&(data[*ptr]))){
       ltr_int_log_message("Bad packet header!\n");
+      assert(0);
       return false;
     }
     ps = data[limit - 4];
@@ -274,72 +166,6 @@ static bool process_packet_tir5(unsigned char data[], size_t *ptr, unsigned int 
     case 3:
       //These are most probably B/W data from camera without any preprocessing..
       //We ignore them.
-      break;
-  }
-  return have_frame;
-}
-
-static bool process_packet_sn4(unsigned char data[], size_t *ptr, unsigned int pktsize, int limit)
-{
-  bool have_frame = false;
-  unsigned int ps = 0;
-  static unsigned char prev_btns = 3; 
-  unsigned char btns = data[*ptr];
-  unsigned char type = data[*ptr + 1];
-
-  if((limit < 12) || !check_paket_header_sn4(&(data[*ptr]))){
-    *ptr += limit;
-    return false;
-  }
-  
-  ps = data[limit - 4];
-  ps = (ps << 8) + data[limit - 3];
-  ps = (ps << 8) + data[limit - 2];
-  ps = (ps << 8) + data[limit - 1];
-  if(ps != (pktsize - 4)){
-    *ptr += limit;
-    ltr_int_log_message("Bad packet size! %d x %d\n", ps, pktsize - 8);
-    return false;
-  }
-  
-  if(btns != prev_btns){
-    sn4_btn_event_t ev;
-    ev.btns = btns;
-    prev_btns = btns;
-    gettimeofday(&(ev.timestamp), NULL);
-    ltr_int_send_sn4_data((void*)&ev, sizeof(ev));
-    printf("Sending %d!\n", btns);
-  }
-  
-  ps -= 8; // header
-  switch(type){
-    case 4:
-      if(ps > 8){
-        ps -= 4; //skip threshold
-        *ptr += (4 + 8); //header + threshold
-        have_frame = process_stripe_sn4gr((unsigned char *)&(data[*ptr]), ps);
-      }else{
-        have_frame = false;
-      }
-      *ptr += limit;
-      break;
-    case 0:
-      pkt_no = data[*ptr+4];
-      pkt_no = (pkt_no << 8) + data[*ptr+5];
-      pkt_no = (pkt_no << 8) + data[*ptr+6];
-      pkt_no = (pkt_no << 8) + data[*ptr+7];
-      //printf("%d\n", pkt_no);
-      *ptr += 8;
-      while(ps > 0){
-        process_stripe_sn4((unsigned char *)&(data[*ptr]));
-	*ptr += 4;
-        ps -= 4;
-      }
-      *ptr += 4;
-      have_frame = true;
-      break;
-    default:
-      *ptr += limit;
       break;
   }
   return have_frame;
@@ -429,6 +255,7 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
   static int pktsize = 0;
   bool have_frame;
   
+//  log_message("Reading packet!\n");
   while(1){
     if(*ptr >= size){
       return false;
@@ -454,12 +281,6 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
             limit= (*ptr) + pktsize;
           }
           break;
-        case 0x00:
-        case 0x04:
-          pktsize = size;
-          limit= (*ptr) + pktsize;
-          break;
-          
         default:
           ltr_int_log_message("ERROR!!! ('%02X %02X')\n", data[*ptr], data[*ptr + 1]);
 /*	  printf("Error at %d\n", *ptr);
@@ -478,8 +299,9 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
           break;
       }
     }
+//    log_message("size %d, limit %d, ptr %d\n", pktsize, limit, *ptr);
     if(limit > size){
-      break; //we're supposed to read beyond read-in data...
+      break;
     }
     switch(type){
       case 0x20:
@@ -510,12 +332,6 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
 	}
         //log_message("   size %d, limit %d, ptr %d\n", pktsize, limit, *ptr);
         break;
-      case 0x04: //SmartNav4 greyscale data
-      case 0x00: //SmartNav4 normal data
-        have_frame = process_packet_sn4(data, ptr, pktsize, limit);
-        *ptr = limit;
-        type = -1;
-        break;
       default:
         type = -1;
         break;
@@ -543,7 +359,7 @@ int ltr_int_read_blobs_tir(struct bloblist_type *blt, int min, int max, image *i
   while(1){
     if(ptr >= size){
       ptr = 0;
-      if(!ltr_int_receive_data(ltr_int_data_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &size, 1000)){
+      if(!ltr_int_receive_data(ltr_int_packet, sizeof(ltr_int_packet), &size, 1000)){
 	ltr_int_log_message("Problem reading data from USB!\n");
         return -1;
       }

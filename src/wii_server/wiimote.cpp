@@ -102,9 +102,9 @@ void WiiThread::pass_ir_data(struct cwiid_ir_src *data)
   img.ratio = 1.0;
   
   struct blob_type blobs_array[3] = {
-    {0.0f, 0.0f, 0},
-    {0.0f, 0.0f, 0},
-    {0.0f, 0.0f, 0}
+    {0.0f, 0.0f, -1},
+    {0.0f, 0.0f, -1},
+    {0.0f, 0.0f, -1}
   };
   struct bloblist_type bloblist;
   bloblist.num_blobs = 3;

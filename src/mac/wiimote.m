@@ -1,6 +1,5 @@
 #import "wiimote.h"
 #import <unistd.h>
-#include <IOBluetooth/IOBluetoothUserLib.h>
 
 #define LogIOReturn(result) if (result != kIOReturnSuccess) { fprintf (stderr, "IOReturn error (%s [%d]): system 0x%x, sub 0x%x, error 0x%x\n", __FILE__, __LINE__, err_get_system (result), err_get_sub (result), err_get_code (result)); }
 typedef unsigned char darr[];
@@ -86,8 +85,6 @@ typedef unsigned char darr[];
   (void) sender;
   //We take the first wiimote found...
   if(device != nil){
-    //Hopefully not needed...
-    IOBluetoothIgnoreHIDDevice([device getDeviceRef]);
     [inquiry stop];
   }
 }
@@ -141,14 +138,6 @@ typedef unsigned char darr[];
   [discovery setDelegate:nil];
   [discovery release];
   discovery = nil;
-  if(iChan != nil){
-    [iChan release];
-  }
-  iChan = nil;
-  if(cChan != nil){
-    [cChan release];
-  }
-  cChan = nil;
   [super dealloc];
 }
 
@@ -174,12 +163,13 @@ typedef unsigned char darr[];
     case CONNECTING:
       if(event == CONNECT_EVENT){
         state = CONNECTED;
-        timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self
+        timer = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self 
            selector:@selector(initializeWii:) userInfo:nil repeats:NO];
         [timer retain];
       }else if(event == DISCONNECT_REQUEST){
         NSLog(@"Have DISCONNECT REQUEST in state CONNECTING!");
         [delegate wiiDisconnected];
+        [self deinitializeWii];
         state = DISCONNECTING;
         [self close];
       }
@@ -188,6 +178,7 @@ typedef unsigned char darr[];
       if((event == DISCONNECT_REQUEST) || (event == DISCONNECT_EVENT)){
         NSLog(@"Have DISCONNECT REQUEST in state CONNECTED!");
         [delegate wiiDisconnected];
+        [self deinitializeWii];
         state = DISCONNECTING;
         [self close];
       }
@@ -223,14 +214,21 @@ typedef unsigned char darr[];
   }
   IOReturn res;
   if(!opened){
-    usleep(100000);
+    sleep(1);
+    NSLog(@"Opening baseband connection...");
+    res = [device openConnection];
+    if(res != kIOReturnSuccess){
+      LogIOReturn(res);
+      NSLog(@"Couldn't open baseband connection!");
+      [self wiiFSM:DISCONNECT_REQUEST];
+    }
     opened = YES;
-//    disconnectNote = [device registerForDisconnectNotification:self selector:@selector(disconnected:fromDevice:)];
-//    if(disconnectNote == nil){
-//      LogIOReturn(res);
-//      NSLog(@"Couldn't register for disconnect notification!");
-//      [self wiiFSM:DISCONNECT_REQUEST];
-//    }
+    disconnectNote = [device registerForDisconnectNotification:self selector:@selector(disconnected:fromDevice:)];
+    if(disconnectNote == nil){
+      LogIOReturn(res);
+      NSLog(@"Couldn't register for disconnect notification!");
+      [self wiiFSM:DISCONNECT_REQUEST];
+    }
   }
 
   if(cChan == nil){
@@ -242,7 +240,6 @@ typedef unsigned char darr[];
       NSLog(@"Couldn't open control L2CAP channel!");
       [self wiiFSM:DISCONNECT_REQUEST];
     }
-    [cChan retain];
     return;
   }
 
@@ -255,7 +252,6 @@ typedef unsigned char darr[];
       NSLog(@"Couldn't open interrupt L2CAP channel!");
       [self wiiFSM:DISCONNECT_REQUEST];
     }
-    [iChan retain];
     return;
   }
   
@@ -335,11 +331,10 @@ typedef unsigned char darr[];
     if(l2capChannel == cChan){
       connected_channels |= 1; 
       [self updateReportMode:NO];
-      NSLog(@"Control Channel Opened!");
     }else if(l2capChannel == iChan){
       connected_channels |= 2; 
-      NSLog(@"Interrupt Channel Opened!");
     }
+    NSLog(@"Channel 0x%X Opened!", [l2capChannel getPSM]);
     [self connect];
   }else{
     NSLog(@"Error opening channel!");
@@ -349,14 +344,13 @@ typedef unsigned char darr[];
 
 -(void) l2capChannelClosed:(IOBluetoothL2CAPChannel*) l2capChannel
 {
+  NSLog(@"Channel 0x%X closed!", [l2capChannel getPSM]);
   if(l2capChannel == cChan){
     connected_channels &= ~1;
     cChan = nil;
-    NSLog(@"Control Channel closed!");
   }else if(l2capChannel == iChan){
     connected_channels &= ~2;
     iChan = nil;
-    NSLog(@"Interrupt Channel closed!");
   }else{
     NSLog(@"**ERROR** UNKNOWN CHANNEL!!!");
   }

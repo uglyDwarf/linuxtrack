@@ -1,5 +1,5 @@
 if DARWIN
-  AM_CFLAGS = -arch i386 -arch ppc -arch x86_64
+  AM_CFLAGS = -arch i386 -arch ppc
   TIGER_CFLAG = -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4
   TIGER_LDFLAG = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 -headerpad_max_install_names
   LEOPARD_CFLAG = -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5
@@ -97,7 +97,7 @@ libltr_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 #libtir4_la_SOURCES = tir4_driver.c tir4_driver.h new_cal.c new_cal.h
 #libtir4_la_LIBADD = -lusb  libltr.la
 
-libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h sn4_com.h \
+libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
 libtir_la_LIBADD = -lz libltr.la
 libtir_la_LDFLAGS = -export-symbols "${srcdir}/tir.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
@@ -110,7 +110,7 @@ libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
 libltopenusb_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 libltopenusb_la_LIBADD = -lopenusb libltr.la
 libltopenusb_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS)
-libfakeusb_la_SOURCES = fakeusb.c usb_ifc.h tir_model.cpp tir_model.h
+libfakeusb_la_SOURCES = fakeusb.c usb_ifc.h
 libfakeusb_la_CFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS}
 libfakeusb_la_LIBADD = libltr.la
 libfakeusb_la_LDFLAGS = ${TIGER_LDFLAG} $(LINUXFLAGS)
@@ -137,27 +137,21 @@ libft_la_CXXFLAGS = ${TIGER_CFLAG} ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_LIBADD = libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
 libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${TIGER_LDFLAG} $(LINUXFLAGS)
 
-dist_pkgdata_DATA = linuxtrack.conf 51-TIR.rules haarcascade_frontalface_alt2.xml
-nodist_pkgdata_DATA = linuxtrack.c
+dist_pkgdata_DATA = linuxtrack.conf 51-TIR.rules linuxtrack.c
 
 if XPLANE_PLUGIN
-pkglib_LTLIBRARIES += xlinuxtrack9.la
 if LTR32ON64
-  pkglib_LTLIBRARIES += xlinuxtrack.la xlinuxtrack9_32.la
+  pkglib_LTLIBRARIES += xlinuxtrack.la xlinuxtrack9.la
   xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
 			    linuxtrack.c
   xlinuxtrack_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
   xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
   xlinuxtrack_la_LIBADD = -lm -ldl
-  xlinuxtrack9_32_la_SOURCES = xlinuxtrack9.c linuxtrack.c
-  xlinuxtrack9_32_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
-  xlinuxtrack9_32_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
-  xlinuxtrack9_32_la_LIBADD = -lm -ldl
+  xlinuxtrack9_la_SOURCES = xlinuxtrack9.c linuxtrack.c
+  xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+  xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
+  xlinuxtrack9_la_LIBADD = -lm -ldl
 endif
-xlinuxtrack9_la_SOURCES = xlinuxtrack9.c linuxtrack.c
-xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
-xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
-xlinuxtrack9_la_LIBADD = -lm -ldl
 endif
 
 AM_YFLAGS = -d
@@ -180,7 +174,7 @@ distclean-local-check:
 	-cd wii_server;make distclean
 	rm -f linuxtrack.c
 
-noinst_SCRIPTS = qt_gui/ltr_gui mickey/mickey
+noinst_SCRIPTS = qt_gui/ltr_gui
 
 if CWIID
   noinst_SCRIPTS += wii_server/wii_server
@@ -192,18 +186,13 @@ qt_gui/ltr_gui : ${pkglib_LTLIBRARIES}
 wii_server/wii_server : ${pkglib_LTLIBRARIES}
 	pushd wii_server; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
 
-mickey/mickey : ${pkglib_LTLIBRARIES}
-	pushd mickey; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
-
 install-exec-hook:
 	pushd qt_gui;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} install; popd
 	pushd wii_server;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} install; popd
-	pushd mickey;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} install; popd
 
 uninstall-hook:
 	pushd qt_gui;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
 	pushd wii_server;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
-	pushd mickey;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
 
 
 EXTRA_DIST = qt_gui/ltr_axis.cpp qt_gui/glwidget.h qt_gui/model_wizzard.ui \

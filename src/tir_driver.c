@@ -145,8 +145,27 @@ int ltr_int_tir_found(bool *have_firmware)
   }
   int res = 0;
   dev_found device = ltr_int_find_tir();
-  res = device;
-  if(res < TIR4){
+  switch(device){
+    case TIR2:
+      res = 2;
+      break;
+    case TIR3:
+      res = 3;
+      break;
+    case TIR4:
+      res = 4;
+      break;
+    case TIR5:
+      res = 5;
+      break;
+    case TIR5V2:
+      res = 5;
+      break;
+    default:
+      res = 0;
+      break;
+  }
+  if(res < 4){
     *have_firmware = true;
   }else{
     char *fw = ltr_int_find_firmware(device);

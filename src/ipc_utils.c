@@ -14,9 +14,7 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/file.h>
 #include <fcntl.h>
-#include <poll.h>
 #include <string.h>
 
 #ifndef LIBLINUXTRACK_SRC
@@ -58,12 +56,12 @@ bool ltr_int_wait_child_exit(int limit)
 
 //Check if some server is not running by trying to lock specific file.
 // If psem is not NULL, return this way newly semaphore on the appropriate file.
-// If should_lock is false, the file is not actually locked even if it can be.
+// If should lock is false, the file is not actually locked even if it can be.
 //  Return values:
 //    -1 error
 //     0 server not running
 //     1 server running
-int ltr_int_server_running_already(const char *lockName, semaphore_p *psem, bool should_lock)
+int ltr_int_server_running_already(char *lockName, semaphore_p *psem, bool should_lock)
 {
   char *lockFile;
   semaphore_p pfSem;
@@ -194,101 +192,41 @@ void ltr_int_closeSemaphore(semaphore_p semaphore)
   free(semaphore);
 }
 
-//the fname argument should end with XXXXXX;
-//  it is also modified by the call to contain the actual filename.
-//
-//Returns opened file descriptor
-int ltr_int_open_tmp_file(char *fname)
-{
-  umask(S_IWGRP | S_IWOTH);
-  return mkstemp(fname);
-}
-
-//Closes and removes the file...
-void ltr_int_close_tmp_file(char *fname, int fd)
-{
-  close(fd);
-  unlink(fname);
-}
-
-char *ltr_int_get_com_file_name()
-{
-  return ltr_int_get_default_file_name("linuxtrack.comm");
-}
-
-static const char *mmapped_file_name()
-{
-  static const char name[] = "/tmp/ltr_mmapXXXXXX";
-  return name;
-}
-
-static bool ltr_int_mmap(int fd, ssize_t tmp_size, struct mmap_s *m)
-{
-  //Check if file does have needed length...
-  struct stat file_stat;
-  bool truncate = true;
-  if(fstat(fd, &file_stat) == 0){
-    if(file_stat.st_size == (ssize_t)tmp_size){
-      truncate = false;
-    }
-  }
-  
-  if(truncate){
-    int res = ftruncate(fd, tmp_size);
-    if (res == -1) {
-      perror("ftruncate: ");
-      close(fd);
-      return false;
-    }
-  }
-  m->data = mmap(NULL, tmp_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-  if(m->data == (void*)-1){
-    perror("mmap: ");
-    close(fd);
-    return false;
-  }
-  return true;
-}
-
 bool ltr_int_mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
 {
+  m->fname = ltr_int_my_strdup(fname);
   umask(S_IWGRP | S_IWOTH);
   int fd = open(fname, O_RDWR | O_CREAT | O_NOFOLLOW, 0700);
   if(fd < 0){
     perror("open: ");
     return false;
   }
+  m->size = tmp_size;
   
-  if(!ltr_int_mmap(fd, tmp_size, m)){
+  //Check if file does have needed length...
+  struct stat file_stat;
+  bool truncate = true;
+  if(fstat(fd, &file_stat) == 0){
+    if(file_stat.st_size == (ssize_t)m->size){
+      truncate = false;
+    }
+  }
+  
+  if(truncate){
+    int res = ftruncate(fd, m->size);
+    if (res == -1) {
+      perror("ftruncate: ");
+      close(fd);
+      return false;
+    }
+  }
+  m->data = mmap(NULL, m->size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  if(m->data == (void*)-1){
+    perror("mmap: ");
     close(fd);
     return false;
   }
-  m->fname = ltr_int_my_strdup(fname);
-  m->size = tmp_size;
-  m->sem = ltr_int_semaphoreFromFd(fd);
-  m->lock_sem = NULL;
-  m->sem->fd = fd;
-  return true;
-}
-
-bool ltr_int_mmap_file_exclusive(size_t tmp_size, struct mmap_s *m)
-{
-  umask(S_IWGRP | S_IWOTH);
-  
-  char *file_name = ltr_int_my_strdup(mmapped_file_name());
-  int fd = ltr_int_open_tmp_file(file_name);
-  if(fd < 0){
-    perror("mkstemp");
-    return false;
-  }
-  
-  if(!ltr_int_mmap(fd, tmp_size, m)){
-    ltr_int_close_tmp_file(file_name, fd);
-    free(file_name);
-    return false;
-  }
-  m->fname = file_name;
-  m->size = tmp_size;
+//  close(fd);
   m->sem = ltr_int_semaphoreFromFd(fd);
   m->lock_sem = NULL;
   m->sem->fd = fd;
@@ -317,162 +255,27 @@ bool ltr_int_unmap_file(struct mmap_s *m)
   return res == 0;
 }
 
+#ifndef LIBLINUXTRACK_SRC
 
-
-bool ltr_int_make_fifo(const char *name)
+//the fname argument should end with XXXXXX;
+//  it is also modified by the call to contain the actual filename.
+//
+//Returns opened file descriptor
+int ltr_int_open_tmp_file(char *fname)
 {
-  if(name == NULL){
-    printf("Name must be set! (NULL passed)\n");
-  }
-  struct stat info;
-  if(stat(name, &info) == 0){
-    //file exists, check if it is fifo...
-    if(S_ISFIFO(info.st_mode)){
-      printf("Fifo exists already!\n");
-      return true;
-    }else if(S_ISDIR(info.st_mode)){
-      printf("Directory exists! Will try to remove it.\n");
-      if(rmdir(name) != 0){
-        perror("rmdir");
-        return false;
-      }
-    }else{
-      printf("File exists, but it is not a fifo! Will try to remove it.\n");
-      if(unlink(name) != 0){
-        perror("unlink");
-        return false;
-      }
-    }
-  }
-  //At this point, the file should not exist.
-  if(mkfifo(name, S_IRUSR | S_IWUSR) != 0){
-    perror("mkfifo");
-    return false;
-  }
-  printf("Fifo created!\n");
-  return true;
+  umask(S_IWGRP | S_IWOTH);
+  return mkstemp(fname);
 }
 
-int ltr_int_open_fifo_exclusive(const char *name)
+//Closes and removes the file...
+void ltr_int_close_tmp_file(char *fname, int fd)
 {
-  if(!ltr_int_make_fifo(name)){
-    return -1;
-  }
-  int fifo = -1;
-  if((fifo = open(name, O_RDONLY | O_NONBLOCK)) > 0){
-    ltr_int_log_message("Fifo %s opened!\n", name);
-    if(flock(fifo, LOCK_EX | LOCK_NB) == 0){
-      ltr_int_log_message("Fifo %s (fd %d) opened and locked!\n", name, fifo);
-      return fifo;
-    }
-    ltr_int_log_message("Fifo %s (fd %d) could not be locked, closing it!\n", name, fifo);
-    close(fifo);
-  }
-  return -1;
+  unlink(fname);
+  close(fd);
 }
+#endif
 
-int ltr_int_open_fifo_for_writing(const char *name, bool wait){
-  if(!ltr_int_make_fifo(name)){
-    return -1;
-  }
-  
-  //Open the pipe (handling the wait for the other party to open reading end)
-  //  Todo: add some timeout?
-  int fifo = -1;
-  int timeout = 3;
-  while(timeout > 0){
-    --timeout;
-    if((fifo = open(name, O_WRONLY | O_NONBLOCK)) < 0){
-      if(errno != ENXIO){
-        perror("open@open_fifo_for_writing");
-        return -1;
-      }
-      fifo = -1;
-      if(!wait){
-        return -1;
-      }
-      sleep(1);
-    }else{
-      break;
-    }
-  }
-  return fifo;
-}
-
-int ltr_int_open_unique_fifo(char **name, int *num, const char *template, int max)
+char *ltr_int_get_com_file_name()
 {
-  //although I could come up with method allowing more than 100
-  //  fifos to be checked, there is not a point doing so
-  int i;
-  char *fifo_name = NULL;
-  int fifo = -1;
-  for(i = 0; i < max; ++i){
-    asprintf(&fifo_name, template, i);
-    fifo = ltr_int_open_fifo_exclusive(fifo_name);
-    if(fifo > 0){
-      break;
-    }
-    free(fifo_name);
-    fifo_name = NULL;
-  }
-  *name = fifo_name;
-  *num = i;
-  return fifo;
-}
-
-int ltr_int_fifo_send(int fifo, void *buf, size_t size)
-{
-  if(fifo <= 0){
-    return -1;
-  }
-  if(write(fifo, buf, size) < 0){
-    printf("Write @fd %d failed:\n", fifo);
-    perror("write@pipe_send");
-    return -errno;
-   }
-  return 0;
-}
-
-ssize_t ltr_int_fifo_receive(int fifo, void *buf, size_t size)
-{
-  //Assumption is, that write/read of less than 512 bytes should be atomic...
-  ssize_t num_read = read(fifo, buf, size);
-  if(num_read > 0){
-    return num_read;
-  }else if(num_read < 0){
-    perror("read@fifo_receive");
-    return -errno;
-  }
-  return 0;
-}
-
-
-// Return value
-//   0 - timed out
-//   1 - data available
-//  -1 - problem (HUP or so)
-int ltr_int_pipe_poll(int pipe, int timeout, bool *hup)
-{
-  struct pollfd downlink_poll= {
-    .fd = pipe,
-    .events = POLLIN,
-    .revents = 0
-  };
-  if(hup != NULL){
-    *hup = false;
-  }
-  int fds = poll(&downlink_poll, 1, timeout);
-  if(fds > 0){
-    if(downlink_poll.revents & POLLHUP){
-      if(hup != NULL){
-        *hup = true;
-      }
-      return -1;
-    }
-    return fds;
-  }else if(fds < 0){
-    perror("poll");
-    return -1;
-  }
-  return 0;
+  return ltr_int_get_default_file_name("linuxtrack.comm");
 }

@@ -63,10 +63,6 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
   char *cam_id = ltr_int_my_strdup(ltr_int_wc_get_id());
   char *cascade = NULL;
   if(ccb->device.category == webcam_ft){
-    if(ltr_int_wc_get_cascade() == NULL){
-	  ltr_int_log_message("No cascade specified!\n");
-	  return -1;
-	}
     cascade = ltr_int_my_strdup(ltr_int_wc_get_cascade());
   }
   if(!init_capture(cap_path, cam_id,  width, height, "/tmp/xxx", cascade)){

@@ -7,17 +7,12 @@
 
 static libusb_context *usb_context = NULL;
 static libusb_device_handle *handle = NULL;
+static unsigned int in, out;
 static bool interface_claimed = false;
-static dbg_flag_type comm_dbg_flag = DBG_CHECK;
 
 bool ltr_int_init_usb()
 {
   ltr_int_log_message("Initializing libusb.\n");
-
-  if(comm_dbg_flag == DBG_CHECK){
-    comm_dbg_flag = ltr_int_get_dbg_flag('u');
-  }
-
   int res = libusb_init(&usb_context);
   if(res != 0){
     ltr_int_log_message("Problem initializing libusb!\n");
@@ -55,7 +50,7 @@ dev_found ltr_int_find_tir(unsigned int devid)
   // discover devices
   libusb_device **list;
   libusb_device *found = NULL;
-  dev_found dev = NOT_TIR;
+  dev_found dev = NONE;
   
   ltr_int_log_message("Requesting device list.\n");
   ssize_t cnt = libusb_get_device_list(usb_context, &list);
@@ -64,7 +59,7 @@ dev_found ltr_int_find_tir(unsigned int devid)
   int err = 0;
   if (cnt < 0){
     ltr_int_log_message("Error enumerating devices!\n");
-    return NOT_TIR;
+    return NONE;
   }
 
   for(i = 0; i < cnt; i++){
@@ -120,23 +115,12 @@ dev_found ltr_int_find_tir(unsigned int devid)
     }
   }
 
-  if(!found){
-    for(i = 0; i < cnt; i++){
-      libusb_device *device = list[i];
-      if(is_tir(device, 0x0106)){
-        found = device;
-        dev = SMARTNAV4;
-        break;
-      }
-    }
-  }
-
   if(found){
     ltr_int_log_message("Opening handle to the device found.\n");
     err = libusb_open(found, &handle);
     if(err){
       ltr_int_log_message("Error opening device!\n");
-      return NOT_TIR;
+      return NONE;
     }
     ltr_int_log_message("Handle opened successfully.\n");
   }else{
@@ -149,7 +133,7 @@ dev_found ltr_int_find_tir(unsigned int devid)
     return dev;
   }else{
     ltr_int_log_message("Bad handle!\n");
-    return NOT_TIR;
+    return NONE;
   }
 }
 
@@ -204,48 +188,25 @@ static bool claim_tir(int config, unsigned int interface)
   return true;
 }
 
-bool ltr_int_prepare_device(unsigned int config, unsigned int interface)
+bool ltr_int_prepare_device(unsigned int config, unsigned int interface, 
+  unsigned int in_ep, unsigned int out_ep)
 {
+  in = in_ep;
+  out = out_ep;
   return configure_tir(config) && claim_tir(config, interface);
 }
 
-static bool ltr_int_log_packet(const char *dir, unsigned char data[], size_t size)
-{
-  char *buffer = ltr_int_my_malloc(size * 3 + 1);
-  static const char table[] = {'0', '1', '2', '3', '4', '5', '6', '7', 
-                               '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-  size_t i;
-  char *buf_ptr = buffer;
-  for(i = 0; i < size; ++i){
-    *buf_ptr = table[(data[i]>>4)&0x0F];
-    ++buf_ptr;
-    *buf_ptr = table[data[i]&0x0F];
-    ++buf_ptr;
-    *buf_ptr = ' ';
-    ++buf_ptr;
-  }
-  *buf_ptr = '\0';
-  ltr_int_log_message("***libusb_dump*** %s %s\n", dir, buffer);
-  free(buffer);
-  return true;
-}
-
-
-bool ltr_int_send_data(int out_ep, unsigned char data[], size_t size)
+bool ltr_int_send_data(unsigned char data[], size_t size)
 {
   int res, transferred;
-  if(comm_dbg_flag == DBG_ON){
-    ltr_int_log_packet("out", data, size);
-  }
-  if((res = libusb_bulk_transfer(handle, out_ep, data, size, &transferred, 500))){
-    ltr_int_log_message("Problem writing data to TIR@ep %d! %d - %d transferred\n", 
-      out_ep, res, transferred);
+  if((res = libusb_bulk_transfer(handle, out, data, size, &transferred, 500))){
+    ltr_int_log_message("Problem writing data to TIR! %d - %d transferred\n", res, transferred);
     return false;
   }
   return true;
 }
 
-bool ltr_int_receive_data(int in_ep, unsigned char data[], size_t size, size_t *transferred,
+bool ltr_int_receive_data(unsigned char data[], size_t size, size_t *transferred,
                   unsigned int timeout)
 {
   if(timeout == 0){
@@ -253,17 +214,12 @@ bool ltr_int_receive_data(int in_ep, unsigned char data[], size_t size, size_t *
   }
   *transferred = 0;
   int res;
-  if((res = libusb_bulk_transfer(handle, in_ep, data, size, (int*)transferred, timeout))){
+  if((res = libusb_bulk_transfer(handle, in, data, size, (int*)transferred, timeout))){
     if(res != LIBUSB_ERROR_TIMEOUT){
-      ltr_int_log_message("Problem reading data from TIR@ep %d! %d - %d transferred\n", 
-        in_ep, res, *transferred);
+      ltr_int_log_message("Problem reading data from TIR! %d - %d transferred\n", res, *transferred);
       return false;
     }else{
       ltr_int_log_message("Data receive request timed out!\n");
-    }
-  }else{
-    if(comm_dbg_flag == DBG_ON){
-      ltr_int_log_packet("in", data, *transferred);
     }
   }
   return true;

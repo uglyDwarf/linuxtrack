@@ -201,7 +201,7 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFromWho,
   if(inFromWho == XPLM_PLUGIN_XPLANE){
     switch(inMessage){
       case XPLM_MSG_PLANE_LOADED:
-        if((intptr_t)inParam == XPLM_PLUGIN_XPLANE){
+        if((int)inParam == XPLM_PLUGIN_XPLANE){
 
           PV_Enabled_DR = XPLMFindDataRef("sandybarbour/pv/enabled");
           PV_TIR_X_DR = XPLMFindDataRef("sandybarbour/pv/tir_x");
@@ -259,7 +259,7 @@ static void deactivate(void)
 
 static void MyHotKeyCallback(void *inRefcon)
 {
-  switch((intptr_t)inRefcon){
+  switch((int)inRefcon){
     case START:
       if(active_flag==false){
         activate();
@@ -349,11 +349,11 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
     if (retval < 0) {
       return -1.0;
     }
-    tx *= 1e-3;
-    ty *= 1e-3;
-    tz *= 1e-3;
   }
   
+  tx *= 1e-3;
+  ty *= 1e-3;
+  tz *= 1e-3;
   if(pv_present){
     XPLMSetDataf(PV_TIR_X_DR, tx);
     XPLMSetDataf(PV_TIR_Y_DR, ty);
@@ -371,13 +371,6 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
       if(head_roll != NULL){
         XPLMSetDataf(head_roll, -roll);
       }
-    }else{
-      //Make sure to cancel any roll, unless bad things start to happening
-      //  e.g. mising HUD in forward with HUD view or rolled view in other
-      //  views... Also the roll seems to be persistent!
-      if(head_roll != NULL){
-        XPLMSetDataf(head_roll, 0);
-      }
     }
   }
   return -1.0;
@@ -394,8 +387,8 @@ static int			setupWindowOpened = 0;
 
 static int setupWindowHandler(XPWidgetMessage inMessage,
 			XPWidgetID inWidget,
-			intptr_t inParam1,
-			intptr_t inParam2)
+			long inParam1,
+			long inParam2)
 {
   (void) inWidget;
   (void) inWidget;
@@ -471,7 +464,7 @@ static int setupDialog()
     setupButton = XPCreateWidget(x+80, y2+40, x2-80, y2+20, 1, 
   				  "Close", 0, setupWindow,
   				  xpWidgetClass_Button);
-    XPAddWidgetCallback(setupWindow, (XPWidgetFunc_t)setupWindowHandler);
+    XPAddWidgetCallback(setupWindow, setupWindowHandler);
   }
   return 0;
 }
