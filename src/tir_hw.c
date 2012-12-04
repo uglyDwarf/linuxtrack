@@ -106,9 +106,11 @@ static bool ltr_int_open_sn4_pipe()
 void ltr_int_send_sn4_data(uint8_t data[], size_t length)
 {
   if(sn4_pipe <= 0){
+    printf("Pipe not open, trying to open...\n");
     ltr_int_open_sn4_pipe();
   }
   if(sn4_pipe <= 0){
+    printf("There was problem opening the pipe!\n");
     return;
   }
   ltr_int_fifo_send(sn4_pipe, (void *)data, length);
@@ -568,7 +570,7 @@ static bool stop_camera_tir5()
 static bool stop_camera_sn4()
 {
   ltr_int_log_message("Stopping SmartNav4 camera!\n");
-  ltr_int_send_data(out_ep, Video_off,sizeof(Video_off));
+  ltr_int_send_data(out_ep, Video_off, sizeof(Video_off));
   turn_led_off_tir(TIR_LED_IR);
   turn_led_off_tir(TIR_LED_RED);
   turn_led_off_tir(TIR_LED_GREEN);

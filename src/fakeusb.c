@@ -114,20 +114,18 @@ dev_found ltr_int_find_tir(unsigned int devid)
   return get_tir_type();
 }
 
-bool ltr_int_prepare_device(unsigned int config, unsigned int interface, 
-  unsigned int in_ep, unsigned int out_ep)
+bool ltr_int_prepare_device(unsigned int config, unsigned int interface)
 {
   (void) config;
   (void) interface;
-  (void) in_ep;
-  (void) out_ep;
   return true;
 }
 
 bool send_cfg = false;
 
-bool ltr_int_send_data(unsigned char data[], size_t size)
+bool ltr_int_send_data(int out_ep, unsigned char data[], size_t size)
 {
+  (void) out_ep;
   if(current_model == SMARTNAV4){
     fakeusb_send(data, size);
     return true;
@@ -152,9 +150,10 @@ uint8_t pkt_buf[PKT_MAX];
 //  return (s1 < s2) ? s1 : s2;
 //}
 
-bool ltr_int_receive_data(unsigned char data[], size_t size, size_t *transferred,
+bool ltr_int_receive_data(int in_ep, unsigned char data[], size_t size, size_t *transferred,
                   unsigned int timeout)
 {
+  (void) in_ep;
   if(current_model == SMARTNAV4){
     fakeusb_receive(data, size, transferred, timeout);
     ltr_int_usleep(10000);
