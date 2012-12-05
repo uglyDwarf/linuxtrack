@@ -106,10 +106,10 @@ bool TirPrefs::Activate(const QString &ID, bool init)
   ui.TirStatusBright->setValue(ltr_int_tir_get_status_brightness());
   Qt::CheckState state = (ltr_int_tir_get_status_indication()) ? 
                           Qt::Checked : Qt::Unchecked;
-  gui.TirSignalizeStatus->setCheckState(state);
+  ui.TirSignalizeStatus->setCheckState(state);
   Qt::CheckState grayscale = (ltr_int_tir_get_use_grayscale()) ? 
                           Qt::Checked : Qt::Unchecked;
-  gui.TirUseGrayscale->setCheckState(grayscale);
+  ui.TirUseGrayscale->setCheckState(grayscale);
   if(firmwareOK){
     if(tirType < TIR4){
       ui.TirFwLabel->setText("Firmware not needed!");
@@ -137,8 +137,9 @@ bool TirPrefs::Activate(const QString &ID, bool init)
     ui.IRBrightLabelHigh->setHidden(true);
   }
   if(tirType != SMARTNAV4){
-    gui.TirUseGrayscale->setDisabled(true);
-    gui.TirUseGrayscale->setHidden(true);
+    ui.TirUseGrayscale->setDisabled(true);
+    ui.TirUseGrayscale->setHidden(true);
+    ui.TirUseGrayscaleLabel->setHidden(true);
   }
   initializing = false;
   return true;

@@ -8,12 +8,12 @@
 #include "dlfirmware.h"
 #include "utils.h"
 
-const QString PluginInstall::keySrc(PREF.getRsrcDirPath() + "/tir_firmware/tir4.fw.gz");
-const QString PluginInstall::keyFile(PREF.getRsrcDirPath() + "/tir_firmware/sig.key");
-const QString PluginInstall::sigFile(PREF.getRsrcDirPath() + "/tir_firmware/sig.bin");
 
 PluginInstall::PluginInstall(const Ui::LinuxtrackMainForm &ui):
-  gui(ui), inst(NULL)
+  gui(ui), inst(NULL), 
+  keySrc(PREF.getRsrcDirPath() + "/tir_firmware/tir4.fw.gz"),
+  keyFile(PREF.getRsrcDirPath() + "/tir_firmware/sig.key"), 
+  sigFile(PREF.getRsrcDirPath() + "/tir_firmware/sig.bin")
 {
   if(QFile::exists(PREF.getDataPath("linuxtrack-wine.exe"))){
     inst = new QProcess(this);

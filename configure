@@ -636,6 +636,8 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+WINE_PLUGIN_FALSE
+WINE_PLUGIN_TRUE
 FACE_TRACKER_FALSE
 FACE_TRACKER_TRUE
 LINUX_FALSE
@@ -646,8 +648,6 @@ LTR32ON64_FALSE
 LTR32ON64_TRUE
 X64_FALSE
 X64_TRUE
-TIR_FW_FALSE
-TIR_FW_TRUE
 LIBZ_FALSE
 LIBZ_TRUE
 OPENUSB_FALSE
@@ -800,6 +800,7 @@ enable_xplane_plugin
 enable_ltr_pipe
 enable_snow_leopard
 enable_ltr_32lib_on_x64
+enable_wine_plugin
 with_opencv_libs
 with_opencv_cflags
 '
@@ -1455,6 +1456,8 @@ Optional Features:
   --enable-ltr-32lib-on-x64
                           build 32bit linuxtrack library on 64bit host
                           [default=yes]
+  --enable-wine-plugin    build wine plugin (requires winegcc, wineg++ and
+                          makensis) [default=no]
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -16023,6 +16026,7 @@ fi
 done
 
 
+
 # Checks for typedefs, structures, and compiler characteristics.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for stdbool.h that conforms to C99" >&5
 $as_echo_n "checking for stdbool.h that conforms to C99... " >&6; }
@@ -16341,6 +16345,15 @@ else
 fi
 
 
+# Check whether --enable-wine_plugin was given.
+if test "${enable_wine_plugin+set}" = set; then :
+  enableval=$enable_wine_plugin; with_wine_plugin=yes
+else
+  with_wine_plugin=no
+
+fi
+
+
 #AC_ARG_ENABLE([face_tracker],
 #            [AS_HELP_STRING([--enable-face-tracker],
 #              [enables building of face tracker (requires OpenCV 2.X)])],
@@ -16544,14 +16557,6 @@ else
   LIBZ_FALSE=
 fi
 
- if test  "x$with_tir_fw" = xyes; then
-  TIR_FW_TRUE=
-  TIR_FW_FALSE='#'
-else
-  TIR_FW_TRUE='#'
-  TIR_FW_FALSE=
-fi
-
  if test  "x$with_64_bit" = xyes; then
   X64_TRUE=
   X64_FALSE='#'
@@ -16590,6 +16595,14 @@ fi
 else
   FACE_TRACKER_TRUE='#'
   FACE_TRACKER_FALSE=
+fi
+
+ if test x$with_wine_plugin = xyes; then
+  WINE_PLUGIN_TRUE=
+  WINE_PLUGIN_FALSE='#'
+else
+  WINE_PLUGIN_TRUE='#'
+  WINE_PLUGIN_FALSE=
 fi
 
 
@@ -16662,7 +16675,7 @@ done
 
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/pathconfig.h src/tests/Makefile src/mac/Makefile src/local_config.h src/qt_gui/ltr_gui.pro src/wii_server/wii_server.pro src/helper/Makefile doc/Makefile src/mickey/mickey.pro"
+ac_config_files="$ac_config_files Makefile src/Makefile src/pathconfig.h src/tests/Makefile src/mac/Makefile src/local_config.h src/qt_gui/ltr_gui.pro src/wii_server/wii_server.pro src/helper/Makefile src/wine_bridge/Makefile doc/Makefile src/linuxtrack.pc src/mickey/mickey.pro"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -16821,10 +16834,6 @@ if test -z "${LIBZ_TRUE}" && test -z "${LIBZ_FALSE}"; then
   as_fn_error $? "conditional \"LIBZ\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${TIR_FW_TRUE}" && test -z "${TIR_FW_FALSE}"; then
-  as_fn_error $? "conditional \"TIR_FW\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
 if test -z "${X64_TRUE}" && test -z "${X64_FALSE}"; then
   as_fn_error $? "conditional \"X64\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -16843,6 +16852,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${FACE_TRACKER_TRUE}" && test -z "${FACE_TRACKER_FALSE}"; then
   as_fn_error $? "conditional \"FACE_TRACKER\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${WINE_PLUGIN_TRUE}" && test -z "${WINE_PLUGIN_FALSE}"; then
+  as_fn_error $? "conditional \"WINE_PLUGIN\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
@@ -17822,7 +17835,9 @@ do
     "src/qt_gui/ltr_gui.pro") CONFIG_FILES="$CONFIG_FILES src/qt_gui/ltr_gui.pro" ;;
     "src/wii_server/wii_server.pro") CONFIG_FILES="$CONFIG_FILES src/wii_server/wii_server.pro" ;;
     "src/helper/Makefile") CONFIG_FILES="$CONFIG_FILES src/helper/Makefile" ;;
+    "src/wine_bridge/Makefile") CONFIG_FILES="$CONFIG_FILES src/wine_bridge/Makefile" ;;
     "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
+    "src/linuxtrack.pc") CONFIG_FILES="$CONFIG_FILES src/linuxtrack.pc" ;;
     "src/mickey/mickey.pro") CONFIG_FILES="$CONFIG_FILES src/mickey/mickey.pro" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
@@ -19253,4 +19268,5 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unrecognized options: $ac_unrecognized_opts" >&5
 $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
+
 

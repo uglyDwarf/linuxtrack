@@ -53,16 +53,16 @@ build_triplet = @build@
 host_triplet = @host@
 @DARWIN_FALSE@am__append_1 = src/mickey
 @DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@am__append_2 = src/helper
-@TIR_FW_TRUE@am__append_3 = MD5SUM SHA1SUM  tir4.fw.gz tir5.fw.gz copyright_and_terms_of_use.txt
+@WINE_PLUGIN_TRUE@am__append_3 = src/wine_bridge
 subdir = .
-DIST_COMMON = README $(am__configure_deps) \
-	$(am__dist_pkgdata_DATA_DIST) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
-	$(top_srcdir)/configure $(top_srcdir)/src/mickey/mickey.pro.in \
+DIST_COMMON = README $(am__configure_deps) $(dist_pkgdata_DATA) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(srcdir)/config.h.in $(top_srcdir)/configure \
+	$(top_srcdir)/src/mickey/mickey.pro.in \
 	$(top_srcdir)/src/qt_gui/ltr_gui.pro.in \
 	$(top_srcdir)/src/wii_server/wii_server.pro.in AUTHORS COPYING \
-	ChangeLog INSTALL NEWS compile config.guess config.sub depcomp \
-	install-sh ltmain.sh missing ylwrap
+	ChangeLog INSTALL NEWS TODO compile config.guess config.sub \
+	depcomp install-sh ltmain.sh missing ylwrap
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -90,8 +90,6 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__dist_pkgdata_DATA_DIST = README README.devel README.xplane MD5SUM \
-	SHA1SUM tir4.fw.gz tir5.fw.gz copyright_and_terms_of_use.txt
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -128,7 +126,8 @@ AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
 	distdir dist dist-all distcheck
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = src src/mac src/tests doc src/mickey src/helper
+DIST_SUBDIRS = src src/mac src/tests doc src/mickey src/helper \
+	src/wine_bridge
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -297,8 +296,10 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = src src/mac src/tests doc $(am__append_1) $(am__append_2)
-dist_pkgdata_DATA = README README.devel README.xplane $(am__append_3)
+SUBDIRS = src src/mac src/tests doc $(am__append_1) $(am__append_2) \
+	$(am__append_3)
+dist_pkgdata_DATA = README README.devel README.xplane
+EXTRA_DIST = Readme.rtf deploy mac_build pkgconf_extract mac_m4/fake_pkg_conf.m4
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 

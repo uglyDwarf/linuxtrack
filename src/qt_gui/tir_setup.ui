@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>519</width>
-    <height>283</height>
+    <height>306</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -90,7 +90,7 @@
           </item>
          </layout>
         </item>
-        <item row="2" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="label_47">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
@@ -103,21 +103,21 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="3" column="1">
          <widget class="QCheckBox" name="TirSignalizeStatus">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="4" column="0">
          <widget class="QLabel" name="StatusBrightLabel">
           <property name="text">
            <string>Status LED brightness:</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="4" column="1">
          <layout class="QHBoxLayout" name="StatusBright">
           <item>
            <widget class="QLabel" name="StatusBrightLabelOff">
@@ -174,6 +174,20 @@
           </property>
           <property name="text">
            <string>Install</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="TirUseGrayscaleLabel">
+          <property name="text">
+           <string>Grayscale mode</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QCheckBox" name="TirUseGrayscale">
+          <property name="text">
+           <string/>
           </property>
          </widget>
         </item>
