@@ -38,7 +38,7 @@ LIBLINUXTRACK_PRIVATE bool ltr_int_mmap_file_exclusive(size_t tmp_size, struct m
 LIBLINUXTRACK_PRIVATE bool ltr_int_unmap_file(struct mmap_s *m);
 int ltr_int_open_tmp_file(char *fname);
 void ltr_int_close_tmp_file(char *fname, int fd);
-LIBLINUXTRACK_PRIVATE char *ltr_int_get_com_file_name();
+//LIBLINUXTRACK_PRIVATE char *ltr_int_get_com_file_name();
 
 bool ltr_int_make_fifo(const char *name);
 int ltr_int_open_fifo_exclusive(const char *name);

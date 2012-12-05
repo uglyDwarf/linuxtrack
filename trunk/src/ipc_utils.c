@@ -213,10 +213,12 @@ void ltr_int_close_tmp_file(char *fname, int fd)
   unlink(fname);
 }
 
+/*
 char *ltr_int_get_com_file_name()
 {
   return ltr_int_get_default_file_name("linuxtrack.comm");
 }
+*/
 
 static const char *mmapped_file_name()
 {

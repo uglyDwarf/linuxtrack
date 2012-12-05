@@ -25,9 +25,9 @@ class PluginInstall : public QObject
   QProcess *inst;
   dlfwGui *dlfw;
   bool isTirFirmwareInstalled();
-  static const QString sigFile;
-  static const QString keyFile;
-  static const QString keySrc;
+  const QString keySrc;
+  const QString keyFile;
+  const QString sigFile;
 };
 
 

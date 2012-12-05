@@ -17,7 +17,7 @@ class CameraView : public QWidget
   Q_OBJECT
  public:
   CameraView(QWidget *parent = 0);
-  void redraw();
+  void redraw(QImage *img);
  protected:
   void paintEvent(QPaintEvent *event);
  private:

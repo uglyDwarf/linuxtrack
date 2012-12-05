@@ -43,7 +43,7 @@ static int cnt = 0;
 static int frames = 0;
 static float fps_buffer[8] ={0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 static int fps_ptr = 0;
-
+static bool buffer_empty;
 //!!!TBD multithread sync!!!
 
 
@@ -235,7 +235,13 @@ void LtrGuiForm::update()
   }
   int fps = fps_mean / 8.0;
   ui.status->setText(QString("%1.frame @ %2 fps").arg(cnt).arg(fps, 4));
-  cv->redraw();
+  if(buffer_empty){
+    return;		
+  }		
+  if(img0 != NULL){		
+    cv->redraw(img0);		
+    buffer_empty = true;		
+  }		
 }
 
 void LtrGuiForm::stateChanged(int current_state)

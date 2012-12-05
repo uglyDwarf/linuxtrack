@@ -119,7 +119,7 @@ void *detector_thread(void *)
   const char *cascade_path = ltr_int_wc_get_cascade();
   if(cascade_path == NULL){
     ltr_int_log_message("Cascade path not specified!\n");
-    return false;
+    return NULL;
   }
   if(!cascade->load(cascade_path)){
     ltr_int_log_message("Could't load cascade!\n");
