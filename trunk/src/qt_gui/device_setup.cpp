@@ -131,8 +131,8 @@ void DeviceSetup::refresh()
 {
   ui.DeviceSelector->clear();
   bool res = false; 
-  res |= TirPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   res |= WiimotePrefs::AddAvailableDevices(*(ui.DeviceSelector));
+  res |= TirPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   res |= WebcamFtPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   res |= WebcamPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   if(!res){
