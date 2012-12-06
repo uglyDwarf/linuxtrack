@@ -81,6 +81,7 @@ bool TirPrefs::Activate(const QString &ID, bool init)
     }
   }else{
     sec = "TrackIR";
+    initializing = false;
     if(PREF.createSection(sec)){
       PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"Tir");
       PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
@@ -93,7 +94,6 @@ bool TirPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Grayscale", (char *)"on");
       PREF.activateDevice(sec);
     }else{
-      initializing = false;
       return false;
     }
   }

@@ -74,6 +74,7 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
     }
   }else{
     sec = "Webcam";
+    initializing = false;
     if(PREF.createSection(sec)){
       PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"Webcam");
       PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
@@ -85,7 +86,6 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Max-blob", QString::number(230));
       PREF.activateDevice(sec);
     }else{
-      initializing = false;
       return false;
     }
   }
@@ -101,7 +101,6 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
       delete(wc_info);
     }
     wc_info = new WebcamInfo(currentId);
-    
     
     ui.WebcamFormats->addItems(wc_info->getFormats());
     QString fourcc, thres, bmin, bmax, res, fps, flip;

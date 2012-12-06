@@ -71,10 +71,10 @@ void ltr_int_draw_square(image *img, int x, int y, int size)
   assert(img != NULL);
   assert(x >= 0);
   assert(y >= 0);
-  int x1 = (int)x - size;
-  int x2 = (int)x + size;
-  int y1 = (x / img->ratio) - size;
-  int y2 = (x / img->ratio) + size;
+  int x1 = (int)(x / img->ratio) - size;
+  int x2 = (int)(x / img->ratio) + size;
+  int y1 = y - size;
+  int y2 = y + size;
   
 //  clip_coord(&x, 0, img->w);
   clip_coord(&x1, 0, img->w-1);

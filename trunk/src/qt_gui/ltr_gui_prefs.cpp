@@ -15,7 +15,6 @@
 #include <iostream>
 
 PrefProxy *PrefProxy::prf = NULL;
-prefs &PrefProxy::ltrPrefs = prefs::getPrefs();
 
 static int warnMessage(const QString &message){
  return QMessageBox::warning(NULL, "Linuxtrack",
@@ -30,7 +29,7 @@ PrefProxy::PrefProxy()
   }
   ltr_int_log_message("Pref file not found, trying linuxtrack.conf\n");
   if(ltr_int_read_prefs("linuxtrack.conf", false)){
-    ltrPrefs.setChangeFlag();
+    prefs::getPrefs().setChangeFlag();
     checkPrefix(true);
     return;
   }
@@ -53,14 +52,14 @@ bool PrefProxy::checkPrefix(bool save)
   appPath.prepend("\"");
   appPath += "\"";
   std::string tmp_prefix("");
-  bool res = ltrPrefs.getValue("Global", "Prefix", tmp_prefix);
+  bool res = prefs::getPrefs().getValue("Global", "Prefix", tmp_prefix);
   prefix = QString::fromStdString(tmp_prefix);
   if(res && (prefix == appPath)){
     //Intentionaly left empty
   }else{
     prefix = appPath;
     bool res = true;
-    ltrPrefs.setValue("Global", "Prefix", appPath.toStdString());
+    prefs::getPrefs().setValue("Global", "Prefix", appPath.toStdString());
     if(save){
       res &= savePrefs();
     }
@@ -167,7 +166,7 @@ void PrefProxy::ClosePrefs()
 
 void PrefProxy::SavePrefsOnExit()
 {
-  if(ltrPrefs.changed()){
+  if(prefs::getPrefs().changed()){
     QMessageBox::StandardButton res;
     res = QMessageBox::warning(NULL, "Linuxtrack",
        QString("Preferences were modified,") +
@@ -181,13 +180,13 @@ void PrefProxy::SavePrefsOnExit()
 
 bool PrefProxy::activateDevice(const QString &sectionName)
 {
-  ltrPrefs.setValue("Global", "Input", sectionName.toStdString());
+  prefs::getPrefs().setValue("Global", "Input", sectionName.toStdString());
   return true;
 }
 
 bool PrefProxy::activateModel(const QString &sectionName)
 {
-  ltrPrefs.setValue("Global", "Model", sectionName.toStdString());
+  prefs::getPrefs().setValue("Global", "Model", sectionName.toStdString());
   return true;
 }
 
@@ -197,13 +196,13 @@ bool PrefProxy::createSection(QString
   int i = 0;
   QString newSecName = sectionName;
   while(1){
-    if(!ltrPrefs.sectionExists(newSecName.toStdString())){
+    if(!prefs::getPrefs().sectionExists(newSecName.toStdString())){
       break;
     }
     newSecName = QString("%1_%2").arg(sectionName).
                                            arg(QString::number(++i));
   }
-  ltrPrefs.addSection(newSecName.toStdString());
+  prefs::getPrefs().addSection(newSecName.toStdString());
   sectionName = newSecName;
   return true;
 }
@@ -212,7 +211,7 @@ bool PrefProxy::getKeyVal(const QString &sectionName, const QString &keyName,
 			  QString &result)
 {
   std::string val;
-  if(ltrPrefs.getValue(sectionName.toStdString(), keyName.toStdString(), val)){
+  if(prefs::getPrefs().getValue(sectionName.toStdString(), keyName.toStdString(), val)){
     result = QString::fromStdString(val);
     return true;
   }else{
@@ -236,7 +235,7 @@ bool PrefProxy::getKeyVal(const QString &keyName, QString &result)
 bool PrefProxy::addKeyVal(const QString &sectionName, const QString &keyName, 
 			  const QString &value)
 {
-  ltrPrefs.addKey(sectionName.toStdString(), keyName.toStdString(), 
+  prefs::getPrefs().addKey(sectionName.toStdString(), keyName.toStdString(), 
 		 value.toStdString());
   return true;
 }
@@ -244,7 +243,7 @@ bool PrefProxy::addKeyVal(const QString &sectionName, const QString &keyName,
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
 			  const QString &value)
 {
-  ltrPrefs.setValue(sectionName.toStdString(), keyName.toStdString(),
+  prefs::getPrefs().setValue(sectionName.toStdString(), keyName.toStdString(),
 			    value.toStdString());
   return true;
 }
@@ -252,31 +251,31 @@ bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName,
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
                           const int &value)
 {
-  ltrPrefs.setValue(sectionName.toStdString(), keyName.toStdString(), value);
+  prefs::getPrefs().setValue(sectionName.toStdString(), keyName.toStdString(), value);
   return true;
 }
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
                           const float &value)
 {
-  ltrPrefs.setValue(sectionName.toStdString(), keyName.toStdString(), value);
+  prefs::getPrefs().setValue(sectionName.toStdString(), keyName.toStdString(), value);
   return true;
 }
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
                           const double &value)
 {
-  ltrPrefs.setValue(sectionName.toStdString(), keyName.toStdString(), (float)value);
+  prefs::getPrefs().setValue(sectionName.toStdString(), keyName.toStdString(), (float)value);
   return true;
 }
 
 bool PrefProxy::getFirstDeviceSection(const QString &devType, QString &result)
 {
   std::vector<std::string> sections;
-  ltrPrefs.getSectionList(sections);
+  prefs::getPrefs().getSectionList(sections);
   std::string devName;
   for(size_t i = 0; i < sections.size(); ++i){
-    if(ltrPrefs.getValue(sections[i], "Capture-device", devName)){
+    if(prefs::getPrefs().getValue(sections[i], "Capture-device", devName)){
       if(QString::fromStdString(devName) == devType){
 	result = QString::fromStdString(sections[i]);
 	return true;
@@ -290,11 +289,11 @@ bool PrefProxy::getFirstDeviceSection(const QString &devType,
 				      const QString &devId, QString &result)
 {
   std::vector<std::string> sections;
-  ltrPrefs.getSectionList(sections);
+  prefs::getPrefs().getSectionList(sections);
   std::string devName, devIdStr;
   for(size_t i = 0; i < sections.size(); ++i){
-    if(ltrPrefs.getValue(sections[i], "Capture-device", devName) &&
-       ltrPrefs.getValue(sections[i], "Capture-device-id", devIdStr)){
+    if(prefs::getPrefs().getValue(sections[i], "Capture-device", devName) &&
+       prefs::getPrefs().getValue(sections[i], "Capture-device-id", devIdStr)){
       if((QString::fromStdString(devName) == devType) && 
          (QString::fromStdString(devIdStr) == devId)){
 	result = QString::fromStdString(sections[i]);
@@ -308,11 +307,11 @@ bool PrefProxy::getFirstDeviceSection(const QString &devType,
 bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id, QString &secName)
 {
   std::string devSection, devName, devId;
-  if(!ltrPrefs.getValue("Global", "Input", devSection)){
+  if(!prefs::getPrefs().getValue("Global", "Input", devSection)){
     return false;
   }
-  if(!ltrPrefs.getValue(devSection, "Capture-device", devName) ||
-     !ltrPrefs.getValue(devSection, "Capture-device-id", devId)){
+  if(!prefs::getPrefs().getValue(devSection, "Capture-device", devName) ||
+     !prefs::getPrefs().getValue(devSection, "Capture-device-id", devId)){
     return false;
   }
   QString dn = QString::fromStdString(devName);
@@ -343,7 +342,7 @@ bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id)
 bool PrefProxy::getActiveModel(QString &model)
 {
   std::string modelSection;
-  if(!ltrPrefs.getValue("Global", "Model", modelSection)){
+  if(!prefs::getPrefs().getValue("Global", "Model", modelSection)){
     return false;
   }
   model = QString::fromStdString(modelSection);
@@ -354,10 +353,10 @@ bool PrefProxy::getModelList(QStringList &list)
 {
   std::vector<std::string> sections;
   std::string modelType;
-  ltrPrefs.getSectionList(sections);
+  prefs::getPrefs().getSectionList(sections);
   list.clear();
   for(size_t i = 0; i < sections.size(); ++i){
-    if(ltrPrefs.getValue(sections[i], "Model-type", modelType)){
+    if(prefs::getPrefs().getValue(sections[i], "Model-type", modelType)){
       list.append(QString::fromStdString(sections[i]));
     }
   }
@@ -368,10 +367,10 @@ bool PrefProxy::getProfiles(QStringList &list)
 {
   std::vector<std::string> sections;
   std::string profileName;
-  ltrPrefs.getSectionList(sections);
+  prefs::getPrefs().getSectionList(sections);
   list.clear();
   for(size_t i = 0; i < sections.size(); ++i){
-    if(ltrPrefs.getValue(sections[i], "Title", profileName)){
+    if(prefs::getPrefs().getValue(sections[i], "Title", profileName)){
       list.append(QString::fromStdString(profileName));
     }
   }
@@ -381,7 +380,7 @@ bool PrefProxy::getProfiles(QStringList &list)
 bool PrefProxy::getProfileSection(const QString &name, QString &section)
 {
   std::string secName;
-  if(ltrPrefs.findSection("Title", name.toStdString(), secName)){
+  if(prefs::getPrefs().findSection("Title", name.toStdString(), secName)){
     section = QString::fromStdString(secName);
     return true;
   }
@@ -448,7 +447,7 @@ void PrefProxy::announceModelChange()
 void PrefProxy::getSectionList(QStringList &list)
 {
   std::vector<std::string> tmpList;
-  ltrPrefs.getSectionList(tmpList);
+  prefs::getPrefs().getSectionList(tmpList);
   list.clear();
   for(size_t i = 0; i < tmpList.size(); ++i){
     list.append(QString::fromStdString(tmpList[i]));

@@ -136,7 +136,7 @@ dev_found ltr_int_find_tir(unsigned int devid)
     err = libusb_open(found, &handle);
     if(err){
       ltr_int_log_message("Error opening device!\n");
-      return NOT_TIR;
+      return dev | NOT_PERMITTED;
     }
     ltr_int_log_message("Handle opened successfully.\n");
   }else{

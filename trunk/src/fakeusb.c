@@ -101,6 +101,7 @@ static int read_packet(uint8_t buffer[], int length)
 
 bool ltr_int_init_usb()
 {
+  printf("Initializing fakeusb!\n");
   current_model = get_tir_type();
   if(current_model == SMARTNAV4){
     init_model(data_file);
@@ -111,6 +112,7 @@ bool ltr_int_init_usb()
 dev_found ltr_int_find_tir(unsigned int devid)
 {
   (void) devid;
+  printf("Looking for the TrackIr\n");
   return get_tir_type();
 }
 

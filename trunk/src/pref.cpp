@@ -95,12 +95,19 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     for(size_t i = 0; i < items.size(); ++i) delete items[i];
   }
 
+  prefs::prefs():changed_flag(false)
+  {
+    std::cout<<"Pinit"<<std::endl;
+    pthread_rwlock_init(&lock, NULL);
+  }
   prefs::~prefs()
   {
+    std::cout<<"Pend1"<<std::endl;
     write_lock();
     clear();
     unlock();
     pthread_rwlock_destroy(&lock);
+    std::cout<<"Pend2"<<std::endl;
   }
   
   bool prefs::changed()const
@@ -406,7 +413,7 @@ bool ltr_int_read_prefs(const char *file, bool force_read)
 {
   static bool prefs_ok = false;
   
-//  if(force_read == true){
+  if((force_read == true) || (prefs_ok == false)){
     prefs::getPrefs().clear();
     char *pfile;
     if(file != NULL){
@@ -425,7 +432,7 @@ bool ltr_int_read_prefs(const char *file, bool force_read)
       ltr_int_dump_prefs("");
       ltr_int_log_message("================================================\n");
     }
-//  }
+  }
   prefs::getPrefs().resetChangeFlag();
   return prefs_ok;
 }
