@@ -219,6 +219,7 @@ void LinuxtrackGui::on_DefaultsButton_pressed()
                           "Do you really want to do that?") == QMessageBox::Ok){  
     PREF.copyDefaultPrefs();
     rereadPrefs();
+    ds->refresh();
   }
 }
 
