@@ -478,7 +478,6 @@ static void set_axis_field(struct axis_def *axis, axis_fields field, float val, 
 {
   assert(axis != NULL);
   axis->valid = false;
-  axis->factor = 0;
   switch(field){
     case(DEADZONE):
       axis->curve_defs.dead_zone = val;
