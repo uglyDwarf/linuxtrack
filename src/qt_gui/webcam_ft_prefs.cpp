@@ -75,6 +75,7 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
     }
   }else{
     sec = "Webcam-face";
+    initializing = false;
     if(PREF.createSection(sec)){
       PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"Webcam-face");
       PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
@@ -86,7 +87,6 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Cascade", qPrintable(finf.canonicalFilePath()));
       PREF.activateDevice(sec);
     }else{
-      initializing = false;
       return false;
     }
   }

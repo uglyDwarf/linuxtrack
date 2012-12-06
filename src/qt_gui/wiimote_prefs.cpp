@@ -44,6 +44,7 @@ bool WiimotePrefs::Activate(const QString &ID, bool init)
     }
   }else{
     sec = "Wiimote";
+    initializing = false;
     if(PREF.createSection(sec)){
       PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"Wiimote");
       PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);

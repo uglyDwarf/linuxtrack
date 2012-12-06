@@ -43,6 +43,7 @@ static int last_threshold = -1;
 
 int ltr_int_tracker_init(struct camera_control_block *ccb)
 {
+  ltr_int_log_message("Initializing the tracker.\n");
   assert(ccb != NULL);
   assert((ccb->device.category == tir) || (ccb->device.category == tir_open));
   last_threshold = -1;
@@ -54,9 +55,11 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
     libname = "libltusb1";
   }
   if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
+    ltr_int_log_message("Problem loading library %s!\n", libname);
     return -1;
   }
   if(!ltr_int_tir_init_prefs()){
+    ltr_int_log_message("Problem initializing TrackIr prefs!\n");
     return -1;
   }
 
@@ -139,40 +142,22 @@ int ltr_int_tir_found(bool *have_firmware, bool *have_permissions)
     libname = "libltusb1";
   }
   if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
+    ltr_int_log_message("Failed to load the library '%s'! \n", libname);
     return 0;
   }
   if(!ltr_int_init_usb()){
+    ltr_int_log_message("Failed to initialize usb!\n");
     return 0;
   }
-  int res = 0;
   dev_found device = ltr_int_find_tir();
+  printf("Found device %X\n", device);
   if(device & NOT_PERMITTED){
     device ^= NOT_PERMITTED;
     *have_permissions = false;
   }else{
     *have_permissions = true;
   }
-  switch(device){
-    case TIR2:
-      res = 2;
-      break;
-    case TIR3:
-      res = 3;
-      break;
-    case TIR4:
-      res = 4;
-      break;
-    case TIR5:
-      res = 5;
-      break;
-    case TIR5V2:
-      res = 5;
-      break;
-    default:
-      res = 0;
-      break;
-  }
-  if(res < TIR4){
+  if(device < TIR4){
     *have_firmware = true;
   }else{
     char *fw = ltr_int_find_firmware(device);
@@ -186,6 +171,6 @@ int ltr_int_tir_found(bool *have_firmware, bool *have_permissions)
   ltr_int_finish_usb(-1);
   ltr_int_unload_library(libhandle, functions);
   libhandle = NULL;
-  return res;
+  return device;
 }
 

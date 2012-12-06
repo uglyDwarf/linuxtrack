@@ -87,13 +87,13 @@
     std::vector<prefItem*> items;
     std::map<std::string, section&> index;
     bool changed_flag;
-    prefs():changed_flag(false){pthread_rwlock_init(&lock, NULL);};
+    prefs();
     static prefs *prf;
     mutable pthread_rwlock_t lock;
     
-    void read_lock()const{pthread_rwlock_rdlock(&lock);};
-    void write_lock()const{pthread_rwlock_wrlock(&lock);};
-    void unlock()const{pthread_rwlock_unlock(&lock);};
+    void read_lock()const{/*std::cout<<"R Lock"<<std::endl;*/pthread_rwlock_rdlock(&lock);};
+    void write_lock()const{/*std::cout<<"W Lock"<<std::endl;*/pthread_rwlock_wrlock(&lock);};
+    void unlock()const{/*std::cout<<"UnLock"<<std::endl;*/pthread_rwlock_unlock(&lock);};
    public:
     static prefs &getPrefs();
     static void freePrefs();

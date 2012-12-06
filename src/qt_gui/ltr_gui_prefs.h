@@ -13,7 +13,6 @@ class PrefProxy{
   PrefProxy();
   ~PrefProxy();
   static PrefProxy *prf;
-  static prefs &ltrPrefs;
   QString prefix;
  public:
   static PrefProxy& Pref();
