@@ -9,7 +9,7 @@
 
 bool get_sig(uint8_t buf[400])
 {
-  char *file = "/.linuxtrack/tir_firmware/tir4.fw.gz";
+  char *file = "/.config/linuxtrack/tir_firmware/tir4.fw.gz";
   char *home = getenv("HOME");
   char *path = (char *)malloc(strlen(home) + sizeof(file) + 100);
   strcpy(path, home);

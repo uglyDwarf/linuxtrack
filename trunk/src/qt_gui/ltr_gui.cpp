@@ -55,22 +55,22 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   QObject::connect(&STATE, SIGNAL(stateChanged(ltr_state_type)), this, SLOT(trackerStateHandler(ltr_state_type)));
   ui.DeviceSetupSite->addWidget(ds);  
   ui.ModelEditSite->addWidget(me);
-  ui.ProfileSetupSite->addWidget(ps); 
+  ui.ProfileSetupSite->addWidget(ps);
   
-  gui_settings = new QSettings("ltr", "linuxtrack");
+  gui_settings = new QSettings("linuxtrack", "ltr_gui");
   showWindow = new LtrGuiForm(ui, *gui_settings);
   helper = new LtrDevHelp();
   showWindow->show();
   helper->show();
   gui_settings->beginGroup("MainWindow");
   resize(gui_settings->value("size", QSize(763, 627)).toSize());
-  move(gui_settings->value("pos", QPoint(100, 100)).toPoint());
+  move(gui_settings->value("pos", QPoint(0, 0)).toPoint());
   welcome = gui_settings->value("welcome", true).toBool();
   news_serial = gui_settings->value("news", -1).toInt();
   gui_settings->endGroup();
   gui_settings->beginGroup("TrackingWindow");
   showWindow->resize(gui_settings->value("size", QSize(800, 600)).toSize());
-  showWindow->move(gui_settings->value("pos", QPoint(10, 10)).toPoint());
+  showWindow->move(gui_settings->value("pos", QPoint(0, 0)).toPoint());
   gui_settings->endGroup();
   gui_settings->beginGroup("HelperWindow");
   helper->resize(gui_settings->value("size", QSize(300, 80)).toSize());

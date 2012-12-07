@@ -152,6 +152,7 @@ static int update_pose_1pt(struct frame_type *frame)
     }
   }
   
+  ltr_int_pose_sort_blobs(frame->bloblist);
   if((frame->bloblist.num_blobs > 0) && ltr_int_is_finite(frame->bloblist.blobs[0].x) 
      && ltr_int_is_finite(frame->bloblist.blobs[0].y)){
   }else{
@@ -173,8 +174,10 @@ static int update_pose_1pt(struct frame_type *frame)
   }
 //printf("cz = %f, z = %f\n", c_z, sqrtf((float)frame->bloblist.blobs[0].score));
   pthread_mutex_lock(&pose_mutex);
-  angles[0] = c_y - frame->bloblist.blobs[0].y;
-  angles[1] = frame->bloblist.blobs[0].x - c_x;
+  //angles will be approximately "normalized" to (-100, 100); 
+  //  the rest should be handled by sensitivities
+  angles[0] = (c_y - frame->bloblist.blobs[0].y) * 200.0 / frame->width;
+  angles[1] = (frame->bloblist.blobs[0].x - c_x) * 200.0 / frame->width;
   angles[2] = 0.0f;
   translations[0] = 0.0f;
   translations[1] = 0.0f;
@@ -278,6 +281,10 @@ bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose, pose_t *unfiltered)
   static float filtered_translations[3] = {0.0f, 0.0f, 0.0f};
   //ltr_int_get_axes_ff(axes, filter_factors);
   double raw_angles[3];
+  
+  //Single point must be "denormalized"
+  
+  
   
   raw_angles[0] = unfiltered->pitch = ltr_int_val_on_axis(axes, PITCH, pose->pitch);
   raw_angles[1] = unfiltered->yaw = ltr_int_val_on_axis(axes, YAW, pose->yaw);

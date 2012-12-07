@@ -31,6 +31,7 @@ class MickeyUinput
  public:
   MickeyUinput();
   ~MickeyUinput();
+  bool init();
   void mouseClick(int btns);
   void mouseMove(int dx, int dy);
  private:

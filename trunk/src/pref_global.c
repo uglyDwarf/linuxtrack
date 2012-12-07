@@ -278,4 +278,3 @@ int ltr_int_get_orientation()
     return 0;
   }
 }
-

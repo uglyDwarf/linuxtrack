@@ -347,6 +347,27 @@ void ltr_int_pose_sort_blobs(struct bloblist_type bl)
       bl.blobs[1] = bl.blobs[0];
       bl.blobs[0] = tmp_blob;
     }
+  }else if(ltr_int_is_single_point()){
+    //Get biggest one to index 0
+    if(bl.blobs[0].score > bl.blobs[1].score){
+      if(bl.blobs[0].score > bl.blobs[2].score){
+        // 0 is biggest already
+      }else{
+        tmp_blob = bl.blobs[0];
+        bl.blobs[0] = bl.blobs[2];
+        bl.blobs[2] = tmp_blob;
+      }
+    }else{
+      if(bl.blobs[1].score > bl.blobs[2].score){
+        tmp_blob = bl.blobs[0];
+        bl.blobs[0] = bl.blobs[1];
+        bl.blobs[1] = tmp_blob;
+      }else{
+        tmp_blob = bl.blobs[0];
+        bl.blobs[0] = bl.blobs[2];
+        bl.blobs[2] = tmp_blob;
+      }
+    }
   }
 }
 
