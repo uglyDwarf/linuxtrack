@@ -1,4 +1,4 @@
-
+#include <QMessageBox>
 #include <QxtGlobalShortcut>
 #include <QTimer>
 #include <QMutex>
@@ -13,7 +13,6 @@
 QMutex MickeyUinput::mutex;
 
 
-
 MickeyCalibration::MickeyCalibration(QWidget *parent): QWidget(parent)
 {
   ui.setupUi(this);
@@ -22,14 +21,28 @@ MickeyCalibration::MickeyCalibration(QWidget *parent): QWidget(parent)
 
 MickeyUinput::MickeyUinput() : fd(-1)
 {
-  fd = open_uinput();
-  create_device(fd);
 }
 
 MickeyUinput::~MickeyUinput()
 {
   close_uinput(fd);
   fd = -1;
+}
+
+bool MickeyUinput::init()
+{
+  char *fname = NULL;
+  bool permProblem;
+  fd = open_uinput(&fname, &permProblem);
+  if(fd > 0){
+    return create_device(fd);
+  }else{
+    QMessageBox::critical(NULL, "Error Creating Virtual Mouse", 
+      QString("There was a problem accessing the file \"%1\"\n\
+ Please check that you have the right to write to it.").arg(fname));
+    return false;
+  }
+
 }
 
 void MickeyUinput::mouseClick(int btns)
@@ -57,6 +70,7 @@ MickeyThread::MickeyThread(Mickey *p) : QThread(p), fifo(-1), finish(false), par
 //emulate mouse button press using keyboard
 void MickeyThread::on_key_pressed()
 {
+  std::cout<<"Button pressed!!!"<<std::endl;
   static int cal_off = 0;
   fakeBtn ^= 1;
   state_t state = parent.getState();
@@ -141,7 +155,7 @@ void MickeyThread::run()
 
 
 MickeysAxis::MickeysAxis(const QString &id) : deadZone(0), sensitivity(0),
-  accumulator(0.0), identificator(id), settings("ltr", "mickey"), calibrating(false)
+  accumulator(0.0), identificator(id), settings("linuxtrack", "mickey"), calibrating(false)
 {
   settings.beginGroup("Axes");
   deadZone = settings.value(QString("DeadZone") + identificator, 30).toInt();
@@ -236,6 +250,9 @@ Mickey::Mickey(QWidget *parent) : QWidget(parent), updateTimer(this), testTimer(
   QObject::connect(onOffSwitch, SIGNAL(activated()), this, SLOT(on_onOffSwitch_activated()));
   QObject::connect(&updateTimer, SIGNAL(timeout()), this, SLOT(on_updateTimer_activated()));
   QObject::connect(&btnThread, SIGNAL(clicked()), this, SLOT(on_thread_clicked()));
+  if(!uinput.init()){
+    exit(1);
+  }
   updateTimer.setSingleShot(false);
   updateTimer.setInterval(8);
   ltr_init((char *)"Mickey");

@@ -9,7 +9,7 @@ enum buttons{LEFT_BUTTON = 1, RIGHT_BUTTON = 2, MIDDLE_BUTTON = 4};
 extern "C" {
 #endif
 
-int open_uinput();
+int open_uinput(char **fname, bool *permProblem);
 bool create_device(int fd);
 void movem(int fd, int dx, int dy);
 void click(int fd, int btns);

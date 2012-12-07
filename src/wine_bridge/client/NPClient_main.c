@@ -282,7 +282,7 @@ int __stdcall NPCLIENT_NP_GetSignature(tir_signature_t * sig)
   dbg_report("GetSignature request\n");
   char *home = getenv("HOME");
   char *path = malloc(200 + strlen(home));
-  sprintf(path, "%s/.linuxtrack/tir_firmware/sig.bin", home);
+  sprintf(path, "%s/.config/linuxtrack/tir_firmware/sig.bin", home);
   FILE *f = fopen(path, "rb");
   if(f != NULL){
     fread(sig->DllSignature, 200, 1, f);
@@ -292,7 +292,7 @@ int __stdcall NPCLIENT_NP_GetSignature(tir_signature_t * sig)
     return 0;
   }
   
-  sprintf(path, "%s/.linuxtrack/tir_firmware/sig.key", home);
+  sprintf(path, "%s/.config/linuxtrack/tir_firmware/sig.key", home);
   f = fopen(path, "rb");
   if(f != NULL){
     fread(sig, 1, sizeof(*sig), f);

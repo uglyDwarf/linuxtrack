@@ -15,23 +15,28 @@
 
 static char *alternative_names[] = {"/dev/misc/uinput", "/dev/input/uinput", "/dev/uinput"};
 
-int open_uinput()
+int open_uinput(char **fname, bool *permProblem)
 {
   int i, fd = -1;
+  *permProblem = false;
   int names = sizeof(alternative_names) / sizeof(char *);
   for(i = 0; i < names; ++i){
     //printf("Checking %s\n", alternative_names[i]);
     fd = open(alternative_names[i], O_WRONLY | O_NONBLOCK);
     if(fd >= 0){
       printf("Opened %s\n", alternative_names[i]);
+      *fname = alternative_names[i];
       return fd;
     }else{
       if(errno == EACCES){
         printf("Check permissons!\n");
+        *fname = alternative_names[i];
+        *permProblem = true;
         return -1;
       }
     }
   }
+  *fname = NULL;
   return -1;
 }
 

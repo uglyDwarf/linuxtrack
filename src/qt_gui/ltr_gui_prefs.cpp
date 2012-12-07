@@ -428,7 +428,7 @@ QString PrefProxy::getLibPath(QString file)
 
 QString PrefProxy::getRsrcDirPath()
 {
-  return QDir::homePath() + "/.linuxtrack/";
+  return QDir::homePath() + "/.config/linuxtrack/";
 }
 
 bool PrefProxy::rereadPrefs()
