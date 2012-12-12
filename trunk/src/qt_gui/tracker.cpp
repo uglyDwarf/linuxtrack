@@ -44,6 +44,8 @@ static void ltr_int_state_changed(void *param)
   TRACKER.signalStateChange(ltr_int_get_tracking_state());
 }
 
+static buffering buf(3);
+static bool initBuffers = true;
 static void ltr_int_new_frame(struct frame_type *frame, void *param)
 {
   (void) param;
@@ -53,14 +55,21 @@ static void ltr_int_new_frame(struct frame_type *frame, void *param)
   local_frame.height = frame->height;
   local_frame.counter = frame->counter;
   
-  unsigned char *tmp = frame->bitmap;
-  if(local_frame.bitmap != NULL){
-    frame->bitmap = local_frame.bitmap;
-    local_frame.bitmap = NULL;
+  if(initBuffers){
+    buf.resizeBuffers(frame->width, frame->height);
+    initBuffers = false;
   }
-  if(tmp != NULL){
-    local_frame.bitmap = tmp;
+  
+  if(frame->bitmap != NULL){
+    buf.bufferWritten();
   }
+  buffer *b;
+  if(buf.writeBuffer(&b)){
+    frame->bitmap = b->getBuffer();
+  }else{
+    frame->bitmap = NULL;
+  }
+  
   TRACKER.signalNewFrame(&local_frame);
   static pose_t current_pose;
   ltr_int_get_camera_update(&(current_pose.yaw), &(current_pose.pitch), &(current_pose.roll), 
@@ -68,6 +77,12 @@ static void ltr_int_new_frame(struct frame_type *frame, void *param)
                             &(current_pose.counter));
   TRACKER.signalNewPose(&current_pose);
 }
+
+buffering *Tracker::getBuffers()
+{
+  return &buf;
+}
+
 
 Tracker::Tracker() : axes(LTR_AXES_T_INITIALIZER), axes_valid(false), currentProfile("Default"), common_ff(0.0)
 {
@@ -154,6 +169,8 @@ void Tracker::fromDefault()
 void Tracker::start(QString &section)
 {
   (void) section;
+  initBuffers = true;
+  buf.init();
   master->start();
 }
 

@@ -224,18 +224,18 @@ bool master(bool standalone)
     fifo = open_fifo_exclusive(master_fifo_name());
   }else{
     if(!ltr_int_gui_lock(true)){
-      ltr_int_log_message("Couldn't lock gui lockfile!");
+      ltr_int_log_message("Couldn't lock gui lockfile!\n");
       return false;
     }
     int counter = 10;
     while((fifo = open_fifo_exclusive(master_fifo_name())) <= 0){
       if((counter--) <= 0){
-        ltr_int_log_message("The other master doesn't give up!");
+        ltr_int_log_message("The other master doesn't give up!\n");
         return false;
       }
       sleep(1);
     }
-    ltr_int_log_message("Other master gave up, gui master taking over!");
+    ltr_int_log_message("Other master gave up, gui master taking over!\n");
   }
   
   //Open and lock the main communication fifo
@@ -312,11 +312,13 @@ bool master(bool standalone)
   int cntr = 10;
   while((ltr_int_get_tracking_state() != STOPPED) && (cntr > 0)){
     --cntr;
-    ltr_int_log_message("Tracker not stopped yet, waiting for the stop...");
+    ltr_int_log_message("Tracker not stopped yet, waiting for the stop...\n");
     sleep(1);
   }
   ltr_int_gui_lock_clean();
-  ltr_int_free_prefs();
+  if(standalone){
+    ltr_int_free_prefs();
+  }
   return true;
 }
 

@@ -8,14 +8,11 @@
 //#include <QtNetwork>
 #include <iostream>
 
-DLFirmware::DLFirmware()
+DLFirmware::DLFirmware(): file(NULL), reply(NULL), busy(false) 
 {
   mgr = new QNetworkAccessManager(this);
   connect(mgr, SIGNAL(finished(QNetworkReply*)), 
           this, SLOT(finished(QNetworkReply*)));
-  busy = false;
-  file = NULL;
-  reply = NULL;
 }
 
 DLFirmware::~DLFirmware()
@@ -111,9 +108,8 @@ QString dirName(QString fileName)
   return fi.absolutePath();
 }
 
-dlfwGui::dlfwGui(QWidget *parent)
+dlfwGui::dlfwGui(QWidget *parent):QWidget(parent)
 {
-  (void) parent;
   ui.setupUi(this);
   ui.DLLabel->setText("");
   ui.FileURL->setText("http://media.naturalpoint.com/software/external/tir_firmware_110215.tbz");
