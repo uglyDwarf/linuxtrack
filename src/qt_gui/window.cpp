@@ -59,8 +59,9 @@ void Window::close_widget()
     mainLayout = NULL;
   }
   if(glWidget != NULL){
-    delete glWidget;
+    GLWidget *tmp = glWidget;
     glWidget = NULL;
+    delete tmp;
   }
 }
 
@@ -77,12 +78,14 @@ void Window::newPose(pose_t *raw, pose_t *unfiltered, pose_t *processed)
 {
   (void) raw;
   (void) unfiltered;
-  glWidget->setXRotation(processed->pitch);
-  glWidget->setYRotation(processed->yaw);
-  glWidget->setZRotation(processed->roll);
-  glWidget->setXTrans(processed->tx/1000.0);
-  glWidget->setYTrans(processed->ty/1000.0);
-  glWidget->setZTrans(processed->tz/1000.0);
+  if(glWidget != NULL){
+    glWidget->setXRotation(processed->pitch);
+    glWidget->setYRotation(processed->yaw);
+    glWidget->setZRotation(processed->roll);
+    glWidget->setXTrans(processed->tx/1000.0);
+    glWidget->setYTrans(processed->ty/1000.0);
+    glWidget->setZTrans(processed->tz/1000.0);
+  }
 }
 
 void Window::update_pic()

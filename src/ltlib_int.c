@@ -31,6 +31,8 @@ static void *cal_thread_fun(void *param)
     ccb.diag = false;
     ltr_int_cal_run(&ccb, frame_callback);
     free(ccb.device.device_id);
+  }else{
+    ltr_int_log_message("Couldn't get the device!\n");
   }
   //pthread_detach(pthread_self());
   return NULL;

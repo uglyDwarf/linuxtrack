@@ -25,18 +25,9 @@
 #include <unistd.h>
 #include <tracker.h>
 
-QImage *img0;
-QImage *img1;
-QImage *current_img = NULL;
-//QPixmap *pic;
-QWidget *label;
-QVector<QRgb> colors;
+#include "buffering.h"
 
-static unsigned char *buffer0 = NULL;
-static unsigned char *buffer1 = NULL;
-static unsigned char *current_buffer = NULL;
-static unsigned int w = 0;
-static unsigned int h = 0;
+QWidget *label;
 static bool running = false;
 static bool camViewEnable = true;
 static int cnt = 0;
@@ -46,35 +37,12 @@ static int fps_ptr = 0;
 //!!!TBD multithread sync!!!
 
 
-void clean_up()
-{
-  unsigned char *tmp;
-  if(buffer0 != NULL){
-    //to avoid problem is someone is using it...
-    tmp = buffer0;
-    buffer0 = NULL;
-    free(tmp);
-  }
-  if(buffer1 != NULL){
-    tmp = buffer1;
-    buffer1 = NULL;
-    free(tmp);
-  }
-  if(img0 != NULL){
-    QImage *tmp_i = img0;
-    img0 = NULL;
-    delete tmp_i;
-  }
-}
-
-
 
 LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, QSettings &settings)
               : cv(NULL), allowClose(false), main_gui(tmp_gui)
 {
   ui.setupUi(this);
   cv = new CameraView(label);
-  
   ui.pix_box->addWidget(cv);
   trackerStopped();
   settings.beginGroup("TrackingWindow");
@@ -95,7 +63,8 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, QSettings &setting
   if(!connect(&TRACKER, SIGNAL(stateChanged(int)), this, SLOT(stateChanged(int)))){
     std::cout<<"Problem connecting signal1!"<<std::endl;
   }
-  if(!connect(&TRACKER, SIGNAL(newFrame(struct frame_type *)), this, SLOT(newFrameDelivered(struct frame_type *)))){
+  if(!connect(&TRACKER, SIGNAL(newFrame(struct frame_type *)), 
+              this, SLOT(newFrameDelivered(struct frame_type *)))){
     std::cout<<"Problem connecting signal2!"<<std::endl;
   }
   connect(main_gui.DisableCamView, SIGNAL(stateChanged(int)), 
@@ -104,44 +73,15 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, QSettings &setting
           this, SLOT(disable3DView_stateChanged(int)));
 }
 
+//Assuming that frame dimensions can't change while running!!!
 void LtrGuiForm::newFrameDelivered(struct frame_type *frame)
 {
+  (void) frame;
   if(cnt == 0){
     TRACKER.recenter();
   }
   ++cnt;
   ++frames;
-  if((w != frame->width) || (h != frame->height)){
-    w = frame->width;
-    h = frame->height;
-    clean_up();
-    buffer0 = (unsigned char*)ltr_int_my_malloc(h * w);
-    memset(buffer0, 0, h * w);
-    buffer1 = (unsigned char*)ltr_int_my_malloc(h * w);
-    memset(buffer1, 0, h * w);
-    img0 = new QImage(buffer0, w, h, w, QImage::Format_Indexed8);
-    img1 = new QImage(buffer1, w, h, w, QImage::Format_Indexed8);
-    colors.clear();
-    for(int col = 0; col < 256; ++col){
-      colors.push_back(qRgb(col, col, col));
-    }
-    img0->setColorTable(colors);
-    img1->setColorTable(colors);
-  }
-  if((frame->bitmap != NULL) && camViewEnable){
-    current_buffer = frame->bitmap;
-    if(frame->bitmap == buffer0){
-      current_img = img0;
-      frame->bitmap = buffer1;
-    }else{
-      current_img = img1;
-      frame->bitmap = buffer0;
-    }
-    memset(frame->bitmap, 0, h * w);
-  }else{
-    frame->bitmap = buffer0;
-  }
-  return;
 }
 
 
@@ -234,7 +174,7 @@ void LtrGuiForm::update()
   }
   int fps = fps_mean / 8.0;
   ui.status->setText(QString("%1.frame @ %2 fps").arg(cnt).arg(fps, 4));
-  cv->redraw();		
+  cv->redraw();  
 }
 
 void LtrGuiForm::stateChanged(int current_state)
@@ -301,36 +241,28 @@ void LtrGuiForm::allowCloseWindow()
 }
 
 CameraView::CameraView(QWidget *parent)
-  : QWidget(parent), image(NULL)
-{  
-  setBackgroundRole(QPalette::Base);
-  setAutoFillBackground(true);
+  : QWidget(parent)
+{
+  scene = new QGraphicsScene();
+  item = new QGraphicsPixmapItem();
+  scene->addItem(item);
+  view = new QGraphicsView();
+  view->setScene(scene);
+  layout = new QVBoxLayout();
+  layout->addWidget(view);
+  setLayout(layout);
 }
+
 
 void CameraView::redraw()
 {
-  //if(size() != img->size()){
-    //image = img->scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-  //}else{
-  //}
-  update();
-}
-
-void CameraView::paintEvent(QPaintEvent * /* event */)
-{
-  image = current_img;
-  if((image != NULL) && (running)){
-    QPainter painter(this);
-    int width = size().width();
-    int height = size().height();
-    if((image->width() > width) || (image->height() > height)){
-      painter.drawImage(QPoint(0, 0), 
-        image->scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    }else{
-      painter.drawImage(QPoint(0, 0), *image);
-    }
-    painter.end();
+  buffer *b;
+  buffering *buf = TRACKER.getBuffers();
+  if(buf->readBuffer(&b)){
+    item->setPixmap(QPixmap::fromImage(*(b->getImage())));
+    buf->bufferRead();
   }
 }
+
 
 

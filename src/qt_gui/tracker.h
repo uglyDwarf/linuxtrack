@@ -6,6 +6,7 @@
 #include <linuxtrack.h>
 #include <axis.h>
 #include <cal.h>
+#include "buffering.h"
 
 #define TRACKER Tracker::trackerInst()
 
@@ -35,6 +36,7 @@ class Tracker : public QObject{
   bool setCommonFilterFactor(float c_f);
   float getCommonFilterFactor();
   void fromDefault();
+  static buffering *getBuffers();
  private:
   Tracker();
   ~Tracker();

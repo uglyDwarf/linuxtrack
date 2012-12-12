@@ -158,7 +158,7 @@ bool ltr_int_receive_data(int in_ep, unsigned char data[], size_t size, size_t *
   (void) in_ep;
   if(current_model == SMARTNAV4){
     fakeusb_receive(data, size, transferred, timeout);
-    ltr_int_usleep(10000);
+    ltr_int_usleep(8000);
     return true;
   }
 

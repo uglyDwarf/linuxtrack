@@ -53,18 +53,17 @@ void TirPrefs::Connect()
 }
 */
 
-TirPrefs::TirPrefs(const QString &dev_id, QWidget *parent) : QWidget(parent), id(dev_id)
+TirPrefs::TirPrefs(const QString &dev_id, QWidget *parent) : QWidget(parent), id(dev_id), dlfw(NULL)
 {
   ui.setupUi(this);
   //Connect();
   Activate(id, true);
-  dlfw = NULL;
 }
 
 TirPrefs::~TirPrefs()
 {
   if(dlfw != NULL){
-    dlfw ->close();
+    dlfw->close();
     delete dlfw;
   }
 }
@@ -242,6 +241,7 @@ void TirPrefs::on_TirInstallFirmware_pressed()
     QObject::connect(dlfw, SIGNAL(finished(bool)),
       this, SLOT(TirFirmwareDLFinished(bool)));
   }
+  
   dlfw->show();
 }
 

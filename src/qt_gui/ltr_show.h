@@ -7,7 +7,13 @@
 #include <cal.h>
 #include <QThread>
 #include <QCloseEvent>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QGraphicsPixmapItem>
+#include <QVBoxLayout>
+
 #include "window.h"
+#include "buffering.h"
 
 class LtrGuiForm;
 class QSettings;
@@ -18,10 +24,11 @@ class CameraView : public QWidget
  public:
   CameraView(QWidget *parent = 0);
   void redraw();
- protected:
-  void paintEvent(QPaintEvent *event);
  private:
-  QImage *image;
+  QGraphicsScene *scene;
+  QGraphicsView *view;
+  QGraphicsPixmapItem *item;
+  QVBoxLayout *layout;
 };
 
 class LtrGuiForm : public QWidget
