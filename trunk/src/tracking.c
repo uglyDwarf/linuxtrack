@@ -176,8 +176,8 @@ static int update_pose_1pt(struct frame_type *frame)
   pthread_mutex_lock(&pose_mutex);
   //angles will be approximately "normalized" to (-100, 100); 
   //  the rest should be handled by sensitivities
-  angles[0] = (c_y - frame->bloblist.blobs[0].y) * 200.0 / frame->width;
-  angles[1] = (frame->bloblist.blobs[0].x - c_x) * 200.0 / frame->width;
+  angles[0] = (frame->bloblist.blobs[0].y - c_y) * 200.0 / frame->width;
+  angles[1] = (c_x - frame->bloblist.blobs[0].x) * 200.0 / frame->width;
   angles[2] = 0.0f;
   translations[0] = 0.0f;
   translations[1] = 0.0f;

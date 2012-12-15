@@ -96,7 +96,7 @@ bool buffering::writeBuffer(buffer **wb)
   //the assumption is, that with 3+ buffers, there must be more than one available
   // (only one can be read locked, no write locked)
   *wb = &(buffers[writeChecked]);
-  std::cout<<"Write checked buf "<<writeChecked<<std::endl;
+  //std::cout<<"Write checked buf "<<writeChecked<<std::endl;
   (*wb)->clearBuffer();
   lock.unlock();
   return true;
@@ -110,7 +110,7 @@ void buffering::bufferWritten()
     return;
   }
   current = writeChecked;
-  std::cout<<"Write unchecked buf "<<writeChecked<<std::endl;
+  //std::cout<<"Write unchecked buf "<<writeChecked<<std::endl;
   writeChecked = -1;
   lock.unlock();
 }
@@ -124,7 +124,7 @@ bool buffering::readBuffer(buffer **rb)
   }
   readChecked = current;
   *rb = &(buffers[readChecked]);
-  std::cout<<"Read checked buf "<<current<<std::endl;
+  //std::cout<<"Read checked buf "<<current<<std::endl;
   lock.unlock();
   return true;
 }
@@ -132,7 +132,7 @@ bool buffering::readBuffer(buffer **rb)
 void buffering::bufferRead()
 {
   lock.lock();
-  std::cout<<"Read unchecked buf "<<current<<std::endl;
+  //std::cout<<"Read unchecked buf "<<current<<std::endl;
   readChecked = -1;
   lock.unlock();
 }

@@ -1,15 +1,16 @@
 #ifndef MICKEY__H
 #define MICKEY__H
 
-#include <QxtGlobalShortcut>
 #include <QWidget>
 #include <QThread>
 #include <QMutex>
+#include <QTime>
 #include <QTimer>
 #include <QSettings>
 #include <QDialog>
 #include "ui_mickey.h"
 #include "ui_calibration.h"
+#include "keyb.h"
 
 
 
@@ -54,10 +55,11 @@ class MickeyThread : public QThread
  signals:
   void clicked();
  private:
+  void processClick(int btns);
   int fifo;
   bool finish;
   const Mickey &parent;
-  QxtGlobalShortcut lbtnSwitch;
+  shortcut lbtnSwitch;
   int fakeBtn;
 };
 
@@ -67,15 +69,16 @@ class MickeysAxis : public QObject
  public:
   MickeysAxis(const QString &id);
   ~MickeysAxis();
-  int updateAxis(float val);
+  int updateAxis(float val, int elapsed);
   int getDeadZone(){return deadZone;};
   int getSensitivity(){return sensitivity;};
   void changeDeadZone(int dz);
   void changeSensitivity(int sens);
   void startCalibration();
   void finishCalibration();
+  float getSpeed(int sens);
  private:
-  float processValue(float val);
+  float processValue(float val, int elapsed);
   int deadZone;
   int sensitivity;
   float accumulator;
@@ -96,7 +99,7 @@ class Mickey : public QWidget
   state_t getState() const{return state;};
  private:
   Ui::Mickey ui;
-  QxtGlobalShortcut *onOffSwitch;
+  shortcut *onOffSwitch;
   QTimer updateTimer;
   QTimer testTimer;
   MickeysAxis x, y;
@@ -109,6 +112,9 @@ class Mickey : public QWidget
   void changeState(state_t state);
   QDialog cdg;
   MickeyCalibration calDlg;
+  QTime initTimer;
+  QTime updateElapsed;
+  bool recenterFlag;
  private slots:
   void on_CalibrateButton_pressed();
   void on_ApplyButton_pressed();
