@@ -1,5 +1,4 @@
 #include <QMessageBox>
-#include <QxtGlobalShortcut>
 #include <QTimer>
 #include <QMutex>
 #include "mickey.h"
@@ -9,6 +8,13 @@
 #include "piper.h"
 #include "math_utils.h"
 #include <iostream>
+
+
+//Time to wait after the tracking commences to perform a recentering [ms]
+const int settleTime = 2000; //2 seconds
+const int screenMax = 1024;
+const float timeFast = 0.5;
+const float timeSlow = 5;
 
 QMutex MickeyUinput::mutex;
 
@@ -62,30 +68,27 @@ void MickeyUinput::mouseMove(int dx, int dy)
 MickeyUinput uinput = MickeyUinput();
 
 MickeyThread::MickeyThread(Mickey *p) : QThread(p), fifo(-1), finish(false), parent(*p),
-  lbtnSwitch(Qt::Key_F11, this), fakeBtn(0)
+  lbtnSwitch(Qt::Key_F11), fakeBtn(0)
 {
   QObject::connect(&lbtnSwitch, SIGNAL(activated()), this, SLOT(on_key_pressed()));
 }
 
-//emulate mouse button press using keyboard
-void MickeyThread::on_key_pressed()
+void MickeyThread::processClick(int btns)
 {
-  std::cout<<"Button pressed!!!"<<std::endl;
-  static int cal_off = 0;
-  fakeBtn ^= 1;
+  static int cal_off;
   state_t state = parent.getState();
   if(state == TRACKING){
-    uinput.mouseClick(fakeBtn);
+    uinput.mouseClick(btns);
   }else if(state == CALIBRATING){
     //FSM to detect click (press followed by release)
     switch(cal_off){
       case 0:
-        if(fakeBtn != 0){
+        if(btns != 0){
           cal_off = 1;
         }
         break;
       case 1:
-        if(fakeBtn == 0){
+        if(btns == 0){
           cal_off = 0;
           emit clicked();
         }
@@ -97,13 +100,20 @@ void MickeyThread::on_key_pressed()
   }
 }
 
+//emulate mouse button press using keyboard
+void MickeyThread::on_key_pressed()
+{
+  std::cout<<"Button pressed!!!"<<std::endl;
+  fakeBtn ^= 1;
+  processClick(fakeBtn);
+}
+
 
 
 void MickeyThread::run()
 {
   sn4_btn_event_t ev;
   ssize_t read;
-  int cal_off = 0;
   while(1){
     while(fifo <= 1){
       if(finish){
@@ -120,29 +130,7 @@ void MickeyThread::run()
       }
       if(read == sizeof(ev)){
         ev.btns ^= 3;
-        state_t state = parent.getState();
-        if(state == TRACKING){
-          uinput.mouseClick((int)(ev.btns));
-        }else if(state == CALIBRATING){
-          //FSM to detect click (press followed by release)
-          switch(cal_off){
-            case 0:
-              if(ev.btns != 0){
-                cal_off = 1;
-              }
-              break;
-            case 1:
-              if(ev.btns == 0){
-                cal_off = 0;
-                emit clicked();
-                //send info of click!
-              }
-              break;
-            default:
-              cal_off = 0;
-              break;
-          }
-        }
+        processClick(ev.btns);
       }
     }
   }
@@ -158,9 +146,12 @@ MickeysAxis::MickeysAxis(const QString &id) : deadZone(0), sensitivity(0),
   accumulator(0.0), identificator(id), settings("linuxtrack", "mickey"), calibrating(false)
 {
   settings.beginGroup("Axes");
-  deadZone = settings.value(QString("DeadZone") + identificator, 30).toInt();
-  sensitivity = settings.value(QString("Sensitivity") + identificator, 0).toInt();
-  maxVal = settings.value(QString("Range") + identificator, 0).toFloat();
+  deadZone = settings.value(QString("DeadZone") + identificator, 20).toInt();
+  sensitivity = settings.value(QString("Sensitivity") + identificator, 50).toInt();
+  maxVal = settings.value(QString("Range") + identificator, 130).toFloat();
+  std::cout<<"DZ: "<<deadZone<<std::endl;
+  std::cout<<"Sensitivity: "<<sensitivity<<std::endl;
+  std::cout<<"Range: "<<maxVal<<std::endl;
   settings.endGroup();
 }
 
@@ -183,12 +174,20 @@ void MickeysAxis::changeSensitivity(int sens)
   sensitivity = sens;
 }
 
-
-float MickeysAxis::processValue(float val)
+static float sign(float val)
 {
+  if(val >= 0) return 1.0;
+  return -1.0;
+}
+
+float MickeysAxis::processValue(float val, int elapsed)
+{
+  //std::cout<<qPrintable(identificator)<<": "<<val<<" => ";
   val /= maxVal; //normalize the value
+  //std::cout<<qPrintable(identificator)<<": "<<val<<" => ";
   if(val > 1) val = 1;
-  if(val < 1) val = -1;
+  if(val < -1) val = -1;
+  
   //deadzone 0 - 50% of the maxValue
   float dz = 0.5 * ((float)deadZone) / 99.0f;
   if(val > dz){
@@ -199,15 +198,17 @@ float MickeysAxis::processValue(float val)
     val = 0.0;
   }
   val /= (1.0 - dz); //normalize after applying deadzone
-  val *= val; //curve attempt...
-  val *= sensitivity;
+  val = (val * val) * sign(val); //curve attempt...
+  val *= getSpeed(sensitivity) * (elapsed / 1000.0);
+  
+  //std::cout<<val<<std::endl;
   return val;
 }
 
-int MickeysAxis::updateAxis(float val)
+int MickeysAxis::updateAxis(float val, int elapsed)
 {
   if(!calibrating){
-    accumulator += processValue(val);
+    accumulator += processValue(val, elapsed);
     int res = (int)accumulator;
     accumulator -= res;
     return res;
@@ -233,20 +234,27 @@ void MickeysAxis::finishCalibration()
 {
   calibrating = false;
   //devise a reasonable profile...
-  minVal *= -1;
+  minVal = fabsf(minVal);
+  maxVal = fabsf(maxVal);
   //get lower of those values, so we have full
   //  range in both directions (limit the bigger).
   maxVal = (minVal > maxVal)? maxVal: minVal;
 }
 
+float MickeysAxis::getSpeed(int sens)
+{
+  float slewTime = timeSlow + (timeFast-timeSlow) * (sens / 100.0);
+  return screenMax / slewTime;
+}
 
 Mickey::Mickey(QWidget *parent) : QWidget(parent), updateTimer(this), testTimer(this), 
-  x("X"), y("Y"), btnThread(this), state(STANDBY), cdg(this), calDlg(cdg.window())
+  x("X"), y("Y"), btnThread(this), state(STANDBY), cdg(this), calDlg(cdg.window()), 
+  recenterFlag(true)
 {
   ui.setupUi(this);
   ui.DZSlider->setValue(x.getDeadZone());
   ui.SensSlider->setValue(x.getSensitivity());
-  onOffSwitch = new QxtGlobalShortcut(Qt::Key_F9, this);
+  onOffSwitch = new shortcut(Qt::Key_F9);
   QObject::connect(onOffSwitch, SIGNAL(activated()), this, SLOT(on_onOffSwitch_activated()));
   QObject::connect(&updateTimer, SIGNAL(timeout()), this, SLOT(on_updateTimer_activated()));
   QObject::connect(&btnThread, SIGNAL(clicked()), this, SLOT(on_thread_clicked()));
@@ -368,6 +376,7 @@ void Mickey::on_onOffSwitch_activated()
       break;
     case STANDBY:
       changeState(TRACKING);
+      initTimer.start();
       break;
     default:
       break;
@@ -382,6 +391,17 @@ void Mickey::on_updateTimer_activated()
   float heading, pitch, roll, tx, ty, tz;
   unsigned int counter;
   static unsigned int last_counter = 0;
+  if(ltr_get_tracking_state() != RUNNING){
+    return;
+  }
+  if(recenterFlag){
+    if(initTimer.elapsed() < settleTime){
+      return;
+    }else{
+      ltr_recenter();
+      recenterFlag = false;
+    }
+  }
   if(ltr_get_camera_update(&heading, &pitch, &roll, &tx, &ty, &tz, &counter) == 0){
     if(counter != last_counter){
       //new frame has arrived
@@ -392,7 +412,10 @@ void Mickey::on_updateTimer_activated()
       ui.YLabel->setText(QString("Y: %1").arg(pitch));
     }
   }
-  uinput.mouseMove(x.updateAxis(heading_p),y.updateAxis(pitch_p));
+  int elapsed = updateElapsed.elapsed();
+  updateElapsed.restart();
+  //reversing signs to get the cursor move according to the head movement
+  uinput.mouseMove(-x.updateAxis(heading_p, elapsed),-y.updateAxis(pitch_p, elapsed));
 }
 
 void Mickey::on_DZSlider_valueChanged(int value)
@@ -409,19 +432,27 @@ void Mickey::on_SensSlider_valueChanged(int value)
 
 void Mickey::on_thread_clicked()
 {
+  std::cout<<"thread clicked!!!"<<state<<":"<<calState<<std::endl;
   if(state == CALIBRATING){
     switch(calState){
       case CENTER:
+        std::cout<<"Centering..."<<std::endl;
         ltr_recenter();
         calState = CALIBRATE;
         x.startCalibration();
         y.startCalibration();
+        calDlg.setText((char *)"Move your head to all extremes...");
         break;
       case CALIBRATE:
+        std::cout<<"Calibration finished..."<<std::endl;
         x.finishCalibration();
         y.finishCalibration();
+        changeState(TRACKING);
+        cdg.hide();
         break;
       default:
+        std::cout<<"Whatever..."<<std::endl;
+        cdg.hide();
         calState = CENTER;
         break;
     }

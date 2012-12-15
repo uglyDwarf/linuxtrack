@@ -132,6 +132,7 @@ void *slave_reader_thread(void *param)
             com->tz = msg.pose.tz;
             com->counter = msg.pose.counter;
             com->state = msg.pose.status;
+            com->preparing_start = false;
             ltr_int_unlockSemaphore(mmm.sem);
             ++received_frames;
             if(received_frames > 20){

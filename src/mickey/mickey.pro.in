@@ -14,8 +14,9 @@ VPATH     = @srcdir@
 QXT += core gui
 # Input
 FORMS += mickey.ui calibration.ui
-SOURCES += main.cpp mickey.cpp ../ltlib.c uinput_ifc.c piper.c
-HEADERS += mickey.h ../utils.h ../ipc_utils.h ../ltlib.h ../linuxtrack.h uinput_ifc.h piper.h
+SOURCES += main.cpp mickey.cpp ../ltlib.c uinput_ifc.c piper.c keyb.cpp
+HEADERS += mickey.h ../utils.h ../ipc_utils.h ../ltlib.h ../linuxtrack.h uinput_ifc.h \
+  piper.h keyb.h keyb_qxt.h
 
 QMAKE_CXXFLAGS += -DHAVE_CONFIG_H
 
