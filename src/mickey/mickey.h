@@ -10,8 +10,27 @@
 #include <QDialog>
 #include "ui_mickey.h"
 #include "ui_calibration.h"
+#include "ui_chsettings.h"
 #include "keyb.h"
 
+class MickeyApplyDialog: public QWidget
+{
+ Q_OBJECT
+ public:
+  MickeyApplyDialog(QWidget *parent = 0);
+  void trySettings();
+ private slots:
+  void on_RevertButton_pressed();
+  void on_KeepButton_pressed();
+  void timeout();
+ signals:
+  void revert();
+  void keep();
+ private:
+  Ui::AcceptSettings ui;
+  QTimer timer;
+  int cntr;
+};
 
 
 class MickeyCalibration : public QWidget
@@ -22,6 +41,9 @@ class MickeyCalibration : public QWidget
   void setText(const QString &s){ui.CalibrationText->setText(s);};
  private:
   Ui::Calibration ui;
+ signals:
+  void nextClicked();
+  void cancelClicked();
 };
 
 typedef enum {CENTER, CALIBRATE} cal_state_t;
@@ -76,6 +98,7 @@ class MickeysAxis : public QObject
   void changeSensitivity(int sens);
   void startCalibration();
   void finishCalibration();
+  void cancelCalibration();
   float getSpeed(int sens);
  private:
   float processValue(float val, int elapsed);
@@ -85,7 +108,7 @@ class MickeysAxis : public QObject
   const QString identificator;
   QSettings settings;
   bool calibrating;
-  float maxVal, minVal;
+  float maxVal, minVal, prevMaxVal;
 };
 
 //typedef enum {PREP} cal_state_t;
@@ -112,17 +135,22 @@ class Mickey : public QWidget
   void changeState(state_t state);
   QDialog cdg;
   MickeyCalibration calDlg;
+  QDialog adg;
+  MickeyApplyDialog aplDlg;
   QTime initTimer;
   QTime updateElapsed;
   bool recenterFlag;
  private slots:
   void on_CalibrateButton_pressed();
   void on_ApplyButton_pressed();
-  void on_onOffSwitch_activated();
-  void on_updateTimer_activated();
+  void onOffSwitch_activated();
+  void updateTimer_activated();
   void on_DZSlider_valueChanged(int value);
   void on_SensSlider_valueChanged(int value);
-  void on_thread_clicked();
+  void threadClicked();
+  void calibrationCancelled();
+  void keepSettings();
+  void revertSettings();
 };
 
 #endif

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Calibration</class>
- <widget class="QWidget" name="Calibration">
+ <class>AcceptSettings</class>
+ <widget class="QWidget" name="AcceptSettings">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>386</width>
-    <height>145</height>
+    <width>400</width>
+    <height>124</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,42 +16,22 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>20</pointsize>
-      </font>
-     </property>
      <property name="text">
-      <string>Calibration instructions</string>
+      <string>Do you want to keep these settings?</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="CalibrationText">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+    <widget class="QLabel" name="FBString">
      <property name="text">
-      <string>TextLabel</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+      <string>Will automaticaly revert back in X seconds...</string>
      </property>
     </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="CancelButton">
+      <widget class="QPushButton" name="RevertButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -59,7 +39,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Cancel</string>
+        <string>Revert back...</string>
        </property>
       </widget>
      </item>
@@ -80,7 +60,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="NextButton">
+      <widget class="QPushButton" name="KeepButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -88,7 +68,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Next -&gt;</string>
+        <string>Keep...</string>
        </property>
       </widget>
      </item>

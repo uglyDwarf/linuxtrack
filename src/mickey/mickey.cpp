@@ -18,10 +18,55 @@ const float timeSlow = 5;
 
 QMutex MickeyUinput::mutex;
 
+MickeyApplyDialog::MickeyApplyDialog(QWidget *parent) : QWidget(parent)
+{
+  ui.setupUi(this);
+  timer.setSingleShot(false);
+  QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(timeout()));
+}
+
+void MickeyApplyDialog::trySettings()
+{
+  timer.start(1000);
+  cntr = 15;
+  ui.FBString->setText(QString("Will automatically revert back in %1 seconds...").arg(cntr));
+  window()->show();
+  window()->raise();
+  window()->activateWindow();
+  std::cout<<"trying settings!"<<std::endl;
+}
+
+void MickeyApplyDialog::timeout()
+{
+  --cntr;
+  if(cntr == 0){
+    timer.stop();
+    emit revert();
+    window()->hide();
+  }else{
+    ui.FBString->setText(QString("Will automatically revert back in %1 seconds...").arg(cntr));
+  }
+}
+
+void MickeyApplyDialog::on_RevertButton_pressed()
+{
+  std::cout<<"Reverting..."<<std::endl;
+  emit revert();
+  window()->hide();
+}
+
+void MickeyApplyDialog::on_KeepButton_pressed()
+{
+  std::cout<<"Keeping..."<<std::endl;
+  emit keep();
+  window()->hide();
+}
 
 MickeyCalibration::MickeyCalibration(QWidget *parent): QWidget(parent)
 {
   ui.setupUi(this);
+  QObject::connect(ui.NextButton, SIGNAL(pressed()), this, SIGNAL(nextClicked()));
+  QObject::connect(ui.CancelButton, SIGNAL(pressed()), this, SIGNAL(cancelClicked()));
 }
 
 
@@ -75,28 +120,12 @@ MickeyThread::MickeyThread(Mickey *p) : QThread(p), fifo(-1), finish(false), par
 
 void MickeyThread::processClick(int btns)
 {
-  static int cal_off;
+  //static int cal_off;
   state_t state = parent.getState();
   if(state == TRACKING){
     uinput.mouseClick(btns);
   }else if(state == CALIBRATING){
-    //FSM to detect click (press followed by release)
-    switch(cal_off){
-      case 0:
-        if(btns != 0){
-          cal_off = 1;
-        }
-        break;
-      case 1:
-        if(btns == 0){
-          cal_off = 0;
-          emit clicked();
-        }
-        break;
-      default:
-        cal_off = 0;
-        break;
-    }
+    emit clicked();
   }
 }
 
@@ -226,8 +255,9 @@ int MickeysAxis::updateAxis(float val, int elapsed)
 void MickeysAxis::startCalibration()
 {
   calibrating = true;
-  maxVal = -1e6;
-  minVal = 1e6;
+  prevMaxVal = maxVal;
+  maxVal = 0.0f;
+  minVal = 0.0f;
 }
 
 void MickeysAxis::finishCalibration()
@@ -241,6 +271,12 @@ void MickeysAxis::finishCalibration()
   maxVal = (minVal > maxVal)? maxVal: minVal;
 }
 
+void MickeysAxis::cancelCalibration()
+{
+  calibrating = false;
+  maxVal = prevMaxVal;
+}
+
 float MickeysAxis::getSpeed(int sens)
 {
   float slewTime = timeSlow + (timeFast-timeSlow) * (sens / 100.0);
@@ -249,15 +285,19 @@ float MickeysAxis::getSpeed(int sens)
 
 Mickey::Mickey(QWidget *parent) : QWidget(parent), updateTimer(this), testTimer(this), 
   x("X"), y("Y"), btnThread(this), state(STANDBY), cdg(this), calDlg(cdg.window()), 
-  recenterFlag(true)
+  adg(this), aplDlg(adg.window()), recenterFlag(true)
 {
   ui.setupUi(this);
   ui.DZSlider->setValue(x.getDeadZone());
   ui.SensSlider->setValue(x.getSensitivity());
   onOffSwitch = new shortcut(Qt::Key_F9);
-  QObject::connect(onOffSwitch, SIGNAL(activated()), this, SLOT(on_onOffSwitch_activated()));
-  QObject::connect(&updateTimer, SIGNAL(timeout()), this, SLOT(on_updateTimer_activated()));
-  QObject::connect(&btnThread, SIGNAL(clicked()), this, SLOT(on_thread_clicked()));
+  QObject::connect(onOffSwitch, SIGNAL(activated()), this, SLOT(onOffSwitch_activated()));
+  QObject::connect(&updateTimer, SIGNAL(timeout()), this, SLOT(updateTimer_activated()));
+  QObject::connect(&btnThread, SIGNAL(clicked()), this, SLOT(threadClicked()));
+  QObject::connect(&calDlg, SIGNAL(nextClicked()), this, SLOT(threadClicked()));
+  QObject::connect(&calDlg, SIGNAL(cancelClicked()), this, SLOT(calibrationCancelled()));
+  QObject::connect(&aplDlg, SIGNAL(keep()), this, SLOT(keepSettings()));
+  QObject::connect(&aplDlg, SIGNAL(revert()), this, SLOT(revertSettings()));
   if(!uinput.init()){
     exit(1);
   }
@@ -281,6 +321,7 @@ void Mickey::on_CalibrateButton_pressed()
 void Mickey::on_ApplyButton_pressed()
 {
   std::cout<<"Apply button pressed!"<<std::endl;
+  aplDlg.trySettings();
 }
 
 void Mickey::pause()
@@ -368,7 +409,7 @@ void Mickey::changeState(state_t newState)
   }
 }
 
-void Mickey::on_onOffSwitch_activated()
+void Mickey::onOffSwitch_activated()
 {
   switch(state){
     case TRACKING:
@@ -384,7 +425,7 @@ void Mickey::on_onOffSwitch_activated()
 }
 
 
-void Mickey::on_updateTimer_activated()
+void Mickey::updateTimer_activated()
 {
   static float heading_p = 0.0;
   static float pitch_p = 0.0;
@@ -415,7 +456,11 @@ void Mickey::on_updateTimer_activated()
   int elapsed = updateElapsed.elapsed();
   updateElapsed.restart();
   //reversing signs to get the cursor move according to the head movement
-  uinput.mouseMove(-x.updateAxis(heading_p, elapsed),-y.updateAxis(pitch_p, elapsed));
+  int dx = -x.updateAxis(heading_p, elapsed);
+  int dy = -y.updateAxis(pitch_p, elapsed);
+  if(state == TRACKING){
+    uinput.mouseMove(dx, dy);
+  }
 }
 
 void Mickey::on_DZSlider_valueChanged(int value)
@@ -430,7 +475,7 @@ void Mickey::on_SensSlider_valueChanged(int value)
   y.changeSensitivity(value);
 }
 
-void Mickey::on_thread_clicked()
+void Mickey::threadClicked()
 {
   std::cout<<"thread clicked!!!"<<state<<":"<<calState<<std::endl;
   if(state == CALIBRATING){
@@ -460,3 +505,25 @@ void Mickey::on_thread_clicked()
     changeState(TRACKING);
   }
 }
+
+void Mickey::calibrationCancelled()
+{
+  if(state == CALIBRATING){
+    x.cancelCalibration();
+    y.cancelCalibration();
+    cdg.hide();
+    calState = CENTER;
+    changeState(TRACKING);
+  }
+}
+
+void Mickey::keepSettings()
+{
+  std::cout<<"Keeping settings!"<<std::endl;
+}
+
+void Mickey::revertSettings()
+{
+  std::cout<<"Reverting settings!"<<std::endl;
+}
+
