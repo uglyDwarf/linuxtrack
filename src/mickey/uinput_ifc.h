@@ -12,7 +12,7 @@ extern "C" {
 int open_uinput(char **fname, bool *permProblem);
 bool create_device(int fd);
 void movem(int fd, int dx, int dy);
-void click(int fd, int btns);
+void click(int fd, int btns, struct timeval ts);
 void close_uinput(int fd);
 
 #ifdef __cplusplus

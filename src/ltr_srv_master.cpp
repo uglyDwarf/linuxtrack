@@ -187,13 +187,13 @@ void recenter_cmd()
 
 bool gui_shutdown_request = false;
 
-//should account for the gui client!
+
 size_t request_shutdown()
 {
   size_t res = slaves.size();
-  if(res == 0){
+  //if(res == 0){
     gui_shutdown_request = true;
-  }
+  //}
   return res;
 }
 

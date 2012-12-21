@@ -61,17 +61,23 @@ bool create_device(int fd)
   return true;
 }
 
+int limit(int val, int min, int max)
+{
+  if(val < min) return min;
+  if(val > max) return max;
+  return val;
+}
+
 void movem(int fd, int dx, int dy)
 {
   struct input_event event;
-  
   event.type = EV_REL;
   event.code = REL_X;
-  event.value = dx;
+  event.value = limit(dx, -100, 100);
   write(fd, &event, sizeof(event));
   event.type = EV_REL;
   event.code = REL_Y;
-  event.value = dy;
+  event.value = limit(dy, -100, 100);
   write(fd, &event, sizeof(event));
   event.type = EV_SYN;
   event.code = SYN_REPORT;
@@ -79,10 +85,12 @@ void movem(int fd, int dx, int dy)
   write(fd, &event, sizeof(event));
 }
 
-void send_click(int fd, int btn, bool pressed)
+void send_click(int fd, int btn, bool pressed, struct timeval *ts)
 {
+  printf("Sending click %d@%d\n", btn, pressed);
+  //btn ^= 3;
   struct input_event event;
-  gettimeofday(&event.time, NULL);
+  event.time = *ts;
   event.type = EV_KEY;
   event.code = btn;
   event.value = pressed;
@@ -93,16 +101,17 @@ void send_click(int fd, int btn, bool pressed)
   write(fd, &event, sizeof(event));
 }
 
-void click(int fd, int btns)
+void click(int fd, int btns, struct timeval ts)
 {
   static int prev_btns = 0;
+  printf("Click: %d / %d\n", prev_btns, btns);
   int changed = btns ^ prev_btns;
   
   if(changed & LEFT_BUTTON){
-    send_click(fd, BTN_LEFT, (btns & LEFT_BUTTON) != 0);
+    send_click(fd, BTN_LEFT, (btns & LEFT_BUTTON) != 0, &ts);
   }
   if(changed & RIGHT_BUTTON){
-    send_click(fd, BTN_RIGHT, (btns & RIGHT_BUTTON) != 0);
+    send_click(fd, BTN_RIGHT, (btns & RIGHT_BUTTON) != 0, &ts);
   }
   prev_btns = btns;
 }

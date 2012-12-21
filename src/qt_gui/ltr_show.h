@@ -23,6 +23,7 @@ class CameraView : public QWidget
   Q_OBJECT
  public:
   CameraView(QWidget *parent = 0);
+  ~CameraView();
   void redraw();
  private:
   QGraphicsScene *scene;

@@ -12,6 +12,7 @@
 #include "ui_calibration.h"
 #include "ui_chsettings.h"
 #include "keyb.h"
+#include "sn4_com.h"
 
 class MickeyApplyDialog: public QWidget
 {
@@ -55,7 +56,7 @@ class MickeyUinput
   MickeyUinput();
   ~MickeyUinput();
   bool init();
-  void mouseClick(int btns);
+  void mouseClick(sn4_btn_event_t ev);
   void mouseMove(int dx, int dy);
  private:
   int fd;
@@ -72,16 +73,15 @@ class MickeyThread : public QThread
   MickeyThread(Mickey *p = 0);
   void run();
   void setFinish(){finish = true;};
- private slots:
+ public slots:
   void on_key_pressed();
  signals:
   void clicked();
  private:
-  void processClick(int btns);
+  void processClick(sn4_btn_event_t ev);
   int fifo;
   bool finish;
   const Mickey &parent;
-  shortcut lbtnSwitch;
   int fakeBtn;
 };
 
@@ -123,6 +123,7 @@ class Mickey : public QWidget
  private:
   Ui::Mickey ui;
   shortcut *onOffSwitch;
+  shortcut lbtnSwitch;
   QTimer updateTimer;
   QTimer testTimer;
   MickeysAxis x, y;
