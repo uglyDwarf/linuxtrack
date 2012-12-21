@@ -98,6 +98,10 @@ Tracker::Tracker() : axes(LTR_AXES_T_INITIALIZER), axes_valid(false), currentPro
 
 Tracker::~Tracker()
 {
+  if(master->isRunning()){
+    request_shutdown();
+    master->wait();
+  }
 }
 
 void Tracker::signalStateChange(ltr_state_type current_state)

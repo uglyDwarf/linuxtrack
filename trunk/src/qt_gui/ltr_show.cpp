@@ -253,6 +253,9 @@ CameraView::CameraView(QWidget *parent)
   setLayout(layout);
 }
 
+CameraView::~CameraView()
+{
+}
 
 void CameraView::redraw()
 {

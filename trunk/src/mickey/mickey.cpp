@@ -4,7 +4,6 @@
 #include "mickey.h"
 #include "uinput_ifc.h"
 #include "linuxtrack.h"
-#include "sn4_com.h"
 #include "piper.h"
 #include "math_utils.h"
 #include <iostream>
@@ -13,8 +12,8 @@
 //Time to wait after the tracking commences to perform a recentering [ms]
 const int settleTime = 2000; //2 seconds
 const int screenMax = 1024;
-const float timeFast = 0.5;
-const float timeSlow = 5;
+const float timeFast = 0.1;
+const float timeSlow = 4;
 
 QMutex MickeyUinput::mutex;
 
@@ -96,10 +95,10 @@ bool MickeyUinput::init()
 
 }
 
-void MickeyUinput::mouseClick(int btns)
+void MickeyUinput::mouseClick(sn4_btn_event_t ev)
 {
   mutex.lock();
-  click(fd, btns);
+  click(fd, ev.btns, ev.timestamp);
   mutex.unlock();
 }
 
@@ -113,17 +112,17 @@ void MickeyUinput::mouseMove(int dx, int dy)
 MickeyUinput uinput = MickeyUinput();
 
 MickeyThread::MickeyThread(Mickey *p) : QThread(p), fifo(-1), finish(false), parent(*p),
-  lbtnSwitch(Qt::Key_F11), fakeBtn(0)
+  fakeBtn(0)
 {
-  QObject::connect(&lbtnSwitch, SIGNAL(activated()), this, SLOT(on_key_pressed()));
 }
 
-void MickeyThread::processClick(int btns)
+void MickeyThread::processClick(sn4_btn_event_t ev)
 {
+  std::cout<<"Processing click! ("<<(int)ev.btns<<")"<<std::endl;
   //static int cal_off;
   state_t state = parent.getState();
   if(state == TRACKING){
-    uinput.mouseClick(btns);
+    uinput.mouseClick(ev);
   }else if(state == CALIBRATING){
     emit clicked();
   }
@@ -134,7 +133,10 @@ void MickeyThread::on_key_pressed()
 {
   std::cout<<"Button pressed!!!"<<std::endl;
   fakeBtn ^= 1;
-  processClick(fakeBtn);
+  sn4_btn_event_t ev;
+  ev.btns = fakeBtn;
+  gettimeofday(&(ev.timestamp), NULL);
+  processClick(ev);
 }
 
 
@@ -143,6 +145,7 @@ void MickeyThread::run()
 {
   sn4_btn_event_t ev;
   ssize_t read;
+  finish = false;
   while(1){
     while(fifo <= 1){
       if(finish){
@@ -154,12 +157,13 @@ void MickeyThread::run()
       }
     }
     while(fetch_data(fifo, (void*)&ev, sizeof(ev), &read)){
+      std::cout<<"Thread alive!"<<std::endl;
       if(finish){
         return;
       }
       if(read == sizeof(ev)){
         ev.btns ^= 3;
-        processClick(ev.btns);
+        processClick(ev);
       }
     }
   }
@@ -283,7 +287,8 @@ float MickeysAxis::getSpeed(int sens)
   return screenMax / slewTime;
 }
 
-Mickey::Mickey(QWidget *parent) : QWidget(parent), updateTimer(this), testTimer(this), 
+Mickey::Mickey(QWidget *parent) : QWidget(parent), lbtnSwitch(Qt::Key_F11), 
+  updateTimer(this), testTimer(this), 
   x("X"), y("Y"), btnThread(this), state(STANDBY), cdg(this), calDlg(cdg.window()), 
   adg(this), aplDlg(adg.window()), recenterFlag(true)
 {
@@ -292,6 +297,7 @@ Mickey::Mickey(QWidget *parent) : QWidget(parent), updateTimer(this), testTimer(
   ui.SensSlider->setValue(x.getSensitivity());
   onOffSwitch = new shortcut(Qt::Key_F9);
   QObject::connect(onOffSwitch, SIGNAL(activated()), this, SLOT(onOffSwitch_activated()));
+  QObject::connect(&lbtnSwitch, SIGNAL(activated()), &btnThread, SLOT(on_key_pressed()));
   QObject::connect(&updateTimer, SIGNAL(timeout()), this, SLOT(updateTimer_activated()));
   QObject::connect(&btnThread, SIGNAL(clicked()), this, SLOT(threadClicked()));
   QObject::connect(&calDlg, SIGNAL(nextClicked()), this, SLOT(threadClicked()));
