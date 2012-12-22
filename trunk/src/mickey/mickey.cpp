@@ -175,13 +175,13 @@ void MickeyThread::run()
 //Dependency on updte rate...
 
 
-MickeysAxis::MickeysAxis(const QString &id) : deadZone(0), sensitivity(0),
-  accumulator(0.0), identificator(id), settings("linuxtrack", "mickey"), calibrating(false)
+MickeysAxis::MickeysAxis() : deadZone(0), sensitivity(0),
+  accX(0.0), accY(0.0),settings("linuxtrack", "mickey"), calibrating(false)
 {
   settings.beginGroup("Axes");
-  deadZone = settings.value(QString("DeadZone") + identificator, 20).toInt();
-  sensitivity = settings.value(QString("Sensitivity") + identificator, 50).toInt();
-  maxVal = settings.value(QString("Range") + identificator, 130).toFloat();
+  deadZone = settings.value(QString("DeadZone"), 20).toInt();
+  sensitivity = settings.value(QString("Sensitivity"), 50).toInt();
+  maxVal = settings.value(QString("Range"), 130).toFloat();
   std::cout<<"DZ: "<<deadZone<<std::endl;
   std::cout<<"Sensitivity: "<<sensitivity<<std::endl;
   std::cout<<"Range: "<<maxVal<<std::endl;
@@ -191,9 +191,9 @@ MickeysAxis::MickeysAxis(const QString &id) : deadZone(0), sensitivity(0),
 MickeysAxis::~MickeysAxis()
 {
   settings.beginGroup("Axes");
-  settings.setValue(QString("DeadZone") + identificator, deadZone);
-  settings.setValue(QString("Sensitivity") + identificator, sensitivity);
-  settings.setValue(QString("Range") + identificator, maxVal);
+  settings.setValue(QString("DeadZone"), deadZone);
+  settings.setValue(QString("Sensitivity"), sensitivity);
+  settings.setValue(QString("Range"), maxVal);
   settings.endGroup();
 }
 
@@ -213,46 +213,49 @@ static float sign(float val)
   return -1.0;
 }
 
-float MickeysAxis::processValue(float val, int elapsed)
+void MickeysAxis::processValue(float valX, float valY, int elapsed, float &accX, float &accY)
 {
   //std::cout<<qPrintable(identificator)<<": "<<val<<" => ";
-  val /= maxVal; //normalize the value
+  valX /= maxVal; //normalize the value
+  valY /= maxVal; //normalize the value
   //std::cout<<qPrintable(identificator)<<": "<<val<<" => ";
-  if(val > 1) val = 1;
-  if(val < -1) val = -1;
-  
+  float mag = sqrtf(valX * valX + valY * valY);
+  float angle = atan2f(valY, valX);
+  if(mag > 1) mag = 1;
   //deadzone 0 - 50% of the maxValue
   float dz = 0.5 * ((float)deadZone) / 99.0f;
-  if(val > dz){
-    val -= dz;
-  }else if(val < -dz){
-    val += dz;
+  if(mag > dz){
+    mag = 1;
   }else{
-    val = 0.0;
+    mag = 0;
   }
-  val /= (1.0 - dz); //normalize after applying deadzone
-  val = (val * val) * sign(val); //curve attempt...
-  val *= getSpeed(sensitivity) * (elapsed / 1000.0);
+  accX += mag * cosf(angle) * getSpeed(sensitivity) * (elapsed / 1000.0);
+  accY += mag * sinf(angle) * getSpeed(sensitivity) * (elapsed / 1000.0);
   
   //std::cout<<val<<std::endl;
-  return val;
 }
 
-int MickeysAxis::updateAxis(float val, int elapsed)
+void MickeysAxis::updateAxis(float valX, float valY, int elapsed, int &x, int &y)
 {
   if(!calibrating){
-    accumulator += processValue(val, elapsed);
-    int res = (int)accumulator;
-    accumulator -= res;
-    return res;
+    processValue(valX, valY, elapsed, accX, accY);
+    x = (int)accX;
+    accX -= x;
+    y = (int)accY;
+    accY -= y;
   }else{
-    if(val > maxVal){
-      maxVal = val;
+    if(valX > maxVal){
+      maxVal = valX;
     }
-    if(val < minVal){
-      minVal = val;
+    if(valY > maxVal){
+      maxVal = valY;
     }
-    return 0;
+    if(valX < minVal){
+      minVal = valX;
+    }
+    if(valY < minVal){
+      minVal = valY;
+    }
   }
 }
 
@@ -288,13 +291,13 @@ float MickeysAxis::getSpeed(int sens)
 }
 
 Mickey::Mickey(QWidget *parent) : QWidget(parent), lbtnSwitch(Qt::Key_F11), 
-  updateTimer(this), testTimer(this), 
-  x("X"), y("Y"), btnThread(this), state(STANDBY), cdg(this), calDlg(cdg.window()), 
+  updateTimer(this), testTimer(this), /*x("X"), y("Y"),*/
+  btnThread(this), state(STANDBY), cdg(this), calDlg(cdg.window()), 
   adg(this), aplDlg(adg.window()), recenterFlag(true)
 {
   ui.setupUi(this);
-  ui.DZSlider->setValue(x.getDeadZone());
-  ui.SensSlider->setValue(x.getSensitivity());
+  ui.DZSlider->setValue(m.getDeadZone());
+  ui.SensSlider->setValue(m.getSensitivity());
   onOffSwitch = new shortcut(Qt::Key_F9);
   QObject::connect(onOffSwitch, SIGNAL(activated()), this, SLOT(onOffSwitch_activated()));
   QObject::connect(&lbtnSwitch, SIGNAL(activated()), &btnThread, SLOT(on_key_pressed()));
@@ -462,8 +465,8 @@ void Mickey::updateTimer_activated()
   int elapsed = updateElapsed.elapsed();
   updateElapsed.restart();
   //reversing signs to get the cursor move according to the head movement
-  int dx = -x.updateAxis(heading_p, elapsed);
-  int dy = -y.updateAxis(pitch_p, elapsed);
+  int dx, dy;
+  m.updateAxis(-heading_p, -pitch_p, elapsed, dx, dy);
   if(state == TRACKING){
     uinput.mouseMove(dx, dy);
   }
@@ -471,14 +474,12 @@ void Mickey::updateTimer_activated()
 
 void Mickey::on_DZSlider_valueChanged(int value)
 {
-  x.changeDeadZone(value);
-  y.changeDeadZone(value);
+  m.changeDeadZone(value);
 }
 
 void Mickey::on_SensSlider_valueChanged(int value)
 {
-  x.changeSensitivity(value);
-  y.changeSensitivity(value);
+  m.changeSensitivity(value);
 }
 
 void Mickey::threadClicked()
@@ -490,14 +491,12 @@ void Mickey::threadClicked()
         std::cout<<"Centering..."<<std::endl;
         ltr_recenter();
         calState = CALIBRATE;
-        x.startCalibration();
-        y.startCalibration();
+        m.startCalibration();
         calDlg.setText((char *)"Move your head to all extremes...");
         break;
       case CALIBRATE:
         std::cout<<"Calibration finished..."<<std::endl;
-        x.finishCalibration();
-        y.finishCalibration();
+        m.finishCalibration();
         changeState(TRACKING);
         cdg.hide();
         break;
@@ -515,8 +514,7 @@ void Mickey::threadClicked()
 void Mickey::calibrationCancelled()
 {
   if(state == CALIBRATING){
-    x.cancelCalibration();
-    y.cancelCalibration();
+    m.cancelCalibration();
     cdg.hide();
     calState = CENTER;
     changeState(TRACKING);
