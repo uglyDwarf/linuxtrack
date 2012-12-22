@@ -13,6 +13,7 @@
 #include "ui_chsettings.h"
 #include "keyb.h"
 #include "sn4_com.h"
+#include "transform.h"
 
 class MickeyApplyDialog: public QWidget
 {
@@ -85,30 +86,6 @@ class MickeyThread : public QThread
   int fakeBtn;
 };
 
-class MickeysAxis : public QObject
-{
- Q_OBJECT
- public:
-  MickeysAxis();
-  ~MickeysAxis();
-  void updateAxis(float valX, float valY, int elapsed, int &x, int &y);
-  int getDeadZone(){return deadZone;};
-  int getSensitivity(){return sensitivity;};
-  void changeDeadZone(int dz);
-  void changeSensitivity(int sens);
-  void startCalibration();
-  void finishCalibration();
-  void cancelCalibration();
-  float getSpeed(int sens);
- private:
-  void processValue(float valX, float valY, int elapsed, float &accX, float &accY);
-  int deadZone;
-  int sensitivity;
-  float accX, accY;
-  QSettings settings;
-  bool calibrating;
-  float maxVal, minVal, prevMaxVal;
-};
 
 //typedef enum {PREP} cal_state_t;
 
@@ -125,7 +102,7 @@ class Mickey : public QWidget
   shortcut lbtnSwitch;
   QTimer updateTimer;
   QTimer testTimer;
-  MickeysAxis m; //x, y;
+  MickeyTransform *m; //x, y;
   MickeyThread btnThread;
   state_t state;
   cal_state_t calState;
@@ -145,8 +122,6 @@ class Mickey : public QWidget
   void on_ApplyButton_pressed();
   void onOffSwitch_activated();
   void updateTimer_activated();
-  void on_DZSlider_valueChanged(int value);
-  void on_SensSlider_valueChanged(int value);
   void threadClicked();
   void calibrationCancelled();
   void keepSettings();
