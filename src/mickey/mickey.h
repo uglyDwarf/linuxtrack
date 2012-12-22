@@ -89,9 +89,9 @@ class MickeysAxis : public QObject
 {
  Q_OBJECT
  public:
-  MickeysAxis(const QString &id);
+  MickeysAxis();
   ~MickeysAxis();
-  int updateAxis(float val, int elapsed);
+  void updateAxis(float valX, float valY, int elapsed, int &x, int &y);
   int getDeadZone(){return deadZone;};
   int getSensitivity(){return sensitivity;};
   void changeDeadZone(int dz);
@@ -101,11 +101,10 @@ class MickeysAxis : public QObject
   void cancelCalibration();
   float getSpeed(int sens);
  private:
-  float processValue(float val, int elapsed);
+  void processValue(float valX, float valY, int elapsed, float &accX, float &accY);
   int deadZone;
   int sensitivity;
-  float accumulator;
-  const QString identificator;
+  float accX, accY;
   QSettings settings;
   bool calibrating;
   float maxVal, minVal, prevMaxVal;
@@ -126,7 +125,7 @@ class Mickey : public QWidget
   shortcut lbtnSwitch;
   QTimer updateTimer;
   QTimer testTimer;
-  MickeysAxis x, y;
+  MickeysAxis m; //x, y;
   MickeyThread btnThread;
   state_t state;
   cal_state_t calState;
