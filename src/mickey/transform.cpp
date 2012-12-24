@@ -8,12 +8,52 @@ const float timeFast = 0.1;
 const float timeSlow = 4;
 
 
+MickeyCurveShow::MickeyCurveShow(QWidget *parent) : QWidget(parent), img(NULL)
+{
+  //setBackgroundRole(QPalette::Base);
+  setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+  setMinimumSize(100, 100);
+  setAutoFillBackground(true);
+}
+
+void MickeyCurveShow::updatePixmap(QPointF points[], int pointCount)
+{
+  float s = ((width() > height()) ? height() : width()) - 1;
+  if((img == NULL) || (img->width() != s)){
+    if(img != NULL){
+      delete img;
+    }
+    img = new QPixmap(s, s);
+  }
+  for(int i = 0; i < pointCount; ++i){
+    points[i] *= (s - 1);
+    points[i].setY(s - 1 - points[i].y());
+  }
+  img->fill();
+  QPainter painter(img);
+  painter.setPen(Qt::black);
+  painter.drawPolyline(points, pointCount);
+  painter.end();
+  update();
+}
+
+void MickeyCurveShow::paintEvent(QPaintEvent * /* event */)
+{
+  QPainter painter(this);
+  painter.drawPixmap(0,0,*img);
+  painter.end();
+}
+
+
+
 MickeysAxis::MickeysAxis(QBoxLayout *parent) : sensitivity(0), deadZone(0), stepOnly(false),
-  settings("linuxtrack", "mickey"), img(256, 256)
+  settings("linuxtrack", "mickey"), curveShow(NULL)
 {
   ui.setupUi(this);
   parent->addWidget(this);
-  parent->addStretch();
+  curveShow = new MickeyCurveShow();
+  ui.PrefLayout->addWidget(curveShow);
+  QObject::connect(curveShow, SIGNAL(resized()), this, SLOT(curveShow_resized()));
   settings.beginGroup("Axes");
   deadZone = settings.value(QString("DeadZone"), 20).toInt();
   sensitivity = settings.value(QString("Sensitivity"), 50).toInt();
@@ -105,20 +145,11 @@ void MickeysAxis::updatePixmap()
   float x;
   for(int i = 0; i < pointCount; ++i){
     x = (i / (float)(pointCount-1));
-    points[i] = QPointF(255 * x, 255 - 255 * response(x));
+    points[i] = QPointF(x, response(x));
   }
-  
-  img.fill();
-  QPainter painter(&img);
-  
-  painter.setPen(Qt::black);
-  painter.drawPolyline(points, pointCount);
-  painter.end();
-}
-
-void MickeysAxis::paintEvent(QPaintEvent * /* event */)
-{
-  ui.CurveView->setPixmap(img);
+  if(curveShow != NULL){
+    curveShow->updatePixmap(points, pointCount);
+  }
 }
 
 void MickeysAxis::on_StepOnly_stateChanged(int state)
@@ -138,15 +169,17 @@ MickeyTransform::MickeyTransform(QBoxLayout *parent) : accX(0.0), accY(0.0),
   settings("linuxtrack", "mickey"), calibrating(false), axis(parent)
 {
   settings.beginGroup("Transform");
-  maxVal = settings.value(QString("Range"), 130).toFloat();
-  std::cout<<"Range: "<<maxVal<<std::endl;
+  maxValX = settings.value(QString("RangeX"), 130).toFloat();
+  maxValY = settings.value(QString("RangeY"), 130).toFloat();
+  std::cout<<"Range: "<<maxValX<<", "<<maxValY<<std::endl;
   settings.endGroup();
 }
 
 MickeyTransform::~MickeyTransform()
 {
   settings.beginGroup("Transform");
-  settings.setValue(QString("Range"), maxVal);
+  settings.setValue(QString("RangeX"), maxValX);
+  settings.setValue(QString("RangeY"), maxValY);
   settings.endGroup();
 }
 
@@ -160,23 +193,23 @@ static float norm(float val)
 void MickeyTransform::update(float valX, float valY, int elapsed, int &x, int &y)
 {
   if(!calibrating){
-    axis.step(norm(-valX/maxVal), norm(-valY/maxVal), elapsed, accX, accY);
+    axis.step(norm(-valX/maxValX), norm(-valY/maxValY), elapsed, accX, accY);
     x = (int)accX;
     accX -= x;
     y = (int)accY;
     accY -= y;
   }else{
-    if(valX > maxVal){
-      maxVal = valX;
+    if(valX > maxValX){
+      maxValX = valX;
     }
-    if(valY > maxVal){
-      maxVal = valY;
+    if(valY > maxValY){
+      maxValY = valY;
     }
-    if(valX < minVal){
-      minVal = valX;
+    if(valX < minValX){
+      minValX = valX;
     }
-    if(valY < minVal){
-      minVal = valY;
+    if(valY < minValY){
+      minValY = valY;
     }
   }
 }
@@ -184,26 +217,33 @@ void MickeyTransform::update(float valX, float valY, int elapsed, int &x, int &y
 void MickeyTransform::startCalibration()
 {
   calibrating = true;
-  prevMaxVal = maxVal;
-  maxVal = 0.0f;
-  minVal = 0.0f;
+  prevMaxValX = maxValX;
+  maxValX = 0.0f;
+  minValX = 0.0f;
+  prevMaxValY = maxValY;
+  maxValY = 0.0f;
+  minValY = 0.0f;
 }
 
 void MickeyTransform::finishCalibration()
 {
   calibrating = false;
   //devise a reasonable profile...
-  minVal = fabsf(minVal);
-  maxVal = fabsf(maxVal);
+  minValX = fabsf(minValX);
+  maxValX = fabsf(maxValX);
+  minValY = fabsf(minValY);
+  maxValY = fabsf(maxValY);
   //get lower of those values, so we have full
   //  range in both directions (limit the bigger).
-  maxVal = (minVal > maxVal)? maxVal: minVal;
+  maxValX = (minValX > maxValX)? maxValX: minValX;
+  maxValY = (minValY > maxValY)? maxValY: minValY;
 }
 
 void MickeyTransform::cancelCalibration()
 {
   calibrating = false;
-  maxVal = prevMaxVal;
+  maxValX = prevMaxValX;
+  maxValY = prevMaxValY;
 }
 
 
