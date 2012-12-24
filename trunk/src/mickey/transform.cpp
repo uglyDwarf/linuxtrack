@@ -1,6 +1,7 @@
 #include "transform.h"
 #include <cmath>
 #include <iostream>
+#include <QPainter>
 
 const int screenMax = 1024;
 const float timeFast = 0.1;
@@ -8,7 +9,7 @@ const float timeSlow = 4;
 
 
 MickeysAxis::MickeysAxis(QBoxLayout *parent) : sensitivity(0), deadZone(0), stepOnly(false),
-  settings("linuxtrack", "mickey")
+  settings("linuxtrack", "mickey"), img(256, 256)
 {
   ui.setupUi(this);
   parent->addWidget(this);
@@ -22,6 +23,11 @@ MickeysAxis::MickeysAxis(QBoxLayout *parent) : sensitivity(0), deadZone(0), step
   ui.DZSlider->setValue(deadZone);
   ui.CurveSlider->setValue(curv);
   ui.StepOnly->setCheckState(stepOnly ? Qt::Checked : Qt::Unchecked);
+  if(stepOnly){
+    ui.CurveSlider->setDisabled(true);
+  }else{
+    ui.CurveSlider->setEnabled(true);
+  }
   std::cout<<"DZ: "<<deadZone<<std::endl;
   std::cout<<"Sensitivity: "<<sensitivity<<std::endl;
   std::cout<<"Curvature: "<<curv<<std::endl;
@@ -45,20 +51,18 @@ float MickeysAxis::getSpeed(int sens)
   return screenMax / slewTime;
 }
 
-void MickeysAxis::step(float valX, float valY, int elapsed, float &accX, float &accY)
+float MickeysAxis::response(float mag)
 {
-  float mag = sqrtf(valX * valX + valY * valY);
-  float angle = atan2f(valY, valX);
-  if(mag > 1) mag = 1;
   //deadzone 0 - 50% of the maxValue
   float dz = 0.5 * ((float)deadZone) / 99.0f;
-  if(mag < dz){
+  if(mag <= dz){
     mag = 0;
   }else{
     //here can be curve or whatever...
     if(stepOnly){
       mag = 1;
     }else{
+      mag = (mag - dz) / (1.0 - dz);
       if(curv < 50){
         float c = 1.0 + ((50.0 - curv) / 50.0) * 3.0; //c = (1:4);
         mag = expf(logf(mag) / c);
@@ -68,6 +72,17 @@ void MickeysAxis::step(float valX, float valY, int elapsed, float &accX, float &
       }
     }
   }
+  return mag;
+}
+
+void MickeysAxis::step(float valX, float valY, int elapsed, float &accX, float &accY)
+{
+  float mag = sqrtf(valX * valX + valY * valY);
+  float angle = atan2f(valY, valX);
+  if(mag > 1) mag = 1;
+  
+  mag = response(mag);
+  
   accX += mag * cosf(angle) * getSpeed(sensitivity) * (elapsed / 1000.0);
   accY += mag * sinf(angle) * getSpeed(sensitivity) * (elapsed / 1000.0);
 }
@@ -75,6 +90,7 @@ void MickeysAxis::step(float valX, float valY, int elapsed, float &accX, float &
 void MickeysAxis::changeDeadZone(int dz)
 {
   deadZone = dz;
+  updatePixmap();
 }
 
 void MickeysAxis::changeSensitivity(int sens)
@@ -82,8 +98,39 @@ void MickeysAxis::changeSensitivity(int sens)
   sensitivity = sens;
 }
 
+void MickeysAxis::updatePixmap()
+{
+  const int pointCount = 128;
+  QPointF points[pointCount];
+  float x;
+  for(int i = 0; i < pointCount; ++i){
+    x = (i / (float)(pointCount-1));
+    points[i] = QPointF(255 * x, 255 - 255 * response(x));
+  }
+  
+  img.fill();
+  QPainter painter(&img);
+  
+  painter.setPen(Qt::black);
+  painter.drawPolyline(points, pointCount);
+  painter.end();
+}
 
+void MickeysAxis::paintEvent(QPaintEvent * /* event */)
+{
+  ui.CurveView->setPixmap(img);
+}
 
+void MickeysAxis::on_StepOnly_stateChanged(int state)
+{
+  stepOnly = (state == Qt::Checked) ? true : false;
+  if(stepOnly){
+    ui.CurveSlider->setDisabled(true);
+  }else{
+    ui.CurveSlider->setEnabled(true);
+  }
+  updatePixmap();
+}
 
 
 
