@@ -187,7 +187,7 @@ Mickey::Mickey(QWidget *parent) : QWidget(parent), lbtnSwitch(Qt::Key_F11),
     exit(1);
   }
   updateTimer.setSingleShot(false);
-  updateTimer.setInterval(8);
+  updateTimer.setInterval(16);
   ltr_init((char *)"Mickey");
   changeState(TRACKING);
 }
@@ -336,8 +336,8 @@ void Mickey::updateTimer_activated()
       last_counter = counter;
       heading_p = heading;
       pitch_p = pitch;
-      ui.XLabel->setText(QString("X: %1").arg(heading));
-      ui.YLabel->setText(QString("Y: %1").arg(pitch));
+      //ui.XLabel->setText(QString("X: %1").arg(heading));
+      //ui.YLabel->setText(QString("Y: %1").arg(pitch));
     }
   }
   int elapsed = updateElapsed.elapsed();

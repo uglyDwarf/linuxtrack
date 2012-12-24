@@ -8,6 +8,20 @@
 
 #include "ui_pref.h"
 
+class MickeyCurveShow : public QWidget
+{
+ Q_OBJECT
+ public:
+  MickeyCurveShow(QWidget *parent = 0);
+  void updatePixmap(QPointF points[], int pointsCount);
+ private:
+  QPixmap *img;
+  virtual void paintEvent(QPaintEvent * /* event */);
+  virtual void resizeEvent(QResizeEvent * event){emit resized(); QWidget::resizeEvent(event);};
+ signals:
+  void resized();
+};
+
 class MickeysAxis : public QWidget
 {
  Q_OBJECT
@@ -15,7 +29,6 @@ class MickeysAxis : public QWidget
   MickeysAxis(QBoxLayout *parent = 0);
   ~MickeysAxis();
   void step(float valX, float valY, int elapsed, float &accX, float &accY);
-  void paintEvent(QPaintEvent * /* event */) ;
  private:
   Ui::AxisPrefs ui;
   float response(float mag);
@@ -28,7 +41,7 @@ class MickeysAxis : public QWidget
   bool stepOnly;
   QSettings settings;
   void updatePixmap();
-  QPixmap img;
+  MickeyCurveShow *curveShow;
 // public slots:
 //  void redraw(){update();};
  private slots:
@@ -36,6 +49,7 @@ class MickeysAxis : public QWidget
   void on_DZSlider_valueChanged(int val){deadZone = val; updatePixmap();};
   void on_CurveSlider_valueChanged(int val){curv = val; updatePixmap();};
   void on_StepOnly_stateChanged(int state);
+  void curveShow_resized(){updatePixmap();};
 };
 
 
@@ -52,7 +66,7 @@ class MickeyTransform
   float accX, accY;
   QSettings settings;
   bool calibrating;
-  float maxVal, minVal, prevMaxVal;
+  float maxValX, minValX, prevMaxValX, maxValY, minValY, prevMaxValY;
   MickeysAxis axis;
 };
 
