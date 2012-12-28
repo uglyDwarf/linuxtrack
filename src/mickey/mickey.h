@@ -117,6 +117,9 @@ class Mickey : public QWidget
   QTime initTimer;
   QTime updateElapsed;
   bool recenterFlag;
+  QSettings settings;
+  bool init;
+  void setShortcut();
  private slots:
   void on_CalibrateButton_pressed();
   void on_ApplyButton_pressed();
@@ -127,6 +130,8 @@ class Mickey : public QWidget
   void keepSettings();
   void revertSettings();
   void newSettings();
+  void on_ModifierCombo_currentIndexChanged(const QString &text);
+  void on_KeyCombo_currentIndexChanged(const QString &text);
 };
 
 #endif

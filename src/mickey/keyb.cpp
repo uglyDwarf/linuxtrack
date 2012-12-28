@@ -12,3 +12,7 @@ shortcut::~shortcut()
   delete key;
 }
 
+bool shortcut::setShortcut(const QKeySequence &s)
+{
+  return key->setShortcut(s);
+}

@@ -13,6 +13,7 @@ class shortcutPimpl : public QObject
      QObject::connect(sc, SIGNAL(activated()), this, SIGNAL(activated()));
    };
    ~shortcutPimpl(){delete sc;};
+   bool setShortcut(const QKeySequence &s){return sc->setShortcut(s);};
   private:
    QxtGlobalShortcut *sc;
   signals:

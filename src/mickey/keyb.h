@@ -12,6 +12,7 @@ class shortcut : public QObject
  public:
   shortcut(const QKeySequence &s);
   ~shortcut();
+  bool setShortcut(const QKeySequence &s);
  signals:
   void activated();
  private:
