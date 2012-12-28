@@ -46,6 +46,7 @@ void MickeyApplyDialog::timeout()
 
 void MickeyApplyDialog::on_RevertButton_pressed()
 {
+  timer.stop();
   std::cout<<"Reverting..."<<std::endl;
   emit revert();
   window()->hide();
@@ -53,6 +54,7 @@ void MickeyApplyDialog::on_RevertButton_pressed()
 
 void MickeyApplyDialog::on_KeepButton_pressed()
 {
+  timer.stop();
   std::cout<<"Keeping..."<<std::endl;
   emit keep();
   window()->hide();
@@ -173,7 +175,9 @@ Mickey::Mickey(QWidget *parent) : QWidget(parent), lbtnSwitch(Qt::Key_F11),
   adg(this), aplDlg(adg.window()), recenterFlag(true)
 {
   ui.setupUi(this);
+  ui.ApplyButton->setEnabled(false);
   m = new MickeyTransform(ui.PrefPane);
+//  onOffSwitch = new shortcut(Qt::Key_F9);
   onOffSwitch = new shortcut(Qt::Key_F9);
   QObject::connect(onOffSwitch, SIGNAL(activated()), this, SLOT(onOffSwitch_activated()));
   QObject::connect(&lbtnSwitch, SIGNAL(activated()), &btnThread, SLOT(on_key_pressed()));
@@ -183,11 +187,12 @@ Mickey::Mickey(QWidget *parent) : QWidget(parent), lbtnSwitch(Qt::Key_F11),
   QObject::connect(&calDlg, SIGNAL(cancelClicked()), this, SLOT(calibrationCancelled()));
   QObject::connect(&aplDlg, SIGNAL(keep()), this, SLOT(keepSettings()));
   QObject::connect(&aplDlg, SIGNAL(revert()), this, SLOT(revertSettings()));
+  QObject::connect(m, SIGNAL(newSettings()), this, SLOT(newSettings()));
   if(!uinput.init()){
     exit(1);
   }
   updateTimer.setSingleShot(false);
-  updateTimer.setInterval(16);
+  updateTimer.setInterval(8);
   ltr_init((char *)"Mickey");
   changeState(TRACKING);
 }
@@ -209,6 +214,12 @@ void Mickey::on_ApplyButton_pressed()
 {
   std::cout<<"Apply button pressed!"<<std::endl;
   aplDlg.trySettings();
+  m->applySettings();
+}
+
+void Mickey::newSettings()
+{
+  ui.ApplyButton->setEnabled(true);
 }
 
 void Mickey::pause()
@@ -392,10 +403,12 @@ void Mickey::calibrationCancelled()
 void Mickey::keepSettings()
 {
   std::cout<<"Keeping settings!"<<std::endl;
+  ui.ApplyButton->setEnabled(false);
 }
 
 void Mickey::revertSettings()
 {
+  m->revertSettings();
   std::cout<<"Reverting settings!"<<std::endl;
+  ui.ApplyButton->setEnabled(false);
 }
-

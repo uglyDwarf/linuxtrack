@@ -16,7 +16,7 @@ MickeyCurveShow::MickeyCurveShow(QWidget *parent) : QWidget(parent), img(NULL)
   setAutoFillBackground(true);
 }
 
-void MickeyCurveShow::updatePixmap(QPointF points[], int pointCount)
+void MickeyCurveShow::updatePixmap(QPointF curPoints[], QPointF newPoints[], int pointCount)
 {
   float s = ((width() > height()) ? height() : width()) - 1;
   if((img == NULL) || (img->width() != s)){
@@ -26,13 +26,17 @@ void MickeyCurveShow::updatePixmap(QPointF points[], int pointCount)
     img = new QPixmap(s, s);
   }
   for(int i = 0; i < pointCount; ++i){
-    points[i] *= (s - 1);
-    points[i].setY(s - 1 - points[i].y());
+    curPoints[i] *= (s - 1);
+    curPoints[i].setY(s - 1 - curPoints[i].y());
+    newPoints[i] *= (s - 1);
+    newPoints[i].setY(s - 1 - newPoints[i].y());
   }
   img->fill();
   QPainter painter(img);
+  painter.setPen(Qt::red);
+  painter.drawPolyline(newPoints, pointCount);
   painter.setPen(Qt::black);
-  painter.drawPolyline(points, pointCount);
+  painter.drawPolyline(curPoints, pointCount);
   painter.end();
   update();
 }
@@ -46,8 +50,7 @@ void MickeyCurveShow::paintEvent(QPaintEvent * /* event */)
 
 
 
-MickeysAxis::MickeysAxis(QBoxLayout *parent) : sensitivity(0), deadZone(0), stepOnly(false),
-  settings("linuxtrack", "mickey"), curveShow(NULL)
+MickeysAxis::MickeysAxis(QBoxLayout *parent) : settings("linuxtrack", "mickey"), curveShow(NULL)
 {
   ui.setupUi(this);
   parent->addWidget(this);
@@ -55,33 +58,34 @@ MickeysAxis::MickeysAxis(QBoxLayout *parent) : sensitivity(0), deadZone(0), step
   ui.PrefLayout->addWidget(curveShow);
   QObject::connect(curveShow, SIGNAL(resized()), this, SLOT(curveShow_resized()));
   settings.beginGroup("Axes");
-  deadZone = settings.value(QString("DeadZone"), 20).toInt();
-  sensitivity = settings.value(QString("Sensitivity"), 50).toInt();
-  curv = settings.value(QString("Curvature"), 50).toInt();
-  stepOnly = settings.value(QString("StepOnly"), false).toBool();
-  ui.SensSlider->setValue(sensitivity);
-  ui.DZSlider->setValue(deadZone);
-  ui.CurveSlider->setValue(curv);
-  ui.StepOnly->setCheckState(stepOnly ? Qt::Checked : Qt::Unchecked);
-  if(stepOnly){
+  setup.deadZone = settings.value(QString("DeadZone"), 20).toInt();
+  setup.sensitivity = settings.value(QString("Sensitivity"), 50).toInt();
+  setup.curv = settings.value(QString("Curvature"), 50).toInt();
+  setup.stepOnly = settings.value(QString("StepOnly"), false).toBool();
+  newSetup = setup;
+  ui.SensSlider->setValue(setup.sensitivity);
+  ui.DZSlider->setValue(setup.deadZone);
+  ui.CurveSlider->setValue(setup.curv);
+  ui.StepOnly->setCheckState(setup.stepOnly ? Qt::Checked : Qt::Unchecked);
+  if(setup.stepOnly){
     ui.CurveSlider->setDisabled(true);
   }else{
     ui.CurveSlider->setEnabled(true);
   }
-  std::cout<<"DZ: "<<deadZone<<std::endl;
-  std::cout<<"Sensitivity: "<<sensitivity<<std::endl;
-  std::cout<<"Curvature: "<<curv<<std::endl;
-  std::cout<<"StepOnly: "<<(stepOnly ? "true" : "false") <<std::endl;
+  std::cout<<"DZ: "<<setup.deadZone<<std::endl;
+  std::cout<<"Sensitivity: "<<setup.sensitivity<<std::endl;
+  std::cout<<"Curvature: "<<setup.curv<<std::endl;
+  std::cout<<"StepOnly: "<<(setup.stepOnly ? "true" : "false") <<std::endl;
   settings.endGroup();
 }
 
 MickeysAxis::~MickeysAxis()
 {
   settings.beginGroup("Axes");
-  settings.setValue(QString("DeadZone"), deadZone);
-  settings.setValue(QString("Sensitivity"), sensitivity);
-  settings.setValue(QString("Curvature"), curv);
-  settings.setValue(QString("StepOnly"), stepOnly);
+  settings.setValue(QString("DeadZone"), setup.deadZone);
+  settings.setValue(QString("Sensitivity"), setup.sensitivity);
+  settings.setValue(QString("Curvature"), setup.curv);
+  settings.setValue(QString("StepOnly"), setup.stepOnly);
   settings.endGroup();
 }
 
@@ -91,23 +95,26 @@ float MickeysAxis::getSpeed(int sens)
   return screenMax / slewTime;
 }
 
-float MickeysAxis::response(float mag)
+float MickeysAxis::response(float mag, setup_t *s)
 {
+  if(s == NULL){
+    s = &setup;
+  }
   //deadzone 0 - 50% of the maxValue
-  float dz = 0.5 * ((float)deadZone) / 99.0f;
+  float dz = 0.5 * ((float)s->deadZone) / 99.0f;
   if(mag <= dz){
     mag = 0;
   }else{
     //here can be curve or whatever...
-    if(stepOnly){
+    if(s->stepOnly){
       mag = 1;
     }else{
       mag = (mag - dz) / (1.0 - dz);
-      if(curv < 50){
-        float c = 1.0 + ((50.0 - curv) / 50.0) * 3.0; //c = (1:4);
+      if(s->curv < 50){
+        float c = 1.0 + ((50.0 - s->curv) / 50.0) * 3.0; //c = (1:4);
         mag = expf(logf(mag) / c);
       }else{
-        float c = 1.0 + ((curv - 50.0) / 50.0) * 3.0; //c = (1:4);
+        float c = 1.0 + ((s->curv - 50.0) / 50.0) * 3.0; //c = (1:4);
         mag = expf(logf(mag) * c);
       }
     }
@@ -123,47 +130,80 @@ void MickeysAxis::step(float valX, float valY, int elapsed, float &accX, float &
   
   mag = response(mag);
   
-  accX += mag * cosf(angle) * getSpeed(sensitivity) * (elapsed / 1000.0);
-  accY += mag * sinf(angle) * getSpeed(sensitivity) * (elapsed / 1000.0);
+  accX += mag * cosf(angle) * getSpeed(setup.sensitivity) * (elapsed / 1000.0);
+  accY += mag * sinf(angle) * getSpeed(setup.sensitivity) * (elapsed / 1000.0);
 }
 
-void MickeysAxis::changeDeadZone(int dz)
-{
-  deadZone = dz;
-  updatePixmap();
-}
+//void MickeysAxis::changeDeadZone(int dz)
+//{
+//  deadZone = dz;
+//  updatePixmap();
+//}
 
-void MickeysAxis::changeSensitivity(int sens)
-{
-  sensitivity = sens;
-}
+//void MickeysAxis::changeSensitivity(int sens)
+//{
+//  sensitivity = sens;
+//}
 
 void MickeysAxis::updatePixmap()
 {
   const int pointCount = 128;
-  QPointF points[pointCount];
+  QPointF cPoints[pointCount];
+  QPointF nPoints[pointCount];
   float x;
   for(int i = 0; i < pointCount; ++i){
     x = (i / (float)(pointCount-1));
-    points[i] = QPointF(x, response(x));
+    cPoints[i] = QPointF(x, response(x, &setup));
+    nPoints[i] = QPointF(x, response(x, &newSetup));
   }
   if(curveShow != NULL){
-    curveShow->updatePixmap(points, pointCount);
+    curveShow->updatePixmap(cPoints, nPoints, pointCount);
   }
 }
 
 void MickeysAxis::on_StepOnly_stateChanged(int state)
 {
-  stepOnly = (state == Qt::Checked) ? true : false;
-  if(stepOnly){
+  newSetup.stepOnly = (state == Qt::Checked) ? true : false;
+  if(newSetup.stepOnly){
     ui.CurveSlider->setDisabled(true);
   }else{
     ui.CurveSlider->setEnabled(true);
   }
   updatePixmap();
+  emit newSettings();
 }
 
+void MickeysAxis::applySettings()
+{
+  oldSetup = setup;
+  setup = newSetup;
+  updatePixmap();
+  std::cout<<"APPLYING SETTINGS!"<<std::endl;
+  std::cout<<"DZ: "<<setup.deadZone<<std::endl;
+  std::cout<<"Sensitivity: "<<setup.sensitivity<<std::endl;
+  std::cout<<"Curvature: "<<setup.curv<<std::endl;
+  std::cout<<"StepOnly: "<<(setup.stepOnly ? "true" : "false") <<std::endl;
+}
 
+void MickeysAxis::revertSettings()
+{
+  setup = oldSetup;
+  ui.SensSlider->setValue(setup.sensitivity);
+  ui.DZSlider->setValue(setup.deadZone);
+  ui.CurveSlider->setValue(setup.curv);
+  ui.StepOnly->setCheckState(setup.stepOnly ? Qt::Checked : Qt::Unchecked);
+  if(setup.stepOnly){
+    ui.CurveSlider->setDisabled(true);
+  }else{
+    ui.CurveSlider->setEnabled(true);
+  }
+  updatePixmap();
+  std::cout<<"REVERTING SETTINGS!"<<std::endl;
+  std::cout<<"DZ: "<<setup.deadZone<<std::endl;
+  std::cout<<"Sensitivity: "<<setup.sensitivity<<std::endl;
+  std::cout<<"Curvature: "<<setup.curv<<std::endl;
+  std::cout<<"StepOnly: "<<(setup.stepOnly ? "true" : "false") <<std::endl;
+}
 
 MickeyTransform::MickeyTransform(QBoxLayout *parent) : accX(0.0), accY(0.0),
   settings("linuxtrack", "mickey"), calibrating(false), axis(parent)
@@ -173,6 +213,7 @@ MickeyTransform::MickeyTransform(QBoxLayout *parent) : accX(0.0), accY(0.0),
   maxValY = settings.value(QString("RangeY"), 130).toFloat();
   std::cout<<"Range: "<<maxValX<<", "<<maxValY<<std::endl;
   settings.endGroup();
+  QObject::connect(&axis, SIGNAL(newSettings()), this, SIGNAL(newSettings()));
 }
 
 MickeyTransform::~MickeyTransform()
@@ -252,19 +293,7 @@ void MickeyTransform::cancelCalibration()
 
 
 /*
-
-
 //Deadzone - 0 - 50%...
 //Sensitivity - normalize input, apply curve, return (-1, 1); outside - convert to speed...
 //Dependency on updte rate...
-
-
-
-static float sign(float val)
-{
-  if(val >= 0) return 1.0;
-  return -1.0;
-}
-
-
 */
