@@ -121,32 +121,6 @@
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QLabel" name="XLabel">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>X: </string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="YLabel">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Y:</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
      </layout>

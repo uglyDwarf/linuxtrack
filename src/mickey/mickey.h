@@ -126,6 +126,7 @@ class Mickey : public QWidget
   void calibrationCancelled();
   void keepSettings();
   void revertSettings();
+  void newSettings();
 };
 
 #endif
