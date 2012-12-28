@@ -31,7 +31,7 @@ class MickeysAxis : public QWidget
 {
  Q_OBJECT
  public:
-  MickeysAxis(QBoxLayout *parent = 0);
+  MickeysAxis(QSettings &s, QBoxLayout *parent = 0);
   ~MickeysAxis();
   void step(float valX, float valY, int elapsed, float &accX, float &accY);
   void applySettings();
@@ -48,7 +48,7 @@ class MickeysAxis : public QWidget
   Ui::AxisPrefs ui;
   
   setup_t oldSetup, newSetup, setup;
-  QSettings settings;
+  QSettings &settings;
   MickeyCurveShow *curveShow;
 // public slots:
 //  void redraw(){update();};
@@ -69,7 +69,7 @@ class MickeyTransform : public QObject
 {
  Q_OBJECT
  public:
-  MickeyTransform(QBoxLayout *parent = 0);
+  MickeyTransform(QSettings &s, QBoxLayout *parent = 0);
   ~MickeyTransform();
   void update(float valX, float valY, int elapsed, int &x, int &y);
   void startCalibration();
@@ -81,7 +81,7 @@ class MickeyTransform : public QObject
   void newSettings();
  private:
   float accX, accY;
-  QSettings settings;
+  QSettings &settings;
   bool calibrating;
   float maxValX, minValX, prevMaxValX, maxValY, minValY, prevMaxValY;
   MickeysAxis axis;

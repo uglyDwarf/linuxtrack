@@ -168,17 +168,37 @@ void MickeyThread::run()
   }
 }
   
-  
-Mickey::Mickey(QWidget *parent) : QWidget(parent), lbtnSwitch(Qt::Key_F11), 
+
+
+Mickey::Mickey(QWidget *parent) : QWidget(parent), lbtnSwitch(Qt::Key_F2), 
   updateTimer(this), testTimer(this), /*x("X"), y("Y"),*/
   btnThread(this), state(STANDBY), cdg(this), calDlg(cdg.window()), 
-  adg(this), aplDlg(adg.window()), recenterFlag(true)
+  adg(this), aplDlg(adg.window()), recenterFlag(true), settings("linuxtrack", "mickey")
 {
+  init = true;
   ui.setupUi(this);
   ui.ApplyButton->setEnabled(false);
-  m = new MickeyTransform(ui.PrefPane);
+  m = new MickeyTransform(settings, ui.PrefPane);
 //  onOffSwitch = new shortcut(Qt::Key_F9);
+  int tmp;
+  QString modifier, key;
+  settings.beginGroup("Shortcut");
+  modifier = settings.value(QString("Modifier"), "None").toString();
+  key = settings.value(QString("Key"), "F9").toString();
+  settings.endGroup();
+  
+  tmp = ui.ModifierCombo->findText(modifier);
+  if(tmp != -1){
+    ui.ModifierCombo->setCurrentIndex(tmp);
+  }
+  tmp = ui.KeyCombo->findText(key);
+  if(tmp != -1){
+    ui.KeyCombo->setCurrentIndex(tmp);
+  }
+  
   onOffSwitch = new shortcut(Qt::Key_F9);
+  init = false;
+  setShortcut();
   QObject::connect(onOffSwitch, SIGNAL(activated()), this, SLOT(onOffSwitch_activated()));
   QObject::connect(&lbtnSwitch, SIGNAL(activated()), &btnThread, SLOT(on_key_pressed()));
   QObject::connect(&updateTimer, SIGNAL(timeout()), this, SLOT(updateTimer_activated()));
@@ -199,6 +219,10 @@ Mickey::Mickey(QWidget *parent) : QWidget(parent), lbtnSwitch(Qt::Key_F11),
 
 Mickey::~Mickey()
 {
+  settings.beginGroup("Shortcut");
+  settings.setValue(QString("Modifier"), ui.ModifierCombo->currentText());
+  settings.setValue(QString("Key"), ui.KeyCombo->currentText());
+  settings.endGroup();
   ltr_suspend();
   updateTimer.stop();
   delete m;
@@ -224,18 +248,18 @@ void Mickey::newSettings()
 
 void Mickey::pause()
 {
-  btnThread.setFinish();
-  btnThread.wait();
+  //btnThread.setFinish();
+  //btnThread.wait();
   updateTimer.stop();
-  ltr_suspend();
+  //ltr_suspend();
 }
 
 void Mickey::wakeup()
 {
   updateTimer.start();
-  btnThread.start();
-  ltr_wakeup();
-  ltr_recenter();
+  //btnThread.start();
+  //ltr_wakeup();
+  //ltr_recenter();
 }
 
 void Mickey::startCalibration()
@@ -412,3 +436,35 @@ void Mickey::revertSettings()
   std::cout<<"Reverting settings!"<<std::endl;
   ui.ApplyButton->setEnabled(false);
 }
+
+void Mickey::setShortcut()
+{
+  if(init){
+    return;
+  }
+  QString modifier("");
+  if(ui.ModifierCombo->currentIndex() != 0){
+    modifier = ui.ModifierCombo->currentText() + QString("+");
+  }
+  modifier += ui.KeyCombo->currentText();
+  QKeySequence seq(modifier);
+  if(onOffSwitch->setShortcut(seq)){
+    std::cout<<"Shortcut OK!"<<std::endl;
+  }else{
+    std::cout<<"Shortcut not set!"<<std::endl;
+  }
+}
+
+
+void Mickey::on_ModifierCombo_currentIndexChanged(const QString &text)
+{
+  (void)text;
+  setShortcut();
+}
+
+void Mickey::on_KeyCombo_currentIndexChanged(const QString &text)
+{
+  (void)text;
+  setShortcut();
+}
+

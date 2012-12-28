@@ -50,7 +50,7 @@ void MickeyCurveShow::paintEvent(QPaintEvent * /* event */)
 
 
 
-MickeysAxis::MickeysAxis(QBoxLayout *parent) : settings("linuxtrack", "mickey"), curveShow(NULL)
+MickeysAxis::MickeysAxis(QSettings &s, QBoxLayout *parent) : settings(s), curveShow(NULL)
 {
   ui.setupUi(this);
   parent->addWidget(this);
@@ -205,8 +205,8 @@ void MickeysAxis::revertSettings()
   std::cout<<"StepOnly: "<<(setup.stepOnly ? "true" : "false") <<std::endl;
 }
 
-MickeyTransform::MickeyTransform(QBoxLayout *parent) : accX(0.0), accY(0.0),
-  settings("linuxtrack", "mickey"), calibrating(false), axis(parent)
+MickeyTransform::MickeyTransform(QSettings &s, QBoxLayout *parent) : accX(0.0), accY(0.0),
+  settings(s), calibrating(false), axis(s, parent)
 {
   settings.beginGroup("Transform");
   maxValX = settings.value(QString("RangeX"), 130).toFloat();

@@ -6,26 +6,92 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>398</width>
+    <height>428</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QLabel" name="label">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>F9 - Start/Stop tracking</string>
-     </property>
-    </widget>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Start/Stop tracking hotkey:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QComboBox" name="ModifierCombo">
+         <item>
+          <property name="text">
+           <string>None</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Ctrl</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Alt</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Shift</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Meta</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="KeyCombo">
+         <item>
+          <property name="text">
+           <string>F9</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>F11</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Pause</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Print</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Scroll Lock</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QFrame" name="PrefPaneFrame">
