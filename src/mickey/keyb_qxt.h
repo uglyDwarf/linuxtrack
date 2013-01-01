@@ -7,9 +7,9 @@ class shortcutPimpl : public QObject
 {
   Q_OBJECT
   public:
-   shortcutPimpl(const QKeySequence &s)
+   shortcutPimpl()
    {
-     sc = new QxtGlobalShortcut(s, this);
+     sc = new QxtGlobalShortcut(this);
      QObject::connect(sc, SIGNAL(activated()), this, SIGNAL(activated()));
    };
    ~shortcutPimpl(){delete sc;};

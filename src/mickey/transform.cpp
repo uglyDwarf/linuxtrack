@@ -50,43 +50,21 @@ void MickeyCurveShow::paintEvent(QPaintEvent * /* event */)
 
 
 
-MickeysAxis::MickeysAxis(QSettings &s, QBoxLayout *parent) : settings(s), curveShow(NULL)
+MickeysAxis::MickeysAxis(): curveShow(NULL)
 {
-  ui.setupUi(this);
-  parent->addWidget(this);
   curveShow = new MickeyCurveShow();
-  ui.PrefLayout->addWidget(curveShow);
+  GUI.getAxisViewLayout()->addWidget(curveShow);
   QObject::connect(curveShow, SIGNAL(resized()), this, SLOT(curveShow_resized()));
-  settings.beginGroup("Axes");
-  setup.deadZone = settings.value(QString("DeadZone"), 20).toInt();
-  setup.sensitivity = settings.value(QString("Sensitivity"), 50).toInt();
-  setup.curv = settings.value(QString("Curvature"), 50).toInt();
-  setup.stepOnly = settings.value(QString("StepOnly"), false).toBool();
+  QObject::connect(&GUI, SIGNAL(axisChanged()), this, SLOT(axisChanged()));
+  setup.sensitivity = GUI.getSensitivity();
+  setup.deadzone = GUI.getDeadzone();
+  setup.curvature= GUI.getCurvature();
+  setup.stepOnly = GUI.getStepOnly();
   newSetup = setup;
-  ui.SensSlider->setValue(setup.sensitivity);
-  ui.DZSlider->setValue(setup.deadZone);
-  ui.CurveSlider->setValue(setup.curv);
-  ui.StepOnly->setCheckState(setup.stepOnly ? Qt::Checked : Qt::Unchecked);
-  if(setup.stepOnly){
-    ui.CurveSlider->setDisabled(true);
-  }else{
-    ui.CurveSlider->setEnabled(true);
-  }
-  std::cout<<"DZ: "<<setup.deadZone<<std::endl;
-  std::cout<<"Sensitivity: "<<setup.sensitivity<<std::endl;
-  std::cout<<"Curvature: "<<setup.curv<<std::endl;
-  std::cout<<"StepOnly: "<<(setup.stepOnly ? "true" : "false") <<std::endl;
-  settings.endGroup();
 }
 
 MickeysAxis::~MickeysAxis()
 {
-  settings.beginGroup("Axes");
-  settings.setValue(QString("DeadZone"), setup.deadZone);
-  settings.setValue(QString("Sensitivity"), setup.sensitivity);
-  settings.setValue(QString("Curvature"), setup.curv);
-  settings.setValue(QString("StepOnly"), setup.stepOnly);
-  settings.endGroup();
 }
 
 float MickeysAxis::getSpeed(int sens)
@@ -101,7 +79,7 @@ float MickeysAxis::response(float mag, setup_t *s)
     s = &setup;
   }
   //deadzone 0 - 50% of the maxValue
-  float dz = 0.5 * ((float)s->deadZone) / 99.0f;
+  float dz = 0.5 * ((float)s->deadzone) / 99.0f;
   if(mag <= dz){
     mag = 0;
   }else{
@@ -110,11 +88,11 @@ float MickeysAxis::response(float mag, setup_t *s)
       mag = 1;
     }else{
       mag = (mag - dz) / (1.0 - dz);
-      if(s->curv < 50){
-        float c = 1.0 + ((50.0 - s->curv) / 50.0) * 3.0; //c = (1:4);
+      if(s->curvature < 50){
+        float c = 1.0 + ((50.0 - s->curvature) / 50.0) * 3.0; //c = (1:4);
         mag = expf(logf(mag) / c);
       }else{
-        float c = 1.0 + ((s->curv - 50.0) / 50.0) * 3.0; //c = (1:4);
+        float c = 1.0 + ((s->curvature - 50.0) / 50.0) * 3.0; //c = (1:4);
         mag = expf(logf(mag) * c);
       }
     }
@@ -134,17 +112,6 @@ void MickeysAxis::step(float valX, float valY, int elapsed, float &accX, float &
   accY += mag * sinf(angle) * getSpeed(setup.sensitivity) * (elapsed / 1000.0);
 }
 
-//void MickeysAxis::changeDeadZone(int dz)
-//{
-//  deadZone = dz;
-//  updatePixmap();
-//}
-
-//void MickeysAxis::changeSensitivity(int sens)
-//{
-//  sensitivity = sens;
-//}
-
 void MickeysAxis::updatePixmap()
 {
   const int pointCount = 128;
@@ -161,16 +128,12 @@ void MickeysAxis::updatePixmap()
   }
 }
 
-void MickeysAxis::on_StepOnly_stateChanged(int state)
-{
-  newSetup.stepOnly = (state == Qt::Checked) ? true : false;
-  if(newSetup.stepOnly){
-    ui.CurveSlider->setDisabled(true);
-  }else{
-    ui.CurveSlider->setEnabled(true);
-  }
+void MickeysAxis::axisChanged(){
+  newSetup.sensitivity = GUI.getSensitivity();
+  newSetup.deadzone = GUI.getDeadzone();
+  newSetup.curvature= GUI.getCurvature();
+  newSetup.stepOnly = GUI.getStepOnly();
   updatePixmap();
-  emit newSettings();
 }
 
 void MickeysAxis::applySettings()
@@ -178,50 +141,25 @@ void MickeysAxis::applySettings()
   oldSetup = setup;
   setup = newSetup;
   updatePixmap();
-  std::cout<<"APPLYING SETTINGS!"<<std::endl;
-  std::cout<<"DZ: "<<setup.deadZone<<std::endl;
-  std::cout<<"Sensitivity: "<<setup.sensitivity<<std::endl;
-  std::cout<<"Curvature: "<<setup.curv<<std::endl;
-  std::cout<<"StepOnly: "<<(setup.stepOnly ? "true" : "false") <<std::endl;
 }
 
 void MickeysAxis::revertSettings()
 {
   setup = oldSetup;
-  ui.SensSlider->setValue(setup.sensitivity);
-  ui.DZSlider->setValue(setup.deadZone);
-  ui.CurveSlider->setValue(setup.curv);
-  ui.StepOnly->setCheckState(setup.stepOnly ? Qt::Checked : Qt::Unchecked);
-  if(setup.stepOnly){
-    ui.CurveSlider->setDisabled(true);
-  }else{
-    ui.CurveSlider->setEnabled(true);
-  }
+  GUI.setSensitivity(setup.sensitivity);
+  GUI.setDeadzone(setup.deadzone);
+  GUI.setCurvature(setup.curvature);
+  GUI.setStepOnly(setup.stepOnly);
   updatePixmap();
-  std::cout<<"REVERTING SETTINGS!"<<std::endl;
-  std::cout<<"DZ: "<<setup.deadZone<<std::endl;
-  std::cout<<"Sensitivity: "<<setup.sensitivity<<std::endl;
-  std::cout<<"Curvature: "<<setup.curv<<std::endl;
-  std::cout<<"StepOnly: "<<(setup.stepOnly ? "true" : "false") <<std::endl;
 }
 
-MickeyTransform::MickeyTransform(QSettings &s, QBoxLayout *parent) : accX(0.0), accY(0.0),
-  settings(s), calibrating(false), axis(s, parent)
+MickeyTransform::MickeyTransform() : accX(0.0), accY(0.0), calibrating(false), axis()
 {
-  settings.beginGroup("Transform");
-  maxValX = settings.value(QString("RangeX"), 130).toFloat();
-  maxValY = settings.value(QString("RangeY"), 130).toFloat();
-  std::cout<<"Range: "<<maxValX<<", "<<maxValY<<std::endl;
-  settings.endGroup();
-  QObject::connect(&axis, SIGNAL(newSettings()), this, SIGNAL(newSettings()));
+  GUI.getMaxVal(maxValX, maxValY);
 }
 
 MickeyTransform::~MickeyTransform()
 {
-  settings.beginGroup("Transform");
-  settings.setValue(QString("RangeX"), maxValX);
-  settings.setValue(QString("RangeY"), maxValY);
-  settings.endGroup();
 }
 
 static float norm(float val)
@@ -258,10 +196,8 @@ void MickeyTransform::update(float valX, float valY, int elapsed, int &x, int &y
 void MickeyTransform::startCalibration()
 {
   calibrating = true;
-  prevMaxValX = maxValX;
   maxValX = 0.0f;
   minValX = 0.0f;
-  prevMaxValY = maxValY;
   maxValY = 0.0f;
   minValY = 0.0f;
 }
@@ -278,19 +214,14 @@ void MickeyTransform::finishCalibration()
   //  range in both directions (limit the bigger).
   maxValX = (minValX > maxValX)? maxValX: minValX;
   maxValY = (minValY > maxValY)? maxValY: minValY;
+  GUI.setMaxVal(maxValX, maxValY);
 }
 
 void MickeyTransform::cancelCalibration()
 {
   calibrating = false;
-  maxValX = prevMaxValX;
-  maxValY = prevMaxValY;
+  GUI.getMaxVal(maxValX, maxValY);
 }
-
-
-
-
-
 
 /*
 //Deadzone - 0 - 50%...
