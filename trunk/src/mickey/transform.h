@@ -6,7 +6,7 @@
 #include <QSettings>
 #include <QPixmap>
 
-#include "ui_pref.h"
+#include "mickey.h"
 
 class MickeyCurveShow : public QWidget
 {
@@ -23,42 +23,31 @@ class MickeyCurveShow : public QWidget
 };
 
 typedef struct {
-  int sensitivity, deadZone, curv;
+  int sensitivity, deadzone, curvature;
   bool stepOnly;
 } setup_t;
 
-class MickeysAxis : public QWidget
+class MickeysAxis : public QObject
 {
  Q_OBJECT
  public:
-  MickeysAxis(QSettings &s, QBoxLayout *parent = 0);
+  MickeysAxis();
   ~MickeysAxis();
   void step(float valX, float valY, int elapsed, float &accX, float &accY);
   void applySettings();
   void revertSettings();
  private:
+  int sensitivity;
   float response(float mag, setup_t *s = NULL);
-  int getDeadZone(){return setup.deadZone;};
-  int getSensitivity(){return setup.sensitivity;};
-  //void changeDeadZone(int dz);
-  //void changeSensitivity(int sens);
   float getSpeed(int sens);
   void updatePixmap();
   
-  Ui::AxisPrefs ui;
-  
   setup_t oldSetup, newSetup, setup;
-  QSettings &settings;
   MickeyCurveShow *curveShow;
 // public slots:
 //  void redraw(){update();};
  private slots:
-  void on_SensSlider_valueChanged(int val){newSetup.sensitivity = val;emit newSettings();};
-  void on_DZSlider_valueChanged(int val)
-    {newSetup.deadZone = val; updatePixmap();emit newSettings();};
-  void on_CurveSlider_valueChanged(int val)
-    {newSetup.curv = val; updatePixmap();emit newSettings();};
-  void on_StepOnly_stateChanged(int state);
+  void axisChanged();
   void curveShow_resized(){updatePixmap();};
  signals:
   void newSettings();
@@ -69,7 +58,7 @@ class MickeyTransform : public QObject
 {
  Q_OBJECT
  public:
-  MickeyTransform(QSettings &s, QBoxLayout *parent = 0);
+  MickeyTransform();
   ~MickeyTransform();
   void update(float valX, float valY, int elapsed, int &x, int &y);
   void startCalibration();
@@ -77,13 +66,10 @@ class MickeyTransform : public QObject
   void cancelCalibration();
   void applySettings(){axis.applySettings();};
   void revertSettings(){axis.revertSettings();};
- signals:
-  void newSettings();
  private:
   float accX, accY;
-  QSettings &settings;
   bool calibrating;
-  float maxValX, minValX, prevMaxValX, maxValY, minValY, prevMaxValY;
+  float maxValX, minValX, maxValY, minValY;
   MickeysAxis axis;
 };
 

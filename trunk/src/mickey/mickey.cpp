@@ -6,6 +6,7 @@
 #include "linuxtrack.h"
 #include "piper.h"
 #include "math_utils.h"
+#include "transform.h"
 #include <iostream>
 
 
@@ -13,6 +14,7 @@
 const int settleTime = 2000; //2 seconds
 
 QMutex MickeyUinput::mutex;
+
 
 MickeyApplyDialog::MickeyApplyDialog(QWidget *parent) : QWidget(parent)
 {
@@ -170,44 +172,19 @@ void MickeyThread::run()
   
 
 
-Mickey::Mickey(QWidget *parent) : QWidget(parent), lbtnSwitch(Qt::Key_F2), 
-  updateTimer(this), testTimer(this), /*x("X"), y("Y"),*/
-  btnThread(this), state(STANDBY), cdg(this), calDlg(cdg.window()), 
-  adg(this), aplDlg(adg.window()), recenterFlag(true), settings("linuxtrack", "mickey")
+Mickey::Mickey() : updateTimer(this), btnThread(this), state(STANDBY), cdg(&GUI), 
+  calDlg(cdg.window()), adg(&GUI), aplDlg(adg.window()), recenterFlag(true)
 {
-  init = true;
-  ui.setupUi(this);
-  ui.ApplyButton->setEnabled(false);
-  m = new MickeyTransform(settings, ui.PrefPane);
-//  onOffSwitch = new shortcut(Qt::Key_F9);
-  int tmp;
-  QString modifier, key;
-  settings.beginGroup("Shortcut");
-  modifier = settings.value(QString("Modifier"), "None").toString();
-  key = settings.value(QString("Key"), "F9").toString();
-  settings.endGroup();
-  
-  tmp = ui.ModifierCombo->findText(modifier);
-  if(tmp != -1){
-    ui.ModifierCombo->setCurrentIndex(tmp);
-  }
-  tmp = ui.KeyCombo->findText(key);
-  if(tmp != -1){
-    ui.KeyCombo->setCurrentIndex(tmp);
-  }
-  
-  onOffSwitch = new shortcut(Qt::Key_F9);
-  init = false;
-  setShortcut();
+  trans = new MickeyTransform();
+  onOffSwitch = new shortcut();
   QObject::connect(onOffSwitch, SIGNAL(activated()), this, SLOT(onOffSwitch_activated()));
-  QObject::connect(&lbtnSwitch, SIGNAL(activated()), &btnThread, SLOT(on_key_pressed()));
+  //QObject::connect(&lbtnSwitch, SIGNAL(activated()), &btnThread, SLOT(on_key_pressed()));
   QObject::connect(&updateTimer, SIGNAL(timeout()), this, SLOT(updateTimer_activated()));
   QObject::connect(&btnThread, SIGNAL(clicked()), this, SLOT(threadClicked()));
   QObject::connect(&calDlg, SIGNAL(nextClicked()), this, SLOT(threadClicked()));
   QObject::connect(&calDlg, SIGNAL(cancelClicked()), this, SLOT(calibrationCancelled()));
   QObject::connect(&aplDlg, SIGNAL(keep()), this, SLOT(keepSettings()));
   QObject::connect(&aplDlg, SIGNAL(revert()), this, SLOT(revertSettings()));
-  QObject::connect(m, SIGNAL(newSettings()), this, SLOT(newSettings()));
   if(!uinput.init()){
     exit(1);
   }
@@ -219,32 +196,23 @@ Mickey::Mickey(QWidget *parent) : QWidget(parent), lbtnSwitch(Qt::Key_F2),
 
 Mickey::~Mickey()
 {
-  settings.beginGroup("Shortcut");
-  settings.setValue(QString("Modifier"), ui.ModifierCombo->currentText());
-  settings.setValue(QString("Key"), ui.KeyCombo->currentText());
-  settings.endGroup();
   ltr_suspend();
   updateTimer.stop();
-  delete m;
-  m = NULL;
+  delete trans;
+  trans = NULL;
 }
 
-void Mickey::on_CalibrateButton_pressed()
+void Mickey::applySettings()
 {
-  changeState(CALIBRATING);
-}
-
-void Mickey::on_ApplyButton_pressed()
-{
-  std::cout<<"Apply button pressed!"<<std::endl;
   aplDlg.trySettings();
-  m->applySettings();
+  trans->applySettings();
 }
 
-void Mickey::newSettings()
+void Mickey::revertSettings()
 {
-  ui.ApplyButton->setEnabled(true);
+  trans->revertSettings();
 }
+
 
 void Mickey::pause()
 {
@@ -320,13 +288,13 @@ void Mickey::changeState(state_t newState)
   state = newState;
   switch(newState){
     case TRACKING:
-      ui.StatusLabel->setText("Tracking");
+      GUI.setStatusLabel("Tracking");
       break;
     case CALIBRATING:
-      ui.StatusLabel->setText("Calibrating");
+      GUI.setStatusLabel("Calibrating");
       break;
     case STANDBY:
-      ui.StatusLabel->setText("Paused");
+      GUI.setStatusLabel("Paused");
       break;
   }
 }
@@ -379,7 +347,7 @@ void Mickey::updateTimer_activated()
   updateElapsed.restart();
   //reversing signs to get the cursor move according to the head movement
   int dx, dy;
-  m->update(heading_p, pitch_p, elapsed, dx, dy);
+  trans->update(heading_p, pitch_p, elapsed, dx, dy);
   if(state == TRACKING){
     uinput.mouseMove(dx, dy);
   }
@@ -394,12 +362,12 @@ void Mickey::threadClicked()
         std::cout<<"Centering..."<<std::endl;
         ltr_recenter();
         calState = CALIBRATE;
-        m->startCalibration();
+        trans->startCalibration();
         calDlg.setText((char *)"Move your head to all extremes...");
         break;
       case CALIBRATE:
         std::cout<<"Calibration finished..."<<std::endl;
-        m->finishCalibration();
+        trans->finishCalibration();
         changeState(TRACKING);
         cdg.hide();
         break;
@@ -417,29 +385,134 @@ void Mickey::threadClicked()
 void Mickey::calibrationCancelled()
 {
   if(state == CALIBRATING){
-    m->cancelCalibration();
+    trans->cancelCalibration();
     cdg.hide();
     calState = CENTER;
     changeState(TRACKING);
   }
 }
 
-void Mickey::keepSettings()
+
+
+MickeyGUI *MickeyGUI::instance = NULL;
+
+MickeyGUI &MickeyGUI::getInstance()
 {
-  std::cout<<"Keeping settings!"<<std::endl;
-  ui.ApplyButton->setEnabled(false);
+  if(instance == NULL){
+    instance = new MickeyGUI();
+    instance->init();
+  }
+  return *instance;
 }
 
-void Mickey::revertSettings()
+MickeyGUI::MickeyGUI(QWidget *parent) : QWidget(parent), mickey(NULL), 
+  settings("linuxtrack", "mickey")
 {
-  m->revertSettings();
-  std::cout<<"Reverting settings!"<<std::endl;
+  ui.setupUi(this);
+  readPrefs();
   ui.ApplyButton->setEnabled(false);
+  //mickey = new Mickey();
 }
 
-void Mickey::setShortcut()
+MickeyGUI::~MickeyGUI()
 {
-  if(init){
+  delete mickey;
+  storePrefs();
+}
+
+void MickeyGUI::readPrefs()
+{
+  //Read hotkey setup
+  int tmp;
+  QString modifier, key;
+  
+  settings.beginGroup("Shortcut");
+  modifier = settings.value(QString("Modifier"), "None").toString();
+  key = settings.value(QString("Key"), "F9").toString();
+  settings.endGroup();
+  
+  tmp = ui.ModifierCombo->findText(modifier);
+  if(tmp != -1){
+    ui.ModifierCombo->setCurrentIndex(tmp);
+  }
+  tmp = ui.KeyCombo->findText(key);
+  if(tmp != -1){
+    ui.KeyCombo->setCurrentIndex(tmp);
+  }
+  
+  //Axes setup
+  settings.beginGroup("Axes");
+  deadzone = settings.value(QString("DeadZone"), 20).toInt();
+  sensitivity = settings.value(QString("Sensitivity"), 50).toInt();
+  curvature = settings.value(QString("Curvature"), 50).toInt();
+  stepOnly = settings.value(QString("StepOnly"), false).toBool();
+  ui.SensSlider->setValue(sensitivity);
+  ui.DZSlider->setValue(deadzone);
+  ui.CurveSlider->setValue(curvature);
+  ui.StepOnly->setCheckState(stepOnly ? Qt::Checked : Qt::Unchecked);
+  if(stepOnly){
+    ui.CurveSlider->setDisabled(true);
+  }else{
+    ui.CurveSlider->setEnabled(true);
+  }
+  settings.endGroup();
+  
+  //trans setup
+  settings.beginGroup("Transform");
+  maxValX = settings.value(QString("RangeX"), 130).toFloat();
+  maxValY = settings.value(QString("RangeY"), 130).toFloat();
+  settings.endGroup();
+}
+
+void MickeyGUI::storePrefs()
+{
+  //Store hotkey setup
+  settings.beginGroup("Shortcut");
+  settings.setValue(QString("Modifier"), ui.ModifierCombo->currentText());
+  settings.setValue(QString("Key"), ui.KeyCombo->currentText());
+  settings.endGroup();
+  
+  //Axes setup
+  settings.beginGroup("Axes");
+  settings.setValue(QString("DeadZone"), deadzone);
+  settings.setValue(QString("Sensitivity"), sensitivity);
+  settings.setValue(QString("Curvature"), curvature);
+  settings.setValue(QString("StepOnly"), stepOnly);
+  settings.endGroup();
+  
+  //trans setup
+  settings.beginGroup("Transform");
+  settings.setValue(QString("RangeX"), maxValX);
+  settings.setValue(QString("RangeY"), maxValY);
+  settings.endGroup();
+}
+
+void MickeyGUI::setStepOnly(bool value)
+{
+  stepOnly = value;
+  ui.StepOnly->setCheckState(stepOnly ? Qt::Checked : Qt::Unchecked);
+  if(stepOnly){
+    ui.CurveSlider->setDisabled(true);
+  }else{
+    ui.CurveSlider->setEnabled(true);
+  }
+}
+
+void MickeyGUI::on_StepOnly_stateChanged(int state)
+{
+  stepOnly = (state == Qt::Checked); 
+  if(stepOnly){
+    ui.CurveSlider->setDisabled(true);
+  }else{
+    ui.CurveSlider->setEnabled(true);
+  }
+  emit axisChanged();
+  ui.ApplyButton->setEnabled(true);
+}
+
+void MickeyGUI::getShortcut()
+{
+  if(mickey == NULL){
     return;
   }
   QString modifier("");
@@ -448,23 +521,9 @@ void Mickey::setShortcut()
   }
   modifier += ui.KeyCombo->currentText();
   QKeySequence seq(modifier);
-  if(onOffSwitch->setShortcut(seq)){
+  if(mickey->setShortcut(seq)){
     std::cout<<"Shortcut OK!"<<std::endl;
   }else{
     std::cout<<"Shortcut not set!"<<std::endl;
   }
 }
-
-
-void Mickey::on_ModifierCombo_currentIndexChanged(const QString &text)
-{
-  (void)text;
-  setShortcut();
-}
-
-void Mickey::on_KeyCombo_currentIndexChanged(const QString &text)
-{
-  (void)text;
-  setShortcut();
-}
-

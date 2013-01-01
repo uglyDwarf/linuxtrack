@@ -13,7 +13,6 @@
      setlocale(LC_ALL, "C");
      QLocale::setDefault(QLocale::c());
      QApplication app(argc, argv);
-     Mickey win;
-     win.show();
+     GUI.show();
      return app.exec();
  }
