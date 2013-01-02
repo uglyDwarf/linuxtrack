@@ -16,31 +16,41 @@ const int settleTime = 2000; //2 seconds
 QMutex MickeyUinput::mutex;
 
 
-MickeyApplyDialog::MickeyApplyDialog(QWidget *parent) : QWidget(parent)
+MickeyApplyDialog::MickeyApplyDialog()
 {
   ui.setupUi(this);
   timer.setSingleShot(false);
   QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(timeout()));
+  setModal(true);
 }
+
+void MickeyApplyDialog::closeEvent(QCloseEvent *event)
+{
+  timer.stop();
+  emit keep();
+  QDialog::closeEvent(event);
+}
+
 
 void MickeyApplyDialog::trySettings()
 {
   timer.start(1000);
   cntr = 15;
   ui.FBString->setText(QString("Will automatically revert back in %1 seconds...").arg(cntr));
-  window()->show();
-  window()->raise();
-  window()->activateWindow();
+  show();
+  raise();
+  activateWindow();
   std::cout<<"trying settings!"<<std::endl;
 }
 
 void MickeyApplyDialog::timeout()
 {
+  std::cout<<"Apl timeout!"<<std::endl;
   --cntr;
   if(cntr == 0){
     timer.stop();
     emit revert();
-    window()->hide();
+    hide();
   }else{
     ui.FBString->setText(QString("Will automatically revert back in %1 seconds...").arg(cntr));
   }
@@ -51,7 +61,7 @@ void MickeyApplyDialog::on_RevertButton_pressed()
   timer.stop();
   std::cout<<"Reverting..."<<std::endl;
   emit revert();
-  window()->hide();
+  hide();
 }
 
 void MickeyApplyDialog::on_KeepButton_pressed()
@@ -59,16 +69,104 @@ void MickeyApplyDialog::on_KeepButton_pressed()
   timer.stop();
   std::cout<<"Keeping..."<<std::endl;
   emit keep();
-  window()->hide();
+  hide();
 }
 
-MickeyCalibration::MickeyCalibration(QWidget *parent): QWidget(parent)
+MickeyCalibration::MickeyCalibration()
 {
   ui.setupUi(this);
-  QObject::connect(ui.NextButton, SIGNAL(pressed()), this, SIGNAL(nextClicked()));
-  QObject::connect(ui.CancelButton, SIGNAL(pressed()), this, SIGNAL(cancelClicked()));
+  timer.setSingleShot(false);
+  QObject::connect(ui.CancelButton, SIGNAL(pressed()), this, SLOT(cancelPressed()));
+  QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(timeout()));
+  setModal(true);
 }
 
+void MickeyCalibration::closeEvent(QCloseEvent *event)
+{
+  cancelPressed();
+  QDialog::closeEvent(event);
+}
+
+/*
+void MickeyCalibration::hide()
+{
+  std::cout<<"Hide called!"<<std::endl;
+  timer.stop();
+  if(calState == CALIBRATE){
+    emit cancelCalibration();
+  }
+  QWidget::hide();
+}
+*/
+void MickeyCalibration::calibrate()
+{
+  timer.start(1000);
+  calState = CENTER;
+  cntr = GUI.getCntrDelay() + 1;
+  timeout();
+  window()->show();
+  window()->raise();
+  window()->activateWindow();
+}
+
+void MickeyCalibration::recenter()
+{
+  timer.start(1000);
+  calState = CENTER_ONLY;
+  cntr = GUI.getCntrDelay() + 1;// +1 - compensation for first increment in timeout()
+  timeout();
+  window()->show();
+  window()->raise();
+  window()->activateWindow();
+}
+
+void MickeyCalibration::cancelPressed()
+{
+  timer.stop();
+  if(calState == CALIBRATE){
+    emit cancelCalibration(true);
+  }else{
+    emit cancelCalibration(false);
+  }
+  hide();
+}
+
+void MickeyCalibration::timeout()
+{
+  std::cout<<"timer!"<<std::endl;
+  --cntr;
+  if(cntr == 0){
+    switch(calState){
+      case CENTER_ONLY:
+        timer.stop();
+        emit recenterNow(true);
+        window()->hide();
+        break;
+      case CENTER:
+        emit recenterNow(false);
+        emit startCalibration();
+        calState = CALIBRATE;
+        cntr = GUI.getCalDelay();
+        break;
+      case CALIBRATE:
+        timer.stop();
+        emit finishCalibration();
+        window()->hide();
+        break;
+    }
+  }
+    switch(calState){
+      case CENTER:
+      case CENTER_ONLY:
+        ui.CalibrationText->setText(QString("Please center your head and sight."));
+        ui.FBString->setText(QString("Center position will be recorded in %1 seconds...").arg(cntr));
+        break;
+      case CALIBRATE:
+        ui.CalibrationText->setText(QString("Please move your head to left/right and up/down extremes."));
+        ui.FBString->setText(QString("Calibration will end in %1 seconds...").arg(cntr));
+        break;
+    }
+}
 
 MickeyUinput::MickeyUinput() : fd(-1)
 {
@@ -120,13 +218,7 @@ MickeyThread::MickeyThread(Mickey *p) : QThread(p), fifo(-1), finish(false), par
 void MickeyThread::processClick(sn4_btn_event_t ev)
 {
   std::cout<<"Processing click! ("<<(int)ev.btns<<")"<<std::endl;
-  //static int cal_off;
-  state_t state = parent.getState();
-  if(state == TRACKING){
     uinput.mouseClick(ev);
-  }else if(state == CALIBRATING){
-    emit clicked();
-  }
 }
 
 //emulate mouse button press using keyboard
@@ -172,19 +264,23 @@ void MickeyThread::run()
   
 
 
-Mickey::Mickey() : updateTimer(this), btnThread(this), state(STANDBY), cdg(&GUI), 
-  calDlg(cdg.window()), adg(&GUI), aplDlg(adg.window()), recenterFlag(true)
+Mickey::Mickey() : updateTimer(this), btnThread(this), state(STANDBY), 
+  calDlg(), aplDlg(), recenterFlag(true)
 {
   trans = new MickeyTransform();
   onOffSwitch = new shortcut();
   QObject::connect(onOffSwitch, SIGNAL(activated()), this, SLOT(onOffSwitch_activated()));
   //QObject::connect(&lbtnSwitch, SIGNAL(activated()), &btnThread, SLOT(on_key_pressed()));
   QObject::connect(&updateTimer, SIGNAL(timeout()), this, SLOT(updateTimer_activated()));
-  QObject::connect(&btnThread, SIGNAL(clicked()), this, SLOT(threadClicked()));
-  QObject::connect(&calDlg, SIGNAL(nextClicked()), this, SLOT(threadClicked()));
-  QObject::connect(&calDlg, SIGNAL(cancelClicked()), this, SLOT(calibrationCancelled()));
+//  QObject::connect(&btnThread, SIGNAL(clicked()), this, SLOT(threadClicked()));
   QObject::connect(&aplDlg, SIGNAL(keep()), this, SLOT(keepSettings()));
   QObject::connect(&aplDlg, SIGNAL(revert()), this, SLOT(revertSettings()));
+
+  QObject::connect(&calDlg, SIGNAL(recenterNow()), this, SLOT(recenterNow()));
+  QObject::connect(&calDlg, SIGNAL(startCalibration()), this, SLOT(startCalibration()));
+  QObject::connect(&calDlg, SIGNAL(finishCalibration()), this, SLOT(finishCalibration()));
+  QObject::connect(&calDlg, SIGNAL(cancelCalibration()), this, SLOT(cancelCalibration()));
+  
   if(!uinput.init()){
     exit(1);
   }
@@ -230,14 +326,18 @@ void Mickey::wakeup()
   //ltr_recenter();
 }
 
-void Mickey::startCalibration()
+void Mickey::calibrate()
 {
-  cdg.show();
-  cdg.raise();
-  cdg.activateWindow();
-  calDlg.setText((char *)"Center your view and press a button...");
-  calState = CENTER;
+  changeState(CALIBRATING);
+  calDlg.calibrate();
 }
+
+void Mickey::recenter()
+{
+  changeState(CALIBRATING);
+  calDlg.recenter();
+}
+
 
 void Mickey::changeState(state_t newState)
 {
@@ -272,7 +372,7 @@ void Mickey::changeState(state_t newState)
     case CALIBRATING:
       switch(newState){
         case TRACKING:
-          cdg.hide();
+          //calDlg.hide();
           //just continue...
           break;
         case STANDBY:
@@ -353,6 +453,7 @@ void Mickey::updateTimer_activated()
   }
 }
 
+/*
 void Mickey::threadClicked()
 {
   std::cout<<"thread clicked!!!"<<state<<":"<<calState<<std::endl;
@@ -381,18 +482,25 @@ void Mickey::threadClicked()
     changeState(TRACKING);
   }
 }
+*/
 
-void Mickey::calibrationCancelled()
+void Mickey::startCalibration()
 {
-  if(state == CALIBRATING){
-    trans->cancelCalibration();
-    cdg.hide();
-    calState = CENTER;
-    changeState(TRACKING);
-  }
+  trans->startCalibration();
 }
 
+void Mickey::finishCalibration()
+{
+  trans->finishCalibration();
+}
 
+void Mickey::cancelCalibration(bool calStarted)
+{
+  if(calStarted){
+    trans->cancelCalibration();
+  }
+  changeState(TRACKING);
+}
 
 MickeyGUI *MickeyGUI::instance = NULL;
 
@@ -403,6 +511,15 @@ MickeyGUI &MickeyGUI::getInstance()
     instance->init();
   }
   return *instance;
+}
+
+void MickeyGUI::deleteInstance()
+{
+  if(instance != NULL){
+    MickeyGUI *tmp = instance;
+    instance = NULL;
+    delete tmp;
+  }
 }
 
 MickeyGUI::MickeyGUI(QWidget *parent) : QWidget(parent), mickey(NULL), 
@@ -417,7 +534,6 @@ MickeyGUI::MickeyGUI(QWidget *parent) : QWidget(parent), mickey(NULL),
 MickeyGUI::~MickeyGUI()
 {
   delete mickey;
-  storePrefs();
 }
 
 void MickeyGUI::readPrefs()
@@ -462,6 +578,14 @@ void MickeyGUI::readPrefs()
   maxValX = settings.value(QString("RangeX"), 130).toFloat();
   maxValY = settings.value(QString("RangeY"), 130).toFloat();
   settings.endGroup();
+  
+  //calibration setup
+  settings.beginGroup("Calibration");
+  calDelay = settings.value(QString("CalibrationDelay"), 10).toInt();
+  cntrDelay = settings.value(QString("CenteringDelay"), 10).toInt();
+  settings.endGroup();
+  ui.CalibrationTimeout->setValue(calDelay);
+  ui.CenterTimeout->setValue(cntrDelay);
 }
 
 void MickeyGUI::storePrefs()
@@ -484,6 +608,12 @@ void MickeyGUI::storePrefs()
   settings.beginGroup("Transform");
   settings.setValue(QString("RangeX"), maxValX);
   settings.setValue(QString("RangeY"), maxValY);
+  settings.endGroup();
+
+  //calibration setup
+  settings.beginGroup("Calibration");
+  settings.setValue(QString("CalibrationDelay"), calDelay);
+  settings.setValue(QString("CenteringDelay"), cntrDelay);
   settings.endGroup();
 }
 
@@ -526,4 +656,10 @@ void MickeyGUI::getShortcut()
   }else{
     std::cout<<"Shortcut not set!"<<std::endl;
   }
+}
+
+void MickeyGUI::closeEvent(QCloseEvent *event)
+{
+  storePrefs();
+  QWidget::closeEvent(event);
 }
