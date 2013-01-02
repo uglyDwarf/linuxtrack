@@ -8,18 +8,33 @@
 #include <QTimer>
 #include <QSettings>
 #include <QDialog>
+#include <QCloseEvent>
+#include <QVBoxLayout>
 #include "ui_mickey.h"
 #include "ui_calibration.h"
 #include "ui_chsettings.h"
+#include "linuxtrack.h"
 #include "keyb.h"
 #include "sn4_com.h"
 
-
-class MickeyApplyDialog: public QWidget
+/*
+class MickeyDialog: public QDialog
 {
  Q_OBJECT
  public:
-  MickeyApplyDialog(QWidget *parent = 0);
+  MickeyDialog(){};
+ signals:
+  void closing();
+ protected:
+  virtual void closeEvent(QCloseEvent *event){emit closing(); QDialog::closeEvent(event);};
+};
+*/
+
+class MickeyApplyDialog: public QDialog
+{
+ Q_OBJECT
+ public:
+  MickeyApplyDialog();
   void trySettings();
  private slots:
   void on_RevertButton_pressed();
@@ -32,23 +47,34 @@ class MickeyApplyDialog: public QWidget
   Ui::AcceptSettings ui;
   QTimer timer;
   int cntr;
+  virtual void closeEvent(QCloseEvent *event);
 };
 
 
-class MickeyCalibration : public QWidget
+class MickeyCalibration : public QDialog
 {
  Q_OBJECT
  public:
-  MickeyCalibration(QWidget *parent = 0);
+  MickeyCalibration();
   void setText(const QString &s){ui.CalibrationText->setText(s);};
+  void calibrate();
+  void recenter();
  private:
   Ui::Calibration ui;
+  QTimer timer;
+  int cntr;
+  enum {CENTER, CALIBRATE, CENTER_ONLY} calState;
+  virtual void closeEvent(QCloseEvent *event);
+ private slots:
+  void timeout();
+  void cancelPressed();
  signals:
-  void nextClicked();
-  void cancelClicked();
+  void recenterNow(bool leave);
+  void startCalibration();
+  void finishCalibration();
+  void cancelCalibration(bool calStarted);
 };
 
-typedef enum {CENTER, CALIBRATE} cal_state_t;
 typedef enum {TRACKING, STANDBY, CALIBRATING} state_t;
 
 class MickeyUinput
@@ -98,8 +124,8 @@ class Mickey : public QObject
   ~Mickey();
   state_t getState() const{return state;};
   void applySettings();
-  void recenter(){/* for now */};
-  void calibrate(){changeState(CALIBRATING);};
+  void recenter();
+  void calibrate();
   bool setShortcut(QKeySequence seq){return onOffSwitch->setShortcut(seq);};
  private:
   shortcut *onOffSwitch;
@@ -107,14 +133,10 @@ class Mickey : public QObject
   MickeyTransform *trans;
   MickeyThread btnThread;
   state_t state;
-  cal_state_t calState;
   void pause();
   void wakeup();
-  void startCalibration();
   void changeState(state_t state);
-  QDialog cdg;
   MickeyCalibration calDlg;
-  QDialog adg;
   MickeyApplyDialog aplDlg;
   QTime initTimer;
   QTime updateElapsed;
@@ -122,11 +144,11 @@ class Mickey : public QObject
  private slots:
   void onOffSwitch_activated();
   void updateTimer_activated();
-  void threadClicked();
-  void calibrationCancelled();
-  //void keepSettings();
   void revertSettings();
-  //void newSettings();
+  void recenterNow(bool leave){ltr_recenter(); if(leave){changeState(TRACKING);}};
+  void startCalibration();
+  void finishCalibration();
+  void cancelCalibration(bool calStarted);
 };
 
 #define GUI MickeyGUI::getInstance()
@@ -136,6 +158,7 @@ class MickeyGUI : public QWidget
   Q_OBJECT
  public:
   static MickeyGUI &getInstance();
+  static void deleteInstance();
   //Axis interface
   int getSensitivity(){return sensitivity;};
   int getDeadzone(){return deadzone;};
@@ -150,6 +173,9 @@ class MickeyGUI : public QWidget
   void getMaxVal(float &x, float &y){x = maxValX; y = maxValY;};
   void setMaxVal(float x, float y){maxValX = x; maxValY = y;};
   void setStatusLabel(const QString &text){ui.StatusLabel->setText(text);};
+  
+  int getCntrDelay(){return cntrDelay;};
+  int getCalDelay(){return calDelay;};
  private:
   void init(){mickey = new Mickey();};
   static MickeyGUI *instance;
@@ -163,8 +189,10 @@ class MickeyGUI : public QWidget
   int sensitivity, deadzone, curvature;
   bool stepOnly;
   float maxValX, maxValY; 
+  int calDelay, cntrDelay;
   void getShortcut();
-  
+  virtual void closeEvent(QCloseEvent *event);
+ 
  private slots:
   void on_SensSlider_valueChanged(int val){sensitivity = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
   void on_DZSlider_valueChanged(int val){deadzone = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
@@ -176,6 +204,8 @@ class MickeyGUI : public QWidget
   void on_HelpButton_pressed(){/* for now */};
   void on_ModifierCombo_currentIndexChanged(const QString &text){(void) text; getShortcut();};
   void on_KeyCombo_currentIndexChanged(const QString &text){(void) text; getShortcut();};
+  void on_CalibrationTimeout_valueChanged(int val){calDelay = val;};
+  void on_CenterTimeout_valueChanged(int val){cntrDelay = val;};
  signals:
   void axisChanged();
 };

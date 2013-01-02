@@ -14,5 +14,7 @@
      QLocale::setDefault(QLocale::c());
      QApplication app(argc, argv);
      GUI.show();
-     return app.exec();
+     int res = app.exec();
+     MickeyGUI::deleteInstance();
+     return res;
  }
