@@ -40,7 +40,7 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            macwebcam_info.cpp macwebcamft_prefs.cpp macwebcam_prefs.cpp
 
 
-QMAKE_CXXFLAGS += -DHAVE_CONFIG_H 
+QMAKE_CXXFLAGS += -DHAVE_CONFIG_H -DHELP_BASE="'\""ltr_gui/"\"'"
 QMAKE_CFLAGS += -DLTR_GUI
 
 unix:!macx {
@@ -49,7 +49,7 @@ unix:!macx {
   
   data.path += @prefix@/share/linuxtrack
   data.files += XM8_cockpit.obj xm8d_body.obj xm8_detail.png
-  help.path += @prefix@/share/linuxtrack/help
+  help.path += @prefix@/share/linuxtrack/help/ltr_gui
   help.files += help/*
   target.path = @prefix@/bin
   INSTALLS += target data help
@@ -62,7 +62,7 @@ macx {
   LIBS += -L../.libs -lm -lltr
   data.path += ltr_gui.app/Contents/Resources/linuxtrack
   data.files += XM8_cockpit.obj xm8d_body.obj xm8_detail.png ../linuxtrack1.conf
-  help.path += ltr_gui.app/Contents/Resources/linuxtrack/help
+  help.path += ltr_gui.app/Contents/Resources/linuxtrack/help/ltr_gui
   help.files += help/*
   INSTALLS += data help
   ICON = linuxtrack.icns

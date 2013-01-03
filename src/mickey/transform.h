@@ -36,6 +36,7 @@ class MickeysAxis : public QObject
   void step(float valX, float valY, int elapsed, float &accX, float &accY);
   void applySettings();
   void revertSettings();
+  void keepSettings();
  private:
   int sensitivity;
   float response(float mag, setup_t *s = NULL);
@@ -64,12 +65,13 @@ class MickeyTransform : public QObject
   void startCalibration();
   void finishCalibration();
   void cancelCalibration();
-  void applySettings(){axis.applySettings();};
-  void revertSettings(){axis.revertSettings();};
+  void applySettings();
+  void revertSettings();
+  void keepSettings();
  private:
   float accX, accY;
   bool calibrating;
-  float maxValX, minValX, maxValY, minValY;
+  float maxValX, minValX, maxValY, minValY, prevMaxValX, prevMaxValY;
   MickeysAxis axis;
 };
 
