@@ -1,6 +1,11 @@
+#define NEWS_SERIAL 1
+
 #include <QMessageBox>
 #include <QTimer>
 #include <QMutex>
+#include <QMessageBox>
+#include <QApplication>
+#include <QDesktopWidget>
 #include "mickey.h"
 #include "uinput_ifc.h"
 #include "linuxtrack.h"
@@ -15,6 +20,51 @@ const int settleTime = 2000; //2 seconds
 
 QMutex MickeyUinput::mutex;
 
+
+void RestrainWidgetToScreen(QWidget * w)
+{
+  QRect screenRect = QApplication::desktop()->availableGeometry(w);
+  QRect wRect = w->frameGeometry();
+/*    
+  std::cout<<"fg left: "<<w->frameGeometry().left();
+  std::cout<<" fg right: "<<w->frameGeometry().right();
+  std::cout<<" fg top: "<<w->frameGeometry().top();
+  std::cout<<" fg bottom: "<<w->frameGeometry().bottom()<<std::endl;
+  
+  std::cout<<"scr left: "<<screenRect.left();
+  std::cout<<" scr right: "<<screenRect.right();
+  std::cout<<" scr top: "<<screenRect.top();
+  std::cout<<" scr bottom: "<<screenRect.bottom()<<std::endl;
+*/  
+  //make sure the window fits the screen
+  if(screenRect.width() < wRect.width()){
+    wRect.setWidth(screenRect.width());
+  }
+  if(screenRect.height() < wRect.height()){
+    wRect.setHeight(screenRect.height());
+  }
+  //shuffle the window so it is fully visible
+  if(screenRect.left() > wRect.left()){
+    wRect.moveLeft(screenRect.left());
+  }
+  if(screenRect.right() < wRect.right()){
+    wRect.moveRight(screenRect.right());
+  }
+  if(screenRect.bottom() < wRect.bottom()){
+    wRect.moveBottom(screenRect.bottom());
+  }
+  if(screenRect.top() > wRect.top()){
+    wRect.moveTop(screenRect.top());
+  }
+  w->resize(wRect.size());
+  w->move(wRect.topLeft());
+/*
+  std::cout<<"fg left: "<<w->frameGeometry().left();
+  std::cout<<" fg right: "<<w->frameGeometry().right();
+  std::cout<<" fg top: "<<w->frameGeometry().top();
+  std::cout<<" fg bottom: "<<w->frameGeometry().bottom()<<std::endl;
+*/
+}
 
 MickeyApplyDialog::MickeyApplyDialog()
 {
@@ -276,10 +326,10 @@ Mickey::Mickey() : updateTimer(this), btnThread(this), state(STANDBY),
   QObject::connect(&aplDlg, SIGNAL(keep()), this, SLOT(keepSettings()));
   QObject::connect(&aplDlg, SIGNAL(revert()), this, SLOT(revertSettings()));
 
-  QObject::connect(&calDlg, SIGNAL(recenterNow()), this, SLOT(recenterNow()));
+  QObject::connect(&calDlg, SIGNAL(recenterNow(bool)), this, SLOT(recenterNow(bool)));
   QObject::connect(&calDlg, SIGNAL(startCalibration()), this, SLOT(startCalibration()));
   QObject::connect(&calDlg, SIGNAL(finishCalibration()), this, SLOT(finishCalibration()));
-  QObject::connect(&calDlg, SIGNAL(cancelCalibration()), this, SLOT(cancelCalibration()));
+  QObject::connect(&calDlg, SIGNAL(cancelCalibration(bool)), this, SLOT(cancelCalibration(bool)));
   
   if(!uinput.init()){
     exit(1);
@@ -292,7 +342,9 @@ Mickey::Mickey() : updateTimer(this), btnThread(this), state(STANDBY),
 
 Mickey::~Mickey()
 {
-  ltr_suspend();
+  if(ltr_get_tracking_state() == RUNNING){
+    ltr_suspend();
+  }
   updateTimer.stop();
   delete trans;
   trans = NULL;
@@ -307,6 +359,11 @@ void Mickey::applySettings()
 void Mickey::revertSettings()
 {
   trans->revertSettings();
+}
+
+void Mickey::keepSettings()
+{
+  trans->keepSettings();
 }
 
 
@@ -351,7 +408,6 @@ void Mickey::changeState(state_t newState)
           pause();
           break;
         case CALIBRATING:
-          startCalibration();
           break;
       }
       break;
@@ -365,7 +421,6 @@ void Mickey::changeState(state_t newState)
           break;
         case CALIBRATING:
           wakeup();
-          startCalibration();
           break;
       }
       break;
@@ -422,7 +477,39 @@ void Mickey::updateTimer_activated()
   float heading, pitch, roll, tx, ty, tz;
   unsigned int counter;
   static unsigned int last_counter = 0;
-  if(ltr_get_tracking_state() != RUNNING){
+  static int lastTrackingState = -1;
+  int trackingState = ltr_get_tracking_state();
+  
+  if(lastTrackingState != trackingState){
+    lastTrackingState = trackingState;
+    if(trackingState == RUNNING){
+      switch(state){
+        case TRACKING:
+          GUI.setStatusLabel("Tracking");
+          break;
+        case CALIBRATING:
+          GUI.setStatusLabel("Calibrating");
+          break;
+        case STANDBY:
+          GUI.setStatusLabel("Paused");
+          break;
+      }
+    }else{
+      switch(trackingState){
+        case INITIALIZING:
+          GUI.setStatusLabel("Initializing");
+          break;
+        case ERROR:
+          GUI.setStatusLabel("Error");
+          break;
+        default:
+          GUI.setStatusLabel("Inactive");
+          break;
+      }
+    }
+  }
+  
+  if(trackingState != RUNNING){
     return;
   }
   if(recenterFlag){
@@ -453,37 +540,6 @@ void Mickey::updateTimer_activated()
   }
 }
 
-/*
-void Mickey::threadClicked()
-{
-  std::cout<<"thread clicked!!!"<<state<<":"<<calState<<std::endl;
-  if(state == CALIBRATING){
-    switch(calState){
-      case CENTER:
-        std::cout<<"Centering..."<<std::endl;
-        ltr_recenter();
-        calState = CALIBRATE;
-        trans->startCalibration();
-        calDlg.setText((char *)"Move your head to all extremes...");
-        break;
-      case CALIBRATE:
-        std::cout<<"Calibration finished..."<<std::endl;
-        trans->finishCalibration();
-        changeState(TRACKING);
-        cdg.hide();
-        break;
-      default:
-        std::cout<<"Whatever..."<<std::endl;
-        cdg.hide();
-        calState = CENTER;
-        break;
-    }
-  }else{
-    changeState(TRACKING);
-  }
-}
-*/
-
 void Mickey::startCalibration()
 {
   trans->startCalibration();
@@ -492,6 +548,7 @@ void Mickey::startCalibration()
 void Mickey::finishCalibration()
 {
   trans->finishCalibration();
+  applySettings();
 }
 
 void Mickey::cancelCalibration(bool calStarted)
@@ -523,11 +580,12 @@ void MickeyGUI::deleteInstance()
 }
 
 MickeyGUI::MickeyGUI(QWidget *parent) : QWidget(parent), mickey(NULL), 
-  settings("linuxtrack", "mickey")
+  settings("linuxtrack", "mickey"), changed(false)
 {
   ui.setupUi(this);
   readPrefs();
   ui.ApplyButton->setEnabled(false);
+  changed = false;
   //mickey = new Mickey();
 }
 
@@ -539,7 +597,6 @@ MickeyGUI::~MickeyGUI()
 void MickeyGUI::readPrefs()
 {
   //Read hotkey setup
-  int tmp;
   QString modifier, key;
   
   settings.beginGroup("Shortcut");
@@ -547,13 +604,13 @@ void MickeyGUI::readPrefs()
   key = settings.value(QString("Key"), "F9").toString();
   settings.endGroup();
   
-  tmp = ui.ModifierCombo->findText(modifier);
-  if(tmp != -1){
-    ui.ModifierCombo->setCurrentIndex(tmp);
+  modifierIndex = ui.ModifierCombo->findText(modifier);
+  if(modifierIndex != -1){
+    ui.ModifierCombo->setCurrentIndex(modifierIndex);
   }
-  tmp = ui.KeyCombo->findText(key);
-  if(tmp != -1){
-    ui.KeyCombo->setCurrentIndex(tmp);
+  hotkeyIndex = ui.KeyCombo->findText(key);
+  if(hotkeyIndex != -1){
+    ui.KeyCombo->setCurrentIndex(hotkeyIndex);
   }
   
   //Axes setup
@@ -586,10 +643,37 @@ void MickeyGUI::readPrefs()
   settings.endGroup();
   ui.CalibrationTimeout->setValue(calDelay);
   ui.CenterTimeout->setValue(cntrDelay);
+
+  HelpViewer::LoadPrefs(settings);
+
+  settings.beginGroup("Misc");
+  welcome = settings.value("welcome", true).toBool();
+  newsSerial = settings.value("news", -1).toInt();
+  resize(settings.value("size", QSize(-1, -1)).toSize());
+  move(settings.value("pos", QPoint(0, 0)).toPoint());
+  settings.endGroup();
 }
 
 void MickeyGUI::storePrefs()
 {
+  HelpViewer::StorePrefs(settings);
+  
+  settings.beginGroup("Misc");
+  settings.setValue("welcome", false);
+  settings.setValue("news", NEWS_SERIAL);
+  settings.setValue("size", size());
+  settings.setValue("pos", pos());
+  settings.endGroup();
+
+  if(!changed){
+    return;
+  }
+  if(QMessageBox::question(this, "Save prefs?", 
+    "Preferences have changed, do you want to save them?", 
+    QMessageBox::Save | QMessageBox::Discard, QMessageBox::Save) == QMessageBox::Discard){
+    return;  
+  }  
+  
   //Store hotkey setup
   settings.beginGroup("Shortcut");
   settings.setValue(QString("Modifier"), ui.ModifierCombo->currentText());
@@ -619,6 +703,7 @@ void MickeyGUI::storePrefs()
 
 void MickeyGUI::setStepOnly(bool value)
 {
+  changed = true;
   stepOnly = value;
   ui.StepOnly->setCheckState(stepOnly ? Qt::Checked : Qt::Unchecked);
   if(stepOnly){
@@ -645,6 +730,7 @@ void MickeyGUI::getShortcut()
   if(mickey == NULL){
     return;
   }
+  changed = true;
   QString modifier("");
   if(ui.ModifierCombo->currentIndex() != 0){
     modifier = ui.ModifierCombo->currentText() + QString("+");
@@ -652,14 +738,47 @@ void MickeyGUI::getShortcut()
   modifier += ui.KeyCombo->currentText();
   QKeySequence seq(modifier);
   if(mickey->setShortcut(seq)){
-    std::cout<<"Shortcut OK!"<<std::endl;
+    modifierIndex = ui.ModifierCombo->currentIndex();
+    hotkeyIndex = ui.KeyCombo->currentIndex();
   }else{
-    std::cout<<"Shortcut not set!"<<std::endl;
+    QMessageBox::warning(this, "Hotkey not usable.", 
+      "The hotkey you set is already in use! Please select another one.");
+    //revert shortcut...
+    ui.ModifierCombo->setCurrentIndex(modifierIndex);
+    ui.KeyCombo->setCurrentIndex(hotkeyIndex);
   }
 }
 
 void MickeyGUI::closeEvent(QCloseEvent *event)
 {
   storePrefs();
+  HelpViewer::CloseWindow();
   QWidget::closeEvent(event);
+}
+
+void MickeyGUI::on_MickeyTabs_currentChanged(int index)
+{
+  switch(index){
+    case 0:
+      HelpViewer::ChangePage("tracking.htm");
+      break;
+    case 1:
+      HelpViewer::ChangePage("misc.htm");
+      break;
+  }
+}
+
+void MickeyGUI::show()
+{
+  QWidget::show();
+  RestrainWidgetToScreen(this);
+  if(welcome){
+    HelpViewer::ChangePage("welcome.htm");
+    HelpViewer::ShowWindow();
+  }else if(newsSerial < NEWS_SERIAL){
+    HelpViewer::ChangePage("news.htm");
+    HelpViewer::ShowWindow();
+  }else{
+    HelpViewer::ChangePage("tracking.htm");
+  }
 }

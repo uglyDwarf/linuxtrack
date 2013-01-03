@@ -16,6 +16,7 @@
 #include "linuxtrack.h"
 #include "keyb.h"
 #include "sn4_com.h"
+#include "help_view.h"
 
 /*
 class MickeyDialog: public QDialog
@@ -145,6 +146,7 @@ class Mickey : public QObject
   void onOffSwitch_activated();
   void updateTimer_activated();
   void revertSettings();
+  void keepSettings();
   void recenterNow(bool leave){ltr_recenter(); if(leave){changeState(TRACKING);}};
   void startCalibration();
   void finishCalibration();
@@ -164,18 +166,20 @@ class MickeyGUI : public QWidget
   int getDeadzone(){return deadzone;};
   int getCurvature(){return curvature;};
   bool getStepOnly(){return stepOnly;};
-  void setSensitivity(int value){sensitivity = value; ui.SensSlider->setValue(sensitivity);};
-  void setDeadzone(int value){deadzone = value; ui.DZSlider->setValue(deadzone);};
-  void setCurvature(int value){curvature = value; ui.CurveSlider->setValue(curvature);};
+  void setSensitivity(int value){changed = true; sensitivity = value; ui.SensSlider->setValue(sensitivity);};
+  void setDeadzone(int value){changed = true; deadzone = value; ui.DZSlider->setValue(deadzone);};
+  void setCurvature(int value){changed = true; curvature = value; ui.CurveSlider->setValue(curvature);};
   void setStepOnly(bool value);
   QBoxLayout *getAxisViewLayout(){return ui.PrefLayout;};
   //Transform interface
   void getMaxVal(float &x, float &y){x = maxValX; y = maxValY;};
-  void setMaxVal(float x, float y){maxValX = x; maxValY = y;};
+  void setMaxVal(float x, float y){changed = true; maxValX = x; maxValY = y;};
   void setStatusLabel(const QString &text){ui.StatusLabel->setText(text);};
   
   int getCntrDelay(){return cntrDelay;};
   int getCalDelay(){return calDelay;};
+ public slots:
+  void show();
  private:
   void init(){mickey = new Mickey();};
   static MickeyGUI *instance;
@@ -192,20 +196,24 @@ class MickeyGUI : public QWidget
   int calDelay, cntrDelay;
   void getShortcut();
   virtual void closeEvent(QCloseEvent *event);
- 
+  bool changed;
+  bool welcome;
+  int newsSerial;
+  int modifierIndex, hotkeyIndex;
  private slots:
   void on_SensSlider_valueChanged(int val){sensitivity = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
   void on_DZSlider_valueChanged(int val){deadzone = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
   void on_CurveSlider_valueChanged(int val){curvature = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
   void on_StepOnly_stateChanged(int state);
-  void on_ApplyButton_pressed(){ui.ApplyButton->setEnabled(false); mickey->applySettings();};
-  void on_CalibrateButton_pressed(){if(mickey != NULL){mickey->calibrate();}};
+  void on_ApplyButton_pressed(){changed = true; ui.ApplyButton->setEnabled(false); mickey->applySettings();};
+  void on_CalibrateButton_pressed(){if(mickey != NULL){changed = true; mickey->calibrate();}};
   void on_RecenterButton_pressed(){if(mickey != NULL){mickey->recenter();}};
-  void on_HelpButton_pressed(){/* for now */};
+  void on_HelpButton_pressed(){HelpViewer::ShowWindow();};
   void on_ModifierCombo_currentIndexChanged(const QString &text){(void) text; getShortcut();};
   void on_KeyCombo_currentIndexChanged(const QString &text){(void) text; getShortcut();};
-  void on_CalibrationTimeout_valueChanged(int val){calDelay = val;};
-  void on_CenterTimeout_valueChanged(int val){cntrDelay = val;};
+  void on_CalibrationTimeout_valueChanged(int val){changed = true; calDelay = val;};
+  void on_CenterTimeout_valueChanged(int val){changed = true; cntrDelay = val;};
+  void on_MickeyTabs_currentChanged(int index);
  signals:
   void axisChanged();
 };

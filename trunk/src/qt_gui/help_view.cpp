@@ -38,7 +38,7 @@ void HelpViewer::ChangePage(QString name)
 
 void HelpViewer::ChangeHelpPage(QString name)
 {
-  QString tmp = QString("file://") + PREF.getDataPath(QString("/help/") + name);
+  QString tmp = QString("file://") + PREF.getDataPath(QString("/help/") + QString(HELP_BASE) + name);
   viewer->load(QUrl(tmp));
 }
 
@@ -85,7 +85,7 @@ HelpViewer::HelpViewer(QWidget *parent) : QWidget(parent), contents(NULL), layou
 
 bool HelpViewer::ReadContents()
 {
-  QFile contentsFile(PREF.getDataPath(QString("/help/contents.txt")));
+  QFile contentsFile(PREF.getDataPath(QString("/help/") + QString(HELP_BASE) + QString("contents.txt")));
   if(!contentsFile.open(QFile::ReadOnly)){
     return false;
   }
