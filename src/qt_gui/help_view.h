@@ -2,6 +2,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QWebView>
+#include <QSplitter>
 #include <QListWidget>
 #include "ui_logview.h"
 #include "QMap"
@@ -34,6 +35,7 @@ class HelpViewer : public QWidget{
   QWebView *viewer;
   QListWidget *contents;
   QHBoxLayout *layout;
+  QSplitter *splitter;
   QMap<QString, QString> pages;
 };
 

@@ -369,6 +369,7 @@ void Mickey::keepSettings()
 
 void Mickey::pause()
 {
+  std::cout<<"Pausing!"<<std::endl;
   //btnThread.setFinish();
   //btnThread.wait();
   updateTimer.stop();
@@ -377,6 +378,7 @@ void Mickey::pause()
 
 void Mickey::wakeup()
 {
+  std::cout<<"Waking up!"<<std::endl;
   updateTimer.start();
   //btnThread.start();
   //ltr_wakeup();
@@ -456,6 +458,7 @@ void Mickey::changeState(state_t newState)
 
 void Mickey::onOffSwitch_activated()
 {
+  std::cout<<"On/off switch activated!"<<std::endl;
   switch(state){
     case TRACKING:
       changeState(STANDBY);
@@ -548,6 +551,7 @@ void Mickey::startCalibration()
 void Mickey::finishCalibration()
 {
   trans->finishCalibration();
+  changeState(TRACKING);
   applySettings();
 }
 
@@ -557,6 +561,18 @@ void Mickey::cancelCalibration(bool calStarted)
     trans->cancelCalibration();
   }
   changeState(TRACKING);
+}
+
+bool Mickey::setShortcut(QKeySequence seq)
+{
+  bool res = onOffSwitch->setShortcut(seq);
+  //If the shortcut doesn't work, pause the tracking to avoid problems
+  if(res){
+    changeState(TRACKING);
+  }else{
+    changeState(STANDBY);
+  }
+  return res;
 }
 
 MickeyGUI *MickeyGUI::instance = NULL;
@@ -580,12 +596,11 @@ void MickeyGUI::deleteInstance()
 }
 
 MickeyGUI::MickeyGUI(QWidget *parent) : QWidget(parent), mickey(NULL), 
-  settings("linuxtrack", "mickey"), changed(false)
+  settings("linuxtrack", "mickey"), changed(false), hotkeySet(false)
 {
   ui.setupUi(this);
   readPrefs();
   ui.ApplyButton->setEnabled(false);
-  changed = false;
   //mickey = new Mickey();
 }
 
@@ -725,12 +740,13 @@ void MickeyGUI::on_StepOnly_stateChanged(int state)
   ui.ApplyButton->setEnabled(true);
 }
 
-void MickeyGUI::getShortcut()
+bool MickeyGUI::getShortcut()
 {
   if(mickey == NULL){
-    return;
+    return false;
   }
   changed = true;
+  
   QString modifier("");
   if(ui.ModifierCombo->currentIndex() != 0){
     modifier = ui.ModifierCombo->currentText() + QString("+");
@@ -738,15 +754,23 @@ void MickeyGUI::getShortcut()
   modifier += ui.KeyCombo->currentText();
   QKeySequence seq(modifier);
   if(mickey->setShortcut(seq)){
+    std::cout<<"Shortcut set!"<<std::endl;
     modifierIndex = ui.ModifierCombo->currentIndex();
     hotkeyIndex = ui.KeyCombo->currentIndex();
+    return true;
   }else{
     QMessageBox::warning(this, "Hotkey not usable.", 
       "The hotkey you set is already in use! Please select another one.");
-    //revert shortcut...
-    ui.ModifierCombo->setCurrentIndex(modifierIndex);
-    ui.KeyCombo->setCurrentIndex(hotkeyIndex);
+    //try to revert shortcut, if it was working before...
+    if(hotkeySet){
+      //this should avoid recursion
+      hotkeySet = false;
+      ui.ModifierCombo->setCurrentIndex(modifierIndex);
+      ui.KeyCombo->setCurrentIndex(hotkeyIndex);
+      return getShortcut();
+    }
   }
+  return false;
 }
 
 void MickeyGUI::closeEvent(QCloseEvent *event)
@@ -782,3 +806,12 @@ void MickeyGUI::show()
     HelpViewer::ChangePage("tracking.htm");
   }
 }
+
+//To avoid recursion as Mickey's constructor uses GUI too
+void MickeyGUI::init()
+{
+  mickey = new Mickey();
+  hotkeySet = getShortcut();
+  changed = false;
+}
+  

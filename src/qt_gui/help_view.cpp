@@ -73,8 +73,10 @@ HelpViewer::HelpViewer(QWidget *parent) : QWidget(parent), contents(NULL), layou
   contents = new QListWidget(this);
   ReadContents();
   layout = new QHBoxLayout();
-  layout->addWidget(contents);
-  layout->addWidget(viewer);
+  splitter = new QSplitter();
+  layout->addWidget(splitter);
+  splitter->addWidget(contents);
+  splitter->addWidget(viewer);
   ui.verticalLayout->insertLayout(0, layout);
   QObject::connect(contents, SIGNAL(currentTextChanged(const QString &)), 
                    this, SLOT(currentTextChanged(const QString &)));

@@ -127,7 +127,7 @@ class Mickey : public QObject
   void applySettings();
   void recenter();
   void calibrate();
-  bool setShortcut(QKeySequence seq){return onOffSwitch->setShortcut(seq);};
+  bool setShortcut(QKeySequence seq);
  private:
   shortcut *onOffSwitch;
   QTimer updateTimer;
@@ -181,7 +181,7 @@ class MickeyGUI : public QWidget
  public slots:
   void show();
  private:
-  void init(){mickey = new Mickey();};
+  void init();
   static MickeyGUI *instance;
   MickeyGUI(QWidget *parent = 0);
   ~MickeyGUI();
@@ -194,25 +194,36 @@ class MickeyGUI : public QWidget
   bool stepOnly;
   float maxValX, maxValY; 
   int calDelay, cntrDelay;
-  void getShortcut();
+  bool getShortcut();
   virtual void closeEvent(QCloseEvent *event);
   bool changed;
   bool welcome;
   int newsSerial;
-  int modifierIndex, hotkeyIndex;
+  int modifierIndex, hotkeyIndex, hotkeySet;
  private slots:
-  void on_SensSlider_valueChanged(int val){sensitivity = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
-  void on_DZSlider_valueChanged(int val){deadzone = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
-  void on_CurveSlider_valueChanged(int val){curvature = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
+  void on_SensSlider_valueChanged(int val)
+    {sensitivity = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
+  void on_DZSlider_valueChanged(int val)
+    {deadzone = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
+  void on_CurveSlider_valueChanged(int val)
+    {curvature = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
   void on_StepOnly_stateChanged(int state);
-  void on_ApplyButton_pressed(){changed = true; ui.ApplyButton->setEnabled(false); mickey->applySettings();};
-  void on_CalibrateButton_pressed(){if(mickey != NULL){changed = true; mickey->calibrate();}};
-  void on_RecenterButton_pressed(){if(mickey != NULL){mickey->recenter();}};
-  void on_HelpButton_pressed(){HelpViewer::ShowWindow();};
-  void on_ModifierCombo_currentIndexChanged(const QString &text){(void) text; getShortcut();};
-  void on_KeyCombo_currentIndexChanged(const QString &text){(void) text; getShortcut();};
-  void on_CalibrationTimeout_valueChanged(int val){changed = true; calDelay = val;};
-  void on_CenterTimeout_valueChanged(int val){changed = true; cntrDelay = val;};
+  void on_ApplyButton_pressed()
+    {changed = true; ui.ApplyButton->setEnabled(false); mickey->applySettings();};
+  void on_CalibrateButton_pressed()
+    {if(mickey != NULL){changed = true; mickey->calibrate();}};
+  void on_RecenterButton_pressed()
+    {if(mickey != NULL){mickey->recenter();}};
+  void on_HelpButton_pressed()
+    {HelpViewer::ShowWindow();};
+  void on_ModifierCombo_currentIndexChanged(const QString &text)
+    {(void) text; hotkeySet = getShortcut();};
+  void on_KeyCombo_currentIndexChanged(const QString &text)
+    {(void) text; hotkeySet = getShortcut();};
+  void on_CalibrationTimeout_valueChanged(int val)
+    {changed = true; calDelay = val;};
+  void on_CenterTimeout_valueChanged(int val)
+    {changed = true; cntrDelay = val;};
   void on_MickeyTabs_currentChanged(int index);
  signals:
   void axisChanged();
