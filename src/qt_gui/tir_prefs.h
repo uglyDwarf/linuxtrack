@@ -5,7 +5,7 @@
 #include <QComboBox>
 #include "ui_tir_setup.h"
 #include "prefs_link.h"
-#include "dlfirmware.h"
+#include "extractor.h"
 #include <../usb_ifc.h>
 
 class TirPrefs : public QWidget{
@@ -20,7 +20,7 @@ class TirPrefs : public QWidget{
   Ui::TirSetupForm ui;
   //void Connect();
   bool initializing;
-  dlfwGui *dlfw;
+  Extractor *dlfw;
   static bool firmwareOK;
   static bool permsOK;
  signals:

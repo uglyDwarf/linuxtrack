@@ -237,7 +237,7 @@ void TirPrefs::on_TirFirmwareDLFinished(bool state)
 void TirPrefs::on_TirInstallFirmware_pressed()
 {
   if(dlfw == NULL){
-    dlfw = new dlfwGui();
+    dlfw = new Extractor();
     QObject::connect(dlfw, SIGNAL(finished(bool)),
       this, SLOT(TirFirmwareDLFinished(bool)));
   }

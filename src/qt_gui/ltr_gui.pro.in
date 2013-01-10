@@ -11,7 +11,7 @@ INCLUDEPATH += ..
 INCLUDEPATH += @srcdir@
 INCLUDEPATH += @srcdir@/..
 RESOURCES = ltr_rc.qrc
-QT           += opengl network webkit
+QT          += opengl network webkit
 VPATH     = @srcdir@
 
 # Input
@@ -19,36 +19,39 @@ HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h help_view.h \
 	   ltr_gui_prefs.h prefs_link.h tir_prefs.h device_setup.h\
            ltr_model.h window.h glwidget.h objreader.h ltr_profiles.h\
            log_view.h ltr_state.h scp_form.h buffering.h \
-           scurve.h scview.h wiimote_prefs.h dlfirmware.h tracker.h plugin_install.h \
+           scurve.h scview.h wiimote_prefs.h tracker.h plugin_install.h \
            profile_setup.h profile_selector.h guardian.h \
            webcam_prefs.h webcam_info.h webcam_ft_prefs.h \
-           macwebcam_prefs.h macwebcamft_prefs.h macwebcam_info.h 
+           macwebcam_prefs.h macwebcamft_prefs.h macwebcam_info.h \
+           extractor.h game_data.h hashing.h downloading.h
 
 FORMS += ltr_gui.ui dev_help.ui ltr.ui model_creation.ui scurve.ui scp_form.ui \
-           logview.ui dl.ui l_wc_setup.ui wii_setup.ui tir_setup.ui l_wcft_setup.ui \
+           logview.ui l_wc_setup.ui wii_setup.ui tir_setup.ui l_wcft_setup.ui \
            m_wc_setup.ui m_wcft_setup.ui cap_edit.ui clip_edit.ui single_edit.ui model_edit.ui \
-           device_setup.ui profile_setup.ui profile_selector.ui cap_tweaking.ui clip_tweaking.ui
+           device_setup.ui profile_setup.ui profile_selector.ui cap_tweaking.ui clip_tweaking.ui \
+           extractor.ui progress.ui
            
 SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            ltr_gui_prefs.cpp tir_prefs.cpp help_view.cpp buffering.cpp \
            ltr_model.cpp window.cpp glwidget.cpp objreader.cpp ltr_profiles.cpp \
            log_view.cpp ltr_state.cpp scp_form.cpp guardian.cpp \
-           scurve.cpp scview.cpp wiimote_prefs.cpp dlfirmware.cpp \
+           scurve.cpp scview.cpp wiimote_prefs.cpp \
            tracker.cpp ../ltr_srv_master.cpp  device_setup.cpp \
            ../ltr_srv_slave.c ../ltr_srv_comm.c plugin_install.cpp profile_setup.cpp \
            profile_selector.cpp webcam_info.cpp webcam_prefs.cpp webcam_ft_prefs.cpp \
-           macwebcam_info.cpp macwebcamft_prefs.cpp macwebcam_prefs.cpp
+           macwebcam_info.cpp macwebcamft_prefs.cpp macwebcam_prefs.cpp \
+           extractor.cpp game_data.c hashing.cpp downloading.cpp
 
 
 QMAKE_CXXFLAGS += -DHAVE_CONFIG_H -DHELP_BASE="'\""ltr_gui/"\"'"
 QMAKE_CFLAGS += -DLTR_GUI
 
 unix:!macx {
-  LIBS += "-L../.libs" "-L$${LIBDIR}" -lm -lltr -lGLU \
+  LIBS += "-L../.libs" "-L$${LIBDIR}" -lm -lltr -lGLU -lmxml\
            "-Wl,-rpath,$${LIBDIR}"
   
   data.path += @prefix@/share/linuxtrack
-  data.files += XM8_cockpit.obj xm8d_body.obj xm8_detail.png
+  data.files += XM8_cockpit.obj xm8d_body.obj xm8_detail.png sources.txt spec.txt
   help.path += @prefix@/share/linuxtrack/help/ltr_gui
   help.files += help/*
   target.path = @prefix@/bin
@@ -59,9 +62,10 @@ macx {
   QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.4
   QMAKE_MAC_SDK=/Developer/SDKs/MacOSX10.4u.sdk
   CONFIG+=x86 ppc
-  LIBS += -L../.libs -lm -lltr
+  LIBS += -L../.libs -lm -lltr -lmxml
   data.path += ltr_gui.app/Contents/Resources/linuxtrack
-  data.files += XM8_cockpit.obj xm8d_body.obj xm8_detail.png ../linuxtrack1.conf
+  data.files += XM8_cockpit.obj xm8d_body.obj xm8_detail.png ../linuxtrack1.conf \
+                sources.txt spec.txt
   help.path += ltr_gui.app/Contents/Resources/linuxtrack/help/ltr_gui
   help.files += help/*
   INSTALLS += data help

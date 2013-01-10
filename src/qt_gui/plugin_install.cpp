@@ -5,7 +5,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <zlib.h>
-#include "dlfirmware.h"
+#include "extractor.h"
 #include "utils.h"
 
 
@@ -56,7 +56,7 @@ void PluginInstall::instFinished(int exitCode, QProcess::ExitStatus exitStatus)
 void PluginInstall::tirFirmwareInstall()
 {
   if(dlfw == NULL){
-    dlfw = new dlfwGui();
+    dlfw = new Extractor();
     QObject::connect(dlfw, SIGNAL(finished(bool)),
       this, SLOT(tirFirmwareInstalled(bool)));
   }

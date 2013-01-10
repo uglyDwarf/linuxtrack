@@ -5,7 +5,7 @@
 #include <QProcess>
 #include "ui_ltr.h"
 
-class dlfwGui;
+class Extractor;
 
 class PluginInstall : public QObject
 {
@@ -23,7 +23,7 @@ class PluginInstall : public QObject
   const Ui::LinuxtrackMainForm &gui;
   void Connect();
   QProcess *inst;
-  dlfwGui *dlfw;
+  Extractor *dlfw;
   bool isTirFirmwareInstalled();
   const QString keySrc;
   const QString keyFile;
