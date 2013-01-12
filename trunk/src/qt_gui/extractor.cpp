@@ -96,7 +96,6 @@ bool ExtractThread::findCandidates(QString name)
     }else{
       QString outfile = QString("%1/gamedata.txt").arg(destPath);
       gameDataFound = get_game_data(qPrintable(files[i].canonicalFilePath()), qPrintable(outfile));
-      QProcess::execute(QString("gzip -9 \"%1\"").arg(outfile));
       emit progress(QString("Extracted game data..."));
     }
     if(allFound()){
@@ -117,14 +116,12 @@ bool ExtractThread::findCandidates(QString name)
 QString Extractor::findSrc(const QString &name)
 {
   //First look at ~/.config/linuxtrack, then /usr/share/...
-  //  Placeholders are used now,..
-  QString path1("/home/qbuilder/.config/linuxtrack/");
-  QString path2("./");
+  QString path1 = PrefProxy::getRsrcDirPath();
+  QString path2 = PrefProxy::getDataPath(name);
   path1 += name;
   QFileInfo fi(path1);
   if(fi.isReadable()) return path1;
   fi.setFile(path2);
-  path2 += name;
   if(fi.isReadable()) return path2;
   return QString();
 }
@@ -184,7 +181,7 @@ bool Extractor::readSpec()
   return (targets.size() != 0);
 }
 
-Extractor::Extractor(QWidget *parent) : QDialog(parent), et(NULL), dl(NULL), progressDlg(NULL)
+Extractor::Extractor(QWidget *parent) : QWidget(parent), et(NULL), dl(NULL), progressDlg(NULL)
 {
   ui.setupUi(this);
   et = new ExtractThread();
@@ -226,7 +223,8 @@ void Extractor::wineFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
   qDebug()<<"Wine exited "<<exitCode<<exitStatus;
   if((exitStatus == QProcess::NormalExit) && (exitCode == 0)){
-    et->start(targets, winePrefix, makeDestPath(PrefProxy::getRsrcDirPath()));
+    destPath = makeDestPath(PrefProxy::getRsrcDirPath());
+    et->start(targets, winePrefix, destPath);
   }
   ui.BrowseButton->setEnabled(true);
 }
@@ -309,13 +307,21 @@ void Extractor::on_AnalyzeSourceButton_pressed()
 
 void Extractor::progress(const QString &msg)
 {
-  progress(msg);
+  ui.LogView->appendPlainText(msg);
 }
 
 void Extractor::threadFinished()
 {
   ui.BrowseButton->setEnabled(true);
-  emit finished(et->haveEverything());
+  bool everything = et->haveEverything();
+  if(everything){
+    QString l = PrefProxy::getRsrcDirPath() + "/tir_firmware";
+      if(QFile::exists(l)){
+        QFile::remove(l);
+      }
+    QFile::link(destPath, l);
+  }
+  emit finished(everything);
 }
 
 
@@ -325,6 +331,7 @@ void Extractor::on_QuitButton_pressed()
     et->stop();
     et->wait();
   }
+  hide();
   emit finished(et->haveEverything());
 }
 
@@ -342,6 +349,8 @@ void Extractor::on_DownloadButton_pressed()
   }
   winePrefix = prefix;
   progressDlg->show();
+  progressDlg->raise();
+  progressDlg->activateWindow();
   dl->download(target, winePrefix);
 }
 

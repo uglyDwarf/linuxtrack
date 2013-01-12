@@ -30,8 +30,6 @@ bool crypted = false;
 static unsigned char table[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 static dbg_flag;
 
-#include "secret.c"
-
 static void dbg_report(const char *msg,...)
 {
   static FILE *f = NULL;
@@ -280,28 +278,33 @@ int __stdcall NPCLIENT_NP_GetParameter(int arg0, int arg1)
 int __stdcall NPCLIENT_NP_GetSignature(tir_signature_t * sig)
 {
   dbg_report("GetSignature request\n");
+  int res = 1;
   char *home = getenv("HOME");
-  char *path = malloc(200 + strlen(home));
-  sprintf(path, "%s/.config/linuxtrack/tir_firmware/sig.bin", home);
-  FILE *f = fopen(path, "rb");
-  if(f != NULL){
-    fread(sig->DllSignature, 200, 1, f);
-    fread(sig->AppSignature, 200, 1, f);
-    
-    fclose(f);
-    return 0;
+  char *path1 = malloc(200 + strlen(home));
+  char *path2 = malloc(200 + strlen(home));
+  sprintf(path1, "%s/.config/linuxtrack/tir_firmware/poem1.txt", home);
+  sprintf(path2, "%s/.config/linuxtrack/tir_firmware/poem2.txt", home);
+  FILE *f1 = fopen(path1, "rb");
+  FILE *f2 = fopen(path2, "rb");
+  memset(sig->DllSignature, 0, 200);
+  memset(sig->AppSignature, 0, 200);
+  if(f1 != NULL){
+    fread(sig->DllSignature, 200, 1, f1);
+    printf("SIGNATURE1: %s\n", sig->DllSignature);
+    fclose(f1);
+  }else{
+    res = 0;
   }
-  
-  sprintf(path, "%s/.config/linuxtrack/tir_firmware/sig.key", home);
-  f = fopen(path, "rb");
-  if(f != NULL){
-    fread(sig, 1, sizeof(*sig), f);
-    fclose(f);
-    unsigned int i;
-    for(i = 0; i < sizeof(*sig); ++i) ((uint8_t*)sig)[i] ^= secret[i];
-    return 0;
+  if(f2 != NULL){
+    fread(sig->AppSignature, 200, 1, f2);
+    printf("SIGNATURE2: %s\n", sig->AppSignature);
+    fclose(f2);
+  }else{
+    res = 0;
   }
-  return 1;
+  free(path1);
+  free(path2);
+  return res;
 }
 /******************************************************************
  *		NP_QueryVersion (NPCLIENT.11)

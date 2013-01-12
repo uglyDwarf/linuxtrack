@@ -219,7 +219,7 @@ void TirPrefs::on_TirUseGrayscale_stateChanged(int state)
   if(!initializing) ltr_int_tir_set_use_grayscale(state == Qt::Checked);
 }
 
-void TirPrefs::on_TirFirmwareDLFinished(bool state)
+void TirPrefs::TirFirmwareDLFinished(bool state)
 {
   if(state){
     dlfw->hide();
@@ -241,7 +241,6 @@ void TirPrefs::on_TirInstallFirmware_pressed()
     QObject::connect(dlfw, SIGNAL(finished(bool)),
       this, SLOT(TirFirmwareDLFinished(bool)));
   }
-  
   dlfw->show();
 }
 
