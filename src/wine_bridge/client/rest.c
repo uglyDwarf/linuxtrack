@@ -7,24 +7,28 @@
 bool game_data_get_desc(int id, game_desc_t *gd)
 {
   FILE *f = NULL;
-  HKEY hkey = 0;
+  //HKEY hkey = 0;
   int res = 0;
-  RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Linuxtrack", 0, 
-    KEY_QUERY_VALUE, &hkey);
-  if(!hkey){
-    printf("Can't open registry key\n");
-    return false;
-  }
+  //RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Linuxtrack", 0, 
+  //  KEY_QUERY_VALUE, &hkey);
+  //if(!hkey){
+  //  printf("Can't open registry key\n");
+  //  return false;
+  //}
   
-  BYTE buf[1024];
-  DWORD buf_len = sizeof(buf)-1; //To be sure there is a space for null
-  LONG result = RegQueryValueEx(hkey, "Data", NULL, NULL, buf, &buf_len);
-  if((result == ERROR_SUCCESS) && (buf_len > 0)){
-    int size = sizeof(WCHAR) * (lstrlen(buf) + 1);
-    WCHAR *path = malloc(size);
-    MultiByteToWideChar(CP_UNIXCP, 0, buf, -1, path, size);
-    if((f = fopen(wine_get_unix_file_name(path), "r"))== NULL){
-      printf("Can't open data file '%s'!\n", wine_get_unix_file_name(path));
+  //BYTE buf[1024];
+  //DWORD buf_len = sizeof(buf)-1; //To be sure there is a space for null
+  //LONG result = RegQueryValueEx(hkey, "Data", NULL, NULL, buf, &buf_len);
+  //if((result == ERROR_SUCCESS) && (buf_len > 0)){
+  //  int size = sizeof(WCHAR) * (lstrlen(buf) + 1);
+  //  WCHAR *path = malloc(size);
+  //  MultiByteToWideChar(CP_UNIXCP, 0, buf, -1, path, size);
+  //  if((f = fopen(wine_get_unix_file_name(path), "r"))== NULL){
+  char *home = getenv("HOME");
+  char *path1 = malloc(200 + strlen(home));
+  sprintf(path1, "%s/.config/linuxtrack/tir_firmware/gamedata.txt", home);
+    if((f = fopen(path1, "r"))== NULL){
+      printf("Can't open data file '%s'!\n", path1);
       return false;
     }
     int tmp_id;
@@ -63,8 +67,9 @@ bool game_data_get_desc(int id, game_desc_t *gd)
     fclose(f);
     free(tmp_code);
     free(tmp_str);
-  }
-  RegCloseKey(hkey);
+    free(path1);
+  //}
+  //RegCloseKey(hkey);
   return gd->name != NULL;
 }
 

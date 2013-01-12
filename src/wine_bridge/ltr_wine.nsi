@@ -18,10 +18,8 @@ Section "Linuxtrack"
   File "Tester.exe"
   File "Tester.exe.so"
   File "NPClient.dll"
-  File "data.txt"
   File "linuxtrack.ico"
   WriteRegStr HKLM SOFTWARE\Linuxtrack "Install_dir" "$INSTDIR"
-  WriteRegStr HKLM "Software\Linuxtrack" "Data" "$INSTDIR\data.txt"
   WriteRegStr HKCU "Software\NaturalPoint\NATURALPOINT\NPClient Location" "Path" "$INSTDIR\"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Linuxtrack" "DisplayName" "Linuxtrack wine bridge"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Linuxtrack" "UninstallString" '"$INSTDIR\uninstall.exe"'
@@ -46,7 +44,6 @@ Section "Uninstall"
   Delete $INSTDIR\Tester.exe.so
   Delete $INSTDIR\NPClient.dll
   Delete $INSTDIR\uninstall.exe
-  Delete $INSTDIR\data.txt
   Delete $INSTDIR\linuxtrack.ico
   Delete "$SMPROGRAMS\Linuxtrack\*.*"
   RMDir "$SMPROGRAMS\Linuxtrack"

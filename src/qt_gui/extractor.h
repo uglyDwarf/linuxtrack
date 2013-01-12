@@ -22,7 +22,7 @@ class Progress: public QDialog
  Q_OBJECT
  public:
   Progress(){ui.setupUi(this); ui.InfoLabel->setText("");};
-  void show(){ui.ProgressBar->setValue(0);};
+  void show(){ui.ProgressBar->setValue(0);QWidget::show();};
  private:
   Ui::DLProgress ui;
  public slots:
@@ -52,7 +52,7 @@ class ExtractThread: public QThread
   bool everything;
 };
 
-class Extractor: public QDialog
+class Extractor: public QWidget
 {
  Q_OBJECT
  public:
@@ -67,6 +67,7 @@ class Extractor: public QDialog
   QString winePrefix;
   Downloading *dl;
   Progress *progressDlg;
+  QString destPath;
   bool readSpec();
   bool readSources();
   QString findSrc(const QString &name);

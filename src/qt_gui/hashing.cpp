@@ -34,6 +34,7 @@ bool hashFile(const QString fname, qint64 &size, uint16_t &fastVal, QByteArray &
 
 void BlockId::isBlock(QFile &f, const QString &destPath, QStringList &msgs)
 {
+  QString fname = QFileInfo(name).fileName();
   qint64 pos = f.pos();
   f.seek(pos - FastHash::length);
   QByteArray buf = f.read(size);
@@ -47,17 +48,19 @@ void BlockId::isBlock(QFile &f, const QString &destPath, QStringList &msgs)
     goto no_match;
   }
   if(!found){
-    QString outfile = destPath + QFileInfo(name).fileName();
+    QString outfile = destPath + fname;
     QFile out(outfile);
     found = out.open(QIODevice::WriteOnly);
     if(found){
       found = (out.write(buf) == size);
       if(found){
-        msgs.append(QString("Extracted %1...").arg(QFileInfo(name).fileName()));
+        msgs.append(QString("Extracted %1...").arg(fname));
       }
     }
     out.close();
-    QProcess::execute(QString("gzip -9 \"%1\"").arg(outfile));
+    if(fname.endsWith(".fw", Qt::CaseInsensitive)){
+      QProcess::execute(QString("gzip -9 \"%1\"").arg(outfile));
+    }
   }
  no_match:
   f.seek(pos);
