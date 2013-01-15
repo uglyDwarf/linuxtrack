@@ -40,6 +40,9 @@ char *ltr_int_init_helper(const char *cust_section, bool standalone)
   initialized = true;
   if(standalone){
     char *server = ltr_int_get_app_path("/ltr_server1");
+    if(cust_section == NULL){
+      cust_section = "Default";
+    }
     char *section = ltr_int_my_strdup(cust_section);
     ltr_int_sanitize_name(section);
     char *args[] = {server, section, mmm.fname, NULL};
