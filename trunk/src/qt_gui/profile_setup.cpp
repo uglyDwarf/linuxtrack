@@ -48,8 +48,8 @@ void ProfileSetup::copyFromDefault()
 void ProfileSetup::initAxes()
 {
   ui.PitchEnable->setCheckState(TRACKER.axisGetEnabled(PITCH)?Qt::Checked:Qt::Unchecked);
-  ui.YawEnable->setCheckState(TRACKER.axisGetEnabled(ROLL)?Qt::Checked:Qt::Unchecked);
-  ui.RollEnable->setCheckState(TRACKER.axisGetEnabled(YAW)?Qt::Checked:Qt::Unchecked);
+  ui.YawEnable->setCheckState(TRACKER.axisGetEnabled(YAW)?Qt::Checked:Qt::Unchecked);
+  ui.RollEnable->setCheckState(TRACKER.axisGetEnabled(ROLL)?Qt::Checked:Qt::Unchecked);
   ui.TxEnable->setCheckState(TRACKER.axisGetEnabled(TX)?Qt::Checked:Qt::Unchecked);
   ui.TyEnable->setCheckState(TRACKER.axisGetEnabled(TY)?Qt::Checked:Qt::Unchecked);
   ui.TzEnable->setCheckState(TRACKER.axisGetEnabled(TZ)?Qt::Checked:Qt::Unchecked);
