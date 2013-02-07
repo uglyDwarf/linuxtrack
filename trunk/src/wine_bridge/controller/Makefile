@@ -2,11 +2,15 @@
 
 all : Controller.exe
 
-Controller.exe : main.cpp linuxtrack.o resources.o dinput.o
-	wineg++ -v -m32 -o Controller -isystem/usr/include/wine/windows \
+Controller.exe : main.o linuxtrack.o resources.o dinput.o
+	wineg++ -m32 -o Controller \
+	  -Wl,--no-warn-search-mismatch \
           -L/usr/lib/i386-linux-gnu/ -L/usr/lib/i386-linux-gnu/wine \
-          -I../../ linuxtrack.o resources.o dinput.o -lshell32 -ldxguid \
-          -l dinput -l dinput8 -l uuid main.cpp
+           main.o linuxtrack.o resources.o dinput.o -lshell32 -ldxguid \
+          -l dinput -l dinput8 -l uuid
+          
+main.o : main.cpp
+	wineg++ -m32 -c -o main.o -isystem/usr/include/wine/windows -I../../ main.cpp
 
 linuxtrack.o : ../../linuxtrack.c ../../linuxtrack.h
 	winegcc -c -m32 -o linuxtrack.o -I../../ ../../linuxtrack.c
@@ -18,6 +22,9 @@ resources.o : resources.rc
 	wrc -o resources.o resources.rc
 
 clean :
+	@rm -rf *.exe* *.o
+
+distclean :
 	@rm -rf *.exe* *.o
 
 

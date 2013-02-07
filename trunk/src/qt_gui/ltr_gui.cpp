@@ -141,15 +141,66 @@ void LinuxtrackGui::on_QuitButton_pressed()
   close();
 }
 
+static void warn(const QString baseMsg, const QString explanation)
+{
+  warningMessage(QString("%1\nSystem says: %2").arg(baseMsg).arg(explanation));
+}
+
+bool removePlugin(const QString targetName)
+{
+  QFile target(targetName);
+  if(target.exists()){
+    if(!target.remove()){
+      warn(QString("Can't remove old plugin '%1'!").arg(targetName), target.errorString());
+      return false;
+    }
+  }
+  return true;
+}
+
+
+static bool installPlugin(const QString sourceFile, const QString destFile)
+{
+  //Create destination path
+  QFile src(sourceFile);
+  QFile dest(destFile);
+  if(!src.exists()){
+    warningMessage(QString("Source file '%s' doesn't exist!"));
+    return false;
+  }
+  QFileInfo destInfo(destFile);
+  QDir destDir = destInfo.dir();
+  //make sure the destination path exists
+  if(!destDir.exists()){
+    if(!destDir.mkpath(destDir.path())){
+      warningMessage(QString("Can't create output directory '%1'!").arg(destDir.path()));
+      return false;
+    }
+  }
+  //check if the file exists already
+  if(dest.exists()){
+    if(!removePlugin(destFile)){
+      return false;
+    }
+  }
+  //copy the new file
+  if(!src.copy(destFile)){
+    warn(QString("Can't copy file '%1' to '%2'!").arg(destFile).arg(destDir.path()), src.errorString());
+    return false;
+  }
+  return true;
+}
+
 void LinuxtrackGui::on_XplanePluginButton_pressed()
 {
   QString fileName = QFileDialog::getOpenFileName(this,
      "Find XPlane executable", "/", "All Files (*)");
   QRegExp pathRexp("^(.*/)[^/]+$");
   if(pathRexp.indexIn(fileName) == -1){
-    warningMessage(QString("Strange path... '" + fileName + "'"));
+    warningMessage(QString("This doesn't seem to be the right path... '" + fileName + "'"));
     return;
   }
+  QString sourceFile32 = PrefProxy::getLibPath("xlinuxtrack9_32");
   QString sourceFile = PrefProxy::getLibPath("xlinuxtrack9");
   QString destPath = pathRexp.cap(1) + "/Resources/plugins";
   if(!QFile::exists(destPath)){
@@ -159,38 +210,22 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
   
   //Check for the old plugin and remove it if exists
   QString oldPlugin = destPath + "/xlinuxtrack.xpl";
-  if(QFile::exists(oldPlugin)){
-    if(!QFile::remove(oldPlugin)){
-      warningMessage(QString("Can't remove old plugin ('" + oldPlugin + "')!"));
-    }
-  }
-  
-  //Create destination path
-  destPath += "/xlinuxtrack";
-  QDir pluginDir(destPath);
-  if(!pluginDir.exists()){
-    if(!pluginDir.mkdir(destPath)){
-      warningMessage(QString("Can't create new plugin directory ('" + destPath + "')!"));
+  QFileInfo old(oldPlugin);
+  if(old.exists()){
+    if(!removePlugin(oldPlugin)){
       return;
     }
   }
-  
+  destPath += "/xlinuxtrack/";
 #ifndef DARWIN
-  QString destFile = destPath + "/lin.xpl";
+  if(installPlugin(sourceFile32, destPath + "/lin.xpl") &&
+       installPlugin(sourceFile, destPath + "/64/lin.xpl")){
 #else
-  QString destFile = destPath + "/mac.xpl";
+  if(installPlugin(sourceFile, destPath + "/mac.xpl")){
 #endif
-  QFileInfo fi(destFile);
-  if(fi.isFile() || fi.isSymLink()){
-    if(!QFile::remove(destFile)){
-      warningMessage(QString("Couldn't remove ") + destFile + "!");
-      return;
-    }
+    QMessageBox::information(NULL, "Linuxtrack", "XPlane plugin installed successfuly!");
   }else{
-    std::cout<<destFile.toAscii().data()<<" is not a file!"<<std::endl;
-  }
-  if(!QFile::link(sourceFile, destFile)){
-    warningMessage(QString("Couldn't link ") + sourceFile + " to " + destFile);
+    warningMessage(QString("XPlane plugin installation failed!"));
   }
 }
 

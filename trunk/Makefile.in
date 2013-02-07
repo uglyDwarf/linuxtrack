@@ -51,9 +51,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@DARWIN_FALSE@am__append_1 = src/mickey
-@DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@am__append_2 = src/helper
-@WINE_PLUGIN_TRUE@am__append_3 = src/wine_bridge
+#SUBDIRS += src/mickey
+@DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@am__append_1 = src/helper
+@WINE_PLUGIN_TRUE@am__append_2 = src/wine_bridge
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(dist_pkgdata_DATA) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
@@ -126,8 +126,7 @@ AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
 	distdir dist dist-all distcheck
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = src src/mac src/tests doc src/mickey src/helper \
-	src/wine_bridge
+DIST_SUBDIRS = src src/mac src/tests doc src/helper src/wine_bridge
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -296,8 +295,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = src src/mac src/tests doc $(am__append_1) $(am__append_2) \
-	$(am__append_3)
+SUBDIRS = src src/mac src/tests doc $(am__append_1) $(am__append_2)
 dist_pkgdata_DATA = README README.devel README.xplane
 EXTRA_DIST = Readme.rtf deploy mac_build pkgconf_extract mac_m4/fake_pkg_conf.m4
 all: config.h

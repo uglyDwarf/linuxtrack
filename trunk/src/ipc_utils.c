@@ -381,7 +381,9 @@ int ltr_int_open_fifo_exclusive(const char *name)
 }
 
 int ltr_int_open_fifo_for_writing(const char *name, bool wait){
+  //printf("Trying to open fifo '%s'...\n", name);
   if(!ltr_int_make_fifo(name)){
+    ltr_int_log_message("Failed to create fifo for writing!\n");
     return -1;
   }
   
@@ -392,6 +394,8 @@ int ltr_int_open_fifo_for_writing(const char *name, bool wait){
   while(timeout > 0){
     --timeout;
     if((fifo = open(name, O_WRONLY | O_NONBLOCK)) < 0){
+      perror("open_fifo_for_writing");
+      //ltr_int_log_message("Fifo for writing failed to open (%s)!\n", name);
       if(errno != ENXIO){
         perror("open@open_fifo_for_writing");
         return -1;

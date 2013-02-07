@@ -30,6 +30,8 @@ AC_CHECK_LIB([usb], [usb_open], [LIBUSB=true])
 #AC_CHECK_LIB([openusb], [openusb_init], [LIBOPENUSB=true])
 AC_CHECK_LIB([usb-1.0], [libusb_init], [LIBUSB10=true])
 AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
+AC_CHECK_LIB([QxtGui], [_ZN17QxtGlobalShortcutD0Ev], [LIBQXT=true])
+
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdint.h assert.h])
@@ -181,6 +183,7 @@ AM_CONDITIONAL([LTR_PIPE], [test  x$with_ltr_pipe = xyes])
 AM_CONDITIONAL([LINUX], [test x$with_linux = xyes])
 AM_CONDITIONAL(FACE_TRACKER, [test x$with_face_tracker = xyes])
 AM_CONDITIONAL(WINE_PLUGIN, [test x$with_wine_plugin = xyes])
+AM_CONDITIONAL(LIBQXT, [test  "x$ac_cv_lib_QxtGui__ZN17QxtGlobalShortcutD0Ev" = xyes])
 
 # Checks for library functions.
 AC_CHECK_FUNCS([atexit])
@@ -207,4 +210,32 @@ AC_CONFIG_FILES([
  src/mickey/mickey.pro
 ])
 AC_OUTPUT
+
+echo "=============================================================="
+echo -n "Building Webcam support       "
+AS_IF([test  "x$with_libv4l2" = xyes], [echo "yes"], [echo "no"])
+
+echo -n "Building Wiimote support      "
+AS_IF([test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes], [echo "yes"], [echo "no"])
+
+echo -n "Building TrackIR support      "
+AS_IF([(test  "x$ac_cv_lib_usb_1_0_libusb_init" = xyes) \
+             && (test "x$ac_cv_lib_z_gzopen" = xyes)], [echo "yes"], [echo "no"])
+
+echo -n "Building Facetracker support  "
+AS_IF([test  "x$with_face_tracker" = xyes], [echo "yes"], [echo "no"])
+
+echo -n "Building Virtual Mouse        "
+AS_IF([test  "x$ac_cv_lib_QxtGui__ZN17QxtGlobalShortcutD0Ev" = xyes], [echo "yes"], [echo "no"])
+
+echo -n "Building XPlane plugin        "
+AS_IF([test  "x$with_xplane_plugin" = xyes], [echo "yes"], [echo "no"])
+
+echo -n "Building Wine plugin          "
+AS_IF([test  "x$with_wine_plugin" = xyes], [echo "yes"], [echo "no"])
+
+echo -n "Building ltr_pipe             "
+AS_IF([test  "x$with_ltr_pipe" = xyes], [echo "yes"], [echo "no"])
+
+
 

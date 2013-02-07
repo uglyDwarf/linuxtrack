@@ -155,7 +155,8 @@ if LTR32ON64
   xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
 			    linuxtrack.c
   xlinuxtrack_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
-  xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
+  xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib \
+    -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG} -Wl,--no-warn-search-mismatch
   xlinuxtrack_la_LIBADD = -lm -ldl
   xlinuxtrack9_32_la_SOURCES = xlinuxtrack9.c linuxtrack.c
   xlinuxtrack9_32_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
@@ -164,7 +165,8 @@ if LTR32ON64
 endif
 xlinuxtrack9_la_SOURCES = xlinuxtrack9.c linuxtrack.c
 xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC $(DARWINCFLAGS) ${TIGER_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
-xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG}
+xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC $(DARWINFLAGS) -dynamiclib \
+  -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${TIGER_LDFLAG} -Wl,--no-warn-search-mismatch
 xlinuxtrack9_la_LIBADD = -lm -ldl
 endif
 
@@ -177,41 +179,47 @@ BUILT_SOURCES = pref_flex.cpp pref_bison.cpp linuxtrack.c
 clean-local: clean-local-check
 .PHONY: clean-local-check
 clean-local-check:
-	-cd qt_gui;make clean
-	-cd wii_server;make clean
+	-cd qt_gui;$(MAKE) clean
+	-cd mickey;$(MAKE) clean
+	-cd wii_server;$(MAKE) clean
 	rm -f linuxtrack.c
 
 distclean-local: distclean-local-check
 .PHONY: distclean-local-check
 distclean-local-check:
-	-cd qt_gui;make distclean
-	-cd wii_server;make distclean
+	-cd qt_gui;$(MAKE) distclean
+	-cd mickey;$(MAKE) distclean
+	-cd wii_server;$(MAKE) distclean
 	rm -f linuxtrack.c
 
-noinst_SCRIPTS = qt_gui/ltr_gui mickey/mickey
+noinst_SCRIPTS = qt_gui/ltr_gui 
+
+if LIBQXT
+  noinst_SCRIPTS += mickey/mickey
+endif
 
 if CWIID
   noinst_SCRIPTS += wii_server/wii_server
 endif
 
 qt_gui/ltr_gui : ${pkglib_LTLIBRARIES}
-	pushd qt_gui; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
+	pushd qt_gui; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE); popd
 
 wii_server/wii_server : ${pkglib_LTLIBRARIES}
-	pushd wii_server; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
+	pushd wii_server; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE); popd
 
-mickey/mickey : ${pkglib_LTLIBRARIES}
-	pushd mickey; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make; popd
+mickey/mickey : ${pkglib_LTLIBRARIES} qt_gui/ltr_gui
+	pushd mickey; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE); popd
 
 install-exec-hook:
-	pushd qt_gui;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} install; popd
-	pushd wii_server;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} install; popd
-	pushd mickey;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} install; popd
+	pushd qt_gui;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} install; popd
+	pushd wii_server;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} install; popd
+	pushd mickey;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} install; popd
 
 uninstall-hook:
-	pushd qt_gui;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
-	pushd wii_server;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
-	pushd mickey;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; make INSTALL_ROOT=${DESTDIR} uninstall; popd
+	pushd qt_gui;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} uninstall; popd
+	pushd wii_server;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} uninstall; popd
+	pushd mickey;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} uninstall; popd
 
 
 EXTRA_DIST = qt_gui/ltr_show.h qt_gui/help_view.cpp qt_gui/ltr_tracking.h \
@@ -232,15 +240,34 @@ qt_gui/scurve.cpp qt_gui/ltr_gui.ui qt_gui/dev_help.ui qt_gui/ltr_profiles.h \
 qt_gui/ltr.ui qt_gui/ltr_state.cpp qt_gui/tir_prefs.cpp qt_gui/ltr_show.cpp \
 qt_gui/xm8_detail.png qt_gui/main.cpp qt_gui/prefs_link.h qt_gui/macwebcam_prefs.h \
 qt_gui/webcam_info.h qt_gui/help/misc.htm qt_gui/help/dev_setup.htm qt_gui/help/axes_setup.htm \
+qt_gui/help/contents.txt qt_gui/help/news.htm qt_gui/help/welcome.htm \
 qt_gui/help/model_setup.htm qt_gui/dlfirmware.h qt_gui/webcam_info.cpp qt_gui/plugin_install.h \
 qt_gui/XM8_cockpit.obj qt_gui/tracker.cpp qt_gui/webcam_prefs.h qt_gui/macwebcam_prefs.cpp \
 qt_gui/log_view.h tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
-xlinuxtrack.sym linuxtrack_pre.c \
+xlinuxtrack.sym linuxtrack_pre.c lt_client.c lt_server.c ltlib_client.c ltlib_client.h \
+ltr_server.c ltr_server.h netcomm.c netcomm.h pref_flex.h \
+qt_gui/buffering.cpp qt_gui/buffering.h qt_gui/cap_edit.ui qt_gui/cap_tweaking.ui \
+qt_gui/clip_edit.ui qt_gui/clip_tweaking.ui qt_gui/device_setup.cpp qt_gui/device_setup.h \
+qt_gui/device_setup.ui qt_gui/downloading.cpp qt_gui/downloading.h qt_gui/extractor.ui \
+qt_gui/extractor.cpp qt_gui/extractor.h qt_gui/game_data.c qt_gui/game_data.h \
+qt_gui/guardian.cpp qt_gui/guardian.h qt_gui/hashing.cpp qt_gui/hashing.h qt_gui/l_wc_setup.ui \
+qt_gui/l_wcft_setup.ui qt_gui/m_wc_setup.ui qt_gui/m_wcft_setup.ui qt_gui/model_edit.ui \
+qt_gui/profile_selector.cpp qt_gui/profile_selector.h qt_gui/profile_selector.ui \
+qt_gui/profile_setup.cpp qt_gui/profile_setup.h qt_gui/profile_setup.ui \
+qt_gui/progress.ui qt_gui/single_edit.ui qt_gui/sources.txt qt_gui/spec.txt qt_gui/tir_setup.ui \
+qt_gui/wii_setup.ui \
 wii_server/wii_server.cpp wii_server/wiimote.h wii_server/wiimote.cpp wii_server/wii_server.pro.in \
 wii_server/main.cpp wii_server/wii_server.h wii_server/wii_server.ui wii_server/wii_server.qrc \
 linuxtrack-wii.desktop linuxtrack-wii.png linuxtrack-wii.svg linuxtrack-wii.xpm \
 linuxtrack.desktop linuxtrack.png linuxtrack.svg linuxtrack.xpm \
-ltr_gui.1 ltr_pipe.1 ltr_server.1 wii_server.1
+ltr_gui.1 ltr_pipe.1 ltr_server.1 wii_server.1 mickey/uinput_ifc.h \
+mickey/piper.h mickey/keyb_qxt.h mickey/mickey.ui mickey/mickey.cpp \
+mickey/piper.c mickey/mickey.pro.in mickey/transform.h mickey/keyb.h mickey/mickey.h \
+mickey/chsettings.ui mickey/calibration.ui mickey/pref.ui mickey/transform.cpp \
+mickey/main.cpp mickey/help/tracking.htm mickey/help/misc.htm \
+mickey/help/news.htm mickey/help/contents.txt mickey/help/welcome.htm mickey/uinput_ifc.c \
+mickey/keyb.cpp mickey/helpview.ui
+
 
 
 ltr_pipe_CPPFLAGS =

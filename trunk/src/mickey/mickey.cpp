@@ -336,6 +336,7 @@ Mickey::Mickey() : updateTimer(this), btnThread(this), state(STANDBY),
   }
   updateTimer.setSingleShot(false);
   updateTimer.setInterval(8);
+  btnThread.start();
   ltr_init((char *)"Mickey");
   changeState(TRACKING);
 }

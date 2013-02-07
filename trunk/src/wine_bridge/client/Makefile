@@ -4,7 +4,8 @@
 all : NPClient.dll.so
 
 NPClient.dll.so : NPClient.spec NPClient_dll.o linuxtrack.o rest.o
-	winegcc -v -m32 -L/usr/lib/i386-linux-gnu/ -L/usr/lib/i386-linux-gnu/wine \
+	winegcc -m32 -L/usr/lib/i386-linux-gnu/ -L/usr/lib/i386-linux-gnu/wine \
+	  -Wl,--no-warn-search-mismatch \
           -g -o NPClient.dll.so -shared NPClient.spec NPClient_dll.o linuxtrack.o rest.o
 
 NPClient_dll.o : NPClient_dll.h NPClient_main.c
@@ -17,5 +18,8 @@ rest.o : rest.c rest.h
 	winegcc -m32 -g -c -o rest.o rest.c
 
 clean :
+	rm -rf *.o NPClient.dll.so
+
+distclean :
 	rm -rf *.o NPClient.dll.so
 
