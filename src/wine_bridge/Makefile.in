@@ -455,44 +455,44 @@ uninstall-am: uninstall-nodist_pkgdataDATA
 	uninstall-nodist_pkgdataDATA
 
 
-@WINE_PLUGIN_TRUE@.PHONY: build_parts
-@WINE_PLUGIN_TRUE@build_parts:
-@WINE_PLUGIN_TRUE@	make -C client
-@WINE_PLUGIN_TRUE@	make -C controller
-@WINE_PLUGIN_TRUE@	make -C dumper
-@WINE_PLUGIN_TRUE@	make -C tester
+#.PHONY: build_parts
+#build_parts:
 
-@WINE_PLUGIN_TRUE@Tester.exe.so : tester/Tester.exe
+@WINE_PLUGIN_TRUE@Tester.exe.so :
+@WINE_PLUGIN_TRUE@	$(MAKE) -C tester
 @WINE_PLUGIN_TRUE@	cp tester/Tester.exe* .
 
-@WINE_PLUGIN_TRUE@Controller.exe.so : controller/Controller.exe
+@WINE_PLUGIN_TRUE@Controller.exe.so :
+@WINE_PLUGIN_TRUE@	$(MAKE) -C controller
 @WINE_PLUGIN_TRUE@	cp controller/Controller.exe* .
 
-@WINE_PLUGIN_TRUE@NPClient.dll : client/NPClient.dll.so
+@WINE_PLUGIN_TRUE@NPClient.dll :
+@WINE_PLUGIN_TRUE@	$(MAKE) -C client
 @WINE_PLUGIN_TRUE@	cp client/NPClient.dll.so NPClient.dll
 
-@WINE_PLUGIN_TRUE@data.txt : dumper/data.txt
+@WINE_PLUGIN_TRUE@data.txt :
+@WINE_PLUGIN_TRUE@	$(MAKE) -C dumper
 @WINE_PLUGIN_TRUE@	cp dumper/data.txt .
 
-@WINE_PLUGIN_TRUE@linuxtrack-wine.exe : build_parts Tester.exe.so Controller.exe.so NPClient.dll data.txt
+@WINE_PLUGIN_TRUE@linuxtrack-wine.exe : Tester.exe.so Controller.exe.so NPClient.dll data.txt
 @WINE_PLUGIN_TRUE@	makensis ltr_wine.nsi
 
 @WINE_PLUGIN_TRUE@clean-local: clean-local-check
 @WINE_PLUGIN_TRUE@.PHONY: clean-local-check
 @WINE_PLUGIN_TRUE@clean-local-check:
-@WINE_PLUGIN_TRUE@	make -C client clean
-@WINE_PLUGIN_TRUE@	make -C controller clean
-@WINE_PLUGIN_TRUE@	make -C dumper clean
-@WINE_PLUGIN_TRUE@	make -C tester clean
+@WINE_PLUGIN_TRUE@	$(MAKE) -C client clean
+@WINE_PLUGIN_TRUE@	$(MAKE) -C controller clean
+@WINE_PLUGIN_TRUE@	$(MAKE) -C dumper clean
+@WINE_PLUGIN_TRUE@	$(MAKE) -C tester clean
 @WINE_PLUGIN_TRUE@	rm -f *.exe* *.dll* data.txt
 
 @WINE_PLUGIN_TRUE@distclean-local: distclean-local-check
 @WINE_PLUGIN_TRUE@.PHONY: distclean-local-check
 @WINE_PLUGIN_TRUE@distclean-local-check:
-@WINE_PLUGIN_TRUE@	make -C client clean
-@WINE_PLUGIN_TRUE@	make -C controller clean
-@WINE_PLUGIN_TRUE@	make -C dumper clean
-@WINE_PLUGIN_TRUE@	make -C tester clean
+@WINE_PLUGIN_TRUE@	$(MAKE) -C client clean
+@WINE_PLUGIN_TRUE@	$(MAKE) -C controller clean
+@WINE_PLUGIN_TRUE@	$(MAKE) -C dumper clean
+@WINE_PLUGIN_TRUE@	$(MAKE) -C tester clean
 @WINE_PLUGIN_TRUE@	rm -f *.exe* *.dll* data.txt
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
