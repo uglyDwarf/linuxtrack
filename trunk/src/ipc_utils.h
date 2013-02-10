@@ -1,6 +1,7 @@
 #ifndef IPC_UTILS__H
 #define IPC_UTILS__H
 
+#include <sys/types.h>
 #include <stdbool.h>
 
 #ifndef LIBLINUXTRACK_SRC
