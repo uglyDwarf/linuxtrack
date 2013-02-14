@@ -242,9 +242,9 @@ int __stdcall NPCLIENT_NP_GetData(tir_data_t * data)
   data->status = (ltr_get_tracking_state() == RUNNING);
   data->frame = frame & 0xFFFF;
   data->cksum = 0;
-  data->roll = r / 180.0 * 8191;
-  data->pitch = -p / 180.0 * 8191;
-  data->yaw = y / 180.0 * 8191;
+  data->roll = r / 180.0 * 16383;
+  data->pitch = -p / 180.0 * 16383;
+  data->yaw = y / 180.0 * 16383;
   data->tx = -limit_num(-16383.0, 15 * tx, 16383); 
   data->ty = limit_num(-16383.0, 15 * ty, 16383); 
   data->tz = limit_num(-16383.0, 15 * tz, 16383);
