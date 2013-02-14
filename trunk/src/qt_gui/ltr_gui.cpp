@@ -197,14 +197,13 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
      "Find XPlane executable", "/", "All Files (*)");
   QRegExp pathRexp("^(.*/)[^/]+$");
   if(pathRexp.indexIn(fileName) == -1){
-    warningMessage(QString("This doesn't seem to be the right path... '" + fileName + "'"));
     return;
   }
   QString sourceFile32 = PrefProxy::getLibPath("xlinuxtrack9_32");
   QString sourceFile = PrefProxy::getLibPath("xlinuxtrack9");
   QString destPath = pathRexp.cap(1) + "/Resources/plugins";
   if(!QFile::exists(destPath)){
-    warningMessage(QString("Wrong file specified!"));
+    warningMessage(QString("This doesn't seem to be the right path... '" + fileName + "'"));
     return;
   }
   
