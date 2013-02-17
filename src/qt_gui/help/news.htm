@@ -3,12 +3,40 @@
 
 <head>
   <title>What's new?</title>
-  <meta name="generator" content="Bluefish 2.0.2" >
+  <meta name="generator" content="Bluefish 2.2.3" >
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
 <body>
 <h1>What's new?</h1>
+<h2>Linuxtrack 1.0 Beta 1</h2>
+This Linuxtrack release is the beginning of the Linuxtrack 1.0 Beta run. 
 
+<h3>Linuxtrack requires wine now</h3>
+If you use any device from NP (TrackIR, SmartNav4), you have to have wine installed in order to get
+a firmware needed to run the device.
+<p>
+When the firmware is extracted, you might find TrackIR icon on your desktop - it is perfectly safe 
+to remove it.
+<p>
+Technical info: wine is being used to unpack windows TrackIR driver and extract the firmware from it.
+The extraction takes place in a temporary wine prefix, that is removed when done.
+
+<h3>64bit XPlane plugin</h3>
+Linuxtrack now contains 64bit enabled XPlane plugin - it should work in both XPlane 9 and XPlane 10
+32 and 64 bit.
+
+<h3>Linuxtrack supports Wine games now</h3>
+By installing wine plugin, you enable linuxtrack usage in TrackIR enabled windows games.
+For now, 32bit games are supported only, but 64bit will be worked on soon.
+
+<h3>Linuxtrack preferences directory changed</h3>
+Linuxtrack now stores its preferences in your home directory, under .config/linuxtrack directory.
+That includes TrackIR firmware too...
+
+<h3>Mickey, the virtual mouse</h3>
+Linuxtrack contains a virtual mouse application called mickey. It allows you to use headtracking
+instead of, or along with conventional mouse. For the moment, mickey works on linux only, but MacOS
+version is planned soon.
 
 </body>
 </html>
