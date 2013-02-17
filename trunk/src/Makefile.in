@@ -591,7 +591,7 @@ qt_gui/l_wcft_setup.ui qt_gui/m_wc_setup.ui qt_gui/m_wcft_setup.ui qt_gui/model_
 qt_gui/profile_selector.cpp qt_gui/profile_selector.h qt_gui/profile_selector.ui \
 qt_gui/profile_setup.cpp qt_gui/profile_setup.h qt_gui/profile_setup.ui \
 qt_gui/progress.ui qt_gui/single_edit.ui qt_gui/sources.txt qt_gui/spec.txt qt_gui/tir_setup.ui \
-qt_gui/wii_setup.ui \
+qt_gui/wii_setup.ui 51-Mickey.rules linuxtrack.pc \
 wii_server/wii_server.cpp wii_server/wiimote.h wii_server/wiimote.cpp wii_server/wii_server.pro.in \
 wii_server/main.cpp wii_server/wii_server.h wii_server/wii_server.ui wii_server/wii_server.qrc \
 linuxtrack-wii.desktop linuxtrack-wii.png linuxtrack-wii.svg linuxtrack-wii.xpm \
