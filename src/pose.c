@@ -24,6 +24,20 @@ static double center_ref[3] = {0.0, 0.0, 0.0};
 static double center_base[3][3];
 
 static enum {M_CAP, M_CLIP, M_SINGLE, M_FACE} type;
+static bool use_alter = false;
+static bool use_old_pose = false;
+
+
+static double c_base[3];
+static double tr_center[3];
+static double tr_rot[3][3];
+
+bool ltr_int_center(double rp0[3], double rp1[3], double rp2[3], double c_base[3], 
+  double center[3], double tr[3][3]);
+bool ltr_int_get_cbase(double p0[3], double p1[3], double p2[3], double c[3], 
+  double c_base[3]);
+bool ltr_int_get_pose(double rp0[3], double rp1[3], double rp2[3], double c_base[3],
+  double center[3], double tr[3][3], double angles[3], double trans[3]);
 
 void ltr_int_pose_init(struct reflector_model_type rm)
 {
@@ -101,6 +115,12 @@ void ltr_int_pose_init(struct reflector_model_type rm)
     ltr_int_print_vec(vec3, "vec3");
     ltr_int_print_vec(model_ref, "model_ref");
   #endif
+  use_alter = ltr_int_use_alter();
+  use_old_pose = ltr_int_use_oldrot();
+  if(use_old_pose){
+    ltr_int_get_cbase(rm.p0, rm.p1, rm.p2, rm.hc, c_base);
+    ltr_int_center(rm.p0, rm.p1, rm.p2, c_base, tr_center, tr_rot);
+  }
 }
 
 bool ltr_int_is_single_point()
@@ -387,177 +407,188 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
 			 {184.262,    18.075,    47.793}
   };
 */
-  if(ltr_int_use_alter()){
+  if(use_alter){
     alter_pose(blobs, points, centering);
   }else{
     iter_pose(blobs, points, centering);
   }
-//ltr_int_print_matrix(points, "points");
-  double new_base[3][3];
-  double vec1[3];
-  double vec2[3];
-  ltr_int_make_vec(points[1], points[0], vec1);
-  ltr_int_make_vec(points[2], points[0], vec2);
-  ltr_int_make_base(vec1, vec2, new_base);
   
-//  ltr_int_print_matrix(new_base, "new_base");
-  if((centering == true) && (ltr_int_is_matrix_finite(new_base))){
-    ltr_int_assign_matrix(new_base, center_base);
-  }
-  
-  //all applications contain transposed base
-  ltr_int_transpose_in_place(new_base);
-
-  double new_center[3];
-  ltr_int_matrix_times_vec(new_base, model_ref, vec1);
-  ltr_int_add_vecs(points[0], vec1, new_center);
-  
-//  ltr_int_print_matrix(new_base, "new_base'");
-//  ltr_int_print_vec(model_ref, "model_ref");
-//  ltr_int_print_vec(points[0], "pt0");
-//  ltr_int_print_vec(new_center, "new_center");
-  
-  if(centering == true){
-    int i;
-    for(i = 0; i < 3; ++i){
-      center_ref[i] = new_center[i];
-    }
-  }
+  double angles[3];
   double displacement[3];
-  ltr_int_make_vec(new_center, center_ref, displacement);
-//  ltr_int_print_vec(center_ref, "ref_pt");
-//  ltr_int_print_vec(displacement, "mv");
+  if(use_old_pose){
+  //ltr_int_print_matrix(points, "points");
+    double new_base[3][3];
+    double vec1[3];
+    double vec2[3];
+    ltr_int_make_vec(points[1], points[0], vec1);
+    ltr_int_make_vec(points[2], points[0], vec2);
+    ltr_int_make_base(vec1, vec2, new_base);
+    
+  //  ltr_int_print_matrix(new_base, "new_base");
+    if((centering == true) && (ltr_int_is_matrix_finite(new_base))){
+      ltr_int_assign_matrix(new_base, center_base);
+    }
+    
+    //all applications contain transposed base
+    ltr_int_transpose_in_place(new_base);
+    
+    double new_center[3];
+    ltr_int_matrix_times_vec(new_base, model_ref, vec1);
+    ltr_int_add_vecs(points[0], vec1, new_center);
+    
+  //  ltr_int_print_matrix(new_base, "new_base'");
+  //  ltr_int_print_vec(model_ref, "model_ref");
+  //  ltr_int_print_vec(points[0], "pt0");
+  //  ltr_int_print_vec(new_center, "new_center");
+    
+    if(centering == true){
+      int i;
+      for(i = 0; i < 3; ++i){
+        center_ref[i] = new_center[i];
+      }
+    }
+    ltr_int_make_vec(new_center, center_ref, displacement);
+  //  ltr_int_print_vec(center_ref, "ref_pt");
+  //  ltr_int_print_vec(displacement, "mv");
+    
+  //  ltr_int_print_matrix(center_base, "center_base");
+    
+    double transform[3][3];
+    ltr_int_mul_matrix(new_base, center_base, transform);
+  //  ltr_int_print_matrix(new_base, "new_base'");
+  //  ltr_int_print_matrix(center_base, "center_base");
+  //  ltr_int_print_matrix(transform, "transform");
+    //double pitch, yaw, roll;
+    ltr_int_matrix_to_euler(transform, &(angles[0]), &(angles[1]), &(angles[2]));
+  }else{
+    if(centering){
+      ltr_int_center(points[0], points[1], points[2], c_base, tr_center, tr_rot);
+    }
+    ltr_int_get_pose(points[0], points[1], points[2], c_base, tr_center, tr_rot, angles, displacement);
+  }
   
-//  ltr_int_print_matrix(center_base, "center_base");
-
-  double transform[3][3];
-  ltr_int_mul_matrix(new_base, center_base, transform);
-//  ltr_int_print_matrix(new_base, "new_base'");
-//  ltr_int_print_matrix(center_base, "center_base");
-//  ltr_int_print_matrix(transform, "transform");
-  double pitch, yaw, roll;
-  ltr_int_matrix_to_euler(transform, &pitch, &yaw, &roll);
-  pitch *= 180.0 /M_PI;
-  yaw *= 180.0 /M_PI;
-  roll *= 180.0 /M_PI;
+  ltr_int_mul_vec(angles, 180.0 /M_PI, angles);
   
 //  printf("Raw Pitch: %g   Yaw: %g  Roll: %g\n", pitch, yaw, roll);
 
-  pose->pitch = pitch;
-  pose->yaw = yaw;
-  pose->roll = roll;
+  pose->pitch = angles[0];
+  pose->yaw = angles[1];
+  pose->roll = angles[2];
   pose->tx = displacement[0];
   pose->ty = displacement[1];
   pose->tz = displacement[2];
   
-/*  
-  static float filterfactor=1.0;
-  ltr_int_get_filter_factor(&filterfactor);
-  static double filtered_angles[3] = {0.0f, 0.0f, 0.0f};
-  static double filtered_translations[3] = {0.0f, 0.0f, 0.0f};
-  if(centering == true){
-    int i;
-    for(i = 0; i < 3; ++i){
-      filtered_angles[i] = filtered_translations[i] = 0.0f;
-    }
-  }
-
-  double filter_factors_angles[3] = {filterfactor, filterfactor, filterfactor};
-  double filter_factors_translations[3] = {filterfactor, filterfactor, filterfactor * 10};
-  double raw_angles[3] = {pitch, yaw, roll};
-  ltr_int_nonlinfilt_vec(raw_angles, filtered_angles, filter_factors_angles, filtered_angles);
-  
-  pose->pitch = clamp_angle(ltr_int_val_on_axis(PITCH, filtered_angles[0]));
-  pose->heading = clamp_angle(ltr_int_val_on_axis(YAW, filtered_angles[1]));
-  pose->roll = clamp_angle(ltr_int_val_on_axis(ROLL, filtered_angles[2]));
-//  printf("Pitch: %g   Yaw: %g  Roll: %g\n", pose->pitch, pose->heading, pose->roll);
-  
-  double rotated[3];
-//  ltr_int_euler_to_matrix(pitch / 180.0 * M_PI, yaw / 180.0 * M_PI, 
-//                          roll / 180.0 * M_PI, transform);
-  ltr_int_euler_to_matrix(pose->pitch / 180.0 * M_PI, pose->heading / 180.0 * M_PI, 
-                          pose->roll / 180.0 * M_PI, transform);
-  ltr_int_matrix_times_vec(transform, displacement, rotated);
-  //ltr_int_print_matrix(transform, "trf");
-  //ltr_int_print_vec(displacement, "mv");
-  //ltr_int_print_vec(rotated, "rotated");
-  ltr_int_nonlinfilt_vec(rotated, filtered_translations, filter_factors_translations, 
-        filtered_translations);
-  ltr_int_orig_pose.tx = rotated[0];
-  ltr_int_orig_pose.ty = rotated[1];
-  ltr_int_orig_pose.tz = rotated[2];
-  pose->tx = ltr_int_val_on_axis(TX, filtered_translations[0]);
-  pose->ty = ltr_int_val_on_axis(TY, filtered_translations[1]);
-  pose->tz = ltr_int_val_on_axis(TZ, filtered_translations[2]);
-//  ltr_int_print_vec(displacement, "tr");
-  //printf("%f %f %f  %f %f %f\n", pose->pitch, pose->heading, pose->roll, pose->tx, pose->ty, pose->tz);
-*/
   return true;
 }
 
-/*
-int ltr_int_pose_compute_camera_update(struct transform trans,
-                               double *yaw,
-                               double *pitch,
-                               double *roll,
-                               double *tx,
-                               double *ty,
-                               double *tz)
+//Determine coordinates of the model's center of rotation in its local coordinates
+//  allowing to find it given only its three points in space.
+bool ltr_int_get_cbase(double p0[3], double p1[3], double p2[3], double c[3], 
+  double c_base[3])
 {
-  double p, y, r;
-  ltr_int_matrix_to_euler(trans.rot, &p, &y, &r);
-  if(ltr_int_is_finite(trans.tr[0]) && ltr_int_is_finite(trans.tr[1]) 
-     && ltr_int_is_finite(trans.tr[2]) && ltr_int_is_finite(p) 
-     && ltr_int_is_finite(y) && ltr_int_is_finite(r)){
-
-    *tx = trans.tr[0];
-    *ty = trans.tr[1];
-    *tz = trans.tr[2];
-    // convert to degrees 
-    (*pitch) = p * 180.0 /M_PI;
-    (*yaw)   = y * 180.0 /M_PI;
-    (*roll)  = r * 180.0 /M_PI;
-    #ifdef PT_DBG
-      printf("ROT: %g %g %g\n", *pitch, *yaw, *roll);
-      printf("TRA: %g %g %g\n", *tx, *ty, *tz);
-    #endif
-  / *
+  double R[3][3];
+  double base[3][3];
+  //move model's center of rotation to [0,0,0]
+  ltr_int_make_vec(p0, c, R[0]);
+  ltr_int_make_vec(p1, c, R[1]);
+  ltr_int_make_vec(p2, c, R[2]);
   
-    //rotate_translations(&heading_d, &pitch_d, &roll_d, &tx_d, &ty_d, &tz_d);
-    *heading = heading_d;
-    *pitch = pitch_d;
-    *roll = roll_d;
-    *tx = tx_d;
-    *ty = ty_d;
-    *tz = tz_d;
-  * /
-    return 0;
+  //create a local model's orthonormal base (center is p0)
+  double b1[3], b2[3];
+  ltr_int_make_vec(R[1], R[0], b1);
+  ltr_int_make_vec(R[2], R[0], b2);
+  ltr_int_make_base(b1, b2, base);
+  if(!ltr_int_is_matrix_finite(base)){
+    return false;
   }
-  return -1;
+  //devise center of rotation in model's local base coordinates
+  //  this allows to determine model's center rotation given only rp0-rp2
+  double tmp[3] = {0,0,0};
+  //reverse the vector to first point - later when added to first point,
+  //  it gives the center's location
+  ltr_int_make_vec(tmp, R[0], tmp);
+  ltr_int_matrix_times_vec(base, tmp, c_base);
+  return true;
 }
 
 
-int main(void)
+//Employed when centering to determine center position and transformation
+//  cancelling the rotation
+bool ltr_int_center(double rp0[3], double rp1[3], double rp2[3], double c_base[3], 
+  double center[3], double tr[3][3])
 {
-  pose_init();
+  double rb0[3], rb1[3], rb[3][3], rc[3], RR[3][3];
+  
+  //find model's current local base
+  ltr_int_make_vec(rp1, rp0, rb0);
+  ltr_int_make_vec(rp2, rp0, rb1);
+  ltr_int_make_base(rb0, rb1, rb);
+  ltr_int_transpose_in_place(rb);
+  
+  if(!ltr_int_is_matrix_finite(rb)){
+    return false;
+  }
 
-  struct blob_type bl[3];
-  struct bloblist_type blobs;
-  struct transform res;
-  blobs.num_blobs = 3;
-  blobs.blobs = bl;
-  blobs.blobs[0].x = 0;
-  blobs.blobs[0].y = 2.52632;
-  blobs.blobs[1].x = -0.98824;
-  blobs.blobs[1].y = 1.76471;
-  blobs.blobs[2].x = 0.98824;
-  blobs.blobs[2].y = 1.76471;
-  pose_process_blobs(blobs ,&res);
-
-  double pitch, roll, yaw;
-  matrix_to_euler(res.rot, &pitch, &yaw, &roll);
-  printf("Pitch: %f  Yaw: %f  Roll: %f\n", pitch, yaw, roll);
-
-  return 0;
+  //ltr_int_print_matrix(rb, "rb");
+  //transform model's center from local to global coordinates
+  //  (using p0 as an anchor)
+  ltr_int_matrix_times_vec(rb, c_base, rc);
+  ltr_int_add_vecs(rc, rp0, center);
+  
+  
+  //Devise the reverse transformation
+  //  transform zero to the model's center of rotation
+  
+  //ltr_int_print_vec(center, "center");
+  
+  ltr_int_make_vec(rp0, center, RR[0]);
+  ltr_int_make_vec(rp1, center, RR[1]);
+  ltr_int_make_vec(rp2, center, RR[2]);
+  ltr_int_transpose_in_place(RR);
+  ltr_int_print_matrix(RR, "RR");
+  //get inverse transform (not orthonormal!!!)
+  double tmp_tr[3][3];
+  ltr_int_invert_matrix(RR, tmp_tr);
+  if(!ltr_int_is_matrix_finite(tmp_tr)){
+    return false;
+  }
+  ltr_int_assign_matrix(tmp_tr, tr);
+  return true;
 }
-*/
+
+bool ltr_int_get_pose(double rp0[3], double rp1[3], double rp2[3], double c_base[3],
+  double center[3], double tr[3][3], double angles[3], double trans[3])
+{
+  double rb0[3], rb1[3], rb[3][3], rc[3], RR[3][3];
+  
+  //find model's current local base
+  ltr_int_make_vec(rp1, rp0, rb0);
+  ltr_int_make_vec(rp2, rp0, rb1);
+  ltr_int_make_base(rb0, rb1, rb);
+  ltr_int_transpose_in_place(rb);
+  if(!ltr_int_is_matrix_finite(rb)){
+    return false;
+  }
+  
+  //ltr_int_print_matrix(rb, "rb");
+  //transform model's center from local to global coordinates
+  //  (using p0 as an anchor)  
+  ltr_int_matrix_times_vec(rb, c_base, rc);
+  double current_center[3];
+  
+  ltr_int_add_vecs(rc, rp0, current_center);
+  ltr_int_make_vec(current_center, center, trans);
+  
+  double rot[3][3];
+  ltr_int_make_vec(rp0, current_center, RR[0]);
+  ltr_int_make_vec(rp1, current_center, RR[1]);
+  ltr_int_make_vec(rp2, current_center, RR[2]);
+  ltr_int_transpose_in_place(RR);
+  ltr_int_mul_matrix(RR, tr, rot);
+  if(!ltr_int_is_matrix_finite(rot)){
+    return false;
+  }
+  ltr_int_matrix_to_euler(rot, &(angles[0]), &(angles[1]), &(angles[2]));
+  return true;
+}
+
