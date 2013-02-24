@@ -56,22 +56,19 @@ bool ltr_int_is_model_active()
   return res;
 }
 
-static bool use_alter = false;
+
 bool ltr_int_use_alter()
 {
-  static char *pose_method = NULL;
-  if(pose_method == NULL){
-    pose_method = ltr_int_get_key("Global", "Legacy-pose-computation");
-    if(pose_method == NULL){
-      use_alter = false;
+  bool use_alter = false;
+  char *pose_method = NULL;
+  pose_method = ltr_int_get_key("Global", "Legacy-pose-computation");
+  if(pose_method != NULL){
+    if(strcasecmp(pose_method, "yes") == 0){
+      use_alter = true;
     }else{
-      if(strcasecmp(pose_method, "yes") == 0){
-        use_alter = true;
-      }else{
-        use_alter = false;
-      }
-      free(pose_method);
+      use_alter = false;
     }
+    free(pose_method);
   }
   return use_alter;
 }
@@ -79,7 +76,27 @@ bool ltr_int_use_alter()
 void ltr_int_set_use_alter(bool state)
 {
   ltr_int_change_key("Global", "Legacy-pose-computation", state?"yes":"no");
-  use_alter = state;
+}
+
+bool ltr_int_use_oldrot()
+{
+  bool use_oldrot = false;
+  char *rot_method = NULL;
+  rot_method = ltr_int_get_key("Global", "Legacy-rotation-computation");
+  if(rot_method != NULL){
+    if(strcasecmp(rot_method, "yes") == 0){
+      use_oldrot = true;
+    }else{
+      use_oldrot = false;
+    }
+    free(rot_method);
+  }
+  return use_oldrot;
+}
+
+void ltr_int_set_use_oldrot(bool state)
+{
+  ltr_int_change_key("Global", "Legacy-rotation-computation", state?"yes":"no");
 }
 
 bool ltr_int_get_device(struct camera_control_block *ccb)

@@ -181,16 +181,16 @@ bool Extractor::readSpec()
   return (targets.size() != 0);
 }
 
-Extractor::Extractor(QWidget *parent) : QWidget(parent), et(NULL), dl(NULL), progressDlg(NULL)
+Extractor::Extractor(QWidget *parent) : QDialog(parent), et(NULL), dl(NULL), progressDlg(NULL)
 {
   ui.setupUi(this);
   et = new ExtractThread();
-  wine = new QProcess(this);
+  wine = new WineLauncher();
   dl = new Downloading();
   progressDlg = new Progress();
   QObject::connect(et, SIGNAL(progress(const QString &)), this, SLOT(progress(const QString &)));
   QObject::connect(et, SIGNAL(finished()), this, SLOT(threadFinished()));
-  QObject::connect(wine, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(wineFinished(int, QProcess::ExitStatus)));
+  QObject::connect(wine, SIGNAL(finished(bool)), this, SLOT(wineFinished(bool)));
   QObject::connect(dl, SIGNAL(done(bool, QString)), this, SLOT(downloadDone(bool, QString)));
   QObject::connect(dl, SIGNAL(msg(const QString &)), this, SLOT(progress(const QString &)));
   QObject::connect(dl, SIGNAL(msg(qint64, qint64)), progressDlg, SLOT(message(qint64, qint64)));
@@ -219,10 +219,9 @@ QString makeDestPath(const QString &base)
 }
 
 
-void Extractor::wineFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void Extractor::wineFinished(bool result)
 {
-  qDebug()<<"Wine exited "<<exitCode<<exitStatus;
-  if((exitStatus == QProcess::NormalExit) && (exitCode == 0)){
+  if(result){
     destPath = makeDestPath(PrefProxy::getRsrcDirPath());
     et->start(targets, winePrefix, destPath);
   }
@@ -231,9 +230,6 @@ void Extractor::wineFinished(int exitCode, QProcess::ExitStatus exitStatus)
 
 void Extractor::extractFirmware(QString file)
 {
-  QString cmd("bash -c \"wine ");
-  cmd += QString("%1\"").arg(file);
-  qDebug()<<"Command: "<<cmd;
   QMessageBox::information(this, "Instructions", 
   "NP's TrackIR installer will pop up now.\n\n"
   "Install it with all components to the default location, so the firmware and other necessary "
@@ -243,11 +239,9 @@ void Extractor::extractFirmware(QString file)
   );
   qDebug()<<winePrefix;
   progress(QString("Initializing wine and running installer %1").arg(file));
-  QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-  env.insert("WINEDLLOVERRIDES", "winemenubuilder.exe=d");
-  env.insert("WINEPREFIX", winePrefix);
-  wine->setProcessEnvironment(env);
-  wine->start(cmd);
+  wine->setEnv("WINEDLLOVERRIDES", "winemenubuilder.exe=d");
+  wine->setEnv("WINEPREFIX", winePrefix);
+  wine->run(file);
 }
 
 

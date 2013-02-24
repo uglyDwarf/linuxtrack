@@ -27,6 +27,7 @@
 #include "device_setup.h"
 #include "profile_selector.h"
 #include "guardian.h"
+#include "wine_launcher.h"
 
 static QMessageBox::StandardButton warnQuestion(const QString &message)
 {
@@ -60,8 +61,6 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   gui_settings = new QSettings("linuxtrack", "ltr_gui");
   showWindow = new LtrGuiForm(ui, *gui_settings);
   helper = new LtrDevHelp();
-  showWindow->show();
-  helper->show();
   gui_settings->beginGroup("MainWindow");
   resize(gui_settings->value("size", QSize(763, 627)).toSize());
   move(gui_settings->value("pos", QPoint(0, 0)).toPoint());
@@ -78,10 +77,16 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   gui_settings->endGroup();
   HelpViewer::LoadPrefs(*gui_settings);
   ui.LegacyPose->setChecked(ltr_int_use_alter());
+  WineLauncher wl;
+  if(!wl.check()){
+    warningMessage("Wine not working, you'll not be able to install NP firmware and Wine plugin!");
+  }
 }
 
 void LinuxtrackGui::show()
 {
+  showWindow->show();
+  helper->show();
   QWidget::show();
   if(welcome){
     HelpViewer::ChangePage("welcome.htm");
@@ -124,12 +129,15 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   showWindow->close();
   helper->close();
   lv->close();
+  delete pi;
   delete showWindow;
   delete me;
   delete helper;
   delete gui_settings;
   delete ps;
   delete grd;
+  delete lv;
+  delete ds;
   event->accept();
 }
 
@@ -302,6 +310,7 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
       ui.DefaultsButton->setEnabled(true);
       ui.DiscardChangesButton->setEnabled(true);
       ui.LegacyPose->setEnabled(true);
+      ui.LegacyRotation->setEnabled(true);
       break;
     case INITIALIZING:
     case RUNNING:
@@ -313,6 +322,7 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
       ui.DefaultsButton->setDisabled(true);
       ui.DiscardChangesButton->setDisabled(true);
       ui.LegacyPose->setDisabled(true);
+      ui.LegacyRotation->setDisabled(true);
       break;
     default:
       break;
@@ -325,6 +335,15 @@ void LinuxtrackGui::on_LegacyPose_stateChanged(int state)
     ltr_int_set_use_alter(true);
   }else{
     ltr_int_set_use_alter(false);
+  }
+}
+
+void LinuxtrackGui::on_LegacyRotation_stateChanged(int state)
+{
+  if(state == Qt::Checked){
+    ltr_int_set_use_oldrot(true);
+  }else{
+    ltr_int_set_use_oldrot(false);
   }
 }
 

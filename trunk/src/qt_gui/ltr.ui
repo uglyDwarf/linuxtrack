@@ -137,6 +137,16 @@
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_23">
              <item>
+              <widget class="QLabel" name="label">
+               <property name="text">
+                <string>Troubleshooting options</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QCheckBox" name="DisableCamView">
                <property name="text">
                 <string>Disable camera view</string>
@@ -155,6 +165,13 @@
                <property name="text">
                 <string>Use legacy pose computation method
   (weak perspective/Alter)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="LegacyRotation">
+               <property name="text">
+                <string>Use legacy rotation computation method</string>
                </property>
               </widget>
              </item>

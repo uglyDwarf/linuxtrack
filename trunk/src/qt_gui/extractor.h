@@ -13,6 +13,7 @@
 #include <map>
 #include "hashing.h"
 #include "downloading.h"
+#include "wine_launcher.h"
 
 typedef std::multimap<uint16_t, BlockId> targets_t;
 typedef std::multimap<uint16_t, BlockId>::iterator targets_iterator_t;
@@ -52,7 +53,7 @@ class ExtractThread: public QThread
   bool everything;
 };
 
-class Extractor: public QWidget
+class Extractor: public QDialog
 {
  Q_OBJECT
  public:
@@ -63,7 +64,7 @@ class Extractor: public QWidget
   Ui::Form ui;
   targets_t targets;
   ExtractThread *et;
-  QProcess *wine;
+  WineLauncher *wine;
   QString winePrefix;
   Downloading *dl;
   Progress *progressDlg;
@@ -81,7 +82,7 @@ class Extractor: public QWidget
   void on_QuitButton_pressed();
   void progress(const QString &msg);
   void threadFinished();
-  void wineFinished(int exitCode, QProcess::ExitStatus exitStatus);
+  void wineFinished(bool result);
   void downloadDone(bool ok, QString fileName);
 };
 

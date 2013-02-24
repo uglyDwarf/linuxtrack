@@ -62,7 +62,9 @@ TirPrefs::TirPrefs(const QString &dev_id, QWidget *parent) : QWidget(parent), id
 
 TirPrefs::~TirPrefs()
 {
+  std::cout<<"Destructing tirprefs!"<<std::endl;
   if(dlfw != NULL){
+    std::cout<<"Closing dlfw!"<<std::endl;
     dlfw->close();
     delete dlfw;
   }
@@ -120,7 +122,7 @@ bool TirPrefs::Activate(const QString &ID, bool init)
     ui.TirFwLabel->setText("Firmware not found - TrackIr will not work!");
     QMessageBox::warning(NULL, QString("TrackIR Firmware Installation"), 
         QString("TrackIR device was found, but you don't have the firmware installed."));
-    on_TirInstallFirmware_pressed();
+    //on_TirInstallFirmware_pressed();
   }
   printf("Type: %d\n", tirType);
   if((tirType < TIR5) || (tirType == SMARTNAV4)){
@@ -237,10 +239,11 @@ void TirPrefs::TirFirmwareDLFinished(bool state)
 void TirPrefs::on_TirInstallFirmware_pressed()
 {
   if(dlfw == NULL){
-    dlfw = new Extractor();
+    dlfw = new Extractor(this);
     QObject::connect(dlfw, SIGNAL(finished(bool)),
       this, SLOT(TirFirmwareDLFinished(bool)));
   }
   dlfw->show();
+  dlfw->raise();
 }
 

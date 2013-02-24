@@ -2,8 +2,8 @@
 #define PLUGIN_INSTALL
 
 #include <QObject>
-#include <QProcess>
 #include "ui_ltr.h"
+#include "wine_launcher.h"
 
 class Extractor;
 
@@ -15,19 +15,19 @@ class PluginInstall : public QObject
   ~PluginInstall();
  private slots:
   void installWinePlugin();
-  void instFinished(int exitCode, QProcess::ExitStatus exitStatus);
+  void instFinished(bool result);
   void tirFirmwareInstall();
   void tirFirmwareInstalled(bool ok);
   
  private:
   const Ui::LinuxtrackMainForm &gui;
   void Connect();
-  QProcess *inst;
+  WineLauncher *inst;
   Extractor *dlfw;
   bool isTirFirmwareInstalled();
-  const QString keySrc;
-  const QString keyFile;
-  const QString sigFile;
+  const QString poem1;
+  const QString poem2;
+  const QString gameData;
 };
 
 

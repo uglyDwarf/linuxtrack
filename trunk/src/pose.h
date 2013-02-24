@@ -55,6 +55,7 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
                         bool centering);
 bool ltr_int_is_single_point();                        
 bool ltr_int_is_face();
+
 /*
 int ltr_int_pose_compute_camera_update(struct transform trans,
                                double *yaw,

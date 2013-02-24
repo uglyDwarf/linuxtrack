@@ -229,6 +229,22 @@ bool ltr_int_is_matrix_finite(double matrix[3][3])
   }
 }
 
+void ltr_int_invert_matrix(double in[3][3], double out[3][3])
+{
+  double det = in[0][0] * in[1][1] * in[2][2] - in[2][0] * in[1][1] * in[0][2] +
+               in[1][0] * in[2][1] * in[0][2] - in[1][0] * in[0][1] * in[2][2] +
+               in[2][0] * in[0][1] * in[1][2] - in[0][0] * in[2][1] * in[1][2];
+  ltr_int_cross_product(in[1], in[2], out[0]);
+  ltr_int_cross_product(in[2], in[0], out[1]);
+  ltr_int_cross_product(in[0], in[1], out[2]);
+  ltr_int_mul_vec(out[0], 1/det, out[0]);
+  ltr_int_mul_vec(out[1], 1/det, out[1]);
+  ltr_int_mul_vec(out[2], 1/det, out[2]);
+  ltr_int_transpose_in_place(out);
+}
+
+
+
 bool ltr_int_is_vector_finite(double vec[3])
 {
   if(ltr_int_is_finite(vec[0]) && ltr_int_is_finite(vec[1]) &&
