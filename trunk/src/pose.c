@@ -117,10 +117,8 @@ void ltr_int_pose_init(struct reflector_model_type rm)
   #endif
   use_alter = ltr_int_use_alter();
   use_old_pose = ltr_int_use_oldrot();
-  if(use_old_pose){
-    ltr_int_get_cbase(rm.p0, rm.p1, rm.p2, rm.hc, c_base);
-    ltr_int_center(rm.p0, rm.p1, rm.p2, c_base, tr_center, tr_rot);
-  }
+  ltr_int_get_cbase(rm.p0, rm.p1, rm.p2, rm.hc, c_base);
+  ltr_int_center(rm.p0, rm.p1, rm.p2, c_base, tr_center, tr_rot);
 }
 
 bool ltr_int_is_single_point()
@@ -470,15 +468,17 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
   ltr_int_mul_vec(angles, 180.0 /M_PI, angles);
   
 //  printf("Raw Pitch: %g   Yaw: %g  Roll: %g\n", pitch, yaw, roll);
-
-  pose->pitch = angles[0];
-  pose->yaw = angles[1];
-  pose->roll = angles[2];
-  pose->tx = displacement[0];
-  pose->ty = displacement[1];
-  pose->tz = displacement[2];
-  
-  return true;
+  if(ltr_int_is_vector_finite(angles) && ltr_int_is_vector_finite(displacement)){
+    pose->pitch = angles[0];
+    pose->yaw = angles[1];
+    pose->roll = angles[2];
+    pose->tx = displacement[0];
+    pose->ty = displacement[1];
+    pose->tz = displacement[2];
+    
+    return true;
+  }
+  return false;
 }
 
 //Determine coordinates of the model's center of rotation in its local coordinates
