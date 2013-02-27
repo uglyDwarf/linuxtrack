@@ -194,12 +194,23 @@ distclean-local-check:
 
 noinst_SCRIPTS = qt_gui/ltr_gui 
 
+.PHONY: LTR_QT_GUI_TARGET_INST LTR_QT_GUI_TARGET_UNINST \
+  LTR_MICKEY_TARGET_INST LTR_MICKEY_TARGET_UNINST \
+  LTR_WII_TARGET_INST LTR_WII_TARGET_UNINST
+
+hook_inst_targets = LTR_QT_GUI_TARGET_INST
+hook_uninst_targets = LTR_QT_GUI_TARGET_UNINST
+
 if LIBQXT
   noinst_SCRIPTS += mickey/mickey
+  hook_inst_targets += LTR_MICKEY_TARGET_INST
+  hook_uninst_targets += LTR_MICKEY_TARGET_UNINST
 endif
 
 if CWIID
   noinst_SCRIPTS += wii_server/wii_server
+  hook_inst_targets += LTR_WII_TARGET_INST
+  hook_uninst_targets += LTR_WII_TARGET_UNINST
 endif
 
 qt_gui/ltr_gui : ${pkglib_LTLIBRARIES}
@@ -211,14 +222,27 @@ wii_server/wii_server : ${pkglib_LTLIBRARIES}
 mickey/mickey : ${pkglib_LTLIBRARIES} qt_gui/ltr_gui
 	pushd mickey; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE); popd
 
-install-exec-hook:
+
+install-exec-hook: $(hook_inst_targets)
+
+LTR_QT_GUI_TARGET_INST:
 	pushd qt_gui;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} install; popd
+
+LTR_WII_TARGET_INST:
 	pushd wii_server;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} install; popd
+
+LTR_MICKEY_TARGET_INST:
 	pushd mickey;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} install; popd
 
-uninstall-hook:
+uninstall-hook: $(hook_uninst_targets)
+
+LTR_QT_GUI_TARGET_UNINST:
 	pushd qt_gui;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} uninstall; popd
+
+LTR_WII_TARGET_UNINST:
 	pushd wii_server;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} uninstall; popd
+
+LTR_MICKEY_TARGET_UNINST:
 	pushd mickey;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} uninstall; popd
 
 

@@ -22,6 +22,7 @@ class PluginInstall;
 class DeviceSetup;
 class ProfileSelector;
 class Guardian;
+class XPluginInstall;
 
 class LinuxtrackGui : public QWidget
 {
@@ -58,6 +59,7 @@ class LinuxtrackGui : public QWidget
   LogView *lv;
   PluginInstall *pi;
   ProfileSelector *ps;
+  XPluginInstall *xpInstall;
   bool initialized;
   QSettings *gui_settings;
   void rereadPrefs();

@@ -70,11 +70,15 @@ bin_PROGRAMS = ltr_server1$(EXEEXT) $(am__EXEEXT_1)
 @XPLANE_PLUGIN_TRUE@am__append_8 = xlinuxtrack9.la
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am__append_9 = xlinuxtrack.la xlinuxtrack9_32.la
 @LIBQXT_TRUE@am__append_10 = mickey/mickey
-@CWIID_TRUE@am__append_11 = wii_server/wii_server
-@LTR_PIPE_TRUE@am__append_12 = ltr_pipe.1
-@LTR_PIPE_TRUE@am__append_13 = ltr_pipe
-@LTR_PIPE_TRUE@am__append_14 = -D_GNU_SOURCE
-@LINUX_TRUE@am__append_15 = -DLINUX
+@LIBQXT_TRUE@am__append_11 = LTR_MICKEY_TARGET_INST
+@LIBQXT_TRUE@am__append_12 = LTR_MICKEY_TARGET_UNINST
+@CWIID_TRUE@am__append_13 = wii_server/wii_server
+@CWIID_TRUE@am__append_14 = LTR_WII_TARGET_INST
+@CWIID_TRUE@am__append_15 = LTR_WII_TARGET_UNINST
+@LTR_PIPE_TRUE@am__append_16 = ltr_pipe.1
+@LTR_PIPE_TRUE@am__append_17 = ltr_pipe
+@LTR_PIPE_TRUE@am__append_18 = -D_GNU_SOURCE
+@LINUX_TRUE@am__append_19 = -DLINUX
 subdir = src
 DIST_COMMON = $(dist_pkgdata_DATA) $(include_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
@@ -461,7 +465,7 @@ top_srcdir = @top_srcdir@
 @DARWIN_TRUE@@SNOW_LEOPARD_TRUE@QMAKE_FLAGS = -spec macx-g++40
 @DARWIN_FALSE@LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
 @DARWIN_FALSE@LIBLINUXTRACK_FLAGS = -fpic -fPIC
-man_MANS = ltr_gui.1 ltr_server.1 $(am__append_2) $(am__append_12)
+man_MANS = ltr_gui.1 ltr_server.1 $(am__append_2) $(am__append_16)
 lib_LTLIBRARIES = liblinuxtrack.la
 pkglib_LTLIBRARIES = libltr.la libmacwii.la $(am__append_1) \
 	$(am__append_3) $(am__append_4) $(am__append_5) \
@@ -557,7 +561,11 @@ nodist_pkgdata_DATA = linuxtrack.c
 AM_YFLAGS = -d --name-prefix ltr_int_parser_
 AM_LFLAGS = -i
 BUILT_SOURCES = pref_flex.cpp pref_bison.cpp linuxtrack.c
-noinst_SCRIPTS = qt_gui/ltr_gui $(am__append_10) $(am__append_11)
+noinst_SCRIPTS = qt_gui/ltr_gui $(am__append_10) $(am__append_13)
+hook_inst_targets = LTR_QT_GUI_TARGET_INST $(am__append_11) \
+	$(am__append_14)
+hook_uninst_targets = LTR_QT_GUI_TARGET_UNINST $(am__append_12) \
+	$(am__append_15)
 EXTRA_DIST = qt_gui/ltr_show.h qt_gui/help_view.cpp qt_gui/ltr_tracking.h \
 qt_gui/scp_form.ui qt_gui/logview.ui qt_gui/clip.png qt_gui/webcam_prefs.cpp \
 qt_gui/scview.h qt_gui/webcam_ft_prefs.h qt_gui/scview.cpp qt_gui/dl.ui \
@@ -604,7 +612,7 @@ mickey/main.cpp mickey/help/tracking.htm mickey/help/misc.htm \
 mickey/help/news.htm mickey/help/contents.txt mickey/help/welcome.htm mickey/uinput_ifc.c \
 mickey/keyb.cpp mickey/helpview.ui
 
-ltr_pipe_CPPFLAGS = $(am__append_14) $(am__append_15)
+ltr_pipe_CPPFLAGS = $(am__append_18) $(am__append_19)
 @LTR_PIPE_TRUE@ltr_pipe_SOURCES = ltr_pipe.c linuxtrack.h utils.h ipc_utils.h utils.c ipc_utils.c ltlib.c ltlib.h
 @LTR_PIPE_TRUE@ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 @LTR_PIPE_TRUE@ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS}
@@ -1447,6 +1455,10 @@ distclean-local-check:
 	-cd wii_server;$(MAKE) distclean
 	rm -f linuxtrack.c
 
+.PHONY: LTR_QT_GUI_TARGET_INST LTR_QT_GUI_TARGET_UNINST \
+  LTR_MICKEY_TARGET_INST LTR_MICKEY_TARGET_UNINST \
+  LTR_WII_TARGET_INST LTR_WII_TARGET_UNINST
+
 qt_gui/ltr_gui : ${pkglib_LTLIBRARIES}
 	pushd qt_gui; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE); popd
 
@@ -1456,14 +1468,26 @@ wii_server/wii_server : ${pkglib_LTLIBRARIES}
 mickey/mickey : ${pkglib_LTLIBRARIES} qt_gui/ltr_gui
 	pushd mickey; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE); popd
 
-install-exec-hook:
+install-exec-hook: $(hook_inst_targets)
+
+LTR_QT_GUI_TARGET_INST:
 	pushd qt_gui;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} install; popd
+
+LTR_WII_TARGET_INST:
 	pushd wii_server;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} install; popd
+
+LTR_MICKEY_TARGET_INST:
 	pushd mickey;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} install; popd
 
-uninstall-hook:
+uninstall-hook: $(hook_uninst_targets)
+
+LTR_QT_GUI_TARGET_UNINST:
 	pushd qt_gui;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} uninstall; popd
+
+LTR_WII_TARGET_UNINST:
 	pushd wii_server;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} uninstall; popd
+
+LTR_MICKEY_TARGET_UNINST:
 	pushd mickey;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} uninstall; popd
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

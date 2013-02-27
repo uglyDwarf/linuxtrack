@@ -6,20 +6,36 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>405</width>
-    <height>234</height>
+    <width>462</width>
+    <height>241</height>
    </rect>
   </property>
   <property name="WindowTitle" stdset="0">
    <string>WebcamSetupForm</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_5">
+  <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>Webcam Setup</string>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QLabel" name="label_4">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Webcam Setup</string>
+        </property>
+       </widget>
+      </item>
       <item>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
@@ -35,7 +51,17 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item row="1" column="1">
+         <widget class="QComboBox" name="WebcamResolutions">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
          <widget class="QLabel" name="label_15">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -48,18 +74,8 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="0" column="1">
          <widget class="QComboBox" name="WebcamFormats"/>
-        </item>
-        <item row="1" column="1">
-         <widget class="QComboBox" name="WebcamResolutions">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
         </item>
        </layout>
       </item>
@@ -111,11 +127,27 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Troubleshooting</string>
+    <widget class="QFrame" name="frame_2">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="label_5">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Troubleshooting</string>
+        </property>
+       </widget>
+      </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
