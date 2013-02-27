@@ -355,11 +355,9 @@ int __stdcall NPCLIENT_NP_RegisterProgramProfileID(unsigned short id)
         table[7] = (unsigned char)(gd.key2&0xff); gd.key2 >>= 8;
       }
     }
-    char *name = strdup(gd.name);
-    if(ltr_init(name) != 0){
+    if(ltr_init(gd.name) != 0){
       return 1;
     }
-    free(name);
   }else{
     if(!ltr_init("Default")){
       return 1;

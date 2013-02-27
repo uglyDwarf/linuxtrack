@@ -22,14 +22,14 @@ HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h help_view.h \
            scurve.h scview.h wiimote_prefs.h tracker.h plugin_install.h \
            profile_setup.h profile_selector.h guardian.h \
            webcam_prefs.h webcam_info.h webcam_ft_prefs.h \
-           macwebcam_prefs.h macwebcamft_prefs.h macwebcam_info.h \
+           macwebcam_prefs.h macwebcamft_prefs.h macwebcam_info.h xplugin.h \
            extractor.h game_data.h hashing.h downloading.h wine_launcher.h
 
 FORMS += ltr_gui.ui dev_help.ui ltr.ui model_creation.ui scurve.ui scp_form.ui \
            logview.ui l_wc_setup.ui wii_setup.ui tir_setup.ui l_wcft_setup.ui \
            m_wc_setup.ui m_wcft_setup.ui cap_edit.ui clip_edit.ui single_edit.ui model_edit.ui \
            device_setup.ui profile_setup.ui profile_selector.ui cap_tweaking.ui clip_tweaking.ui \
-           extractor.ui progress.ui
+           extractor.ui progress.ui xplugin.ui
            
 SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            ltr_gui_prefs.cpp tir_prefs.cpp help_view.cpp buffering.cpp \
@@ -39,7 +39,7 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            tracker.cpp ../ltr_srv_master.cpp  device_setup.cpp \
            ../ltr_srv_slave.c ../ltr_srv_comm.c plugin_install.cpp profile_setup.cpp \
            profile_selector.cpp webcam_info.cpp webcam_prefs.cpp webcam_ft_prefs.cpp \
-           macwebcam_info.cpp macwebcamft_prefs.cpp macwebcam_prefs.cpp \
+           macwebcam_info.cpp macwebcamft_prefs.cpp macwebcam_prefs.cpp xplugin.cpp \
            extractor.cpp game_data.c hashing.cpp downloading.cpp wine_launcher.cpp
 
 

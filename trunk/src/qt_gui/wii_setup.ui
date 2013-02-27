@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>433</width>
-    <height>298</height>
+    <width>410</width>
+    <height>138</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,11 +15,27 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Wiimote Function Indication</string>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Wiimote Indication Setup</string>
+        </property>
+       </widget>
+      </item>
       <item>
        <layout class="QGridLayout" name="gridLayout">
         <item row="1" column="0">
@@ -101,7 +117,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>1</string>
+           <string>LED 1 on</string>
           </property>
          </widget>
         </item>
@@ -114,7 +130,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>2</string>
+           <string>LED 2 on</string>
           </property>
          </widget>
         </item>
@@ -127,7 +143,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>3</string>
+           <string>LED 3 on</string>
           </property>
          </widget>
         </item>
@@ -140,7 +156,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>4</string>
+           <string>LED 4 on</string>
           </property>
          </widget>
         </item>
