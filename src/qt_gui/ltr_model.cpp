@@ -291,7 +291,7 @@ CapTweaking::CapTweaking(const QString &section, QWidget *parent) : QWidget(pare
   ui.setupUi(this);
   QString val;
   if(PREF.getKeyVal(currentSection, "Head-Y", val))
-    ui.CapHy->setValue(val.toFloat());
+    ui.CapHy->setValue(val.toFloat()/3);
   if(PREF.getKeyVal(currentSection, "Head-Z", val))
     ui.CapHz->setValue(val.toFloat());
   initializing = false;
@@ -304,7 +304,7 @@ CapTweaking::~CapTweaking()
 void CapTweaking::on_CapHy_valueChanged(int val)
 {
   if(!initializing)
-    PREF.setKeyVal(currentSection, (char *)"Head-Y", val);
+    PREF.setKeyVal(currentSection, (char *)"Head-Y", val*3);
   PREF.announceModelChange();
 }
 
