@@ -218,7 +218,10 @@ static int update_pose_3pt(struct frame_type *frame)
 {
   bool recentering = false;
   
-  ltr_int_check_pose();
+  if(ltr_int_model_changed(false)){
+    ltr_int_check_pose();
+    recenter = true;
+  }
   
   if(frame->bloblist.num_blobs != 3){
     return -1;
