@@ -10,7 +10,7 @@ class DeviceSetup : public QWidget
 {
   Q_OBJECT
  public:
-  DeviceSetup(Guardian *grd, QWidget *parent = 0);
+  DeviceSetup(Guardian *grd, QBoxLayout *tgt, QWidget *parent = 0);
   ~DeviceSetup();
   void refresh();
  private:
@@ -20,6 +20,7 @@ class DeviceSetup : public QWidget
   QWidget *devPrefs;
   bool initialized;
   void initOrientations();
+  QBoxLayout *target;
  private slots:
   void on_DeviceSelector_activated(int index);
   void on_CameraOrientation_activated(int index);

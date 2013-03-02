@@ -99,6 +99,27 @@ void ltr_int_set_use_oldrot(bool state)
   ltr_int_change_key("Global", "Legacy-rotation-computation", state?"yes":"no");
 }
 
+bool ltr_int_do_tr_align()
+{
+  bool tr_align = true;
+  static char *tmp = NULL;
+  tmp = ltr_int_get_key("Global", "Align-translations"); 
+  if(tmp != NULL){
+    if(strcasecmp(tmp, "yes") == 0){
+      tr_align = true;
+    }else{
+      tr_align = false;
+    }
+    free(tmp);
+  }
+  return tr_align;
+}
+
+void ltr_int_set_tr_align(bool state)
+{
+  ltr_int_change_key("Global", "Align-translations", state?"yes":"no");
+}
+
 bool ltr_int_get_device(struct camera_control_block *ccb)
 {
   bool dev_ok = false;

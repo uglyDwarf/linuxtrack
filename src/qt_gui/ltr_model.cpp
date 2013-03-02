@@ -163,21 +163,21 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
     modelTweaker = NULL;
   }
   if(type.compare("Cap", Qt::CaseInsensitive) == 0){
-    ui.ModelTypeLabel->setText("3 Point Cap");
+    //ui.ModelTypeLabel->setText("3 Point Cap");
     HelpViewer::ChangePage("3ptcap.htm");
     modelTweaker = new CapTweaking(currentSection, this);
     emit modelSelected(MDL_3PT_CAP);
   }else if(type.compare("Clip", Qt::CaseInsensitive) == 0){
-    ui.ModelTypeLabel->setText("3 Point Clip");
+    //ui.ModelTypeLabel->setText("3 Point Clip");
     HelpViewer::ChangePage("3ptclip.htm");
     modelTweaker = new ClipTweaking(currentSection, this);
     emit modelSelected(MDL_3PT_CLIP);
   }else if(type.compare("Face", Qt::CaseInsensitive) == 0){
-    ui.ModelTypeLabel->setText("Face");
+    //ui.ModelTypeLabel->setText("Face");
     HelpViewer::ChangePage("1pt.htm");
     emit modelSelected(MDL_FACE);
   }else if(type.compare("SinglePoint", Qt::CaseInsensitive) == 0){
-    ui.ModelTypeLabel->setText("1 Point");
+    //ui.ModelTypeLabel->setText("1 Point");
     HelpViewer::ChangePage("1pt.htm");
     emit modelSelected(MDL_1PT);
   }

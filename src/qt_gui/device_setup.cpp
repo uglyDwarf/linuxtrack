@@ -31,7 +31,8 @@ QString DeviceSetup::descs[8] = {
 
 int DeviceSetup::orientValues[] = {0, 6, 3, 5, 8, 14, 11, 13};
 
-DeviceSetup::DeviceSetup(Guardian *grd, QWidget *parent) : QWidget(parent), devPrefs(NULL)
+DeviceSetup::DeviceSetup(Guardian *grd, QBoxLayout *tgt, QWidget *parent) 
+  : QWidget(parent), devPrefs(NULL), target(tgt)
 {
   grd->regTgt(this);
   ui.setupUi(this);
@@ -42,7 +43,7 @@ DeviceSetup::DeviceSetup(Guardian *grd, QWidget *parent) : QWidget(parent), devP
 DeviceSetup::~DeviceSetup()
 {
   if(devPrefs != NULL){
-    ui.DeviceSetupSite->removeWidget(devPrefs);
+    target->removeWidget(devPrefs);
     delete devPrefs;
     devPrefs = NULL;
   }
@@ -78,7 +79,7 @@ void DeviceSetup::on_DeviceSelector_activated(int index)
     return;
   }
   if(devPrefs != NULL){
-    ui.DeviceSetupSite->removeWidget(devPrefs);
+    target->removeWidget(devPrefs);
     delete devPrefs;
     devPrefs = NULL;
   }
@@ -109,7 +110,7 @@ void DeviceSetup::on_DeviceSelector_activated(int index)
     emit deviceTypeChanged(pl.deviceType, "TrackIR");
   }
   if(devPrefs != NULL){
-    ui.DeviceSetupSite->addWidget(devPrefs);
+    target->insertWidget(-1, devPrefs);
   }
 }
 

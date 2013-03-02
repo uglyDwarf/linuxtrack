@@ -17,6 +17,8 @@ bool ltr_int_use_alter();
 void ltr_int_set_use_alter(bool state);
 bool ltr_int_use_oldrot();
 void ltr_int_set_use_oldrot(bool state);
+bool ltr_int_do_tr_align();
+void ltr_int_set_tr_align(bool state);
 bool ltr_int_get_device(struct camera_control_block *ccb);
 bool ltr_int_get_model_setup(reflector_model_type *rm);
 void ltr_int_announce_model_change();
