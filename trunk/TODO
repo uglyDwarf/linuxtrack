@@ -1,18 +1,13 @@
 TODO for merge to trunk:
  - complete the documentation - both htm and on wiki.
- - revise model creation Hx, Hy, ...
  - on start, center when stable (if not done already)...
- - 64 bit XPlane plugins
- - pkg config support
  - bash include for inuversal package (setting paths, ...)
  - udev rule installed automatically
-
-TODO when merged
- - wine plugin - check for signature existence, if not there decode using tir fw (download if needed)...
 
 TODO when suitable:
  - start writing unit tests for each gui part/module (as much automation as possible)
  - TIR5 LED controls to work right away
  - Check for updates
  - change master - callbacks to class interface...
+
 

@@ -47,6 +47,7 @@ class LinuxtrackGui : public QWidget
   void trackerStateHandler(ltr_state_type current_state);
   void on_LegacyPose_stateChanged(int state);
   void on_LegacyRotation_stateChanged(int state);
+  void on_TransRotDisable_stateChanged(int state);
  private:
   Ui::LinuxtrackMainForm ui;
   LtrGuiForm *showWindow;

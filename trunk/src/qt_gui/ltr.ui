@@ -52,6 +52,19 @@
           <item>
            <layout class="QVBoxLayout" name="DeviceSetupSite"/>
           </item>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>290</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
          </layout>
         </widget>
        </item>
@@ -61,9 +74,21 @@
       <attribute name="title">
        <string>Model Setup</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_21">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <layout class="QHBoxLayout" name="ModelEditSite"/>
+        <widget class="QFrame" name="frame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <layout class="QHBoxLayout" name="ModelEditSite"/>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -138,6 +163,12 @@
             <layout class="QVBoxLayout" name="verticalLayout_23">
              <item>
               <widget class="QLabel" name="label">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>Troubleshooting options</string>
                </property>
@@ -172,6 +203,13 @@
               <widget class="QCheckBox" name="LegacyRotation">
                <property name="text">
                 <string>Use legacy rotation computation method</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="TransRotDisable">
+               <property name="text">
+                <string>Disable translation/rotation alignment </string>
                </property>
               </widget>
              </item>

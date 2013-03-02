@@ -49,13 +49,13 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   ui.setupUi(this);
   PREF;
   grd = new Guardian(this);
-  ds = new DeviceSetup(grd, this);
+  ds = new DeviceSetup(grd, ui.DeviceSetupSite, this);
+  ui.DeviceSetupSite->insertWidget(0, ds);  
   me = new ModelEdit(grd, this);
   lv = new LogView();
   pi = new PluginInstall(ui);
   ps = new ProfileSelector(this);
   QObject::connect(&STATE, SIGNAL(stateChanged(ltr_state_type)), this, SLOT(trackerStateHandler(ltr_state_type)));
-  ui.DeviceSetupSite->addWidget(ds);  
   ui.ModelEditSite->addWidget(me);
   ui.ProfileSetupSite->addWidget(ps);
   
@@ -78,6 +78,8 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   gui_settings->endGroup();
   HelpViewer::LoadPrefs(*gui_settings);
   ui.LegacyPose->setChecked(ltr_int_use_alter());
+  ui.LegacyRotation->setChecked(ltr_int_use_oldrot());
+  ui.TransRotDisable->setChecked(!ltr_int_do_tr_align());
   WineLauncher wl;
   if(!wl.check()){
     warningMessage("Wine not working, you'll not be able to install NP firmware and Wine plugin!");
@@ -140,7 +142,6 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   delete lv;
   delete ds;
   if(xpInstall != NULL){
-    delete(xpInstall);
   }
   event->accept();
 }
@@ -269,6 +270,15 @@ void LinuxtrackGui::on_LegacyRotation_stateChanged(int state)
     ltr_int_set_use_oldrot(true);
   }else{
     ltr_int_set_use_oldrot(false);
+  }
+}
+
+void LinuxtrackGui::on_TransRotDisable_stateChanged(int state)
+{
+  if(state == Qt::Checked){
+    ltr_int_set_tr_align(false);
+  }else{
+    ltr_int_set_tr_align(true);
   }
 }
 
