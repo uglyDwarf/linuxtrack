@@ -46,7 +46,7 @@ typedef struct reflector_model_type {
 //  double rot[3][3];
 //};
 
-void ltr_int_pose_init(struct reflector_model_type rm);
+bool ltr_int_pose_init(struct reflector_model_type rm);
 
 void ltr_int_pose_sort_blobs(struct bloblist_type bl);
 

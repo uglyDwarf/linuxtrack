@@ -8,6 +8,7 @@
 #include "help_view.h"
 #include "ltr_gui_prefs.h"
 #include "guardian.h"
+#include "tracking.h"
 #include <iostream>
 
 
@@ -29,7 +30,15 @@ QString DeviceSetup::descs[8] = {
     "Top to the left, from behind"   //12
   };
 
-int DeviceSetup::orientValues[] = {0, 6, 3, 5, 8, 14, 11, 13};
+//int DeviceSetup::orientValues[] = {0, 6, 3, 5, 8, 14, 11, 13};
+int DeviceSetup::orientValues[] = {ORIENT_NOP, // 0
+                                   ORIENT_FLIP_Y | ORIENT_XCHG_XY, // 6
+                                   ORIENT_FLIP_X | ORIENT_FLIP_Y, // 3
+                                   ORIENT_FLIP_X | ORIENT_XCHG_XY, //5
+                                   ORIENT_FROM_BEHIND, // 8
+                                   ORIENT_FLIP_Y | ORIENT_XCHG_XY | ORIENT_FROM_BEHIND, // 14
+                                   ORIENT_FLIP_X | ORIENT_FLIP_Y  | ORIENT_FROM_BEHIND, // 11
+                                   ORIENT_FLIP_X | ORIENT_XCHG_XY | ORIENT_FROM_BEHIND}; // 13
 
 DeviceSetup::DeviceSetup(Guardian *grd, QBoxLayout *tgt, QWidget *parent) 
   : QWidget(parent), devPrefs(NULL), target(tgt)

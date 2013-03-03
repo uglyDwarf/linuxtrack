@@ -10,4 +10,5 @@ TODO when suitable:
  - Check for updates
  - change master - callbacks to class interface...
 
-
+ - Think of interface versioning.
+ - Improve hello world (one with dlopen)...

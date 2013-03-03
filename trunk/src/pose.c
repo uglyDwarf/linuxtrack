@@ -39,7 +39,7 @@ bool ltr_int_get_cbase(double p0[3], double p1[3], double p2[3], double c[3],
 bool ltr_int_get_pose(double rp0[3], double rp1[3], double rp2[3], double c_base[3],
   double center[3], double tr[3][3], double angles[3], double trans[3]);
 
-void ltr_int_pose_init(struct reflector_model_type rm)
+bool ltr_int_pose_init(struct reflector_model_type rm)
 {
   switch(rm.type){
     case CAP:
@@ -59,17 +59,19 @@ void ltr_int_pose_init(struct reflector_model_type rm)
       #ifdef PT_DBG
         printf("MODEL:SINGLE\n");
       #endif
-      return;
+      return true;
       break;
     case FACE:
       type = M_FACE;
       #ifdef PT_DBG
         printf("MODEL:FACE\n");
       #endif
-      return;
+      return true;
       break;
     default:
+      ltr_int_log_message("Unknown model type specified %d!\n", rm.type);
       assert(0);
+      return false;
       break;
   }
 
@@ -95,6 +97,10 @@ void ltr_int_pose_init(struct reflector_model_type rm)
   ltr_int_make_vec(model_point1, model_point0, vec1);
   ltr_int_make_vec(model_point2, model_point0, vec2);
   ltr_int_make_base(vec1, vec2, model_base);
+  if(!ltr_int_is_matrix_finite(model_base)){
+    ltr_int_log_message("Incorrect model dimmensions - can't create orthonormal base!\n");
+    return false;
+  }
 
 //for testing purposes
   ltr_int_make_base(vec1, vec2, center_base);
@@ -117,8 +123,8 @@ void ltr_int_pose_init(struct reflector_model_type rm)
   #endif
   use_alter = ltr_int_use_alter();
   use_old_pose = ltr_int_use_oldrot();
-  ltr_int_get_cbase(rm.p0, rm.p1, rm.p2, rm.hc, c_base);
-  ltr_int_center(rm.p0, rm.p1, rm.p2, c_base, tr_center, tr_rot);
+  return ltr_int_get_cbase(rm.p0, rm.p1, rm.p2, rm.hc, c_base) &&
+    ltr_int_center(rm.p0, rm.p1, rm.p2, c_base, tr_center, tr_rot);
 }
 
 bool ltr_int_is_single_point()
@@ -423,7 +429,10 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
     ltr_int_make_base(vec1, vec2, new_base);
     
   //  ltr_int_print_matrix(new_base, "new_base");
-    if((centering == true) && (ltr_int_is_matrix_finite(new_base))){
+    if(!ltr_int_is_matrix_finite(new_base)){
+      return false;
+    }
+    if(centering == true){
       ltr_int_assign_matrix(new_base, center_base);
     }
     
@@ -460,9 +469,16 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
     ltr_int_matrix_to_euler(transform, &(angles[0]), &(angles[1]), &(angles[2]));
   }else{
     if(centering){
-      ltr_int_center(points[0], points[1], points[2], c_base, tr_center, tr_rot);
+      if(!ltr_int_center(points[0], points[1], points[2], c_base, tr_center, tr_rot)){
+        ltr_int_log_message("Couldn't center in new pose!\n");
+        return false;
+      }
     }
-    ltr_int_get_pose(points[0], points[1], points[2], c_base, tr_center, tr_rot, angles, displacement);
+    if(!ltr_int_get_pose(points[0], points[1], points[2], c_base, tr_center, 
+                         tr_rot, angles, displacement)){
+      ltr_int_log_message("Couldn't determine the pose in new pose!\n");
+      return false;
+    }
   }
   
   ltr_int_mul_vec(angles, 180.0 /M_PI, angles);

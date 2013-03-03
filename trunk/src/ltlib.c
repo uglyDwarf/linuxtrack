@@ -76,7 +76,7 @@ int ltr_get_camera_update(float *heading,
                          float *tx,
                          float *ty,
                          float *tz,
-                         unsigned int *counter)
+                         uint32_t *counter)
 {
   struct ltr_comm *com = mmm.data;
   if((!initialized) || (com == NULL)) return -1;
