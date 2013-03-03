@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdarg.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,7 +30,7 @@ int ltr_get_camera_update(float *heading,
                          float *tx,
                          float *ty,
                          float *tz,
-                         unsigned int *counter);
+                         uint32_t *counter);
 ltr_state_type ltr_get_tracking_state(void);
 void ltr_log_message(const char *format, ...);
 

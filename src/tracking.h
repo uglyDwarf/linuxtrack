@@ -10,6 +10,16 @@
 extern "C" {
 #endif
 
+/* Coding:
+            bit0 (lsb) - invert camera X values
+            bit1       - invert camera Y values
+            bit2       - switch X and Y values (applied first!)
+            bit4       - invert pitch, roll, X and Z translations (for tracking from behind)
+*/
+enum ORIENTATION {ORIENT_NOP = 0, ORIENT_FLIP_X = 1, ORIENT_FLIP_Y = 2, 
+                   ORIENT_XCHG_XY = 4, ORIENT_FROM_BEHIND = 8};
+
+
 extern pose_t ltr_int_orig_pose;
 
 bool ltr_int_init_tracking();
