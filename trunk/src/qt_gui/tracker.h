@@ -24,10 +24,11 @@ class Tracker : public QObject{
   //Profile related stuff
   void setProfile(QString p);
   
-  bool axisChangeEnabled(axis_t axis, bool enabled);
+  bool axisChange(axis_t axis, axis_param_t elem, bool enabled);
   bool axisChange(axis_t axis, axis_param_t elem, float val);
+  bool miscChange(axis_param_t elem, bool enabled);
   
-  bool axisGetEnabled(axis_t axis);
+  bool axisGetBool(axis_t axis, axis_param_t elem);
   float axisGet(axis_t axis, axis_param_t elem);
   
   float axisGetValue(axis_t axis, float val);

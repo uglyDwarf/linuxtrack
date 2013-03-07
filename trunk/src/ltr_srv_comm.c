@@ -14,7 +14,7 @@
 
 #include "ltr_srv_comm.h"
 
-bool make_fifo(const char *name)
+bool ltr_int_make_fifo(const char *name)
 {
   if(name == NULL){
     printf("Name must be set! (NULL passed)\n");
@@ -48,9 +48,9 @@ bool make_fifo(const char *name)
   return true;
 }
 
-int open_fifo_exclusive(const char *name)
+int ltr_int_open_fifo_exclusive(const char *name)
 {
-  if(!make_fifo(name)){
+  if(!ltr_int_make_fifo(name)){
     return -1;
   }
   int fifo = -1;
@@ -66,8 +66,8 @@ int open_fifo_exclusive(const char *name)
   return -1;
 }
 
-int open_fifo_for_writing(const char *name){
-  if(!make_fifo(name)){
+int ltr_int_open_fifo_for_writing(const char *name){
+  if(!ltr_int_make_fifo(name)){
     return -1;
   }
   
@@ -91,7 +91,7 @@ int open_fifo_for_writing(const char *name){
   return fifo;
 }
 
-int open_unique_fifo(char **name, int *num, const char *template, int max)
+int ltr_int_open_unique_fifo(char **name, int *num, const char *template, int max)
 {
   //although I could come up with method allowing more than 100
   //  fifos to be checked, there is not a point doing so
@@ -100,7 +100,7 @@ int open_unique_fifo(char **name, int *num, const char *template, int max)
   int fifo = -1;
   for(i = 0; i < max; ++i){
     asprintf(&fifo_name, template, i);
-    fifo = open_fifo_exclusive(fifo_name);
+    fifo = ltr_int_open_fifo_exclusive(fifo_name);
     if(fifo > 0){
       break;
     }
@@ -112,7 +112,7 @@ int open_unique_fifo(char **name, int *num, const char *template, int max)
   return fifo;
 }
 
-int fifo_send(int fifo, void *buf, size_t size)
+int ltr_int_fifo_send(int fifo, void *buf, size_t size)
 {
   if(fifo <= 0){
     return -1;
@@ -125,7 +125,7 @@ int fifo_send(int fifo, void *buf, size_t size)
   return 0;
 }
 
-int fifo_receive(int fifo, void *buf, size_t size)
+int ltr_int_fifo_receive(int fifo, void *buf, size_t size)
 {
   //Assumption is, that write/read of less than 512 bytes should be atomic...
   ssize_t num_read = read(fifo, buf, size);
@@ -140,17 +140,17 @@ int fifo_receive(int fifo, void *buf, size_t size)
 
 //==============Protocol dependent part==================
 
-int send_message(int fifo, uint32_t cmd, uint32_t data)
+int ltr_int_send_message(int fifo, uint32_t cmd, uint32_t data)
 {
   message_t msg;
   memset(&msg, 0, sizeof(message_t));
   msg.cmd = cmd;
   msg.data = data;
   msg.str[0] = '\0';
-  return fifo_send(fifo, &msg, sizeof(message_t));
+  return ltr_int_fifo_send(fifo, &msg, sizeof(message_t));
 }
 
-int send_message_w_str(int fifo, uint32_t cmd, uint32_t data, char *str)
+int ltr_int_send_message_w_str(int fifo, uint32_t cmd, uint32_t data, char *str)
 {
   message_t msg;
   memset(&msg, 0, sizeof(message_t));
@@ -164,20 +164,20 @@ int send_message_w_str(int fifo, uint32_t cmd, uint32_t data, char *str)
     msg.str[0] = '\0';
   }
   printf("Sending string %s\n", msg.str);
-  return fifo_send(fifo, &msg, sizeof(message_t));
+  return ltr_int_fifo_send(fifo, &msg, sizeof(message_t));
 }
 
-int send_data(int fifo, const pose_t *data)
+int ltr_int_send_data(int fifo, const pose_t *data)
 {
   message_t msg;
   memset(&msg, 0, sizeof(message_t));
   msg.cmd = CMD_POSE;
   msg.data = 0;
   msg.pose = *data;
-  return fifo_send(fifo, &msg, sizeof(message_t));
+  return ltr_int_fifo_send(fifo, &msg, sizeof(message_t));
 }
 
-int send_param_update(int fifo, uint32_t axis, uint32_t param, float value)
+int ltr_int_send_param_update(int fifo, uint32_t axis, uint32_t param, float value)
 {
   message_t msg;
   msg.cmd = CMD_PARAM;
@@ -185,22 +185,22 @@ int send_param_update(int fifo, uint32_t axis, uint32_t param, float value)
   msg.param.axis_id = axis;
   msg.param.param_id = param;
   msg.param.flt_val = value;
-  return fifo_send(fifo, &msg, sizeof(message_t));
+  return ltr_int_fifo_send(fifo, &msg, sizeof(message_t));
 }
 
-const char *master_fifo_name()
+const char *ltr_int_master_fifo_name()
 {
   static const char main_fifo[] = "/tmp/ltr_fifi";
   return main_fifo;
 }
 
-const char *slave_fifo_name()
+const char *ltr_int_slave_fifo_name()
 {
   static const char slave_fifo[] = "/tmp/ltr_sfifi%02d";
   return slave_fifo;
 }
 
-int max_slave_fifos()
+int ltr_int_max_slave_fifos()
 {
   return 99;
 }

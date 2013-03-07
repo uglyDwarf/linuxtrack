@@ -56,10 +56,10 @@ void SCurve::setEnabled(int state)
 {
   if(state == Qt::Checked){
     //std::cout<<"Enabling..."<<std::endl;
-    if(!initializing) TRACKER.axisChangeEnabled(axis, true);
+    if(!initializing) TRACKER.axisChange(axis, AXIS_ENABLED, true);
   }else{
     //std::cout<<"Disabling..."<<std::endl;
-    if(!initializing) TRACKER.axisChangeEnabled(axis, false);
+    if(!initializing) TRACKER.axisChange(axis, AXIS_ENABLED, false);
   }
 }
 
@@ -85,14 +85,14 @@ void SCurve::on_SCSymetrical_stateChanged(int state)
 
 void SCurve::on_SCFactor_valueChanged(int value)
 {
-  if(!initializing) TRACKER.axisChange(axis, AXIS_MULT, value / 12.0);
+  if(!initializing) TRACKER.axisChange(axis, AXIS_MULT, value / 12.0f);
   emit changed();
 }
 
 void SCurve::on_SCLeftCurv_valueChanged(int value)
 {
   //std::cout<<"LeftCurv = "<<value<<std::endl;
-  if(!initializing) TRACKER.axisChange(axis, AXIS_LCURV, value / 100.0);
+  if(!initializing) TRACKER.axisChange(axis, AXIS_LCURV, value / 100.0f);
   //ui.SCCurvL->setText(QString("Curvature: %1").arg(value / 100.0, 2, 'f', 2));
   if(symetrical){
     ui.SCRightCurv->setValue(value);
@@ -104,7 +104,7 @@ void SCurve::on_SCLeftCurv_valueChanged(int value)
 void SCurve::on_SCRightCurv_valueChanged(int value)
 {
   //std::cout<<"RightCurv = "<<value<<std::endl;
-  if(!initializing) TRACKER.axisChange(axis, AXIS_RCURV, value / 100.0);
+  if(!initializing) TRACKER.axisChange(axis, AXIS_RCURV, value / 100.0f);
   //ui.SCCurvR->setText(QString("Curvature: %1").arg(value / 100.0, 2, 'f', 2));
   emit changed();
 }
@@ -119,7 +119,7 @@ void SCurve::setFilter(float val, bool signal)
 
 void SCurve::on_SCFilterSlider_valueChanged(int value)
 {
-  if(!initializing) TRACKER.axisChange(axis, AXIS_FILTER, value / 100.0);
+  if(!initializing) TRACKER.axisChange(axis, AXIS_FILTER, value / 100.0f);
   setFilter(value/100.0, true);
   emit changed();
 }
@@ -143,7 +143,7 @@ void SCurve::on_SCDeadZone_valueChanged(int value)
 void SCurve::on_SCLeftLimit_valueChanged(double d)
 {
   //std::cout<<"LLimit = "<<d<<std::endl;
-  if(!initializing) TRACKER.axisChange(axis, AXIS_LLIMIT, d);
+  if(!initializing) TRACKER.axisChange(axis, AXIS_LLIMIT, (float)d);
   if(symetrical){
     ui.SCRightLimit->setValue(d);
   }
@@ -153,7 +153,7 @@ void SCurve::on_SCLeftLimit_valueChanged(double d)
 void SCurve::on_SCRightLimit_valueChanged(double d)
 {
   //std::cout<<"RLimit = "<<d<<std::endl;
-  if(!initializing) TRACKER.axisChange(axis, AXIS_RLIMIT, d);
+  if(!initializing) TRACKER.axisChange(axis, AXIS_RLIMIT, (float)d);
   if(symetrical){
     ui.SCLeftLimit->setValue(d);
   }

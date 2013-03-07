@@ -24,8 +24,8 @@ static double center_ref[3] = {0.0, 0.0, 0.0};
 static double center_base[3][3];
 
 static enum {M_CAP, M_CLIP, M_SINGLE, M_FACE} type;
-static bool use_alter = false;
-static bool use_old_pose = false;
+//static bool use_alter = false;
+//static bool use_old_pose = false;
 
 
 static double c_base[3];
@@ -121,8 +121,8 @@ bool ltr_int_pose_init(struct reflector_model_type rm)
     ltr_int_print_vec(vec3, "vec3");
     ltr_int_print_vec(model_ref, "model_ref");
   #endif
-  use_alter = ltr_int_use_alter();
-  use_old_pose = ltr_int_use_oldrot();
+  //use_alter = ltr_int_use_alter();
+  //use_old_pose = ltr_int_use_oldrot();
   return ltr_int_get_cbase(rm.p0, rm.p1, rm.p2, rm.hc, c_base) &&
     ltr_int_center(rm.p0, rm.p1, rm.p2, c_base, tr_center, tr_rot);
 }
@@ -154,7 +154,7 @@ static void iter_pose(struct bloblist_type blobs, double points[3][3], bool cent
   double d2, e2, f2;
   double a_max, a_min;
   double h, j, k, m, n, o, p, q;
-  
+  //printf("Pose: Iteration\n");
   if(type == M_CAP){
     //CAP
     pp0[0] = blobs.blobs[0].x; pp0[1] = blobs.blobs[0].y; pp0[2] = internal_focal_depth;
@@ -267,6 +267,7 @@ static void alter_pose(struct bloblist_type blobs, double points[3][3], bool cen
   double R01, R02, R12, d01, d02, d12, a, b, c, s, h1, h2, sigma;
   double tmp[3];
 
+  //printf("Pose: Alter\n");
   ltr_int_make_vec(model_point0, model_point1, tmp);
   R01 = ltr_int_vec_size(tmp);
   ltr_int_make_vec(model_point0, model_point2, tmp);
@@ -411,7 +412,7 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
 			 {184.262,    18.075,    47.793}
   };
 */
-  if(use_alter){
+  if(ltr_int_use_alter()){
     alter_pose(blobs, points, centering);
   }else{
     iter_pose(blobs, points, centering);
@@ -419,8 +420,9 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
   
   double angles[3];
   double displacement[3];
-  if(use_old_pose){
-  //ltr_int_print_matrix(points, "points");
+  if(ltr_int_use_oldrot()){
+    //printf("Rotations: Old algo\n");
+    //ltr_int_print_matrix(points, "points");
     double new_base[3][3];
     double vec1[3];
     double vec2[3];
@@ -468,6 +470,7 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
     //double pitch, yaw, roll;
     ltr_int_matrix_to_euler(transform, &(angles[0]), &(angles[1]), &(angles[2]));
   }else{
+    //printf("Rotations: New algo\n");
     if(centering){
       if(!ltr_int_center(points[0], points[1], points[2], c_base, tr_center, tr_rot)){
         ltr_int_log_message("Couldn't center in new pose!\n");
@@ -561,7 +564,7 @@ bool ltr_int_center(double rp0[3], double rp1[3], double rp2[3], double c_base[3
   ltr_int_make_vec(rp1, center, RR[1]);
   ltr_int_make_vec(rp2, center, RR[2]);
   ltr_int_transpose_in_place(RR);
-  ltr_int_print_matrix(RR, "RR");
+  //ltr_int_print_matrix(RR, "RR");
   //get inverse transform (not orthonormal!!!)
   double tmp_tr[3][3];
   ltr_int_invert_matrix(RR, tmp_tr);

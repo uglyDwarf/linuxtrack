@@ -154,6 +154,9 @@ void SCView::newPose(pose_t *raw_pose, pose_t *unfiltered, pose_t *pose)
       px = pose->tz;
       upx = unfiltered->tz;
       break;
+    default:
+      //don't mind MISC stuff
+      break;
   }
 }
 
