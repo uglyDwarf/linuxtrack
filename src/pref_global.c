@@ -10,6 +10,8 @@
 
 #include "pathconfig.h"
 
+typedef enum {UNSET, YES, NO} bool_val_t;
+
 void ltr_int_close_prefs()
 {
   ltr_int_free_prefs();
@@ -56,67 +58,79 @@ bool ltr_int_is_model_active()
   return res;
 }
 
+static bool_val_t use_alter = UNSET; 
 
 bool ltr_int_use_alter()
 {
-  bool use_alter = false;
-  char *pose_method = NULL;
-  pose_method = ltr_int_get_key("Global", "Legacy-pose-computation");
-  if(pose_method != NULL){
-    if(strcasecmp(pose_method, "yes") == 0){
-      use_alter = true;
-    }else{
-      use_alter = false;
+  if(use_alter == UNSET){
+    char *pose_method = NULL;
+    pose_method = ltr_int_get_key("Global", "Legacy-pose-computation");
+    if(pose_method != NULL){
+      if(strcasecmp(pose_method, "yes") == 0){
+        use_alter = YES;
+      }else{
+        use_alter = NO;
+      }
+      free(pose_method);
     }
-    free(pose_method);
   }
-  return use_alter;
+  return (use_alter == YES);
 }
 
 void ltr_int_set_use_alter(bool state)
 {
+  use_alter = state ? YES: NO;
   ltr_int_change_key("Global", "Legacy-pose-computation", state?"yes":"no");
 }
 
+static bool_val_t use_oldrot = UNSET; 
+
 bool ltr_int_use_oldrot()
 {
-  bool use_oldrot = false;
-  char *rot_method = NULL;
-  rot_method = ltr_int_get_key("Global", "Legacy-rotation-computation");
-  if(rot_method != NULL){
-    if(strcasecmp(rot_method, "yes") == 0){
-      use_oldrot = true;
-    }else{
-      use_oldrot = false;
+  if(use_oldrot == UNSET){
+    char *rot_method = NULL;
+    rot_method = ltr_int_get_key("Global", "Legacy-rotation-computation");
+    if(rot_method != NULL){
+      if(strcasecmp(rot_method, "yes") == 0){
+        use_oldrot = YES;
+      }else{
+        use_oldrot = NO;
+      }
+      free(rot_method);
     }
-    free(rot_method);
   }
-  return use_oldrot;
+  return (use_oldrot == YES);
 }
 
 void ltr_int_set_use_oldrot(bool state)
 {
+  use_oldrot = state ? YES: NO;
   ltr_int_change_key("Global", "Legacy-rotation-computation", state?"yes":"no");
 }
 
+
+static bool_val_t tr_align = UNSET; 
+
 bool ltr_int_do_tr_align()
 {
-  bool tr_align = true;
-  static char *tmp = NULL;
-  tmp = ltr_int_get_key("Global", "Align-translations"); 
-  if(tmp != NULL){
-    if(strcasecmp(tmp, "yes") == 0){
-      tr_align = true;
-    }else{
-      tr_align = false;
+  if(tr_align == UNSET){
+    static char *tmp = NULL;
+    tmp = ltr_int_get_key("Global", "Align-translations"); 
+    if(tmp != NULL){
+      if(strcasecmp(tmp, "yes") == 0){
+        tr_align = YES;
+      }else{
+        tr_align = NO;
+      }
+      free(tmp);
     }
-    free(tmp);
   }
-  return tr_align;
+  return (tr_align == YES);
 }
 
 void ltr_int_set_tr_align(bool state)
 {
+  tr_align = state ? YES: NO;
   ltr_int_change_key("Global", "Align-translations", state?"yes":"no");
 }
 

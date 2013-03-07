@@ -235,8 +235,8 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
       //ui.Profiles->setEnabled(true);
       ui.DefaultsButton->setEnabled(true);
       ui.DiscardChangesButton->setEnabled(true);
-      ui.LegacyPose->setEnabled(true);
-      ui.LegacyRotation->setEnabled(true);
+      //ui.LegacyPose->setEnabled(true);
+      //ui.LegacyRotation->setEnabled(true);
       break;
     case INITIALIZING:
     case RUNNING:
@@ -247,8 +247,8 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
       //ui.Profiles->setDisabled(true);
       ui.DefaultsButton->setDisabled(true);
       ui.DiscardChangesButton->setDisabled(true);
-      ui.LegacyPose->setDisabled(true);
-      ui.LegacyRotation->setDisabled(true);
+      //ui.LegacyPose->setDisabled(true);
+      //ui.LegacyRotation->setDisabled(true);
       break;
     default:
       break;
@@ -259,8 +259,10 @@ void LinuxtrackGui::on_LegacyPose_stateChanged(int state)
 {
   if(state == Qt::Checked){
     ltr_int_set_use_alter(true);
+    TRACKER.miscChange(MISC_ALTER, true);
   }else{
     ltr_int_set_use_alter(false);
+    TRACKER.miscChange(MISC_ALTER, false);
   }
 }
 
@@ -268,8 +270,10 @@ void LinuxtrackGui::on_LegacyRotation_stateChanged(int state)
 {
   if(state == Qt::Checked){
     ltr_int_set_use_oldrot(true);
+    TRACKER.miscChange(MISC_LEGR, true);
   }else{
     ltr_int_set_use_oldrot(false);
+    TRACKER.miscChange(MISC_LEGR, false);
   }
 }
 
@@ -277,8 +281,10 @@ void LinuxtrackGui::on_TransRotDisable_stateChanged(int state)
 {
   if(state == Qt::Checked){
     ltr_int_set_tr_align(false);
+    TRACKER.miscChange(MISC_ALIGN, false);
   }else{
     ltr_int_set_tr_align(true);
+    TRACKER.miscChange(MISC_ALIGN, true);
   }
 }
 

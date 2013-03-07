@@ -22,7 +22,7 @@ class MasterThread : public QThread{
 
 void MasterThread::run()
 {
-  master(false);
+  ltr_int_master(false);
 }
 
 Tracker& Tracker::trackerInst()
@@ -99,7 +99,7 @@ Tracker::Tracker() : axes(LTR_AXES_T_INITIALIZER), axes_valid(false), currentPro
 Tracker::~Tracker()
 {
   if(master->isRunning()){
-    request_shutdown();
+    ltr_int_request_shutdown();
     master->wait();
   }
 }
@@ -130,11 +130,14 @@ void Tracker::signalNewSlave(const char *name)
   ltr_axes_t tmp_axes = LTR_AXES_T_INITIALIZER;
   ltr_int_init_axes(&tmp_axes, name);
   for(int i = PITCH; i <= TZ; ++i){
-    change(name, i, AXIS_ENABLED, ltr_int_get_axis_bool_param(tmp_axes, (axis_t)i, AXIS_ENABLED)?1.0:0.0);
+    ltr_int_change(name, i, AXIS_ENABLED, ltr_int_get_axis_bool_param(tmp_axes, (axis_t)i, AXIS_ENABLED)?1.0:0.0);
     for(int j = AXIS_DEADZONE; j <= AXIS_FILTER; ++j){
-      change(name, i, j, ltr_int_get_axis_param(tmp_axes, (axis_t)i, (axis_param_t)j));
+      ltr_int_change(name, i, j, ltr_int_get_axis_param(tmp_axes, (axis_t)i, (axis_param_t)j));
     }
   }
+  ltr_int_change(NULL, MISC, MISC_LEGR, ltr_int_use_oldrot()?1.0:0.0);
+  ltr_int_change(NULL, MISC, MISC_ALTER, ltr_int_use_alter()?1.0:0.0);
+  ltr_int_change(NULL, MISC, MISC_ALIGN, ltr_int_do_tr_align()?1.0:0.0);
   ltr_int_close_axes(&tmp_axes);
 }
 
@@ -180,30 +183,36 @@ void Tracker::start(QString &section)
 
 void Tracker::pause()
 {
-  suspend_cmd();
+  ltr_int_suspend_cmd();
 }
 
 void Tracker::wakeup()
 {
-  wakeup_cmd();
+  ltr_int_wakeup_cmd();
 }
 
 void Tracker::recenter()
 {
-  recenter_cmd();
+  ltr_int_recenter_cmd();
 }
 
 void Tracker::stop()
 {
-  request_shutdown();
+  ltr_int_request_shutdown();
 }
 
-bool Tracker::axisChangeEnabled(axis_t axis, bool enabled)
+bool Tracker::axisChange(axis_t axis, axis_param_t elem, bool enabled)
 {
-  ltr_int_set_axis_bool_param(axes, axis, AXIS_ENABLED, enabled);
-  emit axisChanged(axis, AXIS_ENABLED);
-  change(profileSection.toStdString().c_str(), axis, AXIS_ENABLED, enabled?1.0:0.0);
+  ltr_int_set_axis_bool_param(axes, axis, elem, enabled);
+  emit axisChanged(axis, elem);
+  ltr_int_change(profileSection.toStdString().c_str(), axis, elem, enabled?1.0:0.0);
   return true; 
+}
+
+bool Tracker::miscChange(axis_param_t elem, bool enabled)
+{
+  ltr_int_change(NULL, MISC, elem, enabled?1.0:0.0);
+  return true;
 }
 
 static float limit_ff(float val)
@@ -221,13 +230,13 @@ bool Tracker::axisChange(axis_t axis, axis_param_t elem, float val)
   }
   bool res = ltr_int_set_axis_param(axes, axis, elem, val);
   emit axisChanged(axis, elem);
-  change(profileSection.toStdString().c_str(), axis, elem, val);
+  ltr_int_change(profileSection.toStdString().c_str(), axis, elem, val);
   return res;
 }
 
-bool Tracker::axisGetEnabled(axis_t axis)
+bool Tracker::axisGetBool(axis_t axis, axis_param_t elem)
 {
-  return ltr_int_get_axis_bool_param(axes, axis, AXIS_ENABLED);
+  return ltr_int_get_axis_bool_param(axes, axis, elem);
 }
 
 float Tracker::axisGet(axis_t axis, axis_param_t elem)
@@ -258,7 +267,7 @@ bool Tracker::setCommonFilterFactor(float c_f)
     val = limit_ff(ffs[i] + common_ff);
     res &= ltr_int_set_axis_param(axes, (axis_t)i, AXIS_FILTER, val);
     emit axisChanged(i, AXIS_FILTER);
-    change(profileSection.toStdString().c_str(), i, AXIS_FILTER, val);
+    ltr_int_change(profileSection.toStdString().c_str(), i, AXIS_FILTER, val);
   }
   emit setCommonFF(c_f);
   return res;

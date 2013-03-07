@@ -11,10 +11,10 @@ int main(int argc, char *argv[])
   //Make sure that broken pipe won't bring us down
   signal(SIGPIPE, SIG_IGN);
   if(argc == 1){
-    master(true);
+    ltr_int_master(true);
   }else{
     //Parameter is name of profile
-    slave(argv[1], argv[2]);
+    ltr_int_slave(argv[1], argv[2]);
   }
   return 0;
 }

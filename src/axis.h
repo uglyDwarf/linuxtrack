@@ -11,13 +11,13 @@ struct ltr_axes;
 typedef struct ltr_axes *ltr_axes_t;
 #define LTR_AXES_T_INITIALIZER NULL
 
-enum axis_t {PITCH, ROLL, YAW, TX, TY, TZ};
+enum axis_t {PITCH, ROLL, YAW, TX, TY, TZ, MISC};
 enum axis_param_t {AXIS_ENABLED, AXIS_DEADZONE,
                    AXIS_LCURV, AXIS_RCURV,
                    AXIS_MULT,
                    AXIS_LLIMIT, AXIS_RLIMIT,
                    AXIS_FILTER,
-                   AXIS_FULL, AXIS_DEFAULT = 1024};
+                   AXIS_FULL, MISC_LEGR, MISC_ALTER, MISC_ALIGN, AXIS_DEFAULT = 1024};
 
 void ltr_int_init_axes(ltr_axes_t *axes, const char *profile);
 void ltr_int_close_axes(ltr_axes_t *axes);

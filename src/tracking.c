@@ -286,6 +286,7 @@ bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose, pose_t *unfiltered)
   double transform[3][3];
   double displacement[3] = {pose->tx, pose->ty, pose->tz};
   if(ltr_int_do_tr_align()){
+    //printf("Translations: Aligned\n");
     ltr_int_euler_to_matrix(pose->pitch / 180.0 * M_PI, pose->yaw / 180.0 * M_PI, 
                             pose->roll / 180.0 * M_PI, transform);
     ltr_int_matrix_times_vec(transform, displacement, rotated);
@@ -299,6 +300,7 @@ bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose, pose_t *unfiltered)
       return false;
     }
   }else{
+    //printf("Translations: Unaligned\n");
     unfiltered->tx = ltr_int_val_on_axis(axes, TX, displacement[0]);
     unfiltered->ty = ltr_int_val_on_axis(axes, TY, displacement[1]);
     unfiltered->tz = ltr_int_val_on_axis(axes, TZ, displacement[2]);

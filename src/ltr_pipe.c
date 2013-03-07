@@ -93,6 +93,7 @@ enum formats {
 	FORMAT_UINPUT_REL   = 6, // uinput relative position (like a mouse)
 	FORMAT_UINPUT_ABS   = 7, // uinput absolute position (like a joystick)
 #endif
+	FORMAT_IL2_6DOF     = 8, // For IL-2 Shturmovik v4.11+ (6DOF) with DeviceLink protocol
 };
 
 
@@ -141,6 +142,7 @@ enum option_codes {
 	OPT_FORMAT_UINPUT_REL      = 0x0f,
 	OPT_FORMAT_UINPUT_ABS      = 0x10,
 #endif
+	OPT_FORMAT_IL2_6DOF        = 0x11,
 };
 
 
@@ -225,6 +227,12 @@ static struct option Opts[] = {
 		OPT_FORMAT_IL2
 	},
 	{
+		"format-il2-6dof",
+		no_argument,
+		0,
+		OPT_FORMAT_IL2_6DOF
+	},
+	{
 		"format-headtrack",
 		no_argument,
 		0,
@@ -298,6 +306,7 @@ static void help(void)
 "  --format-default           Write all LinuxTrack values\n"
 "  --format-flightgear        FlightGear format\n"
 "  --format-il2               IL-2 Shturmovik DeviceLink format\n"
+"  --format-il2-6dof          IL-2 Shturmovik version 4.11+ DeviceLink format\n"
 "  --format-silentwings       Silent Wings remote control format\n"
 "\n"
 "Binary output data format options:\n"
@@ -372,6 +381,9 @@ static void parse_opts(int argc, char **argv)
 			break;
 		case OPT_FORMAT_IL2:
 			Args.format = FORMAT_IL2;
+			break;
+		case OPT_FORMAT_IL2_6DOF:
+			Args.format = FORMAT_IL2_6DOF;
 			break;
 		case OPT_FORMAT_HEADTRACK:
 			Args.format = FORMAT_HEADTRACK;
@@ -880,6 +892,24 @@ static void write_data_il2(const struct ltr_data *d)
 
 
 /**
+ * write_data_il2() - Write data in IL-2 Shturmovik DeviceLink format
+ * @d:              Data to write.
+ **/
+static void write_data_il2_6dof(const struct ltr_data *d)
+{
+	int r;
+
+	char buf[64];
+
+	r = snprintf(buf, sizeof(buf),
+			"R/11\\%f\\%f\\%f\\%f\\%f\\%f",
+			d->h, -d->p, d->r, d->x, d->y, d->z);
+
+	xwrite(buf, r);
+}
+
+
+/**
  * write_data_headtrack() - Write data in EasyHeadTrack format
  * @d:                    Data to write.
  **/
@@ -1042,6 +1072,9 @@ static void write_data(const struct ltr_data *d)
 		break;
 	case FORMAT_IL2:
 		write_data_il2(d);
+		break;
+	case FORMAT_IL2_6DOF:
+		write_data_il2_6dof(d);
 		break;
 	case FORMAT_HEADTRACK:
 		write_data_headtrack(d);

@@ -60,19 +60,27 @@ bool ltr_int_gui_lock(bool do_lock)
 void ltr_int_gui_lock_clean()
 {
   if(pfSem != NULL){
+    ltr_int_unlockSemaphore(pfSem);
     ltr_int_closeSemaphore(pfSem);
     pfSem= NULL;
   }
 }
 
-void change(const char *profile, int axis, int elem, float val)
+void ltr_int_change(const char *profile, int axis, int elem, float val)
 {
   std::pair<std::multimap<std::string, int>::iterator, std::multimap<std::string, int>::iterator> range;
   std::multimap<std::string, int>::iterator i;
-  //Finds all slaves belonging to the specific profile
-  range = slaves.equal_range(profile);
-  for(i = range.first; i != range.second; ++i){
-    send_param_update(i->second, axis, elem, val);
+  if(profile != NULL){
+    //Finds all slaves belonging to the specific profile
+    range = slaves.equal_range(profile);
+    for(i = range.first; i != range.second; ++i){
+      ltr_int_send_param_update(i->second, axis, elem, val);
+    }
+  }else{
+    //Broadcast to all slaves
+    for(i = slaves.begin(); i != slaves.end(); ++i){
+      ltr_int_send_param_update(i->second, axis, elem, val);
+    }
   }
 }
 
@@ -88,20 +96,18 @@ void ltr_int_set_callback_hooks(ltr_new_frame_callback_t nfh, ltr_status_update_
   new_slave_hook = nsh;
 }
 
-bool broadcast_pose(pose_t &pose)
+bool ltr_int_broadcast_pose(pose_t &pose)
 {
-  std::multimap<std::string, int>::iterator i, j;
+  std::multimap<std::string, int>::iterator i;
   int res;
   //Send updated pose to all clients
   for(i = slaves.begin(); i != slaves.end();){
-    res = send_data(i->second, &pose);
+    res = ltr_int_send_data(i->second, &pose);
     if(res == EPIPE){
-      printf("Slave @fifo %d left!\n", i->second);
+      ltr_int_log_message("Slave @fifo %d left!\n", i->second);
       close(i->second);
       i->second = -1;
-      j = i;
-      ++i;
-      slaves.erase(j);
+      slaves.erase(i++);
     }else{
       ++i;
     }
@@ -109,41 +115,40 @@ bool broadcast_pose(pose_t &pose)
   return true;
 }
 
-static void new_frame(struct frame_type *frame, void *param)
+static void ltr_int_new_frame(struct frame_type *frame, void *param)
 {
   (void)frame;
   (void)param;
-  //TODO send data to all slaves!
-  //printf("Have new pose - master!\n");
+  
   ltr_int_get_camera_update(&(current_pose.yaw), &(current_pose.pitch), &(current_pose.roll), 
                             &(current_pose.tx), &(current_pose.ty), &(current_pose.tz), 
                             &(current_pose.counter));
   if(new_frame_hook != NULL){
     new_frame_hook(frame, (void*)&current_pose);
   }
-  broadcast_pose(current_pose);
+  ltr_int_broadcast_pose(current_pose);
 }
 
-static void state_changed(void *param)
+static void ltr_int_state_changed(void *param)
 {
   (void)param;
   current_pose.status = ltr_int_get_tracking_state();
   if(status_update_hook != NULL){
     status_update_hook(param);
   }
-  broadcast_pose(current_pose);
+  ltr_int_broadcast_pose(current_pose);
 }
 
-bool register_slave(message_t &msg)
+bool ltr_int_register_slave(message_t &msg)
 {
   printf("Trying to register slave!\n");
   char *tmp_fifo_name = NULL;
-  if(asprintf(&tmp_fifo_name, slave_fifo_name(), msg.data) <= 0){
+  if(asprintf(&tmp_fifo_name, ltr_int_slave_fifo_name(), msg.data) <= 0){
     return false;
   }
   std::string fifo_name(tmp_fifo_name);
   free(tmp_fifo_name);
-  int fifo = open_fifo_for_writing(fifo_name.c_str());
+  int fifo = ltr_int_open_fifo_for_writing(fifo_name.c_str(), true);
   if(fifo <= 0){
     return false;
   }
@@ -170,25 +175,25 @@ bool register_slave(message_t &msg)
   return true;
 }
 
-void suspend_cmd()
+void ltr_int_suspend_cmd()
 {
   ltr_int_suspend();
 }
 
-void wakeup_cmd()
+void ltr_int_wakeup_cmd()
 {
   ltr_int_wakeup();
 }
 
-void recenter_cmd()
+void ltr_int_recenter_cmd()
 { 
   ltr_int_recenter();
 }
 
-bool gui_shutdown_request = false;
+static bool gui_shutdown_request = false;
 
 
-size_t request_shutdown()
+size_t ltr_int_request_shutdown()
 {
   size_t res = slaves.size();
   //if(res == 0){
@@ -202,7 +207,7 @@ size_t request_shutdown()
 //  - when master running already, make it close to let us jump to its place???
 
 
-bool master(bool standalone)
+bool ltr_int_master(bool standalone)
 {
   current_pose.pitch = 0.0;
   current_pose.yaw = 0.0;
@@ -221,14 +226,14 @@ bool master(bool standalone)
       printf("Gui is active, quitting!\n");
       return true;
     }
-    fifo = open_fifo_exclusive(master_fifo_name());
+    fifo = ltr_int_open_fifo_exclusive(ltr_int_master_fifo_name());
   }else{
     if(!ltr_int_gui_lock(true)){
       ltr_int_log_message("Couldn't lock gui lockfile!\n");
       return false;
     }
     int counter = 10;
-    while((fifo = open_fifo_exclusive(master_fifo_name())) <= 0){
+    while((fifo = ltr_int_open_fifo_exclusive(ltr_int_master_fifo_name())) <= 0){
       if((counter--) <= 0){
         ltr_int_log_message("The other master doesn't give up!\n");
         return false;
@@ -260,7 +265,7 @@ bool master(bool standalone)
     return false;
   }
 
-  ltr_int_register_cbk(new_frame, NULL, state_changed, NULL);
+  ltr_int_register_cbk(ltr_int_new_frame, NULL, ltr_int_state_changed, NULL);
   
   struct pollfd fifo_poll;
   fifo_poll.fd = fifo;
@@ -279,20 +284,20 @@ bool master(bool standalone)
       }
       message_t msg;
       msg.cmd = CMD_NOP;
-      if(fifo_receive(fifo, &msg, sizeof(message_t)) == 0){
+      if(ltr_int_fifo_receive(fifo, &msg, sizeof(message_t)) == 0){
         switch(msg.cmd){
           case CMD_PAUSE:
-            suspend_cmd();
+            ltr_int_suspend_cmd();
             break;
           case CMD_WAKEUP:
-            wakeup_cmd();
+            ltr_int_wakeup_cmd();
             break;
           case CMD_RECENTER:
-            recenter_cmd();
+            ltr_int_recenter_cmd();
             break;
           case CMD_NEW_FIFO:
             printf("Cmd to register new slave...\n");
-            register_slave(msg);
+            ltr_int_register_slave(msg);
             break;
         }
       }
