@@ -218,18 +218,19 @@ static int update_pose_3pt(struct frame_type *frame)
   if(!ltr_int_pose_process_blobs(frame->bloblist, &t, recenter)){
     return -1;
   }
+  recenter = false;
   double tmp_angles[3], tmp_translations[3];
   
 
-  angles[0] = t.pitch;
-  angles[1] = t.yaw;
-  angles[2] = t.roll;
-  translations[0] = t.tx;
-  translations[1] = t.ty;
-  translations[2] = t.tz;
+  tmp_angles[0] = t.pitch;
+  tmp_angles[1] = t.yaw;
+  tmp_angles[2] = t.roll;
+  tmp_translations[0] = t.tx;
+  tmp_translations[1] = t.ty;
+  tmp_translations[2] = t.tz;
 
   if(!ltr_int_is_vector_finite(tmp_angles) || !ltr_int_is_vector_finite(tmp_translations)){
-    return false;
+    return -1;
   }
 
   if(behind){
@@ -257,7 +258,7 @@ static int update_pose_3pt(struct frame_type *frame)
 
 bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose, pose_t *unfiltered)
 {
-//  printf(">>Pre: %f %f %f  %f %f %f\n", pose->pitch, pose->yaw, pose->roll, pose->tx, pose->ty, pose->tz);
+  //printf(">>Pre: %f %f %f  %f %f %f\n", pose->pitch, pose->yaw, pose->roll, pose->tx, pose->ty, pose->tz);
 //  static float filterfactor=1.0;
 //  ltr_int_get_filter_factor(&filterfactor);
   static float filtered_angles[3] = {0.0f, 0.0f, 0.0f};
@@ -321,13 +322,13 @@ static uint32_t counter_d = 0;
 
 int ltr_int_update_pose(struct frame_type *frame)
 {
-  bool res;
+  bool res = -1;
   if(ltr_int_is_single_point()){
     res =  update_pose_1pt(frame);
   }else{
     res = update_pose_3pt(frame);
   }
-  if(res){
+  if(res == 0){
     ++counter_d;
   }
   return res;

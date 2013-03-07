@@ -892,14 +892,14 @@ static void write_data_il2(const struct ltr_data *d)
 
 
 /**
- * write_data_il2() - Write data in IL-2 Shturmovik DeviceLink format
+ * write_data_il2_6dof() - Write data in IL-2 Shturmovik v.4.11+ DeviceLink format
  * @d:              Data to write.
  **/
 static void write_data_il2_6dof(const struct ltr_data *d)
 {
 	int r;
 
-	char buf[64];
+	char buf[128];
 
 	r = snprintf(buf, sizeof(buf),
 			"R/11\\%f\\%f\\%f\\%f\\%f\\%f",

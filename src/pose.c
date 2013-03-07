@@ -471,6 +471,7 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
     ltr_int_matrix_to_euler(transform, &(angles[0]), &(angles[1]), &(angles[2]));
   }else{
     //printf("Rotations: New algo\n");
+    //ltr_int_print_matrix(points, "points");
     if(centering){
       if(!ltr_int_center(points[0], points[1], points[2], c_base, tr_center, tr_rot)){
         ltr_int_log_message("Couldn't center in new pose!\n");
@@ -486,7 +487,7 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
   
   ltr_int_mul_vec(angles, 180.0 /M_PI, angles);
   
-//  printf("Raw Pitch: %g   Yaw: %g  Roll: %g\n", pitch, yaw, roll);
+  //printf("Raw Pitch: %g   Yaw: %g  Roll: %g\n", angles[0], angles[1], angles[2]);
   if(ltr_int_is_vector_finite(angles) && ltr_int_is_vector_finite(displacement)){
     pose->pitch = angles[0];
     pose->yaw = angles[1];
