@@ -900,10 +900,10 @@ static void write_data_il2_6dof(const struct ltr_data *d)
 	int r;
 
 	char buf[128];
-
+        
 	r = snprintf(buf, sizeof(buf),
 			"R/11\\%f\\%f\\%f\\%f\\%f\\%f",
-			d->h, -d->p, d->r, d->x, d->y, d->z);
+			d->h, -d->p, d->r, -d->z/300, -d->x/1000, d->y/1000);
 
 	xwrite(buf, r);
 }
