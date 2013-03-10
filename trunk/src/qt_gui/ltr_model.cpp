@@ -215,8 +215,8 @@ void CapEdit::dump(const QString &sec)
   PREF.addKeyVal(sec, (char *)"Cap-Y", QString::number(ui.CapA->value()));
   PREF.addKeyVal(sec, (char *)"Cap-X", QString::number(ui.CapB->value()));
   PREF.addKeyVal(sec, (char *)"Cap-Z", QString::number(ui.CapC->value()));
-  PREF.addKeyVal(sec, (char *)"Head-Y", "100");
-  PREF.addKeyVal(sec, (char *)"Head-Z", "90");
+  PREF.addKeyVal(sec, (char *)"Head-Y", "160");
+  PREF.addKeyVal(sec, (char *)"Head-Z", "50");
   QString v;
   if(ui.CapLeds->isChecked()){
     v = "yes";
@@ -246,12 +246,12 @@ void ClipEdit::dump(const QString &sec)
   PREF.addKeyVal(sec, (char *)"Clip-Z2", 
     QString::number(ui.ClipD->value() - ui.ClipA->value()));
   if(ui.ClipLeft->isChecked()){
-    PREF.addKeyVal(sec, (char *)"Head-X", "-100");
+    PREF.addKeyVal(sec, (char *)"Head-X", "85");
   }else{
-    PREF.addKeyVal(sec, (char *)"Head-X", "100");
+    PREF.addKeyVal(sec, (char *)"Head-X", "-85");
   }
-  PREF.addKeyVal(sec, (char *)"Head-Y", "-100");
-  PREF.addKeyVal(sec, (char *)"Head-Z", "50");
+  PREF.addKeyVal(sec, (char *)"Head-Y", "85");
+  PREF.addKeyVal(sec, (char *)"Head-Z", "140");
   
   QString v;
   if(ui.ClipLeds->isChecked()){
@@ -291,7 +291,7 @@ CapTweaking::CapTweaking(const QString &section, QWidget *parent) : QWidget(pare
   ui.setupUi(this);
   QString val;
   if(PREF.getKeyVal(currentSection, "Head-Y", val))
-    ui.CapHy->setValue(val.toFloat()/3);
+    ui.CapHy->setValue(val.toFloat());
   if(PREF.getKeyVal(currentSection, "Head-Z", val))
     ui.CapHz->setValue(val.toFloat());
   initializing = false;
@@ -304,7 +304,7 @@ CapTweaking::~CapTweaking()
 void CapTweaking::on_CapHy_valueChanged(int val)
 {
   if(!initializing)
-    PREF.setKeyVal(currentSection, (char *)"Head-Y", val*3);
+    PREF.setKeyVal(currentSection, (char *)"Head-Y", val);
   PREF.announceModelChange();
 }
 
@@ -323,7 +323,7 @@ ClipTweaking::ClipTweaking(const QString &section, QWidget *parent) : QWidget(pa
   if(PREF.getKeyVal(currentSection, "Head-X", val)){
     float fval = val.toFloat();
     ui.ClipHx->setValue(fabsf(fval));
-    if(fval < 0){
+    if(fval >= 0){
       ui.ClipLeft->setChecked(true);
     }else{
       ui.ClipRight->setChecked(true);
@@ -344,7 +344,7 @@ ClipTweaking::~ClipTweaking()
 void ClipTweaking::tweakHx()
 {
   if(!initializing){
-    int sign = (ui.ClipLeft->isChecked() ? -1 : 1);
+    int sign = (ui.ClipLeft->isChecked() ? 1 : -1);
     PREF.setKeyVal(currentSection, (char *)"Head-X", ui.ClipHx->value() * sign);
   }
   PREF.announceModelChange();

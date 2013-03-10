@@ -47,6 +47,12 @@
         </item>
         <item row="1" column="1">
          <widget class="QSlider" name="ClipHx">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>299</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -81,6 +87,12 @@
         </item>
         <item row="3" column="1">
          <widget class="QSlider" name="ClipHy">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>299</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -98,6 +110,12 @@
         </item>
         <item row="5" column="1">
          <widget class="QSlider" name="ClipHz">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>299</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
