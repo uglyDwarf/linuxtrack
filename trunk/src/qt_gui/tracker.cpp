@@ -199,6 +199,10 @@ void Tracker::recenter()
 void Tracker::stop()
 {
   ltr_int_request_shutdown();
+  if(master->isRunning()){
+    ltr_int_request_shutdown();
+    master->wait();
+  }
 }
 
 bool Tracker::axisChange(axis_t axis, axis_param_t elem, bool enabled)
