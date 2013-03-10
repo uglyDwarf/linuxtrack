@@ -47,6 +47,12 @@
         </item>
         <item row="1" column="1">
          <widget class="QSlider" name="CapHy">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>299</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -71,6 +77,12 @@
         </item>
         <item row="3" column="1">
          <widget class="QSlider" name="CapHz">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>299</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
