@@ -296,6 +296,22 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>LtrTab</tabstop>
+  <tabstop>HelpButton</tabstop>
+  <tabstop>DefaultsButton</tabstop>
+  <tabstop>DiscardChangesButton</tabstop>
+  <tabstop>SaveButton</tabstop>
+  <tabstop>QuitButton</tabstop>
+  <tabstop>XplanePluginButton</tabstop>
+  <tabstop>pushButton_2</tabstop>
+  <tabstop>ViewLogButton</tabstop>
+  <tabstop>DisableCamView</tabstop>
+  <tabstop>Disable3DView</tabstop>
+  <tabstop>LegacyPose</tabstop>
+  <tabstop>LegacyRotation</tabstop>
+  <tabstop>TransRotDisable</tabstop>
+ </tabstops>
  <resources>
   <include location="ltr_rc.qrc"/>
  </resources>

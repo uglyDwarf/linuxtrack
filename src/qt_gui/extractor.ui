@@ -120,6 +120,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>FWCombo</tabstop>
+  <tabstop>DownloadButton</tabstop>
+  <tabstop>LogView</tabstop>
+  <tabstop>HelpButton</tabstop>
+  <tabstop>AnalyzeSourceButton</tabstop>
+  <tabstop>BrowseButton</tabstop>
+  <tabstop>QuitButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

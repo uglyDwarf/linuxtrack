@@ -360,6 +360,22 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>PitchEnable</tabstop>
+  <tabstop>PitchSens</tabstop>
+  <tabstop>YawEnable</tabstop>
+  <tabstop>YawSens</tabstop>
+  <tabstop>RollEnable</tabstop>
+  <tabstop>RollSens</tabstop>
+  <tabstop>TxEnable</tabstop>
+  <tabstop>TxSens</tabstop>
+  <tabstop>TyEnable</tabstop>
+  <tabstop>TySens</tabstop>
+  <tabstop>TzEnable</tabstop>
+  <tabstop>TzSens</tabstop>
+  <tabstop>Smoothing</tabstop>
+  <tabstop>DetailedAxisSetup</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

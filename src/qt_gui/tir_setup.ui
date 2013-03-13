@@ -382,6 +382,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>TirInstallFirmware</tabstop>
+  <tabstop>TirThreshold</tabstop>
+  <tabstop>TirSignalizeStatus</tabstop>
+  <tabstop>TirStatusBright</tabstop>
+  <tabstop>TirIrBright</tabstop>
+  <tabstop>TirUseGrayscale</tabstop>
+  <tabstop>TirMinBlob</tabstop>
+  <tabstop>TirMaxBlob</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

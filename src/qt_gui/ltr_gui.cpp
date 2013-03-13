@@ -89,7 +89,10 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
 void LinuxtrackGui::show()
 {
   showWindow->show();
-  helper->show();
+  QString dbg = QProcessEnvironment::systemEnvironment().value("LINUXTRACK_DBG");
+  if(dbg.contains('d')){
+    helper->show();
+  }
   QWidget::show();
   if(welcome){
     HelpViewer::ChangePage("welcome.htm");

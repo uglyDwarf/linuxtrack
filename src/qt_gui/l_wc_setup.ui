@@ -266,6 +266,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>WebcamFormats</tabstop>
+  <tabstop>WebcamResolutions</tabstop>
+  <tabstop>WebcamThreshold</tabstop>
+  <tabstop>WebcamMinBlob</tabstop>
+  <tabstop>WebcamMaxBlob</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

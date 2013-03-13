@@ -34,17 +34,17 @@ static bool is_tir(libusb_device *dev, unsigned int devid)
 {
   struct libusb_device_descriptor desc;
 
-  ltr_int_log_message("Checking, if device is Track IR.\n");
+  //ltr_int_log_message("Checking, if device is Track IR.\n");
   if(libusb_get_device_descriptor(dev, &desc)){
     ltr_int_log_message("Error getting device descriptor!\n");
     return false;
   }
-  ltr_int_log_message("Device descriptor received.\n");
+  //ltr_int_log_message("Device descriptor received.\n");
   if((desc.idVendor == 0x131D) && (desc.idProduct == devid)){
     ltr_int_log_message("Device is a TrackIR (%04X:%04X).\n", desc.idVendor, desc.idProduct);
     return true;
   }else{
-    ltr_int_log_message("Device is not a TrackIR(%04X:%04X).\n", desc.idVendor, desc.idProduct);
+    //ltr_int_log_message("Device is not a TrackIR(%04X:%04X).\n", desc.idVendor, desc.idProduct);
     return false;
   }
 }

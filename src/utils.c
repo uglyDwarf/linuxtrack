@@ -11,6 +11,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <sys/ioctl.h>
 #include <time.h>
 #include <sys/types.h>
@@ -59,6 +60,8 @@ bool ltr_int_set_logfile(char *fname)
     fclose(output_stream);
     return false;
   }
+  //close the log on exec
+  fcntl(fd, F_SETFD, FD_CLOEXEC);
   atexit(ltr_int_atexit);
   output_stream = freopen(fname, "w+", stderr);
   logfile_name = fname;

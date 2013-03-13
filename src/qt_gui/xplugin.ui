@@ -68,8 +68,8 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>BrowseXPlane</tabstop>
   <tabstop>pushButton</tabstop>
+  <tabstop>BrowseXPlane</tabstop>
  </tabstops>
  <resources/>
  <connections>
