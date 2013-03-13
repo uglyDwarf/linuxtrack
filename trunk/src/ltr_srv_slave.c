@@ -16,15 +16,21 @@
 static struct mmap_s mmm;
 static int master_uplink = -1;
 static int master_downlink = -1;
-static int stop_slave_reader_thread = false;
-static int slave_reader_thread_finished = true;
 static pthread_t reader_tid;
 static char *profile_name = NULL;
 static ltr_axes_t axes;
 static bool master_works = false;
-static bool master_restart_retries = 3;
+
+static const int master_retries = 3;
 
 typedef enum {MR_OK, MR_FAIL, MR_OFTEN} mr_res_t;
+
+static bool parent_alive()
+{
+  //Check whether parent lives 
+  //  (if not, we got orphaned and got adopted by init (pid 1))
+  return (getppid() != 1);
+}
 
 static int ltr_int_open_slave_fifo(int master_uplink, const char *name_template, int max_fifos)
 {
@@ -46,32 +52,52 @@ static int ltr_int_open_slave_fifo(int master_uplink, const char *name_template,
   }
 }
 
-static bool ltr_int_start_master(int *master_uplink, int *master_downlink)
+static bool close_master_comms(int *master_uplink, int *master_downlink)
+{
+  if(*master_downlink > 0){
+    close(*master_downlink);
+    *master_downlink = -1;
+  }
+  if(*master_uplink > 0){
+    close(*master_uplink);
+    *master_uplink = -1;
+  }
+  return true;
+}
+
+
+static bool start_master(int *master_uplink, int *master_downlink)
 {
   bool is_child;
-  master_works = false;
-  if(ltr_int_gui_lock(false)){ //don't try to start master if gui is running...
-    int fifo = ltr_int_open_fifo_exclusive(ltr_int_master_fifo_name());
-    if(fifo > 0){
-      close(fifo);
-      printf("Master is not running, start it\n"); 
-      char *args[] = {"srv", NULL};
-      args[0] = ltr_int_get_app_path("/ltr_server1");
-      ltr_int_fork_child(args, &is_child);
-      int status;
-      //Disable the wait when not daemonizing master!!!
-      wait(&status);
-      //At this point master is either running or exited (depending on the state of fifo)
-      free(args[0]);
-    }
+  //master inherits fds!
+  int fifo = ltr_int_open_fifo_exclusive(ltr_int_master_fifo_name());
+  if(fifo > 0){
+    //no master there yet, so lets start one
+    close(fifo);
+    close_master_comms(master_uplink, master_downlink);
+    ltr_int_log_message("Master is not running, start it\n"); 
+    char *args[] = {"srv", NULL};
+    args[0] = ltr_int_get_app_path("/ltr_server1");
+    ltr_int_fork_child(args, &is_child);
+    int status;
+    //Disable the wait when not daemonizing master!!!
+    wait(&status);
+    //At this point master is either running or exited (depending on the state of fifo)
+    free(args[0]);
   }
+  //At this point either master runs already, or we just started one
+  return true;
+}
+
+static bool open_master_comms(int *master_uplink, int *master_downlink)
+{
   *master_uplink = ltr_int_open_fifo_for_writing(ltr_int_master_fifo_name(), true);
   if(*master_uplink <= 0){
     printf("Couldn't open fifo to master!\n");
     return false;
   }
   if((*master_downlink = ltr_int_open_slave_fifo(*master_uplink, ltr_int_slave_fifo_name(), 
-                                                 ltr_int_max_slave_fifos())) <= 0){
+                                               ltr_int_max_slave_fifos())) <= 0){
     printf("Couldn't pass master our fifo!\n");
     close(*master_uplink);
     *master_uplink = -1;
@@ -81,100 +107,136 @@ static bool ltr_int_start_master(int *master_uplink, int *master_downlink)
   return true;
 }
 
-static mr_res_t ltr_int_try_start_master(int *master_uplink, int *master_downlink)
+static bool ltr_int_try_start_master(int *master_uplink, int *master_downlink)
 {
-  if(master_restart_retries > 0){
-    --master_restart_retries;
-    return (ltr_int_start_master(master_uplink, master_downlink)) ? MR_OK : MR_FAIL;
+  int master_restart_retries = master_retries;
+  while(master_restart_retries > 0){
+    
+    close_master_comms(master_uplink, master_downlink);
+    if(ltr_int_gui_lock(false)){
+      
+      start_master(master_uplink, master_downlink);
+      --master_restart_retries;
+    }else{
+      master_restart_retries = master_retries;
+    }
+    
+    if(open_master_comms(master_uplink, master_downlink)){
+      printf("Master is responding!\n");
+      return true;
+    }
+    sleep(2);
   }
-  return MR_OFTEN;
+  return false;
+}
+
+
+static bool ltr_int_process_message(int master_downlink)
+{
+  message_t msg;
+  struct ltr_comm *com;
+  pose_t unfiltered;
+  if(ltr_int_fifo_receive(master_downlink, &msg, sizeof(message_t)) != 0){
+    ltr_int_log_message("Slave reader problem!\n");
+    perror("fifo_receive");
+    return false;
+  }
+  switch(msg.cmd){
+    case CMD_POSE:
+      //printf("Have new pose!\n");
+      //printf(">>>>%f %f %f\n", msg.pose.yaw, msg.pose.pitch, msg.pose.tz);
+      ltr_int_postprocess_axes(axes, &(msg.pose), &unfiltered);
+      
+      com = mmm.data;
+      ltr_int_lockSemaphore(mmm.sem);
+      com->heading = msg.pose.yaw;
+      com->pitch = msg.pose.pitch;
+      com->roll = msg.pose.roll;
+      com->tx = msg.pose.tx;
+      com->ty = msg.pose.ty;
+      com->tz = msg.pose.tz;
+      com->counter = msg.pose.counter;
+      com->state = msg.pose.status;
+      com->preparing_start = false;
+      ltr_int_unlockSemaphore(mmm.sem);
+      break;
+    case CMD_PARAM:
+      //printf("Changing %s of %s to %f!!!\n", ltr_int_axis_param_get_desc(msg.param.param_id), 
+      //  ltr_int_axis_get_desc(msg.param.axis_id), msg.param.flt_val);
+      if(msg.param.axis_id == MISC){
+        switch(msg.param.param_id){
+          case MISC_ALTER:
+            ltr_int_set_use_alter(msg.param.flt_val > 0.5f);
+            break;
+          case MISC_ALIGN:
+            ltr_int_set_tr_align(msg.param.flt_val > 0.5f);
+            break;
+          case MISC_LEGR:
+            ltr_int_set_use_oldrot(msg.param.flt_val > 0.5f);
+            break;
+          default:
+            ltr_int_log_message("Wrong misc param: %d\n", msg.param.param_id);
+            return false;
+            break;
+        }
+      }else if(msg.param.param_id == AXIS_ENABLED){
+        ltr_int_set_axis_bool_param(axes, msg.param.axis_id, msg.param.param_id, msg.param.flt_val > 0.5f);
+      }else{
+        ltr_int_set_axis_param(axes, msg.param.axis_id, msg.param.param_id, msg.param.flt_val);
+      }
+      break;
+    default:
+      ltr_int_log_message("Slave received unexpected message %d!\n", msg.cmd);
+      return false;
+      break;
+  }
+  //printf("Received: '%s'\n", msg.str);
+  return true;
 }
 
 
 static void *ltr_int_slave_reader_thread(void *param)
 {
+  printf("Slave reader thread function entered!\n");
   (void) param;
   int received_frames = 0;
   master_works = false;
-  if((master_uplink == -1) || (master_downlink == -1)){
-    slave_reader_thread_finished = true;
-    ltr_int_log_message("Tried to run the slave reader thread(ul = %d, dl = %d)!\n", 
-                        master_uplink, master_downlink);
-    return NULL;
-  }else{
-    slave_reader_thread_finished = false;
-  }
-  struct pollfd downlink_poll= {
-    .fd = master_downlink,
-    .events = POLLIN,
-    .revents = 0
-  };
-  
-  while(!stop_slave_reader_thread){
-    downlink_poll.events = POLLIN;
-    int fds = poll(&downlink_poll, 1, 1000);
-    if(fds < 0){
-      perror("poll");
-      continue;
-    }else if(fds == 0){
-      continue;
-    }
-    if(downlink_poll.revents & POLLHUP){
+  while(1){
+    if(!ltr_int_try_start_master(&master_uplink, &master_downlink)){
       break;
     }
-    message_t msg;
-    struct ltr_comm *com;
-    pose_t unfiltered;
-    if(ltr_int_fifo_receive(master_downlink, &msg, sizeof(message_t)) != 0){
-      ltr_int_log_message("Slave reader problem!\n");
-    }
-    switch(msg.cmd){
-      case CMD_POSE:
-        //printf("Have new pose!\n");
-        //printf(">>>>%f %f %f\n", msg.pose.yaw, msg.pose.pitch, msg.pose.tz);
-        ltr_int_postprocess_axes(axes, &(msg.pose), &unfiltered);
-        
-        com = mmm.data;
-        ltr_int_lockSemaphore(mmm.sem);
-        com->heading = msg.pose.yaw;
-        com->pitch = msg.pose.pitch;
-        com->roll = msg.pose.roll;
-        com->tx = msg.pose.tx;
-        com->ty = msg.pose.ty;
-        com->tz = msg.pose.tz;
-        com->counter = msg.pose.counter;
-        com->state = msg.pose.status;
-        com->preparing_start = false;
-        ltr_int_unlockSemaphore(mmm.sem);
+    printf("Master Uplink %d, Downlink %d\n", master_uplink, master_downlink);
+    int poll_errs = 0;
+    struct pollfd downlink_poll= {
+      .fd = master_downlink,
+      .events = POLLIN,
+      .revents = 0
+    };
+    while(1){
+      downlink_poll.events = POLLIN;
+      int fds = poll(&downlink_poll, 1, 1000);
+      if(fds < 0){
+        ++poll_errs;
+        perror("poll");
+        if(poll_errs > 3){break;}else{continue;}
+      }else if(fds == 0){
+        continue;
+      }
+      if(downlink_poll.revents & POLLHUP){
+        break;
+      }
+      //We have a new message
+      if(ltr_int_process_message(master_downlink)){
         ++received_frames;
         if(received_frames > 20){
           master_works = true;
         }
-        break;
-      case CMD_PARAM:
-        //printf("Changing %s of %s to %f!!!\n", ltr_int_axis_param_get_desc(msg.param.param_id), 
-        //  ltr_int_axis_get_desc(msg.param.axis_id), msg.param.flt_val);
-        if(msg.param.axis_id == MISC){
-          if(msg.param.param_id == MISC_ALTER){
-            ltr_int_set_use_alter(msg.param.flt_val > 0.5f);
-          }else if(msg.param.param_id == MISC_ALIGN){
-            ltr_int_set_tr_align(msg.param.flt_val > 0.5f);
-          }else if(msg.param.param_id == MISC_LEGR){
-            ltr_int_set_use_oldrot(msg.param.flt_val > 0.5f);
-          }
-        }else if(msg.param.param_id == AXIS_ENABLED){
-          ltr_int_set_axis_bool_param(axes, msg.param.axis_id, msg.param.param_id, msg.param.flt_val > 0.5f);
-        }else{
-          ltr_int_set_axis_param(axes, msg.param.axis_id, msg.param.param_id, msg.param.flt_val);
-        }
-        break;
-      default:
-        ltr_int_log_message("Slave received unexpected message %d!\n", msg.cmd);
-        break;
+      }
+      if(!parent_alive()){
+        return NULL;
+      }
     }
-    //printf("Received: '%s'\n", msg.str);
   }
-  slave_reader_thread_finished = true;
   return NULL;
 }
 
@@ -186,7 +248,6 @@ static void ltr_int_slave_main_loop()
   ltr_cmd cmd = NOP_CMD;
   bool recenter = false;
   bool quit_flag = false;
-  bool reader_started = false;
   while(!quit_flag){
     if((com->cmd != NOP_CMD) || com->recenter){
       ltr_int_lockSemaphore(mmm.sem);
@@ -215,35 +276,8 @@ static void ltr_int_slave_main_loop()
       ltr_int_send_message(master_uplink, CMD_RECENTER, 0);
     }
     recenter = false;
-    //Check whether parent lives 
-    //  (if not, we got orphaned and got adopted by init (pid 1))
-    if(getppid() == 1){
-      ltr_int_log_message("Parent died!\n");
+    if(!parent_alive()){
       break;
-    }
-    if(slave_reader_thread_finished){
-      //the connection to master was lost - most probably master quitted or crashed
-      if(reader_started){
-        pthread_join(reader_tid, NULL);
-        close(master_downlink);
-        close(master_uplink);
-        master_uplink = master_downlink = -1;
-      }
-      if((master_works) || !(ltr_int_gui_lock(false))){
-        master_restart_retries = 3;
-      }
-      mr_res_t mr_res = ltr_int_try_start_master(&master_uplink, &master_downlink);
-      if(mr_res == MR_OFTEN){
-        break; //Can't get hold of master on the other side after 3 tries... 
-      }else if(mr_res == MR_OK){
-        //restart reader thread
-        stop_slave_reader_thread = false;
-        slave_reader_thread_finished = false; //to avoid getting here second time
-                                              // if the thread doesn't come up quick enough
-        if(pthread_create(&reader_tid, NULL, ltr_int_slave_reader_thread, NULL) == 0){
-          reader_started = true;
-        }
-      }
     }
     usleep(100000);
   }
@@ -267,17 +301,11 @@ bool ltr_int_slave(const char *c_profile, const char *c_com_file)
   }
   free(com_file);
   
-  ltr_int_slave_main_loop();
-  
-  stop_slave_reader_thread = true;
-  pthread_join(reader_tid, NULL);
-
-  if(master_downlink > 0){
-    close(master_downlink);
+  if(pthread_create(&reader_tid, NULL, ltr_int_slave_reader_thread, NULL) == 0){
+    ltr_int_slave_main_loop();
+    pthread_join(reader_tid, NULL);
   }
-  if(master_uplink > 0){
-    close(master_uplink);
-  }
+  close_master_comms(&master_uplink, &master_downlink);
   ltr_int_unmap_file(&mmm);
   //finish prefs
   ltr_int_close_axes(&axes);

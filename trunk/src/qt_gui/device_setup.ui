@@ -98,6 +98,11 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>DeviceSelector</tabstop>
+  <tabstop>RefreshDevices</tabstop>
+  <tabstop>CameraOrientation</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

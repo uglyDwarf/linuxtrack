@@ -183,6 +183,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>Wii_r1</tabstop>
+  <tabstop>Wii_r2</tabstop>
+  <tabstop>Wii_r3</tabstop>
+  <tabstop>Wii_r4</tabstop>
+  <tabstop>Wii_p1</tabstop>
+  <tabstop>Wii_p2</tabstop>
+  <tabstop>Wii_p3</tabstop>
+  <tabstop>Wii_p4</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
