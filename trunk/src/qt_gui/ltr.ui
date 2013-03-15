@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>674</width>
+    <width>678</width>
     <height>425</height>
    </rect>
   </property>
@@ -129,28 +129,39 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QPushButton" name="XplanePluginButton">
-            <property name="text">
-             <string>Install Xplane plugin...</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_2">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Install Wine plugin...</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="ViewLogButton">
-            <property name="text">
-             <string>View logfile</string>
-            </property>
-           </widget>
+           <layout class="QGridLayout" name="gridLayout">
+            <item row="0" column="0">
+             <widget class="QPushButton" name="XplanePluginButton">
+              <property name="text">
+               <string>Install Xplane plugin...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QPushButton" name="ViewLogButton">
+              <property name="text">
+               <string>View logfile</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QPushButton" name="pushButton_2">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Install Wine plugin...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QPushButton" name="PackageLogsButton">
+              <property name="text">
+               <string>Package logs...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
            <widget class="QFrame" name="frame_7">
@@ -163,6 +174,12 @@
             <layout class="QVBoxLayout" name="verticalLayout_23">
              <item>
               <widget class="QLabel" name="label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="font">
                 <font>
                  <weight>75</weight>
@@ -178,40 +195,44 @@
               </widget>
              </item>
              <item>
-              <widget class="QCheckBox" name="DisableCamView">
-               <property name="text">
-                <string>Disable camera view</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="Disable3DView">
-               <property name="text">
-                <string>Disable 3D tracking preview</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="LegacyPose">
-               <property name="text">
-                <string>Use legacy pose computation method
+              <layout class="QGridLayout" name="gridLayout_2">
+               <item row="0" column="0">
+                <widget class="QCheckBox" name="DisableCamView">
+                 <property name="text">
+                  <string>Disable camera view</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QCheckBox" name="LegacyRotation">
+                 <property name="text">
+                  <string>Use legacy rotation computation method</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="LegacyPose">
+                 <property name="text">
+                  <string>Use legacy pose computation method
   (weak perspective/Alter)</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="LegacyRotation">
-               <property name="text">
-                <string>Use legacy rotation computation method</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="TransRotDisable">
-               <property name="text">
-                <string>Disable translation/rotation alignment </string>
-               </property>
-              </widget>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QCheckBox" name="Disable3DView">
+                 <property name="text">
+                  <string>Disable 3D tracking preview</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="TransRotDisable">
+                 <property name="text">
+                  <string>Disable translation/rotation alignment </string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
             </layout>
            </widget>
@@ -304,13 +325,7 @@
   <tabstop>SaveButton</tabstop>
   <tabstop>QuitButton</tabstop>
   <tabstop>XplanePluginButton</tabstop>
-  <tabstop>pushButton_2</tabstop>
   <tabstop>ViewLogButton</tabstop>
-  <tabstop>DisableCamView</tabstop>
-  <tabstop>Disable3DView</tabstop>
-  <tabstop>LegacyPose</tabstop>
-  <tabstop>LegacyRotation</tabstop>
-  <tabstop>TransRotDisable</tabstop>
  </tabstops>
  <resources>
   <include location="ltr_rc.qrc"/>

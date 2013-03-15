@@ -44,6 +44,7 @@ void PluginInstall::instFinished(bool result)
   if(!result){
     QMessageBox::warning(NULL, "Wine bridge installation problem", 
       "Wine bridge installation failed!", QMessageBox::Ok);
+    gui.pushButton_2->setEnabled(true);
     return;
   }
   if(!isTirFirmwareInstalled()){
@@ -88,7 +89,7 @@ void PluginInstall::installWinePlugin()
 {
   gui.pushButton_2->setEnabled(false);
   QString prefix = QFileDialog::getExistingDirectory(NULL, QString("Select Wine Prefix..."), 
-                     QDir::homePath()+"/.wine", QFileDialog::ShowDirsOnly);
+                     QDir::homePath(), QFileDialog::ShowDirsOnly);
   QString installerPath = PREF.getDataPath("linuxtrack-wine.exe");
   
   inst->setEnv("WINEPREFIX", prefix);

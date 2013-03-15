@@ -42,6 +42,13 @@ static QMessageBox::StandardButton warningMessage(const QString &message)
                                 message, QMessageBox::Ok);
 }
 
+static QMessageBox::StandardButton infoMessage(const QString &message)
+{
+ return QMessageBox::information(NULL, "Linuxtrack",
+                                message, QMessageBox::Ok);
+}
+
+
 
 LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   xpInstall(NULL), initialized(false), news_serial(-1)
@@ -55,7 +62,10 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   lv = new LogView();
   pi = new PluginInstall(ui);
   ps = new ProfileSelector(this);
-  QObject::connect(&STATE, SIGNAL(stateChanged(ltr_state_type)), this, SLOT(trackerStateHandler(ltr_state_type)));
+  QObject::connect(&STATE, SIGNAL(stateChanged(ltr_state_type)), 
+                   this, SLOT(trackerStateHandler(ltr_state_type)));
+  QObject::connect(&zipper, SIGNAL(finished(int, QProcess::ExitStatus)), 
+                   this, SLOT(logsPackaged(int, QProcess::ExitStatus)));
   ui.ModelEditSite->addWidget(me);
   ui.ProfileSetupSite->addWidget(ps);
   
@@ -290,5 +300,31 @@ void LinuxtrackGui::on_TransRotDisable_stateChanged(int state)
     TRACKER.miscChange(MISC_ALIGN, true);
   }
 }
+
+
+void LinuxtrackGui::on_PackageLogsButton_pressed()
+{
+  
+  QString fname;
+  ui.PackageLogsButton->setEnabled(false);
+  fname = QFileDialog::getSaveFileName(this, "Save the package as...", QDir::homePath(), "Zip (*.zip)");
+  if(fname.isEmpty()){
+    return;
+  }
+  zipper.start(QString("bash -c \"zip %1 /tmp/linuxtrack*.log\"").arg(fname));  
+}
+  
+void LinuxtrackGui::logsPackaged(int exitCode, QProcess::ExitStatus exitStatus)
+{
+  (void)exitCode;
+  if((exitCode == 0) && (exitStatus == QProcess::NormalExit)){
+    infoMessage("Package created successfully...");
+  }else{
+    warningMessage("Couldn't create the package!\n"
+    "Please check that you have write access to the destination directory!");
+  }
+  ui.PackageLogsButton->setEnabled(true);
+}
+
 
 
