@@ -6,6 +6,7 @@
 #endif
  
 #include <QCloseEvent>
+#include <QProcess>
 #include <linuxtrack.h>
 
 #include "ui_ltr.h"
@@ -37,9 +38,7 @@ class LinuxtrackGui : public QWidget
  private slots:
   void on_QuitButton_pressed();
   //void on_EditSCButton_pressed();
-  void on_XplanePluginButton_pressed();
   void on_SaveButton_pressed();
-  void on_ViewLogButton_pressed();
   void on_DefaultsButton_pressed();
   void on_DiscardChangesButton_pressed();
   void on_HelpButton_pressed();
@@ -48,6 +47,10 @@ class LinuxtrackGui : public QWidget
   void on_LegacyPose_stateChanged(int state);
   void on_LegacyRotation_stateChanged(int state);
   void on_TransRotDisable_stateChanged(int state);
+  void on_ViewLogButton_pressed();
+  void on_XplanePluginButton_pressed();
+  void on_PackageLogsButton_pressed();
+  void logsPackaged(int exitCode, QProcess::ExitStatus exitStatus);
  private:
   Ui::LinuxtrackMainForm ui;
   LtrGuiForm *showWindow;
@@ -66,6 +69,7 @@ class LinuxtrackGui : public QWidget
   void rereadPrefs();
   bool welcome;
   int news_serial;
+  QProcess zipper;
 };
 
 #endif
