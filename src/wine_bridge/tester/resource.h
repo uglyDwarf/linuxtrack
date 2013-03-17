@@ -18,3 +18,6 @@
 #define IDC_Z1                                  1026
 #define IDC_Z2                                  1027
 #define IDC_Z3                                  1028
+#define IDC_S                                   1029
+#define IDC_F                                   1030
+
