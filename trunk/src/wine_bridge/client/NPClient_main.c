@@ -239,7 +239,7 @@ int __stdcall NPCLIENT_NP_GetData(tir_data_t * data)
   float r, p, y, tx, ty, tz;
   unsigned int frame;
   int res = ltr_get_camera_update(&y, &p, &r, &tx, &ty, &tz, &frame);
-  data->status = (ltr_get_tracking_state() == RUNNING);
+  data->status = (ltr_get_tracking_state() == RUNNING) ? 0 : 1;
   data->frame = frame & 0xFFFF;
   data->cksum = 0;
   data->roll = r / 180.0 * 16383;

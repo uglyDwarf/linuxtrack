@@ -28,6 +28,8 @@ VOID CALLBACK TimerProcedure(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
   SetDlgItemInt(hwnd, IDC_X3, td.padding[3], true);
   SetDlgItemInt(hwnd, IDC_Y3, td.padding[4], true);
   SetDlgItemInt(hwnd, IDC_Z3, td.padding[5], true);
+  SetDlgItemInt(hwnd, IDC_S, td.status, true);
+  SetDlgItemInt(hwnd, IDC_F, td.frame, true);
 }
 
 BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
