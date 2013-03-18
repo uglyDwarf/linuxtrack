@@ -175,6 +175,9 @@
       </item>
       <item row="1" column="0">
        <widget class="QCheckBox" name="PitchEnable">
+        <property name="toolTip">
+         <string>Enable Pitch Axis</string>
+        </property>
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
         </property>
@@ -188,6 +191,9 @@
       </item>
       <item row="2" column="0">
        <widget class="QCheckBox" name="YawEnable">
+        <property name="toolTip">
+         <string>Enable Yaw Axis</string>
+        </property>
         <property name="text">
          <string>Yaw</string>
         </property>
@@ -195,6 +201,9 @@
       </item>
       <item row="3" column="0">
        <widget class="QCheckBox" name="RollEnable">
+        <property name="toolTip">
+         <string>Enable Yaw Axis</string>
+        </property>
         <property name="text">
          <string>Roll</string>
         </property>
@@ -202,6 +211,9 @@
       </item>
       <item row="4" column="0">
        <widget class="QCheckBox" name="TxEnable">
+        <property name="toolTip">
+         <string>Enable X Axis</string>
+        </property>
         <property name="text">
          <string>Move left/right</string>
         </property>
@@ -209,6 +221,9 @@
       </item>
       <item row="5" column="0">
        <widget class="QCheckBox" name="TyEnable">
+        <property name="toolTip">
+         <string>Enable Y Axis</string>
+        </property>
         <property name="text">
          <string>Move up/down</string>
         </property>
@@ -216,6 +231,9 @@
       </item>
       <item row="6" column="0">
        <widget class="QCheckBox" name="TzEnable">
+        <property name="toolTip">
+         <string>Enable Z Axis</string>
+        </property>
         <property name="text">
          <string>Move back/forth</string>
         </property>

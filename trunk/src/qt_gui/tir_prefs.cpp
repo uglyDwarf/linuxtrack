@@ -116,6 +116,7 @@ bool TirPrefs::Activate(const QString &ID, bool init)
       ui.TirFwLabel->setText("Firmware not needed!");
     }else{
       ui.TirFwLabel->setText("Firmware found!");
+      ui.TirInstallFirmware->setText("Reinstall Firmware");
     }
     //ui.TirInstallFirmware->setDisabled(true);
   }else{

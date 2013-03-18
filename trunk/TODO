@@ -6,7 +6,7 @@ TODO for 1.0:
  - check parameter passing to different clients
  - check wine plugin more thoroughly
  - mac compilation
- - button to create a problem reporting package
+
 
 TODO after 1.0:
  - start writing unit tests for each gui part/module (as much automation as possible)
