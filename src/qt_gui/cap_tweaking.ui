@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>340</width>
-    <height>163</height>
+    <width>407</width>
+    <height>167</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -37,15 +37,8 @@
        </widget>
       </item>
       <item>
-       <layout class="QGridLayout" name="gridLayout">
+       <layout class="QGridLayout" name="gridLayout_2">
         <item row="1" column="0">
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>Lower</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
          <widget class="QSlider" name="CapHy">
           <property name="minimum">
            <number>1</number>
@@ -58,24 +51,27 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="2">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>Higher</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
+        <item row="2" column="0">
          <widget class="QLabel" name="label_6">
           <property name="text">
-           <string>Hz</string>
+           <string>Minimize left/right monvement while panning left/right</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Minimize back/forth movement while panning up/down</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
          <widget class="QSlider" name="CapHz">
           <property name="minimum">
            <number>1</number>
@@ -85,30 +81,6 @@
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>Back</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="2">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Forth</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Hy</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>

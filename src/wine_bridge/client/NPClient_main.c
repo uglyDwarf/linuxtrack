@@ -278,7 +278,7 @@ int __stdcall NPCLIENT_NP_GetParameter(int arg0, int arg1)
 int __stdcall NPCLIENT_NP_GetSignature(tir_signature_t * sig)
 {
   dbg_report("GetSignature request\n");
-  int res = 1;
+  int res = 0;
   char *home = getenv("HOME");
   char *path1 = malloc(200 + strlen(home));
   char *path2 = malloc(200 + strlen(home));
@@ -290,17 +290,17 @@ int __stdcall NPCLIENT_NP_GetSignature(tir_signature_t * sig)
   memset(sig->AppSignature, 0, 200);
   if(f1 != NULL){
     fread(sig->DllSignature, 200, 1, f1);
-    printf("SIGNATURE1: %s\n", sig->DllSignature);
+    printf("DLL SIGNATURE: %s\n", sig->DllSignature);
     fclose(f1);
   }else{
-    res = 0;
+    res = 1;
   }
   if(f2 != NULL){
     fread(sig->AppSignature, 200, 1, f2);
-    printf("SIGNATURE2: %s\n", sig->AppSignature);
+    printf("APP SIGNATURE: %s\n", sig->AppSignature);
     fclose(f2);
   }else{
-    res = 0;
+    res = 1;
   }
   free(path1);
   free(path2);

@@ -220,6 +220,9 @@ static void *ltr_int_slave_reader_thread(void *param)
         perror("poll");
         if(poll_errs > 3){break;}else{continue;}
       }else if(fds == 0){
+        if(!parent_alive()){
+          return NULL;
+        }
         continue;
       }
       if(downlink_poll.revents & POLLHUP){

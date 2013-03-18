@@ -123,15 +123,18 @@ bool npifc_init(HWND wnd, int id)
     printf("Couldn't bind all necessary functions!\n");
     return false;
   }
+  tir_signature_t sig;
+  if(NP_GetSignature(&sig) != 0){
+    printf("Error retrieving signature!\n");
+    return false;
+  }
+  printf("Dll Sig:%s\nApp Sig2:%s\n", sig.DllSignature, sig.AppSignature);
   NP_RegisterWindowHandle(wnd);
   if(NP_RegisterProgramProfileID(id) != 0){
     printf("Couldn't register profile id!\n");
     return false;
   }
   printf("Program profile registered!\n");
-  tir_signature_t sig;
-  NP_GetSignature(&sig);
-  printf("Sig1:\n %s\nSig2:\n %s\n", sig.DllSignature, sig.AppSignature);
   NP_RequestData(65535);
   NP_StopCursor();
   NP_StartDataTransmission();
