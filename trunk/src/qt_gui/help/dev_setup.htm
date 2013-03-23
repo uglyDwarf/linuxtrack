@@ -15,10 +15,11 @@ button and check again.
 <p>
 
 Next thing that you can set is the camera orientation - normally you should not need to change this...<br>
-However, if your tracking device is in a position other that in front of you and top pointing up
+However, if your tracking device is in a position other that in front of you with top pointing up
 (you mounted TrackIR upside down for some reason, or you use laptop with a webcam chip mounted upside down,...),
-change the </strong>Camera Orientation</strong> to match.
-
+change the </strong>Camera Orientation</strong> to match your device's orientation.
+<p>
+Device Index:
 <p>
 <A href="#Wiimote">Wiimote Setup</A><br>
 <A href="#Webcam">Webcam Setup</A><br>
@@ -31,7 +32,7 @@ server running (comes along with linuxtrack) and connected to the Wiimote.
 
 <p>
 If Wiimote server is not running, then start it, press the <strong>Connect</strong> button and press buttons 
-"1" and "2" on the Wiimote (simultaneously). After a short pause, you should see the state changed to Connected
+"1" and "2" on the Wiimote simultaneously. After a short pause, you should see the state change to Connected
 and one of LEDs on your Wiimote should blink briefly about every 5 seconds.
 
 <p>
@@ -40,7 +41,7 @@ running or paused tracker. Just select which LEDs should be on in the Running st
 the Paused state.
 
 <p>
-If the battery life is crucial, I suggest to turn all LEDs off at least in the Running state (in this state 
+If the battery life is crucial, I'd suggest to turn all LEDs off at least in the Running state (in this state 
 you are going to spend most of the time). 
 
 <p>To check, how the tracking works, go to the <strong>Tracking window</strong>, select Camera view pane and
@@ -69,8 +70,8 @@ Ideally, you should see three (or one, in case of single point model) "blobs"
 - these are light emitting or reflecting points of your model seen by the camera. 
 Each of those "blobs" should contain a white cross marking it valid.</p>
 
-<p>If the webcam picture is upside down (e.g. some notebooks have the sensor mounted that way), just check the 
-<strong>Webcam mounted upside down</strong> button.</p>
+<p>If the webcam picture is upside down (e.g. some notebooks have the sensor mounted that way), 
+just check the <strong>Webcam mounted upside down</strong> button.</p>
 
 <p>
 When you try tracking for the first time, most probably you'll see
@@ -88,7 +89,7 @@ Then you can try some of these solutions:
     floppy works very well too).</li>
 </ul>
 The preferred solution is the first one, although tweaking camera parameters (brightness, contrast, 
-exposure, ...) can improve tracking quite a lot. <br>
+exposure, ...) can considerably improve the tracking. <br>
 
 <p>
 When you have removed as much interfering light sources as possible, you might try to get rid of the rest of 
@@ -129,36 +130,37 @@ experiment with different resolutions and framerates.
 OpenCV Haar and LBP cascades are supported - just browse to the cascade of your choice (normaly you should
 find them in /usr/share/doc/opencv or /usr/share/doc/opencv-doc; otherwise download them from web, e.g. 
 http://alereimondo.no-ip.org/OpenCV/34). It should be a frontal face detection cascade; the most referenced
-cascade is <b>haarcascade_frontalface_alt2.xml</b> as it should provide the best results. If you are short on
+cascade is <b>haarcascade_frontalface_alt2.xml</b> and it should provide the best results. If you are short on
 CPU power, try the lbp cascade <b>lbpcascade_frontalface.xml</b> - it consumes much less CPU, but the tracking
-is said less reliable.
+is said to be a bit less reliable.
 </p>
 <p>To check, how the tracking works, go to the <strong>Tracking window</strong>, select Camera view pane
  and press <strong>Start</strong> button to commence tracking.
 Ideally, you should see a cross in the middle of your face, that is tracking movement of your face.
 Remember, that in order to have as realable tracking as possible, the camera must provide good enough picture
-and your face should be well lit.
+and your face should be well lit. Also a plain, single color background is preferable.
+</p>
+<p>
+Next thing to tweak is the optimization level; it sets a ratio between the quality and speed of tracking.
+Try setting higher optimization level in case you want/need to reduce the CPU load caused by the tracker.
 </p>
 
 <p>
-If the cross is jumping wildly, you can try some of these solutions:
+Finally, there is a <b>Smoothing</b> slider. If the cross is jumping wildly, you can try some of 
+these solutions:
 <ul>
   <li>Make sure your face is well lit, but without sharp shadows</li>
-  <li>Set exposure or autoexposure (might have impact on camear FPS) to obtain good image; 
+  <li>Set exposure or autoexposure (might have impact on camear FPS) to obtain better image; 
         also set brightnes and contrast to obtain good image (on Linux, try using guvcview or similar software)</li>
   <li>If possible, make sure the background behind you is plain so the tracking doesn't get confused</li>
 </ul>
 <p>
-To steady the tracking, try to play with the <b>Exp. filter factor</b> - moving the slider right steadies the
-tracking, but it also introduces a lag.
+To steady the tracking, try to play with the <b>Smoothing</b> slider 
+- moving the slider right steadies the tracking, but it also introduces a lag.
 Try playing with the <b>Filter Factor</b> on the <b>Tracking setup</b> tab too - these two filters
 have somewhat different characteristics. Exp. filter actually averages input values, smoothing the jumps, but
 it also introduces a lag. The filter in the <b>Tracking setup</b> tab helps smoothing small jitter. Try finding
 some sweet spot that works for you.
-</p>
-<p>
-Last thing to tweak is the optimization level; it sets a ratio between the quality and speed of tracking.
-Try setting higher optimization level in case you want/need to reduce the CPU load caused by the tracker.
 </p>
 <h4>Troubleshooting tips</h4>
 <ul>
@@ -171,11 +173,15 @@ Try setting higher optimization level in case you want/need to reduce the CPU lo
 If you are a Mac user, you can safely skip over this paragraph...
 When you intend to use TrackIR on linux, most probably you'll need to get access rights to the device.
 The easiest way to do that, is to install the 51-TIR.rules file (comes with linuxtrack) to the udev rules 
-directory (on Ubuntu it is /lib/udev/rules, but other distros might differ in this respect). 
-When the rule is there, restart udev service (or the whole PC, if you aren't sure how to do that) 
-and plug the TrackIR in.
-
+directory (on Ubuntu it is /lib/udev/rules, but other distros might differ a bit in this respect). 
+When the rule is there, just re-plug the TrackIR and you should be able to access it.
 <p>
+If you didn't used TrackIR before, you are going to need to install the firmware. Just press the 
+<b>Install Firmware</b> button and follow the instructions. 
+<p> Usually just pressing <b>Download</b> button on the presented dialog is enough - it downloads the
+driver package from NP and extracts firmware needed to run the device.
+<p>
+
 To check, how the TrackIR works, 
 go to the <strong>Tracking window</strong>, select Camera view pane and
 press <strong>Start</strong> button to commence tracking.
@@ -183,10 +189,27 @@ Ideally, you should see three (or one, in case of single point model) "blobs"
 - these are light emitting or reflecting points of your model seen by the camera. 
 Each of those "blobs" should contain a white cross marking it valid.
 
+
+<p>
+You can tweak the tracker state signalization and in case of TrackIR5 also the LEDs brightnesses 
+(current limitation is, that the change will become visible upon next state change - 
+pausing/restarting the tracking). 
+<p>
+In case you use reflective model, you can also set IR illumination LEDs brightness.
+
+<h4>Troubleshooting tips</h4>
+If you experience unwanted reflections (from glasses, ...) while using TrackIR in the active regime 
+(using reflective Track Clip), you might want to consider using active model 
+with IR LEDs (like TrackClip Pro, or a home-made one).
+
 <p>
 If you see unwanted blobs, you can try one of these solutions.
 <ul>
-  <li>Try to remove unnecessary sources of light in the TrackIR's field of view (lightbulbs, ...)</li>
+  <li>Try to remove unnecessary sources of light in the TrackIR's field of view 
+  (lightbulbs, candles, ...)</li>
+  <li>If you use TrackIR with relective model (Track Clip) and see reflections from glasses,
+    you might want to consider getting a model with LEDs (you can build one yourself or get 
+    TrackClip Pro)</li>
   <li>Set the <strong>Threshold</strong> value higher (if unwanted blobs are less bright)</li>
 </ul>
 The preferred solution is the first one, since no amount of processing can give you bulletproof results. <br>
@@ -200,18 +223,10 @@ These limits are used to discriminate false "returns" by applying a constraints 
 form a blob.
 If a blob should be valid, but it still doesn't contain the white cross, then try lowering the 
 <strong>Min. blob</strong> value and increasing the <strong>Max. blob</strong> value.
-It is best to fine-tune the <strong>Min. blob</strong> value when being farthest away from the camera, while the 
-<strong>Max. blob</strong> value while being closest to the camera.<br>
+It is best to fine-tune the <strong>Min. blob</strong> value when being farthest away from the 
+camera, while the <strong>Max. blob</strong> value when being closest to the camera.<br>
 When done, you should see white crosses inside the right blobs all the time, no matter how much and in which 
 direction you turn your head (provided the TrackIR can still physically see the light source).
-
-<p>
-You can tweak the tracker state signalization and in case of TrackIR5 also the LEDs brightnesses (
-current limitation is, that the change will become visible upon next state change - pausing/restarting the tracking).
-
-<h4>Troubleshooting tips</h4>
-If you experience unwanted reflections while using TrackIR in the active regime (using reflective Track Clip),
-you might want to consider using active model with IR LEDs (like TrackClip Pro, or a home-made one).
 
 
 </body>

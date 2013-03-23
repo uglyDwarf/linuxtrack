@@ -64,6 +64,7 @@ bool ltr_int_use_alter()
 {
   if(use_alter == UNSET){
     char *pose_method = NULL;
+    use_alter = NO;
     pose_method = ltr_int_get_key("Global", "Legacy-pose-computation");
     if(pose_method != NULL){
       if(strcasecmp(pose_method, "yes") == 0){
@@ -89,6 +90,7 @@ bool ltr_int_use_oldrot()
 {
   if(use_oldrot == UNSET){
     char *rot_method = NULL;
+    use_oldrot = NO;
     rot_method = ltr_int_get_key("Global", "Legacy-rotation-computation");
     if(rot_method != NULL){
       if(strcasecmp(rot_method, "yes") == 0){
@@ -114,6 +116,7 @@ static bool_val_t tr_align = UNSET;
 bool ltr_int_do_tr_align()
 {
   if(tr_align == UNSET){
+    tr_align = YES;
     static char *tmp = NULL;
     tmp = ltr_int_get_key("Global", "Align-translations"); 
     if(tmp != NULL){
