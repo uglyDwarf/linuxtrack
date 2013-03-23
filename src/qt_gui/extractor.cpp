@@ -196,6 +196,11 @@ Extractor::Extractor(QWidget *parent) : QDialog(parent), et(NULL), dl(NULL), pro
   QObject::connect(dl, SIGNAL(msg(qint64, qint64)), progressDlg, SLOT(message(qint64, qint64)));
   ui.BrowseButton->setEnabled(readSpec());
   readSources();
+  QString dbg = QProcessEnvironment::systemEnvironment().value("LINUXTRACK_DBG");
+  if(!dbg.contains('d')){
+    ui.AnalyzeSourceButton->setVisible(false);
+    ui.BrowseButton->setVisible(false);
+  }
 }
 
 Extractor::~Extractor()

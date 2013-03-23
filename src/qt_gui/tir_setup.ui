@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>531</width>
+    <width>493</width>
     <height>324</height>
    </rect>
   </property>
@@ -37,8 +37,8 @@
        </widget>
       </item>
       <item>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="3" column="2">
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="2" column="2">
          <widget class="QSlider" name="TirStatusBright">
           <property name="maximum">
            <number>3</number>
@@ -60,42 +60,22 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="Threshold_label">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Threshold:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QCheckBox" name="TirSignalizeStatus">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="IRBrightLabel">
           <property name="text">
            <string>IR LEDs brightness:</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
-         <widget class="QLabel" name="IRBrightLabelLow">
+        <item row="1" column="2">
+         <widget class="QCheckBox" name="TirSignalizeStatus">
           <property name="text">
-           <string>low</string>
+           <string/>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QLabel" name="label">
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_47">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -103,28 +83,39 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>30</string>
+           <string>Status Signalization:</string>
           </property>
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QLabel" name="StatusBrightLabelOff">
+         <widget class="QLabel" name="IRBrightLabelLow">
           <property name="text">
-           <string>off</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <string>low</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="TirFwLabel">
+        <item row="2" column="0">
+         <widget class="QLabel" name="StatusBrightLabel">
           <property name="text">
-           <string>TrackIr firmware path</string>
+           <string>Status LED brightness:</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="2">
+        <item row="3" column="3">
+         <widget class="QLabel" name="IRBrightLabelHigh">
+          <property name="text">
+           <string>high</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QLabel" name="StatusBrightLabelBright">
+          <property name="text">
+           <string>bright</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
          <widget class="QSlider" name="TirIrBright">
           <property name="minimum">
            <number>5</number>
@@ -149,78 +140,20 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="2">
-         <widget class="QSlider" name="TirThreshold">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+        <item row="2" column="1">
+         <widget class="QLabel" name="StatusBrightLabelOff">
+          <property name="text">
+           <string>off</string>
           </property>
-          <property name="minimum">
-           <number>30</number>
-          </property>
-          <property name="maximum">
-           <number>253</number>
-          </property>
-          <property name="value">
-           <number>200</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="tickPosition">
-           <enum>QSlider::TicksBelow</enum>
-          </property>
-          <property name="tickInterval">
-           <number>64</number>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_47">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="TirFwLabel">
           <property name="text">
-           <string>Status Signalization:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="StatusBrightLabel">
-          <property name="text">
-           <string>Status LED brightness:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="3">
-         <widget class="QLabel" name="label_2">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>253</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="3">
-         <widget class="QLabel" name="StatusBrightLabelBright">
-          <property name="text">
-           <string>bright</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="3">
-         <widget class="QLabel" name="IRBrightLabelHigh">
-          <property name="text">
-           <string>high</string>
+           <string>TrackIr firmware path</string>
           </property>
          </widget>
         </item>
@@ -266,7 +199,95 @@
       </item>
       <item>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="2" column="1">
+        <item row="1" column="0">
+         <widget class="QLabel" name="Threshold_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Threshold:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Valid Blob Size:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="TirUseGrayscaleLabel">
+          <property name="text">
+           <string>Grayscale mode</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>30</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QSlider" name="TirThreshold">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimum">
+           <number>30</number>
+          </property>
+          <property name="maximum">
+           <number>253</number>
+          </property>
+          <property name="value">
+           <number>200</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="tickPosition">
+           <enum>QSlider::TicksBelow</enum>
+          </property>
+          <property name="tickInterval">
+           <number>64</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QLabel" name="label_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>253</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QCheckBox" name="TirUseGrayscale">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
            <widget class="QSpinBox" name="TirMinBlob">
@@ -341,27 +362,6 @@
           </item>
          </layout>
         </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>Valid Blob Size:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="TirUseGrayscaleLabel">
-          <property name="text">
-           <string>Grayscale mode</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QCheckBox" name="TirUseGrayscale">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
      </layout>
@@ -383,12 +383,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>TirInstallFirmware</tabstop>
-  <tabstop>TirThreshold</tabstop>
-  <tabstop>TirSignalizeStatus</tabstop>
-  <tabstop>TirStatusBright</tabstop>
-  <tabstop>TirIrBright</tabstop>
-  <tabstop>TirUseGrayscale</tabstop>
   <tabstop>TirMinBlob</tabstop>
   <tabstop>TirMaxBlob</tabstop>
  </tabstops>

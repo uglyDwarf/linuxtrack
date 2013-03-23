@@ -70,6 +70,7 @@ class LinuxtrackGui : public QWidget
   bool welcome;
   int news_serial;
   QProcess zipper;
+  bool guiInit;
 };
 
 #endif

@@ -51,7 +51,7 @@ static QMessageBox::StandardButton infoMessage(const QString &message)
 
 
 LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
-  xpInstall(NULL), initialized(false), news_serial(-1)
+  xpInstall(NULL), initialized(false), news_serial(-1), guiInit(true)
 {
   ui.setupUi(this);
   PREF;
@@ -87,6 +87,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   helper->move(gui_settings->value("pos", QPoint(0, 0)).toPoint());
   gui_settings->endGroup();
   HelpViewer::LoadPrefs(*gui_settings);
+  
   ui.LegacyPose->setChecked(ltr_int_use_alter());
   ui.LegacyRotation->setChecked(ltr_int_use_oldrot());
   ui.TransRotDisable->setChecked(!ltr_int_do_tr_align());
@@ -94,6 +95,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
   if(!wl.check()){
     warningMessage("Wine not working, you'll not be able to install NP firmware and Wine plugin!");
   }
+  guiInit = false;
 }
 
 void LinuxtrackGui::show()
@@ -270,6 +272,7 @@ void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
 
 void LinuxtrackGui::on_LegacyPose_stateChanged(int state)
 {
+  if(guiInit) return;
   if(state == Qt::Checked){
     ltr_int_set_use_alter(true);
     TRACKER.miscChange(MISC_ALTER, true);
@@ -281,6 +284,7 @@ void LinuxtrackGui::on_LegacyPose_stateChanged(int state)
 
 void LinuxtrackGui::on_LegacyRotation_stateChanged(int state)
 {
+  if(guiInit) return;
   if(state == Qt::Checked){
     ltr_int_set_use_oldrot(true);
     TRACKER.miscChange(MISC_LEGR, true);
@@ -292,6 +296,7 @@ void LinuxtrackGui::on_LegacyRotation_stateChanged(int state)
 
 void LinuxtrackGui::on_TransRotDisable_stateChanged(int state)
 {
+  if(guiInit) return;
   if(state == Qt::Checked){
     ltr_int_set_tr_align(false);
     TRACKER.miscChange(MISC_ALIGN, false);

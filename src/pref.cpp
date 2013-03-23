@@ -97,17 +97,15 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
 
   prefs::prefs():changed_flag(false)
   {
-    std::cout<<"Pinit"<<std::endl;
     pthread_rwlock_init(&lock, NULL);
   }
+  
   prefs::~prefs()
   {
-    std::cout<<"Pend1"<<std::endl;
     write_lock();
     clear();
     unlock();
     pthread_rwlock_destroy(&lock);
-    std::cout<<"Pend2"<<std::endl;
   }
   
   bool prefs::changed()const
