@@ -11,10 +11,11 @@ Linuxtrack interface is pretty simple:
 
 {{{
 typedef enum {
+  INITIALIZING,
   RUNNING,
   PAUSED,
   STOPPED,
-  DOWN
+  ERROR
 }ltr_state_type;
 
 int ltr_init(char *cust_section);
@@ -28,7 +29,7 @@ int ltr_get_camera_update(float *heading,
                          float *tx,
                          float *ty,
                          float *tz,
-                         unsigned int *counter);
+                         uint32_t *counter);
 ltr_state_type ltr_get_tracking_state(void);
 void ltr_log_message(const char *format, ...);
 }}}
@@ -44,7 +45,7 @@ Parameter _cust_section_ is a pointer to a string containing name of the profile
  
 This way user can customize the headtracking for each application separately.
 
-If NULL is specified, default parameters are used.
+If NULL is specified, default profile is used.
 
 It is recomended to use unique string (like name of your application) to prevent clashes.
 
@@ -70,31 +71,36 @@ int ltr_get_camera_update(float *heading,
                          float *tx,
                          float *ty,
                          float *tz,
-                         unsigned int *counter);
+                         uint32_t *counter);
 }}}
 
-This is the main function of the linuxtrack interface.
+This is the main function of the linuxtrack interface. It is meant to be called once per frame to update the view.
 
-Its parameters are pointers to floats, that will contain corresponding rotations and translations upon successfull return.
+Its parameters are pointers to floats, that will contain corresponding rotations (in degrees) and translations (in milimeters) upon successfull return.
 
-The counter parameter is pointer to the int, that receives current camera frame number.
+The counter parameter is pointer to the 32-bit integer, that receives current camera frame number.
 
 Returns zero on success, nonzero value otherwise.
 ----
 {{{
 typedef enum {
+  INITIALIZING,
   RUNNING,
   PAUSED,
   STOPPED,
-  DOWN
+  ERROR
 }ltr_state_type;
 
 ltr_state_type ltr_get_tracking_state(void);
 }}}
 
-This function returns current linuxtrack state - RUNNING means tracking is on, PAUSED means tracking is suspended, 
+This function returns current linuxtrack state:
+ * INITIALIZING means tracker is being initialized
+ * RUNNING means tracking is on
+ * PAUSED means tracking is suspended
+ * STOPPED means tracker is shut down 
+ * DOWN means that tracking was not initialized yet
 
-STOPPED means tracker is shut down and finally DOWN means that tracking was not initialized yet.
 ----
 {{{
 void ltr_log_message(const char *format, ...);
@@ -122,7 +128,7 @@ int main(int argc, char *argv[])
   int timeout = 100; //10 seconds timeout (for example firmware load...)
   while(timeout > 0){
     state = ltr_get_tracking_state();
-    if((state == DOWN) || (state == STOPPED)){
+    if(state != RUNNING){
       usleep(100000); //sleep 0.1s
     }else{
       break;
@@ -166,7 +172,7 @@ int main(int argc, char *argv[])
 To compile this program on Linux, use the following commands (just make the LTR_PREFIX point where you have linuxtrack installed):
 
 {{{
-export LTR_PREFIX=/tmp/ltr_new
+export LTR_PREFIX=/opt/linuxtrack
 gcc -o ltr_hw -Wall -g -I ${LTR_PREFIX}/include ltr_hw.c ${LTR_PREFIX}/lib/liblinuxtrack.a 
 }}}
 
