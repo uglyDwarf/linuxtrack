@@ -3,19 +3,18 @@
 = Introduction =
 
 Currently we are supporting three types of input devices.
-  * Track IR 2, 3, 4, 5 and SmartNav 4
+  * Track IR 2, 3, 4, 5 and !SmartNav 4
   * Wiimote
   * Webcam
 
 If you own other version of Track IR or other suitable device and you'd like to contribute to out project, you're welcome.
 
-= Track IR 2, 3, 4, 5 and SmartNav 4 =
+= Track IR 2, 3, 4, 5 and !SmartNav 4 =
 TrackIR 4 is supported from the start of our project. Tulthix managed to understand the communication protocol and he wrote a driver for it using libusb (fully userspace).
-I added support for the rest with help from Ola (TrackIR 3), Jaša (TrackIR 2) and
- Bill (SmartNav 4).
+I added support for the rest with help from Ola (TrackIR 3), Jaša (TrackIR 2) and Bill (!SmartNav 4).
 
 Pros of this device are given by the fact that it is designed for motion tracking:
-  * wide field of view (TrackIR 4, 5 and SmartNav 4)
+  * wide field of view (TrackIR 4, 5 and !SmartNav 4)
   * 120Hz framerate 
   * if you are using cap reflectors, you don't need any wires/batteries
   * uses infra red
@@ -64,4 +63,4 @@ Cons:
   * for some webcams you can't turn automatic exposure off
 
 
-PS. I'm speaking from my own experience - I have 3 different webcams and only one works well; given the fact, that wiimote has pretty much the same price as the one working, there is not much more to think of... And if someone is interested, the one working for me is Creative Live! Cam Optia (non AF model).
+_I'm speaking from my own experience - I have 3 different webcams and only one works well; given the fact, that wiimote has pretty much the same price as the one working, there is not much more to think of... And if someone is interested, the one working for me is Creative Live! Cam Optia (non AF model)._
