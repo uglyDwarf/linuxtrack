@@ -11,7 +11,7 @@
 // DirectInput Variables
 static LPDIRECTINPUT8 fDI; // Root DirectInput Interface
 static LPDIRECTINPUTDEVICE8 fDIKeyboard; // The keyboard device
-static BYTE keystate[256];
+//static BYTE keystate[256];
 static HANDLE kbd_event;
 static DIDEVICEOBJECTDATA kbd_data[10];
 static std::map<int, std::string> keymap;
@@ -24,7 +24,6 @@ static bool paused = false;
 bool read_prefs()
 {
   HKEY hkey = 0;
-  int res = 0;
   RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Linuxtrack", 0, 
     KEY_QUERY_VALUE, &hkey);
   if(!hkey){
@@ -37,7 +36,7 @@ bool read_prefs()
   LONG result = RegQueryValueEx(hkey, "DIKeys", NULL, NULL, buf, &buf_len);
   pause_code = recenter_code = 0;
   if((result == ERROR_SUCCESS) && (buf_len > 0)){
-    res = sscanf((char *)buf, "0X%X 0X%X", &pause_code, &recenter_code);
+    sscanf((char *)buf, "0X%X 0X%X", &pause_code, &recenter_code);
   }
   RegCloseKey(hkey);
   std::cout<<"P: "<<pause_code<<" R: "<<recenter_code<<std::endl;
@@ -78,6 +77,7 @@ void write_prefs()
 static BOOL cbk(LPCDIDEVICEOBJECTINSTANCE lpddoi,
          LPVOID pvRef)
 {
+  (void) pvRef;
   keymap.insert(std::pair<int, std::string>(lpddoi->dwOfs, std::string(lpddoi->tszName)));
   //printf("%02X %s\n", lpddoi->dwOfs, lpddoi->tszName);
   return DIENUM_CONTINUE;
@@ -95,7 +95,7 @@ static int get_code()
   return code;
 }
 
-static int reset_code()
+static void reset_code()
 {
   code = 0;
 }
@@ -123,6 +123,7 @@ void send_keys_desc()
 bool kbi_init(HWND hwnd)
 {
   HRESULT res;
+  HRESULT      hr;
   // --- Start of DirectInput initialization ---
   // Create the abstract DirectInput connection
   DirectInput8Create(
@@ -133,13 +134,13 @@ bool kbi_init(HWND hwnd)
     NULL
   );
   if (fDI == NULL){
-    MessageBox(NULL, "DirectInput Connection Creation Failed!", "Lesson1", MB_OK);
+    MessageBox(NULL, "DirectInput Connection Creation Failed!", "Controler", MB_OK);
     return FALSE;
   }
   //unnamed autoreset event with default security attrs, initially unsignalled
   kbd_event = CreateEvent(NULL, FALSE, FALSE, NULL);
   if(kbd_event == NULL){
-    MessageBox(NULL, "Failed to create event!", "Lesson1", MB_OK);
+    MessageBox(NULL, "Failed to create event!", "Controler", MB_OK);
     return FALSE;
   }
   
@@ -155,29 +156,28 @@ bool kbi_init(HWND hwnd)
     );
 
     DIPROPDWORD  dipdw; 
-    HRESULT      hr; 
     dipdw.diph.dwSize = sizeof(DIPROPDWORD); 
     dipdw.diph.dwHeaderSize = sizeof(DIPROPHEADER); 
     dipdw.diph.dwObj = 0; 
     dipdw.diph.dwHow = DIPH_DEVICE; 
     dipdw.dwData = 10; 
-    hr = fDIKeyboard->SetProperty(DIPROP_BUFFERSIZE, &dipdw.diph); 
-
+    hr = fDIKeyboard->SetProperty(DIPROP_BUFFERSIZE, &dipdw.diph);
+    
     res = fDIKeyboard->SetEventNotification(kbd_event);
     if((res != DI_OK) && (res != DI_POLLEDDEVICE)){
-      MessageBox(NULL, "Failed to register event!", "Lesson1", MB_OK);
+      MessageBox(NULL, "Failed to register event!", "Controler", MB_OK);
       return FALSE;
     }
     fDIKeyboard->Acquire();
   }else{
-    MessageBox(NULL, "DirectInput Keyboard initialization Failed!", "Lesson1", MB_OK);
+    MessageBox(NULL, "DirectInput Keyboard initialization Failed!", "Controler", MB_OK);
     return FALSE;
   } 
   // --- End of DirectInput initialization ---
   read_prefs();
   send_keys_desc();
   if(ltr_init("Default") != 0){
-    MessageBox(NULL, "Can't start linuxtrack!!!", "Lesson1", MB_OK);
+    MessageBox(NULL, "Can't start linuxtrack!!!", "Controler", MB_OK);
     exit(1);
   }
   return TRUE;
@@ -219,7 +219,7 @@ void kbi_msg_loop()
         fDIKeyboard->Acquire();
         events = 10;
         fDIKeyboard->GetDeviceData(sizeof(DIDEVICEOBJECTDATA), kbd_data, &events, 0);
-        for(int j = 0; j < events; ++j){
+        for(DWORD j = 0; j < events; ++j){
           if(kbd_data[j].dwData & 0x80){
             //key pressed
             update_code(kbd_data[j].dwOfs);

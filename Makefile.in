@@ -295,6 +295,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+with_wine64 = @with_wine64@
 SUBDIRS = src src/mac src/tests doc $(am__append_1) $(am__append_2)
 dist_pkgdata_DATA = README README.devel README.xplane
 EXTRA_DIST = Readme.rtf deploy mac_build pkgconf_extract mac_m4/fake_pkg_conf.m4

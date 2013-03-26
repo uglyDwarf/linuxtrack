@@ -72,6 +72,9 @@
 /* Define to 1 if the system has the type `_Bool'. */
 #undef HAVE__BOOL
 
+/* Use libmxml.h (MXML) */
+#undef LIBMXML
+
 /* Use libv4l2.h (V4L2) */
 #undef LIBV4L2
 

@@ -25,10 +25,9 @@
 
 WINE_DEFAULT_DEBUG_CHANNEL(NPClient);
 
-static short game_id = 0;
 bool crypted = false;
 static unsigned char table[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-static dbg_flag;
+static int dbg_flag;
 
 static void dbg_report(const char *msg,...)
 {
@@ -218,13 +217,17 @@ static void enhance(unsigned char buf[], unsigned int size,
   unsigned char var = 0x88;
   unsigned char tmp;
   if((size <= 0) || (table_size <= 0) ||
-     (buf == NULL) || (table == NULL))
-     return;
+     (buf == NULL) || (table == NULL)){
+    return;
+  }
   do{
     tmp = buf[--size];
     buf[size] = tmp ^ table[table_ptr] ^ var;
     var += size + tmp;
-    table_ptr = (++table_ptr) % table_size;
+    ++table_ptr;
+    if(table_ptr >= table_size){
+      table_ptr -= table_size;
+    }
   }while(size != 0);
 }
 
@@ -304,6 +307,7 @@ int __stdcall NPCLIENT_NP_GetSignature(tir_signature_t * sig)
   }
   free(path1);
   free(path2);
+  printf("Signature result: %d\n", res);
   return res;
 }
 /******************************************************************

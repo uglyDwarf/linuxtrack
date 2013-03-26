@@ -1,25 +1,39 @@
 
 .PHONY : clean
 
-all : NPClient.dll.so
+#all : NPClient.dll.so NPClient64.dll.so
 
 NPClient.dll.so : NPClient.spec NPClient_dll.o linuxtrack.o rest.o
 	winegcc -m32 -L/usr/lib/i386-linux-gnu/ -L/usr/lib/i386-linux-gnu/wine \
-	  -Wl,--no-warn-search-mismatch \
+	  -Wl,--no-warn-search-mismatch -Wall -Wextra \
           -g -o NPClient.dll.so -shared NPClient.spec NPClient_dll.o linuxtrack.o rest.o
 
+NPClient64.dll.so : NPClient.spec NPClient64_dll.o linuxtrack64.o rest64.o
+	winegcc -L/usr/lib/x86_64-linux-gnu/ -L/usr/lib/x86_64-linux-gnu/wine \
+	  -Wl,--no-warn-search-mismatch  -Wall -Wextra \
+          -g -o NPClient64.dll.so -shared NPClient.spec NPClient64_dll.o linuxtrack64.o rest64.o
+
 NPClient_dll.o : NPClient_dll.h NPClient_main.c
-	winegcc -c -m32 -g -o NPClient_dll.o -I../../ NPClient_main.c
+	winegcc -c -m32 -g -Wall -Wextra -o NPClient_dll.o -I../../ NPClient_main.c
+
+NPClient64_dll.o : NPClient_dll.h NPClient_main.c
+	winegcc -c -g -Wall -Wextra -o NPClient64_dll.o -I../../ NPClient_main.c
 
 linuxtrack.o : ../../linuxtrack.c
-	winegcc -m32 -g -c -o linuxtrack.o ../../linuxtrack.c
+	winegcc -m32 -g -c -Wall -Wextra -o linuxtrack.o ../../linuxtrack.c
+
+linuxtrack64.o : ../../linuxtrack.c
+	winegcc -g -c -Wall -Wextra -o linuxtrack64.o ../../linuxtrack.c
 
 rest.o : rest.c rest.h
-	winegcc -m32 -g -c -o rest.o rest.c
+	winegcc -m32 -g -Wall -Wextra -c -o rest.o rest.c
+
+rest64.o : rest.c rest.h
+	winegcc -g -Wall -Wextra -c -o rest64.o rest.c
 
 clean :
-	rm -rf *.o NPClient.dll.so
+	rm -rf *.o *.dll.so
 
 distclean :
-	rm -rf *.o NPClient.dll.so
+	rm -rf *.o *.dll.so
 

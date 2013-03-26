@@ -39,7 +39,6 @@ AC_CHECK_HEADERS([stdlib.h unistd.h netdb.h sys/socket.h fcntl.h sys/ioctl.h])
 
 AC_PATH_PROGS(QMAKE_PATH, [qmake qmake-qt4])
 
-
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
 AC_TYPE_UINT16_T
@@ -68,6 +67,17 @@ AC_CHECK_HEADER([libv4l2.h],
     with_libv4l2=yes
   ], [], []
 )                                                                                                                                             
+
+AC_CHECK_HEADER([mxml.h],                                                                                                  
+  [
+    AC_DEFINE([LIBMXML], [1],[Use libmxml.h (MXML)])
+    with_libmxml=yes
+  ], [], []
+)                                                                                                                                             
+
+AC_CHECK_PROG([with_wine64], [wine64], [yes])                                                                                                                                             
+
+
 
 XPLANE_SDK=
 AC_ARG_WITH([xplane_sdk],
@@ -171,6 +181,7 @@ AM_CONDITIONAL(XPLANE_PLUGIN, [test x$with_xplane_plugin = xyes])
 AM_CONDITIONAL(CWIID, [test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes])
 AM_CONDITIONAL(V4L2, [test x$with_v4l2 = xyes])
 AM_CONDITIONAL(LIBV4L2, [test x$with_libv4l2 = xyes])
+AM_CONDITIONAL(LIBMXML, [test x$with_libmxml = xyes])
 AM_CONDITIONAL(DARWIN, [test x$with_darwin = xyes])
 AM_CONDITIONAL(SNOW_LEOPARD, [test x$with_snow_leopard = xyes])
 AM_CONDITIONAL(LIBUSB, [test "x$ac_cv_lib_usb_usb_open" = xyes])
@@ -183,6 +194,7 @@ AM_CONDITIONAL([LTR_PIPE], [test  x$with_ltr_pipe = xyes])
 AM_CONDITIONAL([LINUX], [test x$with_linux = xyes])
 AM_CONDITIONAL(FACE_TRACKER, [test x$with_face_tracker = xyes])
 AM_CONDITIONAL(WINE_PLUGIN, [test x$with_wine_plugin = xyes])
+AM_CONDITIONAL(WINE64, [test x$with_wine64 = xyes])
 AM_CONDITIONAL(LIBQXT, [test  "x$ac_cv_lib_QxtGui__ZN17QxtGlobalShortcutD0Ev" = xyes])
 
 # Checks for library functions.
