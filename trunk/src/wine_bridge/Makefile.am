@@ -1,46 +1,50 @@
 if WINE_PLUGIN
-  
-  nodist_pkgdata_DATA = linuxtrack-wine.exe
-  
-#.PHONY: build_parts
-#build_parts:
 
-Tester.exe.so :
-	$(MAKE) -C tester
-	cp tester/Tester.exe* .
+nodist_pkgdata_DATA = linuxtrack-wine.exe
 
-Controller.exe.so :
+.PHONY : bridge bridge64
+
+if WINE64
+  linuxtrack-wine.exe : bridge64
+else
+  linuxtrack-wine.exe : bridge
+endif
+
+bridge :
+	$(MAKE) -C tester 
 	$(MAKE) -C controller
-	cp controller/Controller.exe* .
-
-NPClient.dll :
 	$(MAKE) -C client
+	cp tester/Tester.exe* .
+	cp controller/Controller.exe* .
 	cp client/NPClient.dll.so NPClient.dll
-
-data.txt :
-	$(MAKE) -C dumper
-	cp dumper/data.txt .
-
-linuxtrack-wine.exe : Tester.exe.so Controller.exe.so NPClient.dll data.txt
 	makensis ltr_wine.nsi
+
+bridge64 :
+	$(MAKE) -C tester Tester64.exe Tester.exe
+	$(MAKE) -C controller
+	$(MAKE) -C client NPClient64.dll.so NPClient.dll.so
+	cp tester/Tester.exe* .
+	cp tester/Tester64.exe* .
+	cp client/NPClient.dll.so NPClient.dll
+	cp client/NPClient64.dll.so NPClient64.dll
+	cp controller/Controller.exe* .
+	makensis ltr_wine64.nsi
 
 clean-local: clean-local-check
 .PHONY: clean-local-check
 clean-local-check:
 	$(MAKE) -C client clean
 	$(MAKE) -C controller clean
-	$(MAKE) -C dumper clean
 	$(MAKE) -C tester clean
-	rm -f *.exe* *.dll* data.txt
+	rm -f *.exe* *.dll*
 
 distclean-local: distclean-local-check
 .PHONY: distclean-local-check
 distclean-local-check:
 	$(MAKE) -C client clean
 	$(MAKE) -C controller clean
-	$(MAKE) -C dumper clean
 	$(MAKE) -C tester clean
-	rm -f *.exe* *.dll* data.txt
+	rm -f *.exe* *.dll*
 
 endif
 

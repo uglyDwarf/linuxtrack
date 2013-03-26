@@ -35,7 +35,7 @@ bool paused = false;
 enum redef_state_t{REDEF_NONE, REDEF_PAUSE, REDEF_RECENTER} redef_state = REDEF_NONE;
 
 char *prefs;
-NOTIFYICONDATA nid = {0};
+NOTIFYICONDATA nid;
 
 #define WM_TRAY_DBL_CLICK WM_USER+1
 
@@ -44,6 +44,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
                      LPSTR lpszArgument,
                      int nCmdShow)
 {
+  (void) hPrevInstance;
+  (void) lpszArgument;
   MSG messages;            /* Here messages to the application are saved */
   WNDCLASSEX wincl;        /* Data structure for the windowclass */
   
@@ -102,7 +104,6 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   char msg[384];
-  static int cntr1 = 0;
   //printf("Msg: %d  %d\n", hwnd, message);
   switch(message){                  /* handle the messages */
     case WM_CREATE:

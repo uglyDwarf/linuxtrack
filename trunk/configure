@@ -638,6 +638,8 @@ LTLIBOBJS
 LIBOBJS
 LIBQXT_FALSE
 LIBQXT_TRUE
+WINE64_FALSE
+WINE64_TRUE
 WINE_PLUGIN_FALSE
 WINE_PLUGIN_TRUE
 FACE_TRACKER_FALSE
@@ -662,6 +664,8 @@ SNOW_LEOPARD_FALSE
 SNOW_LEOPARD_TRUE
 DARWIN_FALSE
 DARWIN_TRUE
+LIBMXML_FALSE
+LIBMXML_TRUE
 LIBV4L2_FALSE
 LIBV4L2_TRUE
 V4L2_FALSE
@@ -673,6 +677,7 @@ XPLANE_PLUGIN_TRUE
 OPENCV_LIBS
 OPENCV_CFLAGS
 XPLANE_SDK
+with_wine64
 QMAKE_PATH
 PKG_CONFIG_LIBDIR
 PKG_CONFIG_PATH
@@ -16069,7 +16074,6 @@ fi
 done
 
 
-
 # Checks for typedefs, structures, and compiler characteristics.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for stdbool.h that conforms to C99" >&5
 $as_echo_n "checking for stdbool.h that conforms to C99... " >&6; }
@@ -16308,6 +16312,60 @@ $as_echo "#define LIBV4L2 1" >>confdefs.h
     with_libv4l2=yes
 
 fi
+
+
+
+ac_fn_c_check_header_compile "$LINENO" "mxml.h" "ac_cv_header_mxml_h" "
+
+"
+if test "x$ac_cv_header_mxml_h" = xyes; then :
+
+
+$as_echo "#define LIBMXML 1" >>confdefs.h
+
+    with_libmxml=yes
+
+fi
+
+
+
+# Extract the first word of "wine64", so it can be a program name with args.
+set dummy wine64; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_with_wine64+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$with_wine64"; then
+  ac_cv_prog_with_wine64="$with_wine64" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_with_wine64="yes"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+with_wine64=$ac_cv_prog_with_wine64
+if test -n "$with_wine64"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $with_wine64" >&5
+$as_echo "$with_wine64" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
 
 
 
@@ -16552,6 +16610,14 @@ else
   LIBV4L2_FALSE=
 fi
 
+ if test x$with_libmxml = xyes; then
+  LIBMXML_TRUE=
+  LIBMXML_FALSE='#'
+else
+  LIBMXML_TRUE='#'
+  LIBMXML_FALSE=
+fi
+
  if test x$with_darwin = xyes; then
   DARWIN_TRUE=
   DARWIN_FALSE='#'
@@ -16646,6 +16712,14 @@ fi
 else
   WINE_PLUGIN_TRUE='#'
   WINE_PLUGIN_FALSE=
+fi
+
+ if test x$with_wine64 = xyes; then
+  WINE64_TRUE=
+  WINE64_FALSE='#'
+else
+  WINE64_TRUE='#'
+  WINE64_FALSE=
 fi
 
  if test  "x$ac_cv_lib_QxtGui__ZN17QxtGlobalShortcutD0Ev" = xyes; then
@@ -16861,6 +16935,10 @@ if test -z "${LIBV4L2_TRUE}" && test -z "${LIBV4L2_FALSE}"; then
   as_fn_error $? "conditional \"LIBV4L2\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
+if test -z "${LIBMXML_TRUE}" && test -z "${LIBMXML_FALSE}"; then
+  as_fn_error $? "conditional \"LIBMXML\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${DARWIN_TRUE}" && test -z "${DARWIN_FALSE}"; then
   as_fn_error $? "conditional \"DARWIN\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -16907,6 +16985,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${WINE_PLUGIN_TRUE}" && test -z "${WINE_PLUGIN_FALSE}"; then
   as_fn_error $? "conditional \"WINE_PLUGIN\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${WINE64_TRUE}" && test -z "${WINE64_FALSE}"; then
+  as_fn_error $? "conditional \"WINE64\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${LIBQXT_TRUE}" && test -z "${LIBQXT_FALSE}"; then

@@ -56,12 +56,16 @@ char *client_path()
     return NULL;
   }
 
-  char path[1024];
-  int buf_len = 1024;
+  BYTE path[1024];
+  DWORD buf_len = 1024;
   LONG result = RegQueryValueEx(hkey, "Path", NULL, NULL, path, &buf_len);
   char *full_path = NULL;
   if(result == ERROR_SUCCESS && buf_len > 0){
+#ifdef FOR_WIN64
+    asprintf(&full_path, "%s/NPClient64.dll", path);
+#else
     asprintf(&full_path, "%s/NPClient.dll", path);
+#endif
   }
   RegCloseKey(hkey);
   return full_path;
@@ -124,8 +128,9 @@ bool npifc_init(HWND wnd, int id)
     return false;
   }
   tir_signature_t sig;
-  if(NP_GetSignature(&sig) != 0){
-    printf("Error retrieving signature!\n");
+  int res;
+  if((res = NP_GetSignature(&sig)) != 0){
+    printf("Error retrieving signature! %d\n", res);
     return false;
   }
   printf("Dll Sig:%s\nApp Sig2:%s\n", sig.DllSignature, sig.AppSignature);
@@ -165,7 +170,10 @@ void c_encrypt(unsigned char buf[], unsigned int size,
     tmp = buf[--size];
     buf[size] = tmp ^ table[table_ptr] ^ var;
     var += size + tmp;
-    table_ptr = (++table_ptr) % table_size;
+    ++table_ptr;
+    if(table_ptr >= table_size){
+      table_ptr -= table_size;
+    }
   }while(size != 0);
 }
 
@@ -185,7 +193,10 @@ void decrypt(unsigned char buf[], unsigned int size,
     tmp = buf[--size];
     buf[size] = tmp ^ table[table_ptr] ^ var;
     var += size + buf[size];
-    table_ptr = (++table_ptr) % table_size;
+    ++table_ptr;
+    if(table_ptr >= table_size){
+      table_ptr -= table_size;
+    }
   }while(size != 0);
 }
 

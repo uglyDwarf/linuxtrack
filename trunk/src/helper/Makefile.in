@@ -249,6 +249,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+with_wine64 = @with_wine64@
 l32libdir = $(prefix)/lib32
 @DARWIN_FALSE@LINUXFLAGS = '-DLIB_PATH="$(pkglibdir)/"'
 @DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@l32lib_LTLIBRARIES = liblinuxtrack.la

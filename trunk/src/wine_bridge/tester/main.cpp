@@ -12,6 +12,9 @@ UINT_PTR timer = 0;
 
 VOID CALLBACK TimerProcedure(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
+  (void) uMsg;
+  (void) idEvent;
+  (void) dwTime;
   tir_data_t td;
   npifc_getdata(&td);
   SetDlgItemInt(hwnd, IDC_PITCH, td.pitch, true);
@@ -34,6 +37,7 @@ VOID CALLBACK TimerProcedure(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
 
 BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    (void) lParam;
     switch(uMsg)
     {
         case WM_INITDIALOG:
@@ -83,10 +87,13 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-    hInst = hInstance;
-
-    // The user interface is a modal dialog box
-    return DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, (DLGPROC)DialogProc);
+  (void) hPrevInstance;
+  (void) lpCmdLine;
+  (void) nShowCmd;
+  hInst = hInstance;
+  
+  // The user interface is a modal dialog box
+  return DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, (DLGPROC)DialogProc);
 }
 
 
