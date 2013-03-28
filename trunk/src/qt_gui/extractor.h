@@ -75,11 +75,14 @@ class Extractor: public QDialog
   void extractFirmware(QString file);
  signals:
   void finished(bool result);
+ public slots:
+  void show();
  private slots:
   void on_BrowseButton_pressed();
   void on_AnalyzeSourceButton_pressed();
   void on_DownloadButton_pressed();
   void on_QuitButton_pressed();
+  void on_HelpButton_pressed();
   void progress(const QString &msg);
   void threadFinished();
   void wineFinished(bool result);
