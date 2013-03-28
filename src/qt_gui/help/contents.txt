@@ -4,4 +4,5 @@
 "model_setup.htm" "Model Setup"
 "axes_setup.htm" "Tracking Setup"
 "misc.htm" "Miscelaneous"
+"extractor.htm" "NP Firmware Extractor"
 

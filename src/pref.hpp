@@ -56,7 +56,7 @@
   class section : public prefItem{
     std::string *name;
     std::vector<sectionItem*> items;
-    std::map<std::string, keyVal&> index;
+    std::map<std::string, keyVal*> index;
    public:
     section(){name = new std::string("");};
     virtual ~section();
@@ -85,7 +85,7 @@
   
   class prefs{
     std::vector<prefItem*> items;
-    std::map<std::string, section&> index;
+    std::map<std::string, section*> index;
     bool changed_flag;
     prefs();
     static prefs *prf;

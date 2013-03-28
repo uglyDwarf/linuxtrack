@@ -10,6 +10,7 @@
 #include "hashing.h"
 #include "game_data.h"
 #include "ltr_gui_prefs.h"
+#include "help_view.h"
 
 void ExtractThread::start(targets_t &t, const QString &p, const QString &d)
 {
@@ -199,7 +200,6 @@ Extractor::Extractor(QWidget *parent) : QDialog(parent), et(NULL), dl(NULL), pro
   QString dbg = QProcessEnvironment::systemEnvironment().value("LINUXTRACK_DBG");
   if(!dbg.contains('d')){
     ui.AnalyzeSourceButton->setVisible(false);
-    ui.BrowseButton->setVisible(false);
   }
 }
 
@@ -231,6 +231,7 @@ void Extractor::wineFinished(bool result)
     et->start(targets, winePrefix, destPath);
   }
   ui.BrowseButton->setEnabled(true);
+  ui.QuitButton->setEnabled(true);
 }
 
 void Extractor::extractFirmware(QString file)
@@ -264,6 +265,7 @@ void Extractor::on_BrowseButton_pressed()
   if(prefix == NULL){
     return;
   }
+  ui.QuitButton->setEnabled(false);
   winePrefix = prefix;
   //if(!QDir::current().mkdir("wine")){
   //  return;
@@ -312,6 +314,7 @@ void Extractor::progress(const QString &msg)
 void Extractor::threadFinished()
 {
   ui.BrowseButton->setEnabled(true);
+  ui.QuitButton->setEnabled(true);
   bool everything = et->haveEverything();
   if(everything){
     QString l = PrefProxy::getRsrcDirPath() + "/tir_firmware";
@@ -346,6 +349,7 @@ void Extractor::on_DownloadButton_pressed()
   if(prefix == NULL){
     return;
   }
+  ui.QuitButton->setEnabled(false);
   winePrefix = prefix;
   progressDlg->show();
   progressDlg->raise();
@@ -361,6 +365,18 @@ void Extractor::downloadDone(bool ok, QString fileName)
     progress("Downloading finished!");
     extractFirmware(fileName);
   }
+}
+
+void Extractor::on_HelpButton_pressed()
+{
+  HelpViewer::ChangePage("extractor.htm");
+  HelpViewer::ShowWindow();
+}
+
+void Extractor::show()
+{
+  HelpViewer::ChangePage("extractor.htm");
+  QDialog::show();
 }
 
 

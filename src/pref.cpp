@@ -150,7 +150,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
   
   void section::registerKeyVal(keyVal &kv)
   {
-    index.insert(std::pair<std::string, keyVal&>(kv.getKey(), kv));
+    index.insert(std::pair<std::string, keyVal*>(kv.getKey(), &kv));
   }
   
   void section::registerItself(prefs &parent)
@@ -162,29 +162,29 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
   //  only place to call this from is addItem...
   void prefs::registerSection(section &sec)
   {
-    index.insert(std::pair<std::string, section&>(sec.getName(), sec));
+    index.insert(std::pair<std::string, section*>(sec.getName(), &sec));
   }
   
   bool prefs::getValue(const std::string &sec, const std::string &key, std::string &result)const
   {
     read_lock();
-    std::map<std::string, section&>::const_iterator i = index.find(sec);
+    std::map<std::string, section*>::const_iterator i = index.find(sec);
     if(i == index.end()){
       unlock();
       return false;
     }
-    bool res = (i->second).getValue(key, result);
+    bool res = (i->second)->getValue(key, result);
     unlock();
     return res;
   }
 
   bool section::getValue(const std::string &key, std::string &result)const
   {
-    std::map<std::string, keyVal&>::const_iterator i = index.find(key);
+    std::map<std::string, keyVal*>::const_iterator i = index.find(key);
     if(i == index.end()){
       return false;
     }
-    result = (i->second).getValue();
+    result = (i->second)->getValue();
     return true;
   }
 
@@ -220,9 +220,9 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
   void prefs::getSectionList(std::vector<std::string> &sections)const
   {
     read_lock();
-    std::map<std::string, section&>::const_iterator i;
+    std::map<std::string, section*>::const_iterator i;
     for(i = index.begin(); i != index.end(); ++i){
-      sections.push_back((i->second).getName());
+      sections.push_back((i->second)->getName());
     }
     unlock();
   }
@@ -230,26 +230,26 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
   bool prefs::sectionExists(const std::string &sec)const
   {
     read_lock();
-    std::map<std::string, section&>::const_iterator i = index.find(sec);
+    std::map<std::string, section*>::const_iterator i = index.find(sec);
     unlock();
     return (i != index.end());
   }
   
   bool section::keyExists(const std::string &key)const
   {
-    std::map<std::string, keyVal&>::const_iterator i = index.find(key);
+    std::map<std::string, keyVal*>::const_iterator i = index.find(key);
     return (i != index.end());
   }
   
   bool prefs::keyExists(const std::string &sec, const std::string &key)const
   {
     read_lock();
-    std::map<std::string, section&>::const_iterator i = index.find(sec);
+    std::map<std::string, section*>::const_iterator i = index.find(sec);
     if(i == index.end()){
       unlock();
       return false;
     }
-    bool res = (i->second).keyExists(key);
+    bool res = (i->second)->keyExists(key);
     unlock();
     return res;
   }
@@ -303,8 +303,8 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
       addKey(key, value);
       return;
     }
-    std::map<std::string, keyVal&>::iterator i = index.find(key);
-    (i->second).setValue(value);
+    std::map<std::string, keyVal*>::iterator i = index.find(key);
+    (i->second)->setValue(value);
   }
   
   void prefs::setValue(const std::string &sec, const std::string &key, const std::string &value)
@@ -314,8 +314,8 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     }
     write_lock();
     setChangeFlag();
-    std::map<std::string, section&>::iterator i = index.find(sec);
-    (i->second).setValue(key, value);
+    std::map<std::string, section*>::iterator i = index.find(sec);
+    (i->second)->setValue(key, value);
     unlock();
   }
   
@@ -326,10 +326,10 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     }
     write_lock();
     setChangeFlag();
-    std::map<std::string, section&>::iterator i = index.find(sec);
+    std::map<std::string, section*>::iterator i = index.find(sec);
     std::ostringstream os;
     os<<value;
-    (i->second).setValue(key, os.str());
+    (i->second)->setValue(key, os.str());
     unlock();
   }
   
@@ -340,10 +340,10 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     }
     write_lock();
     setChangeFlag();
-    std::map<std::string, section&>::iterator i = index.find(sec);
+    std::map<std::string, section*>::iterator i = index.find(sec);
     std::ostringstream os;
     os<<value;
-    (i->second).setValue(key, os.str());
+    (i->second)->setValue(key, os.str());
     unlock();
   }
   
@@ -354,19 +354,19 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     }
     write_lock();
     setChangeFlag();
-    std::map<std::string, section&>::iterator i = index.find(sec);
-    (i->second).addKey(key, value);
+    std::map<std::string, section*>::iterator i = index.find(sec);
+    (i->second)->addKey(key, value);
     unlock();
   }
   
   bool prefs::findSection(const std::string &key, const std::string &value, std::string &name)
   {
     read_lock();
-    std::map<std::string, section&>::const_iterator i;
+    std::map<std::string, section*>::const_iterator i;
     std::string val;
     for(i = index.begin(); i != index.end(); ++i){
-      if(((i->second).getValue(key, val)) && (value.compare(val) == 0)){
-        name = (i->second).getName();
+      if(((i->second)->getValue(key, val)) && (value.compare(val) == 0)){
+        name = (i->second)->getName();
         unlock();
         return true;
       }
