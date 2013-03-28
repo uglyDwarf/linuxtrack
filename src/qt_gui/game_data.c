@@ -1,9 +1,9 @@
 #define _GNU_SOURCE
 #include <stdio.h>
+#include <stdlib.h>
 #include "mxml.h"
 #include <stdbool.h>
 #include <stdint.h>
-#include <malloc.h>
 #include <sys/stat.h>
 #include <string.h>
 

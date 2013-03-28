@@ -92,6 +92,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
   section::~section()
   {
     delete name;
+    index.clear();
     for(size_t i = 0; i < items.size(); ++i) delete items[i];
   }
 
@@ -471,7 +472,8 @@ bool ltr_int_save_prefs(const char *fname)
 {
   std::string pfile;
   
-  char *pfile_tmp = ((fname != NULL) ? ltr_int_my_strdup(fname) : ltr_int_get_default_file_name(NULL));
+  char *pfile_tmp = ((fname != NULL) ? 
+                      ltr_int_get_default_file_name(fname) : ltr_int_get_default_file_name(NULL));
   if(pfile_tmp == NULL){
     ltr_int_log_message("Can't remember what the preference file name is!\n");
     return false;
@@ -496,9 +498,12 @@ bool ltr_int_save_prefs(const char *fname)
   
   remove(pfile_old.c_str());
   if(rename(pfile.c_str(), pfile_old.c_str()) != 0){
+    perror("rename");
     ltr_int_log_message("Can't rename '%s' to '%s'\n", pfile.c_str(), pfile_old.c_str());
+    
   }
   if(rename(pfile_new.c_str(), pfile.c_str()) != 0){
+    perror("rename");
     ltr_int_log_message("Can't rename '%s' to '%s'\n", pfile_new.c_str(), pfile.c_str());
     return false;
   }
@@ -572,6 +577,12 @@ char *ltr_int_add_unique_section(const char *name_template)
 ///////////////////////////////////////////////////////////////////////////////
 //                       Self contained unit test                            //
 ///////////////////////////////////////////////////////////////////////////////
+
+//Compile with
+// g++ -o /tmp/test -g -Wall -Wextra -DPREF_CPP_TEST '-DLIB_PATH="/tmp"' \
+//    pref.cpp utils.c pref_bison.cpp pref_flex.cpp -lpthread
+
+
 #ifdef PREF_CPP_TEST
 #include <cmath>
 int tests = 0;
@@ -716,13 +727,19 @@ int main(int argc, char *argv[])
   lprf.addSection("Game0001");
   lprf.addSection("Game0003");
   std::cout<<"Checking unique section creation (part1)...";
-  printResult((!lprf.sectionExists("Game0002")) && (ltr_int_add_unique_section(nameTemplate.c_str()) != NULL) && (lprf.sectionExists("Game0002")));
+  char *tmp_char = NULL;
+  printResult((!lprf.sectionExists("Game0002")) && 
+    ((tmp_char = ltr_int_add_unique_section(nameTemplate.c_str())) != NULL) && (lprf.sectionExists("Game0002")));
+  if(tmp_char != NULL){
+    free(tmp_char);
+    tmp_char = NULL;
+  }
   
   std::cout<<"Checking unique section creation (part2)...";
   printResult((!lprf.sectionExists("Game0004")) && (lprf.addSection(nameTemplate, tmp_str)) && (lprf.sectionExists("Game0004")));
   ltr_int_dump_prefs("");
   std::cout<<"Trying to dump prefs to a file out of reach...";
-  printResult(!ltr_int_save_prefs("/shouldnt.work"));
+  printResult(!ltr_int_save_prefs("blabla/shouldnt.work"));
   lprf.addKey(secName3, itemKey1, itemVal1);
   
   std::cout<<"Trying to dump corrupted prefs...";
@@ -734,6 +751,7 @@ int main(int argc, char *argv[])
   printResult(ltr_int_read_prefs(NULL, true));
   
   std::cout<<tests<<" tests ran, "<<fails<<" failed..."<<std::endl;
+  ltr_int_free_prefs();
   return 0;
 }
 
