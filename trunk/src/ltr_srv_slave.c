@@ -1,11 +1,11 @@
 #include "ltr_srv_comm.h"
 #include "ltr_srv_master.h"
 #include <stdio.h>
-#include <wait.h>
+#include <stdlib.h>
+#include <sys/wait.h>
 #include <poll.h>
 #include <pthread.h>
 #include <unistd.h>
-#include <malloc.h>
 #include <ipc_utils.h>
 #include <ltlib.h>
 #include <utils.h>

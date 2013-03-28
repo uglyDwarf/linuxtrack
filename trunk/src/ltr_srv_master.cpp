@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include "ltr_srv_comm.h"
 #include "ltr_srv_master.h"
 #include <time.h>
