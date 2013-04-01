@@ -163,7 +163,10 @@ bool kbi_init(HWND hwnd)
     dipdw.diph.dwHow = DIPH_DEVICE; 
     dipdw.dwData = 10; 
     hr = fDIKeyboard->SetProperty(DIPROP_BUFFERSIZE, &dipdw.diph);
-    
+    if((hr != DI_OK) && (hr != DI_PROPNOEFFECT)){
+      MessageBox(NULL, "Failed to set kbd property!", "Controler", MB_OK);
+      return FALSE;
+    }
     res = fDIKeyboard->SetEventNotification(kbd_event);
     if((res != DI_OK) && (res != DI_POLLEDDEVICE)){
       MessageBox(NULL, "Failed to register event!", "Controler", MB_OK);

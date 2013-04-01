@@ -3902,9 +3902,9 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 if test "$debug" != "no"; then :
-  CFLAGS+=" -g -O0 -Wall -Wextra"
+  CFLAGS+=" -g -O0 -Wall -Wextra" CXXFLAGS+=" -g -O0 -Wall -Wextra"
 else
-  CFLAGS+=" -O3 "
+  CFLAGS+=" -O3 " CXXFLAGS+=" -O3 "
 fi
 
 # Checks for programs.
