@@ -1,5 +1,9 @@
+#ifdef HAVE_CONFIG_H
+  #include "../../config.h"
+#endif
 
 #include <iostream>
+#include <QApplication>
 #include "wine_launcher.h"
 
 WineLauncher::WineLauncher()
@@ -30,7 +34,11 @@ void WineLauncher::run(const QString &tgt)
 {
   wine.setProcessEnvironment(env);
   QString cmd("wine %1");
+  #ifdef DARWIN 
+    cmd.prepend(QApplication::applicationDirPath()+"/../wine/bin/");
+  #endif
   cmd = cmd.arg(tgt);
+  std::cout<<"Launching wine command: '"<< qPrintable(cmd) <<"'"<<std::endl;
   wine.start(cmd);
 }
 

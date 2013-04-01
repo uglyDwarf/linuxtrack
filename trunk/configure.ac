@@ -9,8 +9,8 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CXX
 AC_PROG_OBJC
 AS_IF([test "$debug" != "no"],
-      [CFLAGS+=" -g -O0 -Wall -Wextra"],
-      [CFLAGS+=" -O3 "])
+      [CFLAGS+=" -g -O0 -Wall -Wextra" CXXFLAGS+=" -g -O0 -Wall -Wextra"],
+      [CFLAGS+=" -O3 " CXXFLAGS+=" -O3 "])
 
 # Checks for programs.
 AC_PROG_YACC

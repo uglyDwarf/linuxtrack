@@ -1,7 +1,7 @@
 #ifndef WEBCAM_DRIVER__H
 #define WEBCAM_DRIVER__H
 
-#include <linux/types.h>
+#include <stdint.h>
 #include "cal.h"
 
 #ifdef __cplusplus
@@ -19,7 +19,7 @@ extern dev_interface ltr_int_webcam_interface;
 
 typedef struct{
   int i; //index into pixel format table
-  __u32 fourcc;
+  uint32_t fourcc;
   int w;
   int h;
   int fps_num, fps_den; 

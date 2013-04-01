@@ -424,7 +424,7 @@ static void deactivate(void)
 
 static void	MyHotKeyCallback(void *inRefcon)
 {
-  switch((int)inRefcon){
+  switch((intptr_t)inRefcon){
     case 0:
       if(active_flag==false){
 	activate();

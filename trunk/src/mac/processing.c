@@ -119,7 +119,7 @@ void endProcessing()
 {
 //  printf("Signaling end to the processing thread!\n");
   end_flag = true;
-  pthread_join(&processing_thread, NULL);
+  pthread_join(processing_thread, NULL);
 }
 
 bool newFrame(unsigned char *ptr)

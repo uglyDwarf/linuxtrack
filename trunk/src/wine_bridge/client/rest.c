@@ -1,8 +1,41 @@
+#ifdef HAVE_CONFIG_H
+  #include <config.h>
+#endif
+
+
 #include "rest.h"
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <windows.h>
 #include <commctrl.h>
+
+
+ssize_t my_getline(char **lineptr, size_t *n, FILE *f)
+{
+#ifndef DARWIN
+  return getline(lineptr, n, f);
+#else
+  size_t cnt = 0;
+  char *res = fgetln(f, &cnt);
+  if(res == NULL){
+    return 0;
+  }
+  if(*lineptr == NULL){
+    //there is no \0, so cnt has to be increased to contain it
+    *n = ((cnt+1) > 4096) ? cnt+1 : 4096;
+    *lineptr = (char *)malloc(*n);
+  }else{
+    if(*n < cnt+1){
+      *n = ((cnt+1) > 4096) ? cnt+1 : 4096;
+      *lineptr = (char *)realloc(*lineptr, *n);
+    }
+  }
+  memcpy(*lineptr, res, cnt);
+  (*lineptr)[cnt] = '\0';
+  return cnt;
+#endif
+}
+
 
 bool game_data_get_desc(int id, game_desc_t *gd)
 {
@@ -23,7 +56,7 @@ bool game_data_get_desc(int id, game_desc_t *gd)
     int cnt;
     gd->name = NULL;
     while(!feof(f)){
-      cnt = getline(&tmp_str, &tmp_str_size, f);
+      cnt = my_getline(&tmp_str, &tmp_str_size, f);
       if(cnt > 0){
         if(tmp_str_size > tmp_code_size){
           tmp_code = realloc(tmp_code, tmp_str_size);
