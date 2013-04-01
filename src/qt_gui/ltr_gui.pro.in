@@ -21,7 +21,7 @@ HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h help_view.h \
            log_view.h ltr_state.h scp_form.h buffering.h \
            scurve.h scview.h wiimote_prefs.h tracker.h plugin_install.h \
            profile_setup.h profile_selector.h guardian.h \
-           webcam_prefs.h webcam_info.h webcam_ft_prefs.h \
+           webcam_prefs.h webcam_info.h webcam_ft_prefs.h ../pref.hpp \
            macwebcam_prefs.h macwebcamft_prefs.h macwebcam_info.h xplugin.h \
            extractor.h game_data.h hashing.h downloading.h wine_launcher.h
 
@@ -35,19 +35,19 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            ltr_gui_prefs.cpp tir_prefs.cpp help_view.cpp buffering.cpp \
            ltr_model.cpp window.cpp glwidget.cpp objreader.cpp ltr_profiles.cpp \
            log_view.cpp ltr_state.cpp scp_form.cpp guardian.cpp \
-           scurve.cpp scview.cpp wiimote_prefs.cpp \
-           tracker.cpp ../ltr_srv_master.cpp  device_setup.cpp \
+           scurve.cpp scview.cpp wiimote_prefs.cpp ../pref.cpp ../pref_bison.cpp \
+           tracker.cpp ../ltr_srv_master.cpp  device_setup.cpp ../pref_flex.cpp \
            ../ltr_srv_slave.c ../ltr_srv_comm.c plugin_install.cpp profile_setup.cpp \
            profile_selector.cpp webcam_info.cpp webcam_prefs.cpp webcam_ft_prefs.cpp \
            macwebcam_info.cpp macwebcamft_prefs.cpp macwebcam_prefs.cpp xplugin.cpp \
            extractor.cpp game_data.c hashing.cpp downloading.cpp wine_launcher.cpp
 
 
-QMAKE_CXXFLAGS += -DHAVE_CONFIG_H -DHELP_BASE="'\""ltr_gui/"\"'"
-QMAKE_CFLAGS += -DLTR_GUI
+QMAKE_CXXFLAGS += -DHAVE_CONFIG_H -DHELP_BASE="'\""ltr_gui/"\"'" -I @prefix@/include
+QMAKE_CFLAGS += -DLTR_GUI  -I @prefix@/include
 
 unix:!macx {
-  LIBS += "-L../.libs" "-L$${LIBDIR}" -lm -lltr -lGLU -lmxml\
+  LIBS += "-L../.libs" "-L$${LIBDIR}" -lm -lltr -lGLU -lmxml \
            "-Wl,-rpath,$${LIBDIR}"
   
   data.path += @prefix@/share/linuxtrack
@@ -59,10 +59,10 @@ unix:!macx {
 }
 
 macx {
-  QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.4
-  QMAKE_MAC_SDK=/Developer/SDKs/MacOSX10.4u.sdk
-  CONFIG+=x86 ppc
-  LIBS += -L../.libs -lm -lltr -lmxml
+  QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.6
+  QMAKE_MAC_SDK=/Developer/SDKs/MacOSX10.6.sdk
+  CONFIG+=x86_64
+  LIBS += -L../.libs "-L$${LIBDIR}" -L@prefix@/lib -lm -lltr -lmxml
   data.path += ltr_gui.app/Contents/Resources/linuxtrack
   data.files += XM8_cockpit.obj xm8d_body.obj xm8_detail.png ../linuxtrack1.conf \
                 sources.txt spec.txt

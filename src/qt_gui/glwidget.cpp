@@ -6,6 +6,8 @@
 #include <QtOpenGL>
 #ifndef DARWIN
 #include <GL/glu.h>
+#else
+#include <glu.h>
 #endif
 #include <iostream>
 #include <math.h>

@@ -1,6 +1,7 @@
 #import "wiimote.h"
 #import <unistd.h>
 #include <IOBluetooth/IOBluetoothUserLib.h>
+#include <IOBluetooth/objc/IOBluetoothHostController.h>
 
 #define LogIOReturn(result) if (result != kIOReturnSuccess) { fprintf (stderr, "IOReturn error (%s [%d]): system 0x%x, sub 0x%x, error 0x%x\n", __FILE__, __LINE__, err_get_system (result), err_get_sub (result), err_get_code (result)); }
 typedef unsigned char darr[];
@@ -50,7 +51,8 @@ typedef unsigned char darr[];
 
 -(IOReturn) start
 {
-  if(!IOBluetoothLocalDeviceAvailable()){
+//  if(!IOBluetoothLocalDeviceAvailable()){  //deprecated in 10.6
+  if([IOBluetoothHostController defaultController] == nil){
     NSLog(@"Bluetooth capability unavailable!");
     return kIOReturnNoDevice;
   }

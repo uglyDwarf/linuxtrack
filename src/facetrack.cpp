@@ -19,7 +19,7 @@ static float face_y = 0;
 static float face_w = 0;
 static float face_h = 0;
 
-static int frame_size = 0;
+//static int frame_size = 0;
 static int frame_w = 0;
 static int frame_h = 0;
 static uint8_t *frame = NULL;
@@ -107,7 +107,7 @@ void detect(cv::Mat& img)
 
 static bool run = true;
 static enum {READY, PROCESSING, DONE} frame_status  = DONE;
-static bool request_frame = false;
+//static bool request_frame = false;
 static pthread_cond_t frame_cv = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t frame_mx = PTHREAD_MUTEX_INITIALIZER;
 static pthread_t detect_thread_handle;
@@ -148,6 +148,7 @@ void *detector_thread(void *)
   delete cascade;
   delete cvimage;
   free(frame);
+  return NULL;
 }
 
 

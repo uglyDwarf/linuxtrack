@@ -11,7 +11,7 @@ typedef std::vector<unsigned char> packet_t;
 void print_packet(unsigned char data[], size_t length)
 {
   std::cout<<"Fakeusb: "<<std::hex;
-  for(int i = 0; i < length; ++i){
+  for(size_t i = 0; i < length; ++i){
     std::cout<<(int)data[i]<<",";
   }
   std::cout<<std::endl;
@@ -244,7 +244,7 @@ void smartnav4::data2packet(const unsigned char data[], const size_t length,
                                   packet_t &packet)
 {
   packet.resize(length);
-  for(int i = 0; i < length; ++i){
+  for(size_t i = 0; i < length; ++i){
     packet[i] = data[i];
   }
 }
@@ -263,6 +263,7 @@ size_t smartnav4::packet2data(const packet_t packet,
 
 bool smartnav4::receive_packet(unsigned char packet[], size_t length, size_t *read, int timeout)
 {
+  (void) timeout;
   *read = 0;
   if(packet_buffer.size() <= 0){
     if((!video_on_flag) || (!camera_on_flag)){

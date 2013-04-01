@@ -2,6 +2,12 @@ if WINE_PLUGIN
 
 nodist_pkgdata_DATA = linuxtrack-wine.exe
 
+if DARWIN
+  MYLDFLAGS = -Wl,-no_arch_warnings
+else
+  MYLDFLAGS = -Wl,--no-warn-search-mismatch
+endif
+
 .PHONY : bridge bridge64
 
 if WINE64
@@ -11,18 +17,18 @@ else
 endif
 
 bridge :
-	$(MAKE) -C tester 
-	$(MAKE) -C controller
-	$(MAKE) -C client
+	$(MAKE) -C tester CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
+	$(MAKE) -C controller CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
+	$(MAKE) -C client CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 	cp tester/Tester.exe* .
 	cp controller/Controller.exe* .
 	cp client/NPClient.dll.so NPClient.dll
 	makensis ltr_wine.nsi
 
 bridge64 :
-	$(MAKE) -C tester Tester64.exe Tester.exe
-	$(MAKE) -C controller
-	$(MAKE) -C client NPClient64.dll.so NPClient.dll.so
+	$(MAKE) -C tester Tester64.exe Tester.exe CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
+	$(MAKE) -C controller CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
+	$(MAKE) -C client NPClient64.dll.so NPClient.dll.so CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 	cp tester/Tester.exe* .
 	cp tester/Tester64.exe* .
 	cp client/NPClient.dll.so NPClient.dll

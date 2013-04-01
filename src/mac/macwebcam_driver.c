@@ -33,7 +33,8 @@ static bool init_capture(char *prog, char *camera, int w, int h, char *fileName,
     }else{
       args[9] = NULL;
     }
-    ltr_int_fork_child(args);
+	bool isChild;
+    ltr_int_fork_child(args, &isChild);
     return true;
   }else{
     return false;

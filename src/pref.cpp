@@ -579,7 +579,7 @@ char *ltr_int_add_unique_section(const char *name_template)
 ///////////////////////////////////////////////////////////////////////////////
 
 //Compile with
-// g++ -o /tmp/test -g -Wall -Wextra -DPREF_CPP_TEST '-DLIB_PATH="/tmp"' \
+// g++ -o /tmp/test -g -Wall -Wextra -DPREF_CPP_TEST '-DLIB_PATH="/tmp"'  
 //    pref.cpp utils.c pref_bison.cpp pref_flex.cpp -lpthread
 
 

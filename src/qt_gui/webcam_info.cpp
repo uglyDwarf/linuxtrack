@@ -5,6 +5,7 @@
 
 #include <assert.h>
 #include <iostream>
+#include <stdint.h>
 #include <QtDebug>
 
 typedef int (*enum_webcams_fun_t)(char **ids[]);
@@ -112,7 +113,7 @@ const QStringList& WebcamInfo::getResolutions(int index)
   }
 }
 
-static QString U32_2_String(__u32 fourcc)
+static QString U32_2_String(uint32_t fourcc)
 {
   char *fcc = (char *)&(fourcc);
   char fcc1[5];
