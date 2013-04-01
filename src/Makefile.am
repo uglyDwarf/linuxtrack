@@ -8,6 +8,9 @@ if DARWIN
   #  in the main thread. Linking ltr_server against CoreFoundation solves that.
   LTR_SERVER_FLAGS = -framework CoreFoundation
   QMAKE_FLAGS = -spec macx-g++
+  LIBLINUXTRACK_FLAGS = -fpic -fPIC -arch i386 -arch x86_64
+  XLINUXTRACK_CFLAGS = -Wl,-no_arch_warnings -arch i386
+  XLINUXTRACK_LDFLAGS = -Wl,-no_arch_warnings -arch i386
   LINUXFLAGS =
 else
   LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
@@ -15,6 +18,8 @@ else
   QMAKE_FLAGS = -spec linux-g++
   LIBLINUXTRACK_FLAGS = -fpic -fPIC
   LTR_SERVER_FLAGS = 
+  XLINUXTRACK_CFLAGS =
+  XLINUXTRACK_LDFLAGS = -Wl,--no-warn-search-mismatch
 endif
 
 man_MANS = ltr_gui.1 ltr_server.1
@@ -81,7 +86,7 @@ include_HEADERS = linuxtrack.h
 #liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
 #liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h dyn_load.c dyn_load.h
 liblinuxtrack_la_SOURCES = linuxtrack.c linuxtrack.h utils.h ipc_utils.h
-liblinuxtrack_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} -arch i386 $(LIBLINUXTRACK_FLAGS) 
+liblinuxtrack_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LIBLINUXTRACK_FLAGS) 
 liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" ${SLEOPARD_LDFLAG}
 
 libltr_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
@@ -145,22 +150,19 @@ nodist_pkgdata_DATA = linuxtrack.c
 if XPLANE_PLUGIN
 pkglib_LTLIBRARIES += xlinuxtrack9.la
 if LTR32ON64
-  pkglib_LTLIBRARIES += xlinuxtrack.la xlinuxtrack9_32.la
-  xlinuxtrack_la_SOURCES = xlinuxtrack.c xlinuxtrack_pref.c xlinuxtrack_pref.h \
-			    linuxtrack.c
-  xlinuxtrack_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
-  xlinuxtrack_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib \
-    -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${SLEOPARD_LDFLAG}
-  xlinuxtrack_la_LIBADD = -lm -ldl
+  pkglib_LTLIBRARIES += xlinuxtrack9_32.la
   xlinuxtrack9_32_la_SOURCES = xlinuxtrack9.c linuxtrack.c
-  xlinuxtrack9_32_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC -m32 $(DARWINCFLAGS) ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
-  xlinuxtrack9_32_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${SLEOPARD_LDFLAG}
+  xlinuxtrack9_32_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) \
+    -fPIC -m32 $(DARWINCFLAGS) ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) ${XLINUXTRACK_CFLAGS}
+  xlinuxtrack9_32_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib \
+    -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${XLINUXTRACK_LDFLAGS}
   xlinuxtrack9_32_la_LIBADD = -lm -ldl
 endif
 xlinuxtrack9_la_SOURCES = xlinuxtrack9.c linuxtrack.c
-xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) -fPIC $(DARWINCFLAGS) ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) \
+  -fPIC $(DARWINCFLAGS) ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) ${XLINUXTRACK_CFLAGS}
 xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC $(DARWINFLAGS) -dynamiclib \
-  -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${SLEOPARD_LDFLAG}
+  -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${XLINUXTRACK_LDFLAGS}
 xlinuxtrack9_la_LIBADD = -lm -ldl
 endif
 

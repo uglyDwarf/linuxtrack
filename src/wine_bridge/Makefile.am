@@ -20,8 +20,10 @@ bridge :
 	$(MAKE) -C tester CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 	$(MAKE) -C controller CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 	$(MAKE) -C client CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
-	cp tester/Tester.exe* .
-	cp controller/Controller.exe* .
+	cp tester/Tester.exe.so Tester.exe
+	cp tester/Tester.exe Tester.sh
+	cp controller/Controller.exe.so Controller.exe
+	cp controller/Controller.exe Controller.sh
 	cp client/NPClient.dll.so NPClient.dll
 	makensis ltr_wine.nsi
 
@@ -29,11 +31,14 @@ bridge64 :
 	$(MAKE) -C tester Tester64.exe Tester.exe CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 	$(MAKE) -C controller CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 	$(MAKE) -C client NPClient64.dll.so NPClient.dll.so CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
-	cp tester/Tester.exe* .
-	cp tester/Tester64.exe* .
+	cp tester/Tester.exe.so Tester.exe
+	cp tester/Tester.exe Tester.sh
+	cp tester/Tester64.exe.so Tester64.exe
+	cp tester/Tester64.exe Tester64.sh
 	cp client/NPClient.dll.so NPClient.dll
 	cp client/NPClient64.dll.so NPClient64.dll
-	cp controller/Controller.exe* .
+	cp controller/Controller.exe.so Controller.exe
+	cp controller/Controller.exe Controller.sh
 	makensis ltr_wine64.nsi
 
 clean-local: clean-local-check
@@ -42,7 +47,7 @@ clean-local-check:
 	$(MAKE) -C client clean
 	$(MAKE) -C controller clean
 	$(MAKE) -C tester clean
-	rm -f *.exe* *.dll*
+	rm -f *.exe* *.dll* *.sh
 
 distclean-local: distclean-local-check
 .PHONY: distclean-local-check
@@ -50,7 +55,7 @@ distclean-local-check:
 	$(MAKE) -C client clean
 	$(MAKE) -C controller clean
 	$(MAKE) -C tester clean
-	rm -f *.exe* *.dll*
+	rm -f *.exe* *.dll* *.sh
 
 endif
 

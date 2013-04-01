@@ -96,6 +96,7 @@ class smartnav4
 {
  public:
   smartnav4(std::string fname);
+  virtual ~smartnav4(){};
   virtual bool send_packet(unsigned char packet[], size_t length);
   virtual bool receive_packet(unsigned char packet[], size_t length, 
                               size_t *read, int timeout);

@@ -230,6 +230,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_wine64 = @with_wine64@
 @WINE_PLUGIN_TRUE@nodist_pkgdata_DATA = linuxtrack-wine.exe
+@DARWIN_FALSE@@WINE_PLUGIN_TRUE@MYLDFLAGS = -Wl,--no-warn-search-mismatch
+@DARWIN_TRUE@@WINE_PLUGIN_TRUE@MYLDFLAGS = -Wl,-no_arch_warnings
 EXTRA_DIST = dumper/data.txt dumper/Makefile dumper/main.c client/NPClient_main.c client/Makefile \
 client/NPClient.spec client/NPClient_dll.h client/rest.h client/rest.c \
 client/NPClient.h ltr_wine.nsi README tester/npifc.c tester/rest.c tester/rest.h \
@@ -462,23 +464,28 @@ uninstall-am: uninstall-nodist_pkgdataDATA
 @WINE64_FALSE@@WINE_PLUGIN_TRUE@  linuxtrack-wine.exe : bridge
 
 @WINE_PLUGIN_TRUE@bridge :
-@WINE_PLUGIN_TRUE@	$(MAKE) -C tester 
-@WINE_PLUGIN_TRUE@	$(MAKE) -C controller
-@WINE_PLUGIN_TRUE@	$(MAKE) -C client
-@WINE_PLUGIN_TRUE@	cp tester/Tester.exe* .
-@WINE_PLUGIN_TRUE@	cp controller/Controller.exe* .
+@WINE_PLUGIN_TRUE@	$(MAKE) -C tester CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
+@WINE_PLUGIN_TRUE@	$(MAKE) -C controller CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
+@WINE_PLUGIN_TRUE@	$(MAKE) -C client CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
+@WINE_PLUGIN_TRUE@	cp tester/Tester.exe.so Tester.exe
+@WINE_PLUGIN_TRUE@	cp tester/Tester.exe Tester.sh
+@WINE_PLUGIN_TRUE@	cp controller/Controller.exe.so Controller.exe
+@WINE_PLUGIN_TRUE@	cp controller/Controller.exe Controller.sh
 @WINE_PLUGIN_TRUE@	cp client/NPClient.dll.so NPClient.dll
 @WINE_PLUGIN_TRUE@	makensis ltr_wine.nsi
 
 @WINE_PLUGIN_TRUE@bridge64 :
-@WINE_PLUGIN_TRUE@	$(MAKE) -C tester Tester64.exe Tester.exe
-@WINE_PLUGIN_TRUE@	$(MAKE) -C controller
-@WINE_PLUGIN_TRUE@	$(MAKE) -C client NPClient64.dll.so NPClient.dll.so
-@WINE_PLUGIN_TRUE@	cp tester/Tester.exe* .
-@WINE_PLUGIN_TRUE@	cp tester/Tester64.exe* .
+@WINE_PLUGIN_TRUE@	$(MAKE) -C tester Tester64.exe Tester.exe CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
+@WINE_PLUGIN_TRUE@	$(MAKE) -C controller CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
+@WINE_PLUGIN_TRUE@	$(MAKE) -C client NPClient64.dll.so NPClient.dll.so CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
+@WINE_PLUGIN_TRUE@	cp tester/Tester.exe.so Tester.exe
+@WINE_PLUGIN_TRUE@	cp tester/Tester.exe Tester.sh
+@WINE_PLUGIN_TRUE@	cp tester/Tester64.exe.so Tester64.exe
+@WINE_PLUGIN_TRUE@	cp tester/Tester64.exe Tester64.sh
 @WINE_PLUGIN_TRUE@	cp client/NPClient.dll.so NPClient.dll
 @WINE_PLUGIN_TRUE@	cp client/NPClient64.dll.so NPClient64.dll
-@WINE_PLUGIN_TRUE@	cp controller/Controller.exe* .
+@WINE_PLUGIN_TRUE@	cp controller/Controller.exe.so Controller.exe
+@WINE_PLUGIN_TRUE@	cp controller/Controller.exe Controller.sh
 @WINE_PLUGIN_TRUE@	makensis ltr_wine64.nsi
 
 @WINE_PLUGIN_TRUE@clean-local: clean-local-check
@@ -487,7 +494,7 @@ uninstall-am: uninstall-nodist_pkgdataDATA
 @WINE_PLUGIN_TRUE@	$(MAKE) -C client clean
 @WINE_PLUGIN_TRUE@	$(MAKE) -C controller clean
 @WINE_PLUGIN_TRUE@	$(MAKE) -C tester clean
-@WINE_PLUGIN_TRUE@	rm -f *.exe* *.dll*
+@WINE_PLUGIN_TRUE@	rm -f *.exe* *.dll* *.sh
 
 @WINE_PLUGIN_TRUE@distclean-local: distclean-local-check
 @WINE_PLUGIN_TRUE@.PHONY: distclean-local-check
@@ -495,7 +502,7 @@ uninstall-am: uninstall-nodist_pkgdataDATA
 @WINE_PLUGIN_TRUE@	$(MAKE) -C client clean
 @WINE_PLUGIN_TRUE@	$(MAKE) -C controller clean
 @WINE_PLUGIN_TRUE@	$(MAKE) -C tester clean
-@WINE_PLUGIN_TRUE@	rm -f *.exe* *.dll*
+@WINE_PLUGIN_TRUE@	rm -f *.exe* *.dll* *.sh
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

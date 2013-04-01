@@ -14,11 +14,11 @@ Section "Linuxtrack"
   SectionIn RO
   SetOutPath $INSTDIR
   File "Controller.exe"
-  File "Controller.exe.so"
+  File "Controller.sh"
   File "Tester.exe"
-  File "Tester.exe.so"
+  File "Tester.sh"
   File "Tester64.exe"
-  File "Tester64.exe.so"
+  File "Tester64.sh"
   File "NPClient.dll"
   File "NPClient64.dll"
   File "linuxtrack.ico"
@@ -42,11 +42,11 @@ Section "Uninstall"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Linuxtrack"
   DeleteRegKey HKLM SOFTWARE\Linuxtrack
   Delete $INSTDIR\Controller.exe
-  Delete $INSTDIR\Controller.exe.so
+  Delete $INSTDIR\Controller.sh
   Delete $INSTDIR\Tester.exe
-  Delete $INSTDIR\Tester.exe.so
+  Delete $INSTDIR\Tester.sh
   Delete $INSTDIR\Tester64.exe
-  Delete $INSTDIR\Tester64.exe.so
+  Delete $INSTDIR\Tester64.sh
   Delete $INSTDIR\NPClient.dll
   Delete $INSTDIR\NPClient64.dll
   Delete $INSTDIR\uninstall.exe
