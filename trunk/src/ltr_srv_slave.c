@@ -20,7 +20,8 @@ static pthread_t reader_tid;
 static char *profile_name = NULL;
 static ltr_axes_t axes;
 static bool master_works = false;
-
+static semaphore_p slave_lock = NULL;
+static semaphore_p master_lock = NULL;
 static const int master_retries = 3;
 
 typedef enum {MR_OK, MR_FAIL, MR_OFTEN} mr_res_t;
@@ -34,19 +35,23 @@ static bool parent_alive()
 
 static int ltr_int_open_slave_fifo(int master_uplink, const char *name_template, int max_fifos)
 {
-  ltr_int_log_message("Registering slave fifo...\n");
+  ltr_int_log_message("Registering slave fifo @ fd%d...\n", master_uplink);
   char *data_fifo_name = NULL;
   //Open the data passing fifo and pass it to the master...
   int fifo_number = -1;
-  int master_downlink = ltr_int_open_unique_fifo(&data_fifo_name, &fifo_number, name_template, max_fifos);
+  int master_downlink = ltr_int_open_unique_fifo(&data_fifo_name, &fifo_number, name_template, 
+                                                 max_fifos, &slave_lock);
   ltr_int_log_message("Trying to open unique fifo %s => %d\n", data_fifo_name, master_downlink);
   free(data_fifo_name);
   if(master_downlink <= 0){
+    ltr_int_log_message("Failed to open master downlink!\n");
     return -1;
   }
   if(ltr_int_send_message_w_str(master_uplink, CMD_NEW_FIFO, fifo_number, profile_name) == 0){
+    ltr_int_log_message("Master downlink (%d) OK!\n", master_downlink);
     return master_downlink;
   }else{
+    ltr_int_log_message("Master uplink not working!\n");
     close(master_downlink);
     return -1;
   }
@@ -70,10 +75,12 @@ static bool start_master(int *master_uplink, int *master_downlink)
 {
   bool is_child;
   //master inherits fds!
-  int fifo = ltr_int_open_fifo_exclusive(ltr_int_master_fifo_name());
+  int fifo = ltr_int_open_fifo_exclusive(ltr_int_master_fifo_name(), &master_lock);
   if(fifo > 0){
     //no master there yet, so lets start one
     close(fifo);
+    ltr_int_unlockSemaphore(master_lock);
+    ltr_int_closeSemaphore(master_lock);
     close_master_comms(master_uplink, master_downlink);
     ltr_int_log_message("Master is not running, start it\n"); 
     char *args[] = {"srv", NULL};
@@ -91,6 +98,7 @@ static bool start_master(int *master_uplink, int *master_downlink)
 
 static bool open_master_comms(int *master_uplink, int *master_downlink)
 {
+  printf("Opening master comms!\n");
   *master_uplink = ltr_int_open_fifo_for_writing(ltr_int_master_fifo_name(), true);
   if(*master_uplink <= 0){
     printf("Couldn't open fifo to master!\n");
@@ -104,6 +112,7 @@ static bool open_master_comms(int *master_uplink, int *master_downlink)
     *master_downlink = -1;
     return false;
   }
+  printf("Master comms opened => u -> %d  d -> %d\n", *master_uplink, *master_downlink);
   return true;
 }
 
@@ -136,11 +145,15 @@ static bool ltr_int_process_message(int master_downlink)
   message_t msg;
   struct ltr_comm *com;
   pose_t unfiltered;
-  if(ltr_int_fifo_receive(master_downlink, &msg, sizeof(message_t)) != 0){
+  ssize_t read = ltr_int_fifo_receive(master_downlink, &msg, sizeof(message_t));
+  if(read < 0){
     ltr_int_log_message("Slave reader problem!\n");
     perror("fifo_receive");
     return false;
+  }else if(read == 0){
+    return true;
   }
+  
   switch(msg.cmd){
     case CMD_POSE:
       //printf("Have new pose!\n");
