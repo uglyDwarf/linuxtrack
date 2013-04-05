@@ -245,7 +245,8 @@ ltr_pipe_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	$(ltr_pipe_LDFLAGS) $(LDFLAGS) -o $@
 am_ltr_server1_OBJECTS = ltr_server1-ltr_srv_comm.$(OBJEXT) \
 	ltr_server1-ltr_srv_slave.$(OBJEXT) ltr_srv_master.$(OBJEXT) \
-	ltr_server1-ltr_server1.$(OBJEXT)
+	ltr_server1-ltr_server1.$(OBJEXT) \
+	ltr_server1-ipc_utils.$(OBJEXT)
 ltr_server1_OBJECTS = $(am_ltr_server1_OBJECTS)
 ltr_server1_DEPENDENCIES = libltr.la
 ltr_server1_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
@@ -467,7 +468,7 @@ pkglib_LTLIBRARIES = libltr.la libmacwii.la $(am__append_1) \
 #ltr_server_LDADD = -lpthread libltr.la
 #ltr_server_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${LTR_SERVER_FLAGS}
 ltr_server1_SOURCES = ltr_srv_comm.c ltr_srv_comm.h ltr_srv_slave.c ltr_srv_slave.h \
-	ltr_srv_master.cpp ltr_srv_master.h ltr_server1.c
+	ltr_srv_master.cpp ltr_srv_master.h ltr_server1.c ipc_utils.c ipc_utils.h
 
 ltr_server1_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server1_LDADD = -lpthread libltr.la
@@ -960,6 +961,12 @@ ltr_server1-ltr_server1.o: ltr_server1.c
 
 ltr_server1-ltr_server1.obj: ltr_server1.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server1_CFLAGS) $(CFLAGS) -c -o ltr_server1-ltr_server1.obj `if test -f 'ltr_server1.c'; then $(CYGPATH_W) 'ltr_server1.c'; else $(CYGPATH_W) '$(srcdir)/ltr_server1.c'; fi`
+
+ltr_server1-ipc_utils.o: ipc_utils.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server1_CFLAGS) $(CFLAGS) -c -o ltr_server1-ipc_utils.o `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
+
+ltr_server1-ipc_utils.obj: ipc_utils.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server1_CFLAGS) $(CFLAGS) -c -o ltr_server1-ipc_utils.obj `if test -f 'ipc_utils.c'; then $(CYGPATH_W) 'ipc_utils.c'; else $(CYGPATH_W) '$(srcdir)/ipc_utils.c'; fi`
 
 .cpp.o:
 	$(CXXCOMPILE) -c -o $@ $<

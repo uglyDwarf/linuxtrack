@@ -32,11 +32,11 @@ enum cmds {CMD_NOP, CMD_NEW_FIFO, CMD_PAUSE, CMD_WAKEUP, CMD_RECENTER, CMD_POSE,
 extern "C" {
 #endif
 
-bool ltr_int_make_fifo(const char *name);
-int ltr_int_open_fifo_exclusive(const char *name);
+//bool ltr_int_make_fifo(const char *name);
+//int ltr_int_open_fifo_exclusive(const char *name);
 //int ltr_int_open_fifo_for_writing(const char *name);
-int ltr_int_open_unique_fifo(char **name, int *num, const char *name_template, int max);
-int ltr_int_fifo_send(int fifo, void *buf, size_t size);
+//int ltr_int_open_unique_fifo(char **name, int *num, const char *name_template, int max);
+//int ltr_int_fifo_send(int fifo, void *buf, size_t size);
 //int ltr_int_fifo_receive(int fifo, void *buf, size_t size);
 
 int ltr_int_send_message(int fifo, uint32_t cmd, uint32_t data);

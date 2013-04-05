@@ -42,12 +42,12 @@ bool ltr_int_initWiiCom(bool isServer, struct mmap_s **mmm_p)
 {
   semaphore_p lock_sem = NULL;
   if(isServer){
-    if(ltr_int_server_running_already(prefFile, &lock_sem, true) != 0){
+    if(ltr_int_server_running_already(prefFile, false, &lock_sem, true) != 0){
       ltr_int_log_message("Server is already running!\n");
       return false;
     }
   }else{
-    if(ltr_int_server_running_already(prefFile, NULL, false) != 1){
+    if(ltr_int_server_running_already(prefFile, false, NULL, false) != 1){
       ltr_int_log_message("Server not running!\n");
       return false;
     }

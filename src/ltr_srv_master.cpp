@@ -35,7 +35,7 @@ bool ltr_int_gui_lock(bool do_lock)
 
   if((pfSem == NULL) ){
     //just check...
-    switch(ltr_int_server_running_already(lockName, &pfSem, do_lock)){
+    switch(ltr_int_server_running_already(lockName, false, &pfSem, do_lock)){
       case 0:
         return true;
         break;
@@ -103,7 +103,7 @@ bool ltr_int_broadcast_pose(pose_t &pose)
   //Send updated pose to all clients
   for(i = slaves.begin(); i != slaves.end();){
     res = ltr_int_send_data(i->second, &pose);
-    if(res == EPIPE){
+    if(res == -EPIPE){
       ltr_int_log_message("Slave @fifo %d left!\n", i->second);
       close(i->second);
       i->second = -1;
@@ -221,19 +221,25 @@ bool ltr_int_master(bool standalone)
   int fifo;
   
   save_prefs = standalone;
+  semaphore_p master_lock = NULL;
   if(standalone){
+    //Detach from the caller, retaining stdin/out/err
+    // Does weird things to gui ;)
+    if(daemon(0, 1) != 0){
+      return false;
+    }
     if(!ltr_int_gui_lock(false)){
       printf("Gui is active, quitting!\n");
       return true;
     }
-    fifo = ltr_int_open_fifo_exclusive(ltr_int_master_fifo_name());
+    fifo = ltr_int_open_fifo_exclusive(ltr_int_master_fifo_name(), &master_lock);
   }else{
     if(!ltr_int_gui_lock(true)){
       ltr_int_log_message("Couldn't lock gui lockfile!\n");
       return false;
     }
     int counter = 10;
-    while((fifo = ltr_int_open_fifo_exclusive(ltr_int_master_fifo_name())) <= 0){
+    while((fifo = ltr_int_open_fifo_exclusive(ltr_int_master_fifo_name(), &master_lock)) <= 0){
       if((counter--) <= 0){
         ltr_int_log_message("The other master doesn't give up!\n");
         return false;
@@ -243,21 +249,11 @@ bool ltr_int_master(bool standalone)
     ltr_int_log_message("Other master gave up, gui master taking over!\n");
   }
   
-  //Open and lock the main communication fifo
-  //  to make sure that only one master runs at a time. 
   if(fifo <= 0){
     printf("Master already running, quitting!\n");
     return true;
   }
   printf("Starting as master!\n");
-  if(standalone){
-    //Detach from the caller, retaining stdin/out/err
-    // Does weird things to gui ;)
-    ltr_int_gui_lock_clean();
-    if(daemon(0, 1) != 0){
-      return false;
-    }
-  }
   if(ltr_int_init() != 0){
     printf("Could not initialize tracking!\n");
     printf("Closing fifo %d\n", fifo);
@@ -275,16 +271,22 @@ bool ltr_int_master(bool standalone)
   while(1){
     fifo_poll.events = POLLIN;
     int fds = poll(&fifo_poll, 1, 1000);
+    //printf("Master: poll returned (%d)!\n", fds);
     if(fds > 0){
       if(fifo_poll.revents & POLLHUP){
         if(standalone){
           printf("We have HUP in Master!\n");
           break;
+        }else{
+          //In gui when HUP comes, it goes forever...
+          //!!! remove all clients!!!
+          sleep(1);
         }
       }
       message_t msg;
       msg.cmd = CMD_NOP;
-      if(ltr_int_fifo_receive(fifo, &msg, sizeof(message_t)) == 0){
+      if(ltr_int_fifo_receive(fifo, &msg, sizeof(message_t)) > 0){
+        //printf("Received a message from slave (%d)!!!\n", msg.cmd);
         switch(msg.cmd){
           case CMD_PAUSE:
             ltr_int_suspend_cmd();
@@ -296,7 +298,7 @@ bool ltr_int_master(bool standalone)
             ltr_int_recenter_cmd();
             break;
           case CMD_NEW_FIFO:
-            printf("Cmd to register new slave...\n");
+            //printf("Cmd to register new slave...\n");
             ltr_int_register_slave(msg);
             break;
         }
@@ -308,12 +310,14 @@ bool ltr_int_master(bool standalone)
     if(gui_shutdown_request || (!ltr_int_gui_lock(false))){
       break;
     }
-    
   }
   printf("Shutting down tracking!\n");
   ltr_int_shutdown();
   printf("Master closing fifo %d\n", fifo);
   close(fifo);
+  ltr_int_unlockSemaphore(master_lock);
+  ltr_int_closeSemaphore(master_lock);
+  ltr_int_gui_lock_clean();
   int cntr = 10;
   while((ltr_int_get_tracking_state() != STOPPED) && (cntr > 0)){
     --cntr;

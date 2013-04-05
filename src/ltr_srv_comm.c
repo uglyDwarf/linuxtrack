@@ -13,7 +13,9 @@
 #include <string.h>
 
 #include "ltr_srv_comm.h"
+#include "ipc_utils.h"
 
+/*
 bool ltr_int_make_fifo(const char *name)
 {
   if(name == NULL){
@@ -137,7 +139,7 @@ int ltr_int_fifo_receive(int fifo, void *buf, size_t size)
   }
   return 0;
 }
-
+*/
 //==============Protocol dependent part==================
 
 int ltr_int_send_message(int fifo, uint32_t cmd, uint32_t data)

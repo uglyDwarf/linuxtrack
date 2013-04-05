@@ -57,6 +57,7 @@ bool ltr_int_wait_child_exit(int limit)
     return false;
   }
 }
+#endif
 
 //Check if some server is not running by trying to lock specific file.
 // If psem is not NULL, return this way newly semaphore on the appropriate file.
@@ -65,18 +66,24 @@ bool ltr_int_wait_child_exit(int limit)
 //    -1 error
 //     0 server not running
 //     1 server running
-int ltr_int_server_running_already(const char *lockName, semaphore_p *psem, bool should_lock)
+int ltr_int_server_running_already(const char *lockName, bool isAbsolute, 
+                                   semaphore_p *psem, bool should_lock)
 {
   char *lockFile;
   semaphore_p pfSem;
   int result = -1;
-  lockFile = ltr_int_get_default_file_name(lockName);
+  if(isAbsolute){
+    lockFile = ltr_int_my_strdup(lockName);
+  }else{
+    lockFile = ltr_int_get_default_file_name(lockName);
+  }
   if(lockFile == NULL){
     ltr_int_log_message("Can't determine pref file path!\n");
     return -1;
   }
   pfSem = ltr_int_createSemaphore(lockFile);
   free(lockFile);
+
   if(pfSem == NULL){
     ltr_int_log_message("Can't create semaphore!");
     return -1;
@@ -95,6 +102,7 @@ int ltr_int_server_running_already(const char *lockName, semaphore_p *psem, bool
     result = 0;
   }
   if(psem != NULL){
+    printf("Passing the lock to protect fifo (pid %d)!\n", getpid());
     *psem = pfSem;
   }else{
     ltr_int_closeSemaphore(pfSem);
@@ -104,7 +112,6 @@ int ltr_int_server_running_already(const char *lockName, semaphore_p *psem, bool
 }
 
 
-#endif
 
 struct semaphore_t{
   int fd;
@@ -117,7 +124,6 @@ static semaphore_p ltr_int_semaphoreFromFd(int fd)
   return res;
 }
 
-#ifndef LIBLINUXTRACK_SRC
 semaphore_p ltr_int_createSemaphore(char *fname)
 {
   if(fname == NULL){
@@ -128,9 +134,9 @@ semaphore_p ltr_int_createSemaphore(char *fname)
     perror("open: ");
     return NULL;
   }
+  printf("Going to create lock '%s' => %d!\n", fname, fd);
   return ltr_int_semaphoreFromFd(fd);
 }
-#endif
 
 bool ltr_int_lockSemaphore(semaphore_p semaphore)
 {
@@ -146,7 +152,6 @@ bool ltr_int_lockSemaphore(semaphore_p semaphore)
 }
 
 
-#ifndef LIBLINUXTRACK_SRC
 bool ltr_int_tryLockSemaphore(semaphore_p semaphore)
 {
   if(semaphore == NULL){
@@ -154,8 +159,10 @@ bool ltr_int_tryLockSemaphore(semaphore_p semaphore)
   }
   int res = lockf(semaphore->fd, F_TLOCK,0);
   if(res == 0){
+    printf("Lock %d success!\n", semaphore->fd);
     return true;
   }else{
+    printf("Can't lock %d!\n", semaphore->fd);
     return false;
   }
 }
@@ -175,8 +182,6 @@ bool ltr_int_testLockSemaphore(semaphore_p semaphore)
   }
 }
 
-#endif
-
 bool ltr_int_unlockSemaphore(semaphore_p semaphore)
 {
   if(semaphore == NULL){
@@ -192,6 +197,7 @@ bool ltr_int_unlockSemaphore(semaphore_p semaphore)
 
 void ltr_int_closeSemaphore(semaphore_p semaphore)
 {
+  printf("Closing semaphore %d (pid %d)!\n", semaphore->fd, getpid());
   close(semaphore->fd);
   free(semaphore);
 }
@@ -362,20 +368,26 @@ bool ltr_int_make_fifo(const char *name)
   return true;
 }
 
-int ltr_int_open_fifo_exclusive(const char *name)
+int ltr_int_open_fifo_exclusive(const char *name, semaphore_p *lock_sem)
 {
+  char *lock_name = NULL;
+  asprintf(&lock_name, "%s.lock", name);
+  if(ltr_int_server_running_already(lock_name, true, lock_sem, true) != 0){
+    ltr_int_log_message("Fifo %s (lock %s) could not be locked, closing it!\n", name, lock_name);
+    return -1;
+  }
+  ltr_int_log_message("Fifo %s (lock %s) locked!!!", name, lock_name);
+  free(lock_name);
   if(!ltr_int_make_fifo(name)){
+    ltr_int_unlockSemaphore(*lock_sem);
+    ltr_int_closeSemaphore(*lock_sem);
+    ltr_int_log_message("Fifo %s could not be created!\n", name);
     return -1;
   }
   int fifo = -1;
   if((fifo = open(name, O_RDONLY | O_NONBLOCK)) > 0){
-    ltr_int_log_message("Fifo %s opened!\n", name);
-    if(flock(fifo, LOCK_EX | LOCK_NB) == 0){
-      ltr_int_log_message("Fifo %s (fd %d) opened and locked!\n", name, fifo);
-      return fifo;
-    }
-    ltr_int_log_message("Fifo %s (fd %d) could not be locked, closing it!\n", name, fifo);
-    close(fifo);
+    ltr_int_log_message("Fifo %s (fd %d) opened and locked!\n", name, fifo);
+    return fifo;
   }
   return -1;
 }
@@ -412,7 +424,7 @@ int ltr_int_open_fifo_for_writing(const char *name, bool wait){
   return fifo;
 }
 
-int ltr_int_open_unique_fifo(char **name, int *num, const char *template, int max)
+int ltr_int_open_unique_fifo(char **name, int *num, const char *template, int max, semaphore_p *lock_sem)
 {
   //although I could come up with method allowing more than 100
   //  fifos to be checked, there is not a point doing so
@@ -421,7 +433,7 @@ int ltr_int_open_unique_fifo(char **name, int *num, const char *template, int ma
   int fifo = -1;
   for(i = 0; i < max; ++i){
     asprintf(&fifo_name, template, i);
-    fifo = ltr_int_open_fifo_exclusive(fifo_name);
+    fifo = ltr_int_open_fifo_exclusive(fifo_name, lock_sem);
     if(fifo > 0){
       break;
     }
@@ -489,3 +501,5 @@ int ltr_int_pipe_poll(int pipe, int timeout, bool *hup)
   }
   return 0;
 }
+
+

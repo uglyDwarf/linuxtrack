@@ -3,6 +3,7 @@
 #include <QProcessEnvironment>
 #include <QMessageBox>
 #include <QDateTime>
+#include <QTextStream>
 #include <unistd.h>
 #include <cstdlib>
 
@@ -245,7 +246,16 @@ void Extractor::extractFirmware(QString file)
   );
   qDebug()<<winePrefix;
   progress(QString("Initializing wine and running installer %1").arg(file));
+  //To avoid adding TrackIR icons/menus to Linux "start menu"... 
   wine->setEnv("WINEDLLOVERRIDES", "winemenubuilder.exe=d");
+  //To redirect wine's Desktop directory to avoid TrackIR icon being placed on Linux desktop 
+  QFile xdgFile(winePrefix + "/user-dirs.dirs");
+  if(xdgFile.open(QFile::WriteOnly | QFile::Truncate)){
+    QTextStream xdg(&xdgFile);
+    xdg<<"XDG_DESKTOP_DIR=\""<<winePrefix<<"\""<<endl;
+    xdgFile.close();
+    wine->setEnv("XDG_CONFIG_HOME", winePrefix);
+  }
   wine->setEnv("WINEPREFIX", winePrefix);
   wine->run(file);
 }
