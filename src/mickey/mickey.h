@@ -78,19 +78,6 @@ class MickeyCalibration : public QDialog
 
 typedef enum {TRACKING, STANDBY, CALIBRATING} state_t;
 
-class MickeyUinput
-{
- public:
-  MickeyUinput();
-  ~MickeyUinput();
-  bool init();
-  void mouseClick(sn4_btn_event_t ev);
-  void mouseMove(int dx, int dy);
- private:
-  int fd;
-  static QMutex mutex;
-};
-
 class Mickey;
 
 //Thread processing sidechannel data (SN4 clicks)

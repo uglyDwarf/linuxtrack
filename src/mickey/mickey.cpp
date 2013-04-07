@@ -7,7 +7,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include "mickey.h"
-#include "uinput_ifc.h"
+#include "mouse.h"
 #include "linuxtrack.h"
 #include "piper.h"
 #include "math_utils.h"
@@ -17,9 +17,6 @@
 
 //Time to wait after the tracking commences to perform a recentering [ms]
 const int settleTime = 2000; //2 seconds
-
-QMutex MickeyUinput::mutex;
-
 
 void RestrainWidgetToScreen(QWidget * w)
 {
@@ -218,47 +215,7 @@ void MickeyCalibration::timeout()
     }
 }
 
-MickeyUinput::MickeyUinput() : fd(-1)
-{
-}
-
-MickeyUinput::~MickeyUinput()
-{
-  close_uinput(fd);
-  fd = -1;
-}
-
-bool MickeyUinput::init()
-{
-  char *fname = NULL;
-  bool permProblem;
-  fd = open_uinput(&fname, &permProblem);
-  if(fd > 0){
-    return create_device(fd);
-  }else{
-    QMessageBox::critical(NULL, "Error Creating Virtual Mouse", 
-      QString("There was a problem accessing the file \"%1\"\n\
- Please check that you have the right to write to it.").arg(fname));
-    return false;
-  }
-
-}
-
-void MickeyUinput::mouseClick(sn4_btn_event_t ev)
-{
-  mutex.lock();
-  click(fd, ev.btns, ev.timestamp);
-  mutex.unlock();
-}
-
-void MickeyUinput::mouseMove(int dx, int dy)
-{
-  mutex.lock();
-  movem(fd, dx, dy);
-  mutex.unlock();
-}
-
-MickeyUinput uinput = MickeyUinput();
+mouseClass mouse = mouseClass();
 
 MickeyThread::MickeyThread(Mickey *p) : QThread(p), fifo(-1), finish(false), parent(*p),
   fakeBtn(0)
@@ -268,7 +225,8 @@ MickeyThread::MickeyThread(Mickey *p) : QThread(p), fifo(-1), finish(false), par
 void MickeyThread::processClick(sn4_btn_event_t ev)
 {
   std::cout<<"Processing click! ("<<(int)ev.btns<<")"<<std::endl;
-    uinput.mouseClick(ev);
+  int btns = ev.btns;
+  mouse.click((buttons_t)btns, ev.timestamp);
 }
 
 //emulate mouse button press using keyboard
@@ -331,7 +289,7 @@ Mickey::Mickey() : updateTimer(this), btnThread(this), state(STANDBY),
   QObject::connect(&calDlg, SIGNAL(finishCalibration()), this, SLOT(finishCalibration()));
   QObject::connect(&calDlg, SIGNAL(cancelCalibration(bool)), this, SLOT(cancelCalibration(bool)));
   
-  if(!uinput.init()){
+  if(!mouse.init()){
     exit(1);
   }
   updateTimer.setSingleShot(false);
@@ -540,7 +498,7 @@ void Mickey::updateTimer_activated()
   int dx, dy;
   trans->update(heading_p, pitch_p, elapsed, dx, dy);
   if(state == TRACKING){
-    uinput.mouseMove(dx, dy);
+    mouse.move(dx, dy);
   }
 }
 
