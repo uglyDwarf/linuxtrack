@@ -101,7 +101,7 @@ void send_click(int fd, int btn, bool pressed, struct timeval *ts)
   write(fd, &event, sizeof(event));
 }
 
-void click(int fd, int btns, struct timeval ts)
+void clickm(int fd, buttons_t btns, struct timeval ts)
 {
   static int prev_btns = 0;
   printf("Click: %d / %d\n", prev_btns, btns);

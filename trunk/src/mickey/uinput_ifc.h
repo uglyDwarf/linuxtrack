@@ -2,8 +2,7 @@
 #define UINPUT_IFC__H
 
 #include <stdbool.h>
-
-enum buttons{LEFT_BUTTON = 1, RIGHT_BUTTON = 2, MIDDLE_BUTTON = 4};
+#include "mouse.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,7 +11,7 @@ extern "C" {
 int open_uinput(char **fname, bool *permProblem);
 bool create_device(int fd);
 void movem(int fd, int dx, int dy);
-void click(int fd, int btns, struct timeval ts);
+void clickm(int fd, buttons_t btns, struct timeval ts);
 void close_uinput(int fd);
 
 #ifdef __cplusplus
