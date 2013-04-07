@@ -59,7 +59,6 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, QSettings &setting
   frames = 0;
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
   connect(fpsTimer, SIGNAL(timeout()), this, SLOT(updateFps()));
-  camViewEnable = true;
   if(!connect(&TRACKER, SIGNAL(stateChanged(int)), this, SLOT(stateChanged(int)))){
     std::cout<<"Problem connecting signal1!"<<std::endl;
   }
@@ -259,6 +258,9 @@ CameraView::~CameraView()
 
 void CameraView::redraw()
 {
+  if(!camViewEnable){
+    return;
+  }
   buffer *b;
   buffering *buf = TRACKER.getBuffers();
   if(buf->readBuffer(&b)){
@@ -266,6 +268,4 @@ void CameraView::redraw()
     buf->bufferRead();
   }
 }
-
-
 
