@@ -37,7 +37,7 @@ static bool installPlugin(const QString sourceFile, const QString destFile)
   QFile src(sourceFile);
   QFile dest(destFile);
   if(!src.exists()){
-    warningMessage(QString("Source file '%s' doesn't exist!"));
+    warningMessage(QString("Source file '%1' doesn't exist!").arg(sourceFile));
     return false;
   }
   QFileInfo destInfo(destFile);
