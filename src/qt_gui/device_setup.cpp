@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+  #include "../../config.h"
+#endif
+
 #include "device_setup.h"
 #include "webcam_prefs.h"
 #include "webcam_ft_prefs.h"
@@ -94,6 +98,7 @@ void DeviceSetup::on_DeviceSelector_activated(int index)
   }
   QVariant v = ui.DeviceSelector->itemData(index);
   PrefsLink pl = v.value<PrefsLink>();
+#ifndef DARWIN  
   if(pl.deviceType == WEBCAM){
     devPrefs = new WebcamPrefs(pl.ID, this);
     emit deviceTypeChanged(pl.deviceType, "Webcam");
@@ -101,7 +106,8 @@ void DeviceSetup::on_DeviceSelector_activated(int index)
   if(pl.deviceType == WEBCAM_FT){
     devPrefs = new WebcamFtPrefs(pl.ID, this);
     emit deviceTypeChanged(pl.deviceType, "Webcam Face Tracker");
-  }else 
+  }else
+#else
   if(pl.deviceType == MACWEBCAM){
     devPrefs = new MacWebcamPrefs(pl.ID, this);
     emit deviceTypeChanged(pl.deviceType, "Webcam");
@@ -109,7 +115,8 @@ void DeviceSetup::on_DeviceSelector_activated(int index)
   if(pl.deviceType == MACWEBCAM_FT){
     devPrefs = new MacWebcamFtPrefs(pl.ID, this);
     emit deviceTypeChanged(pl.deviceType, "Webcam Face Tracker");
-  }else 
+  }else
+#endif   
   if(pl.deviceType == WIIMOTE){
     devPrefs = new WiimotePrefs(pl.ID, this);
     emit deviceTypeChanged(pl.deviceType, "Wiimote");
@@ -119,6 +126,7 @@ void DeviceSetup::on_DeviceSelector_activated(int index)
     emit deviceTypeChanged(pl.deviceType, "TrackIR");
   }
   if(devPrefs != NULL){
+    std::cout<<"Inserted widget "<<devPrefs<<std::endl;
     target->insertWidget(-1, devPrefs);
   }
 }
@@ -143,8 +151,13 @@ void DeviceSetup::refresh()
   bool res = false; 
   res |= WiimotePrefs::AddAvailableDevices(*(ui.DeviceSelector));
   res |= TirPrefs::AddAvailableDevices(*(ui.DeviceSelector));
+#ifdef DARWIN
+  res |= MacWebcamFtPrefs::AddAvailableDevices(*(ui.DeviceSelector));
+  res |= MacWebcamPrefs::AddAvailableDevices(*(ui.DeviceSelector));
+#else
   res |= WebcamFtPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   res |= WebcamPrefs::AddAvailableDevices(*(ui.DeviceSelector));
+#endif
   if(!res){
     initialized = true;
   }

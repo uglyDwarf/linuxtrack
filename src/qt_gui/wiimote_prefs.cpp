@@ -10,6 +10,7 @@ typedef enum{
 
 WiimotePrefs::WiimotePrefs(const QString &dev_id, QWidget *parent) : QWidget(parent), id(dev_id), initializing(false)
 {
+  std::cout<<"Wii constructor: this = "<<(void*)this<<std::endl;
   ui.setupUi(this);
   Connect();
   Activate(id, true);
@@ -27,10 +28,6 @@ static void setCheckBox(QCheckBox *box, bool val)
     box->setCheckState(Qt::Unchecked);
   }
 }
-
-
-
-
 
 bool WiimotePrefs::Activate(const QString &ID, bool init)
 {
@@ -106,6 +103,7 @@ static bool getState(QCheckBox *b)
 
 void WiimotePrefs::runIndicationChanged(int state)
 {
+  std::cout<<"Wii runIndicationChanged: this = "<<(void*)this<<std::endl;
   (void) state;
   if(!initializing)
     ltr_int_set_run_indication(getState(ui.Wii_r1), getState(ui.Wii_r2), getState(ui.Wii_r3), getState(ui.Wii_r4));
@@ -113,6 +111,7 @@ void WiimotePrefs::runIndicationChanged(int state)
 
 void WiimotePrefs::pauseIndicationChanged(int state)
 {
+  std::cout<<"Wii pauseIndicationChanged: this = "<<(void*)this<<std::endl;
   (void) state;
   if(!initializing)
     ltr_int_set_pause_indication(getState(ui.Wii_p1), getState(ui.Wii_p2), getState(ui.Wii_p3), getState(ui.Wii_p4));

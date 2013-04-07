@@ -50,14 +50,12 @@ static QMessageBox::StandardButton infoMessage(const QString &message)
 
 
 
-LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
+LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), ds(NULL),
   xpInstall(NULL), initialized(false), news_serial(-1), guiInit(true)
 {
   ui.setupUi(this);
   PREF;
   grd = new Guardian(this);
-  ds = new DeviceSetup(grd, ui.DeviceSetupSite, this);
-  ui.DeviceSetupSite->insertWidget(0, ds);  
   me = new ModelEdit(grd, this);
   lv = new LogView();
   pi = new PluginInstall(ui);
@@ -100,6 +98,8 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent),
 
 void LinuxtrackGui::show()
 {
+  ds = new DeviceSetup(grd, ui.DeviceSetupSite, this);
+  ui.DeviceSetupSite->insertWidget(0, ds);
   showWindow->show();
   QString dbg = QProcessEnvironment::systemEnvironment().value("LINUXTRACK_DBG");
   if(dbg.contains('d')){

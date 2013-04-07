@@ -21,13 +21,12 @@ HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h help_view.h \
            log_view.h ltr_state.h scp_form.h buffering.h \
            scurve.h scview.h wiimote_prefs.h tracker.h plugin_install.h \
            profile_setup.h profile_selector.h guardian.h \
-           webcam_prefs.h webcam_info.h webcam_ft_prefs.h ../pref.hpp \
-           macwebcam_prefs.h macwebcamft_prefs.h macwebcam_info.h xplugin.h \
+           ../pref.hpp xplugin.h \
            extractor.h game_data.h hashing.h downloading.h wine_launcher.h
 
 FORMS += ltr_gui.ui dev_help.ui ltr.ui model_creation.ui scurve.ui scp_form.ui \
-           logview.ui l_wc_setup.ui wii_setup.ui tir_setup.ui l_wcft_setup.ui \
-           m_wc_setup.ui m_wcft_setup.ui cap_edit.ui clip_edit.ui single_edit.ui model_edit.ui \
+           logview.ui wii_setup.ui tir_setup.ui \
+           cap_edit.ui clip_edit.ui single_edit.ui model_edit.ui \
            device_setup.ui profile_setup.ui profile_selector.ui cap_tweaking.ui clip_tweaking.ui \
            extractor.ui progress.ui xplugin.ui
            
@@ -38,8 +37,7 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            scurve.cpp scview.cpp wiimote_prefs.cpp ../pref.cpp ../pref_bison.cpp \
            tracker.cpp ../ltr_srv_master.cpp  device_setup.cpp ../pref_flex.cpp \
            ../ltr_srv_slave.c ../ltr_srv_comm.c plugin_install.cpp profile_setup.cpp \
-           profile_selector.cpp webcam_info.cpp webcam_prefs.cpp webcam_ft_prefs.cpp \
-           macwebcam_info.cpp macwebcamft_prefs.cpp macwebcam_prefs.cpp xplugin.cpp \
+           profile_selector.cpp xplugin.cpp \
            extractor.cpp game_data.c hashing.cpp downloading.cpp wine_launcher.cpp
 
 
@@ -47,6 +45,9 @@ QMAKE_CXXFLAGS += -DHAVE_CONFIG_H -DHELP_BASE="'\""ltr_gui/"\"'" -I @prefix@/inc
 QMAKE_CFLAGS += -DLTR_GUI  -I @prefix@/include
 
 unix:!macx {
+  HEADERS += webcam_prefs.h webcam_info.h webcam_ft_prefs.h
+  FORMS += l_wc_setup.ui l_wcft_setup.ui
+  SOURCES += webcam_info.cpp webcam_prefs.cpp webcam_ft_prefs.cpp
   LIBS += "-L../.libs" "-L$${LIBDIR}" -lm -lltr -lGLU -lmxml \
            "-Wl,-rpath,$${LIBDIR}"
   
@@ -59,6 +60,9 @@ unix:!macx {
 }
 
 macx {
+  HEADERS += macwebcam_prefs.h macwebcamft_prefs.h macwebcam_info.h
+  FORMS += m_wc_setup.ui m_wcft_setup.ui
+  SOURCES += macwebcam_info.cpp macwebcamft_prefs.cpp macwebcam_prefs.cpp
   QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.6
   QMAKE_MAC_SDK=/Developer/SDKs/MacOSX10.6.sdk
   CONFIG+=x86_64
