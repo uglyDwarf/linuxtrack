@@ -8,6 +8,7 @@
 #include "ltr_gui_prefs.h"
 #include "utils.h"
 #include "tracker.h"
+#include <iostream>
 
 ProfileSelector::ProfileSelector(QWidget *parent) : QWidget(parent), ps(NULL), initializing(true)
 {

@@ -23,7 +23,15 @@ bool ltr_int_save_prefs(const char *fname);
 bool ltr_int_need_saving(void);
 
 char *ltr_int_find_section(const char *key_name, const char *value);
+//Stupid trick - result is pointer to std::vector<std::string>
+bool ltr_int_find_sections(const char *key_name, void *result);
 char *ltr_int_add_unique_section(const char *name_template);
+
+bool ltr_int_read_prefs(const char *file, bool force_read);
+void ltr_int_prefs_changed(void);
+//Stupid trick - sections is pointer to std::vector<std::string>
+void ltr_int_get_section_list(void *sections_ptr);
+
 
 #ifdef __cplusplus
 }
