@@ -115,6 +115,7 @@
     void setValue(const std::string &sec, const std::string &key, const float &value);
     void setValue(const std::string &sec, const std::string &key, const int &value);
     bool findSection(const std::string &key, const std::string &value, std::string &name);
+    bool findSections(const std::string &key, std::vector<std::string> &name);
     bool changed()const;
     void resetChangeFlag();
     void setChangeFlag();

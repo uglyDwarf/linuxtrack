@@ -20,8 +20,7 @@ HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h help_view.h \
            ltr_model.h window.h glwidget.h objreader.h ltr_profiles.h\
            log_view.h ltr_state.h scp_form.h buffering.h \
            scurve.h scview.h wiimote_prefs.h tracker.h plugin_install.h \
-           profile_setup.h profile_selector.h guardian.h \
-           ../pref.hpp xplugin.h \
+           profile_setup.h profile_selector.h guardian.h xplugin.h \
            extractor.h game_data.h hashing.h downloading.h wine_launcher.h
 
 FORMS += ltr_gui.ui dev_help.ui ltr.ui model_creation.ui scurve.ui scp_form.ui \
@@ -34,8 +33,8 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            ltr_gui_prefs.cpp tir_prefs.cpp help_view.cpp buffering.cpp \
            ltr_model.cpp window.cpp glwidget.cpp objreader.cpp ltr_profiles.cpp \
            log_view.cpp ltr_state.cpp scp_form.cpp guardian.cpp \
-           scurve.cpp scview.cpp wiimote_prefs.cpp ../pref.cpp ../pref_bison.cpp \
-           tracker.cpp ../ltr_srv_master.cpp  device_setup.cpp ../pref_flex.cpp \
+           scurve.cpp scview.cpp wiimote_prefs.cpp \
+           tracker.cpp ../ltr_srv_master.cpp  device_setup.cpp \
            ../ltr_srv_slave.c ../ltr_srv_comm.c plugin_install.cpp profile_setup.cpp \
            profile_selector.cpp xplugin.cpp \
            extractor.cpp game_data.c hashing.cpp downloading.cpp wine_launcher.cpp

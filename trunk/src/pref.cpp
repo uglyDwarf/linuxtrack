@@ -255,8 +255,6 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     return res;
   }
   
-  //Not locking here - addItem does all the actual changing...
-  //  avoids deadlock...
   void prefs::addSection(const std::string &name)
   {
     if(sectionExists(name)){
@@ -281,7 +279,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
         addSection(name);
         return true;
       }
-      if(cntr > 9999){
+      if(cntr == 0){
         break;
       }
     }
@@ -376,6 +374,20 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     return false;
   }
   
+  bool prefs::findSections(const std::string &key, std::vector<std::string> &nameList)
+  {
+    read_lock();
+    std::map<std::string, section*>::const_iterator i;
+    std::string val;
+    for(i = index.begin(); i != index.end(); ++i){
+      if((i->second)->getValue(key, val)){
+        nameList.push_back((i->second)->getName());
+      }
+    }
+    unlock();
+    return (nameList.size() > 0);
+  }
+  
   void prefs::clear()
   {
     write_lock();
@@ -468,6 +480,11 @@ bool ltr_int_need_saving(void)
   return prefs::getPrefs().changed();
 }
 
+void ltr_int_prefs_changed(void)
+{
+  prefs::getPrefs().setChangeFlag();
+}
+
 bool ltr_int_save_prefs(const char *fname)
 {
   std::string pfile;
@@ -511,10 +528,11 @@ bool ltr_int_save_prefs(const char *fname)
   return true;
 }
 
-
-void ltr_int_get_section_list(std::vector<std::string> &sections)
+//Stupid trick - sections if pointer to std::vector<std::string>
+void ltr_int_get_section_list(void *sections_ptr)
 {
-  prefs::getPrefs().getSectionList(sections);
+  std::vector<std::string> *sections = (std::vector<std::string> *)sections_ptr;
+  prefs::getPrefs().getSectionList(*sections);
 }
 
 char *ltr_int_get_key(const char *section_name, const char *key_name)
@@ -563,6 +581,13 @@ char *ltr_int_find_section(const char *key_name, const char *value)
   }
   return NULL;
 }
+
+bool ltr_int_find_sections(const char *key_name, void *result)
+{
+  std::vector<std::string> *resultList = (std::vector<std::string> *)result;
+  return prefs::getPrefs().findSections(key_name, *resultList);
+}
+
 
 char *ltr_int_add_unique_section(const char *name_template)
 {

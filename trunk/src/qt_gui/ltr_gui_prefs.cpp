@@ -2,7 +2,7 @@
   #include "../../config.h"
 #endif
 
-#include "pref.hpp"
+#include "pref.h"
 #include "pref_global.h"
 #include "ltr_gui_prefs.h"
 #include "map"
@@ -29,7 +29,7 @@ PrefProxy::PrefProxy()
   }
   ltr_int_log_message("Pref file not found, trying linuxtrack.conf\n");
   if(ltr_int_read_prefs("linuxtrack.conf", false)){
-    prefs::getPrefs().setChangeFlag();
+    ltr_int_prefs_changed();
     checkPrefix(true);
     return;
   }
@@ -51,15 +51,20 @@ bool PrefProxy::checkPrefix(bool save)
   QString appPath = QApplication::applicationDirPath();
   appPath.prepend("\"");
   appPath += "\"";
-  std::string tmp_prefix("");
-  bool res = prefs::getPrefs().getValue("Global", "Prefix", tmp_prefix);
-  prefix = QString::fromStdString(tmp_prefix);
+  bool res;
+  char *tmp_prefix = ltr_int_get_key("Global", "Prefix");
+  if(tmp_prefix != NULL){
+    res = true;
+    prefix = QString::fromStdString(tmp_prefix);
+  }else{
+    res = false;
+    prefix = QString("");
+  }
   if(res && (prefix == appPath)){
     //Intentionaly left empty
   }else{
     prefix = appPath;
-    bool res = true;
-    prefs::getPrefs().setValue("Global", "Prefix", appPath.toStdString());
+    bool res = ltr_int_change_key("Global", "Prefix",qPrintable(appPath));
     if(save){
       res &= savePrefs();
     }
@@ -166,7 +171,7 @@ void PrefProxy::ClosePrefs()
 
 void PrefProxy::SavePrefsOnExit()
 {
-  if(prefs::getPrefs().changed()){
+  if(ltr_int_need_saving()){
     QMessageBox::StandardButton res;
     res = QMessageBox::warning(NULL, "Linuxtrack",
        QString("Preferences were modified,") +
@@ -180,39 +185,35 @@ void PrefProxy::SavePrefsOnExit()
 
 bool PrefProxy::activateDevice(const QString &sectionName)
 {
-  prefs::getPrefs().setValue("Global", "Input", sectionName.toStdString());
+  ltr_int_change_key("Global", "Input", qPrintable(sectionName));
   return true;
 }
 
 bool PrefProxy::activateModel(const QString &sectionName)
 {
-  prefs::getPrefs().setValue("Global", "Model", sectionName.toStdString());
+  ltr_int_change_key("Global", "Model", qPrintable(sectionName));
   return true;
 }
 
 bool PrefProxy::createSection(QString 
 &sectionName)
 {
-  int i = 0;
-  QString newSecName = sectionName;
-  while(1){
-    if(!prefs::getPrefs().sectionExists(newSecName.toStdString())){
-      break;
-    }
-    newSecName = QString("%1_%2").arg(sectionName).
-                                           arg(QString::number(++i));
+  char *tmp = ltr_int_add_unique_section(qPrintable(sectionName));
+  if(tmp != NULL){
+    sectionName = tmp;
+    return true;
+  }else{
+    sectionName = "";
+    return false;
   }
-  prefs::getPrefs().addSection(newSecName.toStdString());
-  sectionName = newSecName;
-  return true;
 }
 
 bool PrefProxy::getKeyVal(const QString &sectionName, const QString &keyName, 
 			  QString &result)
 {
-  std::string val;
-  if(prefs::getPrefs().getValue(sectionName.toStdString(), keyName.toStdString(), val)){
-    result = QString::fromStdString(val);
+  char *val = ltr_int_get_key(qPrintable(sectionName), qPrintable(keyName));
+  if(val != NULL){
+    result = val;
     return true;
   }else{
     return false;
@@ -235,68 +236,59 @@ bool PrefProxy::getKeyVal(const QString &keyName, QString &result)
 bool PrefProxy::addKeyVal(const QString &sectionName, const QString &keyName, 
 			  const QString &value)
 {
-  prefs::getPrefs().addKey(sectionName.toStdString(), keyName.toStdString(), 
-		 value.toStdString());
-  return true;
+  return ltr_int_change_key(qPrintable(sectionName), qPrintable(keyName), 
+		 qPrintable(value));
 }
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
 			  const QString &value)
 {
-  prefs::getPrefs().setValue(sectionName.toStdString(), keyName.toStdString(),
-			    value.toStdString());
-  return true;
+  return ltr_int_change_key(qPrintable(sectionName), qPrintable(keyName), 
+		 qPrintable(value));
 }
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
                           const int &value)
 {
-  prefs::getPrefs().setValue(sectionName.toStdString(), keyName.toStdString(), value);
-  return true;
+  return ltr_int_change_key_int(qPrintable(sectionName), qPrintable(keyName), value);
 }
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
                           const float &value)
 {
-  prefs::getPrefs().setValue(sectionName.toStdString(), keyName.toStdString(), value);
-  return true;
+  return ltr_int_change_key_flt(qPrintable(sectionName), qPrintable(keyName), value);
 }
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
                           const double &value)
 {
-  prefs::getPrefs().setValue(sectionName.toStdString(), keyName.toStdString(), (float)value);
-  return true;
+  return ltr_int_change_key_flt(qPrintable(sectionName), qPrintable(keyName), value);
 }
 
 bool PrefProxy::getFirstDeviceSection(const QString &devType, QString &result)
 {
-  std::vector<std::string> sections;
-  prefs::getPrefs().getSectionList(sections);
-  std::string devName;
-  for(size_t i = 0; i < sections.size(); ++i){
-    if(prefs::getPrefs().getValue(sections[i], "Capture-device", devName)){
-      if(QString::fromStdString(devName) == devType){
-	result = QString::fromStdString(sections[i]);
-	return true;
-      }
-    }
+  char *devName = ltr_int_find_section("Capture-device", qPrintable(devType));
+  if(devName != NULL){
+    result = QString(devName);
+    return true;
+  }else{
+    return false;
   }
-  return false;
 }
 
 bool PrefProxy::getFirstDeviceSection(const QString &devType, 
 				      const QString &devId, QString &result)
 {
-  std::vector<std::string> sections;
-  prefs::getPrefs().getSectionList(sections);
-  std::string devName, devIdStr;
-  for(size_t i = 0; i < sections.size(); ++i){
-    if(prefs::getPrefs().getValue(sections[i], "Capture-device", devName) &&
-       prefs::getPrefs().getValue(sections[i], "Capture-device-id", devIdStr)){
-      if((QString::fromStdString(devName) == devType) && 
-         (QString::fromStdString(devIdStr) == devId)){
-	result = QString::fromStdString(sections[i]);
+  QStringList sections;
+  getSectionList(sections);
+  char *devName, *devIdStr;
+  for(ssize_t i = 0; i < sections.size(); ++i){
+    devName = ltr_int_get_key(qPrintable(sections[i]), "Capture-device");
+    devIdStr = ltr_int_get_key(qPrintable(sections[i]), "Capture-device-id");
+    if((devName != NULL) && (devIdStr != NULL)){
+      if((devType.compare(devName, Qt::CaseInsensitive) == 0) 
+         && (devId.compare(devIdStr, Qt::CaseInsensitive) == 0)){
+	result = QString(sections[i]);
 	return true;
       }
     }
@@ -306,15 +298,16 @@ bool PrefProxy::getFirstDeviceSection(const QString &devType,
 
 bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id, QString &secName)
 {
-  std::string devSection, devName, devId;
-  if(!prefs::getPrefs().getValue("Global", "Input", devSection)){
+  char *devSection = ltr_int_get_key("Global", "Input");
+  if(devSection == NULL){
     return false;
   }
-  if(!prefs::getPrefs().getValue(devSection, "Capture-device", devName) ||
-     !prefs::getPrefs().getValue(devSection, "Capture-device-id", devId)){
+  char *devName = ltr_int_get_key(devSection, "Capture-device");
+  char *devId = ltr_int_get_key(devSection, "Capture-device-id");
+  if((devName == NULL) || (devId = NULL)){
     return false;
   }
-  QString dn = QString::fromStdString(devName);
+  QString dn = devName;
   if(dn.compare((char *)"Webcam", Qt::CaseInsensitive) == 0){
     devType = WEBCAM;
   }else if(dn.compare((char *)"Webcam-face", Qt::CaseInsensitive) == 0){
@@ -328,8 +321,8 @@ bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id, QString &sec
   }else{
     devType = NONE;
   }
-  id = QString::fromStdString(devId);
-  secName = QString::fromStdString(devSection);
+  id = QString(devId);
+  secName = QString(devSection);
   return true;
 }
 
@@ -341,37 +334,35 @@ bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id)
 
 bool PrefProxy::getActiveModel(QString &model)
 {
-  std::string modelSection;
-  if(!prefs::getPrefs().getValue("Global", "Model", modelSection)){
+  char *modelSection = ltr_int_get_key("Global", "Model");
+  if(modelSection == NULL){
     return false;
   }
-  model = QString::fromStdString(modelSection);
+  model = modelSection;
   return true;
 }
 
 bool PrefProxy::getModelList(QStringList &list)
 {
   std::vector<std::string> sections;
-  std::string modelType;
-  prefs::getPrefs().getSectionList(sections);
+  ltr_int_find_sections("Model-type", (void*)&sections);
   list.clear();
   for(size_t i = 0; i < sections.size(); ++i){
-    if(prefs::getPrefs().getValue(sections[i], "Model-type", modelType)){
-      list.append(QString::fromStdString(sections[i]));
-    }
+    list.append(QString::fromStdString(sections[i]));
   }
   return (list.size() != 0);
 }
 
 bool PrefProxy::getProfiles(QStringList &list)
 {
-  std::vector<std::string> sections;
-  std::string profileName;
-  prefs::getPrefs().getSectionList(sections);
+  std::vector<std::string> profiles;
+  char *title;
+  ltr_int_find_sections("Title", (void*)&profiles);
   list.clear();
-  for(size_t i = 0; i < sections.size(); ++i){
-    if(prefs::getPrefs().getValue(sections[i], "Title", profileName)){
-      list.append(QString::fromStdString(profileName));
+  for(size_t i = 0; i < profiles.size(); ++i){
+    title = ltr_int_get_key(profiles[i].c_str(), "Title");
+    if(title != NULL){
+      list.append(title);
     }
   }
   return (list.size() != 0);
@@ -379,9 +370,9 @@ bool PrefProxy::getProfiles(QStringList &list)
 
 bool PrefProxy::getProfileSection(const QString &name, QString &section)
 {
-  std::string secName;
-  if(prefs::getPrefs().findSection("Title", name.toStdString(), secName)){
-    section = QString::fromStdString(secName);
+  char *secName = ltr_int_find_section("Title", qPrintable(name));
+  if(secName != NULL){
+    section = secName;
     return true;
   }
   return false;
@@ -447,7 +438,7 @@ void PrefProxy::announceModelChange()
 void PrefProxy::getSectionList(QStringList &list)
 {
   std::vector<std::string> tmpList;
-  prefs::getPrefs().getSectionList(tmpList);
+  ltr_int_get_section_list((void*)&tmpList);
   list.clear();
   for(size_t i = 0; i < tmpList.size(); ++i){
     list.append(QString::fromStdString(tmpList[i]));

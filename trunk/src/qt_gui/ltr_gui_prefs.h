@@ -1,7 +1,7 @@
 #ifndef LTR_GUI_PREFS__H
 #define LTR_GUI_PREFS__H
 
-#include "pref.hpp"
+//#include "pref.hpp"
 #include "prefs_link.h"
 #include "pref_global.h"
 #include <QString>
