@@ -131,6 +131,7 @@ void Tracker::signalNewSlave(const char *name)
   ltr_int_init_axes(&tmp_axes, name);
   for(int i = PITCH; i <= TZ; ++i){
     ltr_int_change(name, i, AXIS_ENABLED, ltr_int_get_axis_bool_param(tmp_axes, (axis_t)i, AXIS_ENABLED)?1.0:0.0);
+    ltr_int_change(name, i, AXIS_INVERTED, ltr_int_get_axis_bool_param(tmp_axes, (axis_t)i, AXIS_INVERTED)?1.0:0.0);
     for(int j = AXIS_DEADZONE; j <= AXIS_FILTER; ++j){
       ltr_int_change(name, i, j, ltr_int_get_axis_param(tmp_axes, (axis_t)i, (axis_param_t)j));
     }

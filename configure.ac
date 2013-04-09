@@ -223,30 +223,30 @@ AC_CONFIG_FILES([
 ])
 AC_OUTPUT
 
-echo "=============================================================="
-echo -n "Building Webcam support       "
-AS_IF([test  "x$with_libv4l2" = xyes], [echo "yes"], [echo "no"])
+AC_MSG_NOTICE([==============================================================]);
+AC_MSG_CHECKING([Webcam support])
+AS_IF([test  "x$with_libv4l2" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
-echo -n "Building Wiimote support      "
+AC_MSG_CHECKING([Wiimote support])
 AS_IF([test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes], [echo "yes"], [echo "no"])
 
-echo -n "Building TrackIR support      "
+AC_MSG_CHECKING([TrackIR support])
 AS_IF([(test  "x$ac_cv_lib_usb_1_0_libusb_init" = xyes) \
              && (test "x$ac_cv_lib_z_gzopen" = xyes)], [echo "yes"], [echo "no"])
 
-echo -n "Building Facetracker support  "
+AC_MSG_CHECKING([Facetracker support])
 AS_IF([test  "x$with_face_tracker" = xyes], [echo "yes"], [echo "no"])
 
-echo -n "Building Virtual Mouse        "
+AC_MSG_CHECKING([Virtual Mouse])
 AS_IF([test  "x$ac_cv_lib_QxtGui__ZN17QxtGlobalShortcutD0Ev" = xyes], [echo "yes"], [echo "no"])
 
-echo -n "Building XPlane plugin        "
+AC_MSG_CHECKING([XPlane plugin])
 AS_IF([test  "x$with_xplane_plugin" = xyes], [echo "yes"], [echo "no"])
 
-echo -n "Building Wine plugin          "
+AC_MSG_CHECKING([Wine plugin])
 AS_IF([test  "x$with_wine_plugin" = xyes], [echo "yes"], [echo "no"])
 
-echo -n "Building ltr_pipe             "
+AC_MSG_CHECKING([ltr_pipe])
 AS_IF([test  "x$with_ltr_pipe" = xyes], [echo "yes"], [echo "no"])
 
 

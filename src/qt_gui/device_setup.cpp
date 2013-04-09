@@ -3,10 +3,13 @@
 #endif
 
 #include "device_setup.h"
-#include "webcam_prefs.h"
-#include "webcam_ft_prefs.h"
+#ifdef DARWIN
 #include "macwebcam_prefs.h"
 #include "macwebcamft_prefs.h"
+#else
+#include "webcam_prefs.h"
+#include "webcam_ft_prefs.h"
+#endif
 #include "tir_prefs.h"
 #include "wiimote_prefs.h"
 #include "help_view.h"

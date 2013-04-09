@@ -30,6 +30,7 @@ class SCView : public QWidget
   float upx; //unfiltered value
   axis_t axis;
   QTimer *timer;
+  bool invert;
 };
 
 

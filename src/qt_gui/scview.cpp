@@ -6,7 +6,7 @@
 #include "tracker.h"
 
 SCView::SCView(axis_t a, QWidget *parent)
-  : QWidget(parent), parentWidget(parent), px(0.0), axis(a), timer(NULL)
+  : QWidget(parent), parentWidget(parent), px(0.0), axis(a), timer(NULL), invert(false)
 {
   setBackgroundRole(QPalette::Base);
   setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -17,6 +17,15 @@ SCView::SCView(axis_t a, QWidget *parent)
           this, SLOT(newPose(pose_t *, pose_t *, pose_t *)));
   timer->start(50);
   setMinimumSize(400, 100);
+  switch(a){
+    case YAW:
+    case ROLL:
+    case TZ:
+      invert = true;
+      break;
+    default:
+      break;
+  }
 }
 
 SCView::~SCView()
@@ -57,8 +66,11 @@ int SCView::spline(QPointF points[], int num_points)
   max_k = kl > kr ? kl : kr;
   for(int i = 0; i < num_points; ++i){
     x = -1.0f + k * i;
-    points[i].rx() = x;
     points[i].ry() = fabs(TRACKER.axisGetValue(axis, x * max_k));
+    if(invert){
+      x *= -1;
+    }
+    points[i].rx() = x;
   }
   return 0;
 }
@@ -102,10 +114,16 @@ void SCView::paintEvent(QPaintEvent * /* event */)
         TRACKER.axisGet(axis, AXIS_RLIMIT) / TRACKER.axisGet(axis, AXIS_MULT) : 0.0;
   float max_k = kl > kr ? kl : kr;
   
+  float trx = rx, tpx = px, tupx = upx;
+  if(invert){
+    trx *= -1;
+    tpx *= -1;
+    tupx *= -1;
+  }  
   //Draw cross with current position
-  float nx = w + w * rx/max_k;
+  float nx = w + w * trx/max_k;
   float ny = (max_f != 0.0) ? h - fabs(px * (h / max_f)) : h;
-  float unx = w + w * rx/max_k;
+  float unx = w + w * trx/max_k;
   float uny = (max_f != 0.0) ? h - fabs(upx * (h / max_f)) : h;
   painter.drawLine(QLineF(nx, ny - 5, nx, ny + 5));
   painter.drawLine(QLineF(nx - 5, ny, nx + 5, ny));

@@ -14,6 +14,7 @@ static pthread_mutex_t axes_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 struct axis_def{
   bool enabled;
+  bool inverted;
   splines_def curve_defs;
   splines curves;
   bool valid;
@@ -38,6 +39,7 @@ struct ltr_axes {
 char *def_section[][2] = {
   {"Title", "Default"},
   {"Pitch-enabled", "Yes"},
+  {"Pitch-inverted", "No"},
   {"Pitch-deadzone", "0.0"},
   {"Pitch-left-curvature", "0.5"},
   {"Pitch-right-curvature", "0.5"},
@@ -46,6 +48,7 @@ char *def_section[][2] = {
   {"Pitch-right-limit", "80.000000"},
   {"Pitch-filter", "0.3"},
   {"Yaw-enabled", "Yes"},
+  {"Yaw-inverted", "No"},
   {"Yaw-deadzone", "0.0"},
   {"Yaw-left-curvature", "0.5"},
   {"Yaw-right-curvature", "0.5"},
@@ -54,6 +57,7 @@ char *def_section[][2] = {
   {"Yaw-right-limit", "130.000000"},
   {"Yaw-filter", "0.3"},
   {"Roll-enabled", "Yes"},
+  {"Roll-inverted", "No"},
   {"Roll-deadzone", "0.0"},
   {"Roll-left-curvature", "0.5"},
   {"Roll-right-curvature", "0.5"},
@@ -62,6 +66,7 @@ char *def_section[][2] = {
   {"Roll-right-limit", "45.000000"},
   {"Roll-filter", "0.3"},
   {"Xtranslation-enabled", "Yes"},
+  {"Xtranslation-inverted", "No"},
   {"Xtranslation-deadzone", "0.0"},
   {"Xtranslation-left-curvature", "0.5"},
   {"Xtranslation-right-curvature", "0.5"},
@@ -70,6 +75,7 @@ char *def_section[][2] = {
   {"Xtranslation-right-limit", "300.000000"},
   {"Xtranslation-filter", "0.3"},
   {"Ytranslation-enabled", "Yes"},
+  {"Ytranslation-inverted", "No"},
   {"Ytranslation-deadzone", "0.0"},
   {"Ytranslation-left-curvature", "0.5"},
   {"Ytranslation-right-curvature", "0.5"},
@@ -78,6 +84,7 @@ char *def_section[][2] = {
   {"Ytranslation-right-limit", "300.000000"},
   {"Ytranslation-filter", "0.3"},
   {"Ztranslation-enabled", "Yes"},
+  {"Ztranslation-inverted", "No"},
   {"Ztranslation-deadzone", "0.0"},
   {"Ztranslation-left-curvature", "0.5"},
   {"Ztranslation-right-curvature", "0.5"},
@@ -90,14 +97,15 @@ char *def_section[][2] = {
 
 
 typedef enum{
-  SENTRY1, DEADZONE, LCURV, RCURV, MULT, LMULT, RMULT, LIMITS, LLIMIT, RLIMIT, FILTER, ENABLED, SENTRY_2
+  SENTRY1, DEADZONE, INVERTED, LCURV, RCURV, MULT, LMULT, RMULT, LIMITS, LLIMIT, RLIMIT, FILTER, 
+  ENABLED, SENTRY_2
 }axis_fields;
-static const char *fields[] = {NULL, "-deadzone",
+static const char *fields[] = {NULL, "-deadzone", "-inverted",
 				"-left-curvature", "-right-curvature", 
 				"-sensitivity", "-left-multiplier", "-right-multiplier",
 				"-limits", "-left-limit", "-right-limit", "-filter", "-enabled", NULL};
 static const char *axes_desc[] = {"PITCH", "ROLL", "YAW", "TX", "TY", "TZ"};
-static const char *axis_param_desc[] = {"Deadzone", "Left Curvature", "Right Curvature",
+static const char *axis_param_desc[] = {"Deadzone", "Inverted", "Left Curvature", "Right Curvature",
                    "Sensitivity", "Left Sensitivity", "Right Sensitivity", "Limit", "Left Limit", "Right Limit", 
                    "Filter Factor", "Enabled", "FULL"};
 
@@ -226,6 +234,9 @@ float ltr_int_val_on_axis(ltr_axes_t axes, enum axis_t id, float x)
   if(!axis->enabled){
     pthread_mutex_unlock(&axes_mutex);
     return 0.0f;
+  }
+  if(axis->inverted){
+    x = -x;
   }
   if(!(axis->valid)){
     ltr_int_curve2pts(&(axis->curve_defs), &(axis->curves));
@@ -387,6 +398,15 @@ bool ltr_int_set_axis_bool_param(ltr_axes_t axes, enum axis_t id, enum axis_para
       }
       signal_change(axes);
       break;
+    case AXIS_INVERTED:
+      axis->inverted = val;
+      if(val){
+        save_val_str(axes, id, INVERTED, "Yes");
+      }else{
+        save_val_str(axes, id, INVERTED, "No");
+      }
+      signal_change(axes);
+      break;
     default:
       pthread_mutex_unlock(&axes_mutex);
       return false;
@@ -404,6 +424,9 @@ bool ltr_int_get_axis_bool_param(ltr_axes_t axes, enum axis_t id, enum axis_para
   switch(param){
     case AXIS_ENABLED:
       res = axis->enabled;
+      break;
+    case AXIS_INVERTED:
+      res = axis->inverted;
       break;
     default:
       res = false;
@@ -448,6 +471,7 @@ static void ltr_int_init_axis(const char *sec_name, struct axis_def *axis, const
   assert(axis != NULL);
   axis->valid = false;
   axis->enabled = true;
+  axis->inverted = false;
   axis->prefix = ltr_int_my_strdup(prefix);
   axis->factor = 1.0f;
   axis->r_limit = 50.0f;
@@ -536,16 +560,25 @@ static bool ltr_int_get_axis(const char *sec_name, enum axis_t id, struct axis_d
 //  axis->prefix = ltr_int_my_strdup(prefix);
   for(i = DEADZONE; i <= ENABLED; ++i){
     field_name = ltr_int_my_strcat(prefix, fields[i]);
-    if(i != ENABLED){
+    if((i != ENABLED) && (i != INVERTED)){
       if(ltr_int_axis_get_key_flt(sec_name, field_name, &val)){
         set_axis_field(axis, i, val, id);
       }
     }else{
       string = ltr_int_axis_get_key(sec_name, field_name);
-      if((string == NULL) || (strcasecmp(string, "No") != 0)){
-        axis->enabled = true;
-      }else{
-        axis->enabled = false;
+      switch(i){
+        case ENABLED:
+          if((string != NULL) && (strcasecmp(string, "No") == 0)){
+            axis->enabled = false;
+          }
+          break;
+        case INVERTED:
+          if((string != NULL) && (strcasecmp(string, "Yes") == 0)){
+            axis->inverted = true;
+          }
+          break;
+        default:
+          break;
       }
       if(string != NULL){
         free(string);

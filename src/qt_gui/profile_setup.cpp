@@ -53,6 +53,12 @@ void ProfileSetup::initAxes()
   ui.TxEnable->setCheckState(TRACKER.axisGetBool(TX, AXIS_ENABLED)?Qt::Checked:Qt::Unchecked);
   ui.TyEnable->setCheckState(TRACKER.axisGetBool(TY, AXIS_ENABLED)?Qt::Checked:Qt::Unchecked);
   ui.TzEnable->setCheckState(TRACKER.axisGetBool(TZ, AXIS_ENABLED)?Qt::Checked:Qt::Unchecked);
+  ui.PitchInvert->setCheckState(TRACKER.axisGetBool(PITCH, AXIS_INVERTED)?Qt::Checked:Qt::Unchecked);
+  ui.YawInvert->setCheckState(TRACKER.axisGetBool(YAW, AXIS_INVERTED)?Qt::Checked:Qt::Unchecked);
+  ui.RollInvert->setCheckState(TRACKER.axisGetBool(ROLL, AXIS_INVERTED)?Qt::Checked:Qt::Unchecked);
+  ui.TxInvert->setCheckState(TRACKER.axisGetBool(TX, AXIS_INVERTED)?Qt::Checked:Qt::Unchecked);
+  ui.TyInvert->setCheckState(TRACKER.axisGetBool(TY, AXIS_INVERTED)?Qt::Checked:Qt::Unchecked);
+  ui.TzInvert->setCheckState(TRACKER.axisGetBool(TZ, AXIS_INVERTED)?Qt::Checked:Qt::Unchecked);
   ui.PitchSens->setValue(TRACKER.axisGet(PITCH, AXIS_MULT) * 12.0);
   ui.RollSens->setValue(TRACKER.axisGet(ROLL, AXIS_MULT) * 12.0);
   ui.YawSens->setValue(TRACKER.axisGet(YAW, AXIS_MULT) * 12.0);
@@ -126,6 +132,36 @@ void ProfileSetup::on_TzEnable_stateChanged(int state)
   if(!initializing) TRACKER.axisChange(TZ, AXIS_ENABLED, (state == Qt::Checked));
 }
 
+void ProfileSetup::on_PitchInvert_stateChanged(int state)
+{
+  if(!initializing) TRACKER.axisChange(PITCH, AXIS_INVERTED, (state == Qt::Checked));
+}
+
+void ProfileSetup::on_YawInvert_stateChanged(int state)
+{
+  if(!initializing) TRACKER.axisChange(YAW, AXIS_INVERTED, (state == Qt::Checked));
+}
+
+void ProfileSetup::on_RollInvert_stateChanged(int state)
+{
+  if(!initializing) TRACKER.axisChange(ROLL, AXIS_INVERTED, (state == Qt::Checked));
+}
+
+void ProfileSetup::on_TxInvert_stateChanged(int state)
+{
+  if(!initializing) TRACKER.axisChange(TX, AXIS_INVERTED, (state == Qt::Checked));
+}
+
+void ProfileSetup::on_TyInvert_stateChanged(int state)
+{
+  if(!initializing) TRACKER.axisChange(TY, AXIS_INVERTED, (state == Qt::Checked));
+}
+
+void ProfileSetup::on_TzInvert_stateChanged(int state)
+{
+  if(!initializing) TRACKER.axisChange(TZ, AXIS_INVERTED, (state == Qt::Checked));
+}
+
 void ProfileSetup::on_PitchSens_valueChanged(int val)
 {
   if(!initializing) TRACKER.axisChange(PITCH, AXIS_MULT, val / 12.0f);
@@ -172,6 +208,8 @@ void ProfileSetup::importProfile(QTextStream &tf)
   for(int i = PITCH; i <= TZ; ++i){
     tf>>ival;
     TRACKER.axisChange((axis_t)i, AXIS_ENABLED, ival != 0);
+    tf>>ival;
+    TRACKER.axisChange((axis_t)i, AXIS_INVERTED, ival != 0);
     for(int j = AXIS_DEADZONE; j <= AXIS_FILTER; ++j){
       tf>>fval;
       TRACKER.axisChange((axis_t)i, (axis_param_t)j, fval);
@@ -187,6 +225,7 @@ void ProfileSetup::exportProfile(QTextStream &tf)
   tf<<TRACKER.getCommonFilterFactor()<<endl;
   for(int i = PITCH; i <= TZ; ++i){
     tf<<(TRACKER.axisGetBool((axis_t)i, AXIS_ENABLED) ? "1" : "0")<<" ";
+    tf<<(TRACKER.axisGetBool((axis_t)i, AXIS_INVERTED) ? "1" : "0")<<" ";
     for(int j = AXIS_DEADZONE; j < AXIS_FILTER; ++j){
       tf<<TRACKER.axisGet((axis_t)i, (axis_param_t)j)<<" ";
     }
