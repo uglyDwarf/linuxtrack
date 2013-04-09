@@ -29,6 +29,12 @@ class ProfileSetup : public QWidget
    void on_TxEnable_stateChanged(int state);
    void on_TyEnable_stateChanged(int state);
    void on_TzEnable_stateChanged(int state);
+   void on_PitchInvert_stateChanged(int state);
+   void on_YawInvert_stateChanged(int state);
+   void on_RollInvert_stateChanged(int state);
+   void on_TxInvert_stateChanged(int state);
+   void on_TyInvert_stateChanged(int state);
+   void on_TzInvert_stateChanged(int state);
    void on_PitchSens_valueChanged(int val);
    void on_YawSens_valueChanged(int val);
    void on_RollSens_valueChanged(int val);

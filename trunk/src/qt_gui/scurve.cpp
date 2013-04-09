@@ -214,7 +214,6 @@ void SCurve::axisChanged(int a, int elem)
       }
       break;
     case AXIS_FULL:
-      std::cout << "FULL!"<<std::endl;
       ui.SCFactor->setValue(TRACKER.axisGet(axis, AXIS_MULT) / 12.0);
       //ui.SCCurvL->setText(QString("Curvature: %1").arg(TRACKER.axisGet(axis, AXIS_LCURV), 2, 'f', 2));
       //ui.SCCurvR->setText(QString("Curvature: %1").arg(TRACKER.axisGet(axis, AXIS_RCURV), 2, 'f', 2));

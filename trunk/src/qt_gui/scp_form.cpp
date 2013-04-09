@@ -5,10 +5,10 @@
 ScpForm::ScpForm(QWidget *parent) :QWidget(parent)
 {
   ui.setupUi(this);
-  pitch = new SCurve(PITCH, "Pitch - looking up/down", "Down", "Up", this);
-  yaw = new SCurve(YAW, "Yaw - looking left/right", "Left", "Right", this);
+  pitch = new SCurve(PITCH, "Pitch - looking down/up", "Down", "Up", this);
+  yaw = new SCurve(YAW, "Yaw - looking left/right", "Right", "Left", this);
   roll = new SCurve(ROLL, "Roll - tilting head left/right", 
-		    "Counter-clockwise", "Clockwise", this);
+		    "Clockwise", "Counter-clockwise", this);
   x = new SCurve(TX, "Sideways translation", "Left", "Right", this);
   y = new SCurve(TY, "Up/down translation", "Down", "Up", this);
   z = new SCurve(TZ, "Back/forth translation", "Forth", "Back", this);
