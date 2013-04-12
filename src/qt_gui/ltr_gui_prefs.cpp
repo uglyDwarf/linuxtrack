@@ -304,9 +304,10 @@ bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id, QString &sec
   }
   char *devName = ltr_int_get_key(devSection, "Capture-device");
   char *devId = ltr_int_get_key(devSection, "Capture-device-id");
-  if((devName == NULL) || (devId = NULL)){
+  if((devName == NULL) || (devId == NULL)){
     return false;
   }
+  
   QString dn = devName;
   if(dn.compare((char *)"Webcam", Qt::CaseInsensitive) == 0){
     devType = WEBCAM;

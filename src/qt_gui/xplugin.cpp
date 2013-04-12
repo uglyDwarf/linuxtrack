@@ -1,6 +1,6 @@
 #include "xplugin.h"
 #include "ltr_gui_prefs.h"
-
+#include "utils.h"
 #include <QMessageBox>
 #include <QFile>
 #include <QFileInfo>
@@ -9,12 +9,15 @@
 
 static QMessageBox::StandardButton warningMessage(const QString &message)
 {
- return QMessageBox::warning(NULL, "Linuxtrack",
+  ltr_int_log_message("XPlanr plugin install - %s\n", qPrintable(message));
+  return QMessageBox::warning(NULL, "Linuxtrack",
                                 message, QMessageBox::Ok);
 }
 
 static void warn(const QString baseMsg, const QString explanation)
 {
+  ltr_int_log_message("XPlanr plugin install - %s(%s)\n", qPrintable(baseMsg), 
+                      qPrintable(explanation));
   warningMessage(QString("%1\nSystem says: %2").arg(baseMsg).arg(explanation));
 }
 
@@ -76,7 +79,7 @@ void XPluginInstall::on_BrowseXPlane_pressed()
   QString sourceFile = PrefProxy::getLibPath("xlinuxtrack9");
   QString destPath = pathRexp.cap(1) + "/Resources/plugins";
   if(!QFile::exists(destPath)){
-    warningMessage(QString("This doesn't seem to be the right path... '" + fileName + "'"));
+    warningMessage(QString("Can't install XPlane plugin there:'" + fileName + "'"));
     return;
   }
   

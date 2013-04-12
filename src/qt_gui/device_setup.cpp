@@ -90,7 +90,6 @@ void DeviceSetup::initOrientations()
 
 void DeviceSetup::on_DeviceSelector_activated(int index)
 {
-  std::cout<<"Index:"<<index<<std::endl;
   if(index < 0){
     return;
   }
@@ -129,7 +128,6 @@ void DeviceSetup::on_DeviceSelector_activated(int index)
     emit deviceTypeChanged(pl.deviceType, "TrackIR");
   }
   if(devPrefs != NULL){
-    std::cout<<"Inserted widget "<<devPrefs<<std::endl;
     target->insertWidget(-1, devPrefs);
   }
 }

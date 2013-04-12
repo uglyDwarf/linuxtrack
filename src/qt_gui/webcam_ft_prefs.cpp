@@ -139,7 +139,6 @@ bool WebcamFtPrefs::AddAvailableDevices(QComboBox &combo)
   bool webcam_selected = false;
   if(PREF.getActiveDevice(dt,id) && (dt == WEBCAM_FT)){
     webcam_selected = true;
-    std::cout<<"Facetracker selected!"<<std::endl;
   }
   
   QStringList &webcams = WebcamInfo::EnumerateWebcams();
