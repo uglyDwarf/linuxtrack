@@ -1,5 +1,11 @@
+#ifdef HAVE_CONFIG_H
+  #include "../../config.h"
+#endif
+
 #include "keyb.h"
-#include "keyb_qxt.h"
+#ifndef DARWIN
+  #include "keyb_x11.h"
+#endif
 
 shortcut::shortcut()
 {

@@ -636,8 +636,6 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
-LIBQXT_FALSE
-LIBQXT_TRUE
 WINE64_FALSE
 WINE64_TRUE
 WINE_PLUGIN_FALSE
@@ -15958,46 +15956,6 @@ if test "x$ac_cv_lib_cwiid_cwiid_open" = xyes; then :
   LIBCWIID=true
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for _ZN17QxtGlobalShortcutD0Ev in -lQxtGui" >&5
-$as_echo_n "checking for _ZN17QxtGlobalShortcutD0Ev in -lQxtGui... " >&6; }
-if ${ac_cv_lib_QxtGui__ZN17QxtGlobalShortcutD0Ev+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lQxtGui  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char _ZN17QxtGlobalShortcutD0Ev ();
-int
-main ()
-{
-return _ZN17QxtGlobalShortcutD0Ev ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_QxtGui__ZN17QxtGlobalShortcutD0Ev=yes
-else
-  ac_cv_lib_QxtGui__ZN17QxtGlobalShortcutD0Ev=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_QxtGui__ZN17QxtGlobalShortcutD0Ev" >&5
-$as_echo "$ac_cv_lib_QxtGui__ZN17QxtGlobalShortcutD0Ev" >&6; }
-if test "x$ac_cv_lib_QxtGui__ZN17QxtGlobalShortcutD0Ev" = xyes; then :
-  LIBQXT=true
-fi
-
 
 
 # Checks for header files.
@@ -16722,14 +16680,6 @@ else
   WINE64_FALSE=
 fi
 
- if test  "x$ac_cv_lib_QxtGui__ZN17QxtGlobalShortcutD0Ev" = xyes; then
-  LIBQXT_TRUE=
-  LIBQXT_FALSE='#'
-else
-  LIBQXT_TRUE='#'
-  LIBQXT_FALSE=
-fi
-
 
 # Checks for library functions.
 for ac_func in atexit
@@ -16989,10 +16939,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${WINE64_TRUE}" && test -z "${WINE64_FALSE}"; then
   as_fn_error $? "conditional \"WINE64\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${LIBQXT_TRUE}" && test -z "${LIBQXT_FALSE}"; then
-  as_fn_error $? "conditional \"LIBQXT\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
@@ -19439,14 +19385,6 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking Facetracker support" >&5
 $as_echo_n "checking Facetracker support... " >&6; }
 if test  "x$with_face_tracker" = xyes; then :
-  echo "yes"
-else
-  echo "no"
-fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Virtual Mouse" >&5
-$as_echo_n "checking Virtual Mouse... " >&6; }
-if test  "x$ac_cv_lib_QxtGui__ZN17QxtGlobalShortcutD0Ev" = xyes; then :
   echo "yes"
 else
   echo "no"

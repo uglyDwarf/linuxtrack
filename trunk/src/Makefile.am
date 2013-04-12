@@ -197,11 +197,10 @@ noinst_SCRIPTS = qt_gui/ltr_gui
 hook_inst_targets = LTR_QT_GUI_TARGET_INST
 hook_uninst_targets = LTR_QT_GUI_TARGET_UNINST
 
-if LIBQXT
+#mickey
   noinst_SCRIPTS += mickey/mickey
   hook_inst_targets += LTR_MICKEY_TARGET_INST
   hook_uninst_targets += LTR_MICKEY_TARGET_UNINST
-endif
 
 if CWIID
   noinst_SCRIPTS += wii_server/wii_server

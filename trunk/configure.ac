@@ -30,7 +30,6 @@ AC_CHECK_LIB([usb], [usb_open], [LIBUSB=true])
 #AC_CHECK_LIB([openusb], [openusb_init], [LIBOPENUSB=true])
 AC_CHECK_LIB([usb-1.0], [libusb_init], [LIBUSB10=true])
 AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
-AC_CHECK_LIB([QxtGui], [_ZN17QxtGlobalShortcutD0Ev], [LIBQXT=true])
 
 
 # Checks for header files.
@@ -195,7 +194,6 @@ AM_CONDITIONAL([LINUX], [test x$with_linux = xyes])
 AM_CONDITIONAL(FACE_TRACKER, [test x$with_face_tracker = xyes])
 AM_CONDITIONAL(WINE_PLUGIN, [test x$with_wine_plugin = xyes])
 AM_CONDITIONAL(WINE64, [test x$with_wine64 = xyes])
-AM_CONDITIONAL(LIBQXT, [test  "x$ac_cv_lib_QxtGui__ZN17QxtGlobalShortcutD0Ev" = xyes])
 
 # Checks for library functions.
 AC_CHECK_FUNCS([atexit])
@@ -236,9 +234,6 @@ AS_IF([(test  "x$ac_cv_lib_usb_1_0_libusb_init" = xyes) \
 
 AC_MSG_CHECKING([Facetracker support])
 AS_IF([test  "x$with_face_tracker" = xyes], [echo "yes"], [echo "no"])
-
-AC_MSG_CHECKING([Virtual Mouse])
-AS_IF([test  "x$ac_cv_lib_QxtGui__ZN17QxtGlobalShortcutD0Ev" = xyes], [echo "yes"], [echo "no"])
 
 AC_MSG_CHECKING([XPlane plugin])
 AS_IF([test  "x$with_xplane_plugin" = xyes], [echo "yes"], [echo "no"])

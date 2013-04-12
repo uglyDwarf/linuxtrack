@@ -40,8 +40,8 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            extractor.cpp game_data.c hashing.cpp downloading.cpp wine_launcher.cpp
 
 
-QMAKE_CXXFLAGS += -DHAVE_CONFIG_H -DHELP_BASE="'\""ltr_gui/"\"'" -I @prefix@/include
-QMAKE_CFLAGS += -DLTR_GUI  -I @prefix@/include
+QMAKE_CXXFLAGS += -Wall -Wextra -DHAVE_CONFIG_H -DHELP_BASE="'\""ltr_gui/"\"'" -I @prefix@/include
+QMAKE_CFLAGS += -Wall -Wextra -DLTR_GUI  -I @prefix@/include
 
 unix:!macx {
   HEADERS += webcam_prefs.h webcam_info.h webcam_ft_prefs.h
