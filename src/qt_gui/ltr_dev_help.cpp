@@ -1,4 +1,4 @@
-#include "pref.hpp"
+#include "pref.h"
 #include "ltr_dev_help.h"
 
 LtrDevHelp::LtrDevHelp(QWidget *parent) : QWidget(parent)

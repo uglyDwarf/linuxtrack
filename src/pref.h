@@ -19,6 +19,7 @@ void ltr_int_free_prefs(void);
 bool ltr_int_read_prefs(const char *file, bool force_read);
 bool ltr_int_new_prefs(void);
 bool ltr_int_save_prefs(const char *fname);
+bool ltr_int_dump_prefs(const char *file_name);
 
 bool ltr_int_need_saving(void);
 

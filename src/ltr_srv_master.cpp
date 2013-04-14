@@ -28,6 +28,7 @@ static ltr_status_update_callback_t status_update_hook = NULL;
 static ltr_new_slave_callback_t new_slave_hook = NULL;
 
 static bool save_prefs = true;
+static bool no_slaves = false;
 
 bool ltr_int_gui_lock(bool do_lock)
 {
@@ -100,6 +101,7 @@ bool ltr_int_broadcast_pose(pose_t &pose)
 {
   std::multimap<std::string, int>::iterator i;
   int res;
+  bool checkSlaves = false;
   //Send updated pose to all clients
   for(i = slaves.begin(); i != slaves.end();){
     res = ltr_int_send_data(i->second, &pose);
@@ -108,9 +110,13 @@ bool ltr_int_broadcast_pose(pose_t &pose)
       close(i->second);
       i->second = -1;
       slaves.erase(i++);
+      checkSlaves = true;
     }else{
       ++i;
     }
+  }
+  if(checkSlaves && (slaves.size() == 0)){
+    no_slaves = true;
   }
   return true;
 }
@@ -267,13 +273,14 @@ bool ltr_int_master(bool standalone)
   fifo_poll.fd = fifo;
   fifo_poll.events = POLLIN;
   fifo_poll.revents = 0;
-  
+  no_slaves = false;
   while(1){
     fifo_poll.events = POLLIN;
     int fds = poll(&fifo_poll, 1, 1000);
     //printf("Master: poll returned (%d)!\n", fds);
     if(fds > 0){
-      if(fifo_poll.revents & POLLHUP){
+	  ltr_int_log_message("poll: %d\n", fifo_poll.revents);
+      if((fifo_poll.revents & POLLHUP) || (fifo_poll.revents & POLLNVAL)){
         if(standalone){
           printf("We have HUP in Master!\n");
           break;
@@ -307,7 +314,7 @@ bool ltr_int_master(bool standalone)
       perror("poll");
     }
     
-    if(gui_shutdown_request || (!ltr_int_gui_lock(false))){
+    if(gui_shutdown_request || (!ltr_int_gui_lock(false)) || no_slaves){
       break;
     }
   }
