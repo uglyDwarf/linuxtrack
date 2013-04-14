@@ -459,14 +459,14 @@ void ltr_int_free_prefs(void)
   prefs::freePrefs();
 }
 
-bool ltr_int_dump_prefs(const std::string &file_name)
+bool ltr_int_dump_prefs(const char *file_name)
 {
-  if(file_name == ""){
+  if(strncmp("", file_name, 1) == 0){
     std::cerr<<prefs::getPrefs();
   }else{
-    std::ofstream out(file_name.c_str());
+    std::ofstream out(file_name);
     if(out.fail()){
-      ltr_int_log_message("Can't open file '%s'!\n", file_name.c_str());
+      ltr_int_log_message("Can't open file '%s'!\n", file_name);
       return false;
     }
     out<<prefs::getPrefs();
@@ -501,7 +501,7 @@ bool ltr_int_save_prefs(const char *fname)
   std::string pfile_new(pfile + ".new");
   std::string pfile_old(pfile + ".old");
   
-  if(!ltr_int_dump_prefs(pfile_new)){
+  if(!ltr_int_dump_prefs(pfile_new.c_str())){
     ltr_int_log_message("Can't store prefs to file '%s'!\n", pfile_new.c_str());
     return false;
   }

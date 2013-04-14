@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "../../config.h"
+#endif
+
 #include "xplugin.h"
 #include "ltr_gui_prefs.h"
 #include "utils.h"
@@ -36,6 +40,8 @@ static bool removePlugin(const QString targetName)
 
 static bool installPlugin(const QString sourceFile, const QString destFile)
 {
+  ltr_int_log_message("Going to install '%s' to '%s'...\n", 
+						qPrintable(sourceFile), qPrintable(destFile));
   //Create destination path
   QFile src(sourceFile);
   QFile dest(destFile);

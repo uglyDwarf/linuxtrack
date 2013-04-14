@@ -122,5 +122,4 @@
     void clear();
   };
 
-bool ltr_int_dump_prefs(const std::string &file_name);
 #endif
