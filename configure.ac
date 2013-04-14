@@ -131,6 +131,13 @@ AC_ARG_ENABLE([wine_plugin],
             [with_wine_plugin=no]
 )
 
+AC_ARG_ENABLE([mickey],
+            [AS_HELP_STRING([--enable-mickey],
+              [build mickey (virtual mouse) @<:@default=no@:>@])], 
+            [with_mickey=yes],
+            [with_mickey=no]
+)
+
 #AC_ARG_ENABLE([face_tracker],
 #            [AS_HELP_STRING([--enable-face-tracker],
 #              [enables building of face tracker (requires OpenCV 2.X)])], 
@@ -192,6 +199,7 @@ AM_CONDITIONAL([LTR32ON64], [test  "x$with_ltr_32lib_on_x64" = xyes])
 AM_CONDITIONAL([LTR_PIPE], [test  x$with_ltr_pipe = xyes])
 AM_CONDITIONAL([LINUX], [test x$with_linux = xyes])
 AM_CONDITIONAL(FACE_TRACKER, [test x$with_face_tracker = xyes])
+AM_CONDITIONAL(MICKEY, [test x$with_mickey = xyes])
 AM_CONDITIONAL(WINE_PLUGIN, [test x$with_wine_plugin = xyes])
 AM_CONDITIONAL(WINE64, [test x$with_wine64 = xyes])
 
@@ -223,26 +231,33 @@ AC_OUTPUT
 
 AC_MSG_NOTICE([==============================================================]);
 AC_MSG_CHECKING([Webcam support])
-AS_IF([test  "x$with_libv4l2" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
+AS_IF([(test  "x$with_libv4l2" = xyes) || (test  "x$with_darwin" = xyes)], 
+								[AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 AC_MSG_CHECKING([Wiimote support])
-AS_IF([test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes], [echo "yes"], [echo "no"])
+AS_IF([(test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes) || (test  "x$with_darwin" = xyes)], 
+                                [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 AC_MSG_CHECKING([TrackIR support])
 AS_IF([(test  "x$ac_cv_lib_usb_1_0_libusb_init" = xyes) \
-             && (test "x$ac_cv_lib_z_gzopen" = xyes)], [echo "yes"], [echo "no"])
+             && (test "x$ac_cv_lib_z_gzopen" = xyes)], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 AC_MSG_CHECKING([Facetracker support])
-AS_IF([test  "x$with_face_tracker" = xyes], [echo "yes"], [echo "no"])
+AS_IF([(test  "x$with_face_tracker" = xyes) \
+             || (test "x$with_opencv_libs = xyes")], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 AC_MSG_CHECKING([XPlane plugin])
-AS_IF([test  "x$with_xplane_plugin" = xyes], [echo "yes"], [echo "no"])
+AS_IF([test  "x$with_xplane_plugin" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
+
+AC_MSG_CHECKING([Mickey])
+AS_IF([test  "x$with_mickey" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 AC_MSG_CHECKING([Wine plugin])
-AS_IF([test  "x$with_wine_plugin" = xyes], [echo "yes"], [echo "no"])
+AS_IF([test  "x$with_wine_plugin" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 AC_MSG_CHECKING([ltr_pipe])
-AS_IF([test  "x$with_ltr_pipe" = xyes], [echo "yes"], [echo "no"])
+AS_IF([test  "x$with_ltr_pipe" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
+
 
 
 
