@@ -69,13 +69,16 @@ bin_PROGRAMS = ltr_server1$(EXEEXT) $(am__EXEEXT_1)
 @LIBZ_TRUE@@OPENUSB_TRUE@am__append_7 = libltopenusb.la 
 @XPLANE_PLUGIN_TRUE@am__append_8 = xlinuxtrack9.la
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am__append_9 = xlinuxtrack9_32.la
-@CWIID_TRUE@am__append_10 = wii_server/wii_server
-@CWIID_TRUE@am__append_11 = LTR_WII_TARGET_INST
-@CWIID_TRUE@am__append_12 = LTR_WII_TARGET_UNINST
-@LTR_PIPE_TRUE@am__append_13 = ltr_pipe.1
-@LTR_PIPE_TRUE@am__append_14 = ltr_pipe
-@LTR_PIPE_TRUE@am__append_15 = -D_GNU_SOURCE
-@LINUX_TRUE@am__append_16 = -DLINUX
+@MICKEY_TRUE@am__append_10 = mickey/mickey
+@MICKEY_TRUE@am__append_11 = LTR_MICKEY_TARGET_INST
+@MICKEY_TRUE@am__append_12 = LTR_MICKEY_TARGET_UNINST
+@CWIID_TRUE@am__append_13 = wii_server/wii_server
+@CWIID_TRUE@am__append_14 = LTR_WII_TARGET_INST
+@CWIID_TRUE@am__append_15 = LTR_WII_TARGET_UNINST
+@LTR_PIPE_TRUE@am__append_16 = ltr_pipe.1
+@LTR_PIPE_TRUE@am__append_17 = ltr_pipe
+@LTR_PIPE_TRUE@am__append_18 = -D_GNU_SOURCE
+@LINUX_TRUE@am__append_19 = -DLINUX
 subdir = src
 DIST_COMMON = $(dist_pkgdata_DATA) $(include_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
@@ -448,12 +451,12 @@ with_wine64 = @with_wine64@
 @DARWIN_FALSE@LIBLINUXTRACK_FLAGS = -fpic -fPIC
 @DARWIN_TRUE@LIBLINUXTRACK_FLAGS = -fpic -fPIC -arch i386 -arch x86_64
 @DARWIN_FALSE@XLINUXTRACK_CFLAGS = 
-@DARWIN_TRUE@XLINUXTRACK_CFLAGS = -Wl,-no_arch_warnings -arch i386
+@DARWIN_TRUE@XLINUXTRACK_CFLAGS = -arch i386
 @DARWIN_FALSE@XLINUXTRACK_LDFLAGS = -Wl,--no-warn-search-mismatch
 @DARWIN_TRUE@XLINUXTRACK_LDFLAGS = -Wl,-no_arch_warnings -arch i386
 @DARWIN_FALSE@LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
 @DARWIN_TRUE@LINUXFLAGS = 
-man_MANS = ltr_gui.1 ltr_server.1 $(am__append_2) $(am__append_13)
+man_MANS = ltr_gui.1 ltr_server.1 $(am__append_2) $(am__append_16)
 lib_LTLIBRARIES = liblinuxtrack.la
 pkglib_LTLIBRARIES = libltr.la libmacwii.la $(am__append_1) \
 	$(am__append_3) $(am__append_4) $(am__append_5) \
@@ -549,13 +552,11 @@ nodist_pkgdata_DATA = linuxtrack.c
 AM_YFLAGS = -d --name-prefix ltr_int_parser_
 AM_LFLAGS = -i
 BUILT_SOURCES = pref_flex.cpp pref_bison.cpp linuxtrack.c
-
-#mickey
-noinst_SCRIPTS = qt_gui/ltr_gui mickey/mickey $(am__append_10)
-hook_inst_targets = LTR_QT_GUI_TARGET_INST LTR_MICKEY_TARGET_INST \
-	$(am__append_11)
-hook_uninst_targets = LTR_QT_GUI_TARGET_UNINST \
-	LTR_MICKEY_TARGET_UNINST $(am__append_12)
+noinst_SCRIPTS = qt_gui/ltr_gui $(am__append_10) $(am__append_13)
+hook_inst_targets = LTR_QT_GUI_TARGET_INST $(am__append_11) \
+	$(am__append_14)
+hook_uninst_targets = LTR_QT_GUI_TARGET_UNINST $(am__append_12) \
+	$(am__append_15)
 EXTRA_DIST = qt_gui/ltr_show.h qt_gui/help_view.cpp qt_gui/ltr_tracking.h \
 qt_gui/scp_form.ui qt_gui/logview.ui qt_gui/clip.png qt_gui/webcam_prefs.cpp \
 qt_gui/scview.h qt_gui/webcam_ft_prefs.h qt_gui/scview.cpp qt_gui/dl.ui \
@@ -602,7 +603,7 @@ mickey/main.cpp mickey/help/tracking.htm mickey/help/misc.htm \
 mickey/help/news.htm mickey/help/contents.txt mickey/help/welcome.htm mickey/uinput_ifc.c \
 mickey/keyb.cpp mickey/helpview.ui
 
-ltr_pipe_CPPFLAGS = $(am__append_15) $(am__append_16)
+ltr_pipe_CPPFLAGS = $(am__append_18) $(am__append_19)
 @LTR_PIPE_TRUE@ltr_pipe_SOURCES = ltr_pipe.c linuxtrack.h utils.h ipc_utils.h utils.c ipc_utils.c ltlib.c ltlib.h
 @LTR_PIPE_TRUE@ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 @LTR_PIPE_TRUE@ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS}
