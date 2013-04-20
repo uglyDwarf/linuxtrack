@@ -121,11 +121,40 @@ void LinuxtrackGui::show()
 LinuxtrackGui::~LinuxtrackGui()
 {
   PrefProxy::ClosePrefs();
+  delete pi;
+  pi = NULL;
+  delete showWindow;
+  showWindow = NULL;
+  delete me;
+  me = NULL;
+  delete helper;
+  helper = NULL;
+  std::cout<<"Closing gui settings...."<<std::endl;
+  delete gui_settings;
+  gui_settings = NULL;
+  delete ps;
+  ps = NULL;
+  delete grd;
+  grd = NULL;
+  delete lv;
+  lv = NULL;
+  delete ds;
+  ds = NULL;
+  if(xpInstall != NULL){
+  }
 }
 
 
 void LinuxtrackGui::closeEvent(QCloseEvent *event)
 {
+  static bool invokedAlready = false;
+  if(invokedAlready){
+    event->accept();
+    return;
+  }
+  invokedAlready = true;
+  TRACKER.stop();
+  PREF.SavePrefsOnExit();
   HelpViewer::CloseWindow();
   gui_settings->beginGroup("MainWindow");
   gui_settings->setValue("size", size());
@@ -147,25 +176,12 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   showWindow->close();
   helper->close();
   lv->close();
-  delete pi;
-  delete showWindow;
-  delete me;
-  delete helper;
-  delete gui_settings;
-  delete ps;
-  delete grd;
-  delete lv;
-  delete ds;
-  if(xpInstall != NULL){
-  }
   event->accept();
 }
 
 
 void LinuxtrackGui::on_QuitButton_pressed()
 {
-  TRACKER.stop();
-  PREF.SavePrefsOnExit();
   close();
 }
 

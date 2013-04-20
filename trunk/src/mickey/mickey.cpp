@@ -1,11 +1,16 @@
 #define NEWS_SERIAL 1
 
+#ifdef HAVE_CONFIG_H
+  #include "../../config.h"
+#endif
+
 #include <QMessageBox>
 #include <QTimer>
 #include <QMutex>
 #include <QMessageBox>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QCursor>
 #include "mickey.h"
 #include "mouse.h"
 #include "linuxtrack.h"
@@ -258,7 +263,7 @@ void MickeyThread::run()
       }
     }
     while(fetch_data(fifo, (void*)&ev, sizeof(ev), &read)){
-      std::cout<<"Thread alive!"<<std::endl;
+      //std::cout<<"Thread alive!"<<std::endl;
       if(finish){
         return;
       }
@@ -499,6 +504,10 @@ void Mickey::updateTimer_activated()
   trans->update(heading_p, pitch_p, elapsed, dx, dy);
   if(state == TRACKING){
     mouse.move(dx, dy);
+    
+    //QPoint pos = QCursor::pos();
+    //pos += QPoint(dx,dy);
+    //QCursor::setPos(pos);
   }
 }
 
