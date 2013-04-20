@@ -29,6 +29,8 @@ static ltr_new_slave_callback_t new_slave_hook = NULL;
 
 static bool save_prefs = true;
 static bool no_slaves = false;
+static pthread_mutex_t send_mx = PTHREAD_MUTEX_INITIALIZER;
+
 
 bool ltr_int_gui_lock(bool do_lock)
 {
@@ -69,6 +71,7 @@ void ltr_int_gui_lock_clean()
 
 void ltr_int_change(const char *profile, int axis, int elem, float val)
 {
+  pthread_mutex_lock(&send_mx);
   std::pair<std::multimap<std::string, int>::iterator, std::multimap<std::string, int>::iterator> range;
   std::multimap<std::string, int>::iterator i;
   if(profile != NULL){
@@ -83,6 +86,7 @@ void ltr_int_change(const char *profile, int axis, int elem, float val)
       ltr_int_send_param_update(i->second, axis, elem, val);
     }
   }
+  pthread_mutex_unlock(&send_mx);
 }
 
 //When slave is started, in GUI its axes might have changed (so better send through all )
@@ -99,6 +103,7 @@ void ltr_int_set_callback_hooks(ltr_new_frame_callback_t nfh, ltr_status_update_
 
 bool ltr_int_broadcast_pose(pose_t &pose)
 {
+  pthread_mutex_lock(&send_mx);
   std::multimap<std::string, int>::iterator i;
   int res;
   bool checkSlaves = false;
@@ -118,6 +123,7 @@ bool ltr_int_broadcast_pose(pose_t &pose)
   if(checkSlaves && (slaves.size() == 0)){
     no_slaves = true;
   }
+  pthread_mutex_unlock(&send_mx);
   return true;
 }
 
@@ -158,8 +164,10 @@ bool ltr_int_register_slave(message_t &msg)
   if(fifo <= 0){
     return false;
   }
-  printf("Slave @fifo %d registered!\n", fifo);
+  pthread_mutex_lock(&send_mx);
   slaves.insert(std::pair<std::string, int>(msg.str, fifo));
+  printf("Slave @fifo %d registered!\n", fifo);
+  pthread_mutex_unlock(&send_mx);
   
   //Make sure the new section is created if needed...
   ltr_axes_t tmp_axes;
@@ -201,11 +209,11 @@ static bool gui_shutdown_request = false;
 
 size_t ltr_int_request_shutdown()
 {
-  size_t res = slaves.size();
+  //size_t res = slaves.size();
   //if(res == 0){
     gui_shutdown_request = true;
   //}
-  return res;
+  return 0;
 }
 
 //Try making sure, that gui will be the only master
@@ -270,6 +278,7 @@ bool ltr_int_master(bool standalone)
   ltr_int_register_cbk(ltr_int_new_frame, NULL, ltr_int_state_changed, NULL);
   
   struct pollfd fifo_poll;
+  int heartbeat = 0;
   fifo_poll.fd = fifo;
   fifo_poll.events = POLLIN;
   fifo_poll.revents = 0;
@@ -277,13 +286,17 @@ bool ltr_int_master(bool standalone)
   while(1){
     fifo_poll.events = POLLIN;
     int fds = poll(&fifo_poll, 1, 1000);
-    //printf("Master: poll returned (%d)!\n", fds);
+    //printf("Master: poll returned %d @ %d!\n", fifo_poll.revents, fds);
     if(fds > 0){
-	  ltr_int_log_message("poll: %d\n", fifo_poll.revents);
-      if((fifo_poll.revents & POLLHUP) || (fifo_poll.revents & POLLNVAL)){
+      //ltr_int_log_message("poll: %d\n", fifo_poll.revents);
+      if(fifo_poll.revents & POLLHUP){
         if(standalone){
           printf("We have HUP in Master!\n");
-          break;
+          pose_t dummy = {
+            .pitch = 0.0, .yaw = 0.0, .roll = 0.0, .tx = 0.0, .ty = 0.0, .tz = 0.0,
+            .counter = 0, .status = PAUSED
+          };
+          ltr_int_broadcast_pose(dummy);
         }else{
           //In gui when HUP comes, it goes forever...
           //!!! remove all clients!!!
@@ -292,7 +305,11 @@ bool ltr_int_master(bool standalone)
       }
       message_t msg;
       msg.cmd = CMD_NOP;
-      if(ltr_int_fifo_receive(fifo, &msg, sizeof(message_t)) > 0){
+      ssize_t res = ltr_int_fifo_receive(fifo, &msg, sizeof(message_t));
+      if(res < 0){
+        perror("read");
+      }
+      if(res > 0){
         //printf("Received a message from slave (%d)!!!\n", msg.cmd);
         switch(msg.cmd){
           case CMD_PAUSE:
@@ -309,6 +326,20 @@ bool ltr_int_master(bool standalone)
             ltr_int_register_slave(msg);
             break;
         }
+      }
+    }else if(fds == 0){
+      if(ltr_int_get_tracking_state() == PAUSED){
+        ++heartbeat;
+        if(heartbeat > 5){
+          pose_t dummy = {
+            .pitch = 0.0, .yaw = 0.0, .roll = 0.0, .tx = 0.0, .ty = 0.0, .tz = 0.0,
+            .counter = 0, .status = PAUSED
+          };
+          ltr_int_broadcast_pose(dummy);
+          heartbeat = 0;
+        }
+      }else{
+        heartbeat = 0;
       }
     }else if(fds < 0){
       perror("poll");

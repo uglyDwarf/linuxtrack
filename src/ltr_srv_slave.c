@@ -155,6 +155,8 @@ static bool ltr_int_process_message(int master_downlink)
   }
   
   switch(msg.cmd){
+    case CMD_NOP:
+      break;
     case CMD_POSE:
       //printf("Have new pose!\n");
       //printf(">>>>%f %f %f\n", msg.pose.yaw, msg.pose.pitch, msg.pose.tz);
@@ -162,13 +164,15 @@ static bool ltr_int_process_message(int master_downlink)
       
       com = mmm.data;
       ltr_int_lockSemaphore(mmm.sem);
-      com->heading = msg.pose.yaw;
-      com->pitch = msg.pose.pitch;
-      com->roll = msg.pose.roll;
-      com->tx = msg.pose.tx;
-      com->ty = msg.pose.ty;
-      com->tz = msg.pose.tz;
-      com->counter = msg.pose.counter;
+      if(msg.pose.status == RUNNING){
+        com->heading = msg.pose.yaw;
+        com->pitch = msg.pose.pitch;
+        com->roll = msg.pose.roll;
+        com->tx = msg.pose.tx;
+        com->ty = msg.pose.ty;
+        com->tz = msg.pose.tz;
+        com->counter = msg.pose.counter;
+      }
       com->state = msg.pose.status;
       com->preparing_start = false;
       ltr_int_unlockSemaphore(mmm.sem);
