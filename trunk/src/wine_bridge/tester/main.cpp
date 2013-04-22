@@ -58,7 +58,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     EndDialog(hwndDlg, 0);
                     return TRUE;
                 case IDSTART:
-                  bool ok;
+                  int ok;
                   int num = GetDlgItemInt(hwndDlg, IDC_APPID, (BOOL*)&ok, false);
                   if(!ok){
                     num = 101;

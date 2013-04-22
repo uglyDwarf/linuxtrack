@@ -203,13 +203,13 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFromWho,
       case XPLM_MSG_PLANE_LOADED:
         if((intptr_t)inParam == XPLM_PLUGIN_XPLANE){
 
-          PV_Enabled_DR = XPLMFindDataRef("sandybarbour/pv/enabled");
-          PV_TIR_X_DR = XPLMFindDataRef("sandybarbour/pv/tir_x");
-          PV_TIR_Y_DR = XPLMFindDataRef("sandybarbour/pv/tir_y");
-          PV_TIR_Z_DR = XPLMFindDataRef("sandybarbour/pv/tir_z");
-          PV_TIR_Pitch_DR = XPLMFindDataRef("sandybarbour/pv/tir_pitch");
-          PV_TIR_Heading_DR = XPLMFindDataRef("sandybarbour/pv/tir_heading");
-          PV_TIR_Roll_DR = XPLMFindDataRef("sandybarbour/pv/tir_roll");
+          PV_Enabled_DR = XPLMFindDataRef("sandybarbour/pilotview/external_enabled");
+          PV_TIR_X_DR = XPLMFindDataRef("sandybarbour/pilotview/external_x");
+          PV_TIR_Y_DR = XPLMFindDataRef("sandybarbour/pilotview/external_y");
+          PV_TIR_Z_DR = XPLMFindDataRef("sandybarbour/pilotview/external_z");
+          PV_TIR_Pitch_DR = XPLMFindDataRef("sandybarbour/pilotview/external_pitch");
+          PV_TIR_Heading_DR = XPLMFindDataRef("sandybarbour/pilotview/external_heading");
+          PV_TIR_Roll_DR = XPLMFindDataRef("sandybarbour/pilotview/external_roll");
           
           if((PV_Enabled_DR == NULL) || (PV_TIR_X_DR == NULL) || 
              (PV_TIR_Y_DR == NULL) || (PV_TIR_Z_DR == NULL) ||
@@ -240,21 +240,21 @@ static void activate(void)
 
 static void deactivate(void)
 {
-        active_flag=false;
-        int current_view = XPLMGetDatai(view);
-        if((!pv_present) && (current_view == 1026)){
-          XPLMSetDataf(head_x,base_x);
-          XPLMSetDataf(head_y,base_y);
-          XPLMSetDataf(head_z,base_z);
-          XPLMSetDataf(head_psi,base_psi);
-          XPLMSetDataf(head_the,base_the);
-          if(head_roll != NULL){
-            XPLMSetDataf(head_roll, 0.0);
-          }
-        }
-    if(initialized){
-      ltr_suspend();
+  active_flag=false;
+  int current_view = XPLMGetDatai(view);
+  if((!pv_present) && (current_view == 1026)){
+    XPLMSetDataf(head_x,base_x);
+    XPLMSetDataf(head_y,base_y);
+    XPLMSetDataf(head_z,base_z);
+    XPLMSetDataf(head_psi,base_psi);
+    XPLMSetDataf(head_the,base_the);
+    if(head_roll != NULL){
+      XPLMSetDataf(head_roll, 0.0);
     }
+  }
+  if(initialized){
+    ltr_suspend();
+  }
 }
 
 static void MyHotKeyCallback(void *inRefcon)
@@ -372,7 +372,7 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
         XPLMSetDataf(head_roll, -roll);
       }
     }else{
-      //Make sure to cancel any roll, unless bad things start to happening
+      //Make sure to cancel any roll, otherwise bad things start to happening
       //  e.g. mising HUD in forward with HUD view or rolled view in other
       //  views... Also the roll seems to be persistent!
       if(head_roll != NULL){

@@ -292,10 +292,10 @@ bool ltr_int_master(bool standalone)
       if(fifo_poll.revents & POLLHUP){
         if(standalone){
           printf("We have HUP in Master!\n");
-          pose_t dummy = {
-            .pitch = 0.0, .yaw = 0.0, .roll = 0.0, .tx = 0.0, .ty = 0.0, .tz = 0.0,
-            .counter = 0, .status = PAUSED
-          };
+		  pose_t dummy;
+          dummy.pitch = 0.0; dummy.yaw = 0.0; dummy.roll = 0.0; 
+          dummy.tx = 0.0; dummy.ty = 0.0; dummy.tz = 0.0;
+          dummy.counter = 0; dummy.status = PAUSED;
           ltr_int_broadcast_pose(dummy);
         }else{
           //In gui when HUP comes, it goes forever...
@@ -331,10 +331,10 @@ bool ltr_int_master(bool standalone)
       if(ltr_int_get_tracking_state() == PAUSED){
         ++heartbeat;
         if(heartbeat > 5){
-          pose_t dummy = {
-            .pitch = 0.0, .yaw = 0.0, .roll = 0.0, .tx = 0.0, .ty = 0.0, .tz = 0.0,
-            .counter = 0, .status = PAUSED
-          };
+          pose_t dummy;
+          dummy.pitch = 0.0; dummy.yaw = 0.0; dummy.roll = 0.0; 
+          dummy.tx = 0.0; dummy.ty = 0.0; dummy.tz = 0.0;
+          dummy.counter = 0; dummy.status = PAUSED;
           ltr_int_broadcast_pose(dummy);
           heartbeat = 0;
         }
