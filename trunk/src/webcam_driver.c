@@ -666,7 +666,7 @@ static void get_bw_image(unsigned char *source_buf, unsigned char *dest_buf, uns
   unsigned int cntr, cntr1;
   
   if(wc_info.fourcc == *(__u32*)"YUYV"){
-    for(cntr = cntr1 = 0; cntr < bytes_used; cntr += 2, cntr1++){
+    for(cntr = cntr1 = 0; cntr < bytes_used; cntr += 2, ++cntr1){
       if(source_buf[cntr] > wc_info.threshold){
 	dest_buf[cntr1] = source_buf[cntr];
       }else{
@@ -679,6 +679,34 @@ static void get_bw_image(unsigned char *source_buf, unsigned char *dest_buf, uns
 	dest_buf[cntr] = source_buf[cntr];
       }else{
 	dest_buf[cntr] = 0;
+      }
+    }
+  }else if(wc_info.fourcc == *(__u32*)"RGB3"){
+    float y;
+    for(cntr = cntr1 = 0; cntr < bytes_used; cntr += 3, ++cntr1){
+      //Y  =      (0.257 * R) + (0.504 * G) + (0.098 * B) + 16
+      y = 0.257 * ((float)source_buf[cntr]) 
+        + 0.504 * ((float)source_buf[cntr + 1])
+        + 0.098 * ((float)source_buf[cntr + 2]) + 16;
+      if(y > 255) y = 255.0;
+      if(y > wc_info.threshold){
+	dest_buf[cntr1] = y;
+      }else{
+	dest_buf[cntr1] = 0;
+      }
+    }
+  }else if(wc_info.fourcc == *(__u32*)"BGR3"){
+    float y;
+    for(cntr = cntr1 = 0; cntr < bytes_used; cntr += 3, ++cntr1){
+      //Y  =      (0.257 * R) + (0.504 * G) + (0.098 * B) + 16
+      y = 0.257 * ((float)source_buf[cntr + 2]) 
+        + 0.504 * ((float)source_buf[cntr + 1])
+        + 0.098 * ((float)source_buf[cntr + 0]) + 16;
+      if(y > 255) y = 255.0;
+      if(y > wc_info.threshold){
+	dest_buf[cntr1] = y;
+      }else{
+	dest_buf[cntr1] = 0;
       }
     }
   }else{
