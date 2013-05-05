@@ -42,7 +42,7 @@ GLWidget::GLWidget(QWidget *parent)
      xTrans = 0;
      yTrans = 0;
      zTrans = 0;
-     trolltechPurple = QColor::fromCmykF(0.39, 0.39, 0.0, 0.0);
+     trolltechPurple = QColor::fromCmykF(0.0, 0.0, 0.0, 0.0);
      
      connect(rt, SIGNAL(done()), this, SLOT(objectsRead()));
      rt->start();
@@ -135,35 +135,6 @@ void GLWidget::paintGL()
        glCallList(*i);
      }
      glPopMatrix();
-
-     glPushMatrix();
-     glTranslated(0.0, 5.0, -2.265);
-     glRotated(180.0, 0.0, 0.0, 1.0);
-     for(i = objects.begin(); i != objects.end(); ++i){
-       glCallList(*i);
-     }
-     glPopMatrix();
-
-     glPushMatrix();
-     glTranslated(0.0, 5.0, -20.265);
-     for(i = objects.begin(); i != objects.end(); ++i){
-       glCallList(*i);
-     }
-     glPopMatrix();
-
-     glPushMatrix();
-     glTranslated(-10.0, 3.0, -5.265);
-     for(i = objects.begin(); i != objects.end(); ++i){
-       glCallList(*i);
-     }
-     glPopMatrix();
-
-     glPushMatrix();
-     glTranslated(10.0, 3.0, -5.265);
-     for(i = objects.begin(); i != objects.end(); ++i){
-       glCallList(*i);
-     }
-     glPopMatrix();
 }
 
  void GLWidget::resizeGL(int width, int height)
@@ -172,7 +143,7 @@ void GLWidget::paintGL()
 
      glMatrixMode(GL_PROJECTION);
      glLoadIdentity();
-     gluPerspective(55.0, (double)width/height, 0.1, 45.0);
+     gluPerspective(55.0, (double)width/height, 0.01, 45.0);
      glMatrixMode(GL_MODELVIEW);
  }
 
@@ -200,11 +171,15 @@ static void make_triangle(int index1, int index2, int index3)
 bool GLWidget::makeObjects()
  {
    int triangles = 0;
+   int cntr;
+   int objectsNumber = object_table.size();
      std::vector<object_t>::const_iterator obj_index;
      std::vector<tri_t>::const_iterator tris_index;
-     for(obj_index = object_table.begin(); obj_index != object_table.end(); ++obj_index){
+     GLuint *textures = (GLuint*)malloc(objectsNumber * sizeof(GLuint));
+     cntr = 0;
+     for(obj_index = object_table.begin(); obj_index != object_table.end(); ++obj_index, ++cntr){
        obj = *obj_index;
-       GLuint texture;
+       //GLuint texture;
        GLuint list = glGenLists(obj.tris_table.size());
        
        if(obj.texture.isEmpty()){
@@ -213,14 +188,16 @@ bool GLWidget::makeObjects()
          textured = true;
        }
        if(textured){
-         texture = bindTexture(QImage(QString(obj.texture)), GL_TEXTURE_2D);
-         glBindTexture(GL_TEXTURE_2D, texture);
+         textures[cntr] = bindTexture(QImage(QString(obj.texture)), GL_TEXTURE_2D);
        }
        for(tris_index = obj.tris_table.begin(); 
            tris_index != obj.tris_table.end(); ++tris_index){
 //trying to remove glass to see what speedup we'll gain...
 //         if(tris_index->glass) continue;
          glNewList(list, GL_COMPILE);
+         if(textured){
+           glBindTexture(GL_TEXTURE_2D, textures[cntr]);
+         }
 	 if(tris_index->glass){
            glEnable (GL_BLEND); 
            glDepthMask (GL_FALSE);
@@ -243,7 +220,7 @@ bool GLWidget::makeObjects()
          ++list;
        }
      }
-     std::cout<<triangles<<" triangles."<<std::endl;
+     //std::cout<<triangles<<" triangles."<<std::endl;
      return true;
  }
 

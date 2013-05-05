@@ -75,6 +75,7 @@ static void process_line(const QString &line)
   }else if(texture_line.indexIn(line) != -1){
     if(!texture_line.cap(1).isEmpty()){
       object.texture = PrefProxy::getDataPath(texture_line.cap(1));
+      //std::cout<<"Texture: "<<qPrintable(object.texture)<<std::endl;
     }
   }else if(glass_line.indexIn(line) != -1){
     glass = true;
@@ -91,7 +92,8 @@ static void obj_init(object_t &obj)
 
 void read_obj()
 {
-  char *obj_list[] = {(char *)"xm8d_body.obj", (char *)"XM8_cockpit.obj", NULL};
+  char *obj_list[] = {(char *)"sphere.obj", (char *)"xm8d_body.obj", (char *)"XM8_cockpit.obj", 
+                      NULL};
   
   for(int i = 0; obj_list[i] != NULL; ++i){
     QFile f(PrefProxy::getDataPath((char *)obj_list[i]));
@@ -110,9 +112,10 @@ void read_obj()
     }
     f.close();
     object_table.push_back(object);
-//    std::cout<< cnt <<" vertices processed!"<< std::endl;
-//    std::cout<< vcnt <<" indexes processed!"<< std::endl;
-//    std::cout<< tcnt <<" tris processed!"<< std::endl;
+    //std::cout<<(char *)obj_list[i]<<std::endl;
+    //std::cout<< cnt <<" vertices processed!"<< std::endl;
+    //std::cout<< vcnt <<" indexes processed!"<< std::endl;
+    //std::cout<< tcnt <<" tris processed!"<< std::endl;
   }
   
 }
