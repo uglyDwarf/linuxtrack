@@ -345,7 +345,8 @@ bool ltr_int_master(bool standalone)
       perror("poll");
     }
     
-    if(gui_shutdown_request || (!ltr_int_gui_lock(false)) || no_slaves){
+    if(gui_shutdown_request || (!ltr_int_gui_lock(false)) || 
+       no_slaves || (ltr_int_get_tracking_state() == ERROR)){
       break;
     }
   }
