@@ -97,7 +97,13 @@ bool MacWebcamFtPrefs::Activate(const QString &ID, bool init)
     on_WebcamFtResolutionsMac_activated(res_index);
   }
   prefInit = true;
-  QString cascadePath(ltr_int_wc_get_cascade());
+  const char *cascade = ltr_int_wc_get_cascade();
+  QString cascadePath;
+  if(cascade == NULL){
+    cascadePath = PrefProxy::getDataPath("haarcascade_frontalface_alt2.xml");
+  }else{
+    cascadePath = cascade;
+  }
   ui.CascadePathMac->setText(cascadePath);
   int n = (2.0 / ltr_int_wc_get_eff()) - 2;
   ui.ExpFilterFactorMac->setValue(n);
