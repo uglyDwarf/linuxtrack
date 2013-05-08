@@ -33,7 +33,7 @@ static bool init_capture(char *prog, char *camera, int w, int h, char *fileName,
     }else{
       args[9] = NULL;
     }
-	bool isChild;
+    bool isChild;
     ltr_int_fork_child(args, &isChild);
     return true;
   }else{
@@ -123,6 +123,9 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
 	frame->bloblist.num_blobs = ltr_int_getBlobs(&mmm, frame->bloblist.blobs);
 	frame_aquired = true;
     }else{
+      if(!ltr_int_child_alive()){
+        return -1;
+      }
       ltr_int_usleep(5000);
     }
   }

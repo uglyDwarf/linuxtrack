@@ -18,6 +18,8 @@
   ~Window();
   void prepare_widget();
   void close_widget();
+  void stopUpdates();
+  void resumeUpdates();
  private slots:
   void update_pic();
   void start_widget();

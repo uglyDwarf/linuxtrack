@@ -239,6 +239,16 @@ void LtrGuiForm::allowCloseWindow()
   allowClose = true;
 }
 
+void LtrGuiForm::on_tabWidget_currentChanged(int index)
+{
+  if(index == 1){
+    glw->resumeUpdates();
+  }else{
+    glw->stopUpdates();
+  }
+}
+
+
 CameraView::CameraView(QWidget *parent)
   : QWidget(parent)
 {

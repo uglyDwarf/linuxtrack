@@ -67,7 +67,6 @@ void Window::close_widget()
 
 void Window::start_widget()
 {
-  timer->start(20);
   dynamic_cast<QTabWidget*>(tab)->setTabEnabled(1, true);
   inConstruction = false;
   constructed = true;
@@ -92,4 +91,17 @@ void Window::update_pic()
 {
   glWidget->updateGL();
 }
+
+void Window::stopUpdates()
+{
+  timer->stop();
+}
+
+void Window::resumeUpdates()
+{
+  timer->start(20);
+}
+
+
+
 
