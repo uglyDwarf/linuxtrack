@@ -57,7 +57,7 @@ bool MacWebcamFtPrefs::Activate(const QString &ID, bool init)
 {
   QString sec;
   initializing = init;
-  if(PREF.getFirstDeviceSection(QString("Webcam-face"), ID, sec)){
+  if(PREF.getFirstDeviceSection(QString("MacWebcam-face"), ID, sec)){
     QString currentDev, currentSection;
     deviceType_t devType;
     if(!PREF.getActiveDevice(devType, currentDev, currentSection) || (sec !=currentSection)){
@@ -70,7 +70,10 @@ bool MacWebcamFtPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"MacWebcam-face");
       PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
       PREF.addKeyVal(sec, (char *)"Resolution", (char *)"");
-      PREF.activateDevice(sec);
+      QString cascadePath = PrefProxy::getDataPath("haarcascade_frontalface_alt2.xml");
+	  QFileInfo finf = QFileInfo(cascadePath);
+	  PREF.addKeyVal(sec, (char *)"Cascade", qPrintable(finf.canonicalFilePath()));
+	  PREF.activateDevice(sec);
     }else{
       return false;
     }
