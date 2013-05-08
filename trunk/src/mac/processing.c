@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <string.h>
+#include <sys/time.h>
 
 #include "image_process.h"
 
@@ -38,8 +39,13 @@ static void *processingThreadFun(void *param)
   
   while(!end_flag){
     pthread_mutex_lock(&state_mx);
-    while(!new_frame_flag){
-      pthread_cond_wait(&state_cv, &state_mx);
+    while((!new_frame_flag) && (!end_flag)){
+		struct timeval now;
+		gettimeofday(&now, NULL);
+		struct timespec absTime;
+		absTime.tv_sec = now.tv_sec + 3;  
+		absTime.tv_nsec = now.tv_usec * 1000;
+      pthread_cond_timedwait(&state_cv, &state_mx, &absTime);
     }
     new_frame_flag = false;
     pthread_mutex_unlock(&state_mx);

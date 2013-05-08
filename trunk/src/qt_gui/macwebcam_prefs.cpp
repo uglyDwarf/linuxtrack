@@ -53,7 +53,7 @@ bool MacWebcamPrefs::Activate(const QString &ID, bool init)
 {
   QString sec;
   initializing = init;
-  if(PREF.getFirstDeviceSection(QString("Webcam"), ID, sec)){
+  if(PREF.getFirstDeviceSection(QString("MacWebcam"), ID, sec)){
     QString currentDev, currentSection;
     deviceType_t devType;
     if(!PREF.getActiveDevice(devType, currentDev, currentSection) || (sec !=currentSection)){
@@ -72,12 +72,11 @@ bool MacWebcamPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Upside-down", (char *)"No");
       PREF.activateDevice(sec);
     }else{
-      initializing = false;
       return false;
     }
   }
   if(!ltr_int_wc_init_prefs()){
-      initializing = false;
+    initializing = false;
     return false;
   }
   currentId = ID;
@@ -87,7 +86,6 @@ bool MacWebcamPrefs::Activate(const QString &ID, bool init)
       delete(wc_info);
     }
     wc_info = new MacWebcamInfo(currentId);
-    ui.WebcamResolutionsMac->clear();
     ui.WebcamResolutionsMac->addItems(wc_info->getResolutions());
     int res_index = 0;
     int res_x, res_y;
