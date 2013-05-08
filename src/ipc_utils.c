@@ -57,6 +57,15 @@ bool ltr_int_wait_child_exit(int limit)
     return false;
   }
 }
+
+bool ltr_int_child_alive()
+{
+  pid_t res;
+  int status;
+  res = waitpid(child, &status, WNOHANG);
+  return (res != child);
+}
+
 #endif
 
 //Check if some server is not running by trying to lock specific file.

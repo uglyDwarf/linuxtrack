@@ -65,13 +65,13 @@ bool MacWebcamFtPrefs::Activate(const QString &ID, bool init)
     }
   }else{
     sec = "MacWebcam-face";
+    initializing = false;
     if(PREF.createSection(sec)){
       PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"MacWebcam-face");
       PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
       PREF.addKeyVal(sec, (char *)"Resolution", (char *)"");
       PREF.activateDevice(sec);
     }else{
-      initializing = false;
       return false;
     }
   }

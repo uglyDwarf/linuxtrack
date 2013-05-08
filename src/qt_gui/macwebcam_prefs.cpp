@@ -61,6 +61,7 @@ bool MacWebcamPrefs::Activate(const QString &ID, bool init)
     }
   }else{
     sec = "MacWebcam";
+    initializing = false;
     if(PREF.createSection(sec)){
       PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"MacWebcam");
       PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);

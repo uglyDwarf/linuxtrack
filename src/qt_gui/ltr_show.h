@@ -54,6 +54,7 @@ class LtrGuiForm : public QWidget
    void disable3DView_stateChanged(int state);
    void stateChanged(int current_state);
    void newFrameDelivered(struct frame_type *frame);
+   void on_tabWidget_currentChanged(int index);
   protected:
    void closeEvent(QCloseEvent *event);
   private:
