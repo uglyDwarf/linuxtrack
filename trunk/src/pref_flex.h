@@ -339,7 +339,7 @@ extern int ltr_int_parser_lex \
 #undef YY_DECL
 #endif
 
-#line 54 "/home/builder/devel/ltr_svn/branches/new_server/src/pref_flex.lpp"
+#line 54 "/home/qbuilder/devel/ltr_svn/trunk/src/pref_flex.lpp"
 
 
 #line 346 "../pref_flex.h"

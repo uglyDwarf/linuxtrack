@@ -92,8 +92,8 @@ static void obj_init(object_t &obj)
 
 void read_obj()
 {
-  char *obj_list[] = {(char *)"sphere.obj", (char *)"xm8d_body.obj", (char *)"XM8_cockpit.obj", 
-                      NULL};
+  char *obj_list[] = {(char *)"sphere.obj", (char *)"sparow_opaq.obj", 
+                      (char *)"sparow_glass.obj", NULL};
   
   for(int i = 0; obj_list[i] != NULL; ++i){
     QFile f(PrefProxy::getDataPath((char *)obj_list[i]));
@@ -103,7 +103,7 @@ void read_obj()
     tcnt = 0;
 
     if(!f.open(QIODevice::ReadOnly | QIODevice::Text))
-      return;
+      continue;
 
     QTextStream in(&f);
     while(!in.atEnd()){

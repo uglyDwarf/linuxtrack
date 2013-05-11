@@ -457,13 +457,26 @@ uninstall-am: uninstall-nodist_pkgdataDATA
 	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
 	uninstall-nodist_pkgdataDATA
 
+@DARWIN_TRUE@@WINE_PLUGIN_TRUE@  linuxtrack-wine.exe : bridge_mac
 
-@WINE_PLUGIN_TRUE@.PHONY : bridge bridge64
+@DARWIN_FALSE@@WINE64_TRUE@@WINE_PLUGIN_TRUE@  linuxtrack-wine.exe : bridge64
+@DARWIN_FALSE@@WINE64_FALSE@@WINE_PLUGIN_TRUE@  linuxtrack-wine.exe : bridge
 
-@WINE64_TRUE@@WINE_PLUGIN_TRUE@  linuxtrack-wine.exe : bridge64
-@WINE64_FALSE@@WINE_PLUGIN_TRUE@  linuxtrack-wine.exe : bridge
+@WINE_PLUGIN_TRUE@.PHONY : bridge_files bridge64_files
 
-@WINE_PLUGIN_TRUE@bridge :
+@WINE_PLUGIN_TRUE@bridge_mac : bridge_files
+@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib Tester.exe 
+@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib Controller.exe 
+@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib NPClient.dll 
+@WINE_PLUGIN_TRUE@	makensis ltr_wine.nsi
+
+@WINE_PLUGIN_TRUE@bridge : bridge_files
+@WINE_PLUGIN_TRUE@	makensis ltr_wine.nsi
+
+@WINE_PLUGIN_TRUE@bridge64 : bridge64_files
+@WINE_PLUGIN_TRUE@	makensis ltr_wine64.nsi
+
+@WINE_PLUGIN_TRUE@bridge_files :
 @WINE_PLUGIN_TRUE@	$(MAKE) -C tester CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 @WINE_PLUGIN_TRUE@	$(MAKE) -C controller CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 @WINE_PLUGIN_TRUE@	$(MAKE) -C client CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
@@ -472,9 +485,8 @@ uninstall-am: uninstall-nodist_pkgdataDATA
 @WINE_PLUGIN_TRUE@	cp controller/Controller.exe.so Controller.exe
 @WINE_PLUGIN_TRUE@	cp controller/Controller.exe Controller.sh
 @WINE_PLUGIN_TRUE@	cp client/NPClient.dll.so NPClient.dll
-@WINE_PLUGIN_TRUE@	makensis ltr_wine.nsi
 
-@WINE_PLUGIN_TRUE@bridge64 :
+@WINE_PLUGIN_TRUE@bridge64_files :
 @WINE_PLUGIN_TRUE@	$(MAKE) -C tester Tester64.exe Tester.exe CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 @WINE_PLUGIN_TRUE@	$(MAKE) -C controller CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 @WINE_PLUGIN_TRUE@	$(MAKE) -C client NPClient64.dll.so NPClient.dll.so CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
@@ -486,7 +498,6 @@ uninstall-am: uninstall-nodist_pkgdataDATA
 @WINE_PLUGIN_TRUE@	cp client/NPClient64.dll.so NPClient64.dll
 @WINE_PLUGIN_TRUE@	cp controller/Controller.exe.so Controller.exe
 @WINE_PLUGIN_TRUE@	cp controller/Controller.exe Controller.sh
-@WINE_PLUGIN_TRUE@	makensis ltr_wine64.nsi
 
 @WINE_PLUGIN_TRUE@clean-local: clean-local-check
 @WINE_PLUGIN_TRUE@.PHONY: clean-local-check
