@@ -192,8 +192,6 @@ bool GLWidget::makeObjects()
        }
        for(tris_index = obj.tris_table.begin(); 
            tris_index != obj.tris_table.end(); ++tris_index){
-//trying to remove glass to see what speedup we'll gain...
-//         if(tris_index->glass) continue;
          glNewList(list, GL_COMPILE);
          if(textured){
            glBindTexture(GL_TEXTURE_2D, textures[cntr]);
@@ -213,8 +211,10 @@ bool GLWidget::makeObjects()
            triangles++;
 	 }
          glEnd();
-         glDepthMask (GL_TRUE);
-	 glDisable(GL_BLEND);
+	 if(tris_index->glass){
+           glDepthMask (GL_TRUE);
+           glDisable(GL_BLEND);
+         }
          glEndList();
 	 objects.push_back(list);
          ++list;
