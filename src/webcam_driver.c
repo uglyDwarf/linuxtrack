@@ -75,6 +75,10 @@ static char *get_webcam_id(int fd)
     //Look for capabilities we need
     if((cap & V4L2_CAP_VIDEO_CAPTURE) && 
       (cap & V4L2_CAP_STREAMING)){
+      ////for leading space infested name verification
+      //  char *spaced_name = NULL;
+      //  asprintf(&spaced_name, " %s",(char *)capability.card);
+      //  return spaced_name;
       return ltr_int_my_strdup((char *)capability.card);
     }else{
       ltr_int_log_message("  Found V4L2 webcam but it doesn't support streaming:-(\n");
@@ -92,7 +96,8 @@ static int is_our_webcam(char *fname, char *webcam_id)
   }
   
   char *current_id = get_webcam_id(fd);
-  if((current_id != NULL) && strncasecmp(current_id, webcam_id, strlen(webcam_id)) == 0){
+  char *stripped = current_id + strspn(current_id, " \t");
+  if((current_id != NULL) && strncasecmp(stripped, webcam_id, strlen(webcam_id)) == 0){
     //this is the device we are looking for!
     free(current_id);
     return fd;
@@ -129,8 +134,11 @@ int ltr_int_enum_webcams(char **ids[])
       
       id = get_webcam_id(fd);
       if(id != NULL){
+        //get rid of leading spaces!
+        char *tmp = id + strspn(id, " \t");
 	++counter;
-	ltr_int_add_element(wc_list, id); 
+	ltr_int_add_element(wc_list, ltr_int_my_strdup(tmp));
+	free(id); 
       }
       v4l2_close(fd);
       free(fname);
@@ -221,8 +229,8 @@ int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
 	      new_fmt->fourcc = fmt.pixelformat;
 	      new_fmt->w = frm.discrete.width;
 	      new_fmt->h = frm.discrete.height;
-	      new_fmt->fps_num = ival.discrete.numerator;
-	      new_fmt->fps_den = ival.discrete.denominator;
+	      new_fmt->fps_num = 30;
+	      new_fmt->fps_den = 1;
 	      ltr_int_add_element(formats, new_fmt);
 	      ++items;
             }
