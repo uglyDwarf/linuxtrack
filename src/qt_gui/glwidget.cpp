@@ -9,11 +9,12 @@
 #else
 #include <glu.h>
 #endif
-#include <iostream>
-#include <math.h>
+#include <map>
+#include <cmath>
 #include "objreader.h"
 #include "glwidget.h"
 #include <iostream> 
+
 #include "pathconfig.h"
 
 ReaderThread::ReaderThread(): QThread()
@@ -143,7 +144,7 @@ void GLWidget::paintGL()
 
      glMatrixMode(GL_PROJECTION);
      glLoadIdentity();
-     gluPerspective(55.0, (double)width/height, 0.01, 45.0);
+     gluPerspective(55.0, (double)width/height, 0.1, 45.0);
      glMatrixMode(GL_MODELVIEW);
  }
 
@@ -173,27 +174,36 @@ bool GLWidget::makeObjects()
    int triangles = 0;
    int cntr;
    int objectsNumber = object_table.size();
+   bool textureChanged = false;
+   QString currentTexture;
+   
      std::vector<object_t>::const_iterator obj_index;
      std::vector<tri_t>::const_iterator tris_index;
      GLuint *textures = (GLuint*)malloc(objectsNumber * sizeof(GLuint));
-     cntr = 0;
-     for(obj_index = object_table.begin(); obj_index != object_table.end(); ++obj_index, ++cntr){
+     cntr = -1;
+     for(obj_index = object_table.begin(); obj_index != object_table.end(); ++obj_index){
        obj = *obj_index;
        //GLuint texture;
        GLuint list = glGenLists(obj.tris_table.size());
        
        if(obj.texture.isEmpty()){
          textured = false;
+         currentTexture = "";
        }else{
          textured = true;
        }
-       if(textured){
+       textureChanged = false;
+       if(textured && (currentTexture != QString(obj.texture))){
+         cntr += 1;
+         //std::cout<<"binding texture "<<qPrintable(QString(obj.texture))<<std::endl;
          textures[cntr] = bindTexture(QImage(QString(obj.texture)), GL_TEXTURE_2D);
+         textureChanged = true;
+         currentTexture = QString(obj.texture);
        }
        for(tris_index = obj.tris_table.begin(); 
            tris_index != obj.tris_table.end(); ++tris_index){
          glNewList(list, GL_COMPILE);
-         if(textured){
+         if(textured && textureChanged){
            glBindTexture(GL_TEXTURE_2D, textures[cntr]);
          }
 	 if(tris_index->glass){
