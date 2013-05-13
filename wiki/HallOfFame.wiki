@@ -49,6 +49,9 @@
 
 == Donors ==
 
+*Ben* (Mid7night, x-plane.org forum)
+  Thank you for allowing me to use your beautiful XM8 plane for 3D cockpit visualization.
+
 *Michael* (Macmichael, x-plane.org forum)
   Thank you for lending us your brand new TrackIR5 - without you, TIR5 suport would take ages to finish.
 
@@ -105,3 +108,6 @@
 
 *Bill* (sparker, x-plane.org forum) 
   Can't thank you enough for all your help and everything you did to support this project...
+
+*Cagatay* (http://freepanorama.blogspot.cz/)
+  Thank you for permission to use your beautiful panorama for 3D cockpit visualization.
