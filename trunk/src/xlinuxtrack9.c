@@ -218,6 +218,7 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFromWho,
             pv_present = false;
           }else{
             pv_present = true;
+            XPLMSetDatai(PV_Enabled_DR, true);
           }
         }
         break;
@@ -235,6 +236,9 @@ static void activate(void)
           freeze = false;
           ltr_wakeup();
           ltr_recenter();
+    if(PV_Enabled_DR){
+          XPLMSetDatai(PV_Enabled_DR, true);
+    }
   }
 }
 
@@ -242,6 +246,9 @@ static void deactivate(void)
 {
   active_flag=false;
   int current_view = XPLMGetDatai(view);
+  if(PV_Enabled_DR){
+          XPLMSetDatai(PV_Enabled_DR, false);
+  }
   if((!pv_present) && (current_view == 1026)){
     XPLMSetDataf(head_x,base_x);
     XPLMSetDataf(head_y,base_y);
@@ -320,8 +327,9 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
     base_the = XPLMGetDataf(head_the);
     view_changed = false;
   }
-  if(PV_Enabled_DR)
-    XPLMSetDatai(PV_Enabled_DR, active_flag);
+  //if(PV_Enabled_DR)
+  //  printf("PV_ENABLED=%d\n", XPLMGetDatai(PV_Enabled_DR));
+    //XPLMSetDatai(PV_Enabled_DR, active_flag);
   
   if(!initialized){
     if(ltr_get_tracking_state() != STOPPED){
@@ -421,6 +429,8 @@ static XPWidgetID		setupText4;
 static char line4[] = "Use commands linuxtrack/ltr_run, linuxtrack/ltr_pause, linuxtrack/ltr_recenter.";
 static XPWidgetID		setupText5;
 static char line5[] = "For more details refer to http://code.google.com/p/linux-track/wiki/XplanePluginSetup";
+static XPWidgetID		setupText6;
+static char line6[] = "Pilotview plugin found, chanelling headtracking data through it!";
 
 static int setupDialog()
 {
@@ -435,7 +445,11 @@ static int setupDialog()
     int x  = 100;
     int y  = 600;
     int w  = 500;
-    int h  = 170;
+    int h  = 150;
+    if(pv_present){
+      h += 20;
+    }
+
     int x2 = x + w;
     int y2 = y - h;
 
@@ -447,10 +461,16 @@ static int setupDialog()
 				  xpWidgetClass_MainWindow 
     );
     y -= 20;
+    if(pv_present){
+      //y -= 20;
+      setupText6 = XPCreateWidget(x+20, y, x2 -20, y -20,
+    				   1, line6, 0, setupWindow, 
+				   xpWidgetClass_Caption);
+      y -= 20;
+    }
     setupText = XPCreateWidget(x+20, y, x2 -20, y -20 ,
     				   1, line1, 0, setupWindow, 
 				   xpWidgetClass_Caption);
-    
     y -= 20;
     setupText2 = XPCreateWidget(x+20, y, x2 -20, y -20 ,
     				   1, line2, 0, setupWindow, 
@@ -468,7 +488,7 @@ static int setupDialog()
     				   1, line5, 0, setupWindow, 
 				   xpWidgetClass_Caption);
     y -= 20;
-    setupButton = XPCreateWidget(x+80, y2+40, x2-80, y2+20, 1, 
+    setupButton = XPCreateWidget(x+80, y2+27, x2-80, y2+7, 1, 
   				  "Close", 0, setupWindow,
   				  xpWidgetClass_Button);
     XPAddWidgetCallback(setupWindow, (XPWidgetFunc_t)setupWindowHandler);
