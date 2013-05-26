@@ -231,8 +231,8 @@ void Extractor::wineFinished(bool result)
     destPath = makeDestPath(PrefProxy::getRsrcDirPath());
     et->start(targets, winePrefix, destPath);
   }
-  ui.BrowseButton->setEnabled(true);
-  ui.QuitButton->setEnabled(true);
+  //ui.BrowseButton->setEnabled(true);
+  //ui.QuitButton->setEnabled(true);
 }
 
 void Extractor::extractFirmware(QString file)
@@ -276,6 +276,8 @@ void Extractor::on_BrowseButton_pressed()
     return;
   }
   ui.QuitButton->setEnabled(false);
+  ui.BrowseButton->setEnabled(false);
+  ui.DownloadButton->setEnabled(false);
   winePrefix = prefix;
   //if(!QDir::current().mkdir("wine")){
   //  return;
@@ -324,6 +326,7 @@ void Extractor::progress(const QString &msg)
 void Extractor::threadFinished()
 {
   ui.BrowseButton->setEnabled(true);
+  ui.DownloadButton->setEnabled(true);
   ui.QuitButton->setEnabled(true);
   bool everything = et->haveEverything();
   if(everything){
@@ -360,6 +363,8 @@ void Extractor::on_DownloadButton_pressed()
     return;
   }
   ui.QuitButton->setEnabled(false);
+  ui.BrowseButton->setEnabled(false);
+  ui.DownloadButton->setEnabled(false);
   winePrefix = prefix;
   progressDlg->show();
   progressDlg->raise();
