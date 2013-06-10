@@ -1131,8 +1131,8 @@ static void get_tir3_info(tir_info *info)
 
 static void get_tir4_info(tir_info *info)
 {
-  info->width = 710;
-  info->height = 2 * 288;
+  info->width = 400;
+  info->height = 300;
   info->hf = 2.0f;
   info->dev_type = TIR4;
 }

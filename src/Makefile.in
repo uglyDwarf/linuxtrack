@@ -128,7 +128,8 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES) $(pkglib_LTLIBRARIES)
 libfakeusb_la_DEPENDENCIES = libltr.la
 am_libfakeusb_la_OBJECTS = libfakeusb_la-fakeusb.lo \
-	libfakeusb_la-tir_model.lo
+	libfakeusb_la-tir_model.lo libfakeusb_la-tir4_model.lo \
+	libfakeusb_la-sn4_model.lo
 libfakeusb_la_OBJECTS = $(am_libfakeusb_la_OBJECTS)
 libfakeusb_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(libfakeusb_la_CXXFLAGS) \
@@ -507,7 +508,7 @@ libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
 libltopenusb_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS}
 libltopenusb_la_LIBADD = -lopenusb libltr.la
 libltopenusb_la_LDFLAGS = ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
-libfakeusb_la_SOURCES = fakeusb.c usb_ifc.h tir_model.cpp tir_model.h
+libfakeusb_la_SOURCES = fakeusb.c usb_ifc.h tir_model.cpp tir_model.h tir4_model.cpp sn4_model.cpp
 libfakeusb_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS}
 libfakeusb_la_CXXFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS}
 libfakeusb_la_LIBADD = libltr.la
@@ -979,6 +980,12 @@ ltr_server1-ipc_utils.obj: ipc_utils.c
 
 libfakeusb_la-tir_model.lo: tir_model.cpp
 	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfakeusb_la_CXXFLAGS) $(CXXFLAGS) -c -o libfakeusb_la-tir_model.lo `test -f 'tir_model.cpp' || echo '$(srcdir)/'`tir_model.cpp
+
+libfakeusb_la-tir4_model.lo: tir4_model.cpp
+	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfakeusb_la_CXXFLAGS) $(CXXFLAGS) -c -o libfakeusb_la-tir4_model.lo `test -f 'tir4_model.cpp' || echo '$(srcdir)/'`tir4_model.cpp
+
+libfakeusb_la-sn4_model.lo: sn4_model.cpp
+	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfakeusb_la_CXXFLAGS) $(CXXFLAGS) -c -o libfakeusb_la-sn4_model.lo `test -f 'sn4_model.cpp' || echo '$(srcdir)/'`sn4_model.cpp
 
 libft_la-facetrack.lo: facetrack.cpp
 	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libft_la_CXXFLAGS) $(CXXFLAGS) -c -o libft_la-facetrack.lo `test -f 'facetrack.cpp' || echo '$(srcdir)/'`facetrack.cpp

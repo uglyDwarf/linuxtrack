@@ -11,7 +11,7 @@ typedef dev_found (find_tir_fun)();
 typedef bool (prepare_device_fun)(unsigned int config, unsigned int interface);
 typedef bool (send_data_fun)(int out_ep, unsigned char data[], size_t size);
 typedef bool (receive_data_fun)(int in_ep, unsigned char data[], size_t size, size_t *transferred,
-                         unsigned int timeout);
+                         long timeout);
 typedef void (finish_usb_fun)(unsigned int interface);
 
 
