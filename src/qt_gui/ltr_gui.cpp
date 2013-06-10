@@ -129,7 +129,6 @@ LinuxtrackGui::~LinuxtrackGui()
   me = NULL;
   delete helper;
   helper = NULL;
-  std::cout<<"Closing gui settings...."<<std::endl;
   delete gui_settings;
   gui_settings = NULL;
   delete ps;
@@ -176,6 +175,7 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   showWindow->close();
   helper->close();
   lv->close();
+  ps->close();
   event->accept();
 }
 

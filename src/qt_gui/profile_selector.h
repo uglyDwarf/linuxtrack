@@ -18,6 +18,8 @@ class ProfileSelector : public QWidget
    ProfileSetup *ps;
    bool initializing;
    bool setCurrentProfile(QString prof);
+ public slots:
+   bool close();
  private slots:
   void on_Profiles_currentIndexChanged(const QString &text);
   void on_CopyFromDefault_pressed();
