@@ -103,8 +103,14 @@ bool ltr_int_init_usb()
 {
   printf("Initializing fakeusb!\n");
   current_model = get_tir_type();
-  if(current_model == SMARTNAV4){
-    init_model(data_file);
+  switch(current_model){
+    case SMARTNAV4:
+    case TIR4:
+    case TIR5:
+      return init_model(data_file, current_model);
+      break;
+    default:
+      break;
   }
   return true;
 }
@@ -128,9 +134,14 @@ bool send_cfg = false;
 bool ltr_int_send_data(int out_ep, unsigned char data[], size_t size)
 {
   (void) out_ep;
-  if(current_model == SMARTNAV4){
-    fakeusb_send(data, size);
-    return true;
+  switch(current_model){
+    case SMARTNAV4:
+    case TIR4:
+    case TIR5:
+      fakeusb_send(data, size);
+      return true;
+    default:
+      break;
   }
   unsigned int i;
   for(i = 0; i <size; ++i){
@@ -156,10 +167,16 @@ bool ltr_int_receive_data(int in_ep, unsigned char data[], size_t size, size_t *
                   unsigned int timeout)
 {
   (void) in_ep;
-  if(current_model == SMARTNAV4){
-    fakeusb_receive(data, size, transferred, timeout);
-    ltr_int_usleep(8000);
-    return true;
+  switch(current_model){
+    case SMARTNAV4:
+    case TIR4:
+    case TIR5:
+      fakeusb_receive(data, size, transferred, timeout);
+      ltr_int_usleep(8000);
+      return true;
+      break;
+    default:
+      break;
   }
 
   (void) timeout;
@@ -186,8 +203,14 @@ bool ltr_int_receive_data(int in_ep, unsigned char data[], size_t size, size_t *
 void ltr_int_finish_usb(unsigned int interface)
 {
   (void) interface;
-  if(current_model == SMARTNAV4){
-    close_model();
+  switch(current_model){
+    case SMARTNAV4:
+    case TIR4:
+    case TIR5:
+      close_model();
+      break;
+    default:
+      break;
   }
 }
 
