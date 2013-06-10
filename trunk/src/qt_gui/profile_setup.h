@@ -21,6 +21,8 @@ class ProfileSetup : public QWidget
    ScpForm *sc;
    QString profileName;
    bool initializing;
+ public slots:
+   bool close();
  private slots:
    void on_DetailedAxisSetup_pressed();
    void on_PitchEnable_stateChanged(int state);

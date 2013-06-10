@@ -30,6 +30,12 @@ void ProfileSetup::connect()
   QObject::connect(&TRACKER, SIGNAL(setCommonFF(float)), this, SLOT(setCommonFF(float)));
 }
 
+bool ProfileSetup::close()
+{
+  sc->close();
+  return QWidget::close();
+}
+
 void ProfileSetup::on_DetailedAxisSetup_pressed()
 {
   sc->show();

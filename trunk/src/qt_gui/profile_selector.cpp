@@ -129,3 +129,10 @@ void ProfileSelector::on_ExportProfile_pressed()
   ps->exportProfile(tf);
 }
 
+bool ProfileSelector::close()
+{
+  ps->close();
+  return QWidget::close();
+}
+
+
