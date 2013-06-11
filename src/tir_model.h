@@ -1,6 +1,7 @@
 #ifndef TIR_MODEL__H
 #define TIR_MODEL__H
 
+#define USB_IMPL_ONLY
 #include "usb_ifc.h"
 
 

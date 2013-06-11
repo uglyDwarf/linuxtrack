@@ -164,7 +164,7 @@ uint8_t pkt_buf[PKT_MAX];
 //}
 
 bool ltr_int_receive_data(int in_ep, unsigned char data[], size_t size, size_t *transferred,
-                  unsigned int timeout)
+                  long timeout)
 {
   (void) in_ep;
   switch(current_model){
