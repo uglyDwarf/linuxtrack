@@ -55,6 +55,8 @@ Now the package can be safely installed:
 
 Instead of using sudo commmand you can login as root if it is a prefered way of obtaining root privileges on your distro. Just be sure you know what are you doing, since as root you can severely damage the system!
 
+*Please note, that linuxtrack has to be installed in /opt, otherwise it is not going to work (at least not without changing LD_LIBRARY_PATH to let it find its libraries).*
+
 When the package is installed, to make it a little bit convenient, let's make a link to the actual package:
 
 {{{
