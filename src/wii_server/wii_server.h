@@ -5,6 +5,8 @@
   #include "../../config.h"
 #endif
 
+#include <wii_com.h>
+#include <com_proc.h>
 #include "wiimote.h"
 #include "ui_wii_server.h"
 
@@ -31,6 +33,7 @@ class WiiServerWindow : public QWidget
   WiiThread *thread;
   QTimer *cmdTimer;
   struct mmap_s *mm;
+  command_t old_cmd;
  private slots:
   void update_state(server_state_t server_state);
 };

@@ -48,8 +48,8 @@ bool ltr_int_initWiiCom(bool isServer, struct mmap_s **mmm_p)
     }
   }else{
     if(ltr_int_server_running_already(prefFile, false, NULL, false) != 1){
-      ltr_int_log_message("Server not running!\n");
-      return false;
+      ltr_int_log_message("Server not running yet!\n");
+      //return false;
     }
   }
 
@@ -72,7 +72,7 @@ bool ltr_int_initWiiCom(bool isServer, struct mmap_s **mmm_p)
 void ltr_int_closeWiiCom()
 {
   ltr_int_setCommand(&mmm, STOP);
-  ltr_int_unmap_file(&mmm);
+  //ltr_int_unmap_file(&mmm); //breaks coms when tracking is stopped!!! 
   
   if(fullContactFile != NULL){
     free(fullContactFile);

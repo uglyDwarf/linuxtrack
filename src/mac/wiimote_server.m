@@ -17,7 +17,8 @@
 #define WIIMOTE_HORIZONTAL_RESOLUTION 1024
 #define WIIMOTE_VERTICAL_RESOLUTION 768
 
-struct mmap_s *mmm;
+static struct mmap_s *mmm;
+static command_t old_cmd = STOP;
 
 static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII_DISCONNECTED;
 
@@ -48,7 +49,6 @@ static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII
 {
   (void) theTimer;
   indication = ltr_int_getWiiIndication(mmm);
-  static command_t old_cmd = STOP;
   command_t cmd;
   cmd = ltr_int_getCommand(mmm);
   if(cmd != old_cmd){
@@ -126,6 +126,7 @@ static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII
   timer = nil;
   [connIndicatorOnTimer invalidate];
   connIndicatorOnTimer = nil;
+  old_cmd = STOP;
   NSLog(@"We are disconnected!");
 }
 

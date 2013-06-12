@@ -9,7 +9,8 @@
 #include "../utils.h"
 #include "wii_com.h"
 
-struct mmap_s *mmm;
+static struct mmap_s *mmm;
+static int timeout;
 
 static int get_indication()
 {
@@ -75,7 +76,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
 			      struct frame_type *frame)
 {
   (void) ccb;
-  int timeout = 0;
+  timeout = 0;
   bool frame_aquired = false;
   frame->width = 1024/2;
   frame->height = 768/2;
@@ -93,7 +94,9 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
 	timeout = 0;
     }else{
       if(++timeout > 1000){
-        return -1;
+        ltr_int_log_message("Timeout in tracker_get_frame(wiimote)!\n");
+        return 0;
+        timeout = 0;
       }
       ltr_int_usleep(5000);
     }
