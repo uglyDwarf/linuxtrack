@@ -88,6 +88,34 @@ void ltr_int_draw_square(image *img, int x, int y, int size)
   }
 }
 
+void ltr_int_draw_empty_square(image *img, int x1, int y1, int x2, int y2)
+{
+  assert(img != NULL);
+  assert(x1 >= 0);
+  assert(y1 >= 0);
+  assert(x2 >= x1);
+  assert(y2 >= y1);
+  x1 = x1 / img->ratio;
+  x2 = x2 / img->ratio;
+  
+//  clip_coord(&x, 0, img->w);
+  clip_coord(&x1, 0, img->w-1);
+  clip_coord(&y1, 0, img->h-1);
+  clip_coord(&x2, 0, img->w-1);
+  clip_coord(&y2, 0, img->h-1);
+  
+  draw_stripe(img, x1, y1, x2, 0xFF);
+  draw_stripe(img, x1, y2, x2, 0xFF);
+  unsigned char *ptr = img->bitmap + y1 * img->w + x1;
+  int xd = x2 - x1;
+  while(y1 <= y2){
+    *(ptr) = 0xFF;
+    *(ptr + xd) = 0xFF;
+    ptr += img->w;
+    ++y1;
+  }
+}
+
 
 void ltr_int_draw_cross(image *img, int x, int y, int size)
 {
