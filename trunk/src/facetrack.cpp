@@ -13,11 +13,24 @@
 
 static cv::CascadeClassifier *cascade = NULL;
 static double scale = 0.5;
+static const double roi_factor = 0.3;
 
 static float face_x = 0;
 static float face_y = 0;
 static float face_w = 0;
 static float face_h = 0;
+static float face_x1 = 0;
+static float face_y1 = 0;
+static float face_x2 = 0;
+static float face_y2 = 0;
+
+static float last_face_x = 0.0f;
+static float last_face_y = 0.0f;
+static float last_face_w = 0.0f;
+static float last_face_h = 0.0f;
+
+static std::vector<cv::Rect> faces;
+static cv::Rect lastCandidate;    
 
 //static int frame_size = 0;
 static int frame_w = 0;
@@ -34,32 +47,56 @@ float expfilt(float x,
               float y_minus_1,
               float filterfactor);
 
+void find_faces(cv::Mat &img, float factor)
+{
+  cv::Size s(lastCandidate.width*roi_factor, lastCandidate.height*roi_factor);
+  cv::Rect new_roi(lastCandidate.x - s.width, lastCandidate.y - s.height, 
+    lastCandidate.width + 2 * s.width, lastCandidate.height + 2 * s.height);
+  new_roi &= cv::Rect(0,0,img.cols, img.rows);
+  cv::Mat roi(img, new_roi);
+  faces.clear();
+  if((new_roi.width > 0) && (new_roi.height > 0)){
+    cascade->detectMultiScale(roi, faces, factor, 2, 0, minFace);
+  }
+  if(faces.size() == 0){
+    cascade->detectMultiScale(img, faces, factor, 2, 0, minFace);
+  }else{
+    for(std::vector<cv::Rect>::iterator i = faces.begin(); i != faces.end(); ++i){
+      i->x += new_roi.x;
+      i->y += new_roi.y;
+    }
+  }
+}
+
 void detect(cv::Mat& img)
 {
-  std::vector<cv::Rect> faces;
   double current_scale;
   switch(ltr_int_wc_get_optim_level()){
     case 0:
       cv::equalizeHist(img, img);
-      cascade->detectMultiScale(img, faces, 1.1, 2, 0, minFace);
+      //cascade->detectMultiScale(img, faces, 1.1, 2, 0, minFace);
+      find_faces(img, 1.1);
       current_scale = 1;
       break;
     case 1:
       cv::equalizeHist(img, img);
-      cascade->detectMultiScale(img, faces, 1.2, 2, 0, minFace);
+      //cascade->detectMultiScale(img, faces, 1.2, 2, 0, minFace);
+      find_faces(img, 1.2);
       current_scale = 1;
       break;
     case 2:
       cv::resize(img, scaled, cv::Size(), scale, scale);
       cv::equalizeHist(scaled, scaled);
-      cascade->detectMultiScale(scaled, faces, 1.1, 2, 0, minFace);
+      //cascade->detectMultiScale(scaled, faces, 1.1, 2, 0, minFace);
+      find_faces(scaled, 1.1);
       current_scale = scale;
       break;
     case 3:
     default:
       cv::resize(img, scaled, cv::Size(), scale, scale);
       cv::equalizeHist(scaled, scaled);
-      cascade->detectMultiScale(scaled, faces, 1.2, 2, 0, minFace);
+      //cascade->detectMultiScale(scaled, faces, 1.2, 2, 0, minFace);
+      find_faces(scaled, 1.2);
       current_scale = scale;
       break;
   }
@@ -67,23 +104,24 @@ void detect(cv::Mat& img)
   double area = -1;
   const cv::Rect *candidate = NULL;
   for(std::vector<cv::Rect>::const_iterator i = faces.begin(); i != faces.end(); ++i){
-    if(i->width * i->height > area){
+    if(i->area() > area){
       candidate = &(*i);
-      area = i->width * i->height;
+      area = i->area();
     }
   }
   if(candidate != NULL){
+    lastCandidate = *candidate;
     expFiltFactor = ltr_int_wc_get_eff();
+    
+    face_x1 = candidate->x/ current_scale;
+    face_y1 = candidate->y/ current_scale;
+    face_x2 = (candidate->x + candidate->width) / current_scale;
+    face_y2 = (candidate->y + candidate->height) / current_scale;
     
     float x = (candidate->x + candidate->width / 2) / current_scale - frame_w/2;
     float y = (candidate->y + candidate->height / 2) / current_scale - frame_h/2;
     float w = candidate->width / current_scale;
     float h = candidate->height / current_scale;
-    
-    static float last_face_x = 0.0f;
-    static float last_face_y = 0.0f;
-    static float last_face_w = 0.0f;
-    static float last_face_h = 0.0f;
     
     if(init){
       last_face_x = face_x = x;
@@ -126,6 +164,7 @@ void *detector_thread(void *)
     return NULL;
   }
   init = true;
+  lastCandidate = cv::Rect(0, 0, 0, 0);
   while(run){
     pthread_mutex_lock(&frame_mx);
     while(frame_status != READY){
@@ -197,7 +236,7 @@ void face_detect(image *img, struct bloblist_type *blt)
     blt->blobs[0].x = face_x;
     blt->blobs[0].y = face_y;
     blt->blobs[0].score = face_w * face_h;
-    ltr_int_draw_cross(img, face_x + frame_w/2, face_y + frame_h/2, 20);
+    ltr_int_draw_empty_square(img, face_x1, face_y1, face_x2, face_y2);
   }else{
     blt->num_blobs = 0;
   }
