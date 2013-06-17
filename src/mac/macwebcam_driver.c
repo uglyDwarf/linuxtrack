@@ -63,7 +63,7 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
   char *cap_path = ltr_int_get_app_path("/../helper/qt_cam");
   char *cam_id = ltr_int_my_strdup(ltr_int_wc_get_id());
   char *cascade = NULL;
-  if(ccb->device.category == webcam_ft){
+  if(ccb->device.category == mac_webcam_ft){
     if(ltr_int_wc_get_cascade() == NULL){
 	  ltr_int_log_message("No cascade specified!\n");
 	  return -1;
@@ -115,18 +115,21 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
   while(!frame_aquired){
     if(ltr_int_getFrameFlag(&mmm)){
       if(frame->bitmap != NULL){
-	memcpy(frame->bitmap, ltr_int_getFramePtr(&mmm), frame->width * frame->height);
+        memcpy(frame->bitmap, ltr_int_getFramePtr(&mmm), frame->width * frame->height);
       }
       ltr_int_resetFrameFlag(&mmm);
     }
     if(ltr_int_haveNewBlobs(&mmm)){
-	frame->bloblist.num_blobs = ltr_int_getBlobs(&mmm, frame->bloblist.blobs);
-	frame_aquired = true;
+	  frame->bloblist.num_blobs = ltr_int_getBlobs(&mmm, frame->bloblist.blobs);
+	  frame_aquired = true;
     }else{
       if(!ltr_int_child_alive()){
         return -1;
       }
       ltr_int_usleep(5000);
+    }
+    if(ltr_int_getCommand(&mmm) == STOP){
+      break;
     }
   }
   return 0;

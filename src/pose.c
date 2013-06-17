@@ -373,6 +373,9 @@ void ltr_int_pose_sort_blobs(struct bloblist_type bl)
       bl.blobs[0] = tmp_blob;
     }
   }else if(ltr_int_is_single_point()){
+    if(bl.num_blobs <= 1){
+      return;
+    }
     //Get biggest one to index 0
     if(bl.blobs[0].score > bl.blobs[1].score){
       if(bl.blobs[0].score > bl.blobs[2].score){

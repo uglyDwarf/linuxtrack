@@ -19,7 +19,6 @@ class MacWebcamFtPrefs : public QWidget{
   const QString id;
   Ui::MacWebcamFtSetupForm ui;
   bool initializing;
-  bool prefInit;
  private slots:
   void on_WebcamFtResolutionsMac_activated(int index);
   void on_FindCascadeMac_pressed();
