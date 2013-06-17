@@ -30,9 +30,9 @@ MacWebcamFtPrefs::MacWebcamFtPrefs(const QString &dev_id, QWidget *parent) : QWi
 {
 //  Connect();
   ui.setupUi(this);
-  prefInit = true;
-  Activate(id, prefInit);
-  prefInit = false;
+  initializing = true;
+  Activate(id, initializing);
+  initializing = false;
 }
 
 MacWebcamFtPrefs::~MacWebcamFtPrefs()
@@ -70,10 +70,10 @@ bool MacWebcamFtPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"MacWebcam-face");
       PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
       PREF.addKeyVal(sec, (char *)"Resolution", (char *)"");
-      QString cascadePath = PrefProxy::getDataPath("haarcascade_frontalface_alt2.xml");
+      QString cascadePath = PrefProxy::getDataPath("/haarcascades/haarcascade_frontalface_alt2.xml");
 	  QFileInfo finf = QFileInfo(cascadePath);
 	  PREF.addKeyVal(sec, (char *)"Cascade", qPrintable(finf.canonicalFilePath()));
-	  PREF.activateDevice(sec);
+  	  PREF.activateDevice(sec);
     }else{
       return false;
     }
@@ -98,21 +98,21 @@ bool MacWebcamFtPrefs::Activate(const QString &ID, bool init)
       ui.WebcamFtResolutionsMac->setCurrentIndex(res_index);
     }
     on_WebcamFtResolutionsMac_activated(res_index);
+    const char *cascade = ltr_int_wc_get_cascade();
+    QString cascadePath;
+    if(cascade == NULL){
+      cascadePath = PrefProxy::getDataPath("/haarcascades/haarcascade_frontalface_alt2.xml");
+    }else{
+      cascadePath = cascade;
+    }
+    ui.CascadePathMac->setText(cascadePath);
+    int n = (2.0 / ltr_int_wc_get_eff()) - 2;
+    ui.ExpFilterFactorMac->setValue(n);
+    on_ExpFilterFactorMac_valueChanged(n);
+    n = ltr_int_wc_get_optim_level();
+    ui.OptimLevelMac->setValue(n);
+    on_OptimLevelMac_valueChanged(n);
   }
-  prefInit = true;
-  const char *cascade = ltr_int_wc_get_cascade();
-  QString cascadePath;
-  if(cascade == NULL){
-    cascadePath = PrefProxy::getDataPath("haarcascade_frontalface_alt2.xml");
-  }else{
-    cascadePath = cascade;
-  }
-  ui.CascadePathMac->setText(cascadePath);
-  int n = (2.0 / ltr_int_wc_get_eff()) - 2;
-  ui.ExpFilterFactorMac->setValue(n);
-  on_ExpFilterFactorMac_valueChanged(n);
-  ui.OptimLevelMac->setValue(ltr_int_wc_get_optim_level());
-  prefInit = false;
   ltr_int_wc_close_prefs();
   initializing = false;
   return true;
@@ -161,7 +161,7 @@ void MacWebcamFtPrefs::on_FindCascadeMac_pressed()
 
 void MacWebcamFtPrefs::on_CascadePathMac_editingFinished()
 {
-  if(!prefInit){
+  if(!initializing){
     ltr_int_wc_set_cascade(ui.CascadePathMac->text().toAscii().data());
   }
 }
@@ -170,14 +170,14 @@ void MacWebcamFtPrefs::on_ExpFilterFactorMac_valueChanged(int value)
 {
   float a = 2 / (value + 2.0); //EWMA window size
   //ui.ExpFiltFactorValMac->setText(QString("%1").arg(a, 0, 'g', 2));
-  if(!prefInit){
+  if(!initializing){
     ltr_int_wc_set_eff(a);
   }
 }
 
 void MacWebcamFtPrefs::on_OptimLevelMac_valueChanged(int value)
 {
-  if(!prefInit){
+  if(!initializing){
     ltr_int_wc_set_optim_level(value);
   }
 }
