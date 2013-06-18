@@ -53,7 +53,7 @@ build_triplet = @build@
 host_triplet = @host@
 #SUBDIRS += src/mickey
 @DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@am__append_1 = src/helper
-@WINE_PLUGIN_TRUE@am__append_2 = src/wine_bridge
+@WINE_PLUGIN_TRUE@am__append_2 = src/wine_bridge/client src/wine_bridge/controller src/wine_bridge/tester src/wine_bridge 
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(dist_pkgdata_DATA) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
@@ -126,7 +126,9 @@ AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
 	distdir dist dist-all distcheck
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = src src/mac src/tests doc src/helper src/wine_bridge
+DIST_SUBDIRS = src src/mac src/tests doc src/helper \
+	src/wine_bridge/client src/wine_bridge/controller \
+	src/wine_bridge/tester src/wine_bridge
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -240,6 +242,8 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
+WINE64_LIBS = @WINE64_LIBS@
+WINE_LIBS = @WINE_LIBS@
 XPLANE_SDK = @XPLANE_SDK@
 YACC = @YACC@
 YFLAGS = @YFLAGS@

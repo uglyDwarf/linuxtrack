@@ -138,6 +138,18 @@ AC_ARG_ENABLE([mickey],
             [with_mickey=no]
 )
 
+AC_ARG_WITH([wine-libs],
+            [AS_HELP_STRING([--with-wine-libs],
+              [specify Wine libraries to link aginst])], 
+            [WINE_LIBS=${with_wine_libs}]
+)
+
+AC_ARG_WITH([wine64-libs],
+            [AS_HELP_STRING([--with-wine64-libs],
+              [specify Wine64 libraries to link aginst])], 
+            [WINE64_LIBS=${with_wine64_libs}]
+)
+
 #AC_ARG_ENABLE([face_tracker],
 #            [AS_HELP_STRING([--enable-face-tracker],
 #              [enables building of face tracker (requires OpenCV 2.X)])], 
@@ -171,6 +183,8 @@ PKG_CHECK_MODULES([OPENCV], [opencv >= 2.0],
 )
 AC_SUBST([OPENCV_CFLAGS])
 AC_SUBST([OPENCV_LIBS])
+AC_SUBST([WINE_LIBS])
+AC_SUBST([WINE64_LIBS])
 
 
 case "$host_cpu" in
@@ -223,6 +237,9 @@ AC_CONFIG_FILES([
  src/wii_server/wii_server.pro
  src/helper/Makefile
  src/wine_bridge/Makefile
+ src/wine_bridge/client/Makefile
+ src/wine_bridge/controller/Makefile
+ src/wine_bridge/tester/Makefile
  doc/Makefile
  src/linuxtrack.pc
  src/mickey/mickey.pro

@@ -32,20 +32,24 @@ bridge64 : bridge64_files
 	makensis ltr_wine64.nsi
 
 
-bridge_files :
-	$(MAKE) -C tester CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
-	$(MAKE) -C controller CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
-	$(MAKE) -C client CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
+bridge_files : tester/Tester.exe.so tester/Tester.exe \
+               controller/Controller.exe.so controller/Controller.exe \
+               client/NPClient.dll.so
+#	$(MAKE) -C tester CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
+#	$(MAKE) -C controller CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
+#	$(MAKE) -C client CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 	cp tester/Tester.exe.so Tester.exe
 	cp tester/Tester.exe Tester.sh
 	cp controller/Controller.exe.so Controller.exe
 	cp controller/Controller.exe Controller.sh
 	cp client/NPClient.dll.so NPClient.dll
 
-bridge64_files :
-	$(MAKE) -C tester Tester64.exe Tester.exe CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
-	$(MAKE) -C controller CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
-	$(MAKE) -C client NPClient64.dll.so NPClient.dll.so CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
+bridge64_files : tester/Tester.exe.so tester/Tester.exe tester/Tester64.exe.so tester/Tester64.exe \
+               controller/Controller.exe.so controller/Controller.exe \
+               client/NPClient.dll.so client/NPClient64.dll.so
+#	$(MAKE) -C tester Tester64.exe Tester.exe CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
+#	$(MAKE) -C controller CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
+#	$(MAKE) -C client NPClient64.dll.so NPClient.dll.so CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 	cp tester/Tester.exe.so Tester.exe
 	cp tester/Tester.exe Tester.sh
 	cp tester/Tester64.exe.so Tester64.exe
@@ -58,17 +62,11 @@ bridge64_files :
 clean-local: clean-local-check
 .PHONY: clean-local-check
 clean-local-check:
-	$(MAKE) -C client clean
-	$(MAKE) -C controller clean
-	$(MAKE) -C tester clean
 	rm -f *.exe* *.dll* *.sh
 
 distclean-local: distclean-local-check
 .PHONY: distclean-local-check
 distclean-local-check:
-	$(MAKE) -C client clean
-	$(MAKE) -C controller clean
-	$(MAKE) -C tester clean
 	rm -f *.exe* *.dll* *.sh
 
 endif
