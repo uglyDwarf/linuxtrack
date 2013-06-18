@@ -51,10 +51,12 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = doc
-DIST_COMMON = $(am__dist_doc_DATA_DIST) \
-	$(am__nobase_dist_doc_DATA_DIST) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in
+@WINE_PLUGIN_TRUE@am__append_1 = Tester.exe
+@WINE64_TRUE@@WINE_PLUGIN_TRUE@am__append_2 = Tester64.exe
+@DARWIN_TRUE@am__append_3 = -Wl,-no_arch_warnings
+@DARWIN_FALSE@am__append_4 = -Wl,--no-warn-search-mismatch
+subdir = src/wine_bridge/tester
+DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -72,7 +74,6 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__dist_doc_DATA_DIST = README.ltr_pipe
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -100,11 +101,8 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(docdir)" "$(DESTDIR)$(docdir)"
-am__nobase_dist_doc_DATA_DIST = fgfs/Nasal/LinuxTrack/linuxtrack.nas \
-	fgfs/Protocol/linuxtrack.nas.xml fgfs/Protocol/linuxtrack.xml \
-	fgfs/Input/Joysticks/LinuxTrack/uinput-abs.xml fgfs/README
-DATA = $(dist_doc_DATA) $(nobase_dist_doc_DATA)
+am__installdirs = "$(DESTDIR)$(pkgdatadir)"
+DATA = $(nodist_pkgdata_DATA)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -138,7 +136,7 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
-LDFLAGS = @LDFLAGS@
+LDFLAGS = @LDFLAGS@ $(am__append_3) $(am__append_4)
 LEX = @LEX@
 LEXLIB = @LEXLIB@
 LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
@@ -237,14 +235,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_wine64 = @with_wine64@
-@LTR_PIPE_TRUE@dist_doc_DATA = README.ltr_pipe
-@LTR_PIPE_TRUE@nobase_dist_doc_DATA = \
-@LTR_PIPE_TRUE@    fgfs/Nasal/LinuxTrack/linuxtrack.nas \
-@LTR_PIPE_TRUE@    fgfs/Protocol/linuxtrack.nas.xml \
-@LTR_PIPE_TRUE@    fgfs/Protocol/linuxtrack.xml \
-@LTR_PIPE_TRUE@    fgfs/Input/Joysticks/LinuxTrack/uinput-abs.xml \
-@LTR_PIPE_TRUE@    fgfs/README
-
+nodist_pkgdata_DATA = $(am__append_1) $(am__append_2)
 all: all-am
 
 .SUFFIXES:
@@ -257,9 +248,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu --ignore-deps doc/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu --ignore-deps src/wine_bridge/tester/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu --ignore-deps doc/Makefile
+	  $(AUTOMAKE) --gnu --ignore-deps src/wine_bridge/tester/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -284,51 +275,27 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-dist_docDATA: $(dist_doc_DATA)
+install-nodist_pkgdataDATA: $(nodist_pkgdata_DATA)
 	@$(NORMAL_INSTALL)
-	@list='$(dist_doc_DATA)'; test -n "$(docdir)" || list=; \
+	@list='$(nodist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
 	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(docdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(docdir)" || exit 1; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgdatadir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(pkgdatadir)" || exit 1; \
 	fi; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  echo "$$d$$p"; \
 	done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(docdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(docdir)" || exit $$?; \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgdatadir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgdatadir)" || exit $$?; \
 	done
 
-uninstall-dist_docDATA:
+uninstall-nodist_pkgdataDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(dist_doc_DATA)'; test -n "$(docdir)" || list=; \
+	@list='$(nodist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(docdir)'; $(am__uninstall_files_from_dir)
-install-nobase_dist_docDATA: $(nobase_dist_doc_DATA)
-	@$(NORMAL_INSTALL)
-	@list='$(nobase_dist_doc_DATA)'; test -n "$(docdir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(docdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(docdir)" || exit 1; \
-	fi; \
-	$(am__nobase_list) | while read dir files; do \
-	  xfiles=; for file in $$files; do \
-	    if test -f "$$file"; then xfiles="$$xfiles $$file"; \
-	    else xfiles="$$xfiles $(srcdir)/$$file"; fi; done; \
-	  test -z "$$xfiles" || { \
-	    test "x$$dir" = x. || { \
-	      echo " $(MKDIR_P) '$(DESTDIR)$(docdir)/$$dir'"; \
-	      $(MKDIR_P) "$(DESTDIR)$(docdir)/$$dir"; }; \
-	    echo " $(INSTALL_DATA) $$xfiles '$(DESTDIR)$(docdir)/$$dir'"; \
-	    $(INSTALL_DATA) $$xfiles "$(DESTDIR)$(docdir)/$$dir" || exit $$?; }; \
-	done
-
-uninstall-nobase_dist_docDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(nobase_dist_doc_DATA)'; test -n "$(docdir)" || list=; \
-	$(am__nobase_strip_setup); files=`$(am__nobase_strip)`; \
-	dir='$(DESTDIR)$(docdir)'; $(am__uninstall_files_from_dir)
+	dir='$(DESTDIR)$(pkgdatadir)'; $(am__uninstall_files_from_dir)
 tags: TAGS
 TAGS:
 
@@ -370,7 +337,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(docdir)" "$(DESTDIR)$(docdir)"; do \
+	for dir in "$(DESTDIR)$(pkgdatadir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -405,11 +372,11 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool mostlyclean-am
+clean-am: clean-generic clean-libtool clean-local mostlyclean-am
 
 distclean: distclean-am
 	-rm -f Makefile
-distclean-am: clean-am distclean-generic
+distclean-am: clean-am distclean-generic distclean-local
 
 dvi: dvi-am
 
@@ -423,7 +390,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-dist_docDATA install-nobase_dist_docDATA
+install-data-am: install-nodist_pkgdataDATA
 
 install-dvi: install-dvi-am
 
@@ -467,23 +434,63 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-dist_docDATA uninstall-nobase_dist_docDATA
+uninstall-am: uninstall-nodist_pkgdataDATA
 
 .MAKE: install-am install-strip
 
 .PHONY: all all-am check check-am clean clean-generic clean-libtool \
-	distclean distclean-generic distclean-libtool distdir dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dist_docDATA install-dvi \
+	clean-local distclean distclean-generic distclean-libtool \
+	distclean-local distdir dvi dvi-am html html-am info info-am \
+	install install-am install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
 	install-html-am install-info install-info-am install-man \
-	install-nobase_dist_docDATA install-pdf install-pdf-am \
+	install-nodist_pkgdataDATA install-pdf install-pdf-am \
 	install-ps install-ps-am install-strip installcheck \
 	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-generic \
 	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
-	uninstall-dist_docDATA uninstall-nobase_dist_docDATA
+	uninstall-nodist_pkgdataDATA
 
+
+Tester.exe : main.o npview.o rest.o npifc.o 
+	wineg++ -m32 -g -o Tester -L. $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra \
+          main.o rest.o npview.o npifc.o
+
+Tester64.exe : main64.o npview.o rest64.o npifc64.o 
+	wineg++ -g -o Tester64 -L. $(WINE64_LIBS) \
+	   $(LDFLAGS) -Wall -Wextra \
+           main64.o rest64.o npview.o npifc64.o
+
+main.o : main.cpp Makefile
+	wineg++ -m32 -g -Wall -Wextra -c -o main.o $(CXXFLAGS) main.cpp
+
+main64.o : main.cpp Makefile
+	wineg++ -g -Wall -Wextra -c -o main64.o $(CXXFLAGS) main.cpp
+
+npview.o : npview.rc
+	wrc -o npview.o npview.rc
+
+rest.o : rest.c rest.h Makefile
+	winegcc -m32 -g -Wall -Wextra -c -o rest.o -I ../../.. $(CFLAGS) -DHAVE_CONFIG_H rest.c 
+
+rest64.o : rest.c rest.h Makefile
+	winegcc -g -Wall -Wextra -c -o rest64.o $(CFLAGS) rest.c 
+
+npifc.o : npifc.c npifc.h Makefile
+	winegcc -m32 -g -Wall -Wextra -c -o npifc.o $(CFLAGS) npifc.c
+
+npifc64.o : npifc.c npifc.h Makefile
+	winegcc -g -Wall -Wextra -c -o npifc64.o $(CFLAGS) -DFOR_WIN64=1 npifc.c
+
+clean-local: clean-local-check
+.PHONY: clean-local-check
+clean-local-check:
+	rm -f *.exe* *.dll* *.sh
+
+distclean-local: distclean-local-check
+.PHONY: distclean-local-check
+distclean-local-check:
+	rm -f *.exe* *.dll* *.sh
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

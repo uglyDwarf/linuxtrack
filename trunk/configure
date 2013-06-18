@@ -674,6 +674,8 @@ CWIID_FALSE
 CWIID_TRUE
 XPLANE_PLUGIN_FALSE
 XPLANE_PLUGIN_TRUE
+WINE64_LIBS
+WINE_LIBS
 OPENCV_LIBS
 OPENCV_CFLAGS
 XPLANE_SDK
@@ -809,6 +811,8 @@ enable_snow_leopard
 enable_ltr_32lib_on_x64
 enable_wine_plugin
 enable_mickey
+with_wine_libs
+with_wine64_libs
 with_opencv_libs
 with_opencv_cflags
 '
@@ -1477,6 +1481,8 @@ Optional Packages:
   --with-sysroot=DIR Search for dependent libraries within DIR
                         (or the compiler's sysroot if not specified).
   --with-xplane-sdk       specify path to XPlane SDK [default=../SDK]
+  --with-wine-libs        specify Wine libraries to link aginst
+  --with-wine64-libs      specify Wine64 libraries to link aginst
   --with-opencv-libs      specify OpenCV libraries to link aginst
   --with-opencv-cflags    specify OpenCV includes
 
@@ -16426,6 +16432,22 @@ else
 fi
 
 
+
+# Check whether --with-wine-libs was given.
+if test "${with_wine_libs+set}" = set; then :
+  withval=$with_wine_libs; WINE_LIBS=${with_wine_libs}
+
+fi
+
+
+
+# Check whether --with-wine64-libs was given.
+if test "${with_wine64_libs+set}" = set; then :
+  withval=$with_wine64_libs; WINE64_LIBS=${with_wine64_libs}
+
+fi
+
+
 #AC_ARG_ENABLE([face_tracker],
 #            [AS_HELP_STRING([--enable-face-tracker],
 #              [enables building of face tracker (requires OpenCV 2.X)])],
@@ -16533,6 +16555,8 @@ else
 $as_echo "yes" >&6; }
 	with_face_tracker=yes
 fi
+
+
 
 
 
@@ -16771,7 +16795,7 @@ done
 
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/pathconfig.h src/tests/Makefile src/mac/Makefile src/local_config.h src/qt_gui/ltr_gui.pro src/wii_server/wii_server.pro src/helper/Makefile src/wine_bridge/Makefile doc/Makefile src/linuxtrack.pc src/mickey/mickey.pro"
+ac_config_files="$ac_config_files Makefile src/Makefile src/pathconfig.h src/tests/Makefile src/mac/Makefile src/local_config.h src/qt_gui/ltr_gui.pro src/wii_server/wii_server.pro src/helper/Makefile src/wine_bridge/Makefile src/wine_bridge/client/Makefile src/wine_bridge/controller/Makefile src/wine_bridge/tester/Makefile doc/Makefile src/linuxtrack.pc src/mickey/mickey.pro"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -17944,6 +17968,9 @@ do
     "src/wii_server/wii_server.pro") CONFIG_FILES="$CONFIG_FILES src/wii_server/wii_server.pro" ;;
     "src/helper/Makefile") CONFIG_FILES="$CONFIG_FILES src/helper/Makefile" ;;
     "src/wine_bridge/Makefile") CONFIG_FILES="$CONFIG_FILES src/wine_bridge/Makefile" ;;
+    "src/wine_bridge/client/Makefile") CONFIG_FILES="$CONFIG_FILES src/wine_bridge/client/Makefile" ;;
+    "src/wine_bridge/controller/Makefile") CONFIG_FILES="$CONFIG_FILES src/wine_bridge/controller/Makefile" ;;
+    "src/wine_bridge/tester/Makefile") CONFIG_FILES="$CONFIG_FILES src/wine_bridge/tester/Makefile" ;;
     "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
     "src/linuxtrack.pc") CONFIG_FILES="$CONFIG_FILES src/linuxtrack.pc" ;;
     "src/mickey/mickey.pro") CONFIG_FILES="$CONFIG_FILES src/mickey/mickey.pro" ;;
