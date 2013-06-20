@@ -159,7 +159,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
     f->bloblist.blobs = (struct blob_type *)
         ltr_int_my_malloc(f->bloblist.num_blobs*sizeof(struct blob_type));
     assert(f->bloblist.blobs);
-
+    f->filter_blobs = true;
     bool draw;
     if(f->bitmap != NULL){
       draw = true;

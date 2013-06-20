@@ -40,6 +40,7 @@ struct frame_type {
   unsigned int height;
   unsigned int counter;
   unsigned char *bitmap; /* 8bits per pixel, monochrome 0x00 or 0xff */
+  bool filter_blobs; //request filtration of blob coordinates (TIR < 5, Wiimote)
 };
 
 typedef enum cal_device_category_type {

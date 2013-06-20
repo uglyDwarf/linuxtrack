@@ -18,6 +18,7 @@ static bool recenter = false;
 static float cam_distance = 1000.0f;
 
 pose_t ltr_int_orig_pose;
+static struct blob_type last_blobs[3] = {{0.0, 0.0, 0},{0.0, 0.0, 0},{0.0, 0.0, 0}};
 
 /*******************************/
 /* private function prototypes */
@@ -143,6 +144,13 @@ static int update_pose_1pt(struct frame_type *frame)
   }else{
     return -1;
   }
+  if(frame->filter_blobs){
+    printf("Filtering single point!\n");
+    frame->bloblist.blobs[0].x = ltr_int_nonlinfilt(frame->bloblist.blobs[0].x, (last_blobs[0]).x,
+                                                     2.0);
+    frame->bloblist.blobs[0].y = ltr_int_nonlinfilt(frame->bloblist.blobs[0].y, (last_blobs[0]).y,
+                                                     2.0);
+  }
 
   ltr_int_remove_camera_rotation(frame->bloblist);
 
@@ -213,7 +221,16 @@ static int update_pose_3pt(struct frame_type *frame)
   
   ltr_int_remove_camera_rotation(frame->bloblist);
   ltr_int_pose_sort_blobs(frame->bloblist);
-
+  
+  if(frame->filter_blobs){
+    int i;
+    for(i = 0; i < 3; ++i){
+      frame->bloblist.blobs[i].x = ltr_int_nonlinfilt(frame->bloblist.blobs[i].x, last_blobs[i].x,
+                                                       2.0);
+      frame->bloblist.blobs[i].y = ltr_int_nonlinfilt(frame->bloblist.blobs[i].y, last_blobs[i].y,
+                                                       2.0);
+    }
+  }
   pose_t t;
   if(!ltr_int_pose_process_blobs(frame->bloblist, &t, recenter)){
     return -1;

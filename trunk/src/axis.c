@@ -193,26 +193,6 @@ bool ltr_int_get_axes_ff(ltr_axes_t axes, double ffs[])
 }
 */
 
-static float ltr_int_nonlinfilt(float x, 
-              float y_minus_1,
-              float filterfactor) 
-{
-  float y;
-  if(!ltr_int_is_finite(x)){
-    return y_minus_1;
-  }
-  float delta = x - y_minus_1;
-  y = y_minus_1 + delta * (fabsf(delta)/(fabsf(delta) + filterfactor));
-  if(!ltr_int_is_finite(y)){
-    if(ltr_int_is_finite(y_minus_1)){
-      return y_minus_1;
-    }else{
-      return 0.0f;
-    }
-  }
-  return y;
-}
-
 float ltr_int_filter_axis(ltr_axes_t axes, enum axis_t id, float x, float *y_minus_1)
 {
   pthread_mutex_lock(&axes_mutex);

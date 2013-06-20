@@ -85,10 +85,10 @@ static bool process_stripe_sn4gr(unsigned char p_stripe[], size_t size)
       stripe.vline |= 0x100;
     stripe.sum = stripe.sum_x = 0;
     if(stripe.vline < last_vline){
-      printf("%d x %d!!!!\n", stripe.vline, last_vline);
-      for(i = 0; i < size; ++i){
-        printf("%02X ", p_stripe[i]);
-      }
+//      printf("%d x %d!!!!\n", stripe.vline, last_vline);
+//      for(i = 0; i < size; ++i){
+//        printf("%02X ", p_stripe[i]);
+//      }
       break;
     }
     last_vline = stripe.vline;
@@ -152,7 +152,7 @@ static bool process_stripe_tir4(unsigned char p_stripe[])
     if(!ltr_int_add_stripe(&stripe, p_img)){
       ltr_int_log_message("Couldn't add stripe!\n");
     }
-    printf("%d\t\t%d\t\t%d\n", stripe.hstart, stripe.hstop, stripe.vline);
+//    printf("%d\t\t%d\t\t%d\n", stripe.hstart, stripe.hstop, stripe.vline);
   return true;
 }
 
@@ -309,7 +309,7 @@ static bool process_packet_sn4(unsigned char data[], size_t *ptr, unsigned int p
     prev_btns = btns;
     gettimeofday(&(ev.timestamp), NULL);
     ltr_int_send_sn4_data((void*)&ev, sizeof(ev));
-    printf("Sending %d!\n", btns);
+//    printf("Sending %d!\n", btns);
   }
   
   ps -= 8; // header
