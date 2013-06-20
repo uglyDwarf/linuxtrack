@@ -275,4 +275,24 @@ double clamp_angle(double angle)
   }
 }
 
+float ltr_int_nonlinfilt(float x, 
+              float y_minus_1,
+              float filterfactor) 
+{
+  float y;
+  if(!ltr_int_is_finite(x)){
+    return y_minus_1;
+  }
+  float delta = x - y_minus_1;
+  y = y_minus_1 + delta * (fabsf(delta)/(fabsf(delta) + filterfactor));
+  if(!ltr_int_is_finite(y)){
+    if(ltr_int_is_finite(y_minus_1)){
+      return y_minus_1;
+    }else{
+      return 0.0f;
+    }
+  }
+  return y;
+}
+
 

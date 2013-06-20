@@ -37,5 +37,6 @@ bool ltr_int_is_vector_finite(double vec[3]);
 bool ltr_int_is_matrix_finite(double matrix[3][3]);
 double clamp_angle(double angle);
 void ltr_int_invert_matrix(double in[3][3], double out[3][3]);
+float ltr_int_nonlinfilt(float x, float y_minus_1, float filterfactor);
 
 #endif
