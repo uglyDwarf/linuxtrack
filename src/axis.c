@@ -460,8 +460,8 @@ static void ltr_int_init_axis(const char *sec_name, struct axis_def *axis, const
   //Either exists -> default gets overwritten normally,
   // or not -> default stays...
   ltr_int_axis_get_key_flt(sec_name, "Filter-factor", &(axis->filter_factor));
-  if(axis->filter_factor > 2.0){
-    axis->filter_factor = 2.0;
+  if(axis->filter_factor > LTR_AXIS_FILTER_MAX){
+    axis->filter_factor = LTR_AXIS_FILTER_MAX;
   }
   axis->curve_defs.dead_zone = 0.0f;
   axis->curve_defs.l_curvature = 0.5f;

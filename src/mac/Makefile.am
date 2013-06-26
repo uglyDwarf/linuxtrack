@@ -2,8 +2,8 @@ EXTRA_DIST = Info.plist PkgInfo English.lproj/InfoPlist.strings linuxtrack_wii.i
 English.lproj/MainMenu.nib/keyedobjects.nib English.lproj/MainMenu.nib/designable.nib
 
 AM_CFLAGS = -arch x86_64
-SLEOPARD_CFLAG = -isysroot /Developer/SDKs/MacOSX10.6.sdk -mmacosx-version-min=10.6
-SLEOPARD_LDFLAG = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.6.sdk -mmacosx-version-min=10.6 -L..
+SLEOPARD_CFLAG = 
+SLEOPARD_LDFLAG = -L..
 DARWINFLAGS = -undefined dynamic_lookup 
 
 if DARWIN
@@ -11,8 +11,8 @@ if DARWIN
   bin_PROGRAMS = qt_cam WiiServer
 endif
 
-qt_cam_SOURCES = qt_camera.m args.c args.h buffer.c buffer.h mac_camera.h ../com_proc.c \
-  ../com_proc.h ../ipc_utils.c ../ipc_utils.h processing.c processing.h macwebcam.c ../facetrack.cpp ../facetrack.h
+qt_cam_SOURCES = qt_camera.m args.c args.h buffer.c buffer.h mac_camera.h \
+  ../com_proc.h ../ipc_utils.h processing.c processing.h macwebcam.c ../facetrack.cpp ../facetrack.h
 qt_cam_LDADD = -lltr -lobjc -lpthread 
 qt_cam_LDFLAGS = ${AM_CFLAGS} ${SLEOPARD_LDFLAG} -framework Cocoa -framework QTKit -framework QuartzCore $(OPENCV_LIBS) -headerpad_max_install_names
 qt_cam_CXXFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..  -DOPENCV $(OPENCV_CFLAGS)

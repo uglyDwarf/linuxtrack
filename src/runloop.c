@@ -9,6 +9,7 @@ static pthread_cond_t state_cv = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t state_mx = PTHREAD_MUTEX_INITIALIZER;
 static bool change_flag = false;
 static struct frame_type frame;
+static bool frame_acquired = false;
 
 int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
 {
@@ -44,12 +45,21 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
             stop_flag = true;
             break;
           default:
-            retval = ltr_int_tracker_get_frame(ccb, &frame);
-            frame.counter = ++counter;
-            if((retval == -1) || (cbk(ccb, &frame) < 0)){
+            frame_acquired = false;
+            retval = ltr_int_tracker_get_frame(ccb, &frame, &frame_acquired);
+            if(retval == -1){
               ltr_int_log_message("Error getting frame! (rv = %d)\n", retval);
               ltr_int_cal_set_state(ERROR);
               stop_flag = true;
+            }else{
+              if(frame_acquired){
+                frame.counter = ++counter;
+                if((retval = cbk(ccb, &frame)) < 0){
+                  ltr_int_log_message("Error processing frame! (rv = %d)\n", retval);
+                  ltr_int_cal_set_state(ERROR);
+                  stop_flag = true;
+                }
+              }
             }
             break;
         }

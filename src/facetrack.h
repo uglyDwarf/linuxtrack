@@ -7,8 +7,9 @@ extern "C" {
 
 #include "image_process.h"
 
-void face_detect(image *img, struct bloblist_type *blt);
-void stop_detect();
+bool ltr_int_init_face_detect();
+void ltr_int_face_detect(image *img, struct bloblist_type *blt);
+void ltr_int_stop_face_detect();
 
 #ifdef __cplusplus
 }

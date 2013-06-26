@@ -10,6 +10,7 @@ extern "C" {
 struct ltr_axes;
 typedef struct ltr_axes *ltr_axes_t;
 #define LTR_AXES_T_INITIALIZER NULL
+#define LTR_AXIS_FILTER_MAX 4.0
 
 enum axis_t {PITCH, ROLL, YAW, TX, TY, TZ, MISC};
 enum axis_param_t {AXIS_ENABLED, AXIS_DEADZONE,

@@ -100,8 +100,9 @@ bool MacWebcamFtPrefs::Activate(const QString &ID, bool init)
     on_WebcamFtResolutionsMac_activated(res_index);
     const char *cascade = ltr_int_wc_get_cascade();
     QString cascadePath;
-    if(cascade == NULL){
+    if((cascade == NULL) || (!QFile::exists(cascade))){
       cascadePath = PrefProxy::getDataPath("/haarcascades/haarcascade_frontalface_alt2.xml");
+      ltr_int_wc_set_cascade(qPrintable(cascadePath));
     }else{
       cascadePath = cascade;
     }

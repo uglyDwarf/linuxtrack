@@ -94,7 +94,8 @@ static int tir_set_good(struct camera_control_block *ccb, bool arg)
 }
 */
 
-int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f)
+int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f,
+                              bool *frame_acquired)
 {
   (void) ccb;
   tir_info info;
@@ -118,9 +119,10 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
     last_threshold = tmp_thr;
     ltr_int_set_threshold_tir(tmp_thr);
   }
-  
-  return ltr_int_read_blobs_tir(&(f->bloblist), ltr_int_tir_get_min_blob(), 
+  int res = ltr_int_read_blobs_tir(&(f->bloblist), ltr_int_tir_get_min_blob(), 
 				ltr_int_tir_get_max_blob(), &img, &info);
+  *frame_acquired = true;
+  return res;
 }
 
 int ltr_int_tracker_pause()

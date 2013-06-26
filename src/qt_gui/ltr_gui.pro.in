@@ -63,8 +63,8 @@ macx {
   HEADERS += macwebcam_prefs.h macwebcamft_prefs.h macwebcam_info.h
   FORMS += m_wc_setup.ui m_wcft_setup.ui
   SOURCES += macwebcam_info.cpp macwebcamft_prefs.cpp macwebcam_prefs.cpp
-  QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.6
-  QMAKE_MAC_SDK=/Developer/SDKs/MacOSX10.6.sdk
+  #QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.6
+  #QMAKE_MAC_SDK=/Developer/SDKs/MacOSX10.6.sdk
   CONFIG+=x86_64
   LIBS += -L../.libs "-L$${LIBDIR}" -L@prefix@/lib -lm -lltr -lmxml
   data.path += ltr_gui.app/Contents/Resources/linuxtrack

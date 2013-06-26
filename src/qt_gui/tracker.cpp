@@ -223,7 +223,7 @@ bool Tracker::miscChange(axis_param_t elem, bool enabled)
 static float limit_ff(float val)
 {
   if(val < 0.0) return 0.0;
-  if(val > 2.0) return 2.0;
+  if(val > LTR_AXIS_FILTER_MAX) return LTR_AXIS_FILTER_MAX;
   return val;
 }
 
