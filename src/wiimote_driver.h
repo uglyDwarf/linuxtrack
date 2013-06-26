@@ -48,6 +48,6 @@ int ltr_int_tracker_wakeup();
 /* read the usb, and process it into frames
  * a return value < 0 indicates error */
 int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
-                   struct frame_type *f);
+                   struct frame_type *f, bool *frame_acquired);
 
 #endif

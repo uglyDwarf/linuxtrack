@@ -116,7 +116,7 @@ int ltr_int_tracker_resume() {
 /* read the usb, and process it into frames
  * a return value < 0 indicates error */
 int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
-                   struct frame_type *f)
+                   struct frame_type *f, bool *frame_acquired)
 {
   (void) ccb;
     struct cwiid_state state;
@@ -125,7 +125,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
     int i;
     
     //Otherwise the polling takes too much processor
-    ltr_int_usleep(10000);
+    ltr_int_usleep(8334);
 
     if (!gStateCheckIn--) {
         gStateCheckIn = STATE_CHECK_INTERVAL;
@@ -187,5 +187,6 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
             valid++;
         }
     }
+    *frame_acquired = true;
     return 0;
 }

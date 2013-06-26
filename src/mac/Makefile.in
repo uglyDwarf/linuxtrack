@@ -110,8 +110,7 @@ WiiServer_LINK = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(OBJCLD) $(WiiServer_OBJCFLAGS) $(OBJCFLAGS) \
 	$(WiiServer_LDFLAGS) $(LDFLAGS) -o $@
 am_qt_cam_OBJECTS = qt_cam-qt_camera.$(OBJEXT) qt_cam-args.$(OBJEXT) \
-	qt_cam-buffer.$(OBJEXT) qt_cam-com_proc.$(OBJEXT) \
-	qt_cam-ipc_utils.$(OBJEXT) qt_cam-processing.$(OBJEXT) \
+	qt_cam-buffer.$(OBJEXT) qt_cam-processing.$(OBJEXT) \
 	qt_cam-macwebcam.$(OBJEXT) qt_cam-facetrack.$(OBJEXT)
 qt_cam_OBJECTS = $(am_qt_cam_OBJECTS)
 qt_cam_DEPENDENCIES =
@@ -295,12 +294,12 @@ EXTRA_DIST = Info.plist PkgInfo English.lproj/InfoPlist.strings linuxtrack_wii.i
 English.lproj/MainMenu.nib/keyedobjects.nib English.lproj/MainMenu.nib/designable.nib
 
 AM_CFLAGS = -arch x86_64
-SLEOPARD_CFLAG = -isysroot /Developer/SDKs/MacOSX10.6.sdk -mmacosx-version-min=10.6
-SLEOPARD_LDFLAG = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.6.sdk -mmacosx-version-min=10.6 -L..
+SLEOPARD_CFLAG = 
+SLEOPARD_LDFLAG = -L..
 DARWINFLAGS = -undefined dynamic_lookup 
 @DARWIN_TRUE@pkglib_LTLIBRARIES = libmacwc.la
-qt_cam_SOURCES = qt_camera.m args.c args.h buffer.c buffer.h mac_camera.h ../com_proc.c \
-  ../com_proc.h ../ipc_utils.c ../ipc_utils.h processing.c processing.h macwebcam.c ../facetrack.cpp ../facetrack.h
+qt_cam_SOURCES = qt_camera.m args.c args.h buffer.c buffer.h mac_camera.h \
+  ../com_proc.h ../ipc_utils.h processing.c processing.h macwebcam.c ../facetrack.cpp ../facetrack.h
 
 qt_cam_LDADD = -lltr -lobjc -lpthread 
 qt_cam_LDFLAGS = ${AM_CFLAGS} ${SLEOPARD_LDFLAG} -framework Cocoa -framework QTKit -framework QuartzCore $(OPENCV_LIBS) -headerpad_max_install_names
@@ -482,18 +481,6 @@ qt_cam-buffer.o: buffer.c
 
 qt_cam-buffer.obj: buffer.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(qt_cam_CFLAGS) $(CFLAGS) -c -o qt_cam-buffer.obj `if test -f 'buffer.c'; then $(CYGPATH_W) 'buffer.c'; else $(CYGPATH_W) '$(srcdir)/buffer.c'; fi`
-
-qt_cam-com_proc.o: ../com_proc.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(qt_cam_CFLAGS) $(CFLAGS) -c -o qt_cam-com_proc.o `test -f '../com_proc.c' || echo '$(srcdir)/'`../com_proc.c
-
-qt_cam-com_proc.obj: ../com_proc.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(qt_cam_CFLAGS) $(CFLAGS) -c -o qt_cam-com_proc.obj `if test -f '../com_proc.c'; then $(CYGPATH_W) '../com_proc.c'; else $(CYGPATH_W) '$(srcdir)/../com_proc.c'; fi`
-
-qt_cam-ipc_utils.o: ../ipc_utils.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(qt_cam_CFLAGS) $(CFLAGS) -c -o qt_cam-ipc_utils.o `test -f '../ipc_utils.c' || echo '$(srcdir)/'`../ipc_utils.c
-
-qt_cam-ipc_utils.obj: ../ipc_utils.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(qt_cam_CFLAGS) $(CFLAGS) -c -o qt_cam-ipc_utils.obj `if test -f '../ipc_utils.c'; then $(CYGPATH_W) '../ipc_utils.c'; else $(CYGPATH_W) '$(srcdir)/../ipc_utils.c'; fi`
 
 qt_cam-processing.o: processing.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(qt_cam_CFLAGS) $(CFLAGS) -c -o qt_cam-processing.o `test -f 'processing.c' || echo '$(srcdir)/'`processing.c

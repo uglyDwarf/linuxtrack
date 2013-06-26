@@ -731,7 +731,8 @@ static void get_bw_image(unsigned char *source_buf, unsigned char *dest_buf, uns
   }
 }
 
-int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f)
+int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f,
+                              bool *frame_acquired)
 {
   (void) ccb;
   read_img_processing_prefs();
@@ -828,7 +829,8 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
     }
   }
 #else
-  face_detect(&img, &(f->bloblist));
+  ltr_int_face_detect(&img, &(f->bloblist));
 #endif
+  *frame_acquired = true;
   return 0;
 }
