@@ -12,7 +12,8 @@ int ltr_int_tracker_init(struct camera_control_block *ccb);
 int ltr_int_tracker_shutdown();
 int ltr_int_tracker_suspend();
 int ltr_int_tracker_wakeup();
-int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f);
+int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_type *f, 
+                              bool *frame_acquired);
 
 extern dev_interface ltr_int_webcam_interface;
 

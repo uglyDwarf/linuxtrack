@@ -82,6 +82,7 @@ bool ltr_int_init_tracking()
 //  first_frame = true;
   ltr_int_log_message("Tracking initialized!\n");
   tracking_initialized = true;
+  recenter = false;
   return true;
 }
 
@@ -197,11 +198,6 @@ static int update_pose_1pt(struct frame_type *frame)
 
 static int update_pose_3pt(struct frame_type *frame)
 {
-  if(ltr_int_model_changed(false)){
-    ltr_int_check_pose();
-    recenter = true;
-  }
-  
   if(frame->bloblist.num_blobs != 3){
     return -1;
   }
@@ -339,6 +335,11 @@ static uint32_t counter_d = 0;
 
 int ltr_int_update_pose(struct frame_type *frame)
 {
+  if(ltr_int_model_changed(false)){
+    ltr_int_check_pose();
+    recenter = true;
+  }
+  
   bool res = -1;
   if(ltr_int_is_single_point()){
     res =  update_pose_1pt(frame);
