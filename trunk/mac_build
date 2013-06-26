@@ -16,7 +16,10 @@ WINE_DIR=ltr_gui.app/Contents/wine
 RSRC_DIR=ltr_gui.app/Contents/Resources
 WII_SRVR_DIR=
 SDK_ROOT=/Developer/SDKs/MacOSX10.6.sdk
-export MACOSX_DEPLOYMENT_TARGET=10.6
+#COMMON_FLAGS=" -isysroot ${SDK_ROOT} -mmacosx-version-min=10.6"
+COMMON_FLAGS=""
+COMMON_CMAKE_FLAGS=""
+#export MACOSX_DEPLOYMENT_TARGET=10.6
 PARALEL_MAKE=" -j5 "
 export PATH=${PATH}:${WINE_PREFIX}/bin:${NSIS_PREFIX}/nsis-2.46:${NSIS_PREFIX}/bin
 
@@ -52,7 +55,7 @@ pushd ${BASE}
 if [ -f ${PREFIX}/lib/libusb-1.0.dylib ]; then
   echo 'Libusb-1.0 already exists!'
 else
-  export CFLAGS=" -isysroot ${SDK_ROOT} -mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET} "
+  export CFLAGS=${COMMON_FLAGS}
   tar xfj libusb-1.0.9.tar.bz2
   pushd libusb-1.0.9
   ./configure --prefix=${PREFIX} --disable-dependency-tracking >/dev/null
@@ -63,18 +66,19 @@ else
 fi
 popd
 
-##Build OpenCV
+#Build OpenCV
 pushd ${BASE}
 if [ -f ${PREFIX}/bin/opencv_traincascade ]; then
   echo 'OpenCV already exists!'
 else
-  tar xfj OpenCV-2.3.1a.tar.bz2
-  pushd OpenCV-2.3.1
+  tar xfj opencv-2.4.5.tar.gz
+  pushd opencv-2.4.5
   mkdir build
   pushd build
-  cmake "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.6" \
-        "-DCMAKE_OSX_SYSROOT=${SDK_ROOT}" \
-        "-DCMAKE_INSTALL_PREFIX=${PREFIX}" ..
+  cmake "-DCMAKE_INSTALL_PREFIX=${PREFIX}" "-DWITH_OPENCL=FALSE" ..
+        #"-DCMAKE_OSX_DEPLOYMENT_TARGET=10.6" \
+        #"-DCMAKE_OSX_SYSROOT=${SDK_ROOT}" \
+        
   make $PARALEL_MAKE >/dev/null
   make install >/dev/null
   popd
@@ -89,10 +93,10 @@ if [ -f ${WINE_PREFIX}/bin/wine ]; then
 else
   tar xfj wine-1.4.1.tar.bz2
   pushd wine-1.4.1
-  CFLAGS=" -isysroot ${SDK_ROOT} -mmacosx-version-min=10.6" \
-  CXXFLAGS=" -isysroot ${SDK_ROOT} -mmacosx-version-min=10.6" \
-  LD_FLAGS=" -isysroot ${SDK_ROOT} -mmacosx-version-min=10.6" \
-  CPPFLAGS=" -isysroot ${SDK_ROOT} -mmacosx-version-min=10.6" \ 
+  CFLAGS="${COMMON_FLAGS}" \
+  CXXFLAGS="${COMMON_FLAGS}" \
+  LD_FLAGS="${COMMON_FLAGS}" \
+  CPPFLAGS="${COMMON_FLAGS}" \
   ./configure --prefix=${WINE_PREFIX} --without-x 
   make $PARALEL_MAKE >/dev/null
   make install >/dev/null
@@ -106,11 +110,12 @@ if [ -f ${PREFIX}/include/mxml.h ]; then
 else
   tar xfz mxml-2.7.tar.gz
   pushd mxml-2.7
-  CFLAGS=" -isysroot ${SDK_ROOT} -mmacosx-version-min=10.6" \
-  CXXFLAGS=" -isysroot ${SDK_ROOT} -mmacosx-version-min=10.6" \
-  LD_FLAGS=" -isysroot ${SDK_ROOT} -mmacosx-version-min=10.6" \
-  CPPFLAGS=" -isysroot ${SDK_ROOT} -mmacosx-version-min=10.6" \ 
+  CFLAGS="${COMMON_FLAGS}" \
+  CXXFLAGS="${COMMON_FLAGS}" \
+  LD_FLAGS="${COMMON_FLAGS}" \
+  CPPFLAGS="${COMMON_FLAGS}" \
   ./configure --prefix=${PREFIX} 
+  sed -i ".old" 's/xDarwin/yDarwin/' Makefile
   make $PARALEL_MAKE >/dev/null
   make install >/dev/null
   popd
@@ -129,9 +134,10 @@ export LDFLAGS="-L${PREFIX}/lib "
 OPENCV_CFLAGS=$(./pkgconf_extract ${PREFIX}/lib/pkgconfig/opencv.pc --with-opencv_cflags Cflags)
 OPENCV_LIBS=$(./pkgconf_extract ${PREFIX}/lib/pkgconfig/opencv.pc --with-opencv-libs Libs)
 ./configure --prefix=${PREFIX} --with-xplane-sdk=${BASE}/SDK/CHeaders --enable-snow-leopard \
-   --enable-ltr-pipe --enable-wine-plugin "${OPENCV_CFLAGS}" "${OPENCV_LIBS}" &&
-make $PARALEL_MAKE >build.log &&
-make install >install.log
+   --enable-ltr-pipe --enable-wine-plugin --with-wine-libs="-L${WINE_PREFIX}/lib -L${WINE_PREFIX}/lib/wine" \
+   "${OPENCV_CFLAGS}" "${OPENCV_LIBS}" &&
+make $PARALEL_MAKE > build.log &&
+make install > install.log
 if [ $? != 0 ]; then
   exit
 fi
@@ -144,7 +150,8 @@ mkdir -p ${HELPER_DIR}
 mkdir -p ${WINE_DIR}
 
 echo "Copying libraries and other things..."
-cp -R ${PREFIX}/lib/linuxtrack/xlinuxtrack.0.so ${LIB_DIR}/xlinuxtrack.0.dylib
+# XPlane v8 legacy plugin
+##cp -R ${PREFIX}/lib/linuxtrack/xlinuxtrack.0.so ${LIB_DIR}/xlinuxtrack.0.dylib
 cp -R ${PREFIX}/lib/linuxtrack/xlinuxtrack9.0.so ${LIB_DIR}/xlinuxtrack9.0.dylib
 cp -R ${PREFIX}/lib/*.dylib ${LIB_DIR}
 cp -R ${PREFIX}/lib/linuxtrack/*.dylib ${LIB_DIR}

@@ -200,7 +200,10 @@ bool capture(struct mmap_s *mmm)
     return false;
   }
   
-  startProcessing(x, y, 4, mmm);  
+  if(!startProcessing(x, y, 4, mmm)){
+    fprintf(stderr, "Can't initialize processing!\n");
+    return false;
+  }  
   bool capturing = true;
   [webcam start];
   
@@ -211,27 +214,28 @@ bool capture(struct mmap_s *mmm)
     if(old_cmd != cmd){
       ltr_int_printCmd("old", old_cmd);
       ltr_int_printCmd("new", cmd);
-      printf("\n");
     }
     switch(old_cmd){
       case STOP:
       case SLEEP:
-	if(cmd == WAKEUP){
-	  capturing = true;
+        if(cmd == WAKEUP){
+          capturing = true;
           [webcam start];
-	}
-	break;
+        }
+	    break;
       case WAKEUP:
-	if(cmd == SLEEP){
-	  capturing = false;
+        if(cmd == SLEEP){
+          capturing = false;
           [webcam stop];
-	}
-	break;
+	    }
+	    break;
       default:
-	break;
+	    break;
     }
     if(capturing){
       [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    }else{
+      ltr_int_usleep(200000);
     }
     old_cmd = cmd;
   }

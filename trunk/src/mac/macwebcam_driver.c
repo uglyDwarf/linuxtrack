@@ -99,38 +99,32 @@ int ltr_int_tracker_resume()
 int ltr_int_tracker_close()
 {
   ltr_int_setCommand(&mmm, STOP);
-  ltr_int_wait_child_exit(1000);
+  ltr_int_wait_child_exit(10);
   ltr_int_wc_close_prefs();
   return 0;
 }
 
 int ltr_int_tracker_get_frame(struct camera_control_block *ccb, 
-			      struct frame_type *frame)
+			      struct frame_type *frame, bool *frame_acquired)
 {
   (void) ccb;
-  bool frame_aquired = false;
   frame->width = width;
   frame->height = height;
   read_img_processing_prefs();
-  while(!frame_aquired){
-    if(ltr_int_getFrameFlag(&mmm)){
-      if(frame->bitmap != NULL){
-        memcpy(frame->bitmap, ltr_int_getFramePtr(&mmm), frame->width * frame->height);
-      }
-      ltr_int_resetFrameFlag(&mmm);
+  if(ltr_int_getFrameFlag(&mmm)){
+    if(frame->bitmap != NULL){
+      memcpy(frame->bitmap, ltr_int_getFramePtr(&mmm), frame->width * frame->height);
     }
-    if(ltr_int_haveNewBlobs(&mmm)){
-	  frame->bloblist.num_blobs = ltr_int_getBlobs(&mmm, frame->bloblist.blobs);
-	  frame_aquired = true;
-    }else{
-      if(!ltr_int_child_alive()){
-        return -1;
-      }
-      ltr_int_usleep(5000);
+    ltr_int_resetFrameFlag(&mmm);
+  }
+  if(ltr_int_haveNewBlobs(&mmm)){
+    frame->bloblist.num_blobs = ltr_int_getBlobs(&mmm, frame->bloblist.blobs);
+    *frame_acquired = true;
+  }else{
+    if(!ltr_int_child_alive()){
+      return -1;
     }
-    if(ltr_int_getCommand(&mmm) == STOP){
-      break;
-    }
+    ltr_int_usleep(5000);
   }
   return 0;
 }

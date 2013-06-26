@@ -612,6 +612,13 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
     v4l2_close(fd);
     return -1;
   }
+#ifdef OPENCV
+  if(!ltr_int_init_face_detect()){
+    ltr_int_log_message("Couldn't initialize facetracking!\n");
+    v4l2_close(fd);
+    return -1;
+  }
+#endif
   ltr_int_log_message("Webcam initialized OK!\n");
   return 0;
 }
@@ -623,7 +630,7 @@ int ltr_int_tracker_close()
   free(wc_info.bw_frame);
   v4l2_close(wc_info.fd);
 #ifdef OPENCV
-  stop_detect();
+  ltr_int_stop_face_detect();
 #endif
   ltr_int_log_message("Webcam shut down!\n");
   ltr_int_cleanup_after_processing();

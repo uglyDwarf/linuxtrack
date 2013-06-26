@@ -1,6 +1,6 @@
 if DARWIN
-  SLEOPARD_CFLAG = -arch x86_64 -isysroot /Developer/SDKs/MacOSX10.6.sdk -mmacosx-version-min=10.6
-  SLEOPARD_LDFLAG = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.6.sdk -mmacosx-version-min=10.6 -headerpad_max_install_names
+  SLEOPARD_CFLAG = 
+  SLEOPARD_LDFLAG = -headerpad_max_install_names
   DARWINFLAGS = -undefined dynamic_lookup
   SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
   #If ltr_server is not linked against CoreFoundation, loading libusb-1.0 would

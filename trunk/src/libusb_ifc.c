@@ -251,7 +251,6 @@ bool ltr_int_receive_data(int in_ep, unsigned char data[], size_t size, size_t *
   if(timeout == 0){
     timeout = 500;
   }
-  timeout *= 1000; //compensate for possible bug in libusb
   *transferred = 0;
   int res;
   if((res = libusb_bulk_transfer(handle, in_ep, data, size, (int*)transferred, timeout))){

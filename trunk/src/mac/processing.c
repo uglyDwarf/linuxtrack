@@ -73,7 +73,7 @@ static void *processingThreadFun(void *param)
       bool res;
 #ifdef OPENCV
       if(facetrack){ 
-        face_detect(&img, &bloblist);
+        ltr_int_face_detect(&img, &bloblist);
         res = (bloblist.num_blobs == 1);
       }else{
 #endif
@@ -95,7 +95,7 @@ static void *processingThreadFun(void *param)
   }
 #ifdef OPENCV
   if(facetrack){
-    stop_detect();
+    ltr_int_stop_face_detect();
   }
   ltr_int_cleanup_after_processing();
 #endif
@@ -116,6 +116,9 @@ bool startProcessing(int w, int h, int buffers, struct mmap_s *mmm_p)
   ltr_int_prepare_for_processing(w, h);
 #ifdef OPENCV
   facetrack = doFacetrack();
+  if(facetrack && (!ltr_int_init_face_detect())){
+    return false;
+  }
 #endif
 //  printf("Starting processing thread!\n");
   return 0 == pthread_create(&processing_thread, NULL, processingThreadFun, NULL);

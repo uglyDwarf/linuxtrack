@@ -39,15 +39,15 @@ static uint8_t *frame = NULL;
 static cv::Mat *cvimage;
 static cv::Mat scaled;
 static cv::Size minFace(40, 40);
-float expFiltFactor = 0.2;
-bool init = true;
+static float expFiltFactor = 0.2;
+static bool init = true;
 
 
-float expfilt(float x, 
+float ltr_int_expfilt(float x, 
               float y_minus_1,
               float filterfactor);
 
-void find_faces(cv::Mat &img, float factor)
+void ltr_int_find_faces(cv::Mat &img, float factor)
 {
   cv::Size s(lastCandidate.width*roi_factor, lastCandidate.height*roi_factor);
   cv::Rect new_roi(lastCandidate.x - s.width, lastCandidate.y - s.height, 
@@ -68,27 +68,27 @@ void find_faces(cv::Mat &img, float factor)
   }
 }
 
-void detect(cv::Mat& img)
+void ltr_int_detect(cv::Mat& img)
 {
   double current_scale;
   switch(ltr_int_wc_get_optim_level()){
     case 0:
       cv::equalizeHist(img, img);
       //cascade->detectMultiScale(img, faces, 1.1, 2, 0, minFace);
-      find_faces(img, 1.1);
+      ltr_int_find_faces(img, 1.1);
       current_scale = 1;
       break;
     case 1:
       cv::equalizeHist(img, img);
       //cascade->detectMultiScale(img, faces, 1.2, 2, 0, minFace);
-      find_faces(img, 1.2);
+      ltr_int_find_faces(img, 1.2);
       current_scale = 1;
       break;
     case 2:
       cv::resize(img, scaled, cv::Size(), scale, scale);
       cv::equalizeHist(scaled, scaled);
       //cascade->detectMultiScale(scaled, faces, 1.1, 2, 0, minFace);
-      find_faces(scaled, 1.1);
+      ltr_int_find_faces(scaled, 1.1);
       current_scale = scale;
       break;
     case 3:
@@ -96,7 +96,7 @@ void detect(cv::Mat& img)
       cv::resize(img, scaled, cv::Size(), scale, scale);
       cv::equalizeHist(scaled, scaled);
       //cascade->detectMultiScale(scaled, faces, 1.2, 2, 0, minFace);
-      find_faces(scaled, 1.2);
+      ltr_int_find_faces(scaled, 1.2);
       current_scale = scale;
       break;
   }
@@ -130,10 +130,10 @@ void detect(cv::Mat& img)
       last_face_h = face_h = h;
       init = false;
     }else{
-      face_x = expfilt(x, last_face_x, expFiltFactor);
-      face_y = expfilt(y, last_face_y, expFiltFactor);
-      face_w = expfilt(w, last_face_w, expFiltFactor);
-      face_h = expfilt(h, last_face_h, expFiltFactor);
+      face_x = ltr_int_expfilt(x, last_face_x, expFiltFactor);
+      face_y = ltr_int_expfilt(y, last_face_y, expFiltFactor);
+      face_w = ltr_int_expfilt(w, last_face_w, expFiltFactor);
+      face_h = ltr_int_expfilt(h, last_face_h, expFiltFactor);
       last_face_x = face_x;
       last_face_y = face_y;
       last_face_w = face_w;
@@ -151,20 +151,8 @@ static pthread_mutex_t frame_mx = PTHREAD_MUTEX_INITIALIZER;
 static pthread_t detect_thread_handle;
 
 
-void *detector_thread(void *)
+void *ltr_int_detector_thread(void *)
 {
-  cascade = new cv::CascadeClassifier();
-  const char *cascade_path = ltr_int_wc_get_cascade();
-  if(cascade_path == NULL){
-    ltr_int_log_message("Cascade path not specified!\n");
-    return NULL;
-  }
-  if(!cascade->load(cascade_path)){
-    ltr_int_log_message("Could't load cascade!\n");
-    return NULL;
-  }
-  init = true;
-  lastCandidate = cv::Rect(0, 0, 0, 0);
   while(run){
     pthread_mutex_lock(&frame_mx);
     while(frame_status != READY){
@@ -176,7 +164,7 @@ void *detector_thread(void *)
     frame_status = PROCESSING;
     pthread_mutex_unlock(&frame_mx);
     double t = (double)cvGetTickCount();
-    detect(*cvimage);
+    ltr_int_detect(*cvimage);
     t = (double)cvGetTickCount() - t;
     //std::cout<<"detection time = "<<t/((double)cvGetTickFrequency()*1000.)<<" ms"<<std::endl;
 
@@ -190,8 +178,25 @@ void *detector_thread(void *)
   return NULL;
 }
 
+bool ltr_int_init_face_detect()
+{
+  cv::setNumThreads(1);
+  cascade = new cv::CascadeClassifier();
+  const char *cascade_path = ltr_int_wc_get_cascade();
+  if(cascade_path == NULL){
+    ltr_int_log_message("Cascade path not specified!\n");
+    return false;
+  }
+  if(!cascade->load(cascade_path)){
+    ltr_int_log_message("Could't load cascade '%s'!\n", cascade_path);
+    return false;
+  }
+  lastCandidate = cv::Rect(0, 0, 0, 0);
+  return pthread_create(&detect_thread_handle, NULL, ltr_int_detector_thread, NULL) == 0;
+}
 
-void stop_detect()
+
+void ltr_int_stop_face_detect()
 {
   run = false;
   pthread_mutex_lock(&frame_mx);
@@ -203,15 +208,8 @@ void stop_detect()
   fflush(stderr);
 }
 
-void face_detect(image *img, struct bloblist_type *blt)
+void ltr_int_face_detect(image *img, struct bloblist_type *blt)
 {
-  static bool init = true;
-  if(init){
-    cv::setNumThreads(1);
-    pthread_create(&detect_thread_handle, NULL, detector_thread, NULL);
-    init = false;
-  }
-  
   if((frame_w != img->w) || (frame_h != img->h) || (frame == NULL)){
     if(frame != NULL){
       free(frame);
@@ -243,7 +241,7 @@ void face_detect(image *img, struct bloblist_type *blt)
 }
 
 
-float expfilt(float x, 
+float ltr_int_expfilt(float x, 
                float y_minus_1,
                float filterfactor) 
 {
