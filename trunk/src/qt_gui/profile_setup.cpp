@@ -104,7 +104,7 @@ void ProfileSetup::axisChanged(int axis, int elem)
 
 void ProfileSetup::setCommonFF(float val)
 {
-  std::cout<<"Setting common ff "<<val<<std::endl;
+  //std::cout<<"Setting common ff "<<val<<std::endl;
   ui.Smoothing->setValue(val * ui.Smoothing->maximum());
 }
 

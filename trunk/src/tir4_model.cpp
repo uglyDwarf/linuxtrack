@@ -151,6 +151,16 @@ bool tir4::receive_packet(unsigned char packet[], size_t length, size_t *read, i
     }
   }else{
     *read = packet2data(packet_buffer.front(), packet, length);
+//    printf("Packet: ");
+//    for(size_t i = 0; i < *read; ++i){
+//      printf("%02X ", packet[i]);
+//      if((i > 0) && (i % 16 == 0)){
+//        printf("\n");
+//      }else if((i > 0) && (i % 4 == 0)){
+//        printf(" ");
+//      }
+//    }
+//    printf("\n");
     packet_buffer.pop();
   }
   return true;

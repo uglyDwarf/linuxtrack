@@ -152,7 +152,8 @@ static bool process_stripe_tir4(unsigned char p_stripe[])
     if(!ltr_int_add_stripe(&stripe, p_img)){
       ltr_int_log_message("Couldn't add stripe!\n");
     }
-//    printf("%d\t\t%d\t\t%d\n", stripe.hstart, stripe.hstop, stripe.vline);
+//    ltr_int_log_message("Stripe: %d\t\t%d\t\t%d %d %d %d\n", stripe.hstart, stripe.hstop, stripe.vline, stripe.sum,
+//           stripe.sum_x, stripe.points);
   return true;
 }
 

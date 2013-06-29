@@ -18,7 +18,6 @@ static bool recenter = false;
 static float cam_distance = 1000.0f;
 
 pose_t ltr_int_orig_pose;
-static struct blob_type last_blobs[3] = {{0.0, 0.0, 0},{0.0, 0.0, 0},{0.0, 0.0, 0}};
 
 /*******************************/
 /* private function prototypes */
@@ -145,13 +144,6 @@ static int update_pose_1pt(struct frame_type *frame)
   }else{
     return -1;
   }
-  if(frame->filter_blobs){
-    printf("Filtering single point!\n");
-    frame->bloblist.blobs[0].x = ltr_int_nonlinfilt(frame->bloblist.blobs[0].x, (last_blobs[0]).x,
-                                                     2.0);
-    frame->bloblist.blobs[0].y = ltr_int_nonlinfilt(frame->bloblist.blobs[0].y, (last_blobs[0]).y,
-                                                     2.0);
-  }
 
   ltr_int_remove_camera_rotation(frame->bloblist);
 
@@ -196,6 +188,14 @@ static int update_pose_1pt(struct frame_type *frame)
 }
 
 
+static float two_d_size(struct blob_type b1, struct blob_type b2)
+{
+  float d1 = b1.x - b2.x;
+  float d2 = b1.y - b2.y;
+  return sqrtf((d1 * d1) + (d2 * d2)); 
+}
+
+
 static int update_pose_3pt(struct frame_type *frame)
 {
   if(frame->bloblist.num_blobs != 3){
@@ -207,26 +207,21 @@ static int update_pose_3pt(struct frame_type *frame)
   }else{
     return -1;
   }
+  ltr_int_remove_camera_rotation(frame->bloblist);
+  ltr_int_pose_sort_blobs(frame->bloblist);
+  
   if(tracking_dbg_flag == DBG_ON){
     unsigned int i;
     for(i = 0; i < frame->bloblist.num_blobs; ++i){
       ltr_int_log_message("*DBG_t* %d: %g %g %d\n", i, frame->bloblist.blobs[i].x, frame->bloblist.blobs[i].y,
                           frame->bloblist.blobs[i].score);
     }
+    ltr_int_log_message("*DBG_t* d1 = %g   d2 = %g   d3 = %g\n", 
+      two_d_size(frame->bloblist.blobs[0], frame->bloblist.blobs[1]),
+      two_d_size(frame->bloblist.blobs[0], frame->bloblist.blobs[2]),
+      two_d_size(frame->bloblist.blobs[1], frame->bloblist.blobs[2]));
   }
   
-  ltr_int_remove_camera_rotation(frame->bloblist);
-  ltr_int_pose_sort_blobs(frame->bloblist);
-  
-  if(frame->filter_blobs){
-    int i;
-    for(i = 0; i < 3; ++i){
-      frame->bloblist.blobs[i].x = ltr_int_nonlinfilt(frame->bloblist.blobs[i].x, last_blobs[i].x,
-                                                       2.0);
-      frame->bloblist.blobs[i].y = ltr_int_nonlinfilt(frame->bloblist.blobs[i].y, last_blobs[i].y,
-                                                       2.0);
-    }
-  }
   pose_t t;
   if(!ltr_int_pose_process_blobs(frame->bloblist, &t, recenter)){
     return -1;
