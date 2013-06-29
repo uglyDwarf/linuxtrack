@@ -133,11 +133,11 @@ void ltr_int_draw_cross(image *img, int x, int y, int size)
   
   unsigned char *pt;
   pt = img->bitmap + (img->w * y) + x_m;
-  for(cntr = x_m; cntr < x_p; ++cntr){
+  for(cntr = x_m; cntr <= x_p; ++cntr){
     *(pt++) = 0xFF;
   }
   pt = img->bitmap + (img->w * y_m) + x;
-  for(cntr = y_m; cntr < y_p; ++cntr){
+  for(cntr = y_m; cntr <= y_p; ++cntr){
     *pt = 0xFF;
     pt += img->w;
   }
@@ -343,6 +343,9 @@ bool ltr_int_add_stripe(stripe_t *stripe, image *img)
   return true;
 }
 
+
+static dbg_flag_type img_dbg_flag = DBG_CHECK;
+
 void ltr_int_prepare_for_processing(int w, int h)
 {
   //h = 0;
@@ -350,6 +353,9 @@ void ltr_int_prepare_for_processing(int w, int h)
   if(current.ranges == NULL){
     current.ranges = (range*)ltr_int_my_malloc(sizeof(range) * ((w / 2) + 1));
     next.ranges = (range*)ltr_int_my_malloc(sizeof(range) * ((w / 2) + 1));
+  }
+  if(img_dbg_flag == DBG_CHECK){
+    img_dbg_flag = ltr_int_get_dbg_flag('p');
   }
 }
 
@@ -442,15 +448,16 @@ int ltr_int_stripes_to_blobs(int num_blobs, struct bloblist_type *blt,
     }
     ++valid;
     if(counter < num_blobs){
+      //printf("sum_x %g   sum_y %g   sum %d\n", pb->sum_x, pb->sum_y, pb->sum);
       float x = pb->sum_x / pb->sum;
       float y = pb->sum_y / pb->sum;
       //printf("%f\t\t%f\t\t%d\n", x, y, pb->points);
       cal_b = &(blt->blobs[counter]);
       cal_b->x = (((img->w - 1) / 2.0) - (x / img->ratio));
       cal_b->y = (((img->h - 1) / 2.0) - y);
-      #ifdef PT_DBG
-        printf("PT: %g %g\n", cal_b->x, cal_b->y);
-      #endif
+      if(img_dbg_flag == DBG_ON){
+        ltr_int_log_message("PT: %g %g\n", cal_b->x, cal_b->y);
+      }
       if(img->bitmap != NULL){
 	ltr_int_draw_cross(img, x / img->ratio, y, (int) img->w/100.0);
       }
@@ -461,6 +468,17 @@ int ltr_int_stripes_to_blobs(int num_blobs, struct bloblist_type *blt,
   ltr_int_free_list(preblobs, true);
   preblobs = NULL;
   blt->num_blobs = (valid > num_blobs) ? num_blobs : valid;
+  if((img_dbg_flag == DBG_ON) && (img->bitmap != NULL)){
+    static int fc = 0;
+    char name[] = "fXXXXXXX.data";
+    sprintf(name, "f%04d.data", fc++);
+    ltr_int_log_message("%s\n", name);
+    FILE *f = fopen(name, "wb");
+    if(f != NULL){
+      fwrite(img->bitmap, 1, img->w * img->h, f);
+      fclose(f);
+    }
+  }
   return 0;
 }
 
