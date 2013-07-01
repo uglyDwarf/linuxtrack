@@ -32,7 +32,6 @@ static lib_fun_def_t functions[] = {
   {NULL, NULL}
 };
 static void *libhandle = NULL;
-static bool filter_blobs = false;
 
 void flag_pref_changed(void *flag_ptr)
 {
@@ -70,16 +69,6 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
     ccb->pixel_width = info.width;
     ccb->pixel_height = info.height;
     ltr_int_prepare_for_processing(ccb->pixel_width, ccb->pixel_height);
-    switch(info.dev_type){
-      case TIR5:
-      case TIR5V2:
-      case SMARTNAV4:
-        filter_blobs = false;
-        break;
-      default:
-        filter_blobs = true;
-        break;
-    }
     return 0;
   }else{
     return -1;
@@ -105,7 +94,6 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
   
   f->width = info.width;
   f->height = info.height;
-  f->filter_blobs = filter_blobs;
   image img = {
     .bitmap = f->bitmap,
     .w = info.width,
