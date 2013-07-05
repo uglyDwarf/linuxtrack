@@ -293,6 +293,7 @@ bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose, pose_t *unfiltered)
   
   double rotated[3];
   double transform[3][3];
+/*
   double displacement[3] = {pose->tx, pose->ty, pose->tz};
   if(ltr_int_do_tr_align()){
     //printf("Translations: Aligned\n");
@@ -314,6 +315,36 @@ bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose, pose_t *unfiltered)
     unfiltered->ty = ltr_int_val_on_axis(axes, TY, displacement[1]);
     unfiltered->tz = ltr_int_val_on_axis(axes, TZ, displacement[2]);
   }
+*/
+
+
+  double displacement[3];
+  displacement[0] = ltr_int_val_on_axis(axes, TX, pose->tx);
+  displacement[1] = ltr_int_val_on_axis(axes, TY, pose->ty);
+  displacement[2] = ltr_int_val_on_axis(axes, TZ, pose->tz);
+  if(ltr_int_do_tr_align()){
+    //printf("Translations: Aligned\n");
+    ltr_int_euler_to_matrix(pose->pitch / 180.0 * M_PI, pose->yaw / 180.0 * M_PI, 
+                            pose->roll / 180.0 * M_PI, transform);
+    ltr_int_matrix_times_vec(transform, displacement, rotated);
+    if(!ltr_int_is_vector_finite(rotated)){
+      return false;
+    }
+//  ltr_int_print_matrix(transform, "trf");
+//  ltr_int_print_vec(displacement, "mv");
+//  ltr_int_print_vec(rotated, "rotated");
+    unfiltered->tx = rotated[0];
+    unfiltered->ty = rotated[1];
+    unfiltered->tz = rotated[2];
+  }else{
+    //printf("Translations: Unaligned\n");
+    unfiltered->tx = displacement[0];
+    unfiltered->ty = displacement[1];
+    unfiltered->tz = displacement[2];
+  }
+
+
+
 
   pose->tx = 
     ltr_int_filter_axis(axes, TX, unfiltered->tx, &(filtered_translations[0]));

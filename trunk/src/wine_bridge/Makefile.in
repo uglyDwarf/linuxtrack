@@ -485,9 +485,7 @@ uninstall-am: uninstall-nodist_pkgdataDATA
 #	$(MAKE) -C controller CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 #	$(MAKE) -C client CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 @WINE_PLUGIN_TRUE@	cp tester/Tester.exe.so Tester.exe
-@WINE_PLUGIN_TRUE@	cp tester/Tester.exe Tester.sh
 @WINE_PLUGIN_TRUE@	cp controller/Controller.exe.so Controller.exe
-@WINE_PLUGIN_TRUE@	cp controller/Controller.exe Controller.sh
 @WINE_PLUGIN_TRUE@	cp client/NPClient.dll.so NPClient.dll
 
 @WINE_PLUGIN_TRUE@bridge64_files : tester/Tester.exe.so tester/Tester.exe tester/Tester64.exe.so tester/Tester64.exe \
@@ -497,23 +495,20 @@ uninstall-am: uninstall-nodist_pkgdataDATA
 #	$(MAKE) -C controller CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 #	$(MAKE) -C client NPClient64.dll.so NPClient.dll.so CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 @WINE_PLUGIN_TRUE@	cp tester/Tester.exe.so Tester.exe
-@WINE_PLUGIN_TRUE@	cp tester/Tester.exe Tester.sh
 @WINE_PLUGIN_TRUE@	cp tester/Tester64.exe.so Tester64.exe
-@WINE_PLUGIN_TRUE@	cp tester/Tester64.exe Tester64.sh
 @WINE_PLUGIN_TRUE@	cp client/NPClient.dll.so NPClient.dll
 @WINE_PLUGIN_TRUE@	cp client/NPClient64.dll.so NPClient64.dll
 @WINE_PLUGIN_TRUE@	cp controller/Controller.exe.so Controller.exe
-@WINE_PLUGIN_TRUE@	cp controller/Controller.exe Controller.sh
 
 @WINE_PLUGIN_TRUE@clean-local: clean-local-check
 @WINE_PLUGIN_TRUE@.PHONY: clean-local-check
 @WINE_PLUGIN_TRUE@clean-local-check:
-@WINE_PLUGIN_TRUE@	rm -f *.exe* *.dll* *.sh
+@WINE_PLUGIN_TRUE@	rm -f *.exe* *.dll*
 
 @WINE_PLUGIN_TRUE@distclean-local: distclean-local-check
 @WINE_PLUGIN_TRUE@.PHONY: distclean-local-check
 @WINE_PLUGIN_TRUE@distclean-local-check:
-@WINE_PLUGIN_TRUE@	rm -f *.exe* *.dll* *.sh
+@WINE_PLUGIN_TRUE@	rm -f *.exe* *.dll*
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

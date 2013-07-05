@@ -39,9 +39,7 @@ bridge_files : tester/Tester.exe.so tester/Tester.exe \
 #	$(MAKE) -C controller CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 #	$(MAKE) -C client CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 	cp tester/Tester.exe.so Tester.exe
-	cp tester/Tester.exe Tester.sh
 	cp controller/Controller.exe.so Controller.exe
-	cp controller/Controller.exe Controller.sh
 	cp client/NPClient.dll.so NPClient.dll
 
 bridge64_files : tester/Tester.exe.so tester/Tester.exe tester/Tester64.exe.so tester/Tester64.exe \
@@ -51,23 +49,20 @@ bridge64_files : tester/Tester.exe.so tester/Tester.exe tester/Tester64.exe.so t
 #	$(MAKE) -C controller CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 #	$(MAKE) -C client NPClient64.dll.so NPClient.dll.so CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" LDFLAGS="${MYLDFLAGS}"
 	cp tester/Tester.exe.so Tester.exe
-	cp tester/Tester.exe Tester.sh
 	cp tester/Tester64.exe.so Tester64.exe
-	cp tester/Tester64.exe Tester64.sh
 	cp client/NPClient.dll.so NPClient.dll
 	cp client/NPClient64.dll.so NPClient64.dll
 	cp controller/Controller.exe.so Controller.exe
-	cp controller/Controller.exe Controller.sh
 
 clean-local: clean-local-check
 .PHONY: clean-local-check
 clean-local-check:
-	rm -f *.exe* *.dll* *.sh
+	rm -f *.exe* *.dll*
 
 distclean-local: distclean-local-check
 .PHONY: distclean-local-check
 distclean-local-check:
-	rm -f *.exe* *.dll* *.sh
+	rm -f *.exe* *.dll*
 
 endif
 
