@@ -120,13 +120,17 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
       hCtrl0_4 = CreateWindowEx(0, WC_STATIC, ("Recenter key: "), WS_VISIBLE | WS_CHILD | WS_GROUP | SS_LEFT, 
                                 18, 76, 158, 24, hwnd, (HMENU)IDC_RECENTER_LABEL, hInst, 0);
       if(have_pause_key){
-        snprintf(msg, 380, "Pause: %s", pause_key_desc);
-        SetWindowText(hCtrl0_3, msg);
+        snprintf(msg, 380, "Pause key: %s", pause_key_desc);
+      }else{
+        snprintf(msg, 380, "Pause key: Not set!");
       }
+      SetWindowText(hCtrl0_3, msg);
       if(have_recenter_key){
-        snprintf(msg, 380, "Recenter: %s", recenter_key_desc);
-        SetWindowText(hCtrl0_4, msg);
+        snprintf(msg, 380, "Recenter key: %s", recenter_key_desc);
+      }else{
+        snprintf(msg, 380, "Recenter key: Not set!");
       }
+      SetWindowText(hCtrl0_4, msg);
       
       nid.cbSize = sizeof(nid);
       nid.hWnd = hwnd;

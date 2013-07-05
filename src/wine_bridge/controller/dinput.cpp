@@ -115,8 +115,8 @@ static const std::string &str_code(int code)
 void send_keys_desc()
 {
   static std::string pause_keys, recenter_keys;
-  pause_keys = (pause_code != 0) ? str_code(pause_code) : "" ;
-  recenter_keys = (recenter_code != 0) ? str_code(recenter_code) : "" ;
+  pause_keys = (pause_code != 0) ? str_code(pause_code) : "Not set!" ;
+  recenter_keys = (recenter_code != 0) ? str_code(recenter_code) : "Not set!" ;
   set_names(pause_keys, recenter_keys);
 }
 
