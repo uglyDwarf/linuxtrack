@@ -52,7 +52,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 subdir = src/wine_bridge
-DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+DIST_COMMON = $(dist_pkgdata_DATA) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -97,8 +98,8 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(pkgdatadir)"
-DATA = $(nodist_pkgdata_DATA)
+am__installdirs = "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(pkgdatadir)"
+DATA = $(dist_pkgdata_DATA) $(nodist_pkgdata_DATA)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -234,14 +235,8 @@ with_wine64 = @with_wine64@
 @WINE_PLUGIN_TRUE@nodist_pkgdata_DATA = linuxtrack-wine.exe
 @DARWIN_FALSE@@WINE_PLUGIN_TRUE@MYLDFLAGS = -Wl,--no-warn-search-mismatch
 @DARWIN_TRUE@@WINE_PLUGIN_TRUE@MYLDFLAGS = -Wl,-no_arch_warnings
-EXTRA_DIST = dumper/data.txt dumper/Makefile dumper/main.c client/NPClient_main.c client/Makefile \
-client/NPClient.spec client/NPClient_dll.h client/rest.h client/rest.c \
-client/NPClient.h ltr_wine.nsi README tester/npifc.c tester/rest.c tester/rest.h \
-tester/Makefile tester/npview.rc tester/resource.h tester/main.cpp \
-tester/npifc.h controller/resources.rc controller/Makefile controller/dinput.cpp \
-controller/kbi_interface.h controller/linuxtrack1.ico controller/linuxtrack.ico controller/resource.h \
-controller/main.cpp linuxtrack1.ico linuxtrack.ico
-
+dist_pkgdata_DATA = README.wine
+EXTRA_DIST = ltr_wine.nsi ltr_wine64.nsi linuxtrack1.ico linuxtrack.ico
 all: all-am
 
 .SUFFIXES:
@@ -281,6 +276,27 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+install-dist_pkgdataDATA: $(dist_pkgdata_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(dist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgdatadir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(pkgdatadir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgdatadir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgdatadir)" || exit $$?; \
+	done
+
+uninstall-dist_pkgdataDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(pkgdatadir)'; $(am__uninstall_files_from_dir)
 install-nodist_pkgdataDATA: $(nodist_pkgdata_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(nodist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
@@ -343,7 +359,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(pkgdatadir)"; do \
+	for dir in "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(pkgdatadir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -398,7 +414,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-nodist_pkgdataDATA
+install-data-am: install-dist_pkgdataDATA install-nodist_pkgdataDATA
 
 install-dvi: install-dvi-am
 
@@ -442,22 +458,23 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-nodist_pkgdataDATA
+uninstall-am: uninstall-dist_pkgdataDATA uninstall-nodist_pkgdataDATA
 
 .MAKE: install-am install-strip
 
 .PHONY: all all-am check check-am clean clean-generic clean-libtool \
 	clean-local distclean distclean-generic distclean-libtool \
 	distclean-local distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
+	install install-am install-data install-data-am \
+	install-dist_pkgdataDATA install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man \
 	install-nodist_pkgdataDATA install-pdf install-pdf-am \
 	install-ps install-ps-am install-strip installcheck \
 	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-generic \
 	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
-	uninstall-nodist_pkgdataDATA
+	uninstall-dist_pkgdataDATA uninstall-nodist_pkgdataDATA
 
 @DARWIN_TRUE@@WINE_PLUGIN_TRUE@  linuxtrack-wine.exe : bridge_mac
 

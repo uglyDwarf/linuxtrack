@@ -66,12 +66,7 @@ distclean-local-check:
 
 endif
 
-EXTRA_DIST = dumper/data.txt dumper/Makefile dumper/main.c client/NPClient_main.c client/Makefile \
-client/NPClient.spec client/NPClient_dll.h client/rest.h client/rest.c \
-client/NPClient.h ltr_wine.nsi README tester/npifc.c tester/rest.c tester/rest.h \
-tester/Makefile tester/npview.rc tester/resource.h tester/main.cpp \
-tester/npifc.h controller/resources.rc controller/Makefile controller/dinput.cpp \
-controller/kbi_interface.h controller/linuxtrack1.ico controller/linuxtrack.ico controller/resource.h \
-controller/main.cpp linuxtrack1.ico linuxtrack.ico
+dist_pkgdata_DATA = README.wine
+EXTRA_DIST = ltr_wine.nsi ltr_wine64.nsi linuxtrack1.ico linuxtrack.ico
 
 

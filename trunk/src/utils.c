@@ -147,6 +147,7 @@ void ltr_int_valog_message(const char *format, va_list va)
     for(cntr = 0; cntr < 5; ++cntr){
       if(ltr_int_open_logfile()) break;
     }
+    fprintf(stderr, "Linuxtrack version %s\n", PACKAGE_VERSION);
   }
   time_t now = time(NULL);
   struct tm  *ts = localtime(&now);

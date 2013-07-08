@@ -56,14 +56,15 @@ host_triplet = @host@
 @DARWIN_TRUE@am__append_3 = -Wl,-no_arch_warnings
 @DARWIN_FALSE@am__append_4 = -Wl,--no-warn-search-mismatch
 subdir = src/wine_bridge/tester
-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(srcdir)/npview.rc.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
-CONFIG_CLEAN_FILES =
+CONFIG_CLEAN_FILES = npview.rc
 CONFIG_CLEAN_VPATH_FILES =
 depcomp =
 am__depfiles_maybe =
@@ -236,6 +237,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_wine64 = @with_wine64@
 nodist_pkgdata_DATA = $(am__append_1) $(am__append_2)
+EXTRA_DIST = main.cpp npifc.c npifc.h resource.h rest.c rest.h
 all: all-am
 
 .SUFFIXES:
@@ -269,6 +271,8 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
+npview.rc: $(top_builddir)/config.status $(srcdir)/npview.rc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 mostlyclean-libtool:
 	-rm -f *.lo

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.59])
-AC_INIT([LinuxTrack], [0.0], [http://code.google.com/p/linux-track/issues/list])
+AC_INIT([LinuxTrack], [0.99.3], [http://code.google.com/p/linux-track/issues/list])
 AM_INIT_AUTOMAKE([no-dependencies -Wall -Werror])
 AC_CONFIG_SRCDIR([src/tir4_driver.h])
 AC_CONFIG_HEADERS([config.h])
@@ -240,6 +240,7 @@ AC_CONFIG_FILES([
  src/wine_bridge/client/Makefile
  src/wine_bridge/controller/Makefile
  src/wine_bridge/tester/Makefile
+ src/wine_bridge/tester/npview.rc
  doc/Makefile
  src/linuxtrack.pc
  src/mickey/mickey.pro

@@ -15,12 +15,13 @@ Controller.exe : main.o linuxtrack.o resources.o dinput.o
            main.o linuxtrack.o resources.o dinput.o -lshell32 -ldxguid \
           -l dinput -l dinput8 -l uuid
           
-main.o : main.cpp
+main.o : main.cpp ../../../config.h
 	wineg++ -m32 -c -o main.o -Wall -Wextra -isystem/usr/include/wine/windows \
-	   -I../../ $(CXXFLAGS) main.cpp
+	   -I../../ $(CXXFLAGS) -DHAVE_CONFIG_H main.cpp
 
-linuxtrack.o : ../../linuxtrack.c ../../linuxtrack.h
-	winegcc -c -m32 -Wall -Wextra -o linuxtrack.o -I../../ $(CFLAGS) ../../linuxtrack.c
+linuxtrack.o : ../../../config.h ../../linuxtrack.c ../../linuxtrack.h
+	winegcc -c -m32 -Wall -Wextra -o linuxtrack.o -I../../ -DHAVE_CONFIG_H \
+	-I../../.. $(CFLAGS) ../../linuxtrack.c
 
 dinput.o : dinput.cpp kbi_interface.h
 	wineg++ -m32 -c -Wall -Wextra -o dinput.o -isystem/usr/include/wine/windows \
@@ -39,4 +40,6 @@ distclean-local: distclean-local-check
 distclean-local-check:
 	rm -f *.exe* *.dll* *.sh
 
+EXTRA_DIST = linuxtrack1.ico linuxtrack.ico dinput.cpp kbi_interface.h \
+main.cpp resource.h resources.rc
 

@@ -15,6 +15,11 @@
 #include <math.h>
 #include <stdbool.h>
 #include "linuxtrack.h"
+#ifdef HAVE_CONFIG_H
+  #include "../config.h"
+#endif
+
+
 
 static XPLMHotKeyID             gFreezeKey = NULL;
 static XPLMHotKeyID             gTrackKey = NULL;
@@ -431,6 +436,8 @@ static XPWidgetID		setupText5;
 static char line5[] = "For more details refer to http://code.google.com/p/linux-track/wiki/XplanePluginSetup";
 static XPWidgetID		setupText6;
 static char line6[] = "Pilotview plugin found, chanelling headtracking data through it!";
+static char title[] = "Linuxtrack v"
+PACKAGE_VERSION;
 
 static int setupDialog()
 {
@@ -455,7 +462,7 @@ static int setupDialog()
 
     setupWindow = XPCreateWidget(x, y, x2, y2,
   				  1, //Visible
-				  "Linuxtrack Setup",
+				  title,
 				  1, //Root
 				  NULL, //No container
 				  xpWidgetClass_MainWindow 

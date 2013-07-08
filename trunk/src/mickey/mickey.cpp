@@ -763,6 +763,7 @@ void MickeyGUI::on_MickeyTabs_currentChanged(int index)
 void MickeyGUI::show()
 {
   QWidget::show();
+  setWindowTitle(QString("Mickey v")+PACKAGE_VERSION);
   RestrainWidgetToScreen(this);
   if(welcome){
     HelpViewer::ChangePage("welcome.htm");
