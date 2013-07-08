@@ -9,6 +9,10 @@
 #include <QTimer>
 #include <QMessageBox>
 
+#ifdef HAVE_CONFIG_H
+  #include "../../config.h"
+#endif
+
 #define WIIMOTE_HORIZONTAL_RESOLUTION 1024
 #define WIIMOTE_VERTICAL_RESOLUTION 768
 
@@ -16,6 +20,7 @@
 WiiServerWindow::WiiServerWindow(QWidget *parent) : QWidget(parent), wii(NULL), mm(NULL), old_cmd(STOP)
 {
   ui.setupUi(this);
+  setWindowTitle(QString("Linuxtrack Wii server v")+PACKAGE_VERSION);
   if(ltr_int_initWiiCom(true, &mm)){
     std::cout<<"Wii Server initialized!!!"<<std::endl;
   }else{

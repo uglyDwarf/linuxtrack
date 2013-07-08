@@ -26,16 +26,16 @@ NPClient_dll.o : NPClient_dll.h NPClient_main.c
 NPClient64_dll.o : NPClient_dll.h NPClient_main.c
 	winegcc -c -g -Wall -Wextra -o NPClient64_dll.o -I../../ $(CFLAGS) NPClient_main.c
 
-linuxtrack.o : ../../linuxtrack.c
-	winegcc -m32 -g -c -Wall -Wextra -o linuxtrack.o $(CFLAGS) ../../linuxtrack.c
+linuxtrack.o : ../../linuxtrack.c ../../../config.h
+	winegcc -m32 -g -c -Wall -Wextra -o linuxtrack.o -DHAVE_CONFIG_H -I../../.. $(CFLAGS) ../../linuxtrack.c
 
-linuxtrack64.o : ../../linuxtrack.c
-	winegcc -g -c -Wall -Wextra -o linuxtrack64.o $(CFLAGS) ../../linuxtrack.c
+linuxtrack64.o : ../../linuxtrack.c ../../../config.h
+	winegcc -g -c -Wall -Wextra -o linuxtrack64.o -DHAVE_CONFIG_H -I../../.. $(CFLAGS) ../../linuxtrack.c
 
-rest.o : rest.c rest.h
+rest.o : rest.c rest.h ../../../config.h
 	winegcc -m32 -g -Wall -Wextra -c -o rest.o -I ../../.. $(CFLAGS) -DHAVE_CONFIG_H rest.c
 
-rest64.o : rest.c rest.h
+rest64.o : rest.c rest.h ../../../config.h
 	winegcc -g -Wall -Wextra -c -o rest64.o -I ../../.. $(CFLAGS) -DHAVE_CONFIG_H rest.c
 
 clean-local: clean-local-check
@@ -48,4 +48,6 @@ distclean-local: distclean-local-check
 distclean-local-check:
 	rm -f *.exe* *.dll* *.sh
 
+EXTRA_DIST = NPClient_dll.h NPClient_main.c rest.c \
+NPClient.h NPClient.spec rest.h
 

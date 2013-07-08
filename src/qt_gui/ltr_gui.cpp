@@ -55,6 +55,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), ds(NULL),
 {
   ui.setupUi(this);
   PREF;
+  setWindowTitle(QString("Linuxtrack GUI v")+PACKAGE_VERSION);
   grd = new Guardian(this);
   me = new ModelEdit(grd, this);
   lv = new LogView();

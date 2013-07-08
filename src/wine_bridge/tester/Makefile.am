@@ -52,4 +52,4 @@ distclean-local: distclean-local-check
 distclean-local-check:
 	rm -f *.exe* *.dll* *.sh
 
-
+EXTRA_DIST = main.cpp npifc.c npifc.h resource.h rest.c rest.h

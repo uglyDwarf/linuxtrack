@@ -9,6 +9,10 @@
 #include "resource.h"
 #include "kbi_interface.h"
 
+#ifdef HAVE_CONFIG_H
+  #include "../../../config.h"
+#endif
+
 /*  Declare Windows procedure  */
 LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
 
@@ -81,7 +85,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
   hwnd = CreateWindowEx (
          0,                   /* Extended possibilites for variation */
          szClassName,         /* Classname */
-         "Linuxtrack - Wine Server",       /* Title Text */
+         "Linuxtrack - Wine Server v"
+PACKAGE_VERSION,       /* Title Text */
          WS_OVERLAPPEDWINDOW, /* default window */
          CW_USEDEFAULT,       /* Windows decides the position */
          CW_USEDEFAULT,       /* where the window ends up on the screen */

@@ -78,8 +78,11 @@ pkglib_LTLIBRARIES += libfakeusb.la
 #lt_client_SOURCES = lt_client.c netcomm.c netcomm.h
 #lt_client_LDADD = -lm -lpthread -ldl libltr.la 
 
-linuxtrack.c : linuxtrack_pre.c linuxtrack.h utils.h ipc_utils.h utils.c ipc_utils.c ltlib.c ltlib.h
-	cat linuxtrack_pre.c utils.h ipc_utils.h ltlib.h utils.c ipc_utils.c ltlib.c > linuxtrack.c
+linuxtrack.c : ../config.h @srcdir@/linuxtrack_pre.c @srcdir@/linuxtrack.h @srcdir@/utils.h \
+               @srcdir@/ipc_utils.h @srcdir@/utils.c @srcdir@/ipc_utils.c @srcdir@/ltlib.c \
+               @srcdir@/ltlib.h
+	cat @srcdir@/linuxtrack_pre.c @srcdir@/utils.h @srcdir@/ipc_utils.h @srcdir@/ltlib.h \
+	@srcdir@/utils.c @srcdir@/ipc_utils.c @srcdir@/ltlib.c > linuxtrack.c
 
 include_HEADERS = linuxtrack.h
 
@@ -89,7 +92,7 @@ liblinuxtrack_la_SOURCES = linuxtrack.c linuxtrack.h utils.h ipc_utils.h
 liblinuxtrack_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LIBLINUXTRACK_FLAGS) 
 liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" ${SLEOPARD_LDFLAG}
 
-libltr_la_SOURCES = cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
+libltr_la_SOURCES = ../config.h cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   math_utils.c math_utils.h pose.c pose.h pref.cpp pref.hpp pref.h pref_bison.ypp \
   pref_flex.lpp pref_global.c pref_global.h \
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
@@ -275,7 +278,9 @@ qt_gui/l_wcft_setup.ui qt_gui/m_wc_setup.ui qt_gui/m_wcft_setup.ui qt_gui/model_
 qt_gui/profile_selector.cpp qt_gui/profile_selector.h qt_gui/profile_selector.ui \
 qt_gui/profile_setup.cpp qt_gui/profile_setup.h qt_gui/profile_setup.ui \
 qt_gui/progress.ui qt_gui/single_edit.ui qt_gui/sources.txt qt_gui/spec.txt qt_gui/tir_setup.ui \
-qt_gui/wii_setup.ui 51-Mickey.rules linuxtrack.pc \
+qt_gui/wii_setup.ui qt_gui/help/extractor.htm qt_gui/sphere.png qt_gui/sphere.txt \
+qt_gui/wine_launcher.cpp qt_gui/wine_launcher.h qt_gui/xplugin.cpp qt_gui/xplugin.h \
+qt_gui/xplugin.ui 51-Mickey.rules linuxtrack.pc \
 wii_server/wii_server.cpp wii_server/wiimote.h wii_server/wiimote.cpp wii_server/wii_server.pro.in \
 wii_server/main.cpp wii_server/wii_server.h wii_server/wii_server.ui wii_server/wii_server.qrc \
 linuxtrack-wii.desktop linuxtrack-wii.png linuxtrack-wii.svg linuxtrack-wii.xpm \
@@ -286,8 +291,8 @@ mickey/piper.c mickey/mickey.pro.in mickey/transform.h mickey/keyb.h mickey/mick
 mickey/chsettings.ui mickey/calibration.ui mickey/pref.ui mickey/transform.cpp \
 mickey/main.cpp mickey/help/tracking.htm mickey/help/misc.htm \
 mickey/help/news.htm mickey/help/contents.txt mickey/help/welcome.htm mickey/uinput_ifc.c \
-mickey/keyb.cpp mickey/helpview.ui
-
+mickey/keyb.cpp mickey/helpview.ui mickey/keyb_x11.cpp mickey/keyb_x11.h mickey/linuxtrack.icns \
+mickey/mouse.h mickey/mouse_linux.cpp mickey/mouse_mac.cpp sn4_model.h
 
 
 ltr_pipe_CPPFLAGS =
@@ -296,7 +301,8 @@ if LTR_PIPE
   man_MANS += ltr_pipe.1
   bin_PROGRAMS += ltr_pipe
   ltr_pipe_CPPFLAGS += -D_GNU_SOURCE
-  ltr_pipe_SOURCES = ltr_pipe.c linuxtrack.h utils.h ipc_utils.h utils.c ipc_utils.c ltlib.c ltlib.h
+  ltr_pipe_SOURCES = ../config.h ltr_pipe.c linuxtrack.h utils.h ipc_utils.h utils.c \
+                     ipc_utils.c ltlib.c ltlib.h
   ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
   ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS}
 endif
