@@ -13,12 +13,12 @@ UninstPage instfiles
 Section "Linuxtrack"
   SectionIn RO
   SetOutPath $INSTDIR
-  File "Controller.exe"
-  File "Tester.exe"
-  File "Tester64.exe"
-  File "NPClient.dll"
-  File "NPClient64.dll"
-  File "linuxtrack.ico"
+  File /oname=Controller.exe controller/Controller.exe.so
+  File /oname=Tester.exe tester\Tester.exe.so
+  File /oname=Tester64.exe tester\Tester64.exe.so
+  File /oname=NPClient.dll client\NPClient.dll.so
+  File /oname=NPClient64.dll client\NPClient64.dll.so
+  File /oname=linuxtrack.ico @srcdir@\controller\linuxtrack.ico
   WriteRegStr HKLM SOFTWARE\Linuxtrack "Install_dir" "$INSTDIR"
   WriteRegStr HKCU "Software\NaturalPoint\NATURALPOINT\NPClient Location" "Path" "$INSTDIR\"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Linuxtrack" "DisplayName" "Linuxtrack wine bridge"

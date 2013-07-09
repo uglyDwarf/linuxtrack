@@ -241,6 +241,8 @@ AC_CONFIG_FILES([
  src/wine_bridge/controller/Makefile
  src/wine_bridge/tester/Makefile
  src/wine_bridge/tester/npview.rc
+ src/wine_bridge/ltr_wine64.nsi
+ src/wine_bridge/ltr_wine.nsi
  doc/Makefile
  src/linuxtrack.pc
  src/mickey/mickey.pro

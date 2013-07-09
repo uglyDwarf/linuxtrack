@@ -10,6 +10,8 @@ INCLUDEPATH += .
 INCLUDEPATH += ..
 INCLUDEPATH += ./..
 INCLUDEPATH += ../qt_gui
+INCLUDEPATH += @srcdir@/..
+INCLUDEPATH += @srcdir@/../qt_gui
 VPATH     = @srcdir@
 QT += webkit
 

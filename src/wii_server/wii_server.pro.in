@@ -9,6 +9,7 @@ DEPENDPATH += .
 INCLUDEPATH += .
 INCLUDEPATH += ..
 INCLUDEPATH += ./..
+INCLUDEPATH += @srcdir@/..
 VPATH     = @srcdir@
 RESOURCES = wii_server.qrc
 # Input

@@ -5,12 +5,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <wchar.h>
-#include "utils.h"
+#include <utils.h>
 #include "resource.h"
 #include "kbi_interface.h"
 
 #ifdef HAVE_CONFIG_H
-  #include "../../../config.h"
+  #include <config.h>
 #endif
 
 /*  Declare Windows procedure  */
