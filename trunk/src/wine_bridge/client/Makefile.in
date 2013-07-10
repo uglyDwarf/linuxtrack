@@ -15,7 +15,6 @@
 
 @SET_MAKE@
 
-VPATH = @srcdir@
 am__make_dryrun = \
   { \
     am__dry=no; \
@@ -104,6 +103,7 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(pkgdatadir)"
 DATA = $(nodist_pkgdata_DATA)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AR = @AR@
@@ -111,13 +111,15 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-CC = @CC@
-CFLAGS = @CFLAGS@
+CC = winegcc
+CFLAGS = @CFLAGS@ -g -I../.. -I../../.. -DHAVE_CONFIG_H \
+	-I@srcdir@/../.. -I@top_builddir@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CXX = @CXX@
+CXX = wineg++
 CXXCPP = @CXXCPP@
-CXXFLAGS = @CXXFLAGS@
+CXXFLAGS = @CXXFLAGS@ -g -DHAVE_CONFIG_H -I../../.. -I. \
+	-I@srcdir@/../.. -I@top_builddir@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DLLTOOL = @DLLTOOL@
@@ -236,12 +238,15 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_wine64 = @with_wine64@
 nodist_pkgdata_DATA = $(am__append_1) $(am__append_2)
+SUFFIXES = .o .cpp .c .rc 64.o
+RCFLAGS = -I @srcdir@
 EXTRA_DIST = NPClient_dll.h NPClient_main.c rest.c \
 NPClient.h NPClient.spec rest.h
 
 all: all-am
 
 .SUFFIXES:
+.SUFFIXES: .o .cpp .c .rc 64.o
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -455,33 +460,38 @@ uninstall-am: uninstall-nodist_pkgdataDATA
 	uninstall-nodist_pkgdataDATA
 
 
-NPClient.dll.so : NPClient.spec NPClient_dll.o linuxtrack.o rest.o
+.cpp.o :
+	$(CXX) -m32 -c $(CXXFLAGS) -o $@ $<
+
+.c.o :
+	$(CC) -m32 -c $(CFLAGS) -o $@ $<
+
+.cpp64.o :
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+.c64.o :
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+.rc.o :
+	wrc -o $@ $(RCFLAGS) $<
+
+NPClient.dll.so : NPClient.spec NPClient_main.o linuxtrack.o rest.o
 	winegcc -m32 $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra -g -o $@ -shared $^
 
-NPClient64.dll.so : NPClient.spec NPClient64_dll.o linuxtrack64.o rest64.o
+NPClient64.dll.so : NPClient.spec NPClient_main64.o linuxtrack64.o rest64.o
 	winegcc  $(WINE64_LIBS) $(LDFLAGbS)  -Wall -Wextra -g -o $@ -shared $^
 
-NPClient_dll.o : NPClient_main.c NPClient_dll.h
-	winegcc -c -m32 -g -Wall -Wextra -o $@ -I@srcdir@/../.. $(CFLAGS) $<
+NPClient_main.o : NPClient_main.c NPClient_dll.h
 
-NPClient64_dll.o : NPClient_main.c NPClient_dll.h
-	winegcc -c -g -Wall -Wextra -o $@ -I@srcdir@/../.. $(CFLAGS) $<
+NPClient_main64.o : NPClient_main.c NPClient_dll.h
 
-linuxtrack.o : ../../linuxtrack.c @top_builddir@/config.h
-	winegcc -m32 -g -c -Wall -Wextra -o $@ -DHAVE_CONFIG_H -I../.. -I../../.. \
-	  -I@srcdir@/../.. $(CFLAGS) $<
+linuxtrack.o : linuxtrack.c config.h
 
-linuxtrack64.o : ../../linuxtrack.c @top_builddir@/config.h
-	winegcc -g -c -Wall -Wextra -o $@ -DHAVE_CONFIG_H -I../.. -I../../.. \
-	  -I@srcdir@/../.. $(CFLAGS) $<
+linuxtrack64.o : linuxtrack.c config.h
 
-rest.o : rest.c rest.h @top_builddir@/config.h
-	winegcc -m32 -g -Wall -Wextra -c -o rest.o -I @srcdir@/../../.. -I../../.. \
-	  $(CFLAGS) -DHAVE_CONFIG_H $<
+rest.o : rest.c rest.h config.h
 
-rest64.o : rest.c rest.h @top_builddir@/config.h
-	winegcc -g -Wall -Wextra -c -o $@ -I @srcdir@/../../.. -I../../.. \
-	  $(CFLAGS) -DHAVE_CONFIG_H $<
+rest64.o : rest.c rest.h config.h
 
 clean-local: clean-local-check
 .PHONY: clean-local-check

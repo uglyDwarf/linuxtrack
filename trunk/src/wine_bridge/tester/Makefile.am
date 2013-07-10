@@ -12,32 +12,53 @@ else
   LDFLAGS += -Wl,--no-warn-search-mismatch
 endif
 
-Tester.exe : main.o npview.o rest.o npifc.o 
-	wineg++ -m32 -g -o Tester -L. $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra $^
+CC = winegcc
 
-Tester64.exe : main64.o npview.o rest64.o npifc64.o 
+CXX = wineg++
+
+SUFFIXES = .o .cpp .c .rc 64.o
+
+.cpp.o :
+	$(CXX) -m32 -c $(CXXFLAGS) -o $@ $<
+
+.c.o :
+	$(CC) -m32 -c $(CFLAGS) -o $@ $<
+
+.cpp64.o :
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+.c64.o :
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+.rc.o :
+	wrc -o $@ $(RCFLAGS) $<
+
+CXXFLAGS += -g -DHAVE_CONFIG_H -I../../.. -I. -I@srcdir@/../.. -I@top_builddir@
+CFLAGS += -g -I../.. -I../../.. -DHAVE_CONFIG_H -I@srcdir@/../.. -I@top_builddir@
+RCFLAGS = -I @srcdir@
+VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
+
+
+Tester64.exe : main64.o rest64.o npifc64.o npview.o
 	wineg++ -g -o Tester64 -L. $(WINE64_LIBS) $(LDFLAGS) -Wall -Wextra $^
 
-main.o : @srcdir@/main.cpp Makefile
-	wineg++ -m32 -g -Wall -Wextra -c -o $@ $(CXXFLAGS) $<
+Tester.exe : main.o npview.o rest.o npifc.o
+	wineg++ -m32 -g -o Tester -L. $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra $^
 
-main64.o : @srcdir@/main.cpp Makefile
-	wineg++ -g -Wall -Wextra -c -o $@ $(CXXFLAGS) $<
+main.o : main.cpp Makefile
+
+main64.o : main.cpp Makefile
 
 npview.o : npview.rc
-	wrc -o $@ -I @srcdir@ $<
 
 rest.o : rest.c rest.h Makefile
-	winegcc -m32 -g -Wall -Wextra -c -o $@ -I../../.. $(CFLAGS) -DHAVE_CONFIG_H $< 
 
 rest64.o : rest.c rest.h Makefile
-	winegcc -g -Wall -Wextra -c -o $@ -I../../.. $(CFLAGS) -DHAVE_CONFIG_H $< 
 
 npifc.o : npifc.c npifc.h Makefile
-	winegcc -m32 -g -Wall -Wextra -c -o $@ $(CFLAGS) $<
 
+npifc64.o : CFLAGS+="-DFOR_WIN64=1"
 npifc64.o : npifc.c npifc.h Makefile
-	winegcc -g -Wall -Wextra -c -o $@ $(CFLAGS) -DFOR_WIN64=1 $<
 
 clean-local: clean-local-check
 .PHONY: clean-local-check

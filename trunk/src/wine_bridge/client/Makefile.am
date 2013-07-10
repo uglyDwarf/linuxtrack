@@ -12,33 +12,49 @@ else
   LDFLAGS += -Wl,--no-warn-search-mismatch
 endif
 
-NPClient.dll.so : NPClient.spec NPClient_dll.o linuxtrack.o rest.o
+CC = winegcc
+
+CXX = wineg++
+
+SUFFIXES = .o .cpp .c .rc 64.o
+
+.cpp.o :
+	$(CXX) -m32 -c $(CXXFLAGS) -o $@ $<
+
+.c.o :
+	$(CC) -m32 -c $(CFLAGS) -o $@ $<
+
+.cpp64.o :
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+.c64.o :
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+.rc.o :
+	wrc -o $@ $(RCFLAGS) $<
+
+CXXFLAGS += -g -DHAVE_CONFIG_H -I../../.. -I. -I@srcdir@/../.. -I@top_builddir@
+CFLAGS += -g -I../.. -I../../.. -DHAVE_CONFIG_H -I@srcdir@/../.. -I@top_builddir@
+RCFLAGS = -I @srcdir@
+VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
+
+NPClient.dll.so : NPClient.spec NPClient_main.o linuxtrack.o rest.o
 	winegcc -m32 $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra -g -o $@ -shared $^
 
-NPClient64.dll.so : NPClient.spec NPClient64_dll.o linuxtrack64.o rest64.o
+NPClient64.dll.so : NPClient.spec NPClient_main64.o linuxtrack64.o rest64.o
 	winegcc  $(WINE64_LIBS) $(LDFLAGbS)  -Wall -Wextra -g -o $@ -shared $^
 
-NPClient_dll.o : NPClient_main.c NPClient_dll.h
-	winegcc -c -m32 -g -Wall -Wextra -o $@ -I@srcdir@/../.. $(CFLAGS) $<
+NPClient_main.o : NPClient_main.c NPClient_dll.h
 
-NPClient64_dll.o : NPClient_main.c NPClient_dll.h
-	winegcc -c -g -Wall -Wextra -o $@ -I@srcdir@/../.. $(CFLAGS) $<
+NPClient_main64.o : NPClient_main.c NPClient_dll.h
 
-linuxtrack.o : ../../linuxtrack.c @top_builddir@/config.h
-	winegcc -m32 -g -c -Wall -Wextra -o $@ -DHAVE_CONFIG_H -I../.. -I../../.. \
-	  -I@srcdir@/../.. $(CFLAGS) $<
+linuxtrack.o : linuxtrack.c config.h
 
-linuxtrack64.o : ../../linuxtrack.c @top_builddir@/config.h
-	winegcc -g -c -Wall -Wextra -o $@ -DHAVE_CONFIG_H -I../.. -I../../.. \
-	  -I@srcdir@/../.. $(CFLAGS) $<
+linuxtrack64.o : linuxtrack.c config.h
 
-rest.o : rest.c rest.h @top_builddir@/config.h
-	winegcc -m32 -g -Wall -Wextra -c -o rest.o -I @srcdir@/../../.. -I../../.. \
-	  $(CFLAGS) -DHAVE_CONFIG_H $<
+rest.o : rest.c rest.h config.h
 
-rest64.o : rest.c rest.h @top_builddir@/config.h
-	winegcc -g -Wall -Wextra -c -o $@ -I @srcdir@/../../.. -I../../.. \
-	  $(CFLAGS) -DHAVE_CONFIG_H $<
+rest64.o : rest.c rest.h config.h
 
 clean-local: clean-local-check
 .PHONY: clean-local-check
