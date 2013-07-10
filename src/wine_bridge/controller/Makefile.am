@@ -9,25 +9,39 @@ else
   LDFLAGS += -Wl,--no-warn-search-mismatch
 endif
 
+CC = winegcc -m32
+
+CXX = wineg++ -m32
+
+.cpp.o :
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+.c.o :
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+.rc.o :
+	wrc -o $@ $<
+
+CXXFLAGS += -isystem/usr/include/wine/windows -DHAVE_CONFIG_H \
+	   -I../../.. -I. -I@srcdir@/../.. -I@top_builddir@
+
+CFLAGS += -I../.. -I../../.. -DHAVE_CONFIG_H \
+	-I@srcdir@/../.. -I@top_builddir@
+
+VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
 
 Controller.exe : main.o linuxtrack.o resources.o dinput.o
-	wineg++ -m32 -o Controller -Wall -Wextra  $(LDFLAGS) $(WINE_LIBS) \
+	wineg++ -m32 -o Controller   $(LDFLAGS) $(WINE_LIBS) \
            $^ -lshell32 -ldxguid -l dinput -l dinput8 -l uuid
 
 main.o : main.cpp @top_builddir@/config.h
-	wineg++ -m32 -c -o $@ -Wall -Wextra -isystem/usr/include/wine/windows \
-	   -I../../.. -I. -I@srcdir@/../.. -I@top_builddir@ $(CXXFLAGS) -DHAVE_CONFIG_H $<
 
-linuxtrack.o : ../../linuxtrack.c ../../linuxtrack.h @top_builddir@/config.h 
-	winegcc -c -m32 -Wall -Wextra -o $@ -I../.. -I../../.. -DHAVE_CONFIG_H \
-	-I@srcdir@/../.. -I@top_builddir@ $(CFLAGS) $<
+linuxtrack.o : linuxtrack.c linuxtrack.h config.h 
 
 dinput.o : dinput.cpp kbi_interface.h
-	wineg++ -m32 -c -Wall -Wextra -o $@ -isystem/usr/include/wine/windows \
-	  -I@srcdir@/../.. $(CXXFLAGS) $<
 
 resources.o : resources.rc
-	wrc -o resources.o $<
+
 
 clean-local: clean-local-check
 .PHONY: clean-local-check

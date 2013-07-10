@@ -15,7 +15,6 @@
 
 @SET_MAKE@
 
-VPATH = @srcdir@
 am__make_dryrun = \
   { \
     am__dry=no; \
@@ -103,6 +102,7 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(pkgdatadir)"
 DATA = $(nodist_pkgdata_DATA)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AR = @AR@
@@ -110,13 +110,16 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-CC = @CC@
-CFLAGS = @CFLAGS@
+CC = winegcc -m32
+CFLAGS = @CFLAGS@ -I../.. -I../../.. -DHAVE_CONFIG_H -I@srcdir@/../.. \
+	-I@top_builddir@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CXX = @CXX@
+CXX = wineg++ -m32
 CXXCPP = @CXXCPP@
-CXXFLAGS = @CXXFLAGS@
+CXXFLAGS = @CXXFLAGS@ -isystem/usr/include/wine/windows \
+	-DHAVE_CONFIG_H -I../../.. -I. -I@srcdir@/../.. \
+	-I@top_builddir@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DLLTOOL = @DLLTOOL@
@@ -241,6 +244,7 @@ main.cpp resource.h resources.rc
 all: all-am
 
 .SUFFIXES:
+.SUFFIXES: .c .cpp .o .rc
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -454,24 +458,26 @@ uninstall-am: uninstall-nodist_pkgdataDATA
 	uninstall-nodist_pkgdataDATA
 
 
+.cpp.o :
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+.c.o :
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+.rc.o :
+	wrc -o $@ $<
+
 Controller.exe : main.o linuxtrack.o resources.o dinput.o
-	wineg++ -m32 -o Controller -Wall -Wextra  $(LDFLAGS) $(WINE_LIBS) \
+	wineg++ -m32 -o Controller   $(LDFLAGS) $(WINE_LIBS) \
            $^ -lshell32 -ldxguid -l dinput -l dinput8 -l uuid
 
 main.o : main.cpp @top_builddir@/config.h
-	wineg++ -m32 -c -o $@ -Wall -Wextra -isystem/usr/include/wine/windows \
-	   -I../../.. -I. -I@srcdir@/../.. -I@top_builddir@ $(CXXFLAGS) -DHAVE_CONFIG_H $<
 
-linuxtrack.o : ../../linuxtrack.c ../../linuxtrack.h @top_builddir@/config.h 
-	winegcc -c -m32 -Wall -Wextra -o $@ -I../.. -I../../.. -DHAVE_CONFIG_H \
-	-I@srcdir@/../.. -I@top_builddir@ $(CFLAGS) $<
+linuxtrack.o : linuxtrack.c linuxtrack.h config.h 
 
 dinput.o : dinput.cpp kbi_interface.h
-	wineg++ -m32 -c -Wall -Wextra -o $@ -isystem/usr/include/wine/windows \
-	  -I@srcdir@/../.. $(CXXFLAGS) $<
 
 resources.o : resources.rc
-	wrc -o resources.o $<
 
 clean-local: clean-local-check
 .PHONY: clean-local-check

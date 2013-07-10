@@ -15,7 +15,6 @@
 
 @SET_MAKE@
 
-VPATH = @srcdir@
 am__make_dryrun = \
   { \
     am__dry=no; \
@@ -105,6 +104,7 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(pkgdatadir)"
 DATA = $(nodist_pkgdata_DATA)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AR = @AR@
@@ -112,13 +112,15 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-CC = @CC@
-CFLAGS = @CFLAGS@
+CC = winegcc
+CFLAGS = @CFLAGS@ -g -I../.. -I../../.. -DHAVE_CONFIG_H \
+	-I@srcdir@/../.. -I@top_builddir@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CXX = @CXX@
+CXX = wineg++
 CXXCPP = @CXXCPP@
-CXXFLAGS = @CXXFLAGS@
+CXXFLAGS = @CXXFLAGS@ -g -DHAVE_CONFIG_H -I../../.. -I. \
+	-I@srcdir@/../.. -I@top_builddir@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DLLTOOL = @DLLTOOL@
@@ -237,10 +239,13 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_wine64 = @with_wine64@
 nodist_pkgdata_DATA = $(am__append_1) $(am__append_2)
+SUFFIXES = .o .cpp .c .rc 64.o
+RCFLAGS = -I @srcdir@
 EXTRA_DIST = main.cpp npifc.c npifc.h resource.h rest.c rest.h
 all: all-am
 
 .SUFFIXES:
+.SUFFIXES: .o .cpp .c .rc 64.o
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -456,32 +461,41 @@ uninstall-am: uninstall-nodist_pkgdataDATA
 	uninstall-nodist_pkgdataDATA
 
 
-Tester.exe : main.o npview.o rest.o npifc.o 
-	wineg++ -m32 -g -o Tester -L. $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra $^
+.cpp.o :
+	$(CXX) -m32 -c $(CXXFLAGS) -o $@ $<
 
-Tester64.exe : main64.o npview.o rest64.o npifc64.o 
+.c.o :
+	$(CC) -m32 -c $(CFLAGS) -o $@ $<
+
+.cpp64.o :
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+.c64.o :
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+.rc.o :
+	wrc -o $@ $(RCFLAGS) $<
+
+Tester64.exe : main64.o rest64.o npifc64.o npview.o
 	wineg++ -g -o Tester64 -L. $(WINE64_LIBS) $(LDFLAGS) -Wall -Wextra $^
 
-main.o : @srcdir@/main.cpp Makefile
-	wineg++ -m32 -g -Wall -Wextra -c -o $@ $(CXXFLAGS) $<
+Tester.exe : main.o npview.o rest.o npifc.o
+	wineg++ -m32 -g -o Tester -L. $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra $^
 
-main64.o : @srcdir@/main.cpp Makefile
-	wineg++ -g -Wall -Wextra -c -o $@ $(CXXFLAGS) $<
+main.o : main.cpp Makefile
+
+main64.o : main.cpp Makefile
 
 npview.o : npview.rc
-	wrc -o $@ -I @srcdir@ $<
 
 rest.o : rest.c rest.h Makefile
-	winegcc -m32 -g -Wall -Wextra -c -o $@ -I../../.. $(CFLAGS) -DHAVE_CONFIG_H $< 
 
 rest64.o : rest.c rest.h Makefile
-	winegcc -g -Wall -Wextra -c -o $@ -I../../.. $(CFLAGS) -DHAVE_CONFIG_H $< 
 
 npifc.o : npifc.c npifc.h Makefile
-	winegcc -m32 -g -Wall -Wextra -c -o $@ $(CFLAGS) $<
 
+npifc64.o : CFLAGS+="-DFOR_WIN64=1"
 npifc64.o : npifc.c npifc.h Makefile
-	winegcc -g -Wall -Wextra -c -o $@ $(CFLAGS) -DFOR_WIN64=1 $<
 
 clean-local: clean-local-check
 .PHONY: clean-local-check
