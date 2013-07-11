@@ -232,6 +232,7 @@ AC_CONFIG_FILES([
  src/pathconfig.h
  src/tests/Makefile
  src/mac/Makefile
+ src/mac/Info.plist
  src/local_config.h
  src/qt_gui/ltr_gui.pro
  src/wii_server/wii_server.pro
