@@ -1,4 +1,4 @@
-#summary Howto setup headtracking in !TrackIR enabled games in Wine
+#summary Howto setup headtracking in TrackIR enabled games in Wine
 #labels Featured
 
 = Introduction =
