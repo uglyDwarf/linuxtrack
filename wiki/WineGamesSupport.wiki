@@ -23,8 +23,12 @@ Also make sure, that you run Controler from the same prefix/bottle, otherwise it
 
 
 = Supported games =
-Il-2
-Condor soaring simulator
-Falcon4 Allied Force
+Technically, any TrackIR enabled game, that runs in Wine should "just work" (TM) - if not, feel free to file a bug...
 
-If some other game works, please leave a comment and I'll add it here.
+*Il-2*
+
+*Condor soaring simulator*
+
+*Falcon4 Allied Force*
+
+If some other game works, please leave a comment and I'll add it here. 
