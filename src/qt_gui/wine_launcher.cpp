@@ -33,12 +33,15 @@ void WineLauncher::setEnv(const QString &var, const QString &val)
 void WineLauncher::run(const QString &tgt)
 {
   wine.setProcessEnvironment(env);
-  QString cmd("wine %1");
-  #ifdef DARWIN 
-    cmd.prepend(QApplication::applicationDirPath()+"/../wine/bin/");
+  QString cmd("\"%1wine\" \"%2\"");
+  QString winePath;
+  #ifdef DARWIN
+    winePath = QApplication::applicationDirPath()+"/../wine/bin/";
+  #else
+    winePath = "";
   #endif
-  cmd = cmd.arg(tgt);
-  std::cout<<"Launching wine command: '"<< qPrintable(cmd) <<"'"<<std::endl;
+  cmd = cmd.arg(winePath).arg(tgt);
+  std::cerr<<"Launching wine command: '"<< qPrintable(cmd) <<"'"<<std::endl;
   wine.start(cmd);
 }
 
@@ -54,8 +57,13 @@ void WineLauncher::finished(int exitCode, QProcess::ExitStatus exitStatus)
 
 bool WineLauncher::check()
 {
-  run(" --version ");
-  wine.waitForFinished();
+  run("--version");
+  while(!wine.waitForFinished()){
+    if(wine.error() != QProcess::Timedout){
+      std::cerr<<"Process error: "<<wine.error()<<std::endl;
+      return false;
+    }
+  }
   if(wine.exitCode() == 0){
     return true;
   }
