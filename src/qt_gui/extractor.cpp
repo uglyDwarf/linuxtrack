@@ -230,6 +230,15 @@ void Extractor::wineFinished(bool result)
   if(result){
     destPath = makeDestPath(PrefProxy::getRsrcDirPath());
     et->start(targets, winePrefix, destPath);
+  }else{
+    QMessageBox::warning(this, "Error running Wine", 
+      "There was an error when extracting the firmware.\n"
+      "Please see the log for more details.\n\n"
+    );
+    ui.BrowseButton->setEnabled(true);
+    ui.DownloadButton->setEnabled(true);
+    ui.QuitButton->setEnabled(true);
+    emit finished(false);
   }
   //ui.BrowseButton->setEnabled(true);
   //ui.QuitButton->setEnabled(true);

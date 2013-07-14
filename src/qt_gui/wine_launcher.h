@@ -18,6 +18,7 @@ class WineLauncher:public QObject
   QProcessEnvironment env;
  private slots:
   void finished(int exitCode, QProcess::ExitStatus exitStatus);
+  void error(QProcess::ProcessError error);
  signals:
   void finished(bool result);
 };
