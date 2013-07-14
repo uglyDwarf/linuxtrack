@@ -19,9 +19,9 @@ endif #DARWIN
 .PHONY : bridge bridge64 bridge_mac
 
 bridge_mac : ltr_wine.nsi tester/Tester.exe.so controller/Controller.exe.so client/NPClient.dll.so
-	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib tester/Tester.exe 
-	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib controller/Controller.exe 
-	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib client/NPClient.dll 
+	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib tester/Tester.exe.so
+	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib controller/Controller.exe.so 
+	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib client/NPClient.dll.so
 	makensis $<
 
 bridge : ltr_wine.nsi tester/Tester.exe.so controller/Controller.exe.so client/NPClient.dll.so
