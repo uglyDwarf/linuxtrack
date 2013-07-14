@@ -11,12 +11,16 @@ WineLauncher::WineLauncher()
   env = QProcessEnvironment::systemEnvironment();
   QObject::connect(&wine, SIGNAL(finished(int, QProcess::ExitStatus)), 
     this, SLOT(finished(int, QProcess::ExitStatus)));
+  QObject::connect(&wine, SIGNAL(error(QProcess::ProcessError)), 
+    this, SLOT(error(QProcess::ProcessError)));
 }
 
 WineLauncher::~WineLauncher()
 {
   QObject::disconnect(&wine, SIGNAL(finished(int, QProcess::ExitStatus)), 
     this, SLOT(finished(int, QProcess::ExitStatus)));
+  QObject::disconnect(&wine, SIGNAL(error(QProcess::ProcessError)), 
+    this, SLOT(error(QProcess::ProcessError)));
   if(wine.state() != QProcess::NotRunning){
     wine.waitForFinished(10000);
   }
@@ -42,6 +46,7 @@ void WineLauncher::run(const QString &tgt)
   #endif
   cmd = cmd.arg(winePath).arg(tgt);
   std::cerr<<"Launching wine command: '"<< qPrintable(cmd) <<"'"<<std::endl;
+  wine.setProcessChannelMode(QProcess::MergedChannels);
   wine.start(cmd);
 }
 
@@ -51,9 +56,20 @@ void WineLauncher::finished(int exitCode, QProcess::ExitStatus exitStatus)
   if(exitCode == 0 ){
     emit finished(true);
   }else{
+    QString msg(wine.readAllStandardOutput());
+    std::cerr<<qPrintable(msg)<<std::endl;
     emit finished(false);
   }
 }
+
+void WineLauncher::error(QProcess::ProcessError error)
+{
+  (void)error;
+  QString msg(wine.readAllStandardOutput());
+  std::cerr<<qPrintable(msg)<<std::endl;
+  emit finished(false);
+}
+
 
 bool WineLauncher::check()
 {
