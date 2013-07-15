@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>437</width>
+    <width>588</width>
     <height>337</height>
    </rect>
   </property>
@@ -90,6 +90,12 @@
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QPushButton" name="HelpButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Help</string>
        </property>
@@ -98,19 +104,35 @@
      <item>
       <widget class="QPushButton" name="AnalyzeSourceButton">
        <property name="text">
-        <string>Extract Firmware</string>
+        <string>Extract Firmware
+(developer)</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="BrowseButton">
+      <widget class="QPushButton" name="BrowseInstaller">
        <property name="text">
-        <string>Browse</string>
+        <string>Extract from
+installer</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="BrowseDir">
+       <property name="text">
+        <string>Extract from
+unpacked</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="QuitButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Close</string>
        </property>
@@ -126,7 +148,7 @@
   <tabstop>LogView</tabstop>
   <tabstop>HelpButton</tabstop>
   <tabstop>AnalyzeSourceButton</tabstop>
-  <tabstop>BrowseButton</tabstop>
+  <tabstop>BrowseInstaller</tabstop>
   <tabstop>QuitButton</tabstop>
  </tabstops>
  <resources/>

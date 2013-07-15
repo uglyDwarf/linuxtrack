@@ -196,7 +196,8 @@ Extractor::Extractor(QWidget *parent) : QDialog(parent), et(NULL), dl(NULL), pro
   QObject::connect(dl, SIGNAL(done(bool, QString)), this, SLOT(downloadDone(bool, QString)));
   QObject::connect(dl, SIGNAL(msg(const QString &)), this, SLOT(progress(const QString &)));
   QObject::connect(dl, SIGNAL(msg(qint64, qint64)), progressDlg, SLOT(message(qint64, qint64)));
-  ui.BrowseButton->setEnabled(readSpec());
+  haveSpec = readSpec();
+  enableButtons(true);
   readSources();
   QString dbg = QProcessEnvironment::systemEnvironment().value("LINUXTRACK_DBG");
   if(!dbg.contains('d')){
@@ -265,11 +266,13 @@ void Extractor::extractFirmware(QString file)
 }
 
 
-void Extractor::on_BrowseButton_pressed()
+void Extractor::on_BrowseInstaller_pressed()
 {
-  ui.BrowseButton->setEnabled(false);
+  enableButtons(false);
+  ui.BrowseInstaller->setEnabled(false);
   QString dir = QFileDialog::getOpenFileName(this, "Open an installer:");
   if(dir.isEmpty()){
+    enableButtons(true);
     return;
   }
   winePrefix = QDir::tempPath();
@@ -277,23 +280,34 @@ void Extractor::on_BrowseButton_pressed()
   QByteArray charData = winePrefix.toUtf8();
   char *prefix = mkdtemp(charData.data()); 
   if(prefix == NULL){
+    enableButtons(true);
     return;
   }
-  ui.QuitButton->setEnabled(false);
-  ui.BrowseButton->setEnabled(false);
-  ui.DownloadButton->setEnabled(false);
   winePrefix = prefix;
-  //if(!QDir::current().mkdir("wine")){
-  //  return;
-  //}
   extractFirmware(dir);
+}
+
+
+void Extractor::on_BrowseDir_pressed()
+{
+  enableButtons(false);
+  QString dirName = QFileDialog::getExistingDirectory(this, 
+    "Open a directory containing unpacked TrackIR driver:");
+  if(dirName.isEmpty()){
+    enableButtons(true);
+    return;
+  }
+  destPath = makeDestPath(PrefProxy::getRsrcDirPath());
+  et->start(targets, dirName, destPath);
 }
 
 void Extractor::on_AnalyzeSourceButton_pressed()
 {
+  enableButtons(false);
   targets.clear();
   QString dirName = QFileDialog::getExistingDirectory(this, "Open a wine directory:");
   if(dirName.isEmpty()){
+    enableButtons(true);
     return;
   }
   QDir dir(dirName);
@@ -311,6 +325,7 @@ void Extractor::on_AnalyzeSourceButton_pressed()
   
   QFile of("spec.txt");
   if(!of.open(QFile::WriteOnly | QFile::Truncate)){
+    enableButtons(true);
     return;
   }
   QTextStream out(&of);
@@ -319,7 +334,7 @@ void Extractor::on_AnalyzeSourceButton_pressed()
     it->second.save(out);
   }
   of.close();
-  
+  enableButtons(true);
 }
 
 void Extractor::progress(const QString &msg)
@@ -329,9 +344,7 @@ void Extractor::progress(const QString &msg)
 
 void Extractor::threadFinished()
 {
-  ui.BrowseButton->setEnabled(true);
-  ui.DownloadButton->setEnabled(true);
-  ui.QuitButton->setEnabled(true);
+  enableButtons(true);
   bool everything = et->haveEverything();
   if(everything){
     QString l = PrefProxy::getRsrcDirPath() + "/tir_firmware";
@@ -341,6 +354,15 @@ void Extractor::threadFinished()
     QFile::link(destPath, l);
   }
   emit finished(everything);
+}
+
+
+void Extractor::enableButtons(bool enable)
+{
+  ui.BrowseInstaller->setEnabled(haveSpec && enable);
+  ui.BrowseDir->setEnabled(haveSpec && enable);
+  ui.DownloadButton->setEnabled(haveSpec && enable);
+  ui.QuitButton->setEnabled(enable);
 }
 
 
@@ -366,9 +388,7 @@ void Extractor::on_DownloadButton_pressed()
   if(prefix == NULL){
     return;
   }
-  ui.QuitButton->setEnabled(false);
-  ui.BrowseButton->setEnabled(false);
-  ui.DownloadButton->setEnabled(false);
+  enableButtons(false);
   winePrefix = prefix;
   progressDlg->show();
   progressDlg->raise();
