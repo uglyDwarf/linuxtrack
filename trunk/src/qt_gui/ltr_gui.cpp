@@ -91,7 +91,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), ds(NULL),
   ui.LegacyRotation->setChecked(ltr_int_use_oldrot());
   ui.TransRotDisable->setChecked(!ltr_int_do_tr_align());
   WineLauncher wl;
-  if(!wl.check()){
+  if(!wl.wineAvailable()){
     warningMessage("Wine not working, you'll not be able to install NP firmware and Wine plugin!");
   }
   guiInit = false;
