@@ -12,10 +12,13 @@ class WineLauncher:public QObject
   ~WineLauncher();
   void setEnv(const QString &var, const QString &val);
   void run(const QString &tgt);
-  bool check();
+  bool wineAvailable();
  private:
+  bool check();
   QProcess wine;
   QProcessEnvironment env;
+  QString winePath;
+  bool available;
  private slots:
   void finished(int exitCode, QProcess::ExitStatus exitStatus);
   void error(QProcess::ProcessError error);

@@ -488,9 +488,9 @@ uninstall-am: uninstall-dist_pkgdataDATA uninstall-nodist_pkgdataDATA
 @WINE_PLUGIN_TRUE@.PHONY : bridge bridge64 bridge_mac
 
 @WINE_PLUGIN_TRUE@bridge_mac : ltr_wine.nsi tester/Tester.exe.so controller/Controller.exe.so client/NPClient.dll.so
-@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib tester/Tester.exe 
-@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib controller/Controller.exe 
-@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib client/NPClient.dll 
+@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib tester/Tester.exe.so
+@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib controller/Controller.exe.so 
+@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib client/NPClient.dll.so
 @WINE_PLUGIN_TRUE@	makensis $<
 
 @WINE_PLUGIN_TRUE@bridge : ltr_wine.nsi tester/Tester.exe.so controller/Controller.exe.so client/NPClient.dll.so
