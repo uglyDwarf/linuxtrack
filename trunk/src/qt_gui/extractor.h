@@ -73,12 +73,15 @@ class Extractor: public QDialog
   bool readSources();
   QString findSrc(const QString &name);
   void extractFirmware(QString file);
+  void enableButtons(bool enable);
+  bool haveSpec;
  signals:
   void finished(bool result);
  public slots:
   void show();
  private slots:
-  void on_BrowseButton_pressed();
+  void on_BrowseInstaller_pressed();
+  void on_BrowseDir_pressed();
   void on_AnalyzeSourceButton_pressed();
   void on_DownloadButton_pressed();
   void on_QuitButton_pressed();

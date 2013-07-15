@@ -20,9 +20,6 @@ driver package. By default the newest packge available is downloaded; if it is n
 select any other from the combobox to the left off the button (all packages listed there contain 
 the same firmware, only the game list might differ a bit).
 <p>
-If you don't have access to the internet, just download any of the listed packages elsewhere and
-using the <b>Browse</b> button find and open the one you downloaded.
-<p>
 When the package is downloaded/browsed to, a dialog containing short instructions pops up.
 After pressing <b>OK</b> the package is installed to a temporary wine prefix.
 <p>
@@ -35,6 +32,16 @@ On Macs, due to wine configuration pecularities, the installation should be perf
 <p>
 When the installer finishes, the extraction begins - you can follow its progress in the status
 part of the Extractor dialog. When the extraction is finished, the dialog closes by itself.
+<p>
+If you don't have access to the internet, just download any of the listed packages elsewhere and
+using the <b>Extract from installer</b> button find and open the one you downloaded.
+<p>
+If you encounter any difficulties using the above methods, you can try to install the driver by 
+hand (using wine or install on windows machine and copy over). Then just press the 
+<b>Extract from unpacked</b>, browse to the directory (the whole directory!) containing the
+NP software (usually ~/.wine/drive_c/Program\ Files/NaturalPoint/TrackIR5) and press Open button for 
+the extraction to begin.
+
 
 <h2>Why so complicated?</h2>
 Maybe you wander, why is the whole thing that complicated, or why to download ~20MB package instead
