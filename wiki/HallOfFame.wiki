@@ -47,6 +47,9 @@
 *Bill*
  Thank you for your help making SmartNav4 support possible.
 
+*Jonesy* (jotama...@netcabo.pt)
+ Thank you for your perseverance and patience while hunting down the bug in TIR firmware extraction. 
+
 == Donors ==
 
 *Ben* (Mid7night, x-plane.org forum)
