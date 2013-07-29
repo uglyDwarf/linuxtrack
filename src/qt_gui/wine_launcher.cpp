@@ -7,13 +7,30 @@
 #include "wine_launcher.h"
 #include "utils.h"
 
+void WineLauncher::envSet(const QString var, const QString val)
+{
+    env.insert(var, val);
+    std::cerr<<"    "<<qPrintable(var)<<"='"<<qPrintable(val)<<"'"<<std::endl;
+}
+
 WineLauncher::WineLauncher():winePath(""), available(false)
 {
   env = QProcessEnvironment::systemEnvironment();
   if(!check()){
 #ifdef DARWIN
     winePath = QApplication::applicationDirPath()+"/../wine/bin/";
+    QString libPath = QApplication::applicationDirPath()+"/../wine/lib/";
     available = true;
+    QString path = winePath + ":" + env.value("PATH");
+    std::cerr<<"Using internal wine; adjusting env variables:"<<std::endl;
+    envSet("PATH", path);
+    envSet("WINESERVER", winePath+"wineserver");
+    envSet("WINELOADER", winePath+"wine");
+    envSet("WINEDLLPATH", libPath+"wine/fakedlls");
+    envSet("DYLD_LIBRARY_PATH", libPath);
+    envSet("DYLD_PRINT_ENV", "1");
+    envSet("DYLD_PRINT_LIBRARIES", "1");
+    envSet("WINEDEBUG", "+file,+seh,+tid,+process,+rundll,+module");
 #endif
   }else{
     available = true;
@@ -68,11 +85,11 @@ void WineLauncher::finished(int exitCode, QProcess::ExitStatus exitStatus)
       break;
   }
   ltr_int_log_message("Wine finished with exitcode %d (%s).", exitCode, qPrintable(status));
+  QString msg(wine.readAllStandardOutput());
+  std::cerr<<qPrintable(msg)<<std::endl;
   if(exitCode == 0 ){
     emit finished(true);
   }else{
-    QString msg(wine.readAllStandardOutput());
-    std::cerr<<qPrintable(msg)<<std::endl;
     emit finished(false);
   }
 }

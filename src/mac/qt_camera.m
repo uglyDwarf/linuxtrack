@@ -93,7 +93,10 @@
     }
     [mCaptureDecompressedVideoOutput setDelegate:self];
     [mCaptureDecompressedVideoOutput setPixelBufferAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
-      [NSNumber numberWithInt:height], kCVPixelBufferHeightKey, [NSNumber numberWithInt:width], kCVPixelBufferWidthKey, nil]];
+      [NSNumber numberWithInt:height], kCVPixelBufferHeightKey, 
+      [NSNumber numberWithInt:width], kCVPixelBufferWidthKey, 
+      [NSNumber numberWithUnsignedInt:kCVPixelFormatType_422YpCbCr8], (id)kCVPixelBufferPixelFormatTypeKey,
+      nil]];
     if(![mCaptureSession addOutput:mCaptureDecompressedVideoOutput error:&err]){
       fprintf(stderr, "Problem adding output!\n");
       [self release];

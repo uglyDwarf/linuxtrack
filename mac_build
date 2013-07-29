@@ -3,6 +3,8 @@
 #Assumes you have libusb-1.0.8.tar.bz2 and XPlane SDK in the parent directory.
 #
 LTR_BASE=$(pwd)
+LTR_VERSION=$(grep 'AC_INIT(\[LinuxTrack\],' configure.ac | tr -d '[],'| awk '{print $2}')
+
 pushd ..
 BASE=$(pwd)
 popd
@@ -93,11 +95,12 @@ if [ -f ${WINE_PREFIX}/bin/wine ]; then
 else
   tar xfj wine-1.4.1.tar.bz2
   pushd wine-1.4.1
+  sed '/DllMain/,/TRUE/ s#WINSPOOL_LoadSystemPrinters#//WINSPOOL_LoadSystemPrinters#' dlls/winspool.drv/wspool.c
   CFLAGS="${COMMON_FLAGS}" \
   CXXFLAGS="${COMMON_FLAGS}" \
   LD_FLAGS="${COMMON_FLAGS}" \
   CPPFLAGS="${COMMON_FLAGS}" \
-  ./configure --prefix=${WINE_PREFIX} --without-x 
+  ./configure --prefix=${WINE_PREFIX} --without-x --without-cups
   make $PARALEL_MAKE >/dev/null
   make install >/dev/null
   popd
@@ -207,7 +210,7 @@ pushd dist
 popd
 echo "Going to create the .dmg..."
 rm -f linuxtrack*.dmg
-DMG=linuxtrack$(date +%y%m%d).dmg
+DMG=linuxtrack-${LTR_VERSION}.dmg
 hdiutil create ${DMG} -srcfolder dist -format UDZO -volname linuxtrack
 
 popd
