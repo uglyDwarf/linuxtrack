@@ -9,7 +9,7 @@ if DARWIN
   LTR_SERVER_FLAGS = -framework CoreFoundation
   QMAKE_FLAGS = -spec macx-g++
   LIBLINUXTRACK_FLAGS = -fpic -fPIC -arch i386 -arch x86_64
-  XLINUXTRACK_CFLAGS = -arch i386
+  XLINUXTRACK_CFLAGS = -arch i386 -arch x86_64
   XLINUXTRACK_LDFLAGS = -Wl,-no_arch_warnings -arch i386
   LINUXFLAGS =
 else

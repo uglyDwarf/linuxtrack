@@ -152,6 +152,7 @@ bool newFrame(unsigned char *ptr)
   }
 #endif
   size_t i;
+  ptr += 1;
   for(i = 0; i < (size_t) width * height; ++i){
     dest[i] = (*ptr >= thr) ? *ptr : 0;
     ptr += 2;

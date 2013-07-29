@@ -15,6 +15,7 @@ class WineLauncher:public QObject
   bool wineAvailable();
  private:
   bool check();
+  void envSet(const QString var, const QString val);
   QProcess wine;
   QProcessEnvironment env;
   QString winePath;
