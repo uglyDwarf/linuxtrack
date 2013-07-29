@@ -23,9 +23,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#ifndef LIBLINUXTRACK_SRC
-  #include "utils.h"
-#endif
+#include "utils.h"
 
 #define MAX_LOGS 5
 
@@ -190,8 +188,6 @@ char* ltr_int_my_strdup(const char *s)
   return ptr;
 }
 
-#ifndef LIBLINUXTRACK_SRC
-
 const char *ltr_int_get_logfile_name(void)
 {
   return logfile_name;
@@ -205,8 +201,6 @@ void ltr_int_strlower(char *s)
     s++;
   }
 }
-
-#endif 
 
 char *ltr_int_my_strcat(const char *str1, const char *str2)
 {
@@ -268,9 +262,6 @@ char *ltr_int_get_app_path(const char *suffix)
   ltr_int_log_message("Couldn't find prefix!\n");
   return NULL;
 }
-
-#ifndef LIBLINUXTRACK_SRC
-
 
 #ifndef DARWIN
   #define DATA_PATH "/../share/linuxtrack/"
@@ -372,7 +363,6 @@ void ltr_int_usleep(unsigned int usec)
     }
   }
 }
-#endif
 
 
 

@@ -300,14 +300,14 @@ Mickey::Mickey() : updateTimer(this), btnThread(this), state(STANDBY),
   updateTimer.setSingleShot(false);
   updateTimer.setInterval(8);
   btnThread.start();
-  ltr_init((char *)"Mickey");
+  linuxtrack_init((char *)"Mickey");
   changeState(TRACKING);
 }
 
 Mickey::~Mickey()
 {
-  if(ltr_get_tracking_state() == RUNNING){
-    ltr_suspend();
+  if(linuxtrack_get_tracking_state() == RUNNING){
+    linuxtrack_suspend();
   }
   updateTimer.stop();
   delete trans;
@@ -445,7 +445,7 @@ void Mickey::updateTimer_activated()
   unsigned int counter;
   static unsigned int last_counter = 0;
   static int lastTrackingState = -1;
-  int trackingState = ltr_get_tracking_state();
+  int trackingState = linuxtrack_get_tracking_state();
   
   if(lastTrackingState != trackingState){
     lastTrackingState = trackingState;
@@ -483,11 +483,11 @@ void Mickey::updateTimer_activated()
     if(initTimer.elapsed() < settleTime){
       return;
     }else{
-      ltr_recenter();
+      linuxtrack_recenter();
       recenterFlag = false;
     }
   }
-  if(ltr_get_camera_update(&heading, &pitch, &roll, &tx, &ty, &tz, &counter) == 0){
+  if(linuxtrack_get_pose(&heading, &pitch, &roll, &tx, &ty, &tz, &counter) == 0){
     if(counter != last_counter){
       //new frame has arrived
       last_counter = counter;

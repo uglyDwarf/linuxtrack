@@ -64,7 +64,7 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
 am_ltlib_test_OBJECTS = ltlib_test-ltlib_test.$(OBJEXT) \
-	ltlib_test-utils.$(OBJEXT)
+	ltlib_test-utils.$(OBJEXT) ltlib_test-linuxtrack.$(OBJEXT)
 ltlib_test_OBJECTS = $(am_ltlib_test_OBJECTS)
 ltlib_test_DEPENDENCIES =
 ltlib_test_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -234,7 +234,7 @@ with_wine64 = @with_wine64@
 #endif
 
 #pose_test_SOURCES = pose_test.c
-ltlib_test_SOURCES = ltlib_test.c ../utils.c ../utils.h
+ltlib_test_SOURCES = ltlib_test.c ../utils.c ../utils.h ../linuxtrack.c ../linuxtrack.
 #webcam_driver_test_SOURCES = webcam_driver_test.c ../webcam_driver.c \
 #                ../utils.h ../utils.c ../list.c ../list.h ../pref.c ../pref.h \
 #                ../pref_bison.c ../pref_bison.h ../pref_flex.c ../pref_int.h \
@@ -248,7 +248,7 @@ ltlib_test_SOURCES = ltlib_test.c ../utils.c ../utils.h
 #                ../pref_bison.c ../pref_bison.h ../pref_flex.c ../pref_int.h 
 
 #pose_test_LDADD = -lm -lpthread -ldl -llinuxtrack
-ltlib_test_LDADD = -lm -lpthread -ldl -llinuxtrack
+ltlib_test_LDADD = -lm -lpthread -ldl
 #webcam_driver_test_LDADD = -lm -lpthread -ldl -lltr -lv4l2
 #pref_test_LDADD = -lm -lpthread -ldl -lltr
 #test_LDALL = -lm
@@ -338,6 +338,12 @@ ltlib_test-utils.o: ../utils.c
 
 ltlib_test-utils.obj: ../utils.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-utils.obj `if test -f '../utils.c'; then $(CYGPATH_W) '../utils.c'; else $(CYGPATH_W) '$(srcdir)/../utils.c'; fi`
+
+ltlib_test-linuxtrack.o: ../linuxtrack.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-linuxtrack.o `test -f '../linuxtrack.c' || echo '$(srcdir)/'`../linuxtrack.c
+
+ltlib_test-linuxtrack.obj: ../linuxtrack.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-linuxtrack.obj `if test -f '../linuxtrack.c'; then $(CYGPATH_W) '../linuxtrack.c'; else $(CYGPATH_W) '$(srcdir)/../linuxtrack.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

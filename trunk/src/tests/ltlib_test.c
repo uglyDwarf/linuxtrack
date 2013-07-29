@@ -17,21 +17,21 @@ void *kbd_reader(void *param)
   while(!quit_flag){
     switch(fgetc(stdin)){
       case 'p':
-        ltr_suspend();
+        linuxtrack_suspend();
         printf("Suspending!\n");
         break;
       case 'w':
-        ltr_wakeup();
+        linuxtrack_wakeup();
         printf("Waking!\n");
         break;
       case 's':
-        ltr_shutdown();
+        linuxtrack_shutdown();
         printf("Shutting!\n");
         quit_flag = true;
         return NULL;
         break;
       case 'r':
-        ltr_recenter();
+        linuxtrack_recenter();
         printf("Recentering!\n");
         break;
       default:
@@ -54,8 +54,8 @@ int main(int argc, char *argv[]) {
   }
   printf("Section: %s\n", section);
   
-  retval = ltr_init(section);
-  while(ltr_get_tracking_state() == INITIALIZING){
+  retval = linuxtrack_init(section);
+  while(linuxtrack_get_tracking_state() == INITIALIZING){
     ltr_int_usleep(333333);
   }
   if (retval != 0) { 
@@ -63,11 +63,11 @@ int main(int argc, char *argv[]) {
     return retval; 
   };  
   printf("Trying to recenter!\n");
-  ltr_recenter();
+  linuxtrack_recenter();
   pthread_create(&reader, NULL, kbd_reader, NULL);
   unsigned int cntr=-1; 
   while (!quit_flag) {
-    retval = ltr_get_camera_update(&heading,&pitch,&roll,
+    retval = linuxtrack_get_pose (&heading,&pitch,&roll,
                                   &tx, &ty, &tz, &counter);
     if(retval < 0){
       printf("Problem reading update!\n");

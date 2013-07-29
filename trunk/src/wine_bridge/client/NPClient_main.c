@@ -59,7 +59,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
             dbg_report("Attach request\n");
             break;
         case DLL_PROCESS_DETACH:
-            ltr_shutdown();
+            linuxtrack_shutdown();
             break;
     }
 
@@ -241,8 +241,8 @@ int __stdcall NPCLIENT_NP_GetData(tir_data_t * data)
 {
   float r, p, y, tx, ty, tz;
   unsigned int frame;
-  int res = ltr_get_camera_update(&y, &p, &r, &tx, &ty, &tz, &frame);
-  data->status = (ltr_get_tracking_state() == RUNNING) ? 0 : 1;
+  int res = linuxtrack_get_pose(&y, &p, &r, &tx, &ty, &tz, &frame);
+  data->status = (linuxtrack_get_tracking_state() == RUNNING) ? 0 : 1;
   data->frame = frame & 0xFFFF;
   data->cksum = 0;
   data->roll = r / 180.0 * 16383;
@@ -329,7 +329,7 @@ int __stdcall NPCLIENT_NP_QueryVersion(unsigned short * version)
 int __stdcall NPCLIENT_NP_ReCenter(void)
 {
   dbg_report("ReCenter request\n");
-  ltr_recenter();
+  linuxtrack_recenter();
   return 0;
 }
 
@@ -359,15 +359,15 @@ int __stdcall NPCLIENT_NP_RegisterProgramProfileID(unsigned short id)
         table[7] = (unsigned char)(gd.key2&0xff); gd.key2 >>= 8;
       }
     }
-    if(ltr_init(gd.name) != 0){
+    if(linuxtrack_init(gd.name) != 0){
       return 1;
     }
   }else{
-    if(!ltr_init("Default")){
+    if(!linuxtrack_init("Default")){
       return 1;
     }
   }
-  ltr_suspend();
+  linuxtrack_suspend();
   return 0;
 }
 /******************************************************************
@@ -422,7 +422,7 @@ int __stdcall NPCLIENT_NP_StartCursor(void)
 int __stdcall NPCLIENT_NP_StartDataTransmission(void)
 {
   dbg_report("StartDataTransmission request\n");
-  ltr_wakeup();
+  linuxtrack_wakeup();
   return 0;
 }
 /******************************************************************
@@ -444,7 +444,7 @@ int __stdcall NPCLIENT_NP_StopCursor(void)
 int __stdcall NPCLIENT_NP_StopDataTransmission(void)
 {
   dbg_report("StopDataTransmission request\n");
-  ltr_suspend();
+  linuxtrack_suspend();
   return 0;
 }
 /******************************************************************

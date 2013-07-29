@@ -180,7 +180,7 @@ bool kbi_init(HWND hwnd)
   // --- End of DirectInput initialization ---
   read_prefs();
   send_keys_desc();
-  if(ltr_init("Default") != 0){
+  if(linuxtrack_init("Default") != 0){
     MessageBox(NULL, "Can't start linuxtrack!!!", "Controler", MB_OK);
     exit(1);
   }
@@ -189,7 +189,7 @@ bool kbi_init(HWND hwnd)
 
 void kbi_close(void)
 {
-  ltr_shutdown();
+  linuxtrack_shutdown();
   write_prefs();
   fDIKeyboard->Unacquire();    // make sure the keyboard is unacquired
   fDIKeyboard->SetEventNotification(NULL);
@@ -229,15 +229,15 @@ void kbi_msg_loop()
             update_code(kbd_data[j].dwOfs);
             if(get_code() == pause_code){
               if(paused){
-                ltr_wakeup();
+                linuxtrack_wakeup();
                 paused = false;
               }else{
-                ltr_suspend();
+                linuxtrack_suspend();
                 paused = true;
               }
             }
             if(get_code() == recenter_code){
-              ltr_recenter();
+              linuxtrack_recenter();
             }
           }else{
             //key released

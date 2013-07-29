@@ -4,11 +4,9 @@
 #include <unistd.h>
 #include <string.h>
 
-#ifndef LIBLINUXTRACK_SRC
-  #include "ltlib_int.h"
-  #include "ipc_utils.h"
-  #include "utils.h"
-#endif
+#include "ltlib_int.h"
+#include "ipc_utils.h"
+#include "utils.h"
 
 static struct mmap_s mmm;
 static bool initialized = false;
@@ -29,6 +27,8 @@ static void ltr_int_sanitize_name(char *name)
   size_t len = strcspn(name, forbidden);
   name[len] = '\0';
 }
+
+int ltr_wakeup(void);
 
 char *ltr_int_init_helper(const char *cust_section, bool standalone)
 {
@@ -159,3 +159,4 @@ void ltr_log_message(const char *format, ...)
   ltr_int_valog_message(format, ap);
   va_end(ap);
 }
+

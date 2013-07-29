@@ -19,7 +19,7 @@ QT += webkit
 # Input
 FORMS += mickey.ui calibration.ui chsettings.ui ../qt_gui/logview.ui
 SOURCES += main.cpp mickey.cpp ../ltlib.c uinput_ifc.c piper.c keyb.cpp transform.cpp \
-  ../qt_gui/help_view.cpp ../qt_gui/ltr_gui_prefs.cpp keyb_x11.cpp
+  ../qt_gui/help_view.cpp ../qt_gui/ltr_gui_prefs.cpp keyb_x11.cpp ../linuxtrack.c
 HEADERS += mickey.h ../utils.h ../ipc_utils.h ../ltlib.h ../linuxtrack.h uinput_ifc.h \
   piper.h keyb.h keyb_x11.h transform.h ../qt_gui/help_view.h ../qt_gui/ltr_gui_prefs.h mouse.h
 
@@ -27,7 +27,7 @@ QMAKE_CXXFLAGS += -DHAVE_CONFIG_H -DHELP_BASE="'\""mickey/"\"'"
 
 unix:!macx {
   SOURCES += mouse_linux.cpp
-  LIBS += "-L../.libs" "-L$${LIBDIR}" -lm -lltr -lX11\
+  LIBS += "-L../.libs" "-L$${LIBDIR}" -lm -lltr -lX11 -ldl \
            "-Wl,-rpath,$${LIBDIR}"
   
   target.path = @prefix@/bin

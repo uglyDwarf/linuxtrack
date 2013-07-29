@@ -32,7 +32,7 @@ VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
 
 Controller.exe : main.o linuxtrack.o resources.o dinput.o
 	wineg++ -m32 -o Controller   $(LDFLAGS) $(WINE_LIBS) \
-           $^ -lshell32 -ldxguid -l dinput -l dinput8 -l uuid
+           $^ -lshell32 -ldxguid -ldinput -ldinput8 -luuid -ldl
 
 main.o : main.cpp @top_builddir@/config.h
 
