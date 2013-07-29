@@ -19,10 +19,8 @@
 #include <poll.h>
 #include <string.h>
 
-#ifndef LIBLINUXTRACK_SRC
-  #include "ipc_utils.h"
-  #include "utils.h"
-#endif
+#include "ipc_utils.h"
+#include "utils.h"
 
 static pid_t child;
 
@@ -39,7 +37,6 @@ bool ltr_int_fork_child(char *args[], bool *is_child)
   return true;
 }
 
-#ifndef LIBLINUXTRACK_SRC
 bool ltr_int_wait_child_exit(int limit)
 {
   pid_t res;
@@ -65,8 +62,6 @@ bool ltr_int_child_alive()
   res = waitpid(child, &status, WNOHANG);
   return (res != child);
 }
-
-#endif
 
 //Check if some server is not running by trying to lock specific file.
 // If psem is not NULL, return this way newly semaphore on the appropriate file.
@@ -269,8 +264,6 @@ static bool ltr_int_mmap(int fd, ssize_t tmp_size, struct mmap_s *m)
   return true;
 }
 
-#ifndef LIBLINUXTRACK_SRC
-
 bool ltr_int_mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
 {
   umask(S_IWGRP | S_IWOTH);
@@ -291,8 +284,6 @@ bool ltr_int_mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
   m->sem->fd = fd;
   return true;
 }
-
-#endif
 
 bool ltr_int_mmap_file_exclusive(size_t tmp_size, struct mmap_s *m)
 {

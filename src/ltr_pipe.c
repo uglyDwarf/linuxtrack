@@ -538,14 +538,14 @@ static void setup_ltr(void)
 {
 	logmsg("Initializing LinuxTrack library");
 
-	if (ltr_init(Args.ltr_profile) != 0)
+	if (linuxtrack_init(Args.ltr_profile) != 0)
 		xerror(1, 0, "LinuxTrack library failure");
 
 	int timeout = atoi(Args.ltr_timeout);
 
 	while (timeout > 0) {
 
-		if (ltr_get_tracking_state() == RUNNING)
+		if (linuxtrack_get_tracking_state() == RUNNING)
 			return;
 		else
 			sleep(1);
@@ -784,7 +784,7 @@ static void at_exit(void)
 
 	ofd_close();
 
-	ltr_shutdown();
+	linuxtrack_shutdown();
 
 	logmsg("Bye.");
 }
@@ -1117,7 +1117,7 @@ static int suspended(void)
 		break;
 	case RST_SUSPEND:
 		logmsg("Suspend");
-		ltr_suspend();
+		linuxtrack_suspend();
 		Run_state = RST_STOPPED;
 		result = 1;
 		break;
@@ -1126,7 +1126,7 @@ static int suspended(void)
 		break;
 	case RST_WAKEUP:
 		logmsg("Wake-up");
-		ltr_wakeup();
+		linuxtrack_wakeup();
 		Run_state = RST_RUNNING;
 		result = 0;
 		break;
@@ -1168,7 +1168,7 @@ static inline void recenter(void)
 {
 	Recenter = 0;
 	logmsg("Recenter");
-	ltr_recenter();
+	linuxtrack_recenter();
 }
 
 
@@ -1201,7 +1201,7 @@ static void run_loop(void)
 		if (ofd_unset())
 			continue;
 
-		r = ltr_get_camera_update(&d.h, &d.p, &d.r,
+		r = linuxtrack_get_pose(&d.h, &d.p, &d.r,
 					  &d.x, &d.y, &d.z, &d.c);
 
 		if (r != 0)

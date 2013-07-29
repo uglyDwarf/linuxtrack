@@ -134,7 +134,7 @@ class Mickey : public QObject
   void updateTimer_activated();
   void revertSettings();
   void keepSettings();
-  void recenterNow(bool leave){ltr_recenter(); if(leave){changeState(TRACKING);}};
+  void recenterNow(bool leave){linuxtrack_recenter(); if(leave){changeState(TRACKING);}};
   void startCalibration();
   void finishCalibration();
   void cancelCalibration(bool calStarted);

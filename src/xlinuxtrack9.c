@@ -158,7 +158,7 @@ PLUGIN_API int XPluginStart(char *outName,
   XPLMAppendMenuItem(setupMenu, "Setup", (void *)"Setup", 1);
 
   if(!initialized){
-    ltr_init(NULL);
+    linuxtrack_init(NULL);
   }
   
   return(1);
@@ -186,7 +186,7 @@ PLUGIN_API void XPluginStop(void)
   XPLMUnregisterHotKey(gRecenterKey);
   XPLMUnregisterFlightLoopCallback(xlinuxtrackCallback, NULL);
   if(initialized){
-    ltr_shutdown();
+    linuxtrack_shutdown();
   }
 }
 
@@ -239,8 +239,8 @@ static void activate(void)
           active_flag=true;
           pos_init_flag = 1;
           freeze = false;
-          ltr_wakeup();
-          ltr_recenter();
+          linuxtrack_wakeup();
+          linuxtrack_recenter();
     if(PV_Enabled_DR){
           XPLMSetDatai(PV_Enabled_DR, true);
     }
@@ -265,7 +265,7 @@ static void deactivate(void)
     }
   }
   if(initialized){
-    ltr_suspend();
+    linuxtrack_suspend();
   }
 }
 
@@ -284,7 +284,7 @@ static void MyHotKeyCallback(void *inRefcon)
       break;
     case RECENTER:
       if(initialized){
-        ltr_recenter();
+        linuxtrack_recenter();
       }
       break;
   }
@@ -305,7 +305,7 @@ static int cmd_cbk(XPLMCommandRef       inCommand,
       }else if(inCommand == pause_cmd){
         freeze = (freeze == false)? true : false;
       }else if(inCommand == recenter_cmd){
-        ltr_recenter();
+        linuxtrack_recenter();
       }
     }
     return 1;
@@ -337,9 +337,9 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
     //XPLMSetDatai(PV_Enabled_DR, active_flag);
   
   if(!initialized){
-    if(ltr_get_tracking_state() != STOPPED){
+    if(linuxtrack_get_tracking_state() != STOPPED){
       initialized = true;
-      ltr_suspend();
+      linuxtrack_suspend();
     }
   }
   
@@ -357,7 +357,7 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
   unsigned int counter;
   
   if(initialized && (freeze == false)){
-    retval = ltr_get_camera_update(&heading,&pitch,&roll,
+    retval = linuxtrack_get_pose(&heading,&pitch,&roll,
                                    &tx, &ty, &tz, &counter);
     if (retval < 0) {
       return -1.0;

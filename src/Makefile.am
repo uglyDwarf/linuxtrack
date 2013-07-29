@@ -72,24 +72,11 @@ endif
 
 pkglib_LTLIBRARIES += libfakeusb.la
 
-#bin_PROGRAMS = lt_server lt_client
-#lt_server_SOURCES = lt_server.c netcomm.c netcomm.h
-#lt_server_LDADD = -lm -lpthread -ldl libltr.la 
-#lt_client_SOURCES = lt_client.c netcomm.c netcomm.h
-#lt_client_LDADD = -lm -lpthread -ldl libltr.la 
-
-linuxtrack.c : ../config.h @srcdir@/linuxtrack_pre.c @srcdir@/linuxtrack.h @srcdir@/utils.h \
-               @srcdir@/ipc_utils.h @srcdir@/utils.c @srcdir@/ipc_utils.c @srcdir@/ltlib.c \
-               @srcdir@/ltlib.h
-	cat @srcdir@/linuxtrack_pre.c @srcdir@/utils.h @srcdir@/ipc_utils.h @srcdir@/ltlib.h \
-	@srcdir@/utils.c @srcdir@/ipc_utils.c @srcdir@/ltlib.c > linuxtrack.c
-
 include_HEADERS = linuxtrack.h
 
-#liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
-#liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h dyn_load.c dyn_load.h
-liblinuxtrack_la_SOURCES = linuxtrack.c linuxtrack.h utils.h ipc_utils.h
-liblinuxtrack_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LIBLINUXTRACK_FLAGS) 
+liblinuxtrack_la_SOURCES =  ../config.h linuxtrack.h utils.h ipc_utils.h ltlib.h \
+                            ltlib.c utils.c ipc_utils.c
+liblinuxtrack_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LIBLINUXTRACK_FLAGS) $(LINUXFLAGS)
 liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" ${SLEOPARD_LDFLAG}
 
 libltr_la_SOURCES = ../config.h cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
@@ -148,20 +135,19 @@ libft_la_LIBADD = libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
 libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
 
 dist_pkgdata_DATA = linuxtrack1.conf 51-TIR.rules haarcascade_frontalface_alt2.xml
-nodist_pkgdata_DATA = linuxtrack.c
 
 if XPLANE_PLUGIN
 pkglib_LTLIBRARIES += xlinuxtrack9.la
 if LTR32ON64
   pkglib_LTLIBRARIES += xlinuxtrack9_32.la
-  xlinuxtrack9_32_la_SOURCES = xlinuxtrack9.c linuxtrack.c
+  xlinuxtrack9_32_la_SOURCES = xlinuxtrack9.c linuxtrack.c linuxtrack.h
   xlinuxtrack9_32_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) \
     -fPIC -m32 $(DARWINCFLAGS) ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) ${XLINUXTRACK_CFLAGS}
   xlinuxtrack9_32_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib \
     -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${XLINUXTRACK_LDFLAGS}
   xlinuxtrack9_32_la_LIBADD = -lm -ldl
 endif
-xlinuxtrack9_la_SOURCES = xlinuxtrack9.c linuxtrack.c
+xlinuxtrack9_la_SOURCES = xlinuxtrack9.c linuxtrack.c linuxtrack.h
 xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) \
   -fPIC $(DARWINCFLAGS) ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) ${XLINUXTRACK_CFLAGS}
 xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC $(DARWINFLAGS) -dynamiclib \
@@ -171,7 +157,7 @@ endif
 
 AM_YFLAGS = -d --name-prefix ltr_int_parser_
 AM_LFLAGS = -i
-BUILT_SOURCES = pref_flex.cpp pref_bison.cpp linuxtrack.c
+BUILT_SOURCES = pref_flex.cpp pref_bison.cpp
 
 #dirty hack to integrate qt_gui
 
@@ -181,7 +167,6 @@ clean-local-check:
 	-cd qt_gui;$(MAKE) clean
 	-cd mickey;$(MAKE) clean
 	-cd wii_server;$(MAKE) clean
-	rm -f linuxtrack.c
 
 distclean-local: distclean-local-check
 .PHONY: distclean-local-check
@@ -189,7 +174,6 @@ distclean-local-check:
 	-cd qt_gui;$(MAKE) distclean
 	-cd mickey;$(MAKE) distclean
 	-cd wii_server;$(MAKE) distclean
-	rm -f linuxtrack.c
 
 noinst_SCRIPTS = qt_gui/ltr_gui 
 
@@ -301,10 +285,9 @@ if LTR_PIPE
   man_MANS += ltr_pipe.1
   bin_PROGRAMS += ltr_pipe
   ltr_pipe_CPPFLAGS += -D_GNU_SOURCE
-  ltr_pipe_SOURCES = ../config.h ltr_pipe.c linuxtrack.h utils.h ipc_utils.h utils.c \
-                     ipc_utils.c ltlib.c ltlib.h
+  ltr_pipe_SOURCES = ../config.h ltr_pipe.c linuxtrack.h utils.h utils.c linuxtrack.c
   ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
-  ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS}
+  ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS} -ldl
 endif
 
 if LINUX

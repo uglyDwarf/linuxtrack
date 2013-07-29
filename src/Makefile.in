@@ -123,8 +123,8 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" \
 	"$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" \
 	"$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" \
-	"$(DESTDIR)$(icondir)" "$(DESTDIR)$(pkgdatadir)" \
-	"$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(includedir)"
+	"$(DESTDIR)$(icondir)" "$(DESTDIR)$(pkgconfigdir)" \
+	"$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES) $(pkglib_LTLIBRARIES)
 libfakeusb_la_DEPENDENCIES = libltr.la
 am_libfakeusb_la_OBJECTS = libfakeusb_la-fakeusb.lo \
@@ -146,7 +146,8 @@ libft_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 @FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@	-rpath \
 @FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@	$(pkglibdir)
 liblinuxtrack_la_LIBADD =
-am_liblinuxtrack_la_OBJECTS = liblinuxtrack_la-linuxtrack.lo
+am_liblinuxtrack_la_OBJECTS = liblinuxtrack_la-ltlib.lo \
+	liblinuxtrack_la-utils.lo liblinuxtrack_la-ipc_utils.lo
 liblinuxtrack_la_OBJECTS = $(am_liblinuxtrack_la_OBJECTS)
 liblinuxtrack_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(liblinuxtrack_la_CFLAGS) \
@@ -211,7 +212,8 @@ libwii_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(CFLAGS) $(libwii_la_LDFLAGS) $(LDFLAGS) -o $@
 @CWIID_TRUE@am_libwii_la_rpath = -rpath $(pkglibdir)
 xlinuxtrack9_la_DEPENDENCIES =
-am__xlinuxtrack9_la_SOURCES_DIST = xlinuxtrack9.c linuxtrack.c
+am__xlinuxtrack9_la_SOURCES_DIST = xlinuxtrack9.c linuxtrack.c \
+	linuxtrack.h
 @XPLANE_PLUGIN_TRUE@am_xlinuxtrack9_la_OBJECTS =  \
 @XPLANE_PLUGIN_TRUE@	xlinuxtrack9_la-xlinuxtrack9.lo \
 @XPLANE_PLUGIN_TRUE@	xlinuxtrack9_la-linuxtrack.lo
@@ -221,7 +223,8 @@ xlinuxtrack9_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(CFLAGS) $(xlinuxtrack9_la_LDFLAGS) $(LDFLAGS) -o $@
 @XPLANE_PLUGIN_TRUE@am_xlinuxtrack9_la_rpath = -rpath $(pkglibdir)
 xlinuxtrack9_32_la_DEPENDENCIES =
-am__xlinuxtrack9_32_la_SOURCES_DIST = xlinuxtrack9.c linuxtrack.c
+am__xlinuxtrack9_32_la_SOURCES_DIST = xlinuxtrack9.c linuxtrack.c \
+	linuxtrack.h
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am_xlinuxtrack9_32_la_OBJECTS = xlinuxtrack9_32_la-xlinuxtrack9.lo \
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@	xlinuxtrack9_32_la-linuxtrack.lo
 xlinuxtrack9_32_la_OBJECTS = $(am_xlinuxtrack9_32_la_OBJECTS)
@@ -234,11 +237,10 @@ xlinuxtrack9_32_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 @LTR_PIPE_TRUE@am__EXEEXT_1 = ltr_pipe$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
 am__ltr_pipe_SOURCES_DIST = ../config.h ltr_pipe.c linuxtrack.h \
-	utils.h ipc_utils.h utils.c ipc_utils.c ltlib.c ltlib.h
+	utils.h utils.c linuxtrack.c
 @LTR_PIPE_TRUE@am_ltr_pipe_OBJECTS = ltr_pipe-ltr_pipe.$(OBJEXT) \
 @LTR_PIPE_TRUE@	ltr_pipe-utils.$(OBJEXT) \
-@LTR_PIPE_TRUE@	ltr_pipe-ipc_utils.$(OBJEXT) \
-@LTR_PIPE_TRUE@	ltr_pipe-ltlib.$(OBJEXT)
+@LTR_PIPE_TRUE@	ltr_pipe-linuxtrack.$(OBJEXT)
 ltr_pipe_OBJECTS = $(am_ltr_pipe_OBJECTS)
 ltr_pipe_LDADD = $(LDADD)
 ltr_pipe_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
@@ -306,7 +308,7 @@ man1dir = $(mandir)/man1
 NROFF = nroff
 MANS = $(man_MANS)
 DATA = $(desktop_DATA) $(dist_pkgdata_DATA) $(icon_DATA) \
-	$(nodist_pkgdata_DATA) $(pkgconfig_DATA)
+	$(pkgconfig_DATA)
 HEADERS = $(include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -454,7 +456,7 @@ with_wine64 = @with_wine64@
 @DARWIN_FALSE@LIBLINUXTRACK_FLAGS = -fpic -fPIC
 @DARWIN_TRUE@LIBLINUXTRACK_FLAGS = -fpic -fPIC -arch i386 -arch x86_64
 @DARWIN_FALSE@XLINUXTRACK_CFLAGS = 
-@DARWIN_TRUE@XLINUXTRACK_CFLAGS = -arch i386
+@DARWIN_TRUE@XLINUXTRACK_CFLAGS = -arch i386 -arch x86_64
 @DARWIN_FALSE@XLINUXTRACK_LDFLAGS = -Wl,--no-warn-search-mismatch
 @DARWIN_TRUE@XLINUXTRACK_LDFLAGS = -Wl,-no_arch_warnings -arch i386
 @DARWIN_FALSE@LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
@@ -477,11 +479,10 @@ ltr_server1_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server1_LDADD = -lpthread libltr.la
 ltr_server1_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${LTR_SERVER_FLAGS}
 include_HEADERS = linuxtrack.h
+liblinuxtrack_la_SOURCES = ../config.h linuxtrack.h utils.h ipc_utils.h ltlib.h \
+                            ltlib.c utils.c ipc_utils.c
 
-#liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h list.c list_h dyn_load.c dyn_load.h
-#liblinuxtrack_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h dyn_load.c dyn_load.h
-liblinuxtrack_la_SOURCES = linuxtrack.c linuxtrack.h utils.h ipc_utils.h
-liblinuxtrack_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LIBLINUXTRACK_FLAGS) 
+liblinuxtrack_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LIBLINUXTRACK_FLAGS) $(LINUXFLAGS)
 liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" ${SLEOPARD_LDFLAG}
 libltr_la_SOURCES = ../config.h cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   math_utils.c math_utils.h pose.c pose.h pref.cpp pref.hpp pref.h pref_bison.ypp \
@@ -535,8 +536,7 @@ libft_la_CXXFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_LIBADD = libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
 libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
 dist_pkgdata_DATA = linuxtrack1.conf 51-TIR.rules haarcascade_frontalface_alt2.xml
-nodist_pkgdata_DATA = linuxtrack.c
-@LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@xlinuxtrack9_32_la_SOURCES = xlinuxtrack9.c linuxtrack.c
+@LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@xlinuxtrack9_32_la_SOURCES = xlinuxtrack9.c linuxtrack.c linuxtrack.h
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@xlinuxtrack9_32_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) \
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@    -fPIC -m32 $(DARWINCFLAGS) ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) ${XLINUXTRACK_CFLAGS}
 
@@ -544,7 +544,7 @@ nodist_pkgdata_DATA = linuxtrack.c
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@    -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${XLINUXTRACK_LDFLAGS}
 
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@xlinuxtrack9_32_la_LIBADD = -lm -ldl
-@XPLANE_PLUGIN_TRUE@xlinuxtrack9_la_SOURCES = xlinuxtrack9.c linuxtrack.c
+@XPLANE_PLUGIN_TRUE@xlinuxtrack9_la_SOURCES = xlinuxtrack9.c linuxtrack.c linuxtrack.h
 @XPLANE_PLUGIN_TRUE@xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) \
 @XPLANE_PLUGIN_TRUE@  -fPIC $(DARWINCFLAGS) ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) ${XLINUXTRACK_CFLAGS}
 
@@ -554,7 +554,7 @@ nodist_pkgdata_DATA = linuxtrack.c
 @XPLANE_PLUGIN_TRUE@xlinuxtrack9_la_LIBADD = -lm -ldl
 AM_YFLAGS = -d --name-prefix ltr_int_parser_
 AM_LFLAGS = -i
-BUILT_SOURCES = pref_flex.cpp pref_bison.cpp linuxtrack.c
+BUILT_SOURCES = pref_flex.cpp pref_bison.cpp
 noinst_SCRIPTS = qt_gui/ltr_gui $(am__append_10) $(am__append_13)
 hook_inst_targets = LTR_QT_GUI_TARGET_INST $(am__append_11) \
 	$(am__append_14)
@@ -610,11 +610,9 @@ mickey/keyb.cpp mickey/helpview.ui mickey/keyb_x11.cpp mickey/keyb_x11.h mickey/
 mickey/mouse.h mickey/mouse_linux.cpp mickey/mouse_mac.cpp sn4_model.h
 
 ltr_pipe_CPPFLAGS = $(am__append_18) $(am__append_19)
-@LTR_PIPE_TRUE@ltr_pipe_SOURCES = ../config.h ltr_pipe.c linuxtrack.h utils.h ipc_utils.h utils.c \
-@LTR_PIPE_TRUE@                     ipc_utils.c ltlib.c ltlib.h
-
+@LTR_PIPE_TRUE@ltr_pipe_SOURCES = ../config.h ltr_pipe.c linuxtrack.h utils.h utils.c linuxtrack.c
 @LTR_PIPE_TRUE@ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
-@LTR_PIPE_TRUE@ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS}
+@LTR_PIPE_TRUE@ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS} -ldl
 desktopdir = $(datadir)/applications
 desktop_DATA = linuxtrack.desktop linuxtrack-wii.desktop
 icondir = $(datadir)/pixmaps
@@ -832,8 +830,14 @@ libft_la-webcam_driver.lo: webcam_driver.c
 libft_la-runloop.lo: runloop.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libft_la_CFLAGS) $(CFLAGS) -c -o libft_la-runloop.lo `test -f 'runloop.c' || echo '$(srcdir)/'`runloop.c
 
-liblinuxtrack_la-linuxtrack.lo: linuxtrack.c
-	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblinuxtrack_la_CFLAGS) $(CFLAGS) -c -o liblinuxtrack_la-linuxtrack.lo `test -f 'linuxtrack.c' || echo '$(srcdir)/'`linuxtrack.c
+liblinuxtrack_la-ltlib.lo: ltlib.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblinuxtrack_la_CFLAGS) $(CFLAGS) -c -o liblinuxtrack_la-ltlib.lo `test -f 'ltlib.c' || echo '$(srcdir)/'`ltlib.c
+
+liblinuxtrack_la-utils.lo: utils.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblinuxtrack_la_CFLAGS) $(CFLAGS) -c -o liblinuxtrack_la-utils.lo `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
+
+liblinuxtrack_la-ipc_utils.lo: ipc_utils.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblinuxtrack_la_CFLAGS) $(CFLAGS) -c -o liblinuxtrack_la-ipc_utils.lo `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
 
 libltopenusb_la-openusb_ifc.lo: openusb_ifc.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltopenusb_la_CFLAGS) $(CFLAGS) -c -o libltopenusb_la-openusb_ifc.lo `test -f 'openusb_ifc.c' || echo '$(srcdir)/'`openusb_ifc.c
@@ -940,17 +944,11 @@ ltr_pipe-utils.o: utils.c
 ltr_pipe-utils.obj: utils.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
 
-ltr_pipe-ipc_utils.o: ipc_utils.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-ipc_utils.o `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
+ltr_pipe-linuxtrack.o: linuxtrack.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-linuxtrack.o `test -f 'linuxtrack.c' || echo '$(srcdir)/'`linuxtrack.c
 
-ltr_pipe-ipc_utils.obj: ipc_utils.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-ipc_utils.obj `if test -f 'ipc_utils.c'; then $(CYGPATH_W) 'ipc_utils.c'; else $(CYGPATH_W) '$(srcdir)/ipc_utils.c'; fi`
-
-ltr_pipe-ltlib.o: ltlib.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-ltlib.o `test -f 'ltlib.c' || echo '$(srcdir)/'`ltlib.c
-
-ltr_pipe-ltlib.obj: ltlib.c
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-ltlib.obj `if test -f 'ltlib.c'; then $(CYGPATH_W) 'ltlib.c'; else $(CYGPATH_W) '$(srcdir)/ltlib.c'; fi`
+ltr_pipe-linuxtrack.obj: linuxtrack.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-linuxtrack.obj `if test -f 'linuxtrack.c'; then $(CYGPATH_W) 'linuxtrack.c'; else $(CYGPATH_W) '$(srcdir)/linuxtrack.c'; fi`
 
 ltr_server1-ltr_srv_comm.o: ltr_srv_comm.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server1_CFLAGS) $(CFLAGS) -c -o ltr_server1-ltr_srv_comm.o `test -f 'ltr_srv_comm.c' || echo '$(srcdir)/'`ltr_srv_comm.c
@@ -1123,27 +1121,6 @@ uninstall-iconDATA:
 	@list='$(icon_DATA)'; test -n "$(icondir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(icondir)'; $(am__uninstall_files_from_dir)
-install-nodist_pkgdataDATA: $(nodist_pkgdata_DATA)
-	@$(NORMAL_INSTALL)
-	@list='$(nodist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgdatadir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(pkgdatadir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgdatadir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgdatadir)" || exit $$?; \
-	done
-
-uninstall-nodist_pkgdataDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(nodist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(pkgdatadir)'; $(am__uninstall_files_from_dir)
 install-pkgconfigDATA: $(pkgconfig_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(pkgconfig_DATA)'; test -n "$(pkgconfigdir)" || list=; \
@@ -1290,7 +1267,7 @@ all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) \
 install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(icondir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(icondir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -1353,7 +1330,7 @@ info-am:
 
 install-data-am: install-desktopDATA install-dist_pkgdataDATA \
 	install-iconDATA install-includeHEADERS install-man \
-	install-nodist_pkgdataDATA install-pkgconfigDATA
+	install-pkgconfigDATA
 
 install-dvi: install-dvi-am
 
@@ -1403,8 +1380,8 @@ ps-am:
 uninstall-am: uninstall-binPROGRAMS uninstall-desktopDATA \
 	uninstall-dist_pkgdataDATA uninstall-iconDATA \
 	uninstall-includeHEADERS uninstall-libLTLIBRARIES \
-	uninstall-man uninstall-nodist_pkgdataDATA \
-	uninstall-pkgconfigDATA uninstall-pkglibLTLIBRARIES
+	uninstall-man uninstall-pkgconfigDATA \
+	uninstall-pkglibLTLIBRARIES
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
 uninstall-man: uninstall-man1
@@ -1423,34 +1400,21 @@ uninstall-man: uninstall-man1
 	install-exec-hook install-html install-html-am \
 	install-iconDATA install-includeHEADERS install-info \
 	install-info-am install-libLTLIBRARIES install-man \
-	install-man1 install-nodist_pkgdataDATA install-pdf \
-	install-pdf-am install-pkgconfigDATA install-pkglibLTLIBRARIES \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-desktopDATA uninstall-dist_pkgdataDATA \
-	uninstall-hook uninstall-iconDATA uninstall-includeHEADERS \
-	uninstall-libLTLIBRARIES uninstall-man uninstall-man1 \
-	uninstall-nodist_pkgdataDATA uninstall-pkgconfigDATA \
+	install-man1 install-pdf install-pdf-am install-pkgconfigDATA \
+	install-pkglibLTLIBRARIES install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags uninstall uninstall-am \
+	uninstall-binPROGRAMS uninstall-desktopDATA \
+	uninstall-dist_pkgdataDATA uninstall-hook uninstall-iconDATA \
+	uninstall-includeHEADERS uninstall-libLTLIBRARIES \
+	uninstall-man uninstall-man1 uninstall-pkgconfigDATA \
 	uninstall-pkglibLTLIBRARIES
 
 @DARWIN_TRUE@  #If ltr_server is not linked against CoreFoundation, loading libusb-1.0 would
 @DARWIN_TRUE@  #  cause SIG_TRAP, since CoreFoundation expects the init takes place 
 @DARWIN_TRUE@  #  in the main thread. Linking ltr_server against CoreFoundation solves that.
-
-#bin_PROGRAMS = lt_server lt_client
-#lt_server_SOURCES = lt_server.c netcomm.c netcomm.h
-#lt_server_LDADD = -lm -lpthread -ldl libltr.la 
-#lt_client_SOURCES = lt_client.c netcomm.c netcomm.h
-#lt_client_LDADD = -lm -lpthread -ldl libltr.la 
-
-linuxtrack.c : ../config.h @srcdir@/linuxtrack_pre.c @srcdir@/linuxtrack.h @srcdir@/utils.h \
-               @srcdir@/ipc_utils.h @srcdir@/utils.c @srcdir@/ipc_utils.c @srcdir@/ltlib.c \
-               @srcdir@/ltlib.h
-	cat @srcdir@/linuxtrack_pre.c @srcdir@/utils.h @srcdir@/ipc_utils.h @srcdir@/ltlib.h \
-	@srcdir@/utils.c @srcdir@/ipc_utils.c @srcdir@/ltlib.c > linuxtrack.c
 
 #dirty hack to integrate qt_gui
 
@@ -1460,7 +1424,6 @@ clean-local-check:
 	-cd qt_gui;$(MAKE) clean
 	-cd mickey;$(MAKE) clean
 	-cd wii_server;$(MAKE) clean
-	rm -f linuxtrack.c
 
 distclean-local: distclean-local-check
 .PHONY: distclean-local-check
@@ -1468,7 +1431,6 @@ distclean-local-check:
 	-cd qt_gui;$(MAKE) distclean
 	-cd mickey;$(MAKE) distclean
 	-cd wii_server;$(MAKE) distclean
-	rm -f linuxtrack.c
 
 .PHONY: LTR_QT_GUI_TARGET_INST LTR_QT_GUI_TARGET_UNINST \
   LTR_MICKEY_TARGET_INST LTR_MICKEY_TARGET_UNINST \
