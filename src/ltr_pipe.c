@@ -626,6 +626,9 @@ static void ofd_setup_file(void)
 		xioctl(UI_SET_ABSBIT, ABS_RX);
 		xioctl(UI_SET_ABSBIT, ABS_RY);
 		xioctl(UI_SET_ABSBIT, ABS_RZ);
+  xioctl(UI_SET_EVBIT, EV_KEY);
+  xioctl(UI_SET_KEYBIT, BTN_JOYSTICK);
+  xioctl(UI_SET_KEYBIT, BTN_TRIGGER);
 
 		ud.absmin[ABS_X] = ud.absmin[ABS_RX] = -180;
 		ud.absmin[ABS_Y] = ud.absmin[ABS_RY] = -180;
