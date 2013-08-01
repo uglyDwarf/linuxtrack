@@ -1,16 +1,43 @@
+/*
+The MIT License
+
+Copyright (c) 2009 Tulthix, uglyDwarf
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
+
+
+
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <dlfcn.h>
+#include <unistd.h>
+#include <string.h>
 #include "linuxtrack.h"
 
 #ifdef HAVE_CONFIG_H
   #include <config.h>
 #endif
 
-#ifdef DARWIN
-static const char *libname = "liblinuxtrack.0.dylib";
-#else
-static const char *libname = "liblinuxtrack.so.0";
-#endif
+
 
 typedef int (*ltr_gp_t)(void);
 typedef int (*ltr_init_t)(const char *cust_section);
@@ -51,6 +78,13 @@ struct func_defs_t functions[] =
   {"ltr_get_camera_update", (void *)&ltr_get_camera_update_fun},
   {"ltr_get_tracking_state", (void *)&ltr_get_tracking_state_fun},
   {NULL, NULL}
+};
+
+static const char *lib_locations[] = {
+"/lib/liblinuxtrack.so.0", "/lib32/liblinuxtrack.so.0", 
+"/lib/i386-linux-gnu/liblinuxtrack.so.0", 
+"/lib/x86_64-linux-gnu/liblinuxtrack.so.0"
+"/../Frameworks/liblinuxtrack.0.dylib", NULL
 };
 
 int linuxtrack_shutdown(void)
@@ -109,6 +143,8 @@ int linuxtrack_get_pose(float *heading,
                          uint32_t *counter)
 {
   if(ltr_get_camera_update_fun == NULL){
+    *heading = *pitch = *roll = *tx = *ty = *tz = 0.0f;
+    *counter = 0;
     return -1;
   }
   return ltr_get_camera_update_fun(heading, pitch, roll, tx, ty, tz, counter);
@@ -117,7 +153,7 @@ int linuxtrack_get_pose(float *heading,
 ltr_state_type linuxtrack_get_tracking_state(void)
 {
   if(ltr_get_tracking_state_fun == NULL){
-    return -1;
+    return ERROR;
   }
   return ltr_get_tracking_state_fun();
 }
@@ -139,15 +175,137 @@ static int linuxtrack_load_functions(void *handle)
   return 0;
 }
 
+
+static char *construct_name(const char *path, const char *sep, const char *name)
+{
+  size_t len = strlen(path) + strlen(sep) + strlen(name) + 1;
+  char *res = (char *)malloc(len);
+  snprintf(res, len, "%s%s%s", path, sep, name);
+  return res;
+}
+
+
+static void* linuxtrack_try_library(const char *path)
+{
+  void *lib_handle = NULL;
+  fprintf(stderr, "Trying to load '%s'... ", path);
+  if(access(path, F_OK) != 0){
+    fprintf(stderr, "Not found.\n");
+    return NULL;
+  }
+  dlerror();
+  lib_handle = dlopen(path, RTLD_NOW | RTLD_LOCAL);
+  if(lib_handle != NULL){
+    fprintf(stderr, "Loaded OK.\n");
+    return lib_handle;
+  }
+  fprintf(stderr, "Couldn't load library - %s!\n", dlerror());
+  return NULL;
+}
+
+char *linuxtrack_get_prefix()
+{
+  char *prefix = NULL;
+  char *home = getenv("HOME");
+  char *cfg = "/.config/linuxtrack/linuxtrack1.conf";
+  char *fname;
+  FILE *f;
+  char *line;
+  char *val, *key;
+  
+  if(home == NULL){
+    fprintf(stderr, "Please set HOME variable!\n");
+    return NULL;
+  }
+  fname = construct_name(home, cfg, "");
+  if((f = fopen(fname, "r")) == NULL){
+    free(fname);
+    return NULL;
+  }
+  free(fname);
+  line = (char *)malloc(4096);
+  val = (char *)malloc(4096);
+  key = (char *)malloc(4096);
+  while(!feof(f)){
+    if(fgets(line, 4095, f) != NULL){
+      if((sscanf(line, "%s = \"%[^\"\n]", key, val) == 2) &&
+        strcasecmp(key, "prefix") == 0){
+	prefix = strdup(val);
+	break;
+      }
+    }
+  }
+  fclose(f);
+  free(line);
+  free(val);
+  free(key);
+  return prefix;
+}
+
+
+
+static void* linuxtrack_find_library()
+{
+  /*
+  //search order:
+  //  1. LINUXTRACK_LIBS
+  //       development, backward compatibility and weird locations handling
+  //  2. prefix from config file
+  //  3. plain libname
+  //       worth in Linux only, since on Mac we never install to system libraries 
+  */
+  void *lib_handle = NULL;
+  char *name;
+  char *prefix;
+  /*Look for LINUXTRACK_LIBS*/
+  char *lp = getenv("LINUXTRACK_LIBS");
+  if(lp != NULL){
+    char *path = strdup(lp);
+    char *part = path;
+    while(1){
+      part = strtok(part, ":");
+      fprintf(stderr, "", part);
+      if((part == NULL) || ((lib_handle = linuxtrack_try_library(part)) != NULL)){
+        break;
+      }
+      part = NULL;
+    }
+    free(path);
+    if(lib_handle != NULL){
+      return lib_handle;
+    }
+  }
+  
+  prefix = linuxtrack_get_prefix();
+  if(prefix != NULL){
+    int i = 0;
+    while(lib_locations[i] != NULL){
+      name = construct_name(prefix, "/../", lib_locations[i++]);
+      if((lib_handle = linuxtrack_try_library(name)) != NULL){
+        free(name);
+        free(prefix);
+        return lib_handle;
+      }
+    }
+    free(name);
+    free(prefix);
+  }
+  
+  return NULL;
+}
+
+
+
 static int linuxtrack_load_library()
 {
-  lib_handle = dlopen(libname, RTLD_NOW | RTLD_LOCAL);
+  lib_handle = linuxtrack_find_library();
   if(lib_handle == NULL){
-    fprintf(stderr, "Couldn't load library '%s' - %s!\n", libname, dlerror());
+    fprintf(stderr, "Couldn't load liblinuxtrack, headtracking will not be available!\n");
     return -1;
   }
   dlerror(); /*clear any existing error...*/
   if(linuxtrack_load_functions(lib_handle) != 0){
+    fprintf(stderr, "Couldn't load liblinuxtrack functions, headtracking will not be available!\n");
     return -1;
   }
   return 0;
