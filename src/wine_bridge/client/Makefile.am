@@ -19,22 +19,22 @@ CXX = wineg++
 SUFFIXES = .o .cpp .c .rc 64.o
 
 .cpp.o :
-	$(CXX) -m32 -c $(CXXFLAGS) -o $@ $<
+	$(CXX) -m32 -c $(CXXFLAGS_PRE) $(CXXFLAGS) -o $@ $<
 
 .c.o :
-	$(CC) -m32 -c $(CFLAGS) -o $@ $<
+	$(CC) -m32 -c $(CFLAGS_PRE) $(CFLAGS) -o $@ $<
 
 .cpp64.o :
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) -o $@ $<
 
 .c64.o :
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) -o $@ $<
 
 .rc.o :
 	wrc -o $@ $(RCFLAGS) $<
 
-CXXFLAGS += -g -DHAVE_CONFIG_H -I../../.. -I. -I@srcdir@/../.. -I@top_builddir@
-CFLAGS += -g -I../.. -I../../.. -DHAVE_CONFIG_H -I@srcdir@/../.. -I@top_builddir@
+CXXFLAGS_PRE = -g -DHAVE_CONFIG_H -I../../.. -I. -I@srcdir@/../.. -I@top_builddir@
+CFLAGS_PRE = -g -I../.. -I../../.. -DHAVE_CONFIG_H -I@srcdir@/../.. -I@top_builddir@
 RCFLAGS = -I @srcdir@
 VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
 
