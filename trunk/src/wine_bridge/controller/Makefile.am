@@ -14,23 +14,23 @@ CC = winegcc -m32
 CXX = wineg++ -m32
 
 .cpp.o :
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) -o $@ $<
 
 .c.o :
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) -o $@ $<
 
 .rc.o :
 	wrc -o $@ $<
 
-CXXFLAGS += -isystem/usr/include/wine/windows -DHAVE_CONFIG_H \
+CXXFLAGS_PRE = -isystem/usr/include/wine/windows -DHAVE_CONFIG_H \
 	   -I../../.. -I. -I@srcdir@/../.. -I@top_builddir@
 
-CFLAGS += -I../.. -I../../.. -DHAVE_CONFIG_H \
+CFLAGS_PRE = -I../.. -I../../.. -DHAVE_CONFIG_H \
 	-I@srcdir@/../.. -I@top_builddir@
 
 VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
 
-Controller.exe : main.o linuxtrack.o resources.o dinput.o
+Controller.exe : main.o resources.o dinput.o linuxtrack.o
 	wineg++ -m32 -o Controller   $(LDFLAGS) $(WINE_LIBS) \
            $^ -lshell32 -ldxguid -ldinput -ldinput8 -luuid -ldl
 

@@ -83,8 +83,8 @@ struct func_defs_t functions[] =
 static const char *lib_locations[] = {
 "/lib/liblinuxtrack.so.0", "/lib32/liblinuxtrack.so.0", 
 "/lib/i386-linux-gnu/liblinuxtrack.so.0", 
-"/lib/x86_64-linux-gnu/liblinuxtrack.so.0"
-"/../Frameworks/liblinuxtrack.0.dylib", NULL
+"/lib/x86_64-linux-gnu/liblinuxtrack.so.0",
+"/Frameworks/liblinuxtrack.0.dylib", NULL
 };
 
 int linuxtrack_shutdown(void)
@@ -264,7 +264,6 @@ static void* linuxtrack_find_library()
     char *part = path;
     while(1){
       part = strtok(part, ":");
-      fprintf(stderr, "", part);
       if((part == NULL) || ((lib_handle = linuxtrack_try_library(part)) != NULL)){
         break;
       }
