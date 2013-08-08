@@ -111,15 +111,12 @@ AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 CC = winegcc -m32
-CFLAGS = @CFLAGS@ -I../.. -I../../.. -DHAVE_CONFIG_H -I@srcdir@/../.. \
-	-I@top_builddir@
+CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = wineg++ -m32
 CXXCPP = @CXXCPP@
-CXXFLAGS = @CXXFLAGS@ -isystem/usr/include/wine/windows \
-	-DHAVE_CONFIG_H -I../../.. -I. -I@srcdir@/../.. \
-	-I@top_builddir@
+CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DLLTOOL = @DLLTOOL@
@@ -238,6 +235,12 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_wine64 = @with_wine64@
 nodist_pkgdata_DATA = $(am__append_1)
+CXXFLAGS_PRE = -isystem/usr/include/wine/windows -DHAVE_CONFIG_H \
+	   -I../../.. -I. -I@srcdir@/../.. -I@top_builddir@
+
+CFLAGS_PRE = -I../.. -I../../.. -DHAVE_CONFIG_H \
+	-I@srcdir@/../.. -I@top_builddir@
+
 EXTRA_DIST = linuxtrack1.ico linuxtrack.ico dinput.cpp kbi_interface.h \
 main.cpp resource.h resources.rc
 
@@ -459,15 +462,15 @@ uninstall-am: uninstall-nodist_pkgdataDATA
 
 
 .cpp.o :
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) -o $@ $<
 
 .c.o :
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) -o $@ $<
 
 .rc.o :
 	wrc -o $@ $<
 
-Controller.exe : main.o linuxtrack.o resources.o dinput.o
+Controller.exe : main.o resources.o dinput.o linuxtrack.o
 	wineg++ -m32 -o Controller   $(LDFLAGS) $(WINE_LIBS) \
            $^ -lshell32 -ldxguid -ldinput -ldinput8 -luuid -ldl
 

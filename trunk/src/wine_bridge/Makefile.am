@@ -18,17 +18,20 @@ endif #DARWIN
 
 .PHONY : bridge bridge64 bridge_mac
 
-bridge_mac : ltr_wine.nsi tester/Tester.exe.so controller/Controller.exe.so client/NPClient.dll.so
+bridge_mac : ltr_wine.nsi tester/Tester.exe.so controller/Controller.exe.so \
+             client/NPClient.dll.so ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so
 	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib tester/Tester.exe.so
 	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib controller/Controller.exe.so 
 	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib client/NPClient.dll.so
 	makensis $<
 
-bridge : ltr_wine.nsi tester/Tester.exe.so controller/Controller.exe.so client/NPClient.dll.so
+bridge : ltr_wine.nsi tester/Tester.exe.so controller/Controller.exe.so client/NPClient.dll.so \
+         ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so
 	makensis $<
 
 bridge64 : ltr_wine64.nsi tester/Tester.exe.so tester/Tester64.exe.so \
-               controller/Controller.exe.so client/NPClient.dll.so client/NPClient64.dll.so
+               controller/Controller.exe.so client/NPClient.dll.so client/NPClient64.dll.so \
+               ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so
 	makensis $<
 
 clean-local: clean-local-check

@@ -72,9 +72,7 @@ static void ltr_int_new_frame(struct frame_type *frame, void *param)
   
   TRACKER.signalNewFrame(&local_frame);
   static pose_t current_pose;
-  ltr_int_get_camera_update(&(current_pose.yaw), &(current_pose.pitch), &(current_pose.roll), 
-                            &(current_pose.tx), &(current_pose.ty), &(current_pose.tz), 
-                            &(current_pose.counter));
+  ltr_int_get_camera_update(&current_pose);
   TRACKER.signalNewPose(&current_pose);
 }
 

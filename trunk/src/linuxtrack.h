@@ -54,6 +54,30 @@ int linuxtrack_get_pose(float *heading,
 ltr_state_type linuxtrack_get_tracking_state(void);
 int linuxtrack_init(const char *cust_section);
 
+
+typedef struct{
+  float pitch;
+  float yaw;
+  float roll;
+  float tx;
+  float ty;
+  float tz;
+  uint32_t counter;
+  uint8_t status;
+  uint32_t resolution_x;
+  uint32_t resolution_y;
+  float raw_pitch;
+  float raw_yaw;
+  float raw_roll;
+  float raw_tx;
+  float raw_ty;
+  float raw_tz;
+  float points_x[3];
+  float points_y[3];
+  float points_s[3];
+} pose_t; 
+
+int linuxtrack_get_pose_full(pose_t *pose);
 #ifdef __cplusplus
 }
 #endif

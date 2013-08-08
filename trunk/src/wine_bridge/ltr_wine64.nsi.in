@@ -10,7 +10,7 @@ Page instfiles
 UninstPage uninstConfirm
 UninstPage instfiles
 
-Section "Linuxtrack"
+Section "Linuxtrack / TrackIR Interface"
   SectionIn RO
   SetOutPath $INSTDIR
   File /oname=Controller.exe controller/Controller.exe.so
@@ -28,6 +28,15 @@ Section "Linuxtrack"
   WriteUninstaller "uninstall.exe"
 SectionEnd
 
+Section "Linuxtrack / FreeTrack Interface"
+  SetOutPath $INSTDIR
+  File /oname=FreeTrackTester.exe ft_tester\ftc.exe.so
+  File /oname=FreetrackClient.dll ft_client\FreeTrackClient.dll.so
+  WriteRegStr HKCU "Software\Freetrack\FreetrackClient" "Path" "$INSTDIR\"
+SectionEnd
+
+
+
 Section "Start Menu Shortcuts"
   CreateDirectory "$SMPROGRAMS\Linuxtrack"
   CreateShortCut "$SMPROGRAMS\Linuxtrack\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
@@ -38,11 +47,15 @@ SectionEnd
 Section "Uninstall"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Linuxtrack"
   DeleteRegKey HKLM SOFTWARE\Linuxtrack
+  DeleteRegKey HKCU Software\NaturalPoint
+  DeleteRegKey HKCU Software\Freetrack
   Delete $INSTDIR\Controller.exe
   Delete $INSTDIR\Tester.exe
   Delete $INSTDIR\Tester64.exe
   Delete $INSTDIR\NPClient.dll
   Delete $INSTDIR\NPClient64.dll
+  Delete $INSTDIR\FreetrackClient.dll
+  Delete $INSTDIR\FreeTrackTester.exe
   Delete $INSTDIR\uninstall.exe
   Delete $INSTDIR\linuxtrack.ico
   Delete "$SMPROGRAMS\Linuxtrack\*.*"

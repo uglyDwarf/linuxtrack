@@ -159,19 +159,16 @@ static bool ltr_int_process_message(int master_downlink)
       break;
     case CMD_POSE:
       //printf("Have new pose!\n");
-      //printf(">>>>%f %f %f\n", msg.pose.yaw, msg.pose.pitch, msg.pose.tz);
+      //printf(">>>>%f %f %f\n", msg.pose.raw_yaw, msg.pose.raw_pitch, msg.pose.raw_tz);
       ltr_int_postprocess_axes(axes, &(msg.pose), &unfiltered);
+      //printf(">>>>%f %f %f\n", msg.pose.yaw, msg.pose.pitch, msg.pose.tz);
       
       com = mmm.data;
       ltr_int_lockSemaphore(mmm.sem);
+      //printf("STATUS: %d\n", msg.pose.status);
       if(msg.pose.status == RUNNING){
-        com->heading = msg.pose.yaw;
-        com->pitch = msg.pose.pitch;
-        com->roll = msg.pose.roll;
-        com->tx = msg.pose.tx;
-        com->ty = msg.pose.ty;
-        com->tz = msg.pose.tz;
-        com->counter = msg.pose.counter;
+        //printf("PASSING TO SHM: %f %f %f\n", msg.pose.yaw, msg.pose.pitch, msg.pose.tz);
+        com->pose = msg.pose;
       }
       com->state = msg.pose.status;
       com->preparing_start = false;

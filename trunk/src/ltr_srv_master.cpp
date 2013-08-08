@@ -132,9 +132,9 @@ static void ltr_int_new_frame(struct frame_type *frame, void *param)
   (void)frame;
   (void)param;
   
-  ltr_int_get_camera_update(&(current_pose.yaw), &(current_pose.pitch), &(current_pose.roll), 
-                            &(current_pose.tx), &(current_pose.ty), &(current_pose.tz), 
-                            &(current_pose.counter));
+  ltr_int_get_camera_update(&current_pose);
+  //printf("CurrentPose=> p:%g y:%g r:%g\n", current_pose.pitch, current_pose.yaw, current_pose.roll);
+  //printf("Master status: %d x %d\n", ltr_int_get_tracking_state(), current_pose.status);
   if(new_frame_hook != NULL){
     new_frame_hook(frame, (void*)&current_pose);
   }
@@ -144,6 +144,7 @@ static void ltr_int_new_frame(struct frame_type *frame, void *param)
 static void ltr_int_state_changed(void *param)
 {
   (void)param;
+  //ltr_int_log_message("State changed to %d\n", ltr_int_get_tracking_state());
   current_pose.status = ltr_int_get_tracking_state();
   if(status_update_hook != NULL){
     status_update_hook(param);

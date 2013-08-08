@@ -112,14 +112,12 @@ AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 CC = winegcc
-CFLAGS = @CFLAGS@ -g -I../.. -I../../.. -DHAVE_CONFIG_H \
-	-I@srcdir@/../.. -I@top_builddir@
+CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = wineg++
 CXXCPP = @CXXCPP@
-CXXFLAGS = @CXXFLAGS@ -g -DHAVE_CONFIG_H -I../../.. -I. \
-	-I@srcdir@/../.. -I@top_builddir@
+CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DLLTOOL = @DLLTOOL@
@@ -239,6 +237,8 @@ top_srcdir = @top_srcdir@
 with_wine64 = @with_wine64@
 nodist_pkgdata_DATA = $(am__append_1) $(am__append_2)
 SUFFIXES = .o .cpp .c .rc 64.o
+CXXFLAGS_PRE = -g -DHAVE_CONFIG_H -I../../.. -I. -I@srcdir@/../.. -I@top_builddir@
+CFLAGS_PRE = -g -I../.. -I../../.. -DHAVE_CONFIG_H -I@srcdir@/../.. -I@top_builddir@
 RCFLAGS = -I @srcdir@
 EXTRA_DIST = NPClient_dll.h NPClient_main.c rest.c \
 NPClient.h NPClient.spec rest.h
@@ -461,16 +461,16 @@ uninstall-am: uninstall-nodist_pkgdataDATA
 
 
 .cpp.o :
-	$(CXX) -m32 -c $(CXXFLAGS) -o $@ $<
+	$(CXX) -m32 -c $(CXXFLAGS_PRE) $(CXXFLAGS) -o $@ $<
 
 .c.o :
-	$(CC) -m32 -c $(CFLAGS) -o $@ $<
+	$(CC) -m32 -c $(CFLAGS_PRE) $(CFLAGS) -o $@ $<
 
 .cpp64.o :
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) -o $@ $<
 
 .c64.o :
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) -o $@ $<
 
 .rc.o :
 	wrc -o $@ $(RCFLAGS) $<

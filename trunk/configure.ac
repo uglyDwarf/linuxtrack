@@ -9,7 +9,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CXX
 AC_PROG_OBJC
 AS_IF([test "$debug" != "no"],
-      [CFLAGS+=" -g -O0 -Wall -Wextra" CXXFLAGS+=" -g -O0 -Wall -Wextra"],
+      [CFLAGS+=" -g -O0 -Wall -Wextra -fstack-protector" CXXFLAGS+=" -g -O0 -Wall -Wextra -fstack-protector"],
       [CFLAGS+=" -O3 " CXXFLAGS+=" -O3 "])
 
 # Checks for programs.
@@ -239,9 +239,12 @@ AC_CONFIG_FILES([
  src/helper/Makefile
  src/wine_bridge/Makefile
  src/wine_bridge/client/Makefile
+ src/wine_bridge/ft_client/Makefile
  src/wine_bridge/controller/Makefile
  src/wine_bridge/tester/Makefile
+ src/wine_bridge/ft_tester/Makefile
  src/wine_bridge/tester/npview.rc
+ src/wine_bridge/ft_tester/fttester.rc
  src/wine_bridge/ltr_wine64.nsi
  src/wine_bridge/ltr_wine.nsi
  doc/Makefile
