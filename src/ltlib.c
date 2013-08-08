@@ -70,7 +70,7 @@ int ltr_init(const char *cust_section)
   }
 }
 
-int ltr_get_camera_update(float *heading,
+int ltr_get_pose(float *heading,
                          float *pitch,
                          float *roll,
                          float *tx,
@@ -83,15 +83,32 @@ int ltr_get_camera_update(float *heading,
   struct ltr_comm tmp;
   ltr_int_lockSemaphore(mmm.sem);
   tmp = *com;
+  //printf("OTHER_SIDE: %g %g %g\n", tmp.pose.yaw, tmp.pose.pitch, tmp.pose.roll);
   ltr_int_unlockSemaphore(mmm.sem);
   if(tmp.state != ERROR){
-    *heading = tmp.heading;
-    *pitch = tmp.pitch;
-    *roll = tmp.roll;
-    *tx = tmp.tx;
-    *ty = tmp.ty;
-    *tz = tmp.tz;
-    *counter = tmp.counter;
+    *heading = tmp.pose.yaw;
+    *pitch = tmp.pose.pitch;
+    *roll = tmp.pose.roll;
+    *tx = tmp.pose.tx;
+    *ty = tmp.pose.ty;
+    *tz = tmp.pose.tz;
+    *counter = tmp.pose.counter;
+    return 0;
+  }else{
+    return -1;
+  }
+}
+
+int ltr_get_pose_full(pose_t *pose)
+{
+  struct ltr_comm *com = mmm.data;
+  if((!initialized) || (com == NULL)) return -1;
+  struct ltr_comm tmp;
+  ltr_int_lockSemaphore(mmm.sem);
+  tmp = *com;
+  ltr_int_unlockSemaphore(mmm.sem);
+  if(tmp.state != ERROR){
+    *pose = tmp.pose;
     return 0;
   }else{
     return -1;

@@ -41,13 +41,14 @@ THE SOFTWARE.
 
 typedef int (*ltr_gp_t)(void);
 typedef int (*ltr_init_t)(const char *cust_section);
-typedef int (*ltr_get_camera_update_t)(float *heading,
+typedef int (*ltr_get_pose_t)(float *heading,
                          float *pitch,
                          float *roll,
                          float *tx,
                          float *ty,
                          float *tz,
                          uint32_t *counter);
+typedef int (*ltr_get_pose_full_t)(pose_t *pose);
 typedef ltr_state_type (*ltr_get_tracking_state_t)(void);
 
 
@@ -58,7 +59,8 @@ static ltr_gp_t ltr_shutdown_fun = NULL;
 static ltr_gp_t ltr_suspend_fun = NULL;
 static ltr_gp_t ltr_wakeup_fun = NULL;
 static ltr_gp_t ltr_recenter_fun = NULL;
-static ltr_get_camera_update_t ltr_get_camera_update_fun = NULL;
+static ltr_get_pose_t ltr_get_pose_fun = NULL;
+static ltr_get_pose_full_t ltr_get_pose_full_fun = NULL;
 static ltr_get_tracking_state_t ltr_get_tracking_state_fun = NULL;
 
 static void *lib_handle = NULL;
@@ -75,7 +77,8 @@ struct func_defs_t functions[] =
   {"ltr_suspend", (void *)&ltr_suspend_fun},
   {"ltr_wakeup", (void *)&ltr_wakeup_fun},
   {"ltr_recenter", (void *)&ltr_recenter_fun},
-  {"ltr_get_camera_update", (void *)&ltr_get_camera_update_fun},
+  {"ltr_get_pose", (void *)&ltr_get_pose_fun},
+  {"ltr_get_pose_full", (void *)&ltr_get_pose_full_fun},
   {"ltr_get_tracking_state", (void *)&ltr_get_tracking_state_fun},
   {NULL, NULL}
 };
@@ -103,7 +106,8 @@ int linuxtrack_shutdown(void)
     ltr_suspend_fun = NULL;
     ltr_wakeup_fun = NULL;
     ltr_recenter_fun = NULL;
-    ltr_get_camera_update_fun = NULL;
+    ltr_get_pose_fun = NULL;
+    ltr_get_pose_full_fun = NULL;
     ltr_get_tracking_state_fun = NULL;
     dlclose(handle);
   }
@@ -142,13 +146,23 @@ int linuxtrack_get_pose(float *heading,
                          float *tz,
                          uint32_t *counter)
 {
-  if(ltr_get_camera_update_fun == NULL){
+  if(ltr_get_pose_fun == NULL){
     *heading = *pitch = *roll = *tx = *ty = *tz = 0.0f;
     *counter = 0;
     return -1;
   }
-  return ltr_get_camera_update_fun(heading, pitch, roll, tx, ty, tz, counter);
+  return ltr_get_pose_fun(heading, pitch, roll, tx, ty, tz, counter);
 }
+
+int linuxtrack_get_pose_full(pose_t *pose)
+{
+  if(ltr_get_pose_full_fun == NULL){
+    memset(pose, 0, sizeof(pose_t));
+    return -1;
+  }
+  return ltr_get_pose_full_fun(pose);
+}
+
 
 ltr_state_type linuxtrack_get_tracking_state(void)
 {

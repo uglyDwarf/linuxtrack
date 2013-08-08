@@ -7,24 +7,11 @@
 
 typedef enum{RUN_CMD, PAUSE_CMD, STOP_CMD, NOP_CMD} ltr_cmd;
 
-typedef struct{
-  float pitch;
-  float yaw;
-  float roll;
-  float tx;
-  float ty;
-  float tz;
-  uint32_t counter;
-  uint8_t status;
-} pose_t; 
-
 struct ltr_comm{
   uint8_t cmd;
   uint8_t recenter;
   uint8_t state;
-  float heading, pitch, roll;
-  float tx, ty, tz;
-  uint32_t counter;
+  pose_t pose;
   uint8_t dead_man_button;
   uint8_t preparing_start;
 };

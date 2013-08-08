@@ -9,7 +9,8 @@ endif
 endif
 
 if WINE_PLUGIN
-  SUBDIRS +=src/wine_bridge/client src/wine_bridge/controller src/wine_bridge/tester src/wine_bridge 
+  SUBDIRS +=src/wine_bridge/client src/wine_bridge/controller src/wine_bridge/tester \
+  src/wine_bridge/ft_client src/wine_bridge/ft_tester src/wine_bridge 
 endif
 
 

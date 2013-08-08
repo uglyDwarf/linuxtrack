@@ -52,15 +52,9 @@ int ltr_int_init(void)
   return 0;
 }
 
-int ltr_int_get_camera_update(float *heading,
-                         float *pitch,
-                         float *roll,
-                         float *tx,
-                         float *ty,
-                         float *tz,
-                         unsigned int *counter)
+int ltr_int_get_camera_update(pose_t *pose)
 {
-  return ltr_int_tracking_get_camera(heading, pitch,roll, tx, ty, tz, counter);
+  return ltr_int_tracking_get_pose(pose);
 }
 
 void ltr_int_register_cbk(ltr_new_frame_callback_t new_frame_cbk, void *param1,
