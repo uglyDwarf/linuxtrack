@@ -46,5 +46,5 @@ distclean-local: distclean-local-check
 distclean-local-check:
 	rm -f *.exe* *.dll* *.sh *.o
 
-EXTRA_DIST = resource.h ftclient.rc main.cpp
+EXTRA_DIST = resource.h fttester.rc main.cpp
 
