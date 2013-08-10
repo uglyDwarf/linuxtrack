@@ -27,7 +27,7 @@ class Progress: public QDialog
  private:
   Ui::DLProgress ui;
  public slots:
-  void message(qint64 read, qint64 all){ui.ProgressBar->setValue((float)read / all * 100.0);};
+  void message(qint64 read, qint64 all);
 };
 
 class ExtractThread: public QThread
@@ -37,7 +37,7 @@ class ExtractThread: public QThread
   ExtractThread() : targets(NULL), gameDataFound(false){};
   virtual void start(targets_t &t, const QString &p, const QString &d);
   void run();
-  void stop(){};
+  void stop(){quit = true;};
   bool haveEverything(){return everything;};
  signals:
   void progress(const QString &msg);
