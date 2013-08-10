@@ -13,6 +13,13 @@
 #include "ltr_gui_prefs.h"
 #include "help_view.h"
 
+void Progress::message(qint64 read, qint64 all)
+{
+  ui.ProgressBar->setValue((float)read / all * 100.0);
+  ui.InfoLabel->setText(QString("Downloaded %1 of %2.").arg(read).arg(all));
+}
+
+
 void ExtractThread::start(targets_t &t, const QString &p, const QString &d)
 {
   if(!isRunning()){
@@ -38,10 +45,10 @@ void ExtractThread::run()
       if(!it->second.foundAlready()) 
         emit progress(QString("Couldn't extract %1!").arg(it->second.getFname()));
     }
-    if(!gameDataFound)
+    if(!gameDataFound){
       emit progress(QString("Couldn't extract game data!"));
+    }
   }
-  sleep(3);
 }
 
 void ExtractThread::analyzeFile(const QString fname)
@@ -50,7 +57,7 @@ void ExtractThread::analyzeFile(const QString fname)
   if(!file.open(QIODevice::ReadOnly)){
     return;
   }
-  //qDebug()<<QString("Analyzing ")<<fname;
+  qDebug()<<QString("Analyzing ")<<fname;
   FastHash hash;
   QStringList msgs;
   char val;
@@ -93,6 +100,7 @@ bool ExtractThread::findCandidates(QString name)
   patt<<"*.dll"<<"*.exe"<<"*.dat";
   QFileInfoList files = dir.entryInfoList(patt, QDir::Files | QDir::Readable);
   for(i = 0; i < files.size(); ++i){
+    if(quit) return false;
     if(files[i].fileName().compare("sgl.dat")){
       analyzeFile(files[i].canonicalFilePath());
     }else{
@@ -107,8 +115,10 @@ bool ExtractThread::findCandidates(QString name)
   
   QFileInfoList subdirs = 
     dir.entryInfoList(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::NoSymLinks); 
+  QString dirname;
   for(i = 0; i < subdirs.size(); ++i){
-    if(findCandidates(subdirs[i].canonicalFilePath())){
+    dirname = subdirs[i].canonicalFilePath();
+    if((!dirname.endsWith("windows")) && findCandidates(dirname)){
       return true;
     }
   }
@@ -207,6 +217,14 @@ Extractor::Extractor(QWidget *parent) : QDialog(parent), et(NULL), dl(NULL), pro
 
 Extractor::~Extractor()
 {
+  if(et->isRunning()){
+    et->stop();
+    et->wait(5000);
+    if(et->isRunning()){
+      et->terminate();
+      et->wait(5000);
+    }
+  }
   delete et;
   et = NULL;
 }
@@ -352,6 +370,14 @@ void Extractor::threadFinished()
         QFile::remove(l);
       }
     QFile::link(destPath, l);
+    QMessageBox::information(NULL, "Firmware extraction successfull", 
+      "Firmware extraction finished successfuly!"
+    );
+  }else{
+    QMessageBox::warning(NULL, "Firmware extraction unsuccessfull", 
+      "Some of the files needed to fully utilize TrackIR were not"
+      "found! Please see the log for more details."
+    );
   }
   emit finished(everything);
 }
