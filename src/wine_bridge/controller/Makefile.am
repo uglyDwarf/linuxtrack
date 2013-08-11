@@ -1,6 +1,6 @@
-nodist_pkgdata_DATA = 
+noinst_SCRIPTS = 
 if WINE_PLUGIN
-  nodist_pkgdata_DATA += Controller.exe
+  noinst_SCRIPTS += Controller.exe
 endif #WINE_PLUGIN
 
 if DARWIN

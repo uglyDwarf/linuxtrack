@@ -1,8 +1,8 @@
-nodist_pkgdata_DATA = 
+noinst_SCRIPTS = 
 if WINE_PLUGIN
-  nodist_pkgdata_DATA += NPClient.dll.so
+  noinst_SCRIPTS += NPClient.dll.so
 if WINE64
-  nodist_pkgdata_DATA += NPClient64.dll.so
+  noinst_SCRIPTS += NPClient64.dll.so
 endif #WINE64
 endif #WINE_PLUGIN
 

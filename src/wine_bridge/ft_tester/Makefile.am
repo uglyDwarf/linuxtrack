@@ -1,6 +1,6 @@
-nodist_pkgdata_DATA = 
+noinst_SCRIPTS = 
 if WINE_PLUGIN
-  nodist_pkgdata_DATA += ftc.exe.so
+  noinst_SCRIPTS += ftc.exe.so
 endif #WINE_PLUGIN
 
 if DARWIN

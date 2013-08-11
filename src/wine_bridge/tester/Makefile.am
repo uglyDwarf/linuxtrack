@@ -1,8 +1,8 @@
-nodist_pkgdata_DATA = 
+noinst_SCRIPTS = 
 if WINE_PLUGIN
-  nodist_pkgdata_DATA += Tester.exe
+  noinst_SCRIPTS += Tester.exe
 if WINE64
-  nodist_pkgdata_DATA += Tester64.exe
+  noinst_SCRIPTS += Tester64.exe
 endif #WINE64
 endif #WINE_PLUGIN
 
