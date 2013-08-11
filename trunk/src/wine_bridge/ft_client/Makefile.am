@@ -1,6 +1,6 @@
-nodist_pkgdata_DATA = 
+noinst_SCRIPTS = 
 if WINE_PLUGIN
-  nodist_pkgdata_DATA += FreeTrackClient.dll.so
+  noinst_SCRIPTS += FreeTrackClient.dll.so
 endif #WINE_PLUGIN
 
 if DARWIN
