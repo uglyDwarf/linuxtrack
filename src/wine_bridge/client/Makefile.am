@@ -1,6 +1,6 @@
 noinst_SCRIPTS = 
 if WINE_PLUGIN
-  noinst_SCRIPTS += NPClient.dll.so
+  noinst_SCRIPTS += NPClient.dll.so check_data.exe.so
 if WINE64
   noinst_SCRIPTS += NPClient64.dll.so
 endif #WINE64
@@ -38,6 +38,9 @@ CFLAGS_PRE = -g -I../.. -I../../.. -DHAVE_CONFIG_H -I@srcdir@/../.. -I@top_build
 RCFLAGS = -I @srcdir@
 VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
 
+check_data.exe.so : check_data.c rest.c rest.h
+	winegcc -m32 $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra -g -o $@ check_data.c rest.c
+
 NPClient.dll.so : NPClient.spec NPClient_main.o linuxtrack.o rest.o
 	winegcc -m32 $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra -g -o $@ -shared $^ -ldl
 
@@ -67,5 +70,5 @@ distclean-local-check:
 	rm -f *.exe* *.dll* *.sh *.o
 
 EXTRA_DIST = NPClient_dll.h NPClient_main.c rest.c \
-NPClient.h NPClient.spec rest.h
+NPClient.h NPClient.spec rest.h check_data.c
 

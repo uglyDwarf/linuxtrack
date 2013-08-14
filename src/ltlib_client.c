@@ -38,7 +38,7 @@ void *lt_data_receiver(void *arg)
         continue;
     }
     if(r < 0){
-        perror("select()");
+        ltr_int_my_perror("select()");
         exit(EXIT_FAILURE);
     }
     if (FD_ISSET(cfd, &rd)) {
@@ -48,7 +48,7 @@ void *lt_data_receiver(void *arg)
         if(errno == EINTR){
           goto repeat;
         }else{
-          perror("read");
+          ltr_int_my_perror("read");
           break;
         }
       }
@@ -87,7 +87,7 @@ int send_msg(int cfd, message_t msg)
     if(errno == EINTR){
       goto repeat;
     }else{
-      perror("write");
+      ltr_int_my_perror("write");
       return -1;
     }
   }

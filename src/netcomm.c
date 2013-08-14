@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include "cal.h"
+#include "utils.h"
 
 int init_client(const char *name, unsigned int port,
                 unsigned int restart_timeout)
@@ -23,7 +24,7 @@ int init_client(const char *name, unsigned int port,
   hint.ai_socktype = SOCK_STREAM;
   int status = getaddrinfo(name, NULL, &hint, &ai);
   if(status != 0){
-    fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
+    ltr_int_log_message("getaddrinfo: %s\n", gai_strerror(status));
     return -1;
   }
   
@@ -35,21 +36,21 @@ int init_client(const char *name, unsigned int port,
     char addr[1024];
     sinp = (struct sockaddr_in*)tmp_ai->ai_addr;
     inet_ntop(ai->ai_family, &sinp->sin_addr, addr, sizeof(addr));
-    fprintf(stderr, "Have result! %s\n", addr);
+    ltr_int_log_message("Have result! %s\n", addr);
 
     sinp->sin_port = htons(port);
     inaddr = *sinp;
     sfd = socket(((struct sockaddr*)sinp)->sa_family, SOCK_STREAM, 0);
     printf("Socket %d\n", sfd);
     if(sfd < 0){
-      perror("socket");
+      ltr_int_my_perror("socket");
       continue;
     }
     break;
   }
   
   if(tmp_ai == NULL){
-    fprintf(stderr, "Didn't work!\n");
+    ltr_int_log_message("Didn't work!\n");
     return -1;
   }
   
@@ -61,7 +62,7 @@ int init_client(const char *name, unsigned int port,
     if(errno == EINTR){
       continue;
     }else{
-      perror("connect");
+      ltr_int_my_perror("connect");
       if(restart_timeout != 0){
         sleep(restart_timeout);
       }
@@ -88,22 +89,22 @@ int prepare_server_comm(int type, const struct sockaddr *addr, socklen_t addr_le
   
   fd = socket(addr->sa_family, type, 0);
   if(fd < 0){
-    perror("socket:");
+    ltr_int_my_perror("socket:");
     return -1;
   }
   if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) != 0){
-    perror("setsockopt:");
+    ltr_int_my_perror("setsockopt:");
     goto error_label;
   }
   
   if(bind(fd, addr, addr_len) != 0){
-    perror("bind:");
+    ltr_int_my_perror("bind:");
     goto error_label;
   }
   
   if((type == SOCK_STREAM) || (type == SOCK_SEQPACKET)){
     if(listen(fd, qlen) < 0){
-      perror("listen:");
+      ltr_int_my_perror("listen:");
       goto error_label;
     }
   }
@@ -128,14 +129,14 @@ int init_server(unsigned int port)
   hint.ai_socktype = SOCK_STREAM;
   
   if(gethostname(name, sizeof(name)) != 0){
-    perror("gethostname");
+    ltr_int_my_perror("gethostname");
   }else{
     strcpy(name, "localhost");
   }
   
   int status = getaddrinfo(name, NULL, &hint, &ai);
   if(status != 0){
-    fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
+    ltr_int_log_message("getaddrinfo: %s\n", gai_strerror(status));
     return -1;
   }
   
@@ -153,7 +154,7 @@ int init_server(unsigned int port)
   }
   
   if(tmp_ai == NULL){
-    fprintf(stderr, "Didn't work!\n");
+    ltr_int_log_message("Didn't work!\n");
     return -1;
   }
   
@@ -173,7 +174,7 @@ int accept_connection(int socket)
       if(errno == EINTR){
         continue;
       }else{
-        perror("accept");
+        ltr_int_my_perror("accept");
         return -1;
       }
     }else{

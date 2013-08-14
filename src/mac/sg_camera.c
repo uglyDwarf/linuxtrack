@@ -11,7 +11,7 @@
 #define CHECK_RES(x, str)\
 {\
   if(x != noErr){\
-    fprintf(stderr, "%s: %s\n", str,\
+    ltr_int_log_message("%s: %s\n", str,\
     GetMacOSStatusErrorString(result));\
     return false;\
   }\
@@ -54,22 +54,22 @@ bool initChannel()
   OSErr result = noErr;
   grabber = OpenDefaultComponent(SeqGrabComponentType, 0);
   if(!grabber){
-    fprintf(stderr, "No grabber!\n");
+    ltr_int_log_message("No grabber!\n");
     return false;
   }
   result = SGInitialize(grabber);
   if(result != noErr){
-    fprintf(stderr, "Error init sg...\n");
+    ltr_int_log_message("Error init sg...\n");
     return false;
   }
   result = SGSetDataRef(grabber, 0, 0, seqGrabToMemory | seqGrabDontMakeMovie);
   if(result != noErr){
-    fprintf(stderr, "Error setting data ref...\n");
+    ltr_int_log_message("Error setting data ref...\n");
     return false;
   }
   result = SGNewChannel(grabber, VideoMediaType, &channel);
   if(result != noErr){
-    fprintf(stderr, "Error setting new channel... %s\n", 
+    ltr_int_log_message("Error setting new channel... %s\n", 
     GetMacOSStatusErrorString(result));
     return false;
   }
@@ -128,7 +128,7 @@ bool openDev(const char *name)
   SGDeviceList dev_list = 0;
   result = SGGetChannelDeviceList(channel, sgDeviceListIncludeInputs, &dev_list);
   if(result != noErr){
-    fprintf(stderr, "Error getting channel device list... %s\n", 
+    ltr_int_log_message("Error getting channel device list... %s\n", 
     GetMacOSStatusErrorString(result));
     return false;
   }
@@ -142,7 +142,7 @@ bool openDev(const char *name)
         if(strcasecmp(name, (char *)input_name_rec.name+1) == 0){
           result = SGSetChannelDeviceInput(channel, j);
           if(result != noErr){
-            fprintf(stderr, "Error setting channel input... %s\n", 
+            ltr_int_log_message("Error setting channel input... %s\n", 
             GetMacOSStatusErrorString(result));
             return false;
           }else{
@@ -157,7 +157,7 @@ bool openDev(const char *name)
 
 void enumerateCameras()
 {
-  fprintf(stderr, "sg_cam: Enumerating...\n");
+  ltr_int_log_message("sg_cam: Enumerating...\n");
   checkDevs();
   return;
 }
@@ -182,7 +182,7 @@ OSErr captureCallback(SGChannel c, Ptr p, long len, long *offset, long chRefCon,
     ImageDescriptionHandle desc = (ImageDescriptionHandle)NewHandle(0);
     result = SGGetChannelSampleDescription(channel, (Handle)desc);
     if(result != noErr){
-      fprintf(stderr, "SGGetChannelSampleDescription: %s\n", 
+      ltr_int_log_message("SGGetChannelSampleDescription: %s\n", 
               GetMacOSStatusErrorString(result));
       return noErr;
     }
@@ -191,7 +191,7 @@ OSErr captureCallback(SGChannel c, Ptr p, long len, long *offset, long chRefCon,
     result = DecompressSequenceBeginS(&sequence, desc, p, len, gworld, NULL, &window, &scaleMatrix,
 				      srcCopy, NULL, 0, codecNormalQuality, bestSpeedCodec);
     if(result != noErr){
-      fprintf(stderr, "DecompressSequenceBeginS: %s\n", 
+      ltr_int_log_message("DecompressSequenceBeginS: %s\n", 
               GetMacOSStatusErrorString(result));
       return noErr;
     }
@@ -200,7 +200,7 @@ OSErr captureCallback(SGChannel c, Ptr p, long len, long *offset, long chRefCon,
     CodecFlags ignore;
     result = DecompressSequenceFrameS(sequence, p, len, 0, &ignore, NULL);
     if(result != noErr){
-      fprintf(stderr, "DecompressSequenceFrameS: %s\n", 
+      ltr_int_log_message("DecompressSequenceFrameS: %s\n", 
               GetMacOSStatusErrorString(result));
       return noErr;
     }
@@ -234,15 +234,15 @@ bool capture(struct mmap_s *mmm)
   OSErr result = noErr;
   int x, y;
   getRes(&x, &y);
-  fprintf(stderr, "Capturing from '%s' @ %dx%d using '%s'!\n",
+  ltr_int_log_message("Capturing from '%s' @ %dx%d using '%s'!\n",
           getCamName(), x, y, getMapFileName());
   if(!openDev(getCamName())){
-    fprintf(stderr, "Can't open device for capture!\n");
+    ltr_int_log_message("Can't open device for capture!\n");
     closeChannel();
     return false;
   }
   if(!setCaptureParams(x, y)){
-    fprintf(stderr, "Can't set capture parameters!\n");
+    ltr_int_log_message("Can't set capture parameters!\n");
     closeChannel();
     return false;
   }

@@ -30,7 +30,7 @@ bool ltr_int_fork_child(char *args[], bool *is_child)
     //Child here
     *is_child = true;
     execv(args[0], args);
-    perror("execv");
+    ltr_int_my_perror("execv");
     printf("Child should quit now...\n");
     return false;
   }
@@ -135,7 +135,7 @@ semaphore_p ltr_int_createSemaphore(char *fname)
   }
   int fd = open(fname, O_RDWR | O_CREAT, 0600);
   if(fd == -1){
-    perror("open: ");
+    ltr_int_my_perror("open: ");
     return NULL;
   }
   printf("Going to create lock '%s' => %d!\n", fname, fd);
@@ -250,14 +250,14 @@ static bool ltr_int_mmap(int fd, ssize_t tmp_size, struct mmap_s *m)
   if(truncate){
     int res = ftruncate(fd, tmp_size);
     if (res == -1) {
-      perror("ftruncate: ");
+      ltr_int_my_perror("ftruncate: ");
       close(fd);
       return false;
     }
   }
   m->data = mmap(NULL, tmp_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   if(m->data == (void*)-1){
-    perror("mmap: ");
+    ltr_int_my_perror("mmap: ");
     close(fd);
     return false;
   }
@@ -269,7 +269,7 @@ bool ltr_int_mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
   umask(S_IWGRP | S_IWOTH);
   int fd = open(fname, O_RDWR | O_CREAT | O_NOFOLLOW, 0700);
   if(fd < 0){
-    perror("open: ");
+    ltr_int_my_perror("open: ");
     return false;
   }
   
@@ -292,7 +292,7 @@ bool ltr_int_mmap_file_exclusive(size_t tmp_size, struct mmap_s *m)
   char *file_name = ltr_int_my_strdup(mmapped_file_name());
   int fd = ltr_int_open_tmp_file(file_name);
   if(fd < 0){
-    perror("mkstemp");
+    ltr_int_my_perror("mkstemp");
     return false;
   }
   
@@ -322,7 +322,7 @@ bool ltr_int_unmap_file(struct mmap_s *m)
   m->data = NULL;
   m->size = 0;
   if(res < 0){
-    perror("munmap: ");
+    ltr_int_my_perror("munmap: ");
   }
   unlink(m->fname);
   if(m->fname != NULL){
@@ -348,20 +348,20 @@ bool ltr_int_make_fifo(const char *name)
     }else if(S_ISDIR(info.st_mode)){
       printf("Directory exists! Will try to remove it.\n");
       if(rmdir(name) != 0){
-        perror("rmdir");
+        ltr_int_my_perror("rmdir");
         return false;
       }
     }else{
       printf("File exists, but it is not a fifo! Will try to remove it.\n");
       if(unlink(name) != 0){
-        perror("unlink");
+        ltr_int_my_perror("unlink");
         return false;
       }
     }
   }
   //At this point, the file should not exist.
   if(mkfifo(name, S_IRUSR | S_IWUSR) != 0){
-    perror("mkfifo");
+    ltr_int_my_perror("mkfifo");
     return false;
   }
   printf("Fifo created!\n");
@@ -406,10 +406,10 @@ int ltr_int_open_fifo_for_writing(const char *name, bool wait){
   while(timeout > 0){
     --timeout;
     if((fifo = open(name, O_WRONLY | O_NONBLOCK)) < 0){
-      perror("open_fifo_for_writing");
+      ltr_int_my_perror("open_fifo_for_writing");
       //ltr_int_log_message("Fifo for writing failed to open (%s)!\n", name);
       if(errno != ENXIO){
-        perror("open@open_fifo_for_writing");
+        ltr_int_my_perror("open@open_fifo_for_writing");
         return -1;
       }
       fifo = -1;
@@ -452,7 +452,7 @@ int ltr_int_fifo_send(int fifo, void *buf, size_t size)
   }
   if(write(fifo, buf, size) < 0){
     printf("Write @fd %d failed:\n", fifo);
-    perror("write@pipe_send");
+    ltr_int_my_perror("write@pipe_send");
     return -errno;
    }
   return 0;
@@ -465,7 +465,7 @@ ssize_t ltr_int_fifo_receive(int fifo, void *buf, size_t size)
   if(num_read > 0){
     return num_read;
   }else if(num_read < 0){
-    perror("read@fifo_receive");
+    ltr_int_my_perror("read@fifo_receive");
     return -errno;
   }
   return 0;
@@ -496,7 +496,7 @@ int ltr_int_pipe_poll(int pipe, int timeout, bool *hup)
     }
     return fds;
   }else if(fds < 0){
-    perror("poll");
+    ltr_int_my_perror("poll");
     return -1;
   }
   return 0;

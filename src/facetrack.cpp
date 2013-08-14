@@ -205,7 +205,6 @@ void ltr_int_stop_face_detect()
   pthread_mutex_unlock(&frame_mx);
   pthread_join(detect_thread_handle, NULL);
   ltr_int_log_message("Facetracker thread joined!\n");
-  fflush(stderr);
 }
 
 void ltr_int_face_detect(image *img, struct bloblist_type *blt)

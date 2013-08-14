@@ -19,13 +19,13 @@ static bool parser_error = false;
 prefs &prefs::getPrefs()
 {
   if(pthread_mutex_lock(&sg_mutex) != 0){
-    perror("mutex");
+    ltr_int_my_perror("mutex");
   }
   if(prf == NULL){
     prf = new prefs();
   }
   if(pthread_mutex_unlock(&sg_mutex) != 0){
-    perror("mutex");
+    ltr_int_my_perror("mutex");
   }
   return *prf;
 }
@@ -33,7 +33,7 @@ prefs &prefs::getPrefs()
 void prefs::freePrefs()
 {
   if(pthread_mutex_lock(&sg_mutex) != 0){
-    perror("mutex");
+    ltr_int_my_perror("mutex");
   }
   prefs *tmp = prf;
   prf = NULL;
@@ -41,7 +41,7 @@ void prefs::freePrefs()
     delete tmp;
   }
   if(pthread_mutex_unlock(&sg_mutex) != 0){
-    perror("mutex");
+    ltr_int_my_perror("mutex");
   }
 }
 
@@ -462,7 +462,9 @@ void ltr_int_free_prefs(void)
 bool ltr_int_dump_prefs(const char *file_name)
 {
   if(strncmp("", file_name, 1) == 0){
-    std::cerr<<prefs::getPrefs();
+    std::ostringstream s;
+    s<<prefs::getPrefs();
+    ltr_int_log_message(s.str().c_str());
   }else{
     std::ofstream out(file_name);
     if(out.fail()){
@@ -515,12 +517,12 @@ bool ltr_int_save_prefs(const char *fname)
   
   remove(pfile_old.c_str());
   if(rename(pfile.c_str(), pfile_old.c_str()) != 0){
-    perror("rename");
+    ltr_int_my_perror("rename");
     ltr_int_log_message("Can't rename '%s' to '%s'\n", pfile.c_str(), pfile_old.c_str());
     
   }
   if(rename(pfile_new.c_str(), pfile.c_str()) != 0){
-    perror("rename");
+    ltr_int_my_perror("rename");
     ltr_int_log_message("Can't rename '%s' to '%s'\n", pfile_new.c_str(), pfile.c_str());
     return false;
   }

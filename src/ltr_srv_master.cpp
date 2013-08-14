@@ -308,7 +308,7 @@ bool ltr_int_master(bool standalone)
       msg.cmd = CMD_NOP;
       ssize_t res = ltr_int_fifo_receive(fifo, &msg, sizeof(message_t));
       if(res < 0){
-        perror("read");
+        ltr_int_my_perror("read");
       }
       if(res > 0){
         //printf("Received a message from slave (%d)!!!\n", msg.cmd);
@@ -343,7 +343,7 @@ bool ltr_int_master(bool standalone)
         heartbeat = 0;
       }
     }else if(fds < 0){
-      perror("poll");
+      ltr_int_my_perror("poll");
     }
     
     if(gui_shutdown_request || (!ltr_int_gui_lock(false)) || 

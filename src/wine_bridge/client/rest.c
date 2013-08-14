@@ -10,7 +10,7 @@
 #include <commctrl.h>
 
 
-ssize_t my_getline(char **lineptr, size_t *n, FILE *f)
+static ssize_t my_getline(char **lineptr, size_t *n, FILE *f)
 {
 #ifndef DARWIN
   return getline(lineptr, n, f);
@@ -87,6 +87,36 @@ bool game_data_get_desc(int id, game_desc_t *gd)
   return gd->name != NULL;
 }
 
+bool getSomeSeriousPoetry(char *verse1, char *verse2)
+{
+  bool res = true;
+  char *home = getenv("HOME");
+  char *path1 = malloc(200 + strlen(home));
+  char *path2 = malloc(200 + strlen(home));
+  sprintf(path1, "%s/.config/linuxtrack/tir_firmware/poem1.txt", home);
+  sprintf(path2, "%s/.config/linuxtrack/tir_firmware/poem2.txt", home);
+  FILE *f1 = fopen(path1, "rb");
+  FILE *f2 = fopen(path2, "rb");
+  memset(verse1, 0, 200);
+  memset(verse2, 0, 200);
+  if(f1 != NULL){
+    fread(verse1, 200, 1, f1);
+    //printf("DLL SIGNATURE: %s\n", verse1);
+    fclose(f1);
+  }else{
+    res = false;
+  }
+  if(f2 != NULL){
+    fread(verse2, 200, 1, f2);
+    //printf("APP SIGNATURE: %s\n", verse2);
+    fclose(f2);
+  }else{
+    res = false;
+  }
+  free(path1);
+  free(path2);
+  return res;
+}
 
 bool getDebugFlag(const int flag)
 {

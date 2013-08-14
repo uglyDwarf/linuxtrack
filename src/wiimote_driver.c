@@ -131,7 +131,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
         gStateCheckIn = STATE_CHECK_INTERVAL;
 
         if (cwiid_request_status(gWiimote)) {
-            fprintf(stderr, "Requesting status failed, disconnecting\n");
+            ltr_int_log_message("Requesting status failed, disconnecting\n");
             cwiid_close(gWiimote);
             gWiimote = NULL;
             return -1;
@@ -140,7 +140,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
 
     if (cwiid_get_state(gWiimote, &state)) {
         // Treat connection as disconnected on error
-        fprintf(stderr, "Error reading wiimote state\n");
+        ltr_int_log_message("Error reading wiimote state\n");
         cwiid_close(gWiimote);
         gWiimote = NULL;
         return -1;

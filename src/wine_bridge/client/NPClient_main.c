@@ -281,34 +281,13 @@ int __stdcall NPCLIENT_NP_GetParameter(int arg0, int arg1)
 int __stdcall NPCLIENT_NP_GetSignature(tir_signature_t * sig)
 {
   dbg_report("GetSignature request\n");
-  int res = 0;
-  char *home = getenv("HOME");
-  char *path1 = malloc(200 + strlen(home));
-  char *path2 = malloc(200 + strlen(home));
-  sprintf(path1, "%s/.config/linuxtrack/tir_firmware/poem1.txt", home);
-  sprintf(path2, "%s/.config/linuxtrack/tir_firmware/poem2.txt", home);
-  FILE *f1 = fopen(path1, "rb");
-  FILE *f2 = fopen(path2, "rb");
-  memset(sig->DllSignature, 0, 200);
-  memset(sig->AppSignature, 0, 200);
-  if(f1 != NULL){
-    fread(sig->DllSignature, 200, 1, f1);
-    printf("DLL SIGNATURE: %s\n", sig->DllSignature);
-    fclose(f1);
+  if(getSomeSeriousPoetry(sig->DllSignature, sig->AppSignature)){
+    printf("Signature result: OK\n");
+    return 0;
   }else{
-    res = 1;
+    printf("Signature result: NOT OK!\n");
+    return 1;
   }
-  if(f2 != NULL){
-    fread(sig->AppSignature, 200, 1, f2);
-    printf("APP SIGNATURE: %s\n", sig->AppSignature);
-    fclose(f2);
-  }else{
-    res = 1;
-  }
-  free(path1);
-  free(path2);
-  printf("Signature result: %d\n", res);
-  return res;
 }
 /******************************************************************
  *		NP_QueryVersion (NPCLIENT.11)

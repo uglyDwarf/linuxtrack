@@ -45,7 +45,7 @@ int frame_callback(struct camera_control_block *ccb, struct frame_type *frame)
     if(errno == EINTR){
       goto repeat;
     }else{
-      perror("write:");
+      ltr_int_my_perror("write:");
       return -1;
     }
   }
@@ -67,7 +67,7 @@ void* the_server_thing(void *param)
   while(1){
     cfd = accept_connection(sfd);
     if(cfd == -1){
-      perror("accept:");
+      ltr_int_my_perror("accept:");
       continue;
     }
     char msg[1024];
@@ -80,7 +80,7 @@ void* the_server_thing(void *param)
         if(errno == EINTR){
           goto repeat;
         }else{
-          perror("read");
+          ltr_int_my_perror("read");
 	  break;
         }
       }

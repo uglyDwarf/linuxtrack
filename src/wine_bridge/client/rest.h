@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 bool game_data_get_desc(int id, game_desc_t *gd);
+bool getSomeSeriousPoetry(char *verse1, char *verse2);
 bool getDebugFlag(const int flag);
 
 #ifdef __cplusplus

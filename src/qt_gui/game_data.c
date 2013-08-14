@@ -1,11 +1,12 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
-#include "mxml.h"
+#include <mxml.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <utils.h>
 
 
 //First 5 bytes is MD5 hash of "NaturalPoint"
@@ -98,11 +99,11 @@ bool get_game_data(const char *input_fname, const char *output_fname)
 {
   FILE *outfile = NULL;
   if((outfile = fopen(output_fname, "w")) == NULL){
-    fprintf(stderr, "Can't open the output file '%s'!\n", output_fname);
+    ltr_int_log_message("Can't open the output file '%s'!\n", output_fname);
     return false;
   }
   if(!game_data_init(input_fname)){
-    fprintf(stderr, "Can't process the data file '%s'!\n", input_fname);
+    ltr_int_log_message("Can't process the data file '%s'!\n", input_fname);
     return false;
   }
   

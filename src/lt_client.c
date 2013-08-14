@@ -23,7 +23,7 @@ void *data_receiver(void *arg)
       if(errno == EINTR){
         continue;
       }else{
-        perror("Read");
+        ltr_int_my_perror("Read");
         break;
       }
     }
@@ -95,12 +95,12 @@ int main(int argc, char *argv[])
   printf("[%g, %g]\n", (nb.blobs[2]).x, (nb.blobs[2]).y);
 */  
   if(argc != 3){
-    fprintf(stderr, "Bad args...\n");
+    ltr_int_log_message("Bad args...\n");
     return 1;
   }
   int sfd;
   if((sfd = init_client(argv[1], atoi(argv[2]), 3)) < 0){
-    fprintf(stderr, "Have problem....\n");
+    ltr_int_log_message("Have problem....\n");
     return 1;
   }
   pthread_create(&data_receiver_thread, NULL, data_receiver, &sfd);
