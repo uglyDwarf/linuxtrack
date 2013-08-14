@@ -197,7 +197,7 @@ int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
     fmt.index = fmt_cntr;
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if(v4l2_ioctl(fd, VIDIOC_ENUM_FMT, &fmt) != 0){
-      perror("VIDIOC_ENUM_FMT");
+      ltr_int_my_perror("VIDIOC_ENUM_FMT");
       break;
     }
     ++fmt_cntr;
@@ -208,7 +208,7 @@ int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
       frm.index = sizes_cntr++;
       frm.pixel_format = fmt.pixelformat;
       if(v4l2_ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frm) != 0){
-        perror("VIDIOC_ENUM_FRAMESIZES");
+        ltr_int_my_perror("VIDIOC_ENUM_FRAMESIZES");
 	break;
       }
       if(frm.type == V4L2_FRMSIZE_TYPE_DISCRETE){
@@ -221,7 +221,7 @@ int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
 	  ival.height = frm.discrete.height;
           webcam_format *new_fmt;
 	  if(v4l2_ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &ival) != 0){
-            perror("VIDIOC_ENUM_FRAMEINTERVALS");
+            ltr_int_my_perror("VIDIOC_ENUM_FRAMEINTERVALS");
             if(ival_cntr == 1){
               //to have at least something - webcam will make its own mind anyway...
 	      new_fmt = (webcam_format*)ltr_int_my_malloc(sizeof(webcam_format));

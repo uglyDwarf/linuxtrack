@@ -14,7 +14,7 @@ static bool initialized = false;
 static int make_mmap()
 {
   if(!ltr_int_mmap_file_exclusive(sizeof(struct mmap_s), &mmm)){
-    perror("mmap_file: ");
+    ltr_int_my_perror("mmap_file: ");
     ltr_int_log_message("Couldn't mmap!\n");
     return -1;
   }

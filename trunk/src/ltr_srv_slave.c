@@ -148,7 +148,7 @@ static bool ltr_int_process_message(int master_downlink)
   ssize_t read = ltr_int_fifo_receive(master_downlink, &msg, sizeof(message_t));
   if(read < 0){
     ltr_int_log_message("Slave reader problem!\n");
-    perror("fifo_receive");
+    ltr_int_my_perror("fifo_receive");
     return false;
   }else if(read == 0){
     return true;
@@ -231,7 +231,7 @@ static void *ltr_int_slave_reader_thread(void *param)
       int fds = poll(&downlink_poll, 1, 1000);
       if(fds < 0){
         ++poll_errs;
-        perror("poll");
+        ltr_int_my_perror("poll");
         if(poll_errs > 3){break;}else{continue;}
       }else if(fds == 0){
         if(!parent_alive()){

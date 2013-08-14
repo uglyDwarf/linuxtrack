@@ -72,15 +72,15 @@ struct func_defs_t{
 
 struct func_defs_t functions[] = 
 {
-  {"ltr_init", (void*)&ltr_init_fun},
-  {"ltr_shutdown", (void*)&ltr_shutdown_fun},
-  {"ltr_suspend", (void *)&ltr_suspend_fun},
-  {"ltr_wakeup", (void *)&ltr_wakeup_fun},
-  {"ltr_recenter", (void *)&ltr_recenter_fun},
-  {"ltr_get_pose", (void *)&ltr_get_pose_fun},
-  {"ltr_get_pose_full", (void *)&ltr_get_pose_full_fun},
-  {"ltr_get_tracking_state", (void *)&ltr_get_tracking_state_fun},
-  {NULL, NULL}
+  {(char*)"ltr_init", (void*)&ltr_init_fun},
+  {(char*)"ltr_shutdown", (void*)&ltr_shutdown_fun},
+  {(char*)"ltr_suspend", (void *)&ltr_suspend_fun},
+  {(char*)"ltr_wakeup", (void *)&ltr_wakeup_fun},
+  {(char*)"ltr_recenter", (void *)&ltr_recenter_fun},
+  {(char*)"ltr_get_pose", (void *)&ltr_get_pose_fun},
+  {(char*)"ltr_get_pose_full", (void *)&ltr_get_pose_full_fun},
+  {(char*)"ltr_get_tracking_state", (void *)&ltr_get_tracking_state_fun},
+  {(char*)NULL, NULL}
 };
 
 static const char *lib_locations[] = {
@@ -221,7 +221,7 @@ char *linuxtrack_get_prefix()
 {
   char *prefix = NULL;
   char *home = getenv("HOME");
-  char *cfg = "/.config/linuxtrack/linuxtrack1.conf";
+  char *cfg = (char*)"/.config/linuxtrack/linuxtrack1.conf";
   char *fname;
   FILE *f;
   char *line;

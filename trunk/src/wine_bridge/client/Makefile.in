@@ -50,7 +50,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@WINE_PLUGIN_TRUE@am__append_1 = NPClient.dll.so
+@WINE_PLUGIN_TRUE@am__append_1 = NPClient.dll.so check_data.exe.so
 @WINE64_TRUE@@WINE_PLUGIN_TRUE@am__append_2 = NPClient64.dll.so
 @DARWIN_TRUE@am__append_3 = -Wl,-no_arch_warnings
 @DARWIN_FALSE@am__append_4 = -Wl,--no-warn-search-mismatch
@@ -213,7 +213,7 @@ CXXFLAGS_PRE = -g -DHAVE_CONFIG_H -I../../.. -I. -I@srcdir@/../.. -I@top_builddi
 CFLAGS_PRE = -g -I../.. -I../../.. -DHAVE_CONFIG_H -I@srcdir@/../.. -I@top_builddir@
 RCFLAGS = -I @srcdir@
 EXTRA_DIST = NPClient_dll.h NPClient_main.c rest.c \
-NPClient.h NPClient.spec rest.h
+NPClient.h NPClient.spec rest.h check_data.c
 
 all: all-am
 
@@ -421,6 +421,9 @@ uninstall-am:
 
 .rc.o :
 	wrc -o $@ $(RCFLAGS) $<
+
+check_data.exe.so : check_data.c rest.c rest.h
+	winegcc -m32 $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra -g -o $@ check_data.c rest.c
 
 NPClient.dll.so : NPClient.spec NPClient_main.o linuxtrack.o rest.o
 	winegcc -m32 $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra -g -o $@ -shared $^ -ldl

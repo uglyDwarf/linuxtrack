@@ -11,7 +11,7 @@ struct mmap_s mmm;
 int main(int argc, char *argv[])
 {
   if(!checkCmdLine(argc, argv)){
-    fprintf(stderr, "Wrong  arguments!\n");
+    ltr_int_log_message("Wrong  arguments!\n");
     return EXIT_FAILURE;
   }
   
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
       capture(&mmm);
       ltr_int_unmap_file(&mmm);
     }else{
-      fprintf(stderr, "Can't mmap!\n");
+      ltr_int_log_message("Can't mmap!\n");
       return EXIT_FAILURE;
     }
   }else{

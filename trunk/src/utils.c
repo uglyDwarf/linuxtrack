@@ -31,6 +31,8 @@ static char *pref_file = "linuxtrack1.conf";
 
 static const char *logfile_template = "/tmp/linuxtrack%02d.log";
 static char *logfile_name = NULL;
+static FILE *output_stream = NULL;
+static char error_buf[2048];
 
 char* ltr_int_my_strdup(const char *s);
 
@@ -40,12 +42,11 @@ static void ltr_int_atexit(void)
     free(logfile_name);
     logfile_name = NULL;
   }
-  fclose(stderr);
+  //fclose(stderr);
 }
 
 bool ltr_int_set_logfile(char *fname)
 {
-  FILE *output_stream = NULL;
   int fd;
   //The file might be opened by other process, so don't truncate
   output_stream = fopen(fname, "a+");
@@ -56,12 +57,13 @@ bool ltr_int_set_logfile(char *fname)
   fd = fileno(output_stream);
   if(lockf(fd, F_TLOCK, 0) != 0){
     fclose(output_stream);
+    output_stream = stderr;
     return false;
   }
   //close the log on exec
   fcntl(fd, F_SETFD, FD_CLOEXEC);
   atexit(ltr_int_atexit);
-  output_stream = freopen(fname, "w+", stderr);
+  //output_stream = freopen(fname, "w+", stderr);
   logfile_name = fname;
   return true;
 }
@@ -145,16 +147,16 @@ void ltr_int_valog_message(const char *format, va_list va)
     for(cntr = 0; cntr < 5; ++cntr){
       if(ltr_int_open_logfile()) break;
     }
-    fprintf(stderr, "Linuxtrack version %s\n", PACKAGE_VERSION);
+    fprintf(output_stream, "Linuxtrack version %s\n", PACKAGE_VERSION);
   }
   time_t now = time(NULL);
   struct tm  *ts = localtime(&now);
   char       buf[80];
   strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", ts);
   
-  fprintf(stderr, "[%s] ", buf);
-  vfprintf(stderr, format, va);
-  fflush(stderr);
+  fprintf(output_stream, "[%s] ", buf);
+  vfprintf(output_stream, format, va);
+  fflush(output_stream);
 }
 
 void ltr_int_log_message(const char *format, ...)
@@ -341,6 +343,18 @@ dbg_flag_type ltr_int_get_dbg_flag(const int flag)
   }
 }
 
+void ltr_int_my_perror(const char *str)
+{
+  int err = errno;
+  errno = 0;
+  char *msg = strerror_r(err, error_buf, sizeof(error_buf));
+  if(msg != NULL){
+    ltr_int_log_message("%s: %s\n", str, msg);
+  }else{
+    ltr_int_log_message("Error %d getting error description for errno = %d!\n",errno, err);
+  }
+}
+
 void ltr_int_usleep(unsigned int usec)
 {
   struct timespec req, rem;
@@ -357,7 +371,7 @@ void ltr_int_usleep(unsigned int usec)
       }else{
         //Here the other handler would come;
         //But how to handle this?
-        perror("nanosleep: ");
+        ltr_int_my_perror("nanosleep");
         break;
       }
     }
