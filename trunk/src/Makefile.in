@@ -458,7 +458,7 @@ with_wine64 = @with_wine64@
 @DARWIN_FALSE@XLINUXTRACK_CFLAGS = 
 @DARWIN_TRUE@XLINUXTRACK_CFLAGS = -arch i386 -arch x86_64
 @DARWIN_FALSE@XLINUXTRACK_LDFLAGS = -Wl,--no-warn-search-mismatch
-@DARWIN_TRUE@XLINUXTRACK_LDFLAGS = -Wl,-no_arch_warnings -arch i386
+@DARWIN_TRUE@XLINUXTRACK_LDFLAGS = -Wl,-no_arch_warnings -arch i386 -arch x86_64
 @DARWIN_FALSE@LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
 @DARWIN_TRUE@LINUXFLAGS = 
 man_MANS = ltr_gui.1 ltr_server.1 $(am__append_2) $(am__append_16)

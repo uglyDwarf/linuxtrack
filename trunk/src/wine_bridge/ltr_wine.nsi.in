@@ -28,10 +28,10 @@ Section "Linuxtrack / TrackIR Interface"
   Exec '"$INSTDIR\check_data.exe"'
 SectionEnd
 
-Section "Linuxtrack / FreeTrack Interface"
+Section "Linuxtrack / Freetrack Interface"
   SetOutPath $INSTDIR
-  File /oname=FreeTrackTester.exe ft_tester\ftc.exe.so
-  File /oname=FreetrackClient.dll ft_client\FreeTrackClient.dll.so
+  File /oname=FreetrackTester.exe ft_tester\ftc.exe.so
+  File /oname=FreetrackClient.dll ft_client\FreetrackClient.dll.so
   WriteRegStr HKCU "Software\Freetrack\FreetrackClient" "Path" "$INSTDIR\"
 SectionEnd
 
@@ -40,7 +40,7 @@ Section "Start Menu Shortcuts"
   CreateShortCut "$SMPROGRAMS\Linuxtrack\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
   CreateShortCut "$SMPROGRAMS\Linuxtrack\Controller.lnk" "$INSTDIR\Controller.exe" "" "$INSTDIR\linuxtrack.ico" 0
   CreateShortCut "$SMPROGRAMS\Linuxtrack\Tester.lnk" "$INSTDIR\Tester.exe" "" "$INSTDIR\Tester.exe"
-  CreateShortCut "$SMPROGRAMS\Linuxtrack\FreeTrackTester.lnk" "$INSTDIR\FreeTrackTester.exe" "" "$INSTDIR\FreeTrackTester.exe"
+  CreateShortCut "$SMPROGRAMS\Linuxtrack\FreetrackTester.lnk" "$INSTDIR\FreetrackTester.exe" "" "$INSTDIR\FreetrackTester.exe"
 SectionEnd
 
 Section "Uninstall"
@@ -52,7 +52,7 @@ Section "Uninstall"
   Delete $INSTDIR\Tester.exe
   Delete $INSTDIR\NPClient.dll
   Delete $INSTDIR\FreetrackClient.dll
-  Delete $INSTDIR\FreeTrackTester.exe
+  Delete $INSTDIR\FreetrackTester.exe
   Delete $INSTDIR\uninstall.exe
   Delete $INSTDIR\check_data.exe
   Delete $INSTDIR\linuxtrack.ico
