@@ -346,8 +346,8 @@ dbg_flag_type ltr_int_get_dbg_flag(const int flag)
 void ltr_int_my_perror(const char *str)
 {
   int err = errno;
-  errno = 0;
-  char *msg = strerror_r(err, error_buf, sizeof(error_buf));
+  //errno = 0;
+  char *msg = strerror_r(errno, error_buf, sizeof(error_buf));
   if(msg != NULL){
     ltr_int_log_message("%s: %s\n", str, msg);
   }else{

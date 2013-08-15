@@ -28,6 +28,7 @@ THE SOFTWARE.
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <dlfcn.h>
 #include <unistd.h>
 #include <string.h>
@@ -84,11 +85,34 @@ struct func_defs_t functions[] =
 };
 
 static const char *lib_locations[] = {
+"/Frameworks/liblinuxtrack.0.dylib",
 "/lib/liblinuxtrack.so.0", "/lib32/liblinuxtrack.so.0", 
 "/lib/i386-linux-gnu/liblinuxtrack.so.0", 
 "/lib/x86_64-linux-gnu/liblinuxtrack.so.0",
-"/Frameworks/liblinuxtrack.0.dylib", NULL
+NULL
 };
+
+static FILE *logf = NULL;
+static char logfname[] = "/tmp/linuxtrackXXXXXX";
+
+static void linuxtrack_log(const char *format, ...)
+{
+  if(logf == NULL){
+    FILE *tmpf;
+    int tmpfd = mkstemp(logfname);
+    if(tmpfd != -1){
+      tmpf = fdopen(tmpfd, "a");
+      if(tmpf != NULL){
+        logf = tmpf;
+      }
+    }
+  }
+  va_list ap;
+  va_start(ap,format);
+  vfprintf(logf, format, ap);
+  fflush(logf);
+  va_end(ap);
+}
 
 int linuxtrack_shutdown(void)
 {
@@ -180,7 +204,7 @@ static int linuxtrack_load_functions(void *handle)
   while((functions[i]).name != NULL){
     dlerror();
     if((symbol = dlsym(handle, (functions[i]).name)) == NULL){
-      fprintf(stderr, "Couldn't load symbol '%s': %s\n", (functions[i]).name, dlerror());
+      linuxtrack_log("Couldn't load symbol '%s': %s\n", (functions[i]).name, dlerror());
       return -1;
     }
     *((void **)(functions[i]).ref) = symbol;
@@ -202,18 +226,18 @@ static char *construct_name(const char *path, const char *sep, const char *name)
 static void* linuxtrack_try_library(const char *path)
 {
   void *lib_handle = NULL;
-  fprintf(stderr, "Trying to load '%s'... ", path);
+  linuxtrack_log("Trying to load '%s'... ", path);
   if(access(path, F_OK) != 0){
-    fprintf(stderr, "Not found.\n");
+    linuxtrack_log("Not found.\n");
     return NULL;
   }
   dlerror();
   lib_handle = dlopen(path, RTLD_NOW | RTLD_LOCAL);
   if(lib_handle != NULL){
-    fprintf(stderr, "Loaded OK.\n");
+    linuxtrack_log("Loaded OK.\n");
     return lib_handle;
   }
-  fprintf(stderr, "Couldn't load library - %s!\n", dlerror());
+  linuxtrack_log("Couldn't load library - %s!\n", dlerror());
   return NULL;
 }
 
@@ -228,7 +252,7 @@ char *linuxtrack_get_prefix()
   char *val, *key;
   
   if(home == NULL){
-    fprintf(stderr, "Please set HOME variable!\n");
+    linuxtrack_log("Please set HOME variable!\n");
     return NULL;
   }
   fname = construct_name(home, cfg, "");
@@ -313,12 +337,12 @@ static int linuxtrack_load_library()
 {
   lib_handle = linuxtrack_find_library();
   if(lib_handle == NULL){
-    fprintf(stderr, "Couldn't load liblinuxtrack, headtracking will not be available!\n");
+    linuxtrack_log("Couldn't load liblinuxtrack, headtracking will not be available!\n");
     return -1;
   }
   dlerror(); /*clear any existing error...*/
   if(linuxtrack_load_functions(lib_handle) != 0){
-    fprintf(stderr, "Couldn't load liblinuxtrack functions, headtracking will not be available!\n");
+    linuxtrack_log("Couldn't load liblinuxtrack functions, headtracking will not be available!\n");
     return -1;
   }
   return 0;

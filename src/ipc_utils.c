@@ -452,8 +452,9 @@ int ltr_int_fifo_send(int fifo, void *buf, size_t size)
   }
   if(write(fifo, buf, size) < 0){
     printf("Write @fd %d failed:\n", fifo);
+    int err = errno;
     ltr_int_my_perror("write@pipe_send");
-    return -errno;
+    return -err;
    }
   return 0;
 }
