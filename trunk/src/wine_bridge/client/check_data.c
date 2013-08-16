@@ -10,7 +10,7 @@ int main()
     //data available, all is OK
   }else{
     MessageBox(NULL,
-    "To fully utilize linuxtrack-wine,\ninstall the support data in ltr_gui (Misc.pane)!",
+    "To fully utilize linuxtrack-wine,\ninstall the support data in ltr_gui!",
     "Linuxtrack-wine check", 
     MB_OK);
   }

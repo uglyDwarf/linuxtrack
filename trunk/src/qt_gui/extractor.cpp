@@ -429,6 +429,14 @@ void Extractor::downloadDone(bool ok, QString fileName)
   if(ok){
     progress("Downloading finished!");
     extractFirmware(fileName);
+  }else{
+    QMessageBox::warning(NULL, "Download unsuccessfull", 
+      "Download of the file was unsuccessful.\n"
+      "Please check your network connection and try again;\n"
+      "you can also download the file yourself and\n"
+      "use the \"Extract from installer\" button to extract it."
+    );
+    enableButtons(true);
   }
 }
 
