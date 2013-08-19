@@ -150,7 +150,7 @@
                <bool>false</bool>
               </property>
               <property name="text">
-               <string>Install Wine plugin...</string>
+               <string>Linuxtrack-wine support files install...</string>
               </property>
              </widget>
             </item>

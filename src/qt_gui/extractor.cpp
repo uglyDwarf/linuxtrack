@@ -13,6 +13,11 @@
 #include "ltr_gui_prefs.h"
 #include "help_view.h"
 
+#ifdef HAVE_CONFIG_H
+  #include "../../config.h"
+#endif
+
+
 void Progress::message(qint64 read, qint64 all)
 {
   ui.ProgressBar->setValue((float)read / all * 100.0);
@@ -34,6 +39,11 @@ void ExtractThread::start(targets_t &t, const QString &p, const QString &d)
 void ExtractThread::run()
 {
   emit progress(QString("Commencing analysis of directory '%1'...").arg(path));
+  gameDataFound = false;
+  for(targets_iterator_t it = targets->begin(); it != targets->end(); ++it){
+    it->second.clearFoundFlag();
+  }
+  
   findCandidates(path);
   emit progress("===============================");
   if(allFound()){
@@ -260,6 +270,7 @@ void Extractor::wineFinished(bool result)
 
 void Extractor::extractFirmware(QString file)
 {
+#ifndef DARWIN
   QMessageBox::information(this, "Instructions", 
   "NP's TrackIR installer will pop up now.\n\n"
   "Install it with all components to the default location, so the firmware and other necessary "
@@ -267,6 +278,7 @@ void Extractor::extractFirmware(QString file)
   "The software will be installed to the wine sandbox, that will be deleted afterwards, so "
   "there are no leftovers."
   );
+#endif
   qDebug()<<winePrefix;
   progress(QString("Initializing wine and running installer %1").arg(file));
   //To avoid adding TrackIR icons/menus to Linux "start menu"... 
@@ -372,10 +384,13 @@ void Extractor::threadFinished()
     QFile::link(destPath, l);
     QMessageBox::information(NULL, "Firmware extraction successfull", 
       "Firmware extraction finished successfuly!"
+#ifdef DARWIN
+      "\nNow you can install linuxtrack-wine.exe to the Wine bottle/prefix of your choice."
+#endif
     );
   }else{
     QMessageBox::warning(NULL, "Firmware extraction unsuccessfull", 
-      "Some of the files needed to fully utilize TrackIR were not"
+      "Some of the files needed to fully utilize TrackIR were not "
       "found! Please see the log for more details."
     );
   }

@@ -9,7 +9,7 @@ pushd ..
 BASE=$(pwd)
 popd
 PREFIX=${BASE}/ltr
-WINE_PREFIX=${BASE}/ltr_wine
+export WINE_PREFIX=${BASE}/ltr_wine
 NSIS_PREFIX=${BASE}/nsis
 LIB_DIR=ltr_gui.app/Contents/Frameworks
 BIN_DIR=ltr_gui.app/Contents/MacOS
@@ -52,14 +52,14 @@ else
   popd
 fi
 
-##Build libusb-1.0
+##Build libusbx-1.0
 pushd ${BASE}
 if [ -f ${PREFIX}/lib/libusb-1.0.dylib ]; then
   echo 'Libusb-1.0 already exists!'
 else
   export CFLAGS=${COMMON_FLAGS}
-  tar xfj libusb-1.0.9.tar.bz2
-  pushd libusb-1.0.9
+  tar xfj libusbx-1.0.16.tar.bz2
+  pushd libusbx-1.0.16
   ./configure --prefix=${PREFIX} --disable-dependency-tracking >/dev/null
   make $PARALEL_MAKE >/dev/null
   make install >/dev/null
@@ -73,14 +73,11 @@ pushd ${BASE}
 if [ -f ${PREFIX}/bin/opencv_traincascade ]; then
   echo 'OpenCV already exists!'
 else
-  tar xfj opencv-2.4.5.tar.gz
-  pushd opencv-2.4.5
+  tar xfz opencv-2.4.6.1.tar.gz
+  pushd opencv-2.4.6.1
   mkdir build
   pushd build
   cmake "-DCMAKE_INSTALL_PREFIX=${PREFIX}" "-DWITH_OPENCL=FALSE" ..
-        #"-DCMAKE_OSX_DEPLOYMENT_TARGET=10.6" \
-        #"-DCMAKE_OSX_SYSROOT=${SDK_ROOT}" \
-        
   make $PARALEL_MAKE >/dev/null
   make install >/dev/null
   popd
@@ -89,12 +86,13 @@ fi
 popd
 
 ##Build Wine
+WINE_VER=1.4.1
 pushd ${BASE}
 if [ -f ${WINE_PREFIX}/bin/wine ]; then
   echo 'Wine already exists!'
 else
-  tar xfj wine-1.4.1.tar.bz2
-  pushd wine-1.4.1
+  tar xfj wine-${WINE_VER}.tar.bz2
+  pushd wine-${WINE_VER}
   sed '/DllMain/,/TRUE/ s#WINSPOOL_LoadSystemPrinters#//WINSPOOL_LoadSystemPrinters#' dlls/winspool.drv/wspool.c
   CFLAGS="${COMMON_FLAGS}" \
   CXXFLAGS="${COMMON_FLAGS}" \

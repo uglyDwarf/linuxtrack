@@ -151,12 +151,31 @@ bool newFrame(unsigned char *ptr)
 #ifdef OPENCV
   }
 #endif
+  //Processing of kCVPixelFormatType_422YpCbCr8 data
   size_t i;
   ptr += 1;
   for(i = 0; i < (size_t) width * height; ++i){
     dest[i] = (*ptr >= thr) ? *ptr : 0;
     ptr += 2;
   }
+  
+/*
+//BGRA buffer to BW - much more time consuming I guess, will stick with UYVY for now    
+    float y;
+    unsigned int cntr, cntr1;
+    for(cntr = cntr1 = 0; cntr1 < (size_t) width * height; cntr += 4, ++cntr1){
+      //Y  =      (0.257 * R) + (0.504 * G) + (0.098 * B) + 16
+      y = 0.257 * ((float)ptr[cntr + 2]) 
+        + 0.504 * ((float)ptr[cntr + 1])
+        + 0.098 * ((float)ptr[cntr + 0]) + 16;
+      if(y > 255) y = 255.0;
+      if(y > thr){
+        dest[cntr1] = y;
+      }else{
+	    dest[cntr1] = 0;
+      }
+    }
+*/
   bufferWritten(&writer);
   
 //  printf("Signaling new frame!\n");

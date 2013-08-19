@@ -8,6 +8,9 @@
 #include "extractor.h"
 #include "utils.h"
 
+#ifdef HAVE_CONFIG_H
+  #include "../../config.h"
+#endif
 
 PluginInstall::PluginInstall(const Ui::LinuxtrackMainForm &ui):
   gui(ui), inst(NULL), dlfw(NULL),
@@ -15,11 +18,14 @@ PluginInstall::PluginInstall(const Ui::LinuxtrackMainForm &ui):
   poem2(PREF.getRsrcDirPath() + "/tir_firmware/poem2.txt"), 
   gameData(PREF.getRsrcDirPath() + "/tir_firmware/gamedata.txt")
 {
-  if(QFile::exists(PREF.getDataPath("linuxtrack-wine.exe"))){
-    inst = new WineLauncher();
-    gui.pushButton_2->setEnabled(true);
-    Connect();
+#ifndef DARWIN
+  if(!QFile::exists(PREF.getDataPath("linuxtrack-wine.exe"))){
+    return;
   }
+#endif
+  inst = new WineLauncher();
+  gui.pushButton_2->setEnabled(true);
+  Connect();
 }
 
 PluginInstall::~PluginInstall()
@@ -42,17 +48,10 @@ void PluginInstall::Connect()
 void PluginInstall::instFinished(bool result)
 {
   if(!result){
-    QMessageBox::warning(NULL, "Wine bridge installation problem", 
-      "Wine bridge installation failed!", QMessageBox::Ok);
+//    QMessageBox::warning(NULL, "Wine bridge installation problem", 
+//      "Wine bridge installation failed!", QMessageBox::Ok);
     gui.pushButton_2->setEnabled(true);
     return;
-  }
-  if(!isTirFirmwareInstalled()){
-    printf("Key source not existing!\n");
-    tirFirmwareInstall();
-  }else{
-    printf("We have key source, continue with extraction...\n");
-    tirFirmwareInstalled(true);
   }
 }
 
@@ -75,25 +74,36 @@ bool PluginInstall::isTirFirmwareInstalled()
 void PluginInstall::tirFirmwareInstalled(bool ok)
 {
   (void) ok;
+  //message is issued in extractor...
+/*
   if(isTirFirmwareInstalled()){
-    //All is fine...
+    QMessageBox::information(NULL, "TrackIR firmware installed OK", 
+    "TrackIR firmware installed successfully!"
+#ifdef DARWIN
+    "\nNow you can install linuxtrack-wine.exe to the Wine bottle/prefix of your choice."
+#endif
+    );
   }else{
     QMessageBox::warning(NULL, "TrackIR firmware install problem", 
 "TrackIR firmware package was not installed, without it\n\
 the linuxtrack-wine bridge will not be fully functional!", QMessageBox::Ok);
   }
+*/
   gui.pushButton_2->setEnabled(true);
 }
 
 void PluginInstall::installWinePlugin()
 {
   gui.pushButton_2->setEnabled(false);
+  tirFirmwareInstall();
+#ifndef DARWIN  
   QString prefix = QFileDialog::getExistingDirectory(NULL, QString("Select Wine Prefix..."), 
                      QDir::homePath(), QFileDialog::ShowDirsOnly);
   QString installerPath = PREF.getDataPath("linuxtrack-wine.exe");
   
   inst->setEnv("WINEPREFIX", prefix);
   inst->run(installerPath);
+#endif
 }
 
 

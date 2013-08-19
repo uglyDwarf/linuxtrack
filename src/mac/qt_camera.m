@@ -96,7 +96,9 @@
       [NSNumber numberWithInt:height], kCVPixelBufferHeightKey, 
       [NSNumber numberWithInt:width], kCVPixelBufferWidthKey, 
       [NSNumber numberWithUnsignedInt:kCVPixelFormatType_422YpCbCr8], (id)kCVPixelBufferPixelFormatTypeKey,
+//      [NSNumber numberWithUnsignedInt:kCVPixelFormatType_32BGRA], (id)kCVPixelBufferPixelFormatTypeKey,
       nil]];
+    [mCaptureDecompressedVideoOutput setAutomaticallyDropsLateVideoFrames:YES];
     if(![mCaptureSession addOutput:mCaptureDecompressedVideoOutput error:&err]){
       fprintf(stderr, "Problem adding output!\n");
       [self release];

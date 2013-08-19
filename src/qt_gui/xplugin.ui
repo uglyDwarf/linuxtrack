@@ -50,16 +50,16 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="BrowseXPlane">
        <property name="text">
-        <string>Cancel</string>
+        <string>Browse</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="BrowseXPlane">
+      <widget class="QPushButton" name="pushButton">
        <property name="text">
-        <string>Browse</string>
+        <string>Cancel</string>
        </property>
       </widget>
      </item>
@@ -68,8 +68,8 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>pushButton</tabstop>
   <tabstop>BrowseXPlane</tabstop>
+  <tabstop>pushButton</tabstop>
  </tabstops>
  <resources/>
  <connections>
