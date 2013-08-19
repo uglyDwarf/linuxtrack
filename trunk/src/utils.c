@@ -347,12 +347,21 @@ void ltr_int_my_perror(const char *str)
 {
   int err = errno;
   //errno = 0;
+#ifndef DARWIN
   char *msg = strerror_r(errno, error_buf, sizeof(error_buf));
   if(msg != NULL){
     ltr_int_log_message("%s: %s\n", str, msg);
   }else{
     ltr_int_log_message("Error %d getting error description for errno = %d!\n",errno, err);
   }
+#else
+  int res = strerror_r(errno, error_buf, sizeof(error_buf));
+  if(res == 0){
+    ltr_int_log_message("%s: %s\n", str, error_buf);
+  }else{
+    ltr_int_log_message("Error %d getting error description for errno = %d!\n",errno, err);
+  }
+#endif
 }
 
 void ltr_int_usleep(unsigned int usec)

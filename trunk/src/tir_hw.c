@@ -243,7 +243,7 @@ static bool read_rom_data_tir()
       return false;
     }
     ltr_int_log_message("Requesting data...\n");
-    if(!ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 2000)){
+    if(!ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 500)){
       ltr_int_log_message("Couldn't receive status!\n");
       return false;
     }
@@ -767,8 +767,6 @@ static bool init_camera_tir4(bool force_fw_load, bool p_ir_on)
   do{
     ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
   }while(t > 0);
-  ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
-  ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
   ltr_int_log_message("Packets flushed.\n");
   if(!read_rom_data_tir()){
     return false;
