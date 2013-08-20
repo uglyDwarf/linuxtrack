@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+  <title>Model setup</title>
+  <meta name="generator" content="Bluefish 2.0.2" >
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+
+The second step to take is to select the "model" to use. Model is a "marker", attached to ones head,
+simplifying the head pose determination.
+
+<p>
+There are several predefined models - "NP TrackClip", "NP TrackClip Pro", "Face",
+ "Single point reflective" and "Single LED" - if you use one of those, just select the one of your
+ choice in the <b>Model Name</b> combobox and you should be good to go.
+<p>
+If none of the predefined models suits you, you can define your own.
+<p>
+<h1>Model Creation</h1>
+Press the <b>Create New</b> button and the form for new model creation will pop up.
+
+<p>
+Type in the name of your model to the <b>Model Name</b> box and then select the model type. 
+Available model types are these:
+ <ul>
+   <li><b>1 point</b> - single LED diode or reflective marker; simple but gives you only 2 degrees of freedom 
+            (pan verticaly and horizontaly)</li>
+   <li><b>3 point Cap</b> - three LEDs or reflective markers, for example on the top of your cap; 
+       provides 6 degrees of freedom</li>
+   <li><b>3 point Clip</b> - three LEDs or reflective markers, for example on the side of your headset;
+       provides 6 degrees of freedom</li>
+   <li><b>Face</b> - used for face tracking; provides 3 degrees of freedom (pan verticaly and 
+                     horizontaly, move back and forth)</li>
+ </ul>
+
+<p>
+Now fill in the model dimensions (where applicable) according to the diagram 
+(all dimensions are in milimeters).
+Last thing to do is to select, if the model uses LEDs (obviously with the exception of face model type)
+ - if it does, check the <b>Model with LEDs</b> checkbox.
+After pressing the <b>Create</b> button, the new model should become available 
+in the <b>Model Name</b> combobox for you to select it.
+
+<h1>Model Tweaking</h1>
+To minimize unwanted view movement while panning, you can tweak the 3-point Clip 
+and 3-point Cap model.
+Note however, that the movement can't be fully suppressed, both due to the
+head movement model simplification (assuming that all panning is done using a single
+joint) and also due to the human's inability to stand absolutely still while turning
+the head.  Note also that turning the head inherently contains some movement - for 
+example look down and realize that your viewpoint shifted forward and down...
+
+<h2>Model tweaking procedure</h2>
+Both three point model types share the same system of tweaking - there are several
+sliders, that allow you to adjust the model center-point and minimize the unwanted 
+movement.
+
+To see the particular movement precisely, go to the <b>Tracking setup</b> tab, open the 
+<b>Detailed axes setup dialog</b> and select the axis of your interest. 
+Observe the horizontal movement of the cross in the axis visualization area, that represents 
+computed head movement or angle.
+<p>
+For example, the first slider in the 3 point Clip model tweaking pannel allows you to minimize the
+back and forth head movement while looking left and right.
+To find the "sweet spot", employ the "halving of the interval" method,
+utilizing the fact, that at that point the movement is smallest and its direction reverses.
+<p>
+Move the slider to the left extreme and observe the Z axis, while panning
+left and right - note the direction of the movement of the cross; for example,
+when looking left, the cross moves right and vice versa.
+Now move the slider fully to the right and see that the response is reversed 
+(e.g. look left, move left). 
+<p>
+The spot you are looking for is somewhere in between the two. Move the slider 
+to the middle and see what the response is in there; for example the look left
+moves the cross to the right - which is the same direction as the leftmost
+slider extreme. That means, that the sweet spot lies in the second half 
+of the interval (in this example). Now you can continue by repeating the halving,
+or just try moving the slider around in small increments to minimize the movement. 
+<p>
+Repeat the above steps for both (3-point Cap)/all three (3-point Clip) sliders to reduce the amount
+of the unwanted movements; if the result doesn't satisfy you, you can remove the rest of it by
+increasing the deadzone for the axis of interest.
+</body>
+</html>
