@@ -207,8 +207,11 @@ void ltr_int_strlower(char *s)
 char *ltr_int_my_strcat(const char *str1, const char *str2)
 {
   char *res = NULL;
-  asprintf(&res, "%s%s", str1, str2);
-  return res;
+  if(asprintf(&res, "%s%s", str1, str2)!= -1){
+    return res;
+  }else{
+    return NULL;
+  }
 }
 
 char *ltr_int_get_default_file_name(const char *fname)
@@ -223,8 +226,11 @@ char *ltr_int_get_default_file_name(const char *fname)
     fname = pref_file;
   }
   char *pref_path = NULL;
-  asprintf(&pref_path, "%s/%s/%s", home, pref_dir, fname);
-  return pref_path;
+  if(asprintf(&pref_path, "%s/%s/%s", home, pref_dir, fname) != -1){
+    return pref_path;
+  }else{
+    return NULL;
+  }
 }
 
 char *ltr_int_get_app_path(const char *suffix)
@@ -314,7 +320,9 @@ char *ltr_int_get_lib_path(const char *libname)
 char *ltr_int_get_resource_path(const char *section, const char *rsrc)
 {
   char *rsrc_path = NULL;
-  asprintf(&rsrc_path, "/%s/%s", section, rsrc);
+  if(asprintf(&rsrc_path, "/%s/%s", section, rsrc) == -1){
+    return NULL;
+  }
   char *path = ltr_int_get_default_file_name(rsrc_path);
   FILE *f = fopen(path, "rb");
   if(f != NULL){
@@ -323,7 +331,7 @@ char *ltr_int_get_resource_path(const char *section, const char *rsrc)
     return path;
   }
   path = ltr_int_get_data_path(rsrc);
-  fopen(path, "rb");
+  f = fopen(path, "rb");
   if(f != NULL){
     fclose(f);
     return path;

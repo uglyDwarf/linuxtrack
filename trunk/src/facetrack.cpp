@@ -158,11 +158,11 @@ void *ltr_int_detector_thread(void *)
     while(frame_status != READY){
       pthread_cond_wait(&frame_cv, &frame_mx);
     }
+    frame_status = PROCESSING;
+    pthread_mutex_unlock(&frame_mx);
     if(!run){
       break;
     }
-    frame_status = PROCESSING;
-    pthread_mutex_unlock(&frame_mx);
     double t = (double)cvGetTickCount();
     ltr_int_detect(*cvimage);
     t = (double)cvGetTickCount() - t;
@@ -173,8 +173,11 @@ void *ltr_int_detector_thread(void *)
     pthread_mutex_unlock(&frame_mx);
   }
   delete cascade;
+  cascade = NULL;
   delete cvimage;
+  cvimage = NULL;
   free(frame);
+  frame = NULL;
   return NULL;
 }
 
@@ -192,6 +195,7 @@ bool ltr_int_init_face_detect()
     return false;
   }
   lastCandidate = cv::Rect(0, 0, 0, 0);
+  run = true;
   return pthread_create(&detect_thread_handle, NULL, ltr_int_detector_thread, NULL) == 0;
 }
 
@@ -205,9 +209,11 @@ void ltr_int_stop_face_detect()
   pthread_mutex_unlock(&frame_mx);
   pthread_join(detect_thread_handle, NULL);
   ltr_int_log_message("Facetracker thread joined!\n");
+  init = true;
+  frame_status = DONE;
 }
 
-void ltr_int_face_detect(image *img, struct bloblist_type *blt)
+void ltr_int_face_detect(image_t *img, struct bloblist_type *blt)
 {
   if((frame_w != img->w) || (frame_h != img->h) || (frame == NULL)){
     if(frame != NULL){

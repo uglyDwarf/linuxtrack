@@ -211,18 +211,18 @@ static unsigned int cksum(unsigned char buf[], unsigned int size)
 }
 
 static void enhance(unsigned char buf[], unsigned int size,
-             unsigned char table[], unsigned int table_size)
+             unsigned char codetable[], unsigned int table_size)
 {
   unsigned int table_ptr = 0;
   unsigned char var = 0x88;
   unsigned char tmp;
   if((size <= 0) || (table_size <= 0) ||
-     (buf == NULL) || (table == NULL)){
+     (buf == NULL) || (codetable == NULL)){
     return;
   }
   do{
     tmp = buf[--size];
-    buf[size] = tmp ^ table[table_ptr] ^ var;
+    buf[size] = tmp ^ codetable[table_ptr] ^ var;
     var += size + tmp;
     ++table_ptr;
     if(table_ptr >= table_size){

@@ -71,10 +71,10 @@ int ltr_int_tracker_init(struct camera_control_block *ccb) {
     
     bdaddr = *BDADDR_ANY;
     
-    printf("Put Wiimote in discoverable mode now (press 1+2)...\n");
+    //fprintf(stderr, "Put Wiimote in discoverable mode now (press 1+2)...\n");
     
     if (!(gWiimote = cwiid_open(&bdaddr, 0))) {
-        printf("Wiimote not found\n");
+        //fprintf(stderr, "Wiimote not found\n");
         return -1;
     } else {
         set_leds_running();
@@ -165,7 +165,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
     }else{
       draw = false;
     }
-    image img = {
+    image_t img = {
       .w = WIIMOTE_HORIZONTAL_RESOLUTION / 2,
       .h = WIIMOTE_VERTICAL_RESOLUTION / 2,
       .bitmap = f->bitmap,

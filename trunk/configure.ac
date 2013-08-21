@@ -9,7 +9,13 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CXX
 AC_PROG_OBJC
 AS_IF([test "$debug" != "no"],
-      [CFLAGS+=" -g -O0 -Wall -Wextra -fstack-protector" CXXFLAGS+=" -g -O0 -Wall -Wextra -fstack-protector"],
+      [CFLAGS+=" -g -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
+         --param ssp-buffer-size=4 -fstack-protector -funwind-tables \
+         -fasynchronous-unwind-tables -D_FORTIFY_SOURCE=2" 
+       CXXFLAGS+=" -g -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
+         --param ssp-buffer-size=4 -fstack-protector -funwind-tables \
+         -fasynchronous-unwind-tables -D_FORTIFY_SOURCE=2"
+       CPPFLAGS+="-D_FORTIFY_SOURCE=2 -O2"],
       [CFLAGS+=" -O3 " CXXFLAGS+=" -O3 "])
 
 # Checks for programs.

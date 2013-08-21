@@ -60,15 +60,20 @@ char *client_path()
   DWORD buf_len = 1024;
   LONG result = RegQueryValueEx(hkey, "Path", NULL, NULL, path, &buf_len);
   char *full_path = NULL;
+  int res = -1;
   if(result == ERROR_SUCCESS && buf_len > 0){
 #ifdef FOR_WIN64
-    asprintf(&full_path, "%s/NPClient64.dll", path);
+    res = asprintf(&full_path, "%s/NPClient64.dll", path);
 #else
-    asprintf(&full_path, "%s/NPClient.dll", path);
+    res = asprintf(&full_path, "%s/NPClient.dll", path);
 #endif
   }
   RegCloseKey(hkey);
-  return full_path;
+  if(res > 0){
+    return full_path;
+  }else{
+    return NULL;
+  }
 }
 
 bool initialized = false;
@@ -158,17 +163,17 @@ void npifc_close()
 }
 
 void c_encrypt(unsigned char buf[], unsigned int size,
-             unsigned char table[], unsigned int table_size)
+             unsigned char code_table[], unsigned int table_size)
 {
   unsigned int table_ptr = 0;
   unsigned char var = 0x88;
   unsigned char tmp;
   if((size <= 0) || (table_size <= 0) ||
-     (buf == NULL) || (table == NULL))
+     (buf == NULL) || (code_table == NULL))
      return;
   do{
     tmp = buf[--size];
-    buf[size] = tmp ^ table[table_ptr] ^ var;
+    buf[size] = tmp ^ code_table[table_ptr] ^ var;
     var += size + tmp;
     ++table_ptr;
     if(table_ptr >= table_size){
@@ -180,18 +185,18 @@ void c_encrypt(unsigned char buf[], unsigned int size,
 
 
 void decrypt(unsigned char buf[], unsigned int size,
-             unsigned char table[], unsigned int table_size)
+             unsigned char code_table[], unsigned int table_size)
 {
   unsigned int table_ptr = 0;
   unsigned char var = 0x88;
   unsigned char tmp;
   if((size <= 0) || (table_size <= 0) ||
-     (buf == NULL) || (table == NULL)){
+     (buf == NULL) || (code_table == NULL)){
       return;
   }
  do{
     tmp = buf[--size];
-    buf[size] = tmp ^ table[table_ptr] ^ var;
+    buf[size] = tmp ^ code_table[table_ptr] ^ var;
     var += size + buf[size];
     ++table_ptr;
     if(table_ptr >= table_size){
@@ -209,7 +214,8 @@ unsigned int cksum(unsigned char buf[], unsigned int size)
   int rem = size % 4;
 
   int c = size;
-  int a0, a2;
+  int a0 = 0;
+  int a2 = 0;
 
   while(rounds != 0){
     a0 = *(short int*)buf;

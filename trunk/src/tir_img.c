@@ -9,7 +9,7 @@
 #include <assert.h>
 
 static unsigned int pkt_no = 0;
-static image *p_img = NULL;
+static image_t *p_img = NULL;
 static unsigned int current_line = 0;
 static dev_found device = NOT_TIR;
 
@@ -533,7 +533,7 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
 
 
 
-int ltr_int_read_blobs_tir(struct bloblist_type *blt, int min, int max, image *img, tir_info *info)
+int ltr_int_read_blobs_tir(struct bloblist_type *blt, int min, int max, image_t *img, tir_info *info)
 {
   assert(blt != NULL);
   assert(img != NULL);

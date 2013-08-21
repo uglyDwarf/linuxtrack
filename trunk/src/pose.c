@@ -507,7 +507,7 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
 //Determine coordinates of the model's center of rotation in its local coordinates
 //  allowing to find it given only its three points in space.
 bool ltr_int_get_cbase(double p0[3], double p1[3], double p2[3], double c[3], 
-  double c_base[3])
+  double cbase[3])
 {
   double R[3][3];
   double base[3][3];
@@ -530,14 +530,14 @@ bool ltr_int_get_cbase(double p0[3], double p1[3], double p2[3], double c[3],
   //reverse the vector to first point - later when added to first point,
   //  it gives the center's location
   ltr_int_make_vec(tmp, R[0], tmp);
-  ltr_int_matrix_times_vec(base, tmp, c_base);
+  ltr_int_matrix_times_vec(base, tmp, cbase);
   return true;
 }
 
 
 //Employed when centering to determine center position and transformation
 //  cancelling the rotation
-bool ltr_int_center(double rp0[3], double rp1[3], double rp2[3], double c_base[3], 
+bool ltr_int_center(double rp0[3], double rp1[3], double rp2[3], double cntr_base[3], 
   double center[3], double tr[3][3])
 {
   double rb0[3], rb1[3], rb[3][3], rc[3], RR[3][3];
@@ -555,7 +555,7 @@ bool ltr_int_center(double rp0[3], double rp1[3], double rp2[3], double c_base[3
   //ltr_int_print_matrix(rb, "rb");
   //transform model's center from local to global coordinates
   //  (using p0 as an anchor)
-  ltr_int_matrix_times_vec(rb, c_base, rc);
+  ltr_int_matrix_times_vec(rb, cntr_base, rc);
   ltr_int_add_vecs(rc, rp0, center);
   
   
@@ -579,7 +579,7 @@ bool ltr_int_center(double rp0[3], double rp1[3], double rp2[3], double c_base[3
   return true;
 }
 
-bool ltr_int_get_pose(double rp0[3], double rp1[3], double rp2[3], double c_base[3],
+bool ltr_int_get_pose(double rp0[3], double rp1[3], double rp2[3], double cntr_base[3],
   double center[3], double tr[3][3], double angles[3], double trans[3])
 {
   double rb0[3], rb1[3], rb[3][3], rc[3], RR[3][3];
@@ -596,7 +596,7 @@ bool ltr_int_get_pose(double rp0[3], double rp1[3], double rp2[3], double c_base
   //ltr_int_print_matrix(rb, "rb");
   //transform model's center from local to global coordinates
   //  (using p0 as an anchor)  
-  ltr_int_matrix_times_vec(rb, c_base, rc);
+  ltr_int_matrix_times_vec(rb, cntr_base, rc);
   double current_center[3];
   
   ltr_int_add_vecs(rc, rp0, current_center);

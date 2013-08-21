@@ -23,7 +23,7 @@ HWND hCtrl0_1;
 HWND hCtrl0_2;
 HWND hCtrl0_3;
 HWND hCtrl0_4;
-HWND hwnd;               /* This is the handle for our window */
+HWND hwindow;               /* This is the handle for our window */
 HINSTANCE hInst;
 
 char pause_key_desc[256];
@@ -82,7 +82,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
      return 0;
   }
   /* The class is registered, let's create the program*/
-  hwnd = CreateWindowEx (
+  hwindow = CreateWindowEx (
          0,                   /* Extended possibilites for variation */
          szClassName,         /* Classname */
          "Linuxtrack - Wine Server v"
@@ -99,8 +99,8 @@ PACKAGE_VERSION,       /* Title Text */
          );
   
   /* Make the window visible on the screen */
-  ShowWindow (hwnd, nCmdShow);
-  kbi_init(hwnd);
+  ShowWindow (hwindow, nCmdShow);
+  kbi_init(hwindow);
   kbi_msg_loop();
   kbi_close();
   /* The program return-value is 0 - The value that PostQuitMessage() gave */

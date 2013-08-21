@@ -49,7 +49,7 @@ static void clip_coord(int *coord, int min,
   *coord = tmp;
 }
 
-static void draw_stripe(image *img, int x, int y, int x_end, unsigned char color)
+static void draw_stripe(image_t *img, int x, int y, int x_end, unsigned char color)
 {
   assert(img != NULL);
   x /= img->ratio;
@@ -66,7 +66,7 @@ static void draw_stripe(image *img, int x, int y, int x_end, unsigned char color
 }
 
 
-void ltr_int_draw_square(image *img, int x, int y, int size)
+void ltr_int_draw_square(image_t *img, int x, int y, int size)
 {
   assert(img != NULL);
   assert(x >= 0);
@@ -88,7 +88,7 @@ void ltr_int_draw_square(image *img, int x, int y, int size)
   }
 }
 
-void ltr_int_draw_empty_square(image *img, int x1, int y1, int x2, int y2)
+void ltr_int_draw_empty_square(image_t *img, int x1, int y1, int x2, int y2)
 {
   assert(img != NULL);
   assert(x1 >= 0);
@@ -117,7 +117,7 @@ void ltr_int_draw_empty_square(image *img, int x1, int y1, int x2, int y2)
 }
 
 
-void ltr_int_draw_cross(image *img, int x, int y, int size)
+void ltr_int_draw_cross(image_t *img, int x, int y, int size)
 {
   int cntr;
   int x_m = x - size;
@@ -260,7 +260,7 @@ static bool store_preblobs(bool all)
   return true;
 }
 
-bool ltr_int_add_stripe(stripe_t *stripe, image *img)
+bool ltr_int_add_stripe(stripe_t *stripe, image_t *img)
 {
   assert(current.ranges != NULL);
   assert(stripe != NULL);
@@ -371,7 +371,7 @@ void ltr_int_cleanup_after_processing()
   }
 }
 
-void ltr_int_to_stripes(image *img)
+void ltr_int_to_stripes(image_t *img)
 {
   assert(img != NULL);
   int x, y;
@@ -427,7 +427,7 @@ void ltr_int_to_stripes(image *img)
 }
 
 int ltr_int_stripes_to_blobs(int num_blobs, struct bloblist_type *blt, 
-		     int min_pts, int max_pts, image *img)
+		     int min_pts, int max_pts, image_t *img)
 {
   store_preblobs(true);
   current.limit= 0;

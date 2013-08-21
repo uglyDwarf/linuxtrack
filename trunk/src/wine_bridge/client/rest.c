@@ -100,14 +100,18 @@ bool getSomeSeriousPoetry(char *verse1, char *verse2)
   memset(verse1, 0, 200);
   memset(verse2, 0, 200);
   if(f1 != NULL){
-    fread(verse1, 200, 1, f1);
+    if(fread(verse1, 200, 1, f1) == 0){
+      res = false;
+    }
     //printf("DLL SIGNATURE: %s\n", verse1);
     fclose(f1);
   }else{
     res = false;
   }
   if(f2 != NULL){
-    fread(verse2, 200, 1, f2);
+    if(fread(verse2, 200, 1, f2) == 0){
+      res = false;
+    }
     //printf("APP SIGNATURE: %s\n", verse2);
     fclose(f2);
   }else{

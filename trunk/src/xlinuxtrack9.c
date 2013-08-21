@@ -97,7 +97,7 @@ PLUGIN_API int XPluginStart(char *outName,
   if(xplane_ver > 5000){
     xplane_ver /= 10;
   }
-  printf("XPlane version: %d\n", xplane_ver);
+  //fprintf(stderr, "XPlane version: %d\n", xplane_ver);
   /* Register our hot key for the new view. */
   gTrackKey = XPLMRegisterHotKey(XPLM_VK_F8, xplm_DownFlag, 
                          "3D linuxTrack view",
@@ -333,7 +333,7 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
     view_changed = false;
   }
   //if(PV_Enabled_DR)
-  //  printf("PV_ENABLED=%d\n", XPLMGetDatai(PV_Enabled_DR));
+  //  fprintf(stderr, "PV_ENABLED=%d\n", XPLMGetDatai(PV_Enabled_DR));
     //XPLMSetDatai(PV_Enabled_DR, active_flag);
   
   if(!initialized){
