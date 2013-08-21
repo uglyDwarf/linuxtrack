@@ -96,19 +96,19 @@ static pthread_mutex_t pose_mutex = PTHREAD_MUTEX_INITIALIZER;
 static double angles[3] = {0.0f, 0.0f, 0.0f};
 static double translations[3] = {0.0f, 0.0f, 0.0f};
 
-static void ltr_int_rotate_camera(float *x, float *y, int orientation)
+static void ltr_int_rotate_camera(float *x, float *y, int cam_orientation)
 {
   float tmp_x;
   float tmp_y;
-  if(orientation & ORIENT_XCHG_XY){
+  if(cam_orientation & ORIENT_XCHG_XY){
     tmp_x = *y;
     tmp_y = *x;
   }else{
     tmp_x = *x;
     tmp_y = *y;
   }
-  *x = (orientation & ORIENT_FLIP_X) ? -tmp_x : tmp_x;
-  *y = (orientation & ORIENT_FLIP_Y) ? -tmp_y : tmp_y;
+  *x = (cam_orientation & ORIENT_FLIP_X) ? -tmp_x : tmp_x;
+  *y = (cam_orientation & ORIENT_FLIP_Y) ? -tmp_y : tmp_y;
 }
 
 

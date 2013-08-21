@@ -33,45 +33,45 @@ static bool parent_alive()
   return (getppid() != 1);
 }
 
-static int ltr_int_open_slave_fifo(int master_uplink, const char *name_template, int max_fifos)
+static int ltr_int_open_slave_fifo(int l_master_uplink, const char *name_template, int max_fifos)
 {
-  ltr_int_log_message("Registering slave fifo @ fd%d...\n", master_uplink);
+  ltr_int_log_message("Registering slave fifo @ fd%d...\n", l_master_uplink);
   char *data_fifo_name = NULL;
   //Open the data passing fifo and pass it to the master...
   int fifo_number = -1;
-  int master_downlink = ltr_int_open_unique_fifo(&data_fifo_name, &fifo_number, name_template, 
+  int l_master_downlink = ltr_int_open_unique_fifo(&data_fifo_name, &fifo_number, name_template, 
                                                  max_fifos, &slave_lock);
-  ltr_int_log_message("Trying to open unique fifo %s => %d\n", data_fifo_name, master_downlink);
+  ltr_int_log_message("Trying to open unique fifo %s => %d\n", data_fifo_name, l_master_downlink);
   free(data_fifo_name);
-  if(master_downlink <= 0){
+  if(l_master_downlink <= 0){
     ltr_int_log_message("Failed to open master downlink!\n");
     return -1;
   }
-  if(ltr_int_send_message_w_str(master_uplink, CMD_NEW_FIFO, fifo_number, profile_name) == 0){
-    ltr_int_log_message("Master downlink (%d) OK!\n", master_downlink);
-    return master_downlink;
+  if(ltr_int_send_message_w_str(l_master_uplink, CMD_NEW_FIFO, fifo_number, profile_name) == 0){
+    ltr_int_log_message("Master downlink (%d) OK!\n", l_master_downlink);
+    return l_master_downlink;
   }else{
     ltr_int_log_message("Master uplink not working!\n");
-    close(master_downlink);
+    close(l_master_downlink);
     return -1;
   }
 }
 
-static bool close_master_comms(int *master_uplink, int *master_downlink)
+static bool close_master_comms(int *l_master_uplink, int *l_master_downlink)
 {
-  if(*master_downlink > 0){
-    close(*master_downlink);
-    *master_downlink = -1;
+  if(*l_master_downlink > 0){
+    close(*l_master_downlink);
+    *l_master_downlink = -1;
   }
-  if(*master_uplink > 0){
-    close(*master_uplink);
-    *master_uplink = -1;
+  if(*l_master_uplink > 0){
+    close(*l_master_uplink);
+    *l_master_uplink = -1;
   }
   return true;
 }
 
 
-static bool start_master(int *master_uplink, int *master_downlink)
+static bool start_master(int *l_master_uplink, int *l_master_downlink)
 {
   bool is_child;
   //master inherits fds!
@@ -81,7 +81,7 @@ static bool start_master(int *master_uplink, int *master_downlink)
     close(fifo);
     ltr_int_unlockSemaphore(master_lock);
     ltr_int_closeSemaphore(master_lock);
-    close_master_comms(master_uplink, master_downlink);
+    close_master_comms(l_master_uplink, l_master_downlink);
     ltr_int_log_message("Master is not running, start it\n"); 
     char *args[] = {"srv", NULL};
     args[0] = ltr_int_get_app_path("/ltr_server1");
@@ -96,41 +96,41 @@ static bool start_master(int *master_uplink, int *master_downlink)
   return true;
 }
 
-static bool open_master_comms(int *master_uplink, int *master_downlink)
+static bool open_master_comms(int *l_master_uplink, int *l_master_downlink)
 {
   printf("Opening master comms!\n");
-  *master_uplink = ltr_int_open_fifo_for_writing(ltr_int_master_fifo_name(), true);
-  if(*master_uplink <= 0){
+  *l_master_uplink = ltr_int_open_fifo_for_writing(ltr_int_master_fifo_name(), true);
+  if(*l_master_uplink <= 0){
     printf("Couldn't open fifo to master!\n");
     return false;
   }
-  if((*master_downlink = ltr_int_open_slave_fifo(*master_uplink, ltr_int_slave_fifo_name(), 
+  if((*l_master_downlink = ltr_int_open_slave_fifo(*l_master_uplink, ltr_int_slave_fifo_name(), 
                                                ltr_int_max_slave_fifos())) <= 0){
     printf("Couldn't pass master our fifo!\n");
-    close(*master_uplink);
-    *master_uplink = -1;
-    *master_downlink = -1;
+    close(*l_master_uplink);
+    *l_master_uplink = -1;
+    *l_master_downlink = -1;
     return false;
   }
-  printf("Master comms opened => u -> %d  d -> %d\n", *master_uplink, *master_downlink);
+  printf("Master comms opened => u -> %d  d -> %d\n", *l_master_uplink, *l_master_downlink);
   return true;
 }
 
-static bool ltr_int_try_start_master(int *master_uplink, int *master_downlink)
+static bool ltr_int_try_start_master(int *l_master_uplink, int *l_master_downlink)
 {
   int master_restart_retries = master_retries;
   while(master_restart_retries > 0){
     
-    close_master_comms(master_uplink, master_downlink);
+    close_master_comms(l_master_uplink, l_master_downlink);
     if(ltr_int_gui_lock(false)){
       
-      start_master(master_uplink, master_downlink);
+      start_master(l_master_uplink, l_master_downlink);
       --master_restart_retries;
     }else{
       master_restart_retries = master_retries;
     }
     
-    if(open_master_comms(master_uplink, master_downlink)){
+    if(open_master_comms(l_master_uplink, l_master_downlink)){
       printf("Master is responding!\n");
       return true;
     }
@@ -140,12 +140,12 @@ static bool ltr_int_try_start_master(int *master_uplink, int *master_downlink)
 }
 
 
-static bool ltr_int_process_message(int master_downlink)
+static bool ltr_int_process_message(int l_master_downlink)
 {
   message_t msg;
   struct ltr_comm *com;
   pose_t unfiltered;
-  ssize_t read = ltr_int_fifo_receive(master_downlink, &msg, sizeof(message_t));
+  ssize_t read = ltr_int_fifo_receive(l_master_downlink, &msg, sizeof(message_t));
   if(read < 0){
     ltr_int_log_message("Slave reader problem!\n");
     ltr_int_my_perror("fifo_receive");

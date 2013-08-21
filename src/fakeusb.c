@@ -129,7 +129,7 @@ bool ltr_int_prepare_device(unsigned int config, unsigned int interface)
   return true;
 }
 
-bool send_cfg = false;
+static bool send_cfg = false;
 
 bool ltr_int_send_data(int out_ep, unsigned char data[], size_t size)
 {
@@ -154,9 +154,9 @@ bool ltr_int_send_data(int out_ep, unsigned char data[], size_t size)
   return true;
 }
 
-unsigned char packet[] = {0x05, 0x1c, 0x00, 0x00, 0x00}; 
-unsigned char cfg[] = {0x09, 0x40, 0x03, 0x00, 0x00, 0x34, 0x5d, 0x03, 0x00};
-uint8_t pkt_buf[PKT_MAX];
+//static unsigned char packet[] = {0x05, 0x1c, 0x00, 0x00, 0x00}; 
+static unsigned char cfg[] = {0x09, 0x40, 0x03, 0x00, 0x00, 0x34, 0x5d, 0x03, 0x00};
+static uint8_t pkt_buf[PKT_MAX];
 
 //static size_t data_len(size_t s1, size_t s2)
 //{

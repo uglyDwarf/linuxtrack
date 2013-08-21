@@ -63,13 +63,13 @@ void write_prefs()
   }
   char *val = NULL;
   
-  asprintf(&val, "0X%X 0X%X", pause_code, recenter_code);
-  result = RegSetValueEx(hkey, "DIKeys", 0, REG_SZ, (unsigned char *)val, strlen(val)+1);
-  free(val);
-  val = NULL;
-  if(result != ERROR_SUCCESS){
-    printf("Can't store registry key...\n");
-    return;
+  if(asprintf(&val, "0X%X 0X%X", pause_code, recenter_code) > 0){
+    result = RegSetValueEx(hkey, "DIKeys", 0, REG_SZ, (unsigned char *)val, strlen(val)+1);
+    free(val);
+    val = NULL;
+    if(result != ERROR_SUCCESS){
+      printf("Can't store registry key...\n");
+    }
   }
   RegCloseKey(hkey);
 }
@@ -101,13 +101,13 @@ static void reset_code()
   code = 0;
 }
 
-static const std::string &str_code(int code)
+static const std::string &str_code(int keycode)
 {
   static std::string str;
-  if(code > 255){
-    str = kbi_check((code & 0xFF00) >> 8) + " + " + kbi_check(code & 0xFF);
+  if(keycode > 255){
+    str = kbi_check((keycode & 0xFF00) >> 8) + " + " + kbi_check(keycode & 0xFF);
   }else{
-    str = kbi_check(code & 0xFF);
+    str = kbi_check(keycode & 0xFF);
   }
   return str;
 }

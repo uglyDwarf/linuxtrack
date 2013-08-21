@@ -94,7 +94,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
   
   f->width = info.width;
   f->height = info.height;
-  image img = {
+  image_t img = {
     .bitmap = f->bitmap,
     .w = info.width,
     .h = info.height,

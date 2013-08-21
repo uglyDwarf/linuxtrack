@@ -71,6 +71,21 @@ struct ltr_data {
 };
 
 
+struct ui_ltr_data {
+  uint32_t h;
+  uint32_t p;
+  uint32_t r;
+  uint32_t x;
+  uint32_t y;
+  uint32_t z;
+  uint32_t c;
+};
+
+union net_ltr_data{
+  struct ltr_data flt;
+  struct ui_ltr_data ui;
+};
+
 /* Output destinations */
 enum outputs {
 	OUTPUT_NONE     = 0,
@@ -922,37 +937,38 @@ static void write_data_headtrack(const struct ltr_data *d)
 	int8_t buf[bsz];
 	uint32_t tmp;
 	size_t offset = 0;
+	union net_ltr_data nd = {.flt = *d};
 
 	/* 'updated' flag */
 	buf[offset++] = 1;
 
 	/* heading */
-	tmp = htonl(*(uint32_t *) &d->h);
+	tmp = htonl(nd.ui.h);
 	memcpy(&buf[offset], &tmp, sizeof(uint32_t));
 	offset += sizeof(uint32_t);
 
 	/* roll */
-	tmp = htonl(*(uint32_t *) &d->r);
+	tmp = htonl(nd.ui.r);
 	memcpy(&buf[offset], &tmp, sizeof(uint32_t));
 	offset += sizeof(uint32_t);
 
 	/* pitch */
-	tmp = htonl(*(uint32_t *) &d->p);
+	tmp = htonl(nd.ui.p);
 	memcpy(&buf[offset], &tmp, sizeof(uint32_t));
 	offset += sizeof(uint32_t);
 
 	/* x */
-	tmp = htonl(*(uint32_t *) &d->x);
+	tmp = htonl(nd.ui.x);
 	memcpy(&buf[offset], &tmp, sizeof(uint32_t));
 	offset += sizeof(uint32_t);
 
 	/* y */
-	tmp = htonl(*(uint32_t *) &d->y);
+	tmp = htonl(nd.ui.y);
 	memcpy(&buf[offset], &tmp, sizeof(uint32_t));
 	offset += sizeof(uint32_t);
 
 	/* z */
-	tmp = htonl(*(uint32_t *) &d->z);
+	tmp = htonl(nd.ui.z);
 	memcpy(&buf[offset], &tmp, sizeof(uint32_t));
 
 	xwrite(buf, bsz);

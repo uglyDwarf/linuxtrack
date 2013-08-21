@@ -95,7 +95,7 @@ void WiiThread::pass_ir_data(struct cwiid_ir_src *data)
   int i;
   int valid = 0;
   bool get_frame = ltr_int_getFrameFlag(mm);
-  image img;
+  image_t img;
   img.w = WIIMOTE_HORIZONTAL_RESOLUTION / 2;
   img.h = WIIMOTE_VERTICAL_RESOLUTION / 2;
   img.bitmap = ltr_int_getFramePtr(mm);

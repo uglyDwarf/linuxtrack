@@ -124,11 +124,14 @@ int ltr_int_enum_webcams(char **ids[])
   while((de = readdir(dev)) != NULL){
     if(strncmp("video", de->d_name, 5) == 0){
       char *fname;
-      asprintf(&fname, "/dev/%s", de->d_name);
+      if(asprintf(&fname, "/dev/%s", de->d_name) < 0){
+        continue;
+      }
 
       int fd = v4l2_open(fname, O_RDWR | O_NONBLOCK);
       if(fd == -1){
 	ltr_int_log_message("Can't open file '%s'!\n", fname);
+	free(fname);
 	return -1;
       }
       
@@ -369,7 +372,9 @@ int search_for_webcam(char *webcam_id)
   while((de = readdir(dev)) != NULL){
     if(strncmp("video", de->d_name, 5) == 0){
       char *fname;
-      asprintf(&fname, "/dev/%s", de->d_name);
+      if(asprintf(&fname, "/dev/%s", de->d_name) < 0){
+        continue;
+      }
       if((wfd = is_our_webcam(fname, webcam_id)) != -1){
         ltr_int_log_message("Found webcam '%s' (%s)\n", de->d_name, fname);
         free(fname);
@@ -796,7 +801,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
     ltr_int_log_message("Error queuing buffer!\n");
   }
   //ltr_int_log_message("Queued buffer %d\n", buf.index);
-  image img = {
+  image_t img = {
     .bitmap = dest_buf,
     .w = wc_info.w,
     .h = wc_info.h,
@@ -809,7 +814,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
   char fname[] = "FRAMEXXX.bin";
   sprintf(fname, "FRAME%03d.bin", frm_cntr % 100);
   ++frm_cntr;
-  printf("%s\n", fname);
+  fprintf(stderr, "%s\n", fname);
   FILE *ff;
   if((ff = fopen(fname, "wb")) != NULL){
     fwrite(dest_buf, 1, wc_info.w * wc_info.h, ff);

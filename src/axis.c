@@ -234,7 +234,7 @@ float ltr_int_val_on_axis(ltr_axes_t axes, enum axis_t id, float x)
   }
   float mf = axis->factor;
   float lim = x < 0 ? axis->l_limit : axis->r_limit;
-  if(lim == 0.0){
+  if(lim < 1e-5){
     pthread_mutex_unlock(&axes_mutex);
     return 0.0;
   }
@@ -278,8 +278,8 @@ bool ltr_int_is_symetrical(ltr_axes_t axes, enum axis_t id)
   pthread_mutex_lock(&axes_mutex);
   struct axis_def *axis = get_axis(axes, id);
   
-  if((axis->curve_defs.l_curvature == axis->curve_defs.r_curvature) &&
-     (axis->l_limit == axis->r_limit)){
+  if((fabsf(axis->curve_defs.l_curvature - axis->curve_defs.r_curvature) < 1e-5) &&
+     (fabsf(axis->l_limit - axis->r_limit) < 1e-5)){
     pthread_mutex_unlock(&axes_mutex);
     return true;
   }else{

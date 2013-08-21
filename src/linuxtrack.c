@@ -92,25 +92,25 @@ static const char *lib_locations[] = {
 NULL
 };
 
-static FILE *logf = NULL;
+static FILE *log_f = NULL;
 static char logfname[] = "/tmp/linuxtrackXXXXXX";
 
 static void linuxtrack_log(const char *format, ...)
 {
-  if(logf == NULL){
+  if(log_f == NULL){
     FILE *tmpf;
     int tmpfd = mkstemp(logfname);
     if(tmpfd != -1){
       tmpf = fdopen(tmpfd, "a");
       if(tmpf != NULL){
-        logf = tmpf;
+        log_f = tmpf;
       }
     }
   }
   va_list ap;
   va_start(ap,format);
-  vfprintf(logf, format, ap);
-  fflush(logf);
+  vfprintf(log_f, format, ap);
+  fflush(log_f);
   va_end(ap);
 }
 
@@ -225,17 +225,17 @@ static char *construct_name(const char *path, const char *sep, const char *name)
 
 static void* linuxtrack_try_library(const char *path)
 {
-  void *lib_handle = NULL;
+  void *handle = NULL;
   linuxtrack_log("Trying to load '%s'... ", path);
   if(access(path, F_OK) != 0){
     linuxtrack_log("Not found.\n");
     return NULL;
   }
   dlerror();
-  lib_handle = dlopen(path, RTLD_NOW | RTLD_LOCAL);
-  if(lib_handle != NULL){
+  handle = dlopen(path, RTLD_NOW | RTLD_LOCAL);
+  if(handle != NULL){
     linuxtrack_log("Loaded OK.\n");
-    return lib_handle;
+    return handle;
   }
   linuxtrack_log("Couldn't load library - %s!\n", dlerror());
   return NULL;
@@ -292,8 +292,8 @@ static void* linuxtrack_find_library()
   //  3. plain libname
   //       worth in Linux only, since on Mac we never install to system libraries 
   */
-  void *lib_handle = NULL;
-  char *name;
+  void *handle = NULL;
+  char *name = NULL;
   char *prefix;
   /*Look for LINUXTRACK_LIBS*/
   char *lp = getenv("LINUXTRACK_LIBS");
@@ -302,14 +302,14 @@ static void* linuxtrack_find_library()
     char *part = path;
     while(1){
       part = strtok(part, ":");
-      if((part == NULL) || ((lib_handle = linuxtrack_try_library(part)) != NULL)){
+      if((part == NULL) || ((handle = linuxtrack_try_library(part)) != NULL)){
         break;
       }
       part = NULL;
     }
     free(path);
-    if(lib_handle != NULL){
-      return lib_handle;
+    if(handle != NULL){
+      return handle;
     }
   }
   
@@ -318,16 +318,15 @@ static void* linuxtrack_find_library()
     int i = 0;
     while(lib_locations[i] != NULL){
       name = construct_name(prefix, "/../", lib_locations[i++]);
-      if((lib_handle = linuxtrack_try_library(name)) != NULL){
+      if((handle = linuxtrack_try_library(name)) != NULL){
         free(name);
         free(prefix);
-        return lib_handle;
+        return handle;
       }
+      free(name);
     }
-    free(name);
     free(prefix);
   }
-  
   return NULL;
 }
 

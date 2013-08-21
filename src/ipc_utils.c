@@ -31,7 +31,7 @@ bool ltr_int_fork_child(char *args[], bool *is_child)
     *is_child = true;
     execv(args[0], args);
     ltr_int_my_perror("execv");
-    printf("Child should quit now...\n");
+    ltr_int_log_message("Child should quit now...\n");
     return false;
   }
   return true;
@@ -43,7 +43,7 @@ bool ltr_int_wait_child_exit(int limit)
   int status;
   int cntr = 0;
   do{
-//    printf("Waiting!\n");
+//    ltr_int_log_message("Waiting!\n");
     ltr_int_usleep(100000);
     res = waitpid(child, &status, WNOHANG);
     ++cntr;
@@ -106,7 +106,7 @@ int ltr_int_server_running_already(const char *lockName, bool isAbsolute,
     result = 0;
   }
   if(psem != NULL){
-    printf("Passing the lock to protect fifo (pid %d)!\n", getpid());
+    ltr_int_log_message("Passing the lock to protect fifo (pid %d)!\n", getpid());
     *psem = pfSem;
   }else{
     ltr_int_closeSemaphore(pfSem);
@@ -138,7 +138,7 @@ semaphore_p ltr_int_createSemaphore(char *fname)
     ltr_int_my_perror("open: ");
     return NULL;
   }
-  printf("Going to create lock '%s' => %d!\n", fname, fd);
+  ltr_int_log_message("Going to create lock '%s' => %d!\n", fname, fd);
   return ltr_int_semaphoreFromFd(fd);
 }
 
@@ -163,10 +163,10 @@ bool ltr_int_tryLockSemaphore(semaphore_p semaphore)
   }
   int res = lockf(semaphore->fd, F_TLOCK,0);
   if(res == 0){
-    printf("Lock %d success!\n", semaphore->fd);
+    ltr_int_log_message("Lock %d success!\n", semaphore->fd);
     return true;
   }else{
-    printf("Can't lock %d!\n", semaphore->fd);
+    ltr_int_log_message("Can't lock %d!\n", semaphore->fd);
     return false;
   }
 }
@@ -201,7 +201,7 @@ bool ltr_int_unlockSemaphore(semaphore_p semaphore)
 
 void ltr_int_closeSemaphore(semaphore_p semaphore)
 {
-  printf("Closing semaphore %d (pid %d)!\n", semaphore->fd, getpid());
+  ltr_int_log_message("Closing semaphore %d (pid %d)!\n", semaphore->fd, getpid());
   close(semaphore->fd);
   free(semaphore);
 }
@@ -337,22 +337,22 @@ bool ltr_int_unmap_file(struct mmap_s *m)
 bool ltr_int_make_fifo(const char *name)
 {
   if(name == NULL){
-    printf("Name must be set! (NULL passed)\n");
+    ltr_int_log_message("Name must be set! (NULL passed)\n");
   }
   struct stat info;
   if(stat(name, &info) == 0){
     //file exists, check if it is fifo...
     if(S_ISFIFO(info.st_mode)){
-      printf("Fifo exists already!\n");
+      ltr_int_log_message("Fifo exists already!\n");
       return true;
     }else if(S_ISDIR(info.st_mode)){
-      printf("Directory exists! Will try to remove it.\n");
+      ltr_int_log_message("Directory exists! Will try to remove it.\n");
       if(rmdir(name) != 0){
         ltr_int_my_perror("rmdir");
         return false;
       }
     }else{
-      printf("File exists, but it is not a fifo! Will try to remove it.\n");
+      ltr_int_log_message("File exists, but it is not a fifo! Will try to remove it.\n");
       if(unlink(name) != 0){
         ltr_int_my_perror("unlink");
         return false;
@@ -364,14 +364,16 @@ bool ltr_int_make_fifo(const char *name)
     ltr_int_my_perror("mkfifo");
     return false;
   }
-  printf("Fifo created!\n");
+  ltr_int_log_message("Fifo created!\n");
   return true;
 }
 
 int ltr_int_open_fifo_exclusive(const char *name, semaphore_p *lock_sem)
 {
   char *lock_name = NULL;
-  asprintf(&lock_name, "%s.lock", name);
+  if(asprintf(&lock_name, "%s.lock", name) == -1){
+    return -1;
+  }
   if(ltr_int_server_running_already(lock_name, true, lock_sem, true) != 0){
     ltr_int_log_message("Fifo %s (lock %s) could not be locked, closing it!\n", name, lock_name);
     return -1;
@@ -393,7 +395,7 @@ int ltr_int_open_fifo_exclusive(const char *name, semaphore_p *lock_sem)
 }
 
 int ltr_int_open_fifo_for_writing(const char *name, bool wait){
-  //printf("Trying to open fifo '%s'...\n", name);
+  //ltr_int_log_message("Trying to open fifo '%s'...\n", name);
   if(!ltr_int_make_fifo(name)){
     ltr_int_log_message("Failed to create fifo for writing!\n");
     return -1;
@@ -432,13 +434,14 @@ int ltr_int_open_unique_fifo(char **name, int *num, const char *template, int ma
   char *fifo_name = NULL;
   int fifo = -1;
   for(i = 0; i < max; ++i){
-    asprintf(&fifo_name, template, i);
-    fifo = ltr_int_open_fifo_exclusive(fifo_name, lock_sem);
-    if(fifo > 0){
-      break;
+    if(asprintf(&fifo_name, template, i) > 0){
+      fifo = ltr_int_open_fifo_exclusive(fifo_name, lock_sem);
+      if(fifo > 0){
+        break;
+      }
+      free(fifo_name);
+      fifo_name = NULL;
     }
-    free(fifo_name);
-    fifo_name = NULL;
   }
   *name = fifo_name;
   *num = i;
@@ -451,7 +454,7 @@ int ltr_int_fifo_send(int fifo, void *buf, size_t size)
     return -1;
   }
   if(write(fifo, buf, size) < 0){
-    printf("Write @fd %d failed:\n", fifo);
+    ltr_int_log_message("Write @fd %d failed:\n", fifo);
     int err = errno;
     ltr_int_my_perror("write@pipe_send");
     return -err;

@@ -958,7 +958,7 @@ bool init_camera_tir(bool force_fw_load, bool p_ir_on)
   return tir_iface->init_camera_tir(force_fw_load, p_ir_on);
 }
 
-bool ltr_int_open_tir(bool force_fw_load, bool ir_on)
+bool ltr_int_open_tir(bool force_fw_load, bool switch_ir_on)
 {
   if(!ltr_int_init_usb()){
     ltr_int_log_message("Init failed!\n");
@@ -1010,7 +1010,7 @@ bool ltr_int_open_tir(bool force_fw_load, bool ir_on)
       return false;
       break;
   }
-  if(!init_camera_tir(force_fw_load, ir_on)){
+  if(!init_camera_tir(force_fw_load, switch_ir_on)){
     return false;
   }
   ltr_int_log_message("Going to start camera.\n");
@@ -1098,6 +1098,7 @@ static bool close_camera_sn4()
   ltr_int_log_message("Closing the SmartNav4 camera.\n");
   ltr_int_finish_usb(TIR_INTERFACE);
   ltr_int_close_sn4_pipe();
+  sn4_pipe = -1;
   ltr_int_log_message("SmartNav4 camera closed.\n");
   return true;
 }
@@ -1195,10 +1196,10 @@ static void switch_ir(bool state)
 }
 */
 
-char *ltr_int_find_firmware(dev_found device)
+char *ltr_int_find_firmware(dev_found dev)
 {
   const char *fw_file;
-  switch(device){
+  switch(dev){
     case TIR3:
     case TIR2:
       fw_file = NULL;

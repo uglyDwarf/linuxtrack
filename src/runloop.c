@@ -100,7 +100,7 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   return 0;
 }
 
-int signal_request()
+static int signal_request()
 {
   pthread_mutex_lock(&state_mx);
   change_flag = true;
