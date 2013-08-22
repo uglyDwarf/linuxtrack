@@ -38,8 +38,8 @@ CFLAGS_PRE = -g -I../.. -I../../.. -DHAVE_CONFIG_H -I@srcdir@/../.. -I@top_build
 RCFLAGS = -I @srcdir@
 VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
 
-check_data.exe.so : check_data.c rest.c rest.h
-	winegcc -m32 $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra -g -o $@ check_data.c rest.c
+check_data.exe.so : check_data.c rest.c rest.h config.h
+	winegcc -m32 $(CFLAGS_PRE) $(CFLAGS) $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra -g -o $@ check_data.c rest.c
 
 NPClient.dll.so : NPClient.spec NPClient_main.o linuxtrack.o rest.o
 	winegcc -m32 $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra -g -o $@ -shared $^ -ldl

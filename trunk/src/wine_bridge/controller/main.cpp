@@ -52,7 +52,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 {
   (void) hPrevInstance;
   (void) lpszArgument;
-  MSG messages;            /* Here messages to the application are saved */
+  //MSG messages;            /* Here messages to the application are saved */
   WNDCLASSEX wincl;        /* Data structure for the windowclass */
   
   /* The Window structure */
@@ -104,7 +104,7 @@ PACKAGE_VERSION,       /* Title Text */
   kbi_msg_loop();
   kbi_close();
   /* The program return-value is 0 - The value that PostQuitMessage() gave */
-  return messages.wParam;
+  return 0;
 }
 
 /*  This function is called by the Windows function DispatchMessage()  */

@@ -135,7 +135,7 @@ static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII
   int i;
   int valid = 0;
   bool get_frame = ltr_int_getFrameFlag(mmm);
-  image img = {
+  image_t img = {
     .w = WIIMOTE_HORIZONTAL_RESOLUTION / 2,
     .h = WIIMOTE_VERTICAL_RESOLUTION / 2,
     .bitmap = ltr_int_getFramePtr(mmm),
