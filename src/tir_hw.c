@@ -267,7 +267,7 @@ static bool load_firmware(firmware_t *fw)
   unsigned int tsize = FW_SIZE_INCREMENT;
   unsigned char *tbuf = ltr_int_my_malloc(tsize);
   unsigned char *ptr = tbuf;
-  unsigned int read = 0;
+  unsigned int bytesRead = 0;
   size_t *size = &(fw->size);
   *size = 0;
   
@@ -282,9 +282,9 @@ static bool load_firmware(firmware_t *fw)
   free(fw_path);
   
   while(1){
-    read = gzread(f, ptr, FW_SIZE_INCREMENT);
-    *size += read;
-    if(read < FW_SIZE_INCREMENT){
+    bytesRead = gzread(f, ptr, FW_SIZE_INCREMENT);
+    *size += bytesRead;
+    if(bytesRead < FW_SIZE_INCREMENT){
       break;
     }
     tsize += FW_SIZE_INCREMENT;

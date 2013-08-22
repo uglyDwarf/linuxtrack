@@ -54,7 +54,7 @@ static void *processingThreadFun(void *param)
 //      printf("No new buffer!\n");
     }else{
 //      printf("Processing buffer %d @ %p\n", reader, getCurrentBuffer(reader));
-      image img = {
+      image_t img = {
 	    .bitmap = getCurrentBuffer(reader),
 	    .w = width,
 	    .h = height,

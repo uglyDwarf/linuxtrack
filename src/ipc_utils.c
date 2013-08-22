@@ -240,14 +240,14 @@ static bool ltr_int_mmap(int fd, ssize_t tmp_size, struct mmap_s *m)
 {
   //Check if file does have needed length...
   struct stat file_stat;
-  bool truncate = true;
+  bool doTruncate = true;
   if(fstat(fd, &file_stat) == 0){
     if(file_stat.st_size == (ssize_t)tmp_size){
-      truncate = false;
+      doTruncate = false;
     }
   }
   
-  if(truncate){
+  if(doTruncate){
     int res = ftruncate(fd, tmp_size);
     if (res == -1) {
       ltr_int_my_perror("ftruncate: ");
@@ -394,7 +394,7 @@ int ltr_int_open_fifo_exclusive(const char *name, semaphore_p *lock_sem)
   return -1;
 }
 
-int ltr_int_open_fifo_for_writing(const char *name, bool wait){
+int ltr_int_open_fifo_for_writing(const char *name, bool waitForOpen){
   //ltr_int_log_message("Trying to open fifo '%s'...\n", name);
   if(!ltr_int_make_fifo(name)){
     ltr_int_log_message("Failed to create fifo for writing!\n");
@@ -415,7 +415,7 @@ int ltr_int_open_fifo_for_writing(const char *name, bool wait){
         return -1;
       }
       fifo = -1;
-      if(!wait){
+      if(!waitForOpen){
         return -1;
       }
       sleep(1);
@@ -480,10 +480,10 @@ ssize_t ltr_int_fifo_receive(int fifo, void *buf, size_t size)
 //   0 - timed out
 //   1 - data available
 //  -1 - problem (HUP or so)
-int ltr_int_pipe_poll(int pipe, int timeout, bool *hup)
+int ltr_int_pipe_poll(int pipefd, int timeout, bool *hup)
 {
   struct pollfd downlink_poll= {
-    .fd = pipe,
+    .fd = pipefd,
     .events = POLLIN,
     .revents = 0
   };

@@ -145,12 +145,12 @@ static bool ltr_int_process_message(int l_master_downlink)
   message_t msg;
   struct ltr_comm *com;
   pose_t unfiltered;
-  ssize_t read = ltr_int_fifo_receive(l_master_downlink, &msg, sizeof(message_t));
-  if(read < 0){
+  ssize_t bytesRead = ltr_int_fifo_receive(l_master_downlink, &msg, sizeof(message_t));
+  if(bytesRead < 0){
     ltr_int_log_message("Slave reader problem!\n");
     ltr_int_my_perror("fifo_receive");
     return false;
-  }else if(read == 0){
+  }else if(bytesRead == 0){
     return true;
   }
   

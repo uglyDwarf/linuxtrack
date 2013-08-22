@@ -150,10 +150,10 @@ PLUGIN_API int XPluginStart(char *outName,
         xlinuxtrackCallback,        /* Callback */
         -1.0,                                        /* Interval */
         NULL);                                        /* refcon not used. */
-  int index = XPLMAppendMenuItem(XPLMFindPluginsMenu(), "LinuxTrack", NULL, 1);
+  int menuIndex = XPLMAppendMenuItem(XPLMFindPluginsMenu(), "LinuxTrack", NULL, 1);
 
 
-  setupMenu = XPLMCreateMenu("LinuxTrack", XPLMFindPluginsMenu(), index, 
+  setupMenu = XPLMCreateMenu("LinuxTrack", XPLMFindPluginsMenu(), menuIndex, 
                          linuxTrackMenuHandler, NULL);
   XPLMAppendMenuItem(setupMenu, "Setup", (void *)"Setup", 1);
 
