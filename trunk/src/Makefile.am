@@ -239,7 +239,8 @@ qt_gui/ltr_tracking.cpp qt_gui/ltr_profiles.cpp qt_gui/objreader.h qt_gui/plugin
 qt_gui/ltr_gui_prefs.h qt_gui/scp_form.h qt_gui/ltr_gui.pro.in qt_gui/scurve.h \
 qt_gui/ltr_rc.qrc qt_gui/macwebcamft_prefs.h qt_gui/ltr_state.h qt_gui/model_creation.ui \
 qt_gui/macwebcamft_prefs.cpp qt_gui/log_view.cpp qt_gui/ltr_gui.h qt_gui/tracker.h \
-qt_gui/macwebcam_info.h qt_gui/webcam_ft_prefs.cpp qt_gui/xm8d_body.obj qt_gui/ltr_dev_help.cpp \
+qt_gui/macwebcam_info.h qt_gui/webcam_ft_prefs.cpp qt_gui/sparow_glass.obj qt_gui/sparow_opaq.obj \
+qt_gui/sphere.obj qt_gui/ltr_dev_help.cpp \
 qt_gui/scp_form.cpp qt_gui/linuxtrack.icns qt_gui/window.h qt_gui/ltr_model.cpp \
 qt_gui/help_view.h qt_gui/wiimote_prefs.cpp qt_gui/cap.png qt_gui/ltr_dev_help.h  \
 qt_gui/glwidget.cpp qt_gui/scurve.ui qt_gui/tir_prefs.h \
@@ -249,7 +250,7 @@ qt_gui/xm8_detail.png qt_gui/main.cpp qt_gui/prefs_link.h qt_gui/macwebcam_prefs
 qt_gui/webcam_info.h qt_gui/help/misc.htm qt_gui/help/dev_setup.htm qt_gui/help/axes_setup.htm \
 qt_gui/help/contents.txt qt_gui/help/news.htm qt_gui/help/welcome.htm \
 qt_gui/help/model_setup.htm qt_gui/dlfirmware.h qt_gui/webcam_info.cpp qt_gui/plugin_install.h \
-qt_gui/XM8_cockpit.obj qt_gui/tracker.cpp qt_gui/webcam_prefs.h qt_gui/macwebcam_prefs.cpp \
+qt_gui/tracker.cpp qt_gui/webcam_prefs.h qt_gui/macwebcam_prefs.cpp \
 qt_gui/log_view.h tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
 xlinuxtrack.sym linuxtrack_pre.c lt_client.c lt_server.c ltlib_client.c ltlib_client.h \
 ltr_server.c ltr_server.h netcomm.c netcomm.h pref_flex.h \
