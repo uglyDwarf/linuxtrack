@@ -89,13 +89,9 @@ void PluginInstall::tirFirmwareInstalled(bool ok)
 the linuxtrack-wine bridge will not be fully functional!", QMessageBox::Ok);
   }
 */
-  gui.pushButton_2->setEnabled(true);
-}
-
-void PluginInstall::installWinePlugin()
-{
-  gui.pushButton_2->setEnabled(false);
-  tirFirmwareInstall();
+  if(dlfw != NULL){
+    dlfw->hide();
+  }
 #ifndef DARWIN  
   QString prefix = QFileDialog::getExistingDirectory(NULL, QString("Select Wine Prefix..."), 
                      QDir::homePath(), QFileDialog::ShowDirsOnly);
@@ -104,6 +100,17 @@ void PluginInstall::installWinePlugin()
   inst->setEnv("WINEPREFIX", prefix);
   inst->run(installerPath);
 #endif
+  gui.pushButton_2->setEnabled(true);
+}
+
+void PluginInstall::installWinePlugin()
+{
+  gui.pushButton_2->setEnabled(false);
+  if(!isTirFirmwareInstalled()){
+    tirFirmwareInstall();
+  }else{
+    tirFirmwareInstalled(true);
+  }
 }
 
 

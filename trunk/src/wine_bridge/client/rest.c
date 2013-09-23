@@ -96,28 +96,33 @@ bool getSomeSeriousPoetry(char *verse1, char *verse2)
   sprintf(path1, "%s/.config/linuxtrack/tir_firmware/poem1.txt", home);
   sprintf(path2, "%s/.config/linuxtrack/tir_firmware/poem2.txt", home);
   FILE *f1 = fopen(path1, "rb");
-  FILE *f2 = fopen(path2, "rb");
   memset(verse1, 0, 200);
-  memset(verse2, 0, 200);
   if(f1 != NULL){
-    if(fread(verse1, 200, 1, f1) == 0){
+    if(fread(verse1, 1, 200, f1) == 0){
+      printf("Cant read dll signature('%s')!\n", path1);
       res = false;
     }
-    //printf("DLL SIGNATURE: %s\n", verse1);
+    printf("DLL SIGNATURE: %s\n", verse1);
     fclose(f1);
   }else{
-    res = false;
-  }
-  if(f2 != NULL){
-    if(fread(verse2, 200, 1, f2) == 0){
-      res = false;
-    }
-    //printf("APP SIGNATURE: %s\n", verse2);
-    fclose(f2);
-  }else{
+    printf("Can't open dll signature ('%s')!\n", path1);
     res = false;
   }
   free(path1);
+  FILE *f2 = fopen(path2, "rb");
+  memset(verse2, 0, 200);
+  if(f2 != NULL){
+    if(fread(verse2, 1, 200, f2) == 0){
+      perror("fread");
+      printf("Cant read app signature('%s')!\n", path2);
+      res = false;
+    }
+    printf("APP SIGNATURE: %s\n", verse2);
+    fclose(f2);
+  }else{
+    printf("Cant open app signature('%s')!\n", path2);
+    res = false;
+  }
   free(path2);
   return res;
 }
