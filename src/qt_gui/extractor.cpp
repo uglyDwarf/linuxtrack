@@ -414,7 +414,7 @@ void Extractor::on_QuitButton_pressed()
     et->wait();
   }
   hide();
-  emit finished(et->haveEverything());
+  //emit finished(et->haveEverything());
 }
 
 
