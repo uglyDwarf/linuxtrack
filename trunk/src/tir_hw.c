@@ -65,6 +65,7 @@ static tir_interface tir2;
 static tir_interface tir3;
 static tir_interface tir4;
 static tir_interface tir5;
+static tir_interface smartnav3;
 static tir_interface smartnav4;
 static tir_interface *tir_iface = NULL;
 
@@ -970,7 +971,7 @@ bool ltr_int_open_tir(bool force_fw_load, bool switch_ir_on)
   }
   
   //Tir3 uses endpoint 2, while Tir4 and 5 use endpoint 1!
-  if(device <= TIR3){
+  if((device <= TIR3) || (device == SMARTNAV3)){
     cfg_in_ep = ltr_int_data_in_ep = TIR_IN_EP;
     out_ep = TIR3_OUT_EP;
   }else if(device == SMARTNAV4){
@@ -1004,6 +1005,9 @@ bool ltr_int_open_tir(bool force_fw_load, bool switch_ir_on)
       break;
     case SMARTNAV4:
       tir_iface = &smartnav4;
+      break;
+    case SMARTNAV3:
+      tir_iface = &smartnav3;
       break;
     default:
       ltr_int_log_message("No device!\n");
@@ -1152,6 +1156,14 @@ static void get_sn4_info(tir_info *info)
   info->dev_type = SMARTNAV4;
 }
 
+static void get_sn3_info(tir_info *info)
+{
+  info->width = 400;
+  info->height = 300;
+  info->hf = 2.0f;
+  info->dev_type = SMARTNAV3;
+}
+
 void ltr_int_get_tir_info(tir_info *info)
 {
   assert(tir_iface != NULL);
@@ -1202,6 +1214,8 @@ char *ltr_int_find_firmware(dev_found dev)
   switch(dev){
     case TIR3:
     case TIR2:
+    case SMARTNAV3:
+      //no firmware needed
       fw_file = NULL;
       break;
     case TIR4:
@@ -1274,4 +1288,14 @@ static tir_interface smartnav4 = {
   .get_tir_info = get_sn4_info,
   .set_status_led_tir = set_status_led_sn4
 };
+
+static tir_interface smartnav3 = {
+  .stop_camera_tir = stop_camera_tir3,
+  .start_camera_tir = start_camera_tir3,
+  .init_camera_tir = init_camera_tir3,
+  .close_camera_tir = close_camera_tir3,
+  .get_tir_info = get_sn3_info,
+  .set_status_led_tir = set_status_led_tir4
+};
+
 

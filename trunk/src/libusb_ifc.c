@@ -131,6 +131,17 @@ dev_found ltr_int_find_tir(unsigned int devid)
     }
   }
 
+  if(!found){
+    for(i = 0; i < cnt; i++){
+      libusb_device *device = list[i];
+      if(is_tir(device, 0x0105)){
+        found = device;
+        dev = SMARTNAV3;
+        break;
+      }
+    }
+  }
+
   if(found){
     ltr_int_log_message("Opening handle to the device found.\n");
     err = libusb_open(found, &handle);

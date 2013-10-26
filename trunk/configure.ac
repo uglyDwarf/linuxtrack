@@ -20,6 +20,7 @@ AS_IF([test "$debug" != "no"],
 AC_PROG_YACC
 AC_PROG_CC
 AC_PROG_LEX
+AM_PROG_AR
 LT_INIT
 AC_PROG_LIBTOOL
 AC_CONFIG_MACRO_DIR([m4])
@@ -34,6 +35,7 @@ AC_CHECK_LIB([usb], [usb_open], [LIBUSB=true])
 #AC_CHECK_LIB([openusb], [openusb_init], [LIBOPENUSB=true])
 AC_CHECK_LIB([usb-1.0], [libusb_init], [LIBUSB10=true])
 AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
+AC_CHECK_LIB([mxml], [mxmlNewXML], [LIBMXML=true], [AC_MSG_FAILURE([Libmxml is needed for ltr_gui compilation!])])
 
 
 # Checks for header files.
@@ -71,12 +73,7 @@ AC_CHECK_HEADER([libv4l2.h],
   ], [], []
 )                                                                                                                                             
 
-AC_CHECK_HEADER([mxml.h],                                                                                                  
-  [
-    AC_DEFINE([LIBMXML], [1],[Use libmxml.h (MXML)])
-    with_libmxml=yes
-  ], [], []
-)                                                                                                                                             
+AC_CHECK_HEADER([mxml.h], [1], [AC_MSG_FAILURE([mxml.h is needed for ltr_gui compilation!])])                                                                                                                                             
 
 AC_CHECK_PROG([with_wine64], [wine64], [yes])                                                                                                                                             
 
