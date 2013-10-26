@@ -158,7 +158,7 @@ int ltr_int_tir_found(bool *have_firmware, bool *have_permissions)
   }else{
     *have_permissions = true;
   }
-  if(device < TIR4){
+  if((device < TIR4) || (device == SMARTNAV3)){
     *have_firmware = true;
   }else{
     char *fw = ltr_int_find_firmware(device);

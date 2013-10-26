@@ -40,6 +40,9 @@ static int get_tir_type()
     case 'S':
       return SMARTNAV4;
       break;
+    case 's':
+      return SMARTNAV3;
+      break;
     default:
       return TIR2;
       break;
@@ -143,7 +146,8 @@ bool ltr_int_send_data(int out_ep, unsigned char data[], size_t size)
     default:
       break;
   }
-  unsigned int i;
+  unsigned int i; 
+  printf("EP%02X:", out_ep);
   for(i = 0; i <size; ++i){
     printf("%02X ", data[i]);
   }
