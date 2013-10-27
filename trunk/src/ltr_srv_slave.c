@@ -23,14 +23,15 @@ static bool master_works = false;
 static semaphore_p slave_lock = NULL;
 static semaphore_p master_lock = NULL;
 static const int master_retries = 3;
+static pid_t ppid = 0;
 
 typedef enum {MR_OK, MR_FAIL, MR_OFTEN} mr_res_t;
 
 static bool parent_alive()
 {
   //Check whether parent lives 
-  //  (if not, we got orphaned and got adopted by init (pid 1))
-  return (getppid() != 1);
+  //  (if not, we got orphaned and got adopted by init)
+  return (getppid() == ppid);
 }
 
 static int ltr_int_open_slave_fifo(int l_master_uplink, const char *name_template, int max_fifos)
@@ -235,6 +236,7 @@ static void *ltr_int_slave_reader_thread(void *param)
         if(poll_errs > 3){break;}else{continue;}
       }else if(fds == 0){
         if(!parent_alive()){
+          printf("Parent %lu died! (1)\n", (unsigned long)ppid);
           return NULL;
         }
         continue;
@@ -250,6 +252,7 @@ static void *ltr_int_slave_reader_thread(void *param)
         }
       }
       if(!parent_alive()){
+        printf("Parent %lu died! (2)\n", (unsigned long)ppid);
         return NULL;
       }
     }
@@ -294,6 +297,7 @@ static void ltr_int_slave_main_loop()
     }
     recenter = false;
     if(!parent_alive()){
+      printf("Parent %lu died! (3)\n", (unsigned long)ppid);
       break;
     }
     usleep(100000);
@@ -302,9 +306,13 @@ static void ltr_int_slave_main_loop()
 
 //main slave function
 
-bool ltr_int_slave(const char *c_profile, const char *c_com_file)
+bool ltr_int_slave(const char *c_profile, const char *c_com_file, const char *ppid_str)
 {
+  unsigned long tmp_ppid;
   profile_name = ltr_int_my_strdup(c_profile);
+  sscanf(ppid_str, "%lu", &tmp_ppid);
+  printf("Going to monitor parent %lu!\n", tmp_ppid);
+  ppid = (pid_t)tmp_ppid;
   if(!ltr_int_read_prefs(NULL, false)){
     ltr_int_log_message("Couldn't load preferences!\n");
     return false;
