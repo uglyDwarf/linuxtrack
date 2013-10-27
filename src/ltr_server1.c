@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     ltr_int_master(true);
   }else{
     //Parameter is name of profile
-    ltr_int_slave(argv[1], argv[2]);
+    ltr_int_slave(argv[1], argv[2], argv[3]);
   }
   return 0;
 }

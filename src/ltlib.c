@@ -32,6 +32,7 @@ int ltr_wakeup(void);
 
 char *ltr_int_init_helper(const char *cust_section, bool standalone)
 {
+  char pid[16];
   bool is_child;
   if(initialized) return mmm.fname;
   if(make_mmap() != 0) return NULL;
@@ -45,7 +46,8 @@ char *ltr_int_init_helper(const char *cust_section, bool standalone)
     }
     char *section = ltr_int_my_strdup(cust_section);
     ltr_int_sanitize_name(section);
-    char *args[] = {server, section, mmm.fname, NULL};
+    snprintf(pid, sizeof(pid), "%lu", (unsigned long)getpid());
+    char *args[] = {server, section, mmm.fname, pid, NULL};
     if(!ltr_int_fork_child(args, &is_child)){
       com->state = ERROR;
       free(server);

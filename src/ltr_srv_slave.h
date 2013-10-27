@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-bool ltr_int_slave(const char *c_profile, const char *c_com_file);
+bool ltr_int_slave(const char *c_profile, const char *c_com_file, const char *ppid_str);
 
 #ifdef __cplusplus
 }
