@@ -59,7 +59,7 @@ AC_CANONICAL_HOST
 
 AC_CHECK_TYPE([struct v4l2_frmsizeenum],                                                                                                  
   [
-    AC_DEFINE([V4L2], [1],[Use videodev2.h (V4L2)])
+    AC_DEFINE([V4L2], [],[Use videodev2.h (V4L2)])
     with_v4l2=yes
   ], [],                                                                             
   [[#include  <linux/videodev2.h>
@@ -68,12 +68,12 @@ AC_CHECK_TYPE([struct v4l2_frmsizeenum],
 
 AC_CHECK_HEADER([libv4l2.h],                                                                                                  
   [
-    AC_DEFINE([LIBV4L2], [1],[Use libv4l2.h (V4L2)])
+    AC_DEFINE([LIBV4L2], [],[Use libv4l2.h (V4L2)])
     with_libv4l2=yes
   ], [], []
 )                                                                                                                                             
 
-AC_CHECK_HEADER([mxml.h], [1], [AC_MSG_FAILURE([mxml.h is needed for ltr_gui compilation!])])                                                                                                                                             
+AC_CHECK_HEADER([mxml.h], [], [AC_MSG_FAILURE([mxml.h is needed for ltr_gui compilation!])])                                                                                                                                             
 
 AC_CHECK_PROG([with_wine64], [wine64], [yes])                                                                                                                                             
 

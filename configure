@@ -16520,7 +16520,7 @@ ac_fn_c_check_type "$LINENO" "struct v4l2_frmsizeenum" "ac_cv_type_struct_v4l2_f
 if test "x$ac_cv_type_struct_v4l2_frmsizeenum" = xyes; then :
 
 
-$as_echo "#define V4L2 1" >>confdefs.h
+$as_echo "#define V4L2 /**/" >>confdefs.h
 
     with_v4l2=yes
 
@@ -16533,7 +16533,7 @@ ac_fn_c_check_header_compile "$LINENO" "libv4l2.h" "ac_cv_header_libv4l2_h" "
 if test "x$ac_cv_header_libv4l2_h" = xyes; then :
 
 
-$as_echo "#define LIBV4L2 1" >>confdefs.h
+$as_echo "#define LIBV4L2 /**/" >>confdefs.h
 
     with_libv4l2=yes
 
@@ -16543,7 +16543,7 @@ fi
 
 ac_fn_c_check_header_mongrel "$LINENO" "mxml.h" "ac_cv_header_mxml_h" "$ac_includes_default"
 if test "x$ac_cv_header_mxml_h" = xyes; then :
-  1
+
 else
   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}

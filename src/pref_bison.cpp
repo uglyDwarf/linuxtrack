@@ -101,8 +101,8 @@
 
 /* In a future release of Bison, this section will be replaced
    by #include "y.tab.h".  */
-#ifndef YY_LTR_INT_PARSER_Y_TAB_H_INCLUDED
-# define YY_LTR_INT_PARSER_Y_TAB_H_INCLUDED
+#ifndef YY_LTR_INT_PARSER_PREF_BISON_HPP_INCLUDED
+# define YY_LTR_INT_PARSER_PREF_BISON_HPP_INCLUDED
 /* Enabling traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 1
@@ -187,7 +187,7 @@ int ltr_int_parser_parse ();
 #endif
 #endif /* ! YYPARSE_PARAM */
 
-#endif /* !YY_LTR_INT_PARSER_Y_TAB_H_INCLUDED  */
+#endif /* !YY_LTR_INT_PARSER_PREF_BISON_HPP_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
 
