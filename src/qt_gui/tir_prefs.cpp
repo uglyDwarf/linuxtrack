@@ -143,6 +143,13 @@ bool TirPrefs::Activate(const QString &ID, bool init)
     ui.TirUseGrayscale->setHidden(true);
     ui.TirUseGrayscaleLabel->setHidden(true);
   }
+  if(tirType == SMARTNAV3){
+    ui.TirThreshold->setMinimum(40);
+    ui.TirThresholdMin->setText("40");
+  }else{
+    ui.TirThreshold->setMinimum(30);
+    ui.TirThresholdMin->setText("30");
+  }
   initializing = false;
   return true;
 }

@@ -107,6 +107,7 @@ bool ltr_int_init_usb()
   printf("Initializing fakeusb!\n");
   current_model = get_tir_type();
   switch(current_model){
+    case SMARTNAV3:
     case SMARTNAV4:
     case TIR4:
     case TIR5:
@@ -138,10 +139,11 @@ bool ltr_int_send_data(int out_ep, unsigned char data[], size_t size)
 {
   (void) out_ep;
   switch(current_model){
+    case SMARTNAV3:
     case SMARTNAV4:
     case TIR4:
     case TIR5:
-      fakeusb_send(data, size);
+      fakeusb_send(out_ep, data, size);
       return true;
     default:
       break;
@@ -172,10 +174,11 @@ bool ltr_int_receive_data(int in_ep, unsigned char data[], size_t size, size_t *
 {
   (void) in_ep;
   switch(current_model){
+    case SMARTNAV3:
     case SMARTNAV4:
     case TIR4:
     case TIR5:
-      fakeusb_receive(data, size, transferred, timeout);
+      fakeusb_receive(in_ep, data, size, transferred, timeout);
       ltr_int_usleep(8000);
       return true;
       break;
@@ -208,6 +211,7 @@ void ltr_int_finish_usb(unsigned int interface)
 {
   (void) interface;
   switch(current_model){
+    case SMARTNAV3:
     case SMARTNAV4:
     case TIR4:
     case TIR5:

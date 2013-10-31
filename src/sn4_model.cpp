@@ -1,15 +1,6 @@
 #include <tir_model.h>
 
 //*******************************************************************
-void print_packet(unsigned char data[], size_t length)
-{
-  std::cout<<"Fakeusb: "<<std::hex;
-  for(size_t i = 0; i < length; ++i){
-    std::cout<<(int)data[i]<<",";
-  }
-  std::cout<<std::endl;
-}
-
 
 smartnav4::smartnav4(std::string fname) :tir4(fname)
 {

@@ -428,6 +428,16 @@ static bool set_status_led_sn4(bool running)
   return true;
 }
 
+static bool set_status_led_sn3(bool running)
+{
+  if(running){
+    switch_green(true);
+  }else{
+    switch_green(false);
+  }
+  return true;
+}
+
 bool set_status_led_tir(bool running)
 {
   assert(tir_iface != NULL);
@@ -582,6 +592,21 @@ static bool stop_camera_sn4()
   return true;
 }
 
+static bool stop_camera_sn3()
+{
+  ltr_int_log_message("Stopping SmartNav3 camera!\n");
+  ltr_int_send_data(out_ep, Video_off, sizeof(Video_off));
+  ltr_int_send_data(out_ep, Fifo_flush, sizeof(Fifo_flush));
+  
+  turn_led_off_tir(TIR_LED_GREEN);
+  turn_led_off_tir(TIR_LED_IR);
+  turn_led_off_tir(TIR_LED_RED);
+  turn_led_off_tir(TIR_LED_BLUE);
+  ltr_int_log_message("Sending stop packet to SmartNav3 camera.\n");
+  ltr_int_send_data(out_ep, Camera_stop,sizeof(Camera_stop));
+  return true;
+}
+
 static bool stop_camera_tir()
 {
   assert(tir_iface != NULL);
@@ -676,6 +701,17 @@ static bool start_camera_sn4()
   return true;
 }
 
+static bool start_camera_sn3()
+{
+  ltr_int_send_data(out_ep, Video_on,sizeof(Video_on));
+  ltr_int_send_data(out_ep, Fifo_flush,sizeof(Fifo_flush));
+  turn_led_on_tir(TIR_LED_GREEN);
+  if(ir_on){ 
+    turn_led_on_tir(TIR_LED_IR);
+  }
+  turn_led_on_tir(TIR_LED_BLUE);
+  return true;
+}
 
 bool start_camera_tir()
 {
@@ -950,6 +986,26 @@ static bool init_camera_sn4(bool force_fw_load, bool p_ir_on)
   }
   
   ltr_int_log_message("SmartNav4 camera initialized.\n");
+  return true;
+}
+
+static bool init_camera_sn3(bool force_fw_load, bool p_ir_on)
+{
+  (void) force_fw_load;
+  size_t t;
+  
+  ir_on = p_ir_on;
+  ltr_int_log_message("Initializing SN3 camera!\n");
+  if(!stop_camera_tir()){
+    return false;
+  }
+  //To flush any pending packets...
+  ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
+  ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
+  ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
+  if(!read_rom_data_tir()){
+    return false;
+  }
   return true;
 }
 
@@ -1290,12 +1346,12 @@ static tir_interface smartnav4 = {
 };
 
 static tir_interface smartnav3 = {
-  .stop_camera_tir = stop_camera_tir3,
-  .start_camera_tir = start_camera_tir3,
-  .init_camera_tir = init_camera_tir3,
-  .close_camera_tir = close_camera_tir3,
+  .stop_camera_tir = stop_camera_sn3,
+  .start_camera_tir = start_camera_sn3,
+  .init_camera_tir = init_camera_sn3,
+  .close_camera_tir = close_camera_tir4,
   .get_tir_info = get_sn3_info,
-  .set_status_led_tir = set_status_led_tir4
+  .set_status_led_tir = set_status_led_sn3
 };
 
 
