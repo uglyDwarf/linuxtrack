@@ -320,7 +320,7 @@
           <item row="2" column="2">
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
-             <widget class="QLabel" name="label">
+             <widget class="QLabel" name="TirThresholdMin">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -361,7 +361,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_2">
+             <widget class="QLabel" name="TirThresholdMax">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
                 <horstretch>0</horstretch>

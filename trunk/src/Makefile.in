@@ -159,7 +159,7 @@ LTLIBRARIES = $(lib_LTLIBRARIES) $(pkglib_LTLIBRARIES)
 libfakeusb_la_DEPENDENCIES = libltr.la
 am_libfakeusb_la_OBJECTS = libfakeusb_la-fakeusb.lo \
 	libfakeusb_la-tir_model.lo libfakeusb_la-tir4_model.lo \
-	libfakeusb_la-sn4_model.lo
+	libfakeusb_la-sn4_model.lo libfakeusb_la-sn3_model.lo
 libfakeusb_la_OBJECTS = $(am_libfakeusb_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -607,7 +607,9 @@ libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
 libltopenusb_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS}
 libltopenusb_la_LIBADD = -lopenusb libltr.la
 libltopenusb_la_LDFLAGS = ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
-libfakeusb_la_SOURCES = fakeusb.c usb_ifc.h tir_model.cpp tir_model.h tir4_model.cpp sn4_model.cpp
+libfakeusb_la_SOURCES = fakeusb.c usb_ifc.h tir_model.cpp tir_model.h tir4_model.cpp \
+                        sn4_model.cpp sn3_model.cpp
+
 libfakeusb_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS}
 libfakeusb_la_CXXFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS}
 libfakeusb_la_LIBADD = libltr.la
@@ -1111,6 +1113,9 @@ libfakeusb_la-tir4_model.lo: tir4_model.cpp
 
 libfakeusb_la-sn4_model.lo: sn4_model.cpp
 	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfakeusb_la_CXXFLAGS) $(CXXFLAGS) -c -o libfakeusb_la-sn4_model.lo `test -f 'sn4_model.cpp' || echo '$(srcdir)/'`sn4_model.cpp
+
+libfakeusb_la-sn3_model.lo: sn3_model.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfakeusb_la_CXXFLAGS) $(CXXFLAGS) -c -o libfakeusb_la-sn3_model.lo `test -f 'sn3_model.cpp' || echo '$(srcdir)/'`sn3_model.cpp
 
 libft_la-facetrack.lo: facetrack.cpp
 	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libft_la_CXXFLAGS) $(CXXFLAGS) -c -o libft_la-facetrack.lo `test -f 'facetrack.cpp' || echo '$(srcdir)/'`facetrack.cpp

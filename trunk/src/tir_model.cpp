@@ -75,6 +75,9 @@ bool init_model(char fname[], int type)
       case SMARTNAV4:
         model = new smartnav4(fname);
         break;
+      case SMARTNAV3:
+        model = new smartnav3(fname);
+        break;
       case TIR4:
       case TIR5:
         model = new tir4(fname);
@@ -87,14 +90,14 @@ bool init_model(char fname[], int type)
   return true;
 }
 
-void fakeusb_send(unsigned char data[], size_t length)
+void fakeusb_send(int ep, unsigned char data[], size_t length)
 {
-  model->send_packet(data, length);
+  model->send_packet(ep, data, length);
 }
 
-void fakeusb_receive(unsigned char data[], size_t length, size_t *read, int timeout)
+void fakeusb_receive(int ep, unsigned char data[], size_t length, size_t *read, int timeout)
 {
-  model->receive_packet(data, length, read, timeout);
+  model->receive_packet(ep, data, length, read, timeout);
 }
 
 void close_model()

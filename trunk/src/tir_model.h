@@ -10,8 +10,8 @@ extern "C" {
 #endif
   
   bool init_model(char fname[], int type);
-  void fakeusb_send(unsigned char data[], size_t length);
-  void fakeusb_receive(unsigned char data[], size_t length, size_t *read, int timeout);
+  void fakeusb_send(int ep, unsigned char data[], size_t length);
+  void fakeusb_receive(int ep, unsigned char data[], size_t length, size_t *read, int timeout);
   void close_model();
   void print_packet(unsigned char data[], size_t length);
   
@@ -48,10 +48,11 @@ class device_model
  public:
   device_model(std::string fname) : inp_data(fname){};
   virtual ~device_model(){};
-  virtual bool send_packet(unsigned char packet[], size_t length) = 0;
-  virtual bool receive_packet(unsigned char packet[], size_t length, 
+  virtual bool send_packet(int ep, unsigned char packet[], size_t length) = 0;
+  virtual bool receive_packet(int ep, unsigned char packet[], size_t length, 
                               size_t *read, int timeout) = 0;
   size_t pkt_buf_size(){return packet_buffer.size();};
+  void print_packet(int ep, unsigned char data[], size_t length);
  protected:
   size_t packet2data(const packet_t packet, unsigned char data[], size_t length);
   void data2packet(const unsigned char data[], const size_t length, packet_t &packet);
@@ -61,13 +62,13 @@ class device_model
   std::queue<packet_t> packet_buffer;
 };
 
-class tir4 : public device_model
+class smartnav3 : public device_model
 {
  public:
-  tir4(std::string fname);
-  virtual ~tir4(){};
-  virtual bool send_packet(unsigned char packet[], size_t length);
-  virtual bool receive_packet(unsigned char packet[], size_t length, 
+  smartnav3(std::string fname);
+  virtual ~smartnav3(){};
+  virtual bool send_packet(int ep, unsigned char packet[], size_t length);
+  virtual bool receive_packet(int ep, unsigned char packet[], size_t length, 
                               size_t *read, int timeout);
  protected:
   virtual void video_on(){video_on_flag = true; camera_on_flag = true;};
@@ -75,15 +76,29 @@ class tir4 : public device_model
   virtual void camera_off(){camera_on_flag = false;};
   virtual void set_leds(unsigned char leds, unsigned char mask);
   virtual void get_config();
+  virtual void set_threshold(int thr);
+  
+  bool video_on_flag;
+  bool camera_on_flag;
+  bool led_r, led_g, led_b, led_ir;
+  int threshold;
+};
+
+
+class tir4 : public smartnav3
+{
+ public:
+  tir4(std::string fname);
+  virtual ~tir4(){};
+  virtual bool send_packet(int ep, unsigned char packet[], size_t length);
+ protected:
+  virtual void get_config();
   virtual void get_status();
   virtual void do_whatever();
   virtual void load_firmware(const unsigned char data[], const size_t length);
   
   bool firmware_loaded;
   unsigned int firmware_csum;
-  bool video_on_flag;
-  bool camera_on_flag;
-  bool led_r, led_g, led_b, led_ir;
   bool firmware_active;
 };
 
@@ -97,6 +112,7 @@ class smartnav4 : public tir4
   virtual void do_whatever();
 };
 
+
 class tir5: public tir4
 {
  public:
@@ -106,6 +122,7 @@ class tir5: public tir4
   virtual void get_config();
   virtual void do_whatever();
 };
+
 
 
 #endif
