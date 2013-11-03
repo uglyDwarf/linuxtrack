@@ -10,6 +10,7 @@
 #include <QDialog>
 #include <QCloseEvent>
 #include <QVBoxLayout>
+#include <iostream>
 #include "ui_mickey.h"
 #include "ui_calibration.h"
 #include "ui_chsettings.h"
@@ -112,6 +113,8 @@ class Mickey : public QObject
   ~Mickey();
   state_t getState() const{return state;};
   void applySettings();
+  void setRelative(bool rel){relative = rel;};
+  bool getRelative(){return relative;};
   void recenter();
   void calibrate();
   bool setShortcut(QKeySequence seq);
@@ -129,6 +132,10 @@ class Mickey : public QObject
   QTime initTimer;
   QTime updateElapsed;
   bool recenterFlag;
+  QDesktopWidget *dw;
+  QRect screenBBox;
+  QPoint screenCenter;
+  bool relative;
  private slots:
   void onOffSwitch_activated();
   void updateTimer_activated();
@@ -138,6 +145,7 @@ class Mickey : public QObject
   void startCalibration();
   void finishCalibration();
   void cancelCalibration(bool calStarted);
+  void screenResized(int screen);
 };
 
 #define GUI MickeyGUI::getInstance()
@@ -194,6 +202,8 @@ class MickeyGUI : public QWidget
     {deadzone = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
   void on_CurveSlider_valueChanged(int val)
     {curvature = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
+  void on_RelativeCB_clicked(bool checked){mickey->setRelative(checked);changed = true;};
+  void on_AbsoluteCB_clicked(bool checked){mickey->setRelative(!checked);changed = true;};
   void on_StepOnly_stateChanged(int state);
   void on_ApplyButton_pressed()
     {changed = true; ui.ApplyButton->setEnabled(false); mickey->applySettings();};

@@ -23,6 +23,7 @@
 //Time to wait after the tracking commences to perform a recentering [ms]
 const int settleTime = 2000; //2 seconds
 
+
 void RestrainWidgetToScreen(QWidget * w)
 {
   QRect screenRect = QApplication::desktop()->availableGeometry(w);
@@ -278,7 +279,7 @@ void MickeyThread::run()
 
 
 Mickey::Mickey() : updateTimer(this), btnThread(this), state(STANDBY), 
-  calDlg(), aplDlg(), recenterFlag(true)
+  calDlg(), aplDlg(), recenterFlag(true), dw(NULL) 
 {
   trans = new MickeyTransform();
   onOffSwitch = new shortcut();
@@ -297,6 +298,9 @@ Mickey::Mickey() : updateTimer(this), btnThread(this), state(STANDBY),
   if(!mouse.init()){
     exit(1);
   }
+  dw = QApplication::desktop();
+  screenBBox = dw->screenGeometry();
+  screenCenter = screenBBox.center();
   updateTimer.setSingleShot(false);
   updateTimer.setInterval(8);
   btnThread.start();
@@ -312,6 +316,12 @@ Mickey::~Mickey()
   updateTimer.stop();
   delete trans;
   trans = NULL;
+}
+
+void Mickey::screenResized(int screen)
+{
+  screenBBox = dw->screenGeometry(screen);
+  screenCenter = screenBBox.center();
 }
 
 void Mickey::applySettings()
@@ -500,14 +510,22 @@ void Mickey::updateTimer_activated()
   int elapsed = updateElapsed.elapsed();
   updateElapsed.restart();
   //reversing signs to get the cursor move according to the head movement
-  int dx, dy;
-  trans->update(heading_p, pitch_p, elapsed, dx, dy);
+  float dx, dy;
+  trans->update(heading_p, pitch_p, relative, elapsed, dx, dy);
   if(state == TRACKING){
-    mouse.move(dx, dy);
-    
-    //QPoint pos = QCursor::pos();
-    //pos += QPoint(dx,dy);
-    //QCursor::setPos(pos);
+    if(relative){
+      int idx = (int)dx;
+      int idy = (int)dy;
+      if((idx != 0) || (idy != 0)){
+        mouse.move((int)dx, (int)dy);
+        //QPoint pos = QCursor::pos();
+        //pos += QPoint(dx,dy);
+        //QCursor::setPos(pos);
+      }
+    }else{
+      QPoint c = screenCenter + QPoint(screenCenter.x() * dx, screenCenter.y() * dy);
+      QCursor::setPos(c);
+    }
   }
 }
 
@@ -568,7 +586,6 @@ MickeyGUI::MickeyGUI(QWidget *parent) : QWidget(parent), mickey(NULL),
 {
   ui.setupUi(this);
   readPrefs();
-  ui.ApplyButton->setEnabled(false);
   //mickey = new Mickey();
 }
 
@@ -597,11 +614,13 @@ void MickeyGUI::readPrefs()
   }
   
   //Axes setup
+  bool relative;
   settings.beginGroup("Axes");
   deadzone = settings.value(QString("DeadZone"), 20).toInt();
   sensitivity = settings.value(QString("Sensitivity"), 50).toInt();
   curvature = settings.value(QString("Curvature"), 50).toInt();
   stepOnly = settings.value(QString("StepOnly"), false).toBool();
+  relative = settings.value(QString("Relative"), true).toBool();
   ui.SensSlider->setValue(sensitivity);
   ui.DZSlider->setValue(deadzone);
   ui.CurveSlider->setValue(curvature);
@@ -610,6 +629,15 @@ void MickeyGUI::readPrefs()
     ui.CurveSlider->setDisabled(true);
   }else{
     ui.CurveSlider->setEnabled(true);
+  }
+  if(relative){
+    ui.RelativeCB->setChecked(true);
+  }else{
+    ui.AbsoluteCB->setChecked(true);
+    ui.SensSlider->setDisabled(true);
+    ui.DZSlider->setDisabled(true);
+    ui.CurveSlider->setDisabled(true);
+    ui.StepOnly->setDisabled(true);
   }
   settings.endGroup();
   
@@ -669,6 +697,7 @@ void MickeyGUI::storePrefs()
   settings.setValue(QString("Sensitivity"), sensitivity);
   settings.setValue(QString("Curvature"), curvature);
   settings.setValue(QString("StepOnly"), stepOnly);
+  settings.setValue(QString("Relative"), mickey->getRelative());
   settings.endGroup();
   
   //trans setup
@@ -780,6 +809,9 @@ void MickeyGUI::show()
 void MickeyGUI::init()
 {
   mickey = new Mickey();
+
+  ui.ApplyButton->setEnabled(false);
+  mickey->setRelative(ui.RelativeCB->isChecked());
   hotkeySet = getShortcut();
   changed = false;
 }

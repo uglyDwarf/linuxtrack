@@ -19,6 +19,10 @@
   <property name="windowTitle">
    <string>Mickey, the virtual mouse</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="mickey.qrc">
+    <normaloff>:/ltr/linuxtrack.svg</normaloff>:/ltr/linuxtrack.svg</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
     <widget class="QTabWidget" name="MickeyTabs">
@@ -38,6 +42,38 @@
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
         <layout class="QVBoxLayout" name="PrefLayout1">
+         <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>Tracking mode</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+            <item>
+             <widget class="QRadioButton" name="RelativeCB">
+              <property name="text">
+               <string>Relative</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="AbsoluteCB">
+              <property name="text">
+               <string>Absolute</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
          <item>
           <layout class="QGridLayout" name="gridLayout">
            <item row="2" column="0">
@@ -165,6 +201,19 @@
             <size>
              <width>20</width>
              <height>1</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
             </size>
            </property>
           </spacer>
@@ -561,7 +610,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="mickey.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>QuitButton</sender>
@@ -576,6 +627,134 @@
     <hint type="destinationlabel">
      <x>358</x>
      <y>6</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AbsoluteCB</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>SensSlider</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>80</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>110</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AbsoluteCB</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>DZSlider</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>190</x>
+     <y>78</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>186</x>
+     <y>141</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AbsoluteCB</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>CurveSlider</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>202</x>
+     <y>79</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>203</x>
+     <y>172</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AbsoluteCB</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>StepOnly</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>216</x>
+     <y>82</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>104</x>
+     <y>190</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RelativeCB</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>SensSlider</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>84</x>
+     <y>81</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>97</x>
+     <y>109</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RelativeCB</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>DZSlider</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>67</x>
+     <y>78</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>93</x>
+     <y>141</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RelativeCB</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>CurveSlider</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>52</x>
+     <y>81</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>93</x>
+     <y>167</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RelativeCB</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>StepOnly</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>42</x>
+     <y>81</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>92</x>
+     <y>193</y>
     </hint>
    </hints>
   </connection>

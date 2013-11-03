@@ -236,7 +236,7 @@ static void *ltr_int_slave_reader_thread(void *param)
         if(poll_errs > 3){break;}else{continue;}
       }else if(fds == 0){
         if(!parent_alive()){
-          printf("Parent %lu died! (1)\n", (unsigned long)ppid);
+          //printf("Parent %lu died! (1)\n", (unsigned long)ppid);
           return NULL;
         }
         continue;
@@ -252,7 +252,7 @@ static void *ltr_int_slave_reader_thread(void *param)
         }
       }
       if(!parent_alive()){
-        printf("Parent %lu died! (2)\n", (unsigned long)ppid);
+        //printf("Parent %lu died! (2)\n", (unsigned long)ppid);
         return NULL;
       }
     }
@@ -297,7 +297,7 @@ static void ltr_int_slave_main_loop()
     }
     recenter = false;
     if(!parent_alive()){
-      printf("Parent %lu died! (3)\n", (unsigned long)ppid);
+      //printf("Parent %lu died! (3)\n", (unsigned long)ppid);
       break;
     }
     usleep(100000);
@@ -311,7 +311,7 @@ bool ltr_int_slave(const char *c_profile, const char *c_com_file, const char *pp
   unsigned long tmp_ppid;
   profile_name = ltr_int_my_strdup(c_profile);
   sscanf(ppid_str, "%lu", &tmp_ppid);
-  printf("Going to monitor parent %lu!\n", tmp_ppid);
+  //printf("Going to monitor parent %lu!\n", tmp_ppid);
   ppid = (pid_t)tmp_ppid;
   if(!ltr_int_read_prefs(NULL, false)){
     ltr_int_log_message("Couldn't load preferences!\n");
