@@ -281,6 +281,7 @@ with_wine64 = @with_wine64@
 @DARWIN_FALSE@@WINE_PLUGIN_TRUE@MYLDFLAGS = -Wl,--no-warn-search-mismatch
 @DARWIN_TRUE@@WINE_PLUGIN_TRUE@MYLDFLAGS = -Wl,-no_arch_warnings
 dist_pkgdata_DATA = README.wine
+EXTRA_DIST = linuxtrack.ico linuxtrack1.ico
 all: all-am
 
 .SUFFIXES:

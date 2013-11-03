@@ -46,5 +46,5 @@ distclean-local-check:
 endif
 
 dist_pkgdata_DATA = README.wine
-
+EXTRA_DIST = linuxtrack.ico linuxtrack1.ico
 
