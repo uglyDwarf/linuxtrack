@@ -236,8 +236,8 @@ void ltr_int_face_detect(image_t *img, struct bloblist_type *blt)
   }
   if(face_w * face_h > 0){
     blt->num_blobs = 1;
-    blt->blobs[0].x = face_x;
-    blt->blobs[0].y = face_y;
+    blt->blobs[0].x = -face_x;
+    blt->blobs[0].y = -face_y;
     blt->blobs[0].score = face_w * face_h;
     ltr_int_draw_empty_square(img, face_x1, face_y1, face_x2, face_y2);
   }else{

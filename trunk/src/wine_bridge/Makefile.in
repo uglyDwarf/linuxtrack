@@ -525,32 +525,24 @@ uninstall-am: uninstall-dist_pkgdataDATA uninstall-nodist_pkgdataDATA
 	uninstall-am uninstall-dist_pkgdataDATA \
 	uninstall-nodist_pkgdataDATA
 
-@DARWIN_TRUE@@WINE_PLUGIN_TRUE@  linuxtrack-wine.exe : bridge_mac
+@DARWIN_TRUE@@WINE_PLUGIN_TRUE@  linuxtrack-wine.exe : ltr_wine.nsi tester/Tester.exe.so controller/Controller.exe.so \
+@DARWIN_TRUE@@WINE_PLUGIN_TRUE@             client/NPClient.dll.so ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so \
+@DARWIN_TRUE@@WINE_PLUGIN_TRUE@             client/check_data.exe.so
+@DARWIN_TRUE@@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib tester/Tester.exe.so
+@DARWIN_TRUE@@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib controller/Controller.exe.so 
+@DARWIN_TRUE@@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib client/NPClient.dll.so
+@DARWIN_TRUE@@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib ft_client/FreeTrackClient.dll.so
+@DARWIN_TRUE@@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib ft_tester/ftc.exe.so
+@DARWIN_TRUE@@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib client/check_data.exe.so
+@DARWIN_TRUE@@WINE_PLUGIN_TRUE@	makensis $<
 
-@DARWIN_FALSE@@WINE64_TRUE@@WINE_PLUGIN_TRUE@  linuxtrack-wine.exe : bridge64
-@DARWIN_FALSE@@WINE64_FALSE@@WINE_PLUGIN_TRUE@  linuxtrack-wine.exe : bridge
-
-@WINE_PLUGIN_TRUE@.PHONY : bridge bridge64 bridge_mac
-
-@WINE_PLUGIN_TRUE@bridge_mac : ltr_wine.nsi tester/Tester.exe.so controller/Controller.exe.so \
-@WINE_PLUGIN_TRUE@             client/NPClient.dll.so ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so \
-@WINE_PLUGIN_TRUE@             client/check_data.exe.so
-@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib tester/Tester.exe.so
-@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib controller/Controller.exe.so 
-@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib client/NPClient.dll.so
-@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib ft_client/FreeTrackClient.dll.so
-@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib ft_tester/ftc.exe.so
-@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib client/check_data.exe.so
-@WINE_PLUGIN_TRUE@	makensis $<
-
-@WINE_PLUGIN_TRUE@bridge : ltr_wine.nsi tester/Tester.exe.so controller/Controller.exe.so client/NPClient.dll.so \
-@WINE_PLUGIN_TRUE@         ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so client/check_data.exe.so
-@WINE_PLUGIN_TRUE@	makensis $<
-
-@WINE_PLUGIN_TRUE@bridge64 : ltr_wine64.nsi tester/Tester.exe.so tester/Tester64.exe.so \
-@WINE_PLUGIN_TRUE@               controller/Controller.exe.so client/NPClient.dll.so client/NPClient64.dll.so \
-@WINE_PLUGIN_TRUE@               ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so client/check_data.exe.so
-@WINE_PLUGIN_TRUE@	makensis $<
+@DARWIN_FALSE@@WINE64_TRUE@@WINE_PLUGIN_TRUE@  linuxtrack-wine.exe : ltr_wine64.nsi tester/Tester.exe.so tester/Tester64.exe.so \
+@DARWIN_FALSE@@WINE64_TRUE@@WINE_PLUGIN_TRUE@                        controller/Controller.exe.so client/NPClient.dll.so client/NPClient64.dll.so \
+@DARWIN_FALSE@@WINE64_TRUE@@WINE_PLUGIN_TRUE@                        ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so client/check_data.exe.so
+@DARWIN_FALSE@@WINE64_TRUE@@WINE_PLUGIN_TRUE@	makensis $<
+@DARWIN_FALSE@@WINE64_FALSE@@WINE_PLUGIN_TRUE@  linuxtrack-wine.exe : ltr_wine.nsi tester/Tester.exe.so controller/Controller.exe.so client/NPClient.dll.so \
+@DARWIN_FALSE@@WINE64_FALSE@@WINE_PLUGIN_TRUE@                        ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so client/check_data.exe.so
+@DARWIN_FALSE@@WINE64_FALSE@@WINE_PLUGIN_TRUE@	makensis $<
 
 @WINE_PLUGIN_TRUE@clean-local: clean-local-check
 @WINE_PLUGIN_TRUE@.PHONY: clean-local-check

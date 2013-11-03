@@ -61,7 +61,7 @@ class MickeyTransform : public QObject
  public:
   MickeyTransform();
   ~MickeyTransform();
-  void update(float valX, float valY, int elapsed, int &x, int &y);
+  void update(float valX, float valY, bool relative, int elapsed, float &x, float &y);
   void startCalibration();
   void finishCalibration();
   void cancelCalibration();

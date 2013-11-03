@@ -176,14 +176,19 @@ static float norm(float val)
   return val;
 }
 
-void MickeyTransform::update(float valX, float valY, int elapsed, int &x, int &y)
+void MickeyTransform::update(float valX, float valY, bool relative, int elapsed, float &x, float &y)
 {
   if(!calibrating){
-    axis.step(norm(-valX/maxValX), norm(-valY/maxValY), elapsed, accX, accY);
-    x = (int)accX;
-    accX -= x;
-    y = (int)accY;
-    accY -= y;
+    if(relative){
+      axis.step(norm(-valX/maxValX), norm(-valY/maxValY), elapsed, accX, accY);
+      x = accX;
+      accX -= x;
+      y = accY;
+      accY -= y;
+    }else{
+      x = norm(-valX/maxValX);
+      y = norm(-valY/maxValY);
+    }
   }else{
     if(valX > maxValX){
       maxValX = valX;

@@ -204,13 +204,13 @@ if CWIID
   hook_uninst_targets += LTR_WII_TARGET_UNINST
 endif
 
-qt_gui/ltr_gui : ${pkglib_LTLIBRARIES}
+qt_gui/ltr_gui :
 	pushd qt_gui; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE); popd
 
-wii_server/wii_server : ${pkglib_LTLIBRARIES}
+wii_server/wii_server :
 	pushd wii_server; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE); popd
 
-mickey/mickey : ${pkglib_LTLIBRARIES} qt_gui/ltr_gui
+mickey/mickey :
 	pushd mickey; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE); popd
 
 
