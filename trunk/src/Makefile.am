@@ -1,5 +1,4 @@
 if DARWIN
-  SLEOPARD_CFLAG = 
   SLEOPARD_LDFLAG = -headerpad_max_install_names
   DARWINFLAGS = -undefined dynamic_lookup
   SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
@@ -12,6 +11,7 @@ if DARWIN
   XLINUXTRACK_CFLAGS = -arch i386 -arch x86_64
   XLINUXTRACK_LDFLAGS = -Wl,-no_arch_warnings -arch i386 -arch x86_64
   LINUXFLAGS =
+  ltr_pipe_CPPFLAGS =
 else
   LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
   SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1 -L/lib32 -L/usr/lib32
@@ -20,6 +20,7 @@ else
   LTR_SERVER_FLAGS = 
   XLINUXTRACK_CFLAGS =
   XLINUXTRACK_LDFLAGS = -Wl,--no-warn-search-mismatch
+  ltr_pipe_CPPFLAGS = -DLINUX
 endif
 
 man_MANS = ltr_gui.1 ltr_server.1
@@ -27,15 +28,16 @@ man_MANS = ltr_gui.1 ltr_server.1
 lib_LTLIBRARIES = liblinuxtrack.la
 pkglib_LTLIBRARIES = libltr.la libmacwii.la
 bin_PROGRAMS = ltr_server1
+dist_pkgdata_DATA = linuxtrack1.conf
 
 #ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
-#ltr_server_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+#ltr_server_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 #ltr_server_LDADD = -lpthread libltr.la
 #ltr_server_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${LTR_SERVER_FLAGS}
 
 ltr_server1_SOURCES = ltr_srv_comm.c ltr_srv_comm.h ltr_srv_slave.c ltr_srv_slave.h \
 	ltr_srv_master.cpp ltr_srv_master.h ltr_server1.c ipc_utils.c ipc_utils.h
-ltr_server1_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+ltr_server1_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server1_LDADD = -lpthread libltr.la
 ltr_server1_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${LTR_SERVER_FLAGS}
 	
@@ -51,23 +53,21 @@ if LIBV4L2
   pkglib_LTLIBRARIES += libwc.la
 if FACE_TRACKER
   pkglib_LTLIBRARIES += libft.la
+  dist_pkgdata_DATA += haarcascade_frontalface_alt2.xml
 endif
 endif 
 endif
 
-#if LIBUSB
-#  pkglib_LTLIBRARIES += libtir4.la 
-#endif
-
 if LIBZ
 pkglib_LTLIBRARIES += libtir.la
+dist_pkgdata_DATA += 51-TIR.rules
 if LIBUSB10
   pkglib_LTLIBRARIES += libltusb1.la 
 endif
 
-if OPENUSB
-  pkglib_LTLIBRARIES += libltopenusb.la 
-endif
+#if OPENUSB
+#  pkglib_LTLIBRARIES += libltopenusb.la 
+#endif
 endif
 
 pkglib_LTLIBRARIES += libfakeusb.la
@@ -76,7 +76,7 @@ include_HEADERS = linuxtrack.h
 
 liblinuxtrack_la_SOURCES =  ../config.h linuxtrack.h utils.h ipc_utils.h ltlib.h \
                             ltlib.c utils.c ipc_utils.c
-liblinuxtrack_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LIBLINUXTRACK_FLAGS) $(LINUXFLAGS)
+liblinuxtrack_la_CFLAGS = ${AM_CFLAGS} $(LIBLINUXTRACK_FLAGS) $(LINUXFLAGS)
 liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" ${SLEOPARD_LDFLAG}
 
 libltr_la_SOURCES = ../config.h cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
@@ -88,10 +88,8 @@ libltr_la_SOURCES = ../config.h cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   wc_driver_prefs.h ipc_utils.c ipc_utils.h com_proc.c com_proc.h wii_com.c wii_com.h
 libltr_la_LIBADD = -lm -lpthread -ldl
 libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXFLAGS) 
-libltr_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
-libltr_la_CXXFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
-#libtir4_la_SOURCES = tir4_driver.c tir4_driver.h new_cal.c new_cal.h
-#libtir4_la_LIBADD = -lusb  libltr.la
+libltr_la_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
+libltr_la_CXXFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 
 libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h sn4_com.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
@@ -99,58 +97,65 @@ libtir_la_LIBADD = -lz libltr.la
 libtir_la_LDFLAGS = -export-symbols "${srcdir}/tir.sym" $(LINUXFLAGS) ${SLEOPARD_LDFLAG}
 
 libltusb1_la_SOURCES = libusb_ifc.c usb_ifc.h
-libltusb1_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS}
+libltusb1_la_CFLAGS = ${AM_CFLAGS}
 libltusb1_la_LIBADD = -lusb-1.0 libltr.la
 libltusb1_la_LDFLAGS = ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
-libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
-libltopenusb_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS}
-libltopenusb_la_LIBADD = -lopenusb libltr.la
-libltopenusb_la_LDFLAGS = ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
+#libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
+#libltopenusb_la_CFLAGS = ${AM_CFLAGS}
+#libltopenusb_la_LIBADD = -lopenusb libltr.la
+#libltopenusb_la_LDFLAGS = ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
 libfakeusb_la_SOURCES = fakeusb.c usb_ifc.h tir_model.cpp tir_model.h tir4_model.cpp \
                         sn4_model.cpp sn3_model.cpp
-libfakeusb_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS}
-libfakeusb_la_CXXFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS}
+libfakeusb_la_CFLAGS = ${AM_CFLAGS}
+libfakeusb_la_CXXFLAGS = ${AM_CFLAGS}
 libfakeusb_la_LIBADD = libltr.la
 libfakeusb_la_LDFLAGS = ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
-libwii_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS}
+libwii_la_CFLAGS = ${AM_CFLAGS}
 libwii_la_LIBADD = -lcwiid libltr.la
 libwii_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
 
 libmacwii_la_SOURCES = macwii_driver.c wii_com.h com_proc.h \
   runloop.c runloop.h wii_driver_prefs.c wii_driver_prefs.h ipc_utils.h
-libmacwii_la_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/mac -I..
+libmacwii_la_CFLAGS = ${AM_CFLAGS} -I${srcdir} -I${srcdir}/mac -I..
 libmacwii_la_LIBADD = libltr.la
 libmacwii_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${AM_CFLAGS} ${SLEOPARD_LDFLAG}
 
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
-libwc_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS}
+libwc_la_CFLAGS = ${AM_CFLAGS}
 libwc_la_LIBADD = libltr.la -lv4l2
 libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
 
 libft_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h facetrack.cpp facetrack.h
-libft_la_CFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
-libft_la_CXXFLAGS = ${SLEOPARD_CFLAG} ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
+libft_la_CFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
+libft_la_CXXFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_LIBADD = libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
 libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
 
-dist_pkgdata_DATA = linuxtrack1.conf 51-TIR.rules haarcascade_frontalface_alt2.xml
+man_MANS += ltr_pipe.1
+bin_PROGRAMS += ltr_pipe
+ltr_pipe_CPPFLAGS += -D_GNU_SOURCE
+ltr_pipe_SOURCES = ../config.h ltr_pipe.c linuxtrack.h utils.h utils.c linuxtrack.c
+ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
+ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS} -ldl
+
+
 
 if XPLANE_PLUGIN
 pkglib_LTLIBRARIES += xlinuxtrack9.la
 if LTR32ON64
   pkglib_LTLIBRARIES += xlinuxtrack9_32.la
   xlinuxtrack9_32_la_SOURCES = xlinuxtrack9.c linuxtrack.c linuxtrack.h
-  xlinuxtrack9_32_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) \
-    -fPIC -m32 $(DARWINCFLAGS) ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) ${XLINUXTRACK_CFLAGS}
+  xlinuxtrack9_32_la_CFLAGS = ${XPL_CPPFLAGS} $(SYSFLAGS) \
+    -fPIC -m32 $(DARWINCFLAGS) ${AM_CFLAGS} $(LINUXFLAGS) ${XLINUXTRACK_CFLAGS}
   xlinuxtrack9_32_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib \
     -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${XLINUXTRACK_LDFLAGS}
   xlinuxtrack9_32_la_LIBADD = -lm -ldl
 endif
 xlinuxtrack9_la_SOURCES = xlinuxtrack9.c linuxtrack.c linuxtrack.h
-xlinuxtrack9_la_CFLAGS = -I${XPLANE_SDK}/XPLM -I${XPLANE_SDK}/Widgets $(SYSFLAGS) \
-  -fPIC $(DARWINCFLAGS) ${SLEOPARD_CFLAG} ${AM_CFLAGS} $(LINUXFLAGS) ${XLINUXTRACK_CFLAGS}
+xlinuxtrack9_la_CFLAGS = ${XPL_CPPFLAGS} $(SYSFLAGS) \
+  -fPIC $(DARWINCFLAGS) ${AM_CFLAGS} $(LINUXFLAGS) ${XLINUXTRACK_CFLAGS}
 xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC $(DARWINFLAGS) -dynamiclib \
   -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${XLINUXTRACK_LDFLAGS}
 xlinuxtrack9_la_LIBADD = -lm -ldl
@@ -286,23 +291,6 @@ mickey/main.cpp mickey/help/tracking.htm mickey/help/misc.htm \
 mickey/help/news.htm mickey/help/contents.txt mickey/help/welcome.htm mickey/uinput_ifc.c \
 mickey/keyb.cpp mickey/helpview.ui mickey/keyb_x11.cpp mickey/keyb_x11.h mickey/linuxtrack.icns \
 mickey/mouse.h mickey/mouse_linux.cpp mickey/mouse_mac.cpp mickey/mickey.qrc sn4_model.h
-
-
-
-ltr_pipe_CPPFLAGS =
-
-if LTR_PIPE
-  man_MANS += ltr_pipe.1
-  bin_PROGRAMS += ltr_pipe
-  ltr_pipe_CPPFLAGS += -D_GNU_SOURCE
-  ltr_pipe_SOURCES = ../config.h ltr_pipe.c linuxtrack.h utils.h utils.c linuxtrack.c
-  ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
-  ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS} -ldl
-endif
-
-if LINUX
-  ltr_pipe_CPPFLAGS += -DLINUX
-endif
 
 desktopdir = $(datadir)/applications
 desktop_DATA = linuxtrack.desktop linuxtrack-wii.desktop
