@@ -80,7 +80,7 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = doc
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(am__dist_doc_DATA_DIST) $(am__nobase_dist_doc_DATA_DIST)
+	$(dist_doc_DATA) $(nobase_dist_doc_DATA)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -113,7 +113,6 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__dist_doc_DATA_DIST = README.ltr_pipe
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -142,9 +141,6 @@ am__uninstall_files_from_dir = { \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
 am__installdirs = "$(DESTDIR)$(docdir)" "$(DESTDIR)$(docdir)"
-am__nobase_dist_doc_DATA_DIST = fgfs/Nasal/LinuxTrack/linuxtrack.nas \
-	fgfs/Protocol/linuxtrack.nas.xml fgfs/Protocol/linuxtrack.xml \
-	fgfs/Input/Joysticks/LinuxTrack/uinput-abs.xml fgfs/README
 DATA = $(dist_doc_DATA) $(nobase_dist_doc_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -224,7 +220,7 @@ STRIP = @STRIP@
 VERSION = @VERSION@
 WINE64_LIBS = @WINE64_LIBS@
 WINE_LIBS = @WINE_LIBS@
-XPLANE_SDK = @XPLANE_SDK@
+XPL_CPPFLAGS = @XPL_CPPFLAGS@
 YACC = @YACC@
 YFLAGS = @YFLAGS@
 abs_builddir = @abs_builddir@
@@ -279,14 +275,15 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+with_makensis = @with_makensis@
 with_wine64 = @with_wine64@
-@LTR_PIPE_TRUE@dist_doc_DATA = README.ltr_pipe
-@LTR_PIPE_TRUE@nobase_dist_doc_DATA = \
-@LTR_PIPE_TRUE@    fgfs/Nasal/LinuxTrack/linuxtrack.nas \
-@LTR_PIPE_TRUE@    fgfs/Protocol/linuxtrack.nas.xml \
-@LTR_PIPE_TRUE@    fgfs/Protocol/linuxtrack.xml \
-@LTR_PIPE_TRUE@    fgfs/Input/Joysticks/LinuxTrack/uinput-abs.xml \
-@LTR_PIPE_TRUE@    fgfs/README
+dist_doc_DATA = README.ltr_pipe
+nobase_dist_doc_DATA = \
+  fgfs/Nasal/LinuxTrack/linuxtrack.nas \
+  fgfs/Protocol/linuxtrack.nas.xml \
+  fgfs/Protocol/linuxtrack.xml \
+  fgfs/Input/Joysticks/LinuxTrack/uinput-abs.xml \
+  fgfs/README
 
 all: all-am
 

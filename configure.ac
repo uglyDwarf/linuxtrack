@@ -31,7 +31,6 @@ PKG_PROG_PKG_CONFIG
 AC_CHECK_LIB([m], [sqrt], [LIBM=true], [AC_MSG_FAILURE([I need libm!])])
 AC_CHECK_LIB([z], [gzopen], [LIBZ=true])
 AC_CHECK_LIB([pthread], [pthread_create], [LIBPTHREAD=true], [AC_MSG_FAILURE([I need libpthread!])])
-AC_CHECK_LIB([usb], [usb_open], [LIBUSB=true])
 #AC_CHECK_LIB([openusb], [openusb_init], [LIBOPENUSB=true])
 AC_CHECK_LIB([usb-1.0], [libusb_init], [LIBUSB10=true])
 AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
@@ -74,49 +73,24 @@ AC_CHECK_HEADER([libv4l2.h],
 )                                                                                                                                             
 
 AC_CHECK_HEADER([mxml.h], [], [AC_MSG_FAILURE([mxml.h is needed for ltr_gui compilation!])])                                                                                                                                             
+AC_CHECK_HEADER([linux/uinput.h], [build_mickey=yes], [build_mickey=no])
 
-AC_CHECK_PROG([with_wine64], [wine64], [yes])                                                                                                                                             
+AC_CHECK_PROG([with_wine64], [wine64], [yes])
+AC_CHECK_PROG([with_makensis], [makensis], [yes])
 
-
-
-XPLANE_SDK=
+XPL_CPPFLAGS=
 AC_ARG_WITH([xplane_sdk],
             [AS_HELP_STRING([--with-xplane-sdk],
-              [specify path to XPlane SDK @<:@default=../SDK@:>@])], 
-            [XPLANE_SDK=${with_xplane_sdk}],
-            [XPLANE_SDK="/usr/include/xplane_sdk"]
+              [specify path to XPlane SDK @<:@default=/usr/include/xplane_sdk@:>@])], 
+            [XPL_CPPFLAGS=" -I${with_xplane_sdk}/XPLM -I${with_xplane_sdk}/Widgets "],
+            [XPL_CPPFLAGS=" -I/usr/include/xplane_sdk/XPLM -I/usr/include/xplane_sdk/Widgets "]
 )
 
-AC_ARG_ENABLE([xplane_plugin],
-            [AS_HELP_STRING([--enable-xplane-plugin],
-              [build XPlane plugin (requires XPlane SDK > 2.0.1)@<:@default=yes@:>@])], 
-            [],
-            [
-                AC_CHECK_FILE([${XPLANE_SDK}/XPLM/XPLMScenery.h],
-                    [
-                      AC_SUBST([XPLANE_SDK])
-                      with_xplane_plugin=yes
-                    ],
-                    [
-                      with_xplane_plugin=no
-                    ]
-                )
-            ]
-)
-
-AC_ARG_ENABLE([ltr_pipe],
-		[AS_HELP_STRING([--enable-ltr-pipe],
-				[build ltr_pipe data sender @<:@default=yes@:>@])],
-		[with_ltr_pipe=$enableval],
-		[with_ltr_pipe=yes]
-)
-
-AC_ARG_ENABLE([snow_leopard],
-            [AS_HELP_STRING([--enable-snow-leopard],
-              [specify that you are building on MacOSX 10.6])], 
-            [with_snow_leopard=yes],
-            [with_snow_leopard=no]
-)
+BCK_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS+="$XPL_CPPFLAGS -DLIN=1"
+AC_CHECK_HEADER([XPLMPlugin.h], [build_xplane_plugin=yes], [build_xplane_plugin=no])
+CPPFLAGS="$BCK_CPPFLAGS"
+AC_SUBST([XPL_CPPFLAGS])
 
 AC_ARG_ENABLE([ltr_32lib_on_x64],
 		[AS_HELP_STRING([--enable-ltr-32lib-on-x64],
@@ -125,39 +99,60 @@ AC_ARG_ENABLE([ltr_32lib_on_x64],
 		[with_ltr_32lib_on_x64=yes]
 )
 
-AC_ARG_ENABLE([wine_plugin],
-            [AS_HELP_STRING([--enable-wine-plugin],
-              [build wine plugin (requires winegcc, wineg++ and makensis) @<:@default=no@:>@])], 
-            [with_wine_plugin=yes],
-            [with_wine_plugin=no]
-)
-
-AC_ARG_ENABLE([mickey],
-            [AS_HELP_STRING([--enable-mickey],
-              [build mickey (virtual mouse) @<:@default=no@:>@])], 
-            [with_mickey=yes],
-            [with_mickey=no]
-)
-
+WINE_LIBS=
 AC_ARG_WITH([wine-libs],
             [AS_HELP_STRING([--with-wine-libs],
               [specify Wine libraries to link aginst])], 
             [WINE_LIBS=${with_wine_libs}]
 )
 
+WINE64_LIBS=
 AC_ARG_WITH([wine64-libs],
             [AS_HELP_STRING([--with-wine64-libs],
               [specify Wine64 libraries to link aginst])], 
             [WINE64_LIBS=${with_wine64_libs}]
 )
 
-#AC_ARG_ENABLE([face_tracker],
-#            [AS_HELP_STRING([--enable-face-tracker],
-#              [enables building of face tracker (requires OpenCV 2.X)])], 
-#            [with_face_tracker=yes],
-#            [with_face_tracker=no]
-#)
 
+BCK_CC="$CC"
+BCK_CFLAGS="$CFLAGS"
+BCK_CPPFLAGS="$CPPFLAGS"
+BCK_LDFLAGS="$LDFLAGS"
+BCK_LIBS="$LIBS"
+BCK_EXEEXT="$ac_exeext"
+AC_LANG_PUSH([C])
+CC="winegcc"
+ac_exeext=".exe"
+
+CFLAGS=""
+
+AS_IF([test x$with_wine64 = xyes],
+ [
+   LDFLAGS=" $WINE64_LIBS "
+   AC_MSG_CHECKING([64bit winegcc])
+   AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])], [WINEGCC_COMPILES=yes], [WINEGCC_COMPILES=no])
+   AS_IF([test  "x$WINEGCC_COMPILES" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
+   AC_MSG_CHECKING([64bit wineg++])
+   AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])], [WINEGPP_COMPILES=yes], [WINEGPP_COMPILES=no])
+   AS_IF([test  "x$WINEGPP_COMPILES" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
+   CFLAGS=" -m32 "
+   LDFLAGS=" $WINE_LIBS "
+ ], []
+)
+
+AC_MSG_CHECKING([32bit winegcc])
+AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])], [WINEGCC32_COMPILES=yes], [WINEGCC32_COMPILES=no])
+AS_IF([test  "x$WINEGCC32_COMPILES" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
+AC_MSG_CHECKING([32bit wineg++])
+AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])], [WINEGPP32_COMPILES=yes], [WINEGPP32_COMPILES=no])
+AS_IF([test  "x$WINEGPP32_COMPILES" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
+AC_LANG_POP([C])
+ac_exeext="$BCK_EXEEXT"
+LIBS="$BCK_LIBS"
+LDFLAGS="$BCK_LDFLAGS"
+CPPFLAGS="$BCK_CPPFLAGS"
+CFLAGS="$BCK_CFLAGS"
+CC="$BCK_CC"
 
 AS_IF([case $host_os in darwin*) true;; *) false;; esac],
   [    
@@ -178,10 +173,7 @@ AS_IF([case $host_os in darwin*) true;; *) false;; esac],
   ]
 )
 
-PKG_CHECK_MODULES([OPENCV], [opencv >= 2.0],
-            [with_face_tracker=yes],
-            [with_face_tracker=no]
-)
+PKG_CHECK_MODULES([OPENCV], [opencv >= 2.0])
 AC_SUBST([OPENCV_CFLAGS])
 AC_SUBST([OPENCV_LIBS])
 AC_SUBST([WINE_LIBS])
@@ -194,29 +186,30 @@ x86_64) with_64_bit=yes ;;
 *) AC_MSG_ERROR([unsupported CPU type]) ;;
 esac
 
+AS_IF([((test "x$pkg_cv_OPENCV_CFLAGS" != x) && (test "x$pkg_cv_OPENCV_LIBS" != x)) ||
+       ((test "x$OPENCV_CFLAGS" != x) && (test "x$OPENCV_LIBS" != x))], 
+                                [build_face_tracker=yes], [build_face_tracker=no])
 
-AS_IF([test x$(uname -o) = x"GNU/Linux"], [with_linux=yes])
+AS_IF([(test "x$WINEGCC32_COMPILES" = xyes) && (test "x$WINEGPP32_COMPILES" = xyes) &&
+  (test "x$with_makensis" = xyes) ], [build_wine_plugin=yes], [build_wine_plugin=no])
+
+AS_IF([(test "x$WINEGCC_COMPILES" = xyes) && (test "x$WINEGPP_COMPILES" = xyes) &&
+  (test "x$with_makensis" = xyes) ], [build_wine64_plugin=yes], [build_wine64_plugin=no])
 
 
-AM_CONDITIONAL(XPLANE_PLUGIN, [test x$with_xplane_plugin = xyes])
+AM_CONDITIONAL(XPLANE_PLUGIN, [test x$build_xplane_plugin = xyes])
 AM_CONDITIONAL(CWIID, [test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes])
 AM_CONDITIONAL(V4L2, [test x$with_v4l2 = xyes])
 AM_CONDITIONAL(LIBV4L2, [test x$with_libv4l2 = xyes])
-AM_CONDITIONAL(LIBMXML, [test x$with_libmxml = xyes])
 AM_CONDITIONAL(DARWIN, [test x$with_darwin = xyes])
-AM_CONDITIONAL(SNOW_LEOPARD, [test x$with_snow_leopard = xyes])
-AM_CONDITIONAL(LIBUSB, [test "x$ac_cv_lib_usb_usb_open" = xyes])
 AM_CONDITIONAL(LIBUSB10, [test "x$ac_cv_lib_usb_1_0_libusb_init" = xyes])
-AM_CONDITIONAL(OPENUSB, [test  "x$ac_cv_lib_openusb_openusb_init" = xyes])
 AM_CONDITIONAL(LIBZ, [test  "x$ac_cv_lib_z_gzopen" = xyes])
 AM_CONDITIONAL(X64, [test  "x$with_64_bit" = xyes])
 AM_CONDITIONAL([LTR32ON64], [test  "x$with_ltr_32lib_on_x64" = xyes])
-AM_CONDITIONAL([LTR_PIPE], [test  x$with_ltr_pipe = xyes])
-AM_CONDITIONAL([LINUX], [test x$with_linux = xyes])
-AM_CONDITIONAL(FACE_TRACKER, [test x$with_face_tracker = xyes])
-AM_CONDITIONAL(MICKEY, [test x$with_mickey = xyes])
-AM_CONDITIONAL(WINE_PLUGIN, [test x$with_wine_plugin = xyes])
-AM_CONDITIONAL(WINE64, [test x$with_wine64 = xyes])
+AM_CONDITIONAL(FACE_TRACKER, [test x$build_face_tracker = xyes])
+AM_CONDITIONAL(MICKEY, [test x$build_mickey = xyes])
+AM_CONDITIONAL(WINE_PLUGIN, [test x$build_wine_plugin = xyes])
+AM_CONDITIONAL(WINE64, [test x$build_wine64_plugin = xyes])
 
 # Checks for library functions.
 AC_CHECK_FUNCS([atexit])
@@ -268,20 +261,16 @@ AS_IF([(test  "x$ac_cv_lib_usb_1_0_libusb_init" = xyes) \
              && (test "x$ac_cv_lib_z_gzopen" = xyes)], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 AC_MSG_CHECKING([Facetracker support])
-AS_IF([(test  "x$with_face_tracker" = xyes) \
-             || (test "x$with_opencv_libs = xyes")], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
+AS_IF([(test  "x$build_face_tracker" = xyes)], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 AC_MSG_CHECKING([XPlane plugin])
-AS_IF([test  "x$with_xplane_plugin" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
+AS_IF([test  "x$build_xplane_plugin" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 AC_MSG_CHECKING([Mickey])
-AS_IF([test  "x$with_mickey" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
+AS_IF([test  "x$build_mickey" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 AC_MSG_CHECKING([Wine plugin])
-AS_IF([test  "x$with_wine_plugin" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
-
-AC_MSG_CHECKING([ltr_pipe])
-AS_IF([test  "x$with_ltr_pipe" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
+AS_IF([test  "x$build_wine_plugin" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 
 
