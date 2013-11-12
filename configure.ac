@@ -34,7 +34,7 @@ AC_CHECK_LIB([pthread], [pthread_create], [LIBPTHREAD=true], [AC_MSG_FAILURE([I 
 #AC_CHECK_LIB([openusb], [openusb_init], [LIBOPENUSB=true])
 AC_CHECK_LIB([usb-1.0], [libusb_init], [LIBUSB10=true])
 AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
-AC_CHECK_LIB([mxml], [mxmlNewXML], [LIBMXML=true], [AC_MSG_FAILURE([Libmxml is needed for ltr_gui compilation!])])
+AC_CHECK_LIB([mxml], [mxmlNewXML], [LIBMXML=true], [AC_MSG_FAILURE([Libmxml is needed for ltr_gui compilation!])], [-pthread])
 
 
 # Checks for header files.
