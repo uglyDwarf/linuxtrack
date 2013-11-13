@@ -129,14 +129,13 @@ export ACLOCAL="aclocal -I ./mac_m4"
 echo "Rebuilding with mac_m4"
 autoreconf -if
 unset ACLOCAL
-export CFLAGS="-I${PREFIX}/include -I${WINE_PREFIX}/include"
-export CXXFLAGS="-I${PREFIX}/include -I${WINE_PREFIX}/include"
+export CPPFLAGS="-I${PREFIX}/include -I${WINE_PREFIX}/include"
+#export CXXFLAGS="-I${PREFIX}/include -I${WINE_PREFIX}/include"
 export LDFLAGS="-L${PREFIX}/lib "
 OPENCV_CFLAGS=$(./pkgconf_extract ${PREFIX}/lib/pkgconfig/opencv.pc --with-opencv_cflags Cflags)
 OPENCV_LIBS=$(./pkgconf_extract ${PREFIX}/lib/pkgconfig/opencv.pc --with-opencv-libs Libs)
 ./configure --prefix=${PREFIX} --with-xplane-sdk=${BASE}/SDK/CHeaders --enable-snow-leopard \
-   --enable-ltr-pipe --enable-wine-plugin --with-wine-libs="-L${WINE_PREFIX}/lib -L${WINE_PREFIX}/lib/wine" \
-   "${OPENCV_CFLAGS}" "${OPENCV_LIBS}" &&
+   --with-wine-libs="-L${WINE_PREFIX}/lib -L${WINE_PREFIX}/lib/wine" "${OPENCV_CFLAGS}" "${OPENCV_LIBS}" &&
 make $PARALEL_MAKE > build.log &&
 make install > install.log
 if [ $? != 0 ]; then

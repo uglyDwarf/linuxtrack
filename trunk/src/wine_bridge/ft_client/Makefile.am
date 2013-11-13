@@ -16,10 +16,10 @@ CXX = wineg++
 SUFFIXES = .o .cpp .c .rc
 
 .cpp.o :
-	$(CXX) -m32 -c $(CXXFLAGS_PRE) $(CXXFLAGS) -o $@ $<
+	$(CXX) -m32 -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
 .c.o :
-	$(CC) -m32 -c $(CFLAGS_PRE) $(CFLAGS) -o $@ $<
+	$(CC) -m32 -c $(CFLAGS_PRE) $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 CXXFLAGS_PRE = -g -DHAVE_CONFIG_H -I../../.. -I. -I@srcdir@/../.. -I@top_builddir@
 CFLAGS_PRE = -g -I../.. -I../../.. -DHAVE_CONFIG_H -I@srcdir@/../.. -I@top_builddir@

@@ -19,16 +19,16 @@ CXX = wineg++
 SUFFIXES = .o .cpp .c .rc 64.o
 
 .cpp.o :
-	$(CXX) -m32 -c $(CXXFLAGS_PRE) $(CXXFLAGS) -o $@ $<
+	$(CXX) -m32 -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
 .c.o :
-	$(CC) -m32 -c $(CFLAGS_PRE) $(CFLAGS) -o $@ $<
+	$(CC) -m32 -c $(CFLAGS_PRE) $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 .cpp64.o :
-	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
 .c64.o :
-	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 .rc.o :
 	wrc -o $@ $(RCFLAGS) $<
