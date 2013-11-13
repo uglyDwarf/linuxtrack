@@ -10,10 +10,10 @@ AC_PROG_CXX
 AC_PROG_OBJC
 AS_IF([test "$debug" != "no"],
       [CFLAGS+=" -g -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
-         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2" 
+         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2 " 
        CXXFLAGS+=" -g -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
-         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2"
-       CPPFLAGS+="-D_FORTIFY_SOURCE=2 -O2"],
+         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2 "
+       CPPFLAGS+=" -D_FORTIFY_SOURCE=2 -O2 "],
       [CFLAGS+=" -O3 " CXXFLAGS+=" -O3 "])
 
 # Checks for programs.
@@ -135,7 +135,7 @@ AS_IF([test x$with_wine64 = xyes],
    AC_MSG_CHECKING([64bit wineg++])
    AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])], [WINEGPP_COMPILES=yes], [WINEGPP_COMPILES=no])
    AS_IF([test  "x$WINEGPP_COMPILES" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
- ], []
+ ]
 )
 
 CFLAGS=" -m32 "

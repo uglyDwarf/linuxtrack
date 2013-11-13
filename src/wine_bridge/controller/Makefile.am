@@ -14,10 +14,10 @@ CC = winegcc -m32
 CXX = wineg++ -m32
 
 .cpp.o :
-	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
 .c.o :
-	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 .rc.o :
 	wrc -o $@ $<
