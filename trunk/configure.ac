@@ -135,11 +135,11 @@ AS_IF([test x$with_wine64 = xyes],
    AC_MSG_CHECKING([64bit wineg++])
    AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])], [WINEGPP_COMPILES=yes], [WINEGPP_COMPILES=no])
    AS_IF([test  "x$WINEGPP_COMPILES" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
-   CFLAGS=" -m32 "
-   LDFLAGS=" $WINE_LIBS "
  ], []
 )
 
+CFLAGS=" -m32 "
+LDFLAGS=" $WINE_LIBS "
 AC_MSG_CHECKING([32bit winegcc])
 AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])], [WINEGCC32_COMPILES=yes], [WINEGCC32_COMPILES=no])
 AS_IF([test  "x$WINEGCC32_COMPILES" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
