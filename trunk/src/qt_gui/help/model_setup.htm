@@ -8,21 +8,24 @@
 </head>
 <body>
 
-The second step to take is to select the "model" to use. Model is a "marker", attached to ones head,
+The second step to take is to select the "model" to use. Model is sort of a marker, attached to ones head,
 simplifying the head pose determination.
+
+<img src="Model.png" width="100%" alt="">
 
 <p>
 There are several predefined models - "NP TrackClip", "NP TrackClip Pro", "Face",
  "Single point reflective" and "Single LED" - if you use one of those, just select the one of your
- choice in the <b>Model Name</b> combobox and you should be good to go.
+ choice in the <b>Model Name</b> combobox and you can continue to the next pane.
 <p>
 If none of the predefined models suits you, you can define your own.
 <p>
 <h1>Model Creation</h1>
 Press the <b>Create New</b> button and the form for new model creation will pop up.
+<img src="ModelCreate.png" width="100%" alt="">
 
 <p>
-Type in the name of your model to the <b>Model Name</b> box and then select the model type. 
+Type-in the name of your model to the <b>Model Name</b> box and then select the model type. 
 Available model types are these:
  <ul>
    <li><b>1 point</b> - single LED diode or reflective marker; simple but gives you only 2 degrees of freedom 
@@ -36,7 +39,7 @@ Available model types are these:
  </ul>
 
 <p>
-Now fill in the model dimensions (where applicable) according to the diagram 
+Now fill-in the model dimensions (where applicable) according to the diagram 
 (all dimensions are in milimeters).
 Last thing to do is to select, if the model uses LEDs (obviously with the exception of face model type)
  - if it does, check the <b>Model with LEDs</b> checkbox.
@@ -50,7 +53,7 @@ Note however, that the movement can't be fully suppressed, both due to the
 head movement model simplification (assuming that all panning is done using a single
 joint) and also due to the human's inability to stand absolutely still while turning
 the head.  Note also that turning the head inherently contains some movement - for 
-example look down and realize that your viewpoint shifted forward and down...
+example look down at your shoes and realize that your viewpoint shifted forward and down...
 
 <h2>Model tweaking procedure</h2>
 Both three point model types share the same system of tweaking - there are several

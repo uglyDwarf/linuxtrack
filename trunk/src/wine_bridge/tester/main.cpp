@@ -41,6 +41,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     switch(uMsg)
     {
         case WM_INITDIALOG:
+            SetDlgItemInt(hwndDlg, IDC_APPID, 2307, true);
             return TRUE;
 
         case WM_CLOSE:
@@ -61,7 +62,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                   int ok;
                   int num = GetDlgItemInt(hwndDlg, IDC_APPID, (BOOL*)&ok, false);
                   if(!ok){
-                    num = 101;
+                    num = 2307;
                   }
                   game_desc_t gd;
                   if(timer != 0){

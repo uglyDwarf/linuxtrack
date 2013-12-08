@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>XPluginInstall</class>
- <widget class="QWidget" name="XPluginInstall">
+ <widget class="QDialog" name="XPluginInstall">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>536</width>
-    <height>139</height>
+    <width>415</width>
+    <height>133</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Dialog</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -54,12 +54,21 @@
        <property name="text">
         <string>Browse</string>
        </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="CancelButton">
        <property name="text">
         <string>Cancel</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -67,25 +76,21 @@
    </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>BrowseXPlane</tabstop>
-  <tabstop>pushButton</tabstop>
- </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>pushButton</sender>
-   <signal>pressed()</signal>
+   <sender>CancelButton</sender>
+   <signal>clicked()</signal>
    <receiver>XPluginInstall</receiver>
-   <slot>hide()</slot>
+   <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>105</y>
+     <x>307</x>
+     <y>107</y>
     </hint>
     <hint type="destinationlabel">
-     <x>8</x>
-     <y>84</y>
+     <x>207</x>
+     <y>66</y>
     </hint>
    </hints>
   </connection>

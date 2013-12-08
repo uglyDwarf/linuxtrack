@@ -170,10 +170,11 @@ AS_IF([case $host_os in darwin*) true;; *) false;; esac],
               [specify OpenCV includes])], 
             [OPENCV_CFLAGS=${with_opencv_cflags}]
     )
+  ], [
   ]
 )
 
-m4_ifdef([OPENCV], [PKG_CHECK_MODULES([OPENCV], [opencv >= 2.0])])
+m4_ifdef([PKG_CHECK_MODULES], [PKG_CHECK_MODULES([OPENCV], [opencv >= 2.0])])
 
 
 AC_SUBST([OPENCV_CFLAGS])

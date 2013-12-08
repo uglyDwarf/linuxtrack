@@ -191,7 +191,7 @@ void LinuxtrackGui::on_XplanePluginButton_pressed()
   if(xpInstall==NULL){
     xpInstall = new XPluginInstall();
   }
-  xpInstall->show();
+  xpInstall->exec();
 }
 
 void LinuxtrackGui::on_SaveButton_pressed()

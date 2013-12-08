@@ -268,18 +268,26 @@ unsigned int cksum(unsigned char buf[], unsigned int size)
 
 int decode_frame(tir_data_t *td)
 {
-  printf("0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n",
-          table[0], table[1], table[2], table[3],
-          table[4], table[5], table[6], table[7]);
+    //printf("0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n",
+    //      table[0], table[1], table[2], table[3],
+    //      table[4], table[5], table[6], table[7]);
     unsigned int csum;
-     decrypt((unsigned char*)td, sizeof(*td), table, sizeof(table));
+    decrypt((unsigned char*)td, sizeof(*td), table, sizeof(table));
     csum = td->cksum;
     td->cksum = 0;
     if(csum != cksum((unsigned char*)td, sizeof(*td))){
         printf("Problem with frame!\n");
+        //int a0;
+        //printf("Dec:  ");
+        //for(a0 = 0; a0 < (int)sizeof(tir_data_t); ++a0)
+        //{
+        //  printf("%02X", ((unsigned char *)td)[a0]);
+        //}
+        //printf("\n");
+        //printf("Cksum: %04X vs computed: %04X\n", csum, cksum((unsigned char*)td, sizeof(*td)));
         return -1;
     }
-    printf("Frame OK!\n");
+    //printf("Frame OK!\n");
     return 0;
 }
 

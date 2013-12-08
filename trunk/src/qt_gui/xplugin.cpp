@@ -78,7 +78,7 @@ void XPluginInstall::on_BrowseXPlane_pressed()
      "Find XPlane executable", QDir::homePath(), "All Files (*)");
   QRegExp pathRexp("^(.*/)[^/]+$");
   if(pathRexp.indexIn(fileName) == -1){
-    hide();
+    reject();
     return;
   }
   QString sourceFile32 = PrefProxy::getLibPath("xlinuxtrack9_32");
@@ -86,6 +86,7 @@ void XPluginInstall::on_BrowseXPlane_pressed()
   QString destPath = pathRexp.cap(1) + "/Resources/plugins";
   if(!QFile::exists(destPath)){
     warningMessage(QString("Can't install XPlane plugin there:'" + fileName + "'"));
+    reject();
     return;
   }
   
@@ -94,6 +95,7 @@ void XPluginInstall::on_BrowseXPlane_pressed()
   QFileInfo old(oldPlugin);
   if(old.exists()){
     if(!removePlugin(oldPlugin)){
+      reject();
       return;
     }
   }
@@ -107,8 +109,9 @@ void XPluginInstall::on_BrowseXPlane_pressed()
     QMessageBox::information(NULL, "Linuxtrack", "XPlane plugin installed successfuly!");
   }else{
     warningMessage(QString("XPlane plugin installation failed!"));
+    reject();
   }
-  hide();
+  accept();
 }
 
 
