@@ -8,13 +8,16 @@
 </head>
 <body>
 <h1>NP Firmware Extractor</h1>
-NP devices (TrackIR and SmartNav) require a firmware that has to be loaded each time the device is
+Some NP devices (TrackIR4+ and SmartNav4) require a firmware that has to be loaded each time the device is
 started. Also the linuxtrack Wine bridge utilizes some informations contained in the package
-(the infamous poetry and list of supported games along with their IDs).
+(the infamous poetry, list of supported games along with their IDs and keys for the "enhanced" interface).
 The firmware is extracted using Wine from the TrackIR windows package downloaded directly from
 NP.
 
 <h2>Firmware extraction</h2>
+
+<img src="Extractor.png" width="100%" alt="">
+<p>
 When the Extraction dialog pops up, press the <b>Download</b> button to download the latest 
 driver package. By default the newest packge available is downloaded; if it is not accessible,
 select any other from the combobox to the left off the button (all packages listed there contain 
@@ -39,13 +42,13 @@ using the <b>Extract from installer</b> button find and open the one you downloa
 If you encounter any difficulties using the above methods, you can try to install the driver by 
 hand (using wine or install on windows machine and copy over). Then just press the 
 <b>Extract from unpacked</b>, browse to the directory (the whole directory!) containing the
-NP software (usually ~/.wine/drive_c/Program\ Files/NaturalPoint/TrackIR5) and press Open button for 
+NP software (e.g. ~/.wine/drive_c/Program\ Files/NaturalPoint/TrackIR5) and press Open button for 
 the extraction to begin.
 
 
 <h2>Why so complicated?</h2>
 Maybe you wander, why is the whole thing that complicated, or why to download ~20MB package instead
-of around 100KB one?
+of 100KB one?
 <p>
 There are two main reasons that led to this decision:
 First one is the neglect from the NP's side - more than year ago I asked couple of relatively 
@@ -59,7 +62,7 @@ being technicaly impossible to do, it would be completely against the Linuxtrack
 For those reasons (and couple of others) I decided to cut all the bonds (they used to host Linuxtrack
 firmware package in the past - per their own request) and using wine was the only logical choice.
 Given the fact, that this step is mostly one time only, I hope the inconvenience level is not 
-very high.
+too high.
 
 <h2>Technical informations</h2>
 The extracted files are in the following path:

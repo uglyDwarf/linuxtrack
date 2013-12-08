@@ -143,32 +143,32 @@ void SCView::newPose(pose_t *raw_pose, pose_t *unfiltered, pose_t *pose)
   (void) pose;
   switch(axis){
     case PITCH:
-      rx = raw_pose->pitch;
+      rx = raw_pose->raw_pitch;
       px = pose->pitch;
       upx = unfiltered->pitch;
       break;
     case ROLL:
-      rx = raw_pose->roll;
+      rx = raw_pose->raw_roll;
       px = pose->roll;
       upx = unfiltered->roll;
       break;
     case YAW:
-      rx = raw_pose->yaw;
+      rx = raw_pose->raw_yaw;
       px = pose->yaw;
       upx = unfiltered->yaw;
       break;
     case TX:
-      rx = raw_pose->tx;
+      rx = raw_pose->raw_tx;
       px = pose->tx;
       upx = unfiltered->tx;
       break;
     case TY:
-      rx = raw_pose->ty;
+      rx = raw_pose->raw_ty;
       px = pose->ty;
       upx = unfiltered->ty;
       break;
     case TZ:
-      rx = raw_pose->tz;
+      rx = raw_pose->raw_tz;
       px = pose->tz;
       upx = unfiltered->tz;
       break;

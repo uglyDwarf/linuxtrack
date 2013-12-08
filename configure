@@ -3955,10 +3955,10 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 if test "$debug" != "no"; then :
   CFLAGS+=" -g -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
-         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2"
+         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2 "
        CXXFLAGS+=" -g -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
-         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2"
-       CPPFLAGS+="-D_FORTIFY_SOURCE=2 -O2"
+         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2 "
+       CPPFLAGS+=" -D_FORTIFY_SOURCE=2 -O2 "
 else
   CFLAGS+=" -O3 " CXXFLAGS+=" -O3 "
 fi
@@ -16701,6 +16701,7 @@ else
 $as_echo "no" >&6; }
 fi
 
+
 fi
 
 CFLAGS=" -m32 "
@@ -16793,7 +16794,6 @@ if test "${with_opencv_cflags+set}" = set; then :
   withval=$with_opencv_cflags; OPENCV_CFLAGS=${with_opencv_cflags}
 
 fi
-
 
 
 fi
@@ -16889,6 +16889,8 @@ else
 $as_echo "yes" >&6; }
 
 fi
+
+
 
 
 

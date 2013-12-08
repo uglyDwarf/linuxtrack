@@ -8,10 +8,10 @@
 </head>
 <body>
 
-The first step in linuxtrack configuration is the selection of the tracking device
+The first step in linuxtrack configuration is selection of the tracking device
  - just select the device of your choice from the "<strong>Tracking device</strong>" combobox. <br>
-If you can't find the device you want to use, press the "<strong>Refresh</strong>"
-button and check again.
+If you can't find the device you want to use (e.g. webcam attached after Linuxtrack GUI was started, ...), 
+press the "<strong>Refresh</strong>" button and check again.
 <p>
 
 Next thing that you can set is the camera orientation - normally you should not need to change this...<br>
@@ -19,160 +19,80 @@ However, if your tracking device is in a position other that in front of you wit
 (you mounted TrackIR upside down for some reason, or you use laptop with a webcam chip mounted upside down,...),
 change the </strong>Camera Orientation</strong> to match your device's orientation.
 <p>
-Device Index:
+Available devices are:
 <p>
 <A href="#Wiimote">Wiimote Setup</A><br>
 <A href="#Webcam">Webcam Setup</A><br>
 <A href="#Webcam_ft">Webcam Setup for face tracking</A><br>
-<A href="#TIR">TrackIR Setup</A><br>
+<A href="#TIR">TrackIR Setup (including SmartNav devices)</A><br>
+
 
 <h1><A name="Wiimote">Wiimote Setup</A></h1>
+<img src="Wiimote.png" width="100%" alt="">
 <p>If Wiimote is the tracking device of your choice, first of all, make sure you have the Wiimote
-server running (comes along with linuxtrack) and connected to the Wiimote.
-
+server running (comes along with Linuxtrack) and connected to the Wiimote.
 <p>
-If Wiimote server is not running, then start it, press the <strong>Connect</strong> button and press buttons 
-"1" and "2" on the Wiimote simultaneously. After a short pause, you should see the state change to Connected
-and one of LEDs on your Wiimote should blink briefly about every 5 seconds.
-
+If Wiimote server is not running, then start it, press the <strong>Connect</strong> button and then 
+simultaneously press buttons "1" and "2" on the Wiimote . After a short pause, you should see the 
+state change to Connected and one of LEDs on your Wiimote should blink briefly about every 5 seconds.
 <p>
 Due to the nature of Wiimote there is no way to tweak any parameters except which LEDs should indicate 
-running or paused tracker. Just select which LEDs should be on in the Running state and which should be on in 
-the Paused state.
-
+running/paused tracker. Just select which LEDs should be on in the Running state and which should be on in 
+the Paused state. However, if the battery life is crucial, I'd suggest to turn all LEDs off at least in the 
+Running state (in this state you are going to spend most of the time).
 <p>
-If the battery life is crucial, I'd suggest to turn all LEDs off at least in the Running state (in this state 
-you are going to spend most of the time). 
+<A href="#StartTracking">Now you can try to start the tracking to verify the device is set up correctly.</A>
 
-<p>To check, how the tracking works, go to the <strong>Tracking window</strong>, select Camera view pane and
-press <strong>Start</strong> button to commence tracking.
-Ideally, you should see three (or one, in case of single point model) "blobs" 
-- these are light emitting or reflecting points of your model as seen by the Wiimote. 
-Each of those "blobs" should contain a white cross marking it valid.</p>
 
-<p>
-If there are unwanted blobs, the only possibility to get rid of them is to remove them physically 
-(e.g. turn off the lamp or cover the mirror reflecting it), since there is
-no way to alter the processing taking place inside the Wiimote.
 
 <h1><A name="Webcam">Webcam Setup</A></h1>
+<img src="Webcam.png" width="100%" alt="">
 <p>To configure a webcam, at first you have to set the <strong>Pixel Format</strong>.
-The preferred format is YUYV, but you can experiment to see which one works the best for you.
+The preferred format is YUYV (native UVC webcam format), but you can experiment and see
+which one works the best for you (avoid JPEG/MJPG as these aren't supported).
 </p>
-<p>Then continue by selecting the desired <strong>Resolution &amp; Framerate</strong>. <br>
-The safest bet would be something around 320x240@30; when tracking on this setting works, you can safely 
+<p>Continue by selecting the desired <strong>Resolution &amp; Framerate</strong>.<br>
+The safest bet would be something around 352x288@30; when tracking with these setting works, you can 
 experiment with different resolutions and framerates.
 </p>
-
-<p>To check, how the tracking works, go to the <strong>Tracking window</strong>, select Camera view pane
- and press <strong>Start</strong> button to commence tracking.
-Ideally, you should see three (or one, in case of single point model) "blobs" 
-- these are light emitting or reflecting points of your model seen by the camera. 
-Each of those "blobs" should contain a white cross marking it valid.</p>
-
-<p>If the webcam picture is upside down (e.g. some notebooks have the sensor mounted that way), 
-just check the <strong>Webcam mounted upside down</strong> button.</p>
-
 <p>
-When you try tracking for the first time, most probably you'll see
-more or less blobs, or white crosses that aren't in the right blobs.
-</p>
+To ensure best framerate (stable and high), it is recommended to turn at least the Automatic exposure off
+(better turn off the rest of Auto... features too), if possible.
+Then set the exposure manually and tweak the rest of parameters (brightness, contrast, ...) to get good picture.
+On Linux you can use the guvcview for this purpose.
 
-<p>
-Then you can try some of these solutions:
-<ul>
-  <li>Try to remove unnecessary sources of light in the webcam's field of view (lightbulbs, ...)</li>
-  <li>Turn off autoexposure and set lower exposition value (on Linux, try using guvcview or similar software)</li>
-  <li>Play with Brightness, Contrast and Gamma settings if available</li>
-  <li>Set the <strong>Threshold</strong> value higher (if unwanted blobs are less bright than wanted ones)</li>
-  <li>Try to use piece of exposed film or magnetic tape as a light filter (piece of magnetic material from old 
-    floppy works very well too).</li>
-</ul>
-The preferred solution is the first one, although tweaking camera parameters (brightness, contrast, 
-exposure, ...) can considerably improve the tracking. <br>
 
-<p>
-When you have removed as much interfering light sources as possible, you might try to get rid of the rest of 
-interfering light sources by means of setting blob size constraints.<br>
-However, this is going to work only if the interfering sources are considerable larger or smaller than "wanted" blobs. 
-<p>
-These limits are used to discriminate false "returns" by applying a constraints on a number of pixels that form a blob.<br> 
-If a blob should be valid, but it still doesn't contain the white cross, try lowering the 
-<strong>Min. blob</strong> value and increasing the <strong>Max. blob</strong> value.
-It is best to fine-tune the <strong>Min. blob</strong> value when being farthest away from the camera, while the 
-<strong>Max. blob</strong> value while being closest to the camera.
-When done, you should see white crosses inside the right blobs all the time, no matter how much and in which 
-direction you turn your head (provided the webcam can still physically see the light source).
-</p>
+<A href="#StartTracking">Now you can try to start the tracking to verify the device is set up correctly.</A>
 
-<h4>Troubleshooting tips</h4>
-<ul>
-  <li> Make sure the webcam is correctly focused</li>
-  <li> On Linux use an application able to controll brightness, exposure ad so on (e.g. guvcview)</li>
-  <li> Try turning off all auto... features (autoexposure, autowhite ballance, ...) to improve and stabilize
-   the framerate</li>
-  <li> If the webcam is not shown in devices combobox, make sure that you have a permission to access it</li>
-  <li> If you are using model with IR LEDs and you don't see any blobs at all, chances are the built-in IR
-         filter is too strong; you can try removing the filter itself, or you can try tweaking higher brightness,
-          contrast and longer exposition time or brighten LEDs a bit. Just be carefull not to over stress the LEDs or
-         the resistor - they might become very hot if too much current flows through them.</li>
-</ul>
+
 
 <h1><A name="Webcam_ft">Webcam Setup for face tracking</A></h1>
+<img src="Facetracker.png" width="100%" alt="">
 <p>To configure a webcam, at first you have to set the <strong>Pixel Format</strong>.
-The preferred format is YUYV, but you can experiment to see which one works the best for you.
+The preferred format is YUYV (native UVC webcam format), but you can experiment and see
+ which one works the best for you (just avoid JPEG/MJPG as these aren't supported).
 </p>
-<p>Then continue by selecting the desired <strong>Resolution &amp; Framerate</strong>. <br>
-The safest bet would be something around 320x240@30; when tracking on this setting works, you can safely 
+<p>Continue by selecting the desired <strong>Resolution &amp; Framerate</strong>. <br>
+The safest bet would be something around 352x288@30; when tracking with these setting works, you can 
 experiment with different resolutions and framerates.
 </p>
 <p>Last thing to set before first test is the path to the cascade used to track the face.
-OpenCV Haar and LBP cascades are supported - just browse to the cascade of your choice (normaly you should
+OpenCV Haar and LBP cascades are supported.
+If the default cascade doesn't suit you, just browse to the cascade of your choice (normaly you should
 find them in /usr/share/doc/opencv or /usr/share/doc/opencv-doc; otherwise download them from web, e.g. 
-http://alereimondo.no-ip.org/OpenCV/34). It should be a frontal face detection cascade; the most referenced
-cascade is <b>haarcascade_frontalface_alt2.xml</b> and it should provide the best results. If you are short on
+http://alereimondo.no-ip.org/OpenCV/34). It should be a frontal face detection cascade. If you are short on
 CPU power, try the lbp cascade <b>lbpcascade_frontalface.xml</b> - it consumes much less CPU, but the tracking
 is said to be a bit less reliable.
 </p>
-<p>To check, how the tracking works, go to the <strong>Tracking window</strong>, select Camera view pane
- and press <strong>Start</strong> button to commence tracking.
-Ideally, you should see a cross in the middle of your face, that is tracking movement of your face.
-Remember, that in order to have as realable tracking as possible, the camera must provide good enough picture
-and your face should be well lit. Also a plain, single color background is preferable.
-</p>
-<p>
-Next thing to tweak is the optimization level; it sets a ratio between the quality and speed of tracking.
-Try setting higher optimization level in case you want/need to reduce the CPU load caused by the tracker.
-</p>
+<A href="#StartTracking">Now you can try to start the tracking to verify the device is set up correctly.</A>
 
-<p>
-Finally, there is a <b>Smoothing</b> slider. If the cross is jumping wildly, you can try some of 
-these solutions:
-<ul>
-  <li>Make sure your face is well lit, but without sharp shadows</li>
-  <li>Set exposure or autoexposure (might have impact on camear FPS) to obtain better image; 
-        also set brightnes and contrast to obtain good image (on Linux, try using guvcview or similar software)</li>
-  <li>If possible, make sure the background behind you is plain so the tracking doesn't get confused</li>
-</ul>
-<p>
-To steady the tracking, try to play with the <b>Smoothing</b> slider 
-- moving the slider right steadies the tracking, but it also introduces a lag.
-Try playing with the <b>Filter Factor</b> on the <b>Tracking setup</b> tab too - these two filters
-have somewhat different characteristics. Exp. filter actually averages input values, smoothing the jumps, but
-it also introduces a lag. The filter in the <b>Tracking setup</b> tab helps smoothing small jitter. Try finding
-some sweet spot that works for you.
-</p>
-<h4>Troubleshooting tips</h4>
-<ul>
-  <li> Make sure the webcam is correctly focused</li>
-  <li> On Linux use an application able to controll brightness, exposure ad so on (e.g. guvcview)</li>
-  <li> If the webcam is not shown in devices combobox, make sure that you have a permission to access it</li>
-</ul>
+
 
 <h1><A name="TIR">TrackIR Setup</A></h1>
-If you are a Mac user, you can safely skip over this paragraph...
-When you intend to use TrackIR on linux, most probably you'll need to get access rights to the device.
-The easiest way to do that, is to install the 51-TIR.rules file (comes with linuxtrack) to the udev rules 
+<img src="Trackir.png" width="100%" alt=""><br>
+If you are a Mac user, just skip to the next paragraph...
+When you intend to use TrackIR on Linux, most probably you'll need to get access rights to the device.
+The easiest way to do that, is to install the 51-TIR.rules file (comes with Linuxtrack) to the udev rules 
 directory (on Ubuntu it is /lib/udev/rules, but other distros might differ a bit in this respect). 
 When the rule is there, just re-plug the TrackIR and you should be able to access it.
 <p>
@@ -181,53 +101,91 @@ If you didn't used TrackIR before, you are going to need to install the firmware
 <p> Usually just pressing <b>Download</b> button on the presented dialog is enough - it downloads the
 driver package from NP and extracts firmware needed to run the device.
 <p>
-
-To check, how the TrackIR works, 
-go to the <strong>Tracking window</strong>, select Camera view pane and
-press <strong>Start</strong> button to commence tracking.
-Ideally, you should see three (or one, in case of single point model) "blobs" 
-- these are light emitting or reflecting points of your model seen by the camera. 
-Each of those "blobs" should contain a white cross marking it valid.
+<A href="#StartTracking">Now you can try to start the tracking to verify the device is set up correctly.</A>
 
 
+
+<h1><A name="#StartTracking">Starting the tracking</A></h1>
+<img src="CamPreview.png" width="100%" alt=""><br>
+To start the tracking, switch to the <strong>Tracking window</strong>. 
+There you can start, pause and stop the tracking, plus there is a button to recenter the tracker
+(will be needed when while looking to the center of the screen and your view of somewhat off).
+I also contains the frame counter and FPS indication on the botom of the windows.
 <p>
-You can tweak the tracker state signalization and in case of TrackIR5 also the LEDs brightnesses 
-(current limitation is, that the change will become visible upon next state change - 
-pausing/restarting the tracking). 
+There are two panes in this window, the first pane being the <strong>Camera View</strong>.
+This pane allows you to troubleshoot the tracking - it shows exactly what the camera sees,
+so it can show for example any interfering light sources, reflections and so on.
+The second pane, <strong>3D view</strong> shows, what the result is going to look like in the simulator.
 <p>
-In case you use reflective model, you can also set IR illumination LEDs brightness.
-
-<h4>Troubleshooting tips</h4>
-If you experience unwanted reflections (from glasses, ...) while using TrackIR in the active regime 
-(using reflective Track Clip), you might want to consider using active model 
-with IR LEDs (like TrackClip Pro, or a home-made one).
-
+To start the tracking, all you have to do is to press the <strong>Start</strong> button and wait for the
+device to initialize (Usually takes couple of seconds).
 <p>
-If you see unwanted blobs, you can try one of these solutions.
+In case of headtracking, you should see your head, with a white rectangle around it, or in case of model based
+tracking there should be 3 (or 1 in case of single point model) "blobs" (fields of bright pixels), each of which 
+havs a white cross inside (means a valid blob). You should check, that the rectangle/blobs with crosses are
+there through the full range of motions you plan use.
+
+<h1><A name="#Troubleshooting">Troubleshooting the tracking</A></h1>
+When there are any problems with tracking, always look at the <strong>Camera View</strong>, to see,
+if there aren't any interferences or other problems. Some devices allow you to do some "postprocessing" steps,
+to discriminate some of the interferences, but the first rule of troubleshooting is this: the best way to get 
+rid of the interference is to remove it physically.
+<p>
 <ul>
-  <li>Try to remove unnecessary sources of light in the TrackIR's field of view 
-  (lightbulbs, candles, ...)</li>
-  <li>If you use TrackIR with relective model (Track Clip) and see reflections from glasses,
-    you might want to consider getting a model with LEDs (you can build one yourself or get 
-    TrackClip Pro)</li>
-  <li>Set the <strong>Threshold</strong> value higher (if unwanted blobs are less bright)</li>
+<li>A lightbulb in the field of view of your camera - the best way is to move the camera in
+such a way, that the buld gets out of the camera's field of view. 
+<li>With TrackIR when using the TrackClip, there can be reflections from ones glasses - there the 
+solution might be usage of TrackClip Pro, or similar active "model", as it turns off TrackIR's infra red LEDs.
+<li>Headtracking can be fooled easile by visually nonuniform background - having a plain color wall behind you
+is the best way to ensure smooth tracking.
 </ul>
-The preferred solution is the first one, since no amount of processing can give you bulletproof results. <br>
-
 <p>
-When you have removed as much interfering light sources as possible, you might try to get rid of the rest of 
-interfering light sources by means of setting blob size constraints.<br>
-However, this is going to work if the interfering sources are considerable larger or smaller than "wanted" blobs. 
+When such a solution is not possible, different devices have different means that can help you to achieve good
+tracking.
+<h2>Wiimote</h2>
+Unfortunately Wiimote doesn't allow any postprocessing, as the whole image processing is done in the device
+itself. So the only way to deal with problems is to use the advice above.
+
+<h2>Webcam and TrackIR</h2>
+Both webcam and TrackIR share similar means of getting rid of sources of interference. The first of them
+is the threshold setup - when there are for example some unwanted reflections in camera's field of view,
+try to set the threshold somewhat higher; if the unwanted blobs disappeared, then check that the correct blobs
+have the white crosses inside them through the whole range of motion you intend to use. If the blob disappears,
+you need to set the threshold somewhat lower.
 <p>
-These limits are used to discriminate false "returns" by applying a constraints on a number of pixels that 
-form a blob.
-If a blob should be valid, but it still doesn't contain the white cross, then try lowering the 
-<strong>Min. blob</strong> value and increasing the <strong>Max. blob</strong> value.
-It is best to fine-tune the <strong>Min. blob</strong> value when being farthest away from the 
-camera, while the <strong>Max. blob</strong> value when being closest to the camera.<br>
-When done, you should see white crosses inside the right blobs all the time, no matter how much and in which 
-direction you turn your head (provided the TrackIR can still physically see the light source).
-
-
+Another way to discriminate the "bad" blobs is according to their size - set the 
+<strong>Valid blob size</strong> to values, that only the valid blobs satisfy. Just note, that these unwanted
+blobs can still interfere with the tracking, especially when they merge with some valid blob. And don't forget
+to check, the whole range of motion - for example setting the lower limit too high might break tracking when
+you move your head farther away from the screen.
+<p>
+Speciality of TrackIR, when using the reflective model is setting of the illuminating IR LEDs brightness.
+This can help you avoid unwanted reflections - just set the <strong>IR LEDs brightness</strong> somewhat lower.
+<p>
+When using a webcam, make sure it is correctly focused.
+<p>
+To lessen the impact of the background on the webcam, you might need a visible light filter - piece of 
+magnetic tape material, exposed film, piece of magnetic material from diskette or even piece of black 
+stocking might help there. Some webcams also contain IR filters, however its removal might be non-trivial 
+and you risk irreparable damage, so try that only as a last resort (for example you might use ordinary 
+visible light LEDs, ...).
+<p>
+<h2>Webcam facetracker</h2>
+When facetracking is jumpy, first of all, make sure that the face is being recognized correctly.
+For example, when the background is not plain, there might be a pattern there that is being recognized
+as a face by the tracker. If that is the case, all you can do is to obscure the offending thing/pattern.
+The best results are achieved with plain single colour background.
+<p>
+Also make sure that your face is well lit, but without sharp shadows.
+<p>
+If the rectangle stays around your face, but the tracking is still jumpy, you should adjust the 
+<stong>Smoothing</strong> slider - moving the slider right steadies the tracking.
+Try adjusting the <b>Filter Factor</b> on the <b>Tracking setup</b> tab too - these two filters
+have somewhat different characteristics. The first filter actually averages input values, smoothing the 
+jumps, but it also introduces a lag. The filter in the <b>Tracking setup</b> tab helps smoothing small 
+jitter. Try finding some sweet spot that works for you.
+<p>
+To lower the CPU usage, you may move the <strong>Optimize for</strong> slider towards the 
+<strong>Speed</strong> end.
 </body>
 </html>

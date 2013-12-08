@@ -278,7 +278,14 @@ qt_gui/profile_setup.cpp qt_gui/profile_setup.h qt_gui/profile_setup.ui \
 qt_gui/progress.ui qt_gui/single_edit.ui qt_gui/sources.txt qt_gui/spec.txt qt_gui/tir_setup.ui \
 qt_gui/wii_setup.ui qt_gui/help/extractor.htm qt_gui/sphere.png qt_gui/sphere.txt \
 qt_gui/wine_launcher.cpp qt_gui/wine_launcher.h qt_gui/xplugin.cpp qt_gui/xplugin.h \
-qt_gui/xplugin.ui 51-Mickey.rules linuxtrack.pc \
+qt_gui/xplugin.ui qt_gui/help/Wiimote.png qt_gui/help/KeysSetup1.png qt_gui/help/Misc.png \
+qt_gui/help/JoyButtonsSetup1.png qt_gui/help/XplBrowse.png qt_gui/help/CamPreview.png \
+qt_gui/help/Webcam.png qt_gui/help/Extractor.png qt_gui/help/XplInstall.png \
+qt_gui/help/DetAxis.png qt_gui/help/JoyButtonsSetup4.png qt_gui/help/JoyButtonsSetup5.png \
+qt_gui/help/3dPreview.png qt_gui/help/ModelCreate.png qt_gui/help/JoyButtonsSetup3.png \
+qt_gui/help/Tracking.png qt_gui/help/JoyButtonsSetup2.png qt_gui/help/Model.png \
+qt_gui/help/Trackir.png qt_gui/help/Controller.png qt_gui/help/Facetracker.png \
+51-Mickey.rules linuxtrack.pc qt_gui/help/xpl_setup.htm \
 wii_server/wii_server.cpp wii_server/wiimote.h wii_server/wiimote.cpp wii_server/wii_server.pro.in \
 wii_server/main.cpp wii_server/wii_server.h wii_server/wii_server.ui wii_server/wii_server.qrc \
 linuxtrack-wii.desktop linuxtrack-wii.png linuxtrack-wii.svg linuxtrack-wii.xpm \

@@ -155,12 +155,18 @@ static unsigned int cksum(unsigned char buf[], unsigned int size)
   if((size == 0) || (buf == NULL)){
     return 0;
   }
+  
   int rounds = size >> 2;
   int rem = size % 4;
 
   int c = size;
   int a0, a2;
-
+//  printf("Orig: ");
+//for(a0 = 0; a0 < (int)size; ++a0)
+//{
+//  printf("%02X", buf[a0]);
+//}
+//printf("\n");
   while(rounds != 0){
     a0 = *(short int*)buf;
     a2 = *(short int*)(buf+2);
@@ -242,6 +248,7 @@ int __stdcall NPCLIENT_NP_GetData(tir_data_t * data)
   float r, p, y, tx, ty, tz;
   unsigned int frame;
   int res = linuxtrack_get_pose(&y, &p, &r, &tx, &ty, &tz, &frame);
+  memset((char *)data, 0, sizeof(tir_data_t));
   data->status = (linuxtrack_get_tracking_state() == RUNNING) ? 0 : 1;
   data->frame = frame & 0xFFFF;
   data->cksum = 0;
@@ -251,11 +258,8 @@ int __stdcall NPCLIENT_NP_GetData(tir_data_t * data)
   data->tx = -limit_num(-16383.0, 15 * tx, 16383); 
   data->ty = limit_num(-16383.0, 15 * ty, 16383); 
   data->tz = limit_num(-16383.0, 15 * tz, 16383);
-  int i;
-  for(i = 0; i < 9; ++i){
-    data->padding[i] = 0.0;
-  } 
   data->cksum = cksum((unsigned char*)data, sizeof(tir_data_t));
+  //printf("Cksum: %04X\n", data->cksum);
   if(crypted){
     enhance((unsigned char*)data, sizeof(tir_data_t), table, sizeof(table));
   }
