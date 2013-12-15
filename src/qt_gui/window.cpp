@@ -94,12 +94,16 @@ void Window::update_pic()
 
 void Window::stopUpdates()
 {
-  timer->stop();
+  if(timer){
+    timer->stop();
+  }
 }
 
 void Window::resumeUpdates()
 {
-  timer->start(20);
+  if(timer){
+    timer->start(20);
+  }
 }
 
 

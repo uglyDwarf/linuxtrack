@@ -116,8 +116,9 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
     on_WebcamFtFormats_activated(fmt_index);
     const char *cascade = ltr_int_wc_get_cascade();
     QString cascadePath;
-    if(cascade == NULL){
+    if((cascade == NULL) || (!QFile::exists(cascade))){
       cascadePath = PrefProxy::getDataPath("haarcascade_frontalface_alt2.xml");
+      ltr_int_wc_set_cascade(qPrintable(cascadePath));
     }else{
       cascadePath = cascade;
     }
