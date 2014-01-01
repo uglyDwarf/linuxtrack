@@ -1,5 +1,11 @@
 <RCC>
   <qresource prefix="ltr">
+    <file>cap_1.png</file>
+    <file>clip_1.png</file>
+    <file>cap_np.png</file>
+    <file>clip_np.png</file>
+    <file>face.svg</file>
+    <file>single.png</file>
     <file>../linuxtrack.svg</file>
     <file>../linuxtrack-wii.svg</file>
     <file>cap_small.png</file>
