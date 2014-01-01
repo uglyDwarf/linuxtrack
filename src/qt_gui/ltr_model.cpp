@@ -151,6 +151,7 @@ void ModelEdit::ModelCreated(const QString &section)
 
 void ModelEdit::on_ModelSelector_activated(const QString &text)
 {
+  modelType_t modelType = MDL_1PT;
   currentSection = text;
   QString type;
   if(!PREF.getKeyVal(currentSection, (char *)"Model-type", type)){
@@ -164,28 +165,44 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
   }
   if(type.compare("Cap", Qt::CaseInsensitive) == 0){
     //ui.ModelTypeLabel->setText("3 Point Cap");
+    if(text == "NP TrackClip"){
+      ui.ModelPreview->setPixmap(QPixmap(":/ltr/cap_np.png"));
+    }else{
+      ui.ModelPreview->setPixmap(QPixmap(":/ltr/cap_1.png"));
+    }
     HelpViewer::ChangePage("3ptcap.htm");
     modelTweaker = new CapTweaking(currentSection, this);
-    emit modelSelected(MDL_3PT_CAP);
+    
+    modelType = MDL_3PT_CAP;
   }else if(type.compare("Clip", Qt::CaseInsensitive) == 0){
     //ui.ModelTypeLabel->setText("3 Point Clip");
+    if(text == "NP TrackClip Pro"){
+      ui.ModelPreview->setPixmap(QPixmap(":/ltr/clip_np.png"));
+    }else{
+      ui.ModelPreview->setPixmap(QPixmap(":/ltr/clip_1.png"));
+    }
     HelpViewer::ChangePage("3ptclip.htm");
     modelTweaker = new ClipTweaking(currentSection, this);
-    emit modelSelected(MDL_3PT_CLIP);
+    modelType = MDL_3PT_CLIP;
   }else if(type.compare("Face", Qt::CaseInsensitive) == 0){
     //ui.ModelTypeLabel->setText("Face");
+    ui.ModelPreview->setPixmap(QPixmap(":/ltr/face.svg"));
     HelpViewer::ChangePage("1pt.htm");
-    emit modelSelected(MDL_FACE);
+    modelType = MDL_FACE;
+    modelTweaker = NULL;
   }else if(type.compare("SinglePoint", Qt::CaseInsensitive) == 0){
     //ui.ModelTypeLabel->setText("1 Point");
+    ui.ModelPreview->setPixmap(QPixmap(":/ltr/single.png"));
     HelpViewer::ChangePage("1pt.htm");
-    emit modelSelected(MDL_1PT);
+    modelType = MDL_1PT;
+    modelTweaker = NULL;
   }
   if(modelTweaker != NULL){
     ui.ModelEditorSite->insertWidget(2, modelTweaker);
   }
   if(!initializing) PREF.activateModel(currentSection);
   PREF.announceModelChange();
+  emit modelSelected(modelType);
 }
 
 ModelEdit::~ModelEdit()

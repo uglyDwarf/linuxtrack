@@ -270,6 +270,11 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     std::ostringstream tmpName;
     size_t cntr = 0;
     
+    if(!sectionExists(nameTemplate)){
+      name = nameTemplate;
+      addSection(name);
+      return true;
+    }
     while(1){
       tmpName.str(std::string());
       tmpName.clear();
