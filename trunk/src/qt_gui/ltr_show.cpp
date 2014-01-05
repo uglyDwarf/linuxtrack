@@ -241,6 +241,9 @@ void LtrGuiForm::allowCloseWindow()
 
 void LtrGuiForm::on_tabWidget_currentChanged(int index)
 {
+  if(glw == NULL){
+    return;
+  }
   if(index == 1){
     glw->resumeUpdates();
   }else{

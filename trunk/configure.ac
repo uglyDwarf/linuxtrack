@@ -170,7 +170,6 @@ AS_IF([case $host_os in darwin*) true;; *) false;; esac],
               [specify OpenCV includes])], 
             [OPENCV_CFLAGS=${with_opencv_cflags}]
     )
-  ], [
   ]
 )
 
