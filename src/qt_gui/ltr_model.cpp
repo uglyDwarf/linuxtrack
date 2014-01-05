@@ -186,7 +186,7 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
     modelType = MDL_3PT_CLIP;
   }else if(type.compare("Face", Qt::CaseInsensitive) == 0){
     //ui.ModelTypeLabel->setText("Face");
-    ui.ModelPreview->setPixmap(QPixmap(":/ltr/face.svg"));
+    ui.ModelPreview->setPixmap(QPixmap(":/ltr/face.png"));
     HelpViewer::ChangePage("1pt.htm");
     modelType = MDL_FACE;
     modelTweaker = NULL;
