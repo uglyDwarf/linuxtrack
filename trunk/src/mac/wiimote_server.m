@@ -181,6 +181,10 @@ static enum {WII_DISCONNECTED, WII_CONNECTING, WII_CONNECTED} server_state = WII
 {
   if(!ltr_int_initWiiCom(true, &mmm)){
     NSLog(@"Can't start server!");
+    NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+    [alert setMessageText:@"Wiimote server did not initialize properly.\nPlease rerun ltr_gui and save preferences!"];
+    [alert runModal];
+    [NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0.0];
     return;
   }
   NSLog(@"Server communication initialized!");
