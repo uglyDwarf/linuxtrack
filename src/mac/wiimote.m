@@ -88,8 +88,7 @@ typedef unsigned char darr[];
   (void) sender;
   //We take the first wiimote found...
   if(device != nil){
-    //Hopefully not needed...
-    //IOBluetoothIgnoreHIDDevice([device getDeviceRef]);
+    IOBluetoothIgnoreHIDDevice([device getDeviceRef]);
     [inquiry stop];
   }
 }
