@@ -73,7 +73,7 @@ QStringList& MacWebcamInfo::EnumerateWebcams()
 {
   QStringList *res = new QStringList();
   QProcess *enum_proc = new QProcess();
-  enum_proc->start(QCoreApplication::applicationDirPath() + "/../helper/qt_cam -e");
+  enum_proc->start(QCoreApplication::applicationDirPath() + "/../helper/qt_cam", QStringList() << "-e");
   enum_proc->waitForStarted(10000);
   enum_proc->waitForFinished(10000);
   QString str(enum_proc->readAllStandardOutput());
