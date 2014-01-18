@@ -7,7 +7,7 @@
 #include <QMessageBox>
 #include <cmath>
 
-ModelCreate::ModelCreate(QWidget *parent) : QWidget(parent), validator(NULL), modelEditor(NULL)
+ModelCreate::ModelCreate(QWidget *parent) : QDialog(parent), validator(NULL), modelEditor(NULL)
 {
   ui.setupUi(this);
   ui.Model3PtCap->click();
@@ -25,16 +25,17 @@ ModelCreate::~ModelCreate()
   }
 }
 
-void ModelCreate::show()
+void ModelCreate::exec()
 {
-  QWidget::show();
   ui.ModelName->clear();
+  ui.ModelName->setFocus();
+  QDialog::exec();
 }
 
 
 void ModelCreate::on_CancelButton_pressed()
 {
-  close();
+  reject();
 }
 
 void ModelCreate::on_CreateButton_pressed()
@@ -42,6 +43,12 @@ void ModelCreate::on_CreateButton_pressed()
   QString sec = ui.ModelName->text();
   QStringList sectionList;
   PREF.getSectionList(sectionList);
+  if(sec.isEmpty()){
+    QMessageBox::warning(NULL, "Linuxtrack",
+      "Please specify the Model name!", QMessageBox::Ok);
+    ui.ModelName->setFocus();
+    return;
+  }
   if(sectionList.contains(sec, Qt::CaseInsensitive)){
     QMessageBox::warning(NULL, "Linuxtrack",
       "The name is already taken, please change the Model name!", QMessageBox::Ok);
@@ -54,8 +61,8 @@ void ModelCreate::on_CreateButton_pressed()
       emit dump(sec);
     }
   }
-  close();
   emit ModelCreated(sec);
+  accept();
 }
 
 void ModelCreate::removeEditor()
@@ -102,7 +109,7 @@ ModelEdit::ModelEdit(Guardian *grd, QWidget *parent) : QWidget(parent), modelTwe
 {
   grd->regTgt(this);
   ui.setupUi(this);
-  mcw = new ModelCreate();
+  mcw = new ModelCreate(this);
   QObject::connect(mcw, SIGNAL(ModelCreated(const QString &)),
     this, SLOT(ModelCreated(const QString &)));
   refresh();
@@ -125,7 +132,7 @@ void ModelEdit::refresh()
 
 void ModelEdit::on_CreateModelButton_pressed()
 {
-  mcw->show();
+  mcw->exec();
 }
 
 void ModelEdit::ModelCreated(const QString &section)

@@ -14,16 +14,17 @@
 typedef enum {MDL_1PT, MDL_3PT_CLIP, MDL_3PT_CAP, MDL_FACE} modelType_t;
 class Guardian;
 
-class ModelCreate : public QWidget
+class ModelCreate : public QDialog
 {
   Q_OBJECT
  public:
   ModelCreate(QWidget *parent = 0);
   ~ModelCreate();
-  virtual void show();
  protected:
  signals:
   void ModelCreated(const QString &section);
+ public slots:
+  void exec();
  private slots:
   void on_CancelButton_pressed();
   void on_CreateButton_pressed();
