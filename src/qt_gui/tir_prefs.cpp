@@ -186,7 +186,7 @@ You are going to need administrator privileges to do that.")
   PrefsLink *pl = new PrefsLink(TIR, (char *)"Tir");
   QVariant v;
   v.setValue(*pl);
-  combo.addItem((char *)"TrackIR", v);
+  combo.addItem((char *)"TrackIR/SmartNav", v);
   if(tir_selected){
     combo.setCurrentIndex(combo.count() - 1);
     res = true;

@@ -447,9 +447,9 @@ bool ltr_int_read_prefs(const char *file, bool force_read)
       ltr_int_log_message("Dumping prefs:\n");
       ltr_int_dump_prefs("");
       ltr_int_log_message("================================================\n");
+      prefs::getPrefs().resetChangeFlag();
     }
   }
-  prefs::getPrefs().resetChangeFlag();
   return prefs_ok;
 }
 

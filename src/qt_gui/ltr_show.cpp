@@ -39,7 +39,7 @@ static int fps_ptr = 0;
 
 
 LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, QSettings &settings)
-              : cv(NULL), allowClose(false), main_gui(tmp_gui), glw(NULL)
+              : glw(NULL), cv(NULL), allowClose(false), main_gui(tmp_gui)
 {
   ui.setupUi(this);
   cv = new CameraView(label);
