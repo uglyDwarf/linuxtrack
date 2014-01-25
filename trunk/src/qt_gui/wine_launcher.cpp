@@ -16,27 +16,27 @@ void WineLauncher::envSet(const QString var, const QString val)
     ltr_int_log_message(s.str().c_str());
 }
 
-WineLauncher::WineLauncher():winePath(""), available(false)
+WineLauncher::WineLauncher():winePath(QString::fromUtf8("")), available(false)
 {
   std::ostringstream s;
   env = QProcessEnvironment::systemEnvironment();
   if(!check()){
 #ifdef DARWIN
-    winePath = QApplication::applicationDirPath()+"/../wine/bin/";
-    QString libPath = QApplication::applicationDirPath()+"/../wine/lib/";
+    winePath = QApplication::applicationDirPath()+QString::fromUtf8("/../wine/bin/");
+    QString libPath = QApplication::applicationDirPath()+QString::fromUtf8("/../wine/lib/");
     available = true;
-    QString path = winePath + ":" + env.value("PATH");
+    QString path = winePath + QString::fromUtf8(":") + env.value("PATH");
     s.str(std::string(""));
     s<<"Using internal wine; adjusting env variables:"<<std::endl;
     ltr_int_log_message(s.str().c_str());
-    envSet("PATH", path);
-    envSet("WINESERVER", winePath+"wineserver");
-    envSet("WINELOADER", winePath+"wine");
-    envSet("WINEDLLPATH", libPath+"wine/fakedlls");
-    envSet("DYLD_LIBRARY_PATH", libPath);
-    envSet("DYLD_PRINT_ENV", "1");
-    envSet("DYLD_PRINT_LIBRARIES", "1");
-    envSet("WINEDEBUG", "+file,+seh,+tid,+process,+rundll,+module");
+    envSet(QString::fromUtf8("PATH"), path);
+    envSet(QString::fromUtf8("WINESERVER"), QString::fromUtf8(winePath+"wineserver"));
+    envSet(QString::fromUtf8("WINELOADER"), QString::fromUtf8(winePath+"wine"));
+    envSet(QString::fromUtf8("WINEDLLPATH"), libPath+QString::fromUtf8("wine/fakedlls"));
+    envSet(QString::fromUtf8("DYLD_LIBRARY_PATH"), libPath);
+    envSet(QString::fromUtf8("DYLD_PRINT_ENV"), QString::fromUtf8("1"));
+    envSet(QString::fromUtf8("DYLD_PRINT_LIBRARIES"), QString::fromUtf8("1"));
+    envSet(QString::fromUtf8("WINEDEBUG"), QString::fromUtf8("+file,+seh,+tid,+process,+rundll,+module"));
 #endif
   }else{
     available = true;
@@ -69,7 +69,7 @@ void WineLauncher::setEnv(const QString &var, const QString &val)
 void WineLauncher::run(const QString &tgt)
 {
   wine.setProcessEnvironment(env);
-  QString cmd("\"%1wine\" \"%2\"");
+  QString cmd(QString::fromUtf8("\"%1wine\" \"%2\""));
   cmd = cmd.arg(winePath).arg(tgt);
   std::ostringstream s;
   s<<"Launching wine command: '"<< qPrintable(cmd) <<"'"<<std::endl;
@@ -83,17 +83,17 @@ void WineLauncher::finished(int exitCode, QProcess::ExitStatus exitStatus)
   QString status;
   switch(exitStatus){
     case QProcess::NormalExit:
-      status = "Normal exit";
+      status = QString::fromUtf8("Normal exit");
       break;
     case QProcess::CrashExit:
-      status = "Crashed";
+      status = QString::fromUtf8("Crashed");
       break;
     default:
-      status = "Unknown exit status";
+      status = QString::fromUtf8("Unknown exit status");
       break;
   }
   ltr_int_log_message("Wine finished with exitcode %d (%s).", exitCode, qPrintable(status));
-  QString msg(wine.readAllStandardOutput());
+  QString msg(QString::fromUtf8(wine.readAllStandardOutput().constData()));
   std::ostringstream s;
   s<<qPrintable(msg)<<std::endl;
   ltr_int_log_message(s.str().c_str());
@@ -109,22 +109,22 @@ const QString errorStr(QProcess::ProcessError error)
   QString reason;
   switch(error){
     case QProcess::FailedToStart:
-      reason ="Failed To Start";
+      reason = QString::fromUtf8("Failed To Start");
       break;
     case QProcess::Crashed:
-      reason = "Crashed";
+      reason = QString::fromUtf8("Crashed");
       break;
     case QProcess::Timedout:
-      reason = "Timedout";
+      reason = QString::fromUtf8("Timedout");
       break;
     case QProcess::WriteError:
-      reason = "Write Error";
+      reason = QString::fromUtf8("Write Error");
       break;
     case QProcess::ReadError:
-      reason = "Read Error";
+      reason = QString::fromUtf8("Read Error");
       break;
     default:
-      reason = "Unknown Error";
+      reason = QString::fromUtf8("Unknown Error");
       break;
   }
   return reason;
@@ -132,7 +132,7 @@ const QString errorStr(QProcess::ProcessError error)
 
 void WineLauncher::error(QProcess::ProcessError error)
 {
-  QString msg(wine.readAllStandardOutput());
+  QString msg(QString::fromUtf8(wine.readAllStandardOutput().constData()));
   QString reason = errorStr(error);
   ltr_int_log_message("Error launching wine(%s)!", qPrintable(reason));
   std::ostringstream s;
@@ -149,7 +149,7 @@ bool WineLauncher::wineAvailable()
 
 bool WineLauncher::check()
 {
-  run("--version");
+  run(QString::fromUtf8("--version"));
   while(!wine.waitForFinished()){
     if(wine.error() != QProcess::Timedout){
       std::ostringstream s;

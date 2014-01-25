@@ -35,12 +35,12 @@ static void add_tris(int offset, int count, bool glass)
 }
 
 bool glass = false;
-static QRegExp vt_line("^\\s*VT\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s*$");
-static QRegExp idx10_line("^\\s*IDX10\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s*$");
-static QRegExp idx_line("^\\s*IDX\\s+(\\S+)\\s*$");
-static QRegExp tris_line("^\\s*TRIS\\s+(\\S+)\\s+(\\S+)\\s*$");
-static QRegExp texture_line("^\\s*TEXTURE\\s+(.*)\\s*$");
-static QRegExp glass_line("^\\s*GLASS\\s*$");
+static QRegExp vt_line(QString::fromUtf8("^\\s*VT\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s*$"));
+static QRegExp idx10_line(QString::fromUtf8("^\\s*IDX10\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s*$"));
+static QRegExp idx_line(QString::fromUtf8("^\\s*IDX\\s+(\\S+)\\s*$"));
+static QRegExp tris_line(QString::fromUtf8("^\\s*TRIS\\s+(\\S+)\\s+(\\S+)\\s*$"));
+static QRegExp texture_line(QString::fromUtf8("^\\s*TEXTURE\\s+(.*)\\s*$"));
+static QRegExp glass_line(QString::fromUtf8("^\\s*GLASS\\s*$"));
 
 
 static void process_line(const QString &line)
@@ -87,7 +87,7 @@ static void obj_init(object_t &obj)
   obj.vtx_table.clear();
   obj.vtx_indices.clear();
   obj.tris_table.clear();
-  obj.texture = "";
+  obj.texture = QString::fromUtf8("");
 }
 
 void read_obj()
@@ -96,7 +96,7 @@ void read_obj()
                       (char *)"sparow_glass.obj", NULL};
   
   for(int i = 0; obj_list[i] != NULL; ++i){
-    QFile f(PrefProxy::getDataPath((char *)obj_list[i]));
+    QFile f(PrefProxy::getDataPath(QString::fromUtf8(obj_list[i])));
     obj_init(object); 
     cnt = 0;
     vcnt = 0;

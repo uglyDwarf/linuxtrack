@@ -8,18 +8,20 @@
 </head>
 <body>
 
-The first step in linuxtrack configuration is selection of the tracking device
- - just select the device of your choice from the "<strong>Tracking device</strong>" combobox. <br>
+The first step in linuxtrack configuration is selection of the tracking device.
+Select the device of your choice from the "<strong>Tracking device</strong>" combobox<br> and the device 
+specific options appear below.
+<p> 
 If you can't find the device you want to use (e.g. webcam attached after Linuxtrack GUI was started, ...), 
 press the "<strong>Refresh</strong>" button and check again.
 <p>
 
 Next thing that you can set is the camera orientation - normally you should not need to change this...<br>
-However, if your tracking device is in a position other that in front of you with top pointing up
+However, if your tracking device is positioned other way than in front of you with top pointing up
 (you mounted TrackIR upside down for some reason, or you use laptop with a webcam chip mounted upside down,...),
 change the </strong>Camera Orientation</strong> to match your device's orientation.
 <p>
-Available devices are:
+Supported device types are the following:
 <p>
 <A href="#Wiimote">Wiimote Setup</A><br>
 <A href="#Webcam">Webcam Setup</A><br>
@@ -39,7 +41,7 @@ state change to Connected and one of LEDs on your Wiimote should blink briefly a
 Due to the nature of Wiimote there is no way to tweak any parameters except which LEDs should indicate 
 running/paused tracker. Just select which LEDs should be on in the Running state and which should be on in 
 the Paused state. However, if the battery life is crucial, I'd suggest to turn all LEDs off at least in the 
-Running state (in this state you are going to spend most of the time).
+Running state (in this state you are going to spend most of the time afterall).
 <p>
 <A href="#StartTracking">Now you can try to start the tracking to verify the device is set up correctly.</A>
 
@@ -49,7 +51,7 @@ Running state (in this state you are going to spend most of the time).
 <img src="Webcam.png" width="100%" alt="">
 <p>To configure a webcam, at first you have to set the <strong>Pixel Format</strong>.
 The preferred format is YUYV (native UVC webcam format), but you can experiment and see
-which one works the best for you (avoid JPEG/MJPG as these aren't supported).
+which one works the best for you (avoid JPEG/MJPG formats as they aren't supported).
 </p>
 <p>Continue by selecting the desired <strong>Resolution &amp; Framerate</strong>.<br>
 The safest bet would be something around 352x288@30; when tracking with these setting works, you can 
@@ -70,16 +72,16 @@ On Linux you can use the guvcview for this purpose.
 <img src="Facetracker.png" width="100%" alt="">
 <p>To configure a webcam, at first you have to set the <strong>Pixel Format</strong>.
 The preferred format is YUYV (native UVC webcam format), but you can experiment and see
- which one works the best for you (just avoid JPEG/MJPG as these aren't supported).
+which one works the best for you (avoid JPEG/MJPG formats as they aren't supported).
 </p>
 <p>Continue by selecting the desired <strong>Resolution &amp; Framerate</strong>. <br>
 The safest bet would be something around 352x288@30; when tracking with these setting works, you can 
 experiment with different resolutions and framerates.
 </p>
-<p>Last thing to set before first test is the path to the cascade used to track the face.
+<p>The last thing to set before the first test is the path to the cascade used to track the face.
 OpenCV Haar and LBP cascades are supported.
-If the default cascade doesn't suit you, just browse to the cascade of your choice (normaly you should
-find them in /usr/share/doc/opencv or /usr/share/doc/opencv-doc; otherwise download them from web, e.g. 
+If the default cascade doesn't suit you, just browse to the cascade of your choice (on Linux you should
+find them around /usr/share/doc/opencv or /usr/share/doc/opencv-doc; otherwise download them from web, e.g. 
 http://alereimondo.no-ip.org/OpenCV/34). It should be a frontal face detection cascade. If you are short on
 CPU power, try the lbp cascade <b>lbpcascade_frontalface.xml</b> - it consumes much less CPU, but the tracking
 is said to be a bit less reliable.
@@ -88,9 +90,9 @@ is said to be a bit less reliable.
 
 
 
-<h1><A name="TIR">TrackIR Setup</A></h1>
+<h1><A name="TIR">TrackIR/SmartNav Setup</A></h1>
 <img src="Trackir.png" width="100%" alt=""><br>
-If you are a Mac user, just skip to the next paragraph...
+If you are a Mac user, you can skip to the next paragraph now...
 When you intend to use TrackIR on Linux, most probably you'll need to get access rights to the device.
 The easiest way to do that, is to install the 51-TIR.rules file (comes with Linuxtrack) to the udev rules 
 directory (on Ubuntu it is /lib/udev/rules, but other distros might differ a bit in this respect). 
@@ -98,23 +100,23 @@ When the rule is there, just re-plug the TrackIR and you should be able to acces
 <p>
 If you didn't used TrackIR before, you are going to need to install the firmware. Just press the 
 <b>Install Firmware</b> button and follow the instructions. 
-<p> Usually just pressing <b>Download</b> button on the presented dialog is enough - it downloads the
+<p> Usually just pressing <b>Download</b> button on the presented dialog is all tha is needed - it downloads the
 driver package from NP and extracts firmware needed to run the device.
 <p>
 <A href="#StartTracking">Now you can try to start the tracking to verify the device is set up correctly.</A>
 
 
 
-<h1><A name="#StartTracking">Starting the tracking</A></h1>
+<h1><A name="#StartTracking">Starting the tracking for the first time</A></h1>
 <img src="CamPreview.png" width="100%" alt=""><br>
 To start the tracking, switch to the <strong>Tracking window</strong>. 
 There you can start, pause and stop the tracking, plus there is a button to recenter the tracker
-(will be needed when while looking to the center of the screen and your view of somewhat off).
+(needed when while looking to the center of the screen and your view is off).
 I also contains the frame counter and FPS indication on the botom of the windows.
 <p>
 There are two panes in this window, the first pane being the <strong>Camera View</strong>.
 This pane allows you to troubleshoot the tracking - it shows exactly what the camera sees,
-so it can show for example any interfering light sources, reflections and so on.
+so it can show you for example any interfering light sources, reflections and so on.
 The second pane, <strong>3D view</strong> shows, what the result is going to look like in the simulator.
 <p>
 To start the tracking, all you have to do is to press the <strong>Start</strong> button and wait for the
@@ -122,12 +124,14 @@ device to initialize (Usually takes couple of seconds).
 <p>
 In case of headtracking, you should see your head, with a white rectangle around it, or in case of model based
 tracking there should be 3 (or 1 in case of single point model) "blobs" (fields of bright pixels), each of which 
-havs a white cross inside (means a valid blob). You should check, that the rectangle/blobs with crosses are
+have a white cross inside (means a valid blob). You should check, that the rectangles/blobs with crosses are
 there through the full range of motions you plan use.
 
 <h1><A name="#Troubleshooting">Troubleshooting the tracking</A></h1>
-When there are any problems with tracking, always look at the <strong>Camera View</strong>, to see,
-if there aren't any interferences or other problems. Some devices allow you to do some "postprocessing" steps,
+When there are any problems with tracking, always look at the <strong>Camera View</strong> first, to check
+if there aren't any interferences or other problems.
+
+<p>Some devices allow you to do some "postprocessing" steps
 to discriminate some of the interferences, but the first rule of troubleshooting is this: the best way to get 
 rid of the interference is to remove it physically.
 <p>
@@ -135,57 +139,66 @@ rid of the interference is to remove it physically.
 <li>A lightbulb in the field of view of your camera - the best way is to move the camera in
 such a way, that the buld gets out of the camera's field of view. 
 <li>With TrackIR when using the TrackClip, there can be reflections from ones glasses - there the 
-solution might be usage of TrackClip Pro, or similar active "model", as it turns off TrackIR's infra red LEDs.
-<li>Headtracking can be fooled easile by visually nonuniform background - having a plain color wall behind you
+solution might be to use a TrackClip Pro, or similar active "model", as it turns off TrackIR's infra red LEDs.
+<li>Headtracking can be fooled easily by visually nonuniform background - having a plain color wall behind you
 is the best way to ensure smooth tracking.
 </ul>
 <p>
-When such a solution is not possible, different devices have different means that can help you to achieve good
-tracking.
+When such a solution is not possible, different devices have different means that might help you to achieve 
+better tracking results.
 <h2>Wiimote</h2>
-Unfortunately Wiimote doesn't allow any postprocessing, as the whole image processing is done in the device
+Unfortunately Wiimote doesn't allow any tweaking, as the whole image processing is done in the device
 itself. So the only way to deal with problems is to use the advice above.
 
 <h2>Webcam and TrackIR</h2>
 Both webcam and TrackIR share similar means of getting rid of sources of interference. The first of them
 is the threshold setup - when there are for example some unwanted reflections in camera's field of view,
 try to set the threshold somewhat higher; if the unwanted blobs disappeared, then check that the correct blobs
-have the white crosses inside them through the whole range of motion you intend to use. If the blob disappears,
-you need to set the threshold somewhat lower.
+have the white crosses inside them through the whole range of motion you intend to use. If the blob or cross 
+disappears, you need to set the threshold somewhat lower.
 <p>
 Another way to discriminate the "bad" blobs is according to their size - set the 
 <strong>Valid blob size</strong> to values, that only the valid blobs satisfy. Just note, that these unwanted
 blobs can still interfere with the tracking, especially when they merge with some valid blob. And don't forget
 to check, the whole range of motion - for example setting the lower limit too high might break tracking when
-you move your head farther away from the screen.
+you move your head farther away from the camera.
 <p>
-Speciality of TrackIR, when using the reflective model is setting of the illuminating IR LEDs brightness.
-This can help you avoid unwanted reflections - just set the <strong>IR LEDs brightness</strong> somewhat lower.
+Speciality of some TrackIR models, when using the reflective model is setting of the illuminating IR LEDs 
+brightness.
+This can help you weaken unwanted reflections - just set the <strong>IR LEDs brightness</strong> somewhat lower.
 <p>
-When using a webcam, make sure it is correctly focused.
+When using a webcam, make sure it is correctly focused and you get a sharp image (best checked in some external
+application).
 <p>
-To lessen the impact of the background on the webcam, you might need a visible light filter - piece of 
+To minimize the impact of the background light on the webcam, you might need a visible light filter - piece of 
 magnetic tape material, exposed film, piece of magnetic material from diskette or even piece of black 
-stocking might help there. Some webcams also contain IR filters, however its removal might be non-trivial 
-and you risk irreparable damage, so try that only as a last resort (for example you might use ordinary 
-visible light LEDs, ...).
+stocking might help there. 
+
+<p>Some webcams also contain IR filters, that can completely filter light from IR LEDs. However removal 
+of the IR filter might be non-trivial 
+and you risk irreparable damage to the camera, so try that only as a last resort 
+(for example you might use ordinary visible light LEDs instead; also higher current might help to "burn 
+through" the IR filter, but be carefull not to don't burn the LEDs instead!).
 <p>
 <h2>Webcam facetracker</h2>
-When facetracking is jumpy, first of all, make sure that the face is being recognized correctly.
+When facetracking is jumpy, first of all, make sure that the face is being recognized correctly and the 
+recognition is stable.
 For example, when the background is not plain, there might be a pattern there that is being recognized
 as a face by the tracker. If that is the case, all you can do is to obscure the offending thing/pattern.
-The best results are achieved with plain single colour background.
+The best results are achieved with plain single colour background, where your face has a good contrast.
 <p>
 Also make sure that your face is well lit, but without sharp shadows.
 <p>
 If the rectangle stays around your face, but the tracking is still jumpy, you should adjust the 
 <stong>Smoothing</strong> slider - moving the slider right steadies the tracking.
 Try adjusting the <b>Filter Factor</b> on the <b>Tracking setup</b> tab too - these two filters
-have somewhat different characteristics. The first filter actually averages input values, smoothing the 
-jumps, but it also introduces a lag. The filter in the <b>Tracking setup</b> tab helps smoothing small 
-jitter. Try finding some sweet spot that works for you.
+have somewhat different characteristics and complement each other. 
 <p>
-To lower the CPU usage, you may move the <strong>Optimize for</strong> slider towards the 
-<strong>Speed</strong> end.
+The smoothing filter actually averages input values, ironing out big jumps, but it also introduces a lag. 
+The filter in the <b>Tracking setup</b> tab works best when smoothing small jitter. 
+Try finding some sweet spot that works for you.
+<p>
+To optimize the CPU usage, you may try to move the <strong>Optimize for</strong> slider towards the 
+<strong>Speed</strong> end, trading a bit of precision for a considerably lower CPU usage.
 </body>
 </html>

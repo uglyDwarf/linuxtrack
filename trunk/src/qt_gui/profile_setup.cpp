@@ -43,8 +43,8 @@ void ProfileSetup::on_DetailedAxisSetup_pressed()
 
 void ProfileSetup::copyFromDefault()
 {
-  if(QMessageBox::warning(this, "Warning:", 
-        "Are you sure, you want to overwrite the current profile by default values?", 
+  if(QMessageBox::warning(this, QString::fromUtf8("Warning:"), 
+        QString::fromUtf8("Are you sure, you want to overwrite the current profile by default values?"), 
         QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel) != QMessageBox::Ok){
     return;
   }
@@ -230,10 +230,12 @@ void ProfileSetup::exportProfile(QTextStream &tf)
   tf<<"1"<<endl; //Version of the profile format
   tf<<TRACKER.getCommonFilterFactor()<<endl;
   for(int i = PITCH; i <= TZ; ++i){
-    tf<<(TRACKER.axisGetBool((axis_t)i, AXIS_ENABLED) ? "1" : "0")<<" ";
-    tf<<(TRACKER.axisGetBool((axis_t)i, AXIS_INVERTED) ? "1" : "0")<<" ";
+    tf<<(TRACKER.axisGetBool((axis_t)i, AXIS_ENABLED) ? QString::fromUtf8("1") : QString::fromUtf8("0"))<<
+      QString::fromUtf8(" ");
+    tf<<(TRACKER.axisGetBool((axis_t)i, AXIS_INVERTED) ? QString::fromUtf8("1") : QString::fromUtf8("0"))<<
+      QString::fromUtf8(" ");
     for(int j = AXIS_DEADZONE; j < AXIS_FILTER; ++j){
-      tf<<TRACKER.axisGet((axis_t)i, (axis_param_t)j)<<" ";
+      tf<<TRACKER.axisGet((axis_t)i, (axis_param_t)j)<<QString::fromUtf8(" ");
     }
     tf<<TRACKER.axisGet((axis_t)i, AXIS_FILTER)<<endl;
   }

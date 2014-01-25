@@ -17,7 +17,7 @@
 PrefProxy *PrefProxy::prf = NULL;
 
 static int warnMessage(const QString &message){
- return QMessageBox::warning(NULL, "Linuxtrack",
+ return QMessageBox::warning(NULL, QString::fromUtf8("Linuxtrack"),
                                 message, QMessageBox::Ok, QMessageBox::Ok);
 }
 
@@ -49,8 +49,8 @@ PrefProxy::PrefProxy()
 bool PrefProxy::checkPrefix(bool save)
 {
   QString appPath = QApplication::applicationDirPath();
-  appPath.prepend("\"");
-  appPath += "\"";
+  appPath.prepend(QString::fromUtf8("\""));
+  appPath += QString::fromUtf8("\"");
   bool res;
   char *tmp_prefix = ltr_int_get_key("Global", "Prefix");
   if(tmp_prefix != NULL){
@@ -58,7 +58,7 @@ bool PrefProxy::checkPrefix(bool save)
     prefix = QString::fromStdString(tmp_prefix);
   }else{
     res = false;
-    prefix = QString("");
+    prefix = QString::fromUtf8("");
   }
   if(res && (prefix == appPath)){
     //Intentionaly left empty
@@ -77,7 +77,7 @@ bool PrefProxy::makeRsrcDir()
 {
   QString msg;
   QString targetDir = PrefProxy::getRsrcDirPath();
-  if(targetDir.endsWith("/")){
+  if(targetDir.endsWith(QString::fromUtf8("/"))){
     targetDir.chop(1);
   }
   QFileInfo rsrcDir(targetDir);
@@ -85,26 +85,27 @@ bool PrefProxy::makeRsrcDir()
     return true;
   }
   if(rsrcDir.exists() || rsrcDir.isSymLink()){
-    QString bck = targetDir + ".pre";
+    QString bck = targetDir + QString::fromUtf8(".pre");
     QFileInfo bckInfo(bck);
     if(bckInfo.exists() || bckInfo.isSymLink()){
       if(!QFile::remove(bck)){
-        msg = QString("Can't remove '" + bck + "'!");
+        msg = QString(QString::fromUtf8("Can't remove '") + bck + QString::fromUtf8("'!"));
         goto problem;
       }
     }
     if(!QFile::rename(targetDir, bck)){
-      msg = QString("Can't rename '" + targetDir + "' to '" + bck + "'!");
+      msg = QString(QString::fromUtf8("Can't rename '") + targetDir + 
+                    QString::fromUtf8("' to '") + bck + QString::fromUtf8("'!"));
       goto problem;
     }
   }
   if(!QDir::home().mkpath(targetDir)){
-    msg = QString("Can't create '" + targetDir + "'!");
+    msg = QString(QString::fromUtf8("Can't create '") + targetDir + QString::fromUtf8("'!"));
     goto problem;
   }
   return true;
  problem:
-  ltr_int_log_message(QString(msg+"\n").toAscii().data());
+  ltr_int_log_message(QString(msg+QString::fromUtf8("\n")).toUtf8().data());
   warnMessage(msg);
   return false;  
 }
@@ -115,34 +116,36 @@ bool PrefProxy::copyDefaultPrefs()
   QString msg;
   //we can assume the rsrc dir exists now...
   QString targetDir = PrefProxy::getRsrcDirPath();
-  if(targetDir.endsWith("/")){
+  if(targetDir.endsWith(QString::fromUtf8("/"))){
     targetDir.chop(1);
   }
-  QString target = targetDir + "/linuxtrack1.conf";
-  QString source = PrefProxy::getDataPath("linuxtrack1.conf");
+  QString target = targetDir + QString::fromUtf8("/linuxtrack1.conf");
+  QString source = PrefProxy::getDataPath(QString::fromUtf8("linuxtrack1.conf"));
   QFileInfo target_info(target);
   if(target_info.exists() || target_info.isSymLink()){
-    QString bck = target + ".backup";
+    QString bck = target + QString::fromUtf8(".backup");
     QFileInfo bckInfo(bck);
     if(bckInfo.exists() || bckInfo.isSymLink()){
       if(!QFile::remove(bck)){
-        msg = QString("Can't remove '" + bck + "'!");
+        msg = QString(QString::fromUtf8("Can't remove '") + bck + QString::fromUtf8("'!"));
         goto problem;
       }
     }
     if(!QFile::rename(target, bck)){
-      msg = QString("Can't rename '" + target + "' to '" + bck + "'!");
+      msg = QString(QString::fromUtf8("Can't rename '") + target + QString::fromUtf8("' to '") + 
+                    bck + QString::fromUtf8("'!"));
       goto problem;
     }
   }
   if(!QFile::copy(source, target)){
-    msg = QString("Can't copy '" + source + "' to '" + target + "'!");
+    msg = QString(QString::fromUtf8("Can't copy '") + source + QString::fromUtf8("' to '") + 
+                  target + QString::fromUtf8("'!"));
     goto problem;
   }
   
   return true;
  problem:
-  ltr_int_log_message(QString(msg+"\n").toAscii().data());
+  ltr_int_log_message(QString(msg+QString::fromUtf8("\n")).toAscii().data());
   warnMessage(msg);
   return false;  
 }
@@ -173,9 +176,9 @@ void PrefProxy::SavePrefsOnExit()
 {
   if(ltr_int_need_saving()){
     QMessageBox::StandardButton res;
-    res = QMessageBox::warning(NULL, "Linuxtrack",
-       QString("Preferences were modified,") +
-       QString("Do you want to save them?"), 
+    res = QMessageBox::warning(NULL, QString::fromUtf8("Linuxtrack"),
+       QString::fromUtf8("Preferences were modified,") +
+       QString::fromUtf8("Do you want to save them?"), 
        QMessageBox::Save | QMessageBox::Close, QMessageBox::Save);
     if(res == QMessageBox::Save){
       savePrefs();
@@ -200,10 +203,10 @@ bool PrefProxy::createSection(QString
 {
   char *tmp = ltr_int_add_unique_section(qPrintable(sectionName));
   if(tmp != NULL){
-    sectionName = tmp;
+    sectionName = QString::fromUtf8(tmp);
     return true;
   }else{
-    sectionName = "";
+    sectionName = QString::fromUtf8("");
     return false;
   }
 }
@@ -213,7 +216,7 @@ bool PrefProxy::getKeyVal(const QString &sectionName, const QString &keyName,
 {
   char *val = ltr_int_get_key(qPrintable(sectionName), qPrintable(keyName));
   if(val != NULL){
-    result = val;
+    result = QString::fromUtf8(val);
     return true;
   }else{
     return false;
@@ -269,7 +272,7 @@ bool PrefProxy::getFirstDeviceSection(const QString &devType, QString &result)
 {
   char *devName = ltr_int_find_section("Capture-device", qPrintable(devType));
   if(devName != NULL){
-    result = QString(devName);
+    result = QString::fromUtf8(devName);
     return true;
   }else{
     return false;
@@ -286,8 +289,8 @@ bool PrefProxy::getFirstDeviceSection(const QString &devType,
     devName = ltr_int_get_key(qPrintable(sections[i]), "Capture-device");
     devIdStr = ltr_int_get_key(qPrintable(sections[i]), "Capture-device-id");
     if((devName != NULL) && (devIdStr != NULL)){
-      if((devType.compare(devName, Qt::CaseInsensitive) == 0) 
-         && (devId.compare(devIdStr, Qt::CaseInsensitive) == 0)){
+      if((devType.compare(QString::fromUtf8(devName), Qt::CaseInsensitive) == 0) 
+         && (devId.compare(QString::fromUtf8(devIdStr), Qt::CaseInsensitive) == 0)){
 	result = QString(sections[i]);
 	return true;
       }
@@ -308,26 +311,26 @@ bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id, QString &sec
     return false;
   }
   
-  QString dn = devName;
-  if(dn.compare((char *)"Webcam", Qt::CaseInsensitive) == 0){
+  QString dn = QString::fromUtf8(devName);
+  if(dn.compare(QString::fromUtf8("Webcam"), Qt::CaseInsensitive) == 0){
     devType = WEBCAM;
-  }else if(dn.compare((char *)"Webcam-face", Qt::CaseInsensitive) == 0){
+  }else if(dn.compare(QString::fromUtf8("Webcam-face"), Qt::CaseInsensitive) == 0){
 	  devType = WEBCAM_FT;
-  }else if(dn.compare((char *)"MacWebcam", Qt::CaseInsensitive) == 0){
+  }else if(dn.compare(QString::fromUtf8("MacWebcam"), Qt::CaseInsensitive) == 0){
 	  devType = MACWEBCAM;
-  }else if(dn.compare((char *)"MacWebcam-face", Qt::CaseInsensitive) == 0){
+  }else if(dn.compare(QString::fromUtf8("MacWebcam-face"), Qt::CaseInsensitive) == 0){
 	  devType = MACWEBCAM_FT;
-  }else if(dn.compare((char *)"Wiimote", Qt::CaseInsensitive) == 0){
+  }else if(dn.compare(QString::fromUtf8("Wiimote"), Qt::CaseInsensitive) == 0){
     devType = WIIMOTE;
-  }else if(dn.compare((char *)"Tir", Qt::CaseInsensitive) == 0){
+  }else if(dn.compare(QString::fromUtf8("Tir"), Qt::CaseInsensitive) == 0){
     devType = TIR;
-  }else if(dn.compare((char *)"Tir_openusb", Qt::CaseInsensitive) == 0){
+  }else if(dn.compare(QString::fromUtf8("Tir_openusb"), Qt::CaseInsensitive) == 0){
     devType = TIR;
   }else{
     devType = NONE;
   }
-  id = QString(devId);
-  secName = QString(devSection);
+  id = QString::fromUtf8(devId);
+  secName = QString::fromUtf8(devSection);
   return true;
 }
 
@@ -343,7 +346,7 @@ bool PrefProxy::getActiveModel(QString &model)
   if(modelSection == NULL){
     return false;
   }
-  model = modelSection;
+  model = QString::fromUtf8(modelSection);
   return true;
 }
 
@@ -367,7 +370,7 @@ bool PrefProxy::getProfiles(QStringList &list)
   for(size_t i = 0; i < profiles.size(); ++i){
     title = ltr_int_get_key(profiles[i].c_str(), "Title");
     if(title != NULL){
-      list.append(title);
+      list.append(QString::fromUtf8(title));
     }
   }
   return (list.size() != 0);
@@ -377,7 +380,7 @@ bool PrefProxy::getProfileSection(const QString &name, QString &section)
 {
   char *secName = ltr_int_find_section("Title", qPrintable(name));
   if(secName != NULL){
-    section = secName;
+    section = QString::fromUtf8(secName);
     return true;
   }
   return false;
@@ -393,15 +396,15 @@ QString PrefProxy::getDataPath(QString file)
 {
   char *path = ltr_int_get_data_path_prefix(file.toStdString().c_str(), 
                                             QApplication::applicationDirPath().toStdString().c_str());
-  QString res = path;
+  QString res = QString::fromUtf8(path);
   free(path);
   return res; 
 /*  
   QString appPath = QApplication::applicationDirPath();
 #ifndef DARWIN
-  return appPath + "/../share/linuxtrack/" + file;
+  return appPath + QString::fromUtf8("/../share/linuxtrack/") + file;
 #else
-  return appPath + "/../Resources/linuxtrack/" + file;
+  return appPath + QString::fromUtf8("/../Resources/linuxtrack/") + file;
 #endif
 */
 }
@@ -409,22 +412,22 @@ QString PrefProxy::getDataPath(QString file)
 QString PrefProxy::getLibPath(QString file)
 {
   char *path = ltr_int_get_lib_path(file.toStdString().c_str());
-  QString res = path;
+  QString res = QString::fromUtf8(path);
   free(path);
   return res;   
 /*
   QString appPath = QApplication::applicationDirPath();
 #ifndef DARWIN
-  return appPath + "/../lib/" + file + ".so.0";
+  return appPath + QString::fromUtf8("/../lib/") + file + QString::fromUtf8(".so.0");
 #else
-  return appPath + "/../Frameworks/" + file + ".0.dylib";
+  return appPath + QString::fromUtf8("/../Frameworks/") + file + QString::fromUtf8(".0.dylib");
 #endif
 */
 }
 
 QString PrefProxy::getRsrcDirPath()
 {
-  return QDir::homePath() + "/.config/linuxtrack/";
+  return QDir::homePath() + QString::fromUtf8("/.config/linuxtrack/");
 }
 
 bool PrefProxy::rereadPrefs()

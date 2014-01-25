@@ -54,14 +54,15 @@ void BlockId::isBlock(QFile &f, const QString &destPath, QStringList &msgs)
     if(found){
       found = (out.write(buf) == size);
       if(found){
-        msgs.append(QString("Extracted %1...").arg(fname));
+        msgs.append(QString::fromUtf8("Extracted %1...").arg(fname));
       }
     }
     out.close();
-    if(fname.endsWith(".fw", Qt::CaseInsensitive)){
-      QProcess::execute(QString("gzip -9 \"%1\"").arg(outfile));
+    if(fname.endsWith(QString::fromUtf8(".fw"), Qt::CaseInsensitive)){
+      QProcess::execute(QString::fromUtf8("gzip -9 \"%1\"").arg(outfile));
     }
   }
  no_match:
   f.seek(pos);
 }
+

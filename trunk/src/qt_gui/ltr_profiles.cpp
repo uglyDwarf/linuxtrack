@@ -9,7 +9,7 @@
 Profile::Profile() : currentProfile(NULL)
 {
   PREF.getProfiles(names);
-  currentName = "Default";
+  currentName = QString::fromUtf8("Default");
   currentProfile = new AppProfile(currentName);
 }
 

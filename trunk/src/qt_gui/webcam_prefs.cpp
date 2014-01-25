@@ -7,7 +7,7 @@
 #include "webcam_info.h"
 #include "ltr_gui_prefs.h"
 
-static QString currentId = QString("None");
+static QString currentId = QString(QString::fromUtf8("None"));
 
 WebcamPrefs::WebcamPrefs(const QString &dev_id, QWidget *parent) : QWidget(parent), id(dev_id)
 {
@@ -26,7 +26,7 @@ static WebcamInfo *wc_info = NULL;
 void WebcamPrefs::on_WebcamFormats_activated(int index)
 {
   ui.WebcamResolutions->clear();
-  if(currentId == "None"){
+  if(currentId == QString::fromUtf8("None")){
     return;
   }
   ui.WebcamResolutions->addItems(wc_info->getResolutions(index));
@@ -66,24 +66,24 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
   bool res = false;
   QString sec;
   initializing = init;
-  if(PREF.getFirstDeviceSection(QString("Webcam"), ID, sec)){
+  if(PREF.getFirstDeviceSection(QString::fromUtf8("Webcam"), ID, sec)){
     QString currentDev, currentSection;
     deviceType_t devType;
     if(!PREF.getActiveDevice(devType, currentDev, currentSection) || (sec !=currentSection)){
       PREF.activateDevice(sec);
     }
   }else{
-    sec = "Webcam";
+    sec = QString::fromUtf8("Webcam");
     initializing = false;
     if(PREF.createSection(sec)){
-      PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"Webcam");
-      PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
-      PREF.addKeyVal(sec, (char *)"Pixel-format", (char *)"");
-      PREF.addKeyVal(sec, (char *)"Resolution", (char *)"");
-      PREF.addKeyVal(sec, (char *)"Fps", (char *)"");
-      PREF.addKeyVal(sec, (char *)"Threshold", QString::number(140));
-      PREF.addKeyVal(sec, (char *)"Min-blob", QString::number(4));
-      PREF.addKeyVal(sec, (char *)"Max-blob", QString::number(230));
+      PREF.addKeyVal(sec, QString::fromUtf8("Capture-device"), QString::fromUtf8("Webcam"));
+      PREF.addKeyVal(sec, QString::fromUtf8("Capture-device-id"), ID);
+      PREF.addKeyVal(sec, QString::fromUtf8("Pixel-format"), QString::fromUtf8(""));
+      PREF.addKeyVal(sec, QString::fromUtf8("Resolution"), QString::fromUtf8(""));
+      PREF.addKeyVal(sec, QString::fromUtf8("Fps"), QString::fromUtf8(""));
+      PREF.addKeyVal(sec, QString::fromUtf8("Threshold"), QString::number(140));
+      PREF.addKeyVal(sec, QString::fromUtf8("Min-blob"), QString::number(4));
+      PREF.addKeyVal(sec, QString::fromUtf8("Max-blob"), QString::number(230));
       PREF.activateDevice(sec);
     }else{
       return false;
@@ -96,7 +96,7 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
   currentId = ID;
   ui.WebcamFormats->clear();
   ui.WebcamResolutions->clear();
-  if((currentId != "None") && (currentId.size() != 0)){
+  if((currentId != QString::fromUtf8("None")) && (currentId.size() != 0)){
     if(wc_info != NULL){
       delete(wc_info);
     }
@@ -108,7 +108,7 @@ bool WebcamPrefs::Activate(const QString &ID, bool init)
     const char *tmp = ltr_int_wc_get_pixfmt();
     //std::cout<<"4CC: "<<tmp<<std::endl;
     if(tmp != NULL){
-      fourcc = tmp;
+      fourcc = QString::fromUtf8(tmp);
       fmt_index = wc_info->findFourcc(fourcc);
       ui.WebcamFormats->setCurrentIndex(fmt_index);
     }

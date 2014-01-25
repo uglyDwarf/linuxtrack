@@ -82,15 +82,17 @@ buffering *Tracker::getBuffers()
 }
 
 
-Tracker::Tracker() : axes(LTR_AXES_T_INITIALIZER), axes_valid(false), currentProfile("Default"), common_ff(0.0)
+Tracker::Tracker() : axes(LTR_AXES_T_INITIALIZER), axes_valid(false), 
+  currentProfile(QString::fromUtf8("Default")), common_ff(0.0)
 {
   if(!ltr_int_gui_lock(true)){
-    QMessageBox::warning(NULL, "Linuxtrack", "Another linuxtrack gui is running already!",
+    QMessageBox::warning(NULL, QString::fromUtf8("Linuxtrack"), 
+      QString::fromUtf8("Another linuxtrack gui is running already!"),
                          QMessageBox::Ok);
   }
   master = new MasterThread();
   ltr_int_set_callback_hooks(ltr_int_new_frame, ltr_int_state_changed, ltr_int_new_slave);
-  setProfile(QString("Default"));
+  setProfile(QString::fromUtf8("Default"));
   axes_valid = true;
 }
 

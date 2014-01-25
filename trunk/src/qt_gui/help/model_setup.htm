@@ -9,7 +9,23 @@
 <body>
 
 The second step to take is to select the "model" to use. Model is sort of a marker, attached to ones head,
-simplifying the head pose determination.
+simplifying the head pose determination (unless you are using facetracking, then the "model" is your face).
+<p>
+There are several available model types:
+
+<ul>
+<li>Three point Cap - 6 degrees of freedom</li>
+<li>Three point Clip - 6 degrees of freedom</li>
+<li>Single point - only 2 degrees of freedom, highest precision</li>
+<li>Face - 3 degrees of freedom</li>
+</ul>
+
+Model can be either active (using LEDS or other light emmiting components) or passive (using reflectors),
+although this differentiation as necessary only when you use the TrackIR or SamrtNav devices - depending
+on the model type the Track IR turns its illumination IR LEDs on.
+<p>
+If you intend to build a model on your own, loook at the <a href="http://www.free-track.net/english/" >
+Freetrack project page - the "model" creation hints, tutorials and more</a>.
 
 <img src="Model.png" width="100%" alt="">
 
@@ -40,14 +56,14 @@ Available model types are these:
 
 <p>
 Now fill-in the model dimensions (where applicable) according to the diagram 
-(all dimensions are in milimeters).
-Last thing to do is to select, if the model uses LEDs (obviously with the exception of face model type)
+(all dimmensions are in milimeters).
+The last thing to do is to select, if the model uses LEDs (obviously with the exception of face model type)
  - if it does, check the <b>Model with LEDs</b> checkbox.
 After pressing the <b>Create</b> button, the new model should become available 
 in the <b>Model Name</b> combobox for you to select it.
 
 <h1>Model Tweaking</h1>
-To minimize unwanted view movement while panning, you can tweak the 3-point Clip 
+To minimize unwanted viewpoint movement while panning, you can tweak the 3-point Clip 
 and 3-point Cap model.
 Note however, that the movement can't be fully suppressed, both due to the
 head movement model simplification (assuming that all panning is done using a single
@@ -61,7 +77,7 @@ sliders, that allow you to adjust the model center-point and minimize the unwant
 movement.
 
 To see the particular movement precisely, go to the <b>Tracking setup</b> tab, open the 
-<b>Detailed axes setup dialog</b> and select the axis of your interest. 
+<b>Detailed axes setup</b> dialog and select the axis of your interest. 
 Observe the horizontal movement of the cross in the axis visualization area, that represents 
 computed head movement or angle.
 <p>
@@ -80,11 +96,13 @@ The spot you are looking for is somewhere in between the two. Move the slider
 to the middle and see what the response is in there; for example the look left
 moves the cross to the right - which is the same direction as the leftmost
 slider extreme. That means, that the sweet spot lies in the second half 
-of the interval (in this example). Now you can continue by repeating the halving,
+of the interval (in this example). Now you can continue by repeating the halving it,
 or just try moving the slider around in small increments to minimize the movement. 
 <p>
 Repeat the above steps for both (3-point Cap)/all three (3-point Clip) sliders to reduce the amount
 of the unwanted movements; if the result doesn't satisfy you, you can remove the rest of it by
 increasing the deadzone for the axis of interest.
+
+
 </body>
 </html>

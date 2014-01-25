@@ -5,7 +5,8 @@
 #include <cstdio>
 #include <QMessageBox>
 
-Guardian::Guardian(QWidget *parent) : parentWidget(parent), mdlType(-1), devType(-1), devDesc("")
+Guardian::Guardian(QWidget *parent) : parentWidget(parent), mdlType(-1), devType(-1), 
+  devDesc(QString::fromUtf8(""))
 {
 }
 
@@ -25,14 +26,15 @@ void Guardian::checkDeviceNModel()
   if((devType == WEBCAM_FT) || (devType == MACWEBCAM_FT)){
     //face tracker needs face model
     if(mdlType != MDL_FACE){
-      QMessageBox::warning(parentWidget, "Linuxtrack",
-                           devDesc + " requires Face type Model!", QMessageBox::Ok);
+      QMessageBox::warning(parentWidget, QString::fromUtf8("Linuxtrack"),
+                           devDesc + QString::fromUtf8(" requires Face type Model!"), QMessageBox::Ok);
     }
   }else{
     //ordinary tracker needs other than face model
     if(mdlType == MDL_FACE){
-      QMessageBox::warning(parentWidget, "Linuxtrack",
-                           devDesc + " won't work correctly with Face type Model!", QMessageBox::Ok);
+      QMessageBox::warning(parentWidget, QString::fromUtf8("Linuxtrack"),
+                           devDesc + QString::fromUtf8(" won't work correctly with Face type Model!"), 
+                           QMessageBox::Ok);
     }
   }
 }

@@ -32,19 +32,19 @@
 
 static QMessageBox::StandardButton warnQuestion(const QString &message)
 {
- return QMessageBox::warning(NULL, "Linuxtrack",
+ return QMessageBox::warning(NULL, QString::fromUtf8("Linuxtrack"),
                                 message, QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
 }
 
 static QMessageBox::StandardButton warningMessage(const QString &message)
 {
- return QMessageBox::warning(NULL, "Linuxtrack",
+ return QMessageBox::warning(NULL, QString::fromUtf8("Linuxtrack"),
                                 message, QMessageBox::Ok);
 }
 
 static QMessageBox::StandardButton infoMessage(const QString &message)
 {
- return QMessageBox::information(NULL, "Linuxtrack",
+ return QMessageBox::information(NULL, QString::fromUtf8("Linuxtrack"),
                                 message, QMessageBox::Ok);
 }
 
@@ -55,7 +55,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), ds(NULL),
 {
   ui.setupUi(this);
   PREF;
-  setWindowTitle(QString("Linuxtrack GUI v")+PACKAGE_VERSION);
+  setWindowTitle(QString::fromUtf8("Linuxtrack GUI v") + QString::fromUtf8(PACKAGE_VERSION));
   grd = new Guardian(this);
   me = new ModelEdit(grd, this);
   lv = new LogView();
@@ -68,22 +68,22 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), ds(NULL),
   ui.ModelEditSite->addWidget(me);
   ui.ProfileSetupSite->addWidget(ps);
   
-  gui_settings = new QSettings("linuxtrack", "ltr_gui");
+  gui_settings = new QSettings(QString::fromUtf8("linuxtrack"), QString::fromUtf8("ltr_gui"));
   showWindow = new LtrGuiForm(ui, *gui_settings);
   helper = new LtrDevHelp();
-  gui_settings->beginGroup("MainWindow");
-  resize(gui_settings->value("size", QSize(763, 627)).toSize());
-  move(gui_settings->value("pos", QPoint(0, 0)).toPoint());
-  welcome = gui_settings->value("welcome", true).toBool();
-  news_serial = gui_settings->value("news", -1).toInt();
+  gui_settings->beginGroup(QString::fromUtf8("MainWindow"));
+  resize(gui_settings->value(QString::fromUtf8("size"), QSize(763, 627)).toSize());
+  move(gui_settings->value(QString::fromUtf8("pos"), QPoint(0, 0)).toPoint());
+  welcome = gui_settings->value(QString::fromUtf8("welcome"), true).toBool();
+  news_serial = gui_settings->value(QString::fromUtf8("news"), -1).toInt();
   gui_settings->endGroup();
-  gui_settings->beginGroup("TrackingWindow");
-  showWindow->resize(gui_settings->value("size", QSize(800, 600)).toSize());
-  showWindow->move(gui_settings->value("pos", QPoint(0, 0)).toPoint());
+  gui_settings->beginGroup(QString::fromUtf8("TrackingWindow"));
+  showWindow->resize(gui_settings->value(QString::fromUtf8("size"), QSize(800, 600)).toSize());
+  showWindow->move(gui_settings->value(QString::fromUtf8("pos"), QPoint(0, 0)).toPoint());
   gui_settings->endGroup();
-  gui_settings->beginGroup("HelperWindow");
-  helper->resize(gui_settings->value("size", QSize(300, 80)).toSize());
-  helper->move(gui_settings->value("pos", QPoint(0, 0)).toPoint());
+  gui_settings->beginGroup(QString::fromUtf8("HelperWindow"));
+  helper->resize(gui_settings->value(QString::fromUtf8("size"), QSize(300, 80)).toSize());
+  helper->move(gui_settings->value(QString::fromUtf8("pos"), QPoint(0, 0)).toPoint());
   gui_settings->endGroup();
   HelpViewer::LoadPrefs(*gui_settings);
   
@@ -92,7 +92,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), ds(NULL),
   ui.TransRotDisable->setChecked(!ltr_int_do_tr_align());
   WineLauncher wl;
   if(!wl.wineAvailable()){
-    warningMessage("Wine not working, you'll not be able to install NP firmware and Wine plugin!");
+    warningMessage(QString::fromUtf8("Wine not working, you'll not be able to install NP firmware and Wine plugin!"));
   }
   guiInit = false;
 }
@@ -102,19 +102,19 @@ void LinuxtrackGui::show()
   ds = new DeviceSetup(grd, ui.DeviceSetupSite, this);
   ui.DeviceSetupSite->insertWidget(0, ds);
   showWindow->show();
-  QString dbg = QProcessEnvironment::systemEnvironment().value("LINUXTRACK_DBG");
-  if(dbg.contains('d')){
+  QString dbg = QProcessEnvironment::systemEnvironment().value(QString::fromUtf8("LINUXTRACK_DBG"));
+  if(dbg.contains(QChar::fromAscii('d'))){
     helper->show();
   }
   QWidget::show();
   if(welcome){
-    HelpViewer::ChangePage("welcome.htm");
+    HelpViewer::ChangePage(QString::fromUtf8("welcome.htm"));
     HelpViewer::ShowWindow();
   }else if(news_serial < NEWS_SERIAL){
-    HelpViewer::ChangePage("news.htm");
+    HelpViewer::ChangePage(QString::fromUtf8("news.htm"));
     HelpViewer::ShowWindow();
   }else{
-    HelpViewer::ChangePage("dev_setup.htm");
+    HelpViewer::ChangePage(QString::fromUtf8("dev_setup.htm"));
   }
 
 }
@@ -156,19 +156,19 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   TRACKER.stop();
   PREF.SavePrefsOnExit();
   HelpViewer::CloseWindow();
-  gui_settings->beginGroup("MainWindow");
-  gui_settings->setValue("size", size());
-  gui_settings->setValue("pos", pos());
-  gui_settings->setValue("welcome", false);
-  gui_settings->setValue("news", NEWS_SERIAL);
+  gui_settings->beginGroup(QString::fromUtf8("MainWindow"));
+  gui_settings->setValue(QString::fromUtf8("size"), size());
+  gui_settings->setValue(QString::fromUtf8("pos"), pos());
+  gui_settings->setValue(QString::fromUtf8("welcome"), false);
+  gui_settings->setValue(QString::fromUtf8("news"), NEWS_SERIAL);
   gui_settings->endGroup();  
-  gui_settings->beginGroup("TrackingWindow");
-  gui_settings->setValue("size", showWindow->size());
-  gui_settings->setValue("pos", showWindow->pos());
+  gui_settings->beginGroup(QString::fromUtf8("TrackingWindow"));
+  gui_settings->setValue(QString::fromUtf8("size"), showWindow->size());
+  gui_settings->setValue(QString::fromUtf8("pos"), showWindow->pos());
   gui_settings->endGroup();  
-  gui_settings->beginGroup("HelperWindow");
-  gui_settings->setValue("size", helper->size());
-  gui_settings->setValue("pos", helper->pos());
+  gui_settings->beginGroup(QString::fromUtf8("HelperWindow"));
+  gui_settings->setValue(QString::fromUtf8("size"), helper->size());
+  gui_settings->setValue(QString::fromUtf8("pos"), helper->pos());
   gui_settings->endGroup();
   HelpViewer::StorePrefs(*gui_settings);
   showWindow->StorePrefs(*gui_settings);
@@ -215,8 +215,8 @@ void LinuxtrackGui::rereadPrefs()
 
 void LinuxtrackGui::on_DefaultsButton_pressed()
 {
-  if(warnQuestion(QString("You are about to load default settings, removing all changes you ever did!\n") + 
-                          "Do you really want to do that?") == QMessageBox::Ok){  
+  if(warnQuestion(QString::fromUtf8("You are about to load default settings, removing all changes you ever did!\n") + 
+                          QString::fromUtf8("Do you really want to do that?")) == QMessageBox::Ok){  
     PREF.copyDefaultPrefs();
     rereadPrefs();
     ds->refresh();
@@ -225,8 +225,8 @@ void LinuxtrackGui::on_DefaultsButton_pressed()
 
 void LinuxtrackGui::on_DiscardChangesButton_pressed()
 {
-  if(warnQuestion(QString("You are about to discard modifications you did since last save!\n") + 
-                          "Do you really want to do that?") == QMessageBox::Ok){ 
+  if(warnQuestion(QString::fromUtf8("You are about to discard modifications you did since last save!\n") + 
+                          QString::fromUtf8("Do you really want to do that?")) == QMessageBox::Ok){ 
      rereadPrefs();
   }
 }
@@ -240,16 +240,16 @@ void LinuxtrackGui::on_LtrTab_currentChanged(int index)
 {
   switch(index){
     case 0:
-      HelpViewer::ChangePage("dev_setup.htm");
+      HelpViewer::ChangePage(QString::fromUtf8("dev_setup.htm"));
       break;
     case 1:
-      HelpViewer::ChangePage("model_setup.htm");
+      HelpViewer::ChangePage(QString::fromUtf8("model_setup.htm"));
       break;
     case 2:
-      HelpViewer::ChangePage("axes_setup.htm");
+      HelpViewer::ChangePage(QString::fromUtf8("axes_setup.htm"));
       break;
     case 3:
-      HelpViewer::ChangePage("misc.htm");
+      HelpViewer::ChangePage(QString::fromUtf8("misc.htm"));
       break;
     default:
       break;
@@ -329,21 +329,22 @@ void LinuxtrackGui::on_PackageLogsButton_pressed()
   
   QString fname;
   ui.PackageLogsButton->setEnabled(false);
-  fname = QFileDialog::getSaveFileName(this, "Save the package as...", QDir::homePath(), "Zip (*.zip)");
+  fname = QFileDialog::getSaveFileName(this, QString::fromUtf8("Save the package as..."), 
+                                       QDir::homePath(), QString::fromUtf8("Zip (*.zip)"));
   if(fname.isEmpty()){
     return;
   }
-  zipper.start(QString("bash -c \"zip %1 /tmp/linuxtrack*.log\"").arg(fname));  
+  zipper.start(QString::fromUtf8("bash -c \"zip %1 /tmp/linuxtrack*.log\"").arg(fname));  
 }
   
 void LinuxtrackGui::logsPackaged(int exitCode, QProcess::ExitStatus exitStatus)
 {
   (void)exitCode;
   if((exitCode == 0) && (exitStatus == QProcess::NormalExit)){
-    infoMessage("Package created successfully...");
+    infoMessage(QString::fromUtf8("Package created successfully..."));
   }else{
-    warningMessage("Couldn't create the package!\n"
-    "Please check that you have write access to the destination directory!");
+    warningMessage(QString::fromUtf8("Couldn't create the package!\n"
+    "Please check that you have write access to the destination directory!"));
   }
   ui.PackageLogsButton->setEnabled(true);
 }

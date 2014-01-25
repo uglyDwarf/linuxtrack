@@ -38,7 +38,8 @@ void HelpViewer::ChangePage(QString name)
 
 void HelpViewer::ChangeHelpPage(QString name)
 {
-  QString tmp = QString("file://") + PREF.getDataPath(QString("/help/") + QString(HELP_BASE) + name);
+  QString tmp = QString::fromUtf8("file://") + PREF.getDataPath(QString::fromUtf8("/help/") + 
+                  QString::fromUtf8(HELP_BASE) + name);
   viewer->load(QUrl(tmp));
 }
 
@@ -50,25 +51,25 @@ void HelpViewer::CloseWindow()
 void HelpViewer::LoadPrefs(QSettings &settings)
 {
   HelpViewer &hv = getHlp();
-  settings.beginGroup("HelpWindow");
-  hv.resize(settings.value("size", QSize(800, 600)).toSize());
-  hv.move(settings.value("pos", QPoint(0, 0)).toPoint());
+  settings.beginGroup(QString::fromUtf8("HelpWindow"));
+  hv.resize(settings.value(QString::fromUtf8("size"), QSize(800, 600)).toSize());
+  hv.move(settings.value(QString::fromUtf8("pos"), QPoint(0, 0)).toPoint());
   settings.endGroup();
 }
 
 void HelpViewer::StorePrefs(QSettings &settings)
 {
   HelpViewer &hv = getHlp();
-  settings.beginGroup("HelpWindow");
-  settings.setValue("size", hv.size());
-  settings.setValue("pos", hv.pos());
+  settings.beginGroup(QString::fromUtf8("HelpWindow"));
+  settings.setValue(QString::fromUtf8("size"), hv.size());
+  settings.setValue(QString::fromUtf8("pos"), hv.pos());
   settings.endGroup();
 }
 
 HelpViewer::HelpViewer(QWidget *parent) : QWidget(parent), contents(NULL), layout(NULL)
 {
   ui.setupUi(this);
-  setWindowTitle("Help viewer");
+  setWindowTitle(QString::fromUtf8("Help viewer"));
   viewer = new QWebView(this);
   contents = new QListWidget(this);
   ReadContents();
@@ -87,14 +88,15 @@ HelpViewer::HelpViewer(QWidget *parent) : QWidget(parent), contents(NULL), layou
 
 bool HelpViewer::ReadContents()
 {
-  QFile contentsFile(PREF.getDataPath(QString("/help/") + QString(HELP_BASE) + QString("contents.txt")));
+  QFile contentsFile(PREF.getDataPath(QString::fromUtf8("/help/") + 
+    QString::fromUtf8(HELP_BASE) + QString::fromUtf8("contents.txt")));
   if(!contentsFile.open(QFile::ReadOnly)){
     return false;
   }
   bool res = false;
   QTextStream contents(&contentsFile);
   QString line;
-  QRegExp pattern("^\"([^\"]+)\"\\s+\"([^\"]+)\"$");
+  QRegExp pattern(QString::fromUtf8("^\"([^\"]+)\"\\s+\"([^\"]+)\"$"));
   QStringList captured;
   while(!(line = contents.readLine()).isNull()){
     if(pattern.exactMatch(line)){
@@ -126,7 +128,7 @@ void HelpViewer::on_CloseButton_pressed()
 
 void HelpViewer::followLink(const QUrl &url)
 {
-  if(QString("http").compare(url.scheme(), Qt::CaseInsensitive) == 0){
+  if(QString::fromUtf8("http").compare(url.scheme(), Qt::CaseInsensitive) == 0){
     QDesktopServices::openUrl(url);
   }else{
     viewer->load(url);

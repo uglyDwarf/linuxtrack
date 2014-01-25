@@ -27,11 +27,11 @@ int Downloading::download(QString urlStr, QString dest)
   };
   QUrl url(urlStr);
   destination = dest;
-  origFname = url.path().split('/').last();
-  fname = QString("%1/%2.XXXXXX").arg(dest).arg(origFname);
+  origFname = url.path().split(QChar::fromAscii('/')).last();
+  fname = QString(QString::fromUtf8("%1/%2.XXXXXX")).arg(dest).arg(origFname);
   file = new QTemporaryFile(fname);
   if(!file->open(QIODevice::WriteOnly)){
-    emit done(false, QString("Can't open file \"%1\"!").arg(fname));
+    emit done(false, QString(QString::fromUtf8("Can't open file \"%1\"!")).arg(fname));
     return 1;
   }
   fname = file->fileName();
@@ -57,16 +57,16 @@ void Downloading::finished(QNetworkReply* reply)
     file->close();
   }
   if(reply->error() == QNetworkReply::NoError){
-    QString result = QString("%1/%2").arg(destination).arg(origFname);
+    QString result = QString(QString::fromUtf8("%1/%2")).arg(destination).arg(origFname);
     //std::cout<<"Renaming "<<fname.toAscii().data()<<" to "
     //         <<result.toAscii().data()<<std::endl;
     if(QFile::exists(result)){
       QFile::remove(result);
     }
     if(!QFile::rename(fname, result)){
-      emit done(false, QString("Can't rename file \"%1\" to \"%2\"!").arg(fname).arg(result));
+      emit done(false, QString(QString::fromUtf8("Can't rename file \"%1\" to \"%2\"!")).arg(fname).arg(result));
     }
-    emit msg("Download finished.");
+    emit msg(QString::fromUtf8("Download finished."));
     emit done(true, result);
   }else{
     QFile::remove(fname);

@@ -5,16 +5,16 @@
 LogView::LogView(QWidget *parent) : QWidget(parent), watcher(parent)
 {
   ui.setupUi(this);
-  setWindowTitle("Logfile viewer");
+  setWindowTitle(QString::fromUtf8("Logfile viewer"));
   size = 0;
   changed = true;
   //To make sure the logfile exists and we can get its name
   ltr_int_log_message("Opening logfile viewer.\n");
   const char *log_name = ltr_int_get_logfile_name();
-  watcher.addPath(log_name);
+  watcher.addPath(QString::fromUtf8(log_name));
   QObject::connect(&watcher, SIGNAL(fileChanged(const QString&)), 
                    this, SLOT(fileChanged(const QString&)));
-  lf = new QFile(log_name);
+  lf = new QFile(QString::fromUtf8(log_name));
   lf->open(QIODevice::ReadOnly);
   ts = new QTextStream(lf);
   timer = new QTimer(this);

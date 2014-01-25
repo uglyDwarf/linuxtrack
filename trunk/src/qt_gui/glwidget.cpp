@@ -188,7 +188,7 @@ bool GLWidget::makeObjects()
        
        if(obj.texture.isEmpty()){
          textured = false;
-         currentTexture = "";
+         currentTexture = QString::fromUtf8("");
        }else{
          textured = true;
        }
