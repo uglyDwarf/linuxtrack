@@ -5,13 +5,18 @@
 ScpForm::ScpForm(QWidget *parent) :QWidget(parent)
 {
   ui.setupUi(this);
-  pitch = new SCurve(PITCH, "Pitch - looking down/up", "Down", "Up", this);
-  yaw = new SCurve(YAW, "Yaw - looking left/right", "Right", "Left", this);
-  roll = new SCurve(ROLL, "Roll - tilting head left/right", 
-		    "Clockwise", "Counter-clockwise", this);
-  x = new SCurve(TX, "Sideways translation", "Left", "Right", this);
-  y = new SCurve(TY, "Up/down translation", "Down", "Up", this);
-  z = new SCurve(TZ, "Back/forth translation", "Forth", "Back", this);
+  pitch = new SCurve(PITCH, QString::fromUtf8("Pitch - looking down/up"), QString::fromUtf8("Down"), 
+                     QString::fromUtf8("Up"), this);
+  yaw = new SCurve(YAW, QString::fromUtf8("Yaw - looking left/right"), QString::fromUtf8("Right"), 
+                   QString::fromUtf8("Left"), this);
+  roll = new SCurve(ROLL, QString::fromUtf8("Roll - tilting head left/right"), 
+		    QString::fromUtf8("Clockwise"), QString::fromUtf8("Counter-clockwise"), this);
+  x = new SCurve(TX, QString::fromUtf8("Sideways translation"), QString::fromUtf8("Left"), 
+                 QString::fromUtf8("Right"), this);
+  y = new SCurve(TY, QString::fromUtf8("Up/down translation"), QString::fromUtf8("Down"), 
+                 QString::fromUtf8("Up"), this);
+  z = new SCurve(TZ, QString::fromUtf8("Back/forth translation"), QString::fromUtf8("Forth"), 
+                 QString::fromUtf8("Back"), this);
   ui.SCPPitch->addWidget(pitch);
   ui.SCPYaw->addWidget(yaw);
   ui.SCPRoll->addWidget(roll);

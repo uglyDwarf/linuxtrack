@@ -9,7 +9,7 @@
 #include <QFile>
 #include <QMessageBox>
 
-static QString currentId = QString("None");
+static QString currentId = QString::fromUtf8("None");
 static int tirType = 0;
 bool TirPrefs::firmwareOK = false;
 bool TirPrefs::permsOK = false;
@@ -74,25 +74,25 @@ bool TirPrefs::Activate(const QString &ID, bool init)
 {
   initializing = init;
   QString sec;
-  if(PREF.getFirstDeviceSection(QString("Tir"), sec)){
+  if(PREF.getFirstDeviceSection(QString::fromUtf8("Tir"), sec)){
     QString currentDev, currentSection;
     deviceType_t devType;
     if(!PREF.getActiveDevice(devType, currentDev, currentSection) || (sec !=currentSection)){
       PREF.activateDevice(sec);
     }
   }else{
-    sec = "TrackIR";
+    sec = QString::fromUtf8("TrackIR");
     initializing = false;
     if(PREF.createSection(sec)){
-      PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"Tir");
-      PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
-      PREF.addKeyVal(sec, (char *)"Threshold", QString::number(140));
-      PREF.addKeyVal(sec, (char *)"Min-blob", QString::number(4));
-      PREF.addKeyVal(sec, (char *)"Max-blob", QString::number(2500));
-      PREF.addKeyVal(sec, (char *)"Status-led-brightness", QString::number(0));
-      PREF.addKeyVal(sec, (char *)"Ir-led-brightness", QString::number(7));
-      PREF.addKeyVal(sec, (char *)"Status-signals", (char *)"on");
-      PREF.addKeyVal(sec, (char *)"Grayscale", (char *)"on");
+      PREF.addKeyVal(sec, QString::fromUtf8("Capture-device"), QString::fromUtf8("Tir"));
+      PREF.addKeyVal(sec, QString::fromUtf8("Capture-device-id"), ID);
+      PREF.addKeyVal(sec, QString::fromUtf8("Threshold"), QString::number(140));
+      PREF.addKeyVal(sec, QString::fromUtf8("Min-blob"), QString::number(4));
+      PREF.addKeyVal(sec, QString::fromUtf8("Max-blob"), QString::number(2500));
+      PREF.addKeyVal(sec, QString::fromUtf8("Status-led-brightness"), QString::number(0));
+      PREF.addKeyVal(sec, QString::fromUtf8("Ir-led-brightness"), QString::number(7));
+      PREF.addKeyVal(sec, QString::fromUtf8("Status-signals"), QString::fromUtf8("on"));
+      PREF.addKeyVal(sec, QString::fromUtf8("Grayscale"), QString::fromUtf8("on"));
       PREF.activateDevice(sec);
     }else{
       return false;
@@ -113,16 +113,16 @@ bool TirPrefs::Activate(const QString &ID, bool init)
   ui.TirUseGrayscale->setCheckState(grayscale);
   if(firmwareOK){
     if(tirType < TIR4){
-      ui.TirFwLabel->setText("Firmware not needed!");
+      ui.TirFwLabel->setText(QString::fromUtf8("Firmware not needed!"));
     }else{
-      ui.TirFwLabel->setText("Firmware found!");
-      ui.TirInstallFirmware->setText("Reinstall Firmware");
+      ui.TirFwLabel->setText(QString::fromUtf8("Firmware found!"));
+      ui.TirInstallFirmware->setText(QString::fromUtf8("Reinstall Firmware"));
     }
     //ui.TirInstallFirmware->setDisabled(true);
   }else{
-    ui.TirFwLabel->setText("Firmware not found - TrackIr will not work!");
-    QMessageBox::warning(NULL, QString("TrackIR Firmware Installation"), 
-        QString("TrackIR device was found, but you don't have the firmware installed."));
+    ui.TirFwLabel->setText(QString::fromUtf8("Firmware not found - TrackIr will not work!"));
+    QMessageBox::warning(NULL, QString::fromUtf8("TrackIR Firmware Installation"), 
+        QString::fromUtf8("TrackIR device was found, but you don't have the firmware installed."));
     //on_TirInstallFirmware_pressed();
   }
   printf("Type: %d\n", tirType);
@@ -145,10 +145,10 @@ bool TirPrefs::Activate(const QString &ID, bool init)
   }
   if(tirType == SMARTNAV3){
     ui.TirThreshold->setMinimum(40);
-    ui.TirThresholdMin->setText("40");
+    ui.TirThresholdMin->setText(QString::fromUtf8("40"));
   }else{
     ui.TirThreshold->setMinimum(30);
-    ui.TirThresholdMin->setText("30");
+    ui.TirThresholdMin->setText(QString::fromUtf8("30"));
   }
   initializing = false;
   return true;
@@ -165,8 +165,8 @@ bool TirPrefs::AddAvailableDevices(QComboBox &combo)
   
   tirType = probeTir(firmwareOK, permsOK);
   if(!permsOK){
-    QMessageBox::warning(NULL, QString("TrackIR permissions problem"), 
-        QString("TrackIR device was found, but you don't have permissions to access it.\n \
+    QMessageBox::warning(NULL, QString::fromUtf8("TrackIR permissions problem"), 
+        QString::fromUtf8("TrackIR device was found, but you don't have permissions to access it.\n \
 Please install the file 51-TIR.rules to the udev rules directory\n\
 (consult help and your distro documentation for details).\n\
 You are going to need administrator privileges to do that.")
@@ -183,10 +183,10 @@ You are going to need administrator privileges to do that.")
     }
   }
   
-  PrefsLink *pl = new PrefsLink(TIR, (char *)"Tir");
+  PrefsLink *pl = new PrefsLink(TIR, QString::fromUtf8("Tir"));
   QVariant v;
   v.setValue(*pl);
-  combo.addItem((char *)"TrackIR/SmartNav", v);
+  combo.addItem(QString::fromUtf8("TrackIR/SmartNav"), v);
   if(tir_selected){
     combo.setCurrentIndex(combo.count() - 1);
     res = true;
@@ -235,11 +235,11 @@ void TirPrefs::TirFirmwareDLFinished(bool state)
     dlfw->hide();
     probeTir(firmwareOK, permsOK);    
     if(firmwareOK){
-      ui.TirFwLabel->setText("Firmware found!");
+      ui.TirFwLabel->setText(QString::fromUtf8("Firmware found!"));
       //ui.TirInstallFirmware->setDisabled(true);
-      ui.TirInstallFirmware->setText("Reinstall Firmware");
+      ui.TirInstallFirmware->setText(QString::fromUtf8("Reinstall Firmware"));
     }else{
-      ui.TirFwLabel->setText("Firmware not found - TrackIr will not work!");
+      ui.TirFwLabel->setText(QString::fromUtf8("Firmware not found - TrackIr will not work!"));
     }
   }
 }

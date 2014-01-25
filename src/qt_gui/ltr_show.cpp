@@ -45,9 +45,9 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, QSettings &setting
   cv = new CameraView(label);
   ui.pix_box->addWidget(cv);
   trackerStopped();
-  settings.beginGroup("TrackingWindow");
-  camViewEnable = ! settings.value("camera_view", false).toBool();
-  bool check3DV = settings.value("3D_view", false).toBool();
+  settings.beginGroup(QString::fromUtf8("TrackingWindow"));
+  camViewEnable = ! settings.value(QString::fromUtf8("camera_view"), false).toBool();
+  bool check3DV = settings.value(QString::fromUtf8("3D_view"), false).toBool();
   settings.endGroup();
   main_gui.DisableCamView->setCheckState(camViewEnable ? Qt::Unchecked : Qt::Checked);
   main_gui.Disable3DView->setCheckState(check3DV ? Qt::Checked : Qt::Unchecked);
@@ -106,9 +106,9 @@ void LtrGuiForm::StorePrefs(QSettings &settings)
 {
   bool camEna = (main_gui.DisableCamView->checkState() == Qt::Checked) ? true : false;
   bool tdEna = (main_gui.Disable3DView->checkState() == Qt::Checked) ? true : false;
-  settings.beginGroup("TrackingWindow");
-  settings.setValue("camera_view", camEna);
-  settings.setValue("3D_view", tdEna);
+  settings.beginGroup(QString::fromUtf8("TrackingWindow"));
+  settings.setValue(QString::fromUtf8("camera_view"), camEna);
+  settings.setValue(QString::fromUtf8("3D_view"), tdEna);
   settings.endGroup();
 }
 
@@ -119,7 +119,7 @@ void LtrGuiForm::on_startButton_pressed()
   timer->start(50);
   fpsTimer->start(250);
   stopwatch->start();
-  static QString sec("Default");
+  static QString sec(QString::fromUtf8("Default"));
   TRACKER.start(sec);
 }
 
@@ -172,7 +172,7 @@ void LtrGuiForm::update()
     fps_mean += fps_buffer[i];
   }
   int fps = fps_mean / 8.0;
-  ui.status->setText(QString("%1.frame @ %2 fps").arg(cnt).arg(fps, 4));
+  ui.status->setText(QString::fromUtf8("%1.frame @ %2 fps").arg(cnt).arg(fps, 4));
   cv->redraw();  
 }
 

@@ -71,13 +71,13 @@ WebcamInfo::WebcamInfo(const QString &id)
 
   if(fmts.entries == 0){
     std::cout<<"Zero entries!"<<std::endl;
-    format_strings.push_back("YUYV");
+    format_strings.push_back(QString::fromUtf8("YUYV"));
     fmt_descs.push_back(QList<webcam_format*>());
     res_list.push_back(QStringList());
     fmt_descs[0].push_back(&def_fmt1);
-    res_list[0].push_back("160 x 120 @ 30");
-    res_list[0].push_back("320 x 240 @ 30");
-    res_list[0].push_back("352 x 288 @ 30");
+    res_list[0].push_back(QString::fromUtf8("160 x 120 @ 30"));
+    res_list[0].push_back(QString::fromUtf8("320 x 240 @ 30"));
+    res_list[0].push_back(QString::fromUtf8("352 x 288 @ 30"));
   }else{
     for(j = 0; j < fmts.entries; ++j){
       index = fmts.formats[j].i;
@@ -92,7 +92,7 @@ WebcamInfo::WebcamInfo(const QString &id)
       height = QString::number(fmts.formats[j].h);
       fps = QString::number((float)fmts.formats[j].fps_den 
 			    / fmts.formats[j].fps_num);
-      item = QString("%2 x %3 @ %4").arg(width, height, fps);
+      item = QString::fromUtf8("%2 x %3 @ %4").arg(width, height, fps);
       res_list.back().push_back(item);
     }
   }
@@ -119,7 +119,7 @@ static QString U32_2_String(uint32_t fourcc)
   char fcc1[5];
   qstrncpy(fcc1, fcc, 5);
   fcc1[4] = '\0';
-  return QString(fcc1);
+  return QString(QString::fromUtf8(fcc1));
 }
 
 QString WebcamInfo::getFourcc(int index)
@@ -148,7 +148,7 @@ typedef struct{
 
 bool WebcamInfo::decodeRes(const QString &res, int &res_x, int &res_y)
 {
-  const QRegExp &res_rexp = QRegExp("^\\s*(\\d+)\\s*[xX]\\s*(\\d+)\\s*$");
+  const QRegExp &res_rexp = QRegExp(QString::fromUtf8("^\\s*(\\d+)\\s*[xX]\\s*(\\d+)\\s*$"));
   if(res_rexp.indexIn(res) == -1){
     return false;
   }
@@ -159,7 +159,7 @@ bool WebcamInfo::decodeRes(const QString &res, int &res_x, int &res_y)
 
 bool WebcamInfo::decodeFps(const QString &fps, int &num, int &den)
 {
-  const QRegExp &fps_rexp = QRegExp("^(\\d+)\\s*/\\s*(\\d+)\\s*$");
+  const QRegExp &fps_rexp = QRegExp(QString::fromUtf8("^(\\d+)\\s*/\\s*(\\d+)\\s*$"));
   if(fps_rexp.indexIn(fps) == -1){
     return false;
   }
@@ -214,9 +214,9 @@ bool WebcamInfo::findFmtSpecs(int i_fmt, int i_res, QString &res,
 			      QString &fps, QString &fmt)
 {
   webcam_format* format = fmt_descs[i_fmt][i_res];
-  res = QString("%1 x %2").arg(QString::number(format->w))
+  res = QString::fromUtf8("%1 x %2").arg(QString::number(format->w))
                           .arg(QString::number(format->h));
-  fps = QString("%1/%2").arg(QString::number(format->fps_den))
+  fps = QString::fromUtf8("%1/%2").arg(QString::number(format->fps_den))
                           .arg(QString::number(format->fps_num));
   fmt = getFourcc(i_fmt);
   return true;
@@ -239,7 +239,7 @@ QStringList& WebcamInfo::EnumerateWebcams()
     int id_num = 0;
     
     while((ids[id_num]) != NULL){
-      res->append(ids[id_num]);
+      res->append(QString::fromUtf8(ids[id_num]));
       ++id_num;
     }
     ltr_int_array_cleanup(&ids);

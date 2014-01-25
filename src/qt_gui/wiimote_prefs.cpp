@@ -32,20 +32,20 @@ bool WiimotePrefs::Activate(const QString &ID, bool init)
 {
   QString sec;
   initializing = init;
-  if(PREF.getFirstDeviceSection(QString("Wiimote"), sec)){
+  if(PREF.getFirstDeviceSection(QString::fromUtf8("Wiimote"), sec)){
     QString currentDev, currentSection;
     deviceType_t devType;
     if(!PREF.getActiveDevice(devType, currentDev, currentSection) || (sec !=currentSection)){
       PREF.activateDevice(sec);
     }
   }else{
-    sec = "Wiimote";
+    sec = QString::fromUtf8("Wiimote");
     initializing = false;
     if(PREF.createSection(sec)){
-      PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"Wiimote");
-      PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
-      PREF.addKeyVal(sec, (char *)"Running-indication", (char *)"0100");
-      PREF.addKeyVal(sec, (char *)"Paused-indication", (char *)"0010");
+      PREF.addKeyVal(sec, QString::fromUtf8("Capture-device"), QString::fromUtf8("Wiimote"));
+      PREF.addKeyVal(sec, QString::fromUtf8("Capture-device-id"), ID);
+      PREF.addKeyVal(sec, QString::fromUtf8("Running-indication"), QString::fromUtf8("0100"));
+      PREF.addKeyVal(sec, QString::fromUtf8("Paused-indication"), QString::fromUtf8("0010"));
       PREF.activateDevice(sec);
     }
   }
@@ -80,10 +80,10 @@ bool WiimotePrefs::AddAvailableDevices(QComboBox &combo)
     }
   }
   
-  PrefsLink *pl = new PrefsLink(WIIMOTE, (char *)"Wiimote");
+  PrefsLink *pl = new PrefsLink(WIIMOTE, QString::fromUtf8("Wiimote"));
   QVariant v;
   v.setValue(*pl);
-  combo.addItem((char *)"Wiimote", v);
+  combo.addItem(QString::fromUtf8("Wiimote"), v);
   if(wiimote_selected){
     combo.setCurrentIndex(combo.count() - 1);
     res = true;

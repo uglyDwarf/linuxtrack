@@ -27,14 +27,14 @@
 */
 
 QString DeviceSetup::descs[8] = {
-    "Normal",                        //0
-    "Top to the right",              //6
-    "Upside-down",                   //3
-    "Top to the left",               //5
-    "Normal, from behind",           //8
-    "Top to the right, from behind", //14
-    "Upside-down, from behind",      //11
-    "Top to the left, from behind"   //12
+    QString::fromUtf8("Normal"),                        //0
+    QString::fromUtf8("Top to the right"),              //6
+    QString::fromUtf8("Upside-down"),                   //3
+    QString::fromUtf8("Top to the left"),               //5
+    QString::fromUtf8("Normal, from behind"),           //8
+    QString::fromUtf8("Top to the right, from behind"), //14
+    QString::fromUtf8("Upside-down, from behind"),      //11
+    QString::fromUtf8("Top to the left, from behind")   //12
   };
 
 //int DeviceSetup::orientValues[] = {0, 6, 3, 5, 8, 14, 11, 13};
@@ -72,7 +72,7 @@ void DeviceSetup::initOrientations()
   int orientIndex = 0;
   
   QString orient;
-  if(PREF.getKeyVal("Global", "Camera-orientation", orient)){
+  if(PREF.getKeyVal(QString::fromUtf8("Global"), QString::fromUtf8("Camera-orientation"), orient)){
     orientVal=orient.toInt();
   }
 
@@ -103,29 +103,29 @@ void DeviceSetup::on_DeviceSelector_activated(int index)
 #ifndef DARWIN  
   if(pl.deviceType == WEBCAM){
     devPrefs = new WebcamPrefs(pl.ID, this);
-    emit deviceTypeChanged(pl.deviceType, "Webcam");
+    emit deviceTypeChanged(pl.deviceType, QString::fromUtf8("Webcam"));
   }else 
   if(pl.deviceType == WEBCAM_FT){
     devPrefs = new WebcamFtPrefs(pl.ID, this);
-    emit deviceTypeChanged(pl.deviceType, "Webcam Face Tracker");
+    emit deviceTypeChanged(pl.deviceType, QString::fromUtf8("Webcam Face Tracker"));
   }else
 #else
   if(pl.deviceType == MACWEBCAM){
     devPrefs = new MacWebcamPrefs(pl.ID, this);
-    emit deviceTypeChanged(pl.deviceType, "Webcam");
+    emit deviceTypeChanged(pl.deviceType, QString::fromUtf8("Webcam"));
   }else 
   if(pl.deviceType == MACWEBCAM_FT){
     devPrefs = new MacWebcamFtPrefs(pl.ID, this);
-    emit deviceTypeChanged(pl.deviceType, "Webcam Face Tracker");
+    emit deviceTypeChanged(pl.deviceType, QString::fromUtf8("Webcam Face Tracker"));
   }else
 #endif   
   if(pl.deviceType == WIIMOTE){
     devPrefs = new WiimotePrefs(pl.ID, this);
-    emit deviceTypeChanged(pl.deviceType, "Wiimote");
+    emit deviceTypeChanged(pl.deviceType, QString::fromUtf8("Wiimote"));
   }else 
   if(pl.deviceType == TIR){
     devPrefs = new TirPrefs(pl.ID, this);
-    emit deviceTypeChanged(pl.deviceType, "TrackIR");
+    emit deviceTypeChanged(pl.deviceType, QString::fromUtf8("TrackIR"));
   }
   if(devPrefs != NULL){
     target->insertWidget(-1, devPrefs);
@@ -137,7 +137,7 @@ void DeviceSetup::on_CameraOrientation_activated(int index)
   if(index < 0){
     return;
   }
-  PREF.setKeyVal("Global", "Camera-orientation", orientValues[index]);
+  PREF.setKeyVal(QString::fromUtf8("Global"), QString::fromUtf8("Camera-orientation"), orientValues[index]);
 }
 
 void DeviceSetup::on_RefreshDevices_pressed()

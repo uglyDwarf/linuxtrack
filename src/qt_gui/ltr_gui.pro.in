@@ -13,7 +13,7 @@ INCLUDEPATH += @srcdir@/..
 RESOURCES = ltr_rc.qrc
 QT          += opengl network webkit
 VPATH     = @srcdir@
-
+DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
 # Input
 HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h help_view.h \
 	   ltr_gui_prefs.h prefs_link.h tir_prefs.h device_setup.h\

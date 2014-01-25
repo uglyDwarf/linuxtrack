@@ -22,7 +22,7 @@ class Progress: public QDialog
 {
  Q_OBJECT
  public:
-  Progress(){ui.setupUi(this); ui.InfoLabel->setText("");};
+  Progress(){ui.setupUi(this); ui.InfoLabel->setText(QString::fromUtf8(""));};
   void show(){ui.ProgressBar->setValue(0);QWidget::show();};
  private:
   Ui::DLProgress ui;

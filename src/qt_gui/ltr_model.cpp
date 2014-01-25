@@ -11,7 +11,7 @@ ModelCreate::ModelCreate(QWidget *parent) : QDialog(parent), validator(NULL), mo
 {
   ui.setupUi(this);
   ui.Model3PtCap->click();
-  validator = new QRegExpValidator(QRegExp("^[^\\[\\]]*$"), this);
+  validator = new QRegExpValidator(QRegExp(QString::fromUtf8("^[^\\[\\]]*$")), this);
   ui.ModelName->setValidator(validator);
 }
 
@@ -44,19 +44,19 @@ void ModelCreate::on_CreateButton_pressed()
   QStringList sectionList;
   PREF.getSectionList(sectionList);
   if(sec.isEmpty()){
-    QMessageBox::warning(NULL, "Linuxtrack",
-      "Please specify the Model name!", QMessageBox::Ok);
+    QMessageBox::warning(NULL, QString::fromUtf8("Linuxtrack"),
+      QString::fromUtf8("Please specify the Model name!"), QMessageBox::Ok);
     ui.ModelName->setFocus();
     return;
   }
   if(sectionList.contains(sec, Qt::CaseInsensitive)){
-    QMessageBox::warning(NULL, "Linuxtrack",
-      "The name is already taken, please change the Model name!", QMessageBox::Ok);
+    QMessageBox::warning(NULL, QString::fromUtf8("Linuxtrack"),
+      QString::fromUtf8("The name is already taken, please change the Model name!"), QMessageBox::Ok);
     return;
   }
   if(PREF.createSection(sec)){
     if(ui.ModelFace->isChecked()){
-      PREF.addKeyVal(sec, (char *)"Model-type", (char *)"Face");
+      PREF.addKeyVal(sec, QString::fromUtf8("Model-type"), QString::fromUtf8("Face"));
     }else{
       emit dump(sec);
     }
@@ -125,7 +125,7 @@ void ModelEdit::refresh()
     ModelCreated(str);
     on_ModelSelector_activated(str);
   }else{
-    ModelCreated("");
+    ModelCreated(QString::fromUtf8(""));
   }
   initializing = false;
 }
@@ -161,7 +161,7 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
   modelType_t modelType = MDL_1PT;
   currentSection = text;
   QString type;
-  if(!PREF.getKeyVal(currentSection, (char *)"Model-type", type)){
+  if(!PREF.getKeyVal(currentSection, QString::fromUtf8("Model-type"), type)){
     return;
   }
   QString val;
@@ -170,37 +170,37 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
     delete modelTweaker;
     modelTweaker = NULL;
   }
-  if(type.compare("Cap", Qt::CaseInsensitive) == 0){
+  if(type.compare(QString::fromUtf8("Cap"), Qt::CaseInsensitive) == 0){
     //ui.ModelTypeLabel->setText("3 Point Cap");
-    if(text == "NP TrackClip"){
-      ui.ModelPreview->setPixmap(QPixmap(":/ltr/cap_np.png"));
+    if(text == QString::fromUtf8("NP TrackClip")){
+      ui.ModelPreview->setPixmap(QPixmap(QString::fromUtf8(":/ltr/cap_np.png")));
     }else{
-      ui.ModelPreview->setPixmap(QPixmap(":/ltr/cap_1.png"));
+      ui.ModelPreview->setPixmap(QPixmap(QString::fromUtf8(":/ltr/cap_1.png")));
     }
-    HelpViewer::ChangePage("3ptcap.htm");
+    HelpViewer::ChangePage(QString::fromUtf8("3ptcap.htm"));
     modelTweaker = new CapTweaking(currentSection, this);
     
     modelType = MDL_3PT_CAP;
-  }else if(type.compare("Clip", Qt::CaseInsensitive) == 0){
+  }else if(type.compare(QString::fromUtf8("Clip"), Qt::CaseInsensitive) == 0){
     //ui.ModelTypeLabel->setText("3 Point Clip");
-    if(text == "NP TrackClip Pro"){
-      ui.ModelPreview->setPixmap(QPixmap(":/ltr/clip_np.png"));
+    if(text == QString::fromUtf8("NP TrackClip Pro")){
+      ui.ModelPreview->setPixmap(QPixmap(QString::fromUtf8(":/ltr/clip_np.png")));
     }else{
-      ui.ModelPreview->setPixmap(QPixmap(":/ltr/clip_1.png"));
+      ui.ModelPreview->setPixmap(QPixmap(QString::fromUtf8(":/ltr/clip_1.png")));
     }
-    HelpViewer::ChangePage("3ptclip.htm");
+    HelpViewer::ChangePage(QString::fromUtf8("3ptclip.htm"));
     modelTweaker = new ClipTweaking(currentSection, this);
     modelType = MDL_3PT_CLIP;
-  }else if(type.compare("Face", Qt::CaseInsensitive) == 0){
+  }else if(type.compare(QString::fromUtf8("Face"), Qt::CaseInsensitive) == 0){
     //ui.ModelTypeLabel->setText("Face");
-    ui.ModelPreview->setPixmap(QPixmap(":/ltr/face.png"));
-    HelpViewer::ChangePage("1pt.htm");
+    ui.ModelPreview->setPixmap(QPixmap(QString::fromUtf8(":/ltr/face.png")));
+    HelpViewer::ChangePage(QString::fromUtf8("1pt.htm"));
     modelType = MDL_FACE;
     modelTweaker = NULL;
-  }else if(type.compare("SinglePoint", Qt::CaseInsensitive) == 0){
+  }else if(type.compare(QString::fromUtf8("SinglePoint"), Qt::CaseInsensitive) == 0){
     //ui.ModelTypeLabel->setText("1 Point");
-    ui.ModelPreview->setPixmap(QPixmap(":/ltr/single.png"));
-    HelpViewer::ChangePage("1pt.htm");
+    ui.ModelPreview->setPixmap(QPixmap(QString::fromUtf8(":/ltr/single.png")));
+    HelpViewer::ChangePage(QString::fromUtf8("1pt.htm"));
     modelType = MDL_1PT;
     modelTweaker = NULL;
   }
@@ -235,19 +235,19 @@ CapEdit::~CapEdit()
 
 void CapEdit::dump(const QString &sec)
 {
-  PREF.addKeyVal(sec, (char *)"Model-type", (char *)"Cap");
-  PREF.addKeyVal(sec, (char *)"Cap-Y", QString::number(ui.CapA->value()));
-  PREF.addKeyVal(sec, (char *)"Cap-X", QString::number(ui.CapB->value()));
-  PREF.addKeyVal(sec, (char *)"Cap-Z", QString::number(ui.CapC->value()));
-  PREF.addKeyVal(sec, (char *)"Head-Y", "160");
-  PREF.addKeyVal(sec, (char *)"Head-Z", "50");
+  PREF.addKeyVal(sec, QString::fromUtf8("Model-type"), QString::fromUtf8("Cap"));
+  PREF.addKeyVal(sec, QString::fromUtf8("Cap-Y"), QString::number(ui.CapA->value()));
+  PREF.addKeyVal(sec, QString::fromUtf8("Cap-X"), QString::number(ui.CapB->value()));
+  PREF.addKeyVal(sec, QString::fromUtf8("Cap-Z"), QString::number(ui.CapC->value()));
+  PREF.addKeyVal(sec, QString::fromUtf8("Head-Y"), QString::fromUtf8("160"));
+  PREF.addKeyVal(sec, QString::fromUtf8("Head-Z"), QString::fromUtf8("50"));
   QString v;
   if(ui.CapLeds->isChecked()){
-    v = "yes";
+    v = QString::fromUtf8("yes");
   }else{
-    v = "no";
+    v = QString::fromUtf8("no");
   }
-  PREF.addKeyVal(sec, (char *)"Active", v);
+  PREF.addKeyVal(sec, QString::fromUtf8("Active"), v);
 }
 
 ClipEdit::ClipEdit(QWidget *parent) : QWidget(parent)
@@ -262,28 +262,28 @@ ClipEdit::~ClipEdit()
 
 void ClipEdit::dump(const QString &sec)
 {
-  PREF.addKeyVal(sec, (char *)"Model-type", (char *)"Clip");
-  PREF.addKeyVal(sec, (char *)"Clip-Y1", QString::number(ui.ClipB->value()));
-  PREF.addKeyVal(sec, (char *)"Clip-Y2", 
+  PREF.addKeyVal(sec, QString::fromUtf8("Model-type"), QString::fromUtf8("Clip"));
+  PREF.addKeyVal(sec, QString::fromUtf8("Clip-Y1"), QString::number(ui.ClipB->value()));
+  PREF.addKeyVal(sec, QString::fromUtf8("Clip-Y2"), 
     QString::number(ui.ClipB->value() + ui.ClipC->value()));
-  PREF.addKeyVal(sec, (char *)"Clip-Z1", QString::number(ui.ClipA->value()));
-  PREF.addKeyVal(sec, (char *)"Clip-Z2", 
+  PREF.addKeyVal(sec, QString::fromUtf8("Clip-Z1"), QString::number(ui.ClipA->value()));
+  PREF.addKeyVal(sec, QString::fromUtf8("Clip-Z2"), 
     QString::number(ui.ClipD->value() - ui.ClipA->value()));
   if(ui.ClipLeft->isChecked()){
-    PREF.addKeyVal(sec, (char *)"Head-X", "85");
+    PREF.addKeyVal(sec, QString::fromUtf8("Head-X"), QString::fromUtf8("85"));
   }else{
-    PREF.addKeyVal(sec, (char *)"Head-X", "-85");
+    PREF.addKeyVal(sec, QString::fromUtf8("Head-X"), QString::fromUtf8("-85"));
   }
-  PREF.addKeyVal(sec, (char *)"Head-Y", "85");
-  PREF.addKeyVal(sec, (char *)"Head-Z", "140");
+  PREF.addKeyVal(sec, QString::fromUtf8("Head-Y"), QString::fromUtf8("85"));
+  PREF.addKeyVal(sec, QString::fromUtf8("Head-Z"), QString::fromUtf8("140"));
   
   QString v;
   if(ui.ClipLeds->isChecked()){
-    v = "yes";
+    v = QString::fromUtf8("yes");
   }else{
-    v = "no";
+    v = QString::fromUtf8("no");
   }
-  PREF.addKeyVal(sec, (char *)"Active", v);
+  PREF.addKeyVal(sec, QString::fromUtf8("Active"), v);
 }
 
 
@@ -298,14 +298,14 @@ SingleEdit::~SingleEdit()
 
 void SingleEdit::dump(const QString &sec)
 {
-  PREF.addKeyVal(sec, (char *)"Model-type", (char *)"SinglePoint");
+  PREF.addKeyVal(sec, QString::fromUtf8("Model-type"), QString::fromUtf8("SinglePoint"));
   QString v;
   if(ui.SinglePtLeds->isChecked()){
-    v = "yes";
+    v = QString::fromUtf8("yes");
   }else{
-    v = "no";
+    v = QString::fromUtf8("no");
   }
-  PREF.addKeyVal(sec, (char *)"Active", v);
+  PREF.addKeyVal(sec, QString::fromUtf8("Active"), v);
 }
 
 
@@ -314,9 +314,9 @@ CapTweaking::CapTweaking(const QString &section, QWidget *parent) : QWidget(pare
 {
   ui.setupUi(this);
   QString val;
-  if(PREF.getKeyVal(currentSection, "Head-Y", val))
+  if(PREF.getKeyVal(currentSection, QString::fromUtf8("Head-Y"), val))
     ui.CapHy->setValue(val.toFloat());
-  if(PREF.getKeyVal(currentSection, "Head-Z", val))
+  if(PREF.getKeyVal(currentSection, QString::fromUtf8("Head-Z"), val))
     ui.CapHz->setValue(val.toFloat());
   initializing = false;
 }
@@ -328,14 +328,14 @@ CapTweaking::~CapTweaking()
 void CapTweaking::on_CapHy_valueChanged(int val)
 {
   if(!initializing)
-    PREF.setKeyVal(currentSection, (char *)"Head-Y", val);
+    PREF.setKeyVal(currentSection, QString::fromUtf8("Head-Y"), val);
   PREF.announceModelChange();
 }
 
 void CapTweaking::on_CapHz_valueChanged(int val)
 {
   if(!initializing)
-    PREF.setKeyVal(currentSection, (char *)"Head-Z", val);
+    PREF.setKeyVal(currentSection, QString::fromUtf8("Head-Z"), val);
   PREF.announceModelChange();
 }
 
@@ -344,7 +344,7 @@ ClipTweaking::ClipTweaking(const QString &section, QWidget *parent) : QWidget(pa
 {
   ui.setupUi(this);
   QString val;
-  if(PREF.getKeyVal(currentSection, "Head-X", val)){
+  if(PREF.getKeyVal(currentSection, QString::fromUtf8("Head-X"), val)){
     float fval = val.toFloat();
     ui.ClipHx->setValue(fabsf(fval));
     if(fval >= 0){
@@ -353,9 +353,9 @@ ClipTweaking::ClipTweaking(const QString &section, QWidget *parent) : QWidget(pa
       ui.ClipRight->setChecked(true);
     }
   }
-  if(PREF.getKeyVal(currentSection, "Head-Y", val))
+  if(PREF.getKeyVal(currentSection, QString::fromUtf8("Head-Y"), val))
     ui.ClipHy->setValue(val.toFloat());
-  if(PREF.getKeyVal(currentSection, "Head-Z", val))
+  if(PREF.getKeyVal(currentSection, QString::fromUtf8("Head-Z"), val))
     ui.ClipHz->setValue(val.toFloat());
   initializing = false;
 }
@@ -369,7 +369,7 @@ void ClipTweaking::tweakHx()
 {
   if(!initializing){
     int sign = (ui.ClipLeft->isChecked() ? 1 : -1);
-    PREF.setKeyVal(currentSection, (char *)"Head-X", ui.ClipHx->value() * sign);
+    PREF.setKeyVal(currentSection, QString::fromUtf8("Head-X"), ui.ClipHx->value() * sign);
   }
   PREF.announceModelChange();
 }
@@ -383,14 +383,14 @@ void ClipTweaking::on_ClipHx_valueChanged(int val)
 void ClipTweaking::on_ClipHy_valueChanged(int val)
 {
   if(!initializing)
-    PREF.setKeyVal(currentSection, (char *)"Head-Y", val);
+    PREF.setKeyVal(currentSection, QString::fromUtf8("Head-Y"), val);
   PREF.announceModelChange();
 }
 
 void ClipTweaking::on_ClipHz_valueChanged(int val)
 {
   if(!initializing)
-    PREF.setKeyVal(currentSection, (char *)"Head-Z", val);
+    PREF.setKeyVal(currentSection, QString::fromUtf8("Head-Z"), val);
   PREF.announceModelChange();
 }
 

@@ -15,12 +15,12 @@ ProfileSelector::ProfileSelector(QWidget *parent) : QWidget(parent), ps(NULL), i
   ui.setupUi(this);
   
   //To make sure that at least default exists
-  TRACKER.setProfile("Default");
+  TRACKER.setProfile(QString::fromUtf8("Default"));
   
   QStringList profiles;
   ui.Profiles->addItems(Profile::getProfiles().getProfileNames());
   initializing = false;
-  setCurrentProfile("Default");
+  setCurrentProfile(QString::fromUtf8("Default"));
 //  on_Profiles_currentIndexChanged("Default");
 }
 
@@ -79,16 +79,16 @@ void ProfileSelector::on_CopyFromDefault_pressed()
 
 void ProfileSelector::on_ImportProfile_pressed()
 {
-  QString home = qgetenv("HOME").constData();
-  QString mask("Profile (*.profile)");
-  QString fname = QFileDialog::getOpenFileName(this, "Import Profile...", home, mask, &mask);
-  if(fname == ""){
+  QString home = QString::fromUtf8(qgetenv("HOME").constData());
+  QString mask(QString::fromUtf8("Profile (*.profile)"));
+  QString fname = QFileDialog::getOpenFileName(this, QString::fromUtf8("Import Profile..."), home, mask, &mask);
+  if(fname == QString::fromUtf8("")){
     return;
   }
   QFile f(fname);
   if(!f.open(QIODevice::ReadOnly)){
-    QMessageBox::warning(this, "Problem importing profile!", 
-      "There was a problem opening the profile file '" + fname + "'!" );
+    QMessageBox::warning(this, QString::fromUtf8("Problem importing profile!"), 
+      QString::fromUtf8("There was a problem opening the profile file '") + fname + QString::fromUtf8("'!") );
     return;
   }
   QTextStream tf(&f);
@@ -109,19 +109,19 @@ std::cout<<"..."<<ccc<<std::endl;
 
 void ProfileSelector::on_ExportProfile_pressed()
 {
-  QString home = qgetenv("HOME").constData();
-  QString mask("Profile (*.profile)");
-  QString fname = QFileDialog::getSaveFileName(this, "Export Profile...", home, mask, &mask);
-  if(fname == ""){
+  QString home = QString::fromUtf8(qgetenv("HOME").constData());
+  QString mask(QString::fromUtf8("Profile (*.profile)"));
+  QString fname = QFileDialog::getSaveFileName(this, QString::fromUtf8("Export Profile..."), home, mask, &mask);
+  if(fname == QString::fromUtf8("")){
     return;
   }
-  if(!fname.endsWith(".profile")){
-    fname += ".profile";
+  if(!fname.endsWith(QString::fromUtf8(".profile"))){
+    fname += QString::fromUtf8(".profile");
   }
   QFile f(fname);
   if(!f.open(QIODevice::WriteOnly | QFile::Truncate)){
-    QMessageBox::warning(this, "Problem exporting profile!", 
-      "There was a problem saving the profile to file '" + fname + "'!" );
+    QMessageBox::warning(this, QString::fromUtf8("Problem exporting profile!"), 
+      QString::fromUtf8("There was a problem saving the profile to file '") + fname + QString::fromUtf8("'!") );
     return;
   }
   QTextStream tf(&f);

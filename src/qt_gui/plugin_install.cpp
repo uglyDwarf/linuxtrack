@@ -14,12 +14,12 @@
 
 PluginInstall::PluginInstall(const Ui::LinuxtrackMainForm &ui):
   gui(ui), inst(NULL), dlfw(NULL),
-  poem1(PREF.getRsrcDirPath() + "/tir_firmware/poem1.txt"),
-  poem2(PREF.getRsrcDirPath() + "/tir_firmware/poem2.txt"), 
-  gameData(PREF.getRsrcDirPath() + "/tir_firmware/gamedata.txt")
+  poem1(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/poem1.txt")),
+  poem2(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/poem2.txt")), 
+  gameData(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/gamedata.txt"))
 {
 #ifndef DARWIN
-  if(!QFile::exists(PREF.getDataPath("linuxtrack-wine.exe"))){
+  if(!QFile::exists(PREF.getDataPath(QString::fromUtf8("linuxtrack-wine.exe")))){
     return;
   }
 #endif
@@ -93,11 +93,11 @@ the linuxtrack-wine bridge will not be fully functional!", QMessageBox::Ok);
     dlfw->hide();
   }
 #ifndef DARWIN  
-  QString prefix = QFileDialog::getExistingDirectory(NULL, QString("Select Wine Prefix..."), 
+  QString prefix = QFileDialog::getExistingDirectory(NULL, QString::fromUtf8("Select Wine Prefix..."), 
                      QDir::homePath(), QFileDialog::ShowDirsOnly);
-  QString installerPath = PREF.getDataPath("linuxtrack-wine.exe");
+  QString installerPath = PREF.getDataPath(QString::fromUtf8("linuxtrack-wine.exe"));
   
-  inst->setEnv("WINEPREFIX", prefix);
+  inst->setEnv(QString::fromUtf8("WINEPREFIX"), prefix);
   inst->run(installerPath);
 #endif
   gui.pushButton_2->setEnabled(true);
