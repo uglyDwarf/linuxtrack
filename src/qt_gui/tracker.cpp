@@ -151,7 +151,7 @@ void Tracker::setProfile(QString p)
   currentProfile = p;
   PREF.getProfileSection(currentProfile, profileSection);
   //std::cout<<"Set profile "<<currentProfile.toStdString()<<" - "<<p.toStdString()<<std::endl;
-  ltr_int_init_axes(&axes, currentProfile.toStdString().c_str());
+  ltr_int_init_axes(&axes, currentProfile.toUtf8().constData());
   
   common_ff = 1.0;
   int i;
@@ -210,7 +210,7 @@ bool Tracker::axisChange(axis_t axis, axis_param_t elem, bool enabled)
 {
   ltr_int_set_axis_bool_param(axes, axis, elem, enabled);
   emit axisChanged(axis, elem);
-  ltr_int_change(profileSection.toStdString().c_str(), axis, elem, enabled?1.0:0.0);
+  ltr_int_change(profileSection.toUtf8().constData(), axis, elem, enabled?1.0:0.0);
   return true; 
 }
 
@@ -235,7 +235,7 @@ bool Tracker::axisChange(axis_t axis, axis_param_t elem, float val)
   }
   bool res = ltr_int_set_axis_param(axes, axis, elem, val);
   emit axisChanged(axis, elem);
-  ltr_int_change(profileSection.toStdString().c_str(), axis, elem, val);
+  ltr_int_change(profileSection.toUtf8().constData(), axis, elem, val);
   return res;
 }
 
@@ -272,7 +272,7 @@ bool Tracker::setCommonFilterFactor(float c_f)
     val = limit_ff(ffs[i] + common_ff);
     res &= ltr_int_set_axis_param(axes, (axis_t)i, AXIS_FILTER, val);
     emit axisChanged(i, AXIS_FILTER);
-    ltr_int_change(profileSection.toStdString().c_str(), i, AXIS_FILTER, val);
+    ltr_int_change(profileSection.toUtf8().constData(), i, AXIS_FILTER, val);
   }
   emit setCommonFF(c_f);
   return res;

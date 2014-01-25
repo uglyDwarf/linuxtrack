@@ -55,7 +55,7 @@ void WebcamFtPrefs::on_WebcamFtResolutions_activated(int index)
     WebcamInfo::decodeRes(res, x, y);
     WebcamInfo::decodeFps(fps, num, den);
     if(!initializing){
-      ltr_int_wc_set_pixfmt(fmt.toAscii().data());
+      ltr_int_wc_set_pixfmt(fmt.toUtf8().constData());
       ltr_int_wc_set_resolution(x, y);
       ltr_int_wc_set_fps(num, den);
     }
@@ -118,7 +118,7 @@ bool WebcamFtPrefs::Activate(const QString &ID, bool init)
     QString cascadePath;
     if((cascade == NULL) || (!QFile::exists(QString::fromUtf8(cascade)))){
       cascadePath = PrefProxy::getDataPath(QString::fromUtf8("haarcascade_frontalface_alt2.xml"));
-      ltr_int_wc_set_cascade(qPrintable(cascadePath));
+      ltr_int_wc_set_cascade(cascadePath.toUtf8().constData());
     }else{
       cascadePath = QString::fromUtf8(cascade);
     }
@@ -179,7 +179,7 @@ void WebcamFtPrefs::on_FindCascade_pressed()
 void WebcamFtPrefs::on_CascadePath_editingFinished()
 {
   if(!initializing){
-    ltr_int_wc_set_cascade(ui.CascadePath->text().toAscii().data());
+    ltr_int_wc_set_cascade(ui.CascadePath->text().toUtf8().constData());
   }
 }
 

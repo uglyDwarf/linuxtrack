@@ -12,7 +12,7 @@ void WineLauncher::envSet(const QString var, const QString val)
 {
     env.insert(var, val);
     std::ostringstream s;
-    s<<"    "<<qPrintable(var)<<"='"<<qPrintable(val)<<"'"<<std::endl;
+    s<<"    "<<var.toUtf8().constData()<<"='"<<val.toUtf8().constData()<<"'"<<std::endl;
     ltr_int_log_message(s.str().c_str());
 }
 
@@ -72,7 +72,7 @@ void WineLauncher::run(const QString &tgt)
   QString cmd(QString::fromUtf8("\"%1wine\" \"%2\""));
   cmd = cmd.arg(winePath).arg(tgt);
   std::ostringstream s;
-  s<<"Launching wine command: '"<< qPrintable(cmd) <<"'"<<std::endl;
+  s<<"Launching wine command: '"<< cmd.toUtf8().constData() <<"'"<<std::endl;
   ltr_int_log_message(s.str().c_str());
   wine.setProcessChannelMode(QProcess::MergedChannels);
   wine.start(cmd);
@@ -92,10 +92,10 @@ void WineLauncher::finished(int exitCode, QProcess::ExitStatus exitStatus)
       status = QString::fromUtf8("Unknown exit status");
       break;
   }
-  ltr_int_log_message("Wine finished with exitcode %d (%s).", exitCode, qPrintable(status));
+  ltr_int_log_message("Wine finished with exitcode %d (%s).", exitCode, status.toUtf8().constData());
   QString msg(QString::fromUtf8(wine.readAllStandardOutput().constData()));
   std::ostringstream s;
-  s<<qPrintable(msg)<<std::endl;
+  s<<msg.toUtf8().constData()<<std::endl;
   ltr_int_log_message(s.str().c_str());
   if(exitCode == 0 ){
     emit finished(true);
@@ -134,9 +134,9 @@ void WineLauncher::error(QProcess::ProcessError error)
 {
   QString msg(QString::fromUtf8(wine.readAllStandardOutput().constData()));
   QString reason = errorStr(error);
-  ltr_int_log_message("Error launching wine(%s)!", qPrintable(reason));
+  ltr_int_log_message("Error launching wine(%s)!", reason.toUtf8().constData());
   std::ostringstream s;
-  s<<qPrintable(msg)<<std::endl;
+  s<<msg.toUtf8().constData()<<std::endl;
   ltr_int_log_message(s.str().c_str());
   emit finished(false);
 }
@@ -153,7 +153,7 @@ bool WineLauncher::check()
   while(!wine.waitForFinished()){
     if(wine.error() != QProcess::Timedout){
       std::ostringstream s;
-      s<<"Process error: "<<qPrintable(errorStr(wine.error()))<<std::endl;
+      s<<"Process error: "<<errorStr(wine.error()).toUtf8().constData()<<std::endl;
       ltr_int_log_message(s.str().c_str());
       return false;
     }

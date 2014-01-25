@@ -72,7 +72,7 @@ bool MacWebcamFtPrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, (char *)"Resolution", (char *)"");
       QString cascadePath = PrefProxy::getDataPath("/haarcascades/haarcascade_frontalface_alt2.xml");
 	  QFileInfo finf = QFileInfo(cascadePath);
-	  PREF.addKeyVal(sec, (char *)"Cascade", qPrintable(finf.canonicalFilePath()));
+	  PREF.addKeyVal(sec, (char *)"Cascade", finf.canonicalFilePath().toUtf8().constData());
   	  PREF.activateDevice(sec);
     }else{
       return false;
@@ -102,7 +102,7 @@ bool MacWebcamFtPrefs::Activate(const QString &ID, bool init)
     QString cascadePath;
     if((cascade == NULL) || (!QFile::exists(cascade))){
       cascadePath = PrefProxy::getDataPath("/haarcascades/haarcascade_frontalface_alt2.xml");
-      ltr_int_wc_set_cascade(qPrintable(cascadePath));
+      ltr_int_wc_set_cascade(cascadePath.toUtf8().constData());
     }else{
       cascadePath = cascade;
     }
@@ -163,7 +163,7 @@ void MacWebcamFtPrefs::on_FindCascadeMac_pressed()
 void MacWebcamFtPrefs::on_CascadePathMac_editingFinished()
 {
   if(!initializing){
-    ltr_int_wc_set_cascade(ui.CascadePathMac->text().toAscii().data());
+    ltr_int_wc_set_cascade(ui.CascadePathMac->text().toUtf8().constData());
   }
 }
 

@@ -13,15 +13,15 @@
 
 static QMessageBox::StandardButton warningMessage(const QString &message)
 {
-  ltr_int_log_message("XPlanr plugin install - %s\n", qPrintable(message));
+  ltr_int_log_message("XPlanr plugin install - %s\n", message.toUtf8().constData());
   return QMessageBox::warning(NULL, QString::fromUtf8("Linuxtrack"),
                                 message, QMessageBox::Ok);
 }
 
 static void warn(const QString baseMsg, const QString explanation)
 {
-  ltr_int_log_message("XPlanr plugin install - %s(%s)\n", qPrintable(baseMsg), 
-                      qPrintable(explanation));
+  ltr_int_log_message("XPlanr plugin install - %s(%s)\n", baseMsg.toUtf8().constData(), 
+                      explanation.toUtf8().constData());
   warningMessage(QString::fromUtf8("%1\nSystem says: %2").arg(baseMsg).arg(explanation));
 }
 
@@ -41,7 +41,7 @@ static bool removePlugin(const QString targetName)
 static bool installPlugin(const QString sourceFile, const QString destFile)
 {
   ltr_int_log_message("Going to install '%s' to '%s'...\n", 
-						qPrintable(sourceFile), qPrintable(destFile));
+						sourceFile.toUtf8().constData(), destFile.toUtf8().constData());
   //Create destination path
   QFile src(sourceFile);
   QFile dest(destFile);

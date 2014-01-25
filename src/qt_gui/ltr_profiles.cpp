@@ -26,7 +26,7 @@ Profile& Profile::getProfiles()
 void Profile::addProfile(const QString &newSec)
 {
   ltr_axes_t tmp_axes = LTR_AXES_T_INITIALIZER;
-  ltr_int_init_axes(&tmp_axes, qPrintable(newSec));
+  ltr_int_init_axes(&tmp_axes, newSec.toUtf8().constData());
   ltr_int_close_axes(&tmp_axes);
   PREF.getProfiles(names);
 /*  

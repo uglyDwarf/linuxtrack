@@ -64,7 +64,7 @@ bool PrefProxy::checkPrefix(bool save)
     //Intentionaly left empty
   }else{
     prefix = appPath;
-    bool res = ltr_int_change_key("Global", "Prefix",qPrintable(appPath));
+    bool res = ltr_int_change_key("Global", "Prefix",appPath.toUtf8().constData());
     if(save){
       res &= savePrefs();
     }
@@ -145,7 +145,7 @@ bool PrefProxy::copyDefaultPrefs()
   
   return true;
  problem:
-  ltr_int_log_message(QString(msg+QString::fromUtf8("\n")).toAscii().data());
+  ltr_int_log_message(QString(msg+QString::fromUtf8("\n")).toUtf8().constData());
   warnMessage(msg);
   return false;  
 }
@@ -188,20 +188,20 @@ void PrefProxy::SavePrefsOnExit()
 
 bool PrefProxy::activateDevice(const QString &sectionName)
 {
-  ltr_int_change_key("Global", "Input", qPrintable(sectionName));
+  ltr_int_change_key("Global", "Input", sectionName.toUtf8().constData());
   return true;
 }
 
 bool PrefProxy::activateModel(const QString &sectionName)
 {
-  ltr_int_change_key("Global", "Model", qPrintable(sectionName));
+  ltr_int_change_key("Global", "Model", sectionName.toUtf8().constData());
   return true;
 }
 
 bool PrefProxy::createSection(QString 
 &sectionName)
 {
-  char *tmp = ltr_int_add_unique_section(qPrintable(sectionName));
+  char *tmp = ltr_int_add_unique_section(sectionName.toUtf8().constData());
   if(tmp != NULL){
     sectionName = QString::fromUtf8(tmp);
     return true;
@@ -214,7 +214,7 @@ bool PrefProxy::createSection(QString
 bool PrefProxy::getKeyVal(const QString &sectionName, const QString &keyName, 
 			  QString &result)
 {
-  char *val = ltr_int_get_key(qPrintable(sectionName), qPrintable(keyName));
+  char *val = ltr_int_get_key(sectionName.toUtf8().constData(), keyName.toUtf8().constData());
   if(val != NULL){
     result = QString::fromUtf8(val);
     return true;
@@ -226,7 +226,7 @@ bool PrefProxy::getKeyVal(const QString &sectionName, const QString &keyName,
 /*
 bool PrefProxy::getKeyVal(const QString &keyName, QString &result)
 {
-  const char *val = ltr_int_get_key(NULL, keyName.toAscii().data());
+  const char *val = ltr_int_get_key(NULL, keyName.toUtf8().constData());
   if(val != NULL){
     result = val;
     return true;
@@ -239,38 +239,38 @@ bool PrefProxy::getKeyVal(const QString &keyName, QString &result)
 bool PrefProxy::addKeyVal(const QString &sectionName, const QString &keyName, 
 			  const QString &value)
 {
-  return ltr_int_change_key(qPrintable(sectionName), qPrintable(keyName), 
-		 qPrintable(value));
+  return ltr_int_change_key(sectionName.toUtf8().constData(), keyName.toUtf8().constData(), 
+		 value.toUtf8().constData());
 }
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
 			  const QString &value)
 {
-  return ltr_int_change_key(qPrintable(sectionName), qPrintable(keyName), 
-		 qPrintable(value));
+  return ltr_int_change_key(sectionName.toUtf8().constData(), keyName.toUtf8().constData(), 
+		 value.toUtf8().constData());
 }
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
                           const int &value)
 {
-  return ltr_int_change_key_int(qPrintable(sectionName), qPrintable(keyName), value);
+  return ltr_int_change_key_int(sectionName.toUtf8().constData(), keyName.toUtf8().constData(), value);
 }
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
                           const float &value)
 {
-  return ltr_int_change_key_flt(qPrintable(sectionName), qPrintable(keyName), value);
+  return ltr_int_change_key_flt(sectionName.toUtf8().constData(), keyName.toUtf8().constData(), value);
 }
 
 bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
                           const double &value)
 {
-  return ltr_int_change_key_flt(qPrintable(sectionName), qPrintable(keyName), value);
+  return ltr_int_change_key_flt(sectionName.toUtf8().constData(), keyName.toUtf8().constData(), value);
 }
 
 bool PrefProxy::getFirstDeviceSection(const QString &devType, QString &result)
 {
-  char *devName = ltr_int_find_section("Capture-device", qPrintable(devType));
+  char *devName = ltr_int_find_section("Capture-device", devType.toUtf8().constData());
   if(devName != NULL){
     result = QString::fromUtf8(devName);
     return true;
@@ -286,8 +286,8 @@ bool PrefProxy::getFirstDeviceSection(const QString &devType,
   getSectionList(sections);
   char *devName, *devIdStr;
   for(ssize_t i = 0; i < sections.size(); ++i){
-    devName = ltr_int_get_key(qPrintable(sections[i]), "Capture-device");
-    devIdStr = ltr_int_get_key(qPrintable(sections[i]), "Capture-device-id");
+    devName = ltr_int_get_key(sections[i].toUtf8().constData(), "Capture-device");
+    devIdStr = ltr_int_get_key(sections[i].toUtf8().constData(), "Capture-device-id");
     if((devName != NULL) && (devIdStr != NULL)){
       if((devType.compare(QString::fromUtf8(devName), Qt::CaseInsensitive) == 0) 
          && (devId.compare(QString::fromUtf8(devIdStr), Qt::CaseInsensitive) == 0)){
@@ -378,7 +378,7 @@ bool PrefProxy::getProfiles(QStringList &list)
 
 bool PrefProxy::getProfileSection(const QString &name, QString &section)
 {
-  char *secName = ltr_int_find_section("Title", qPrintable(name));
+  char *secName = ltr_int_find_section("Title", name.toUtf8().constData());
   if(secName != NULL){
     section = QString::fromUtf8(secName);
     return true;
@@ -394,8 +394,8 @@ bool PrefProxy::savePrefs()
 
 QString PrefProxy::getDataPath(QString file)
 {
-  char *path = ltr_int_get_data_path_prefix(file.toStdString().c_str(), 
-                                            QApplication::applicationDirPath().toStdString().c_str());
+  char *path = ltr_int_get_data_path_prefix(file.toUtf8().constData(), 
+                                            QApplication::applicationDirPath().toUtf8().constData());
   QString res = QString::fromUtf8(path);
   free(path);
   return res; 
@@ -411,7 +411,7 @@ QString PrefProxy::getDataPath(QString file)
 
 QString PrefProxy::getLibPath(QString file)
 {
-  char *path = ltr_int_get_lib_path(file.toStdString().c_str());
+  char *path = ltr_int_get_lib_path(file.toUtf8().constData());
   QString res = QString::fromUtf8(path);
   free(path);
   return res;   
