@@ -54,7 +54,7 @@ void WebcamPrefs::on_WebcamResolutions_activated(int index)
     WebcamInfo::decodeRes(res, x, y);
     WebcamInfo::decodeFps(fps, num, den);
     if(!initializing){
-      ltr_int_wc_set_pixfmt(fmt.toAscii().data());
+      ltr_int_wc_set_pixfmt(fmt.toUtf8().constData());
       ltr_int_wc_set_resolution(x, y);
       ltr_int_wc_set_fps(num, den);
     }

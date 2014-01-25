@@ -33,7 +33,7 @@ typedef struct{
 } webcam_formats;
 
 int ltr_int_enum_webcams(char **ids[]);
-int ltr_int_enum_webcam_formats(char *id, webcam_formats *formats);
+int ltr_int_enum_webcam_formats(const char *id, webcam_formats *formats);
 int ltr_int_enum_webcam_formats_cleanup(webcam_formats *all_formats);
 
 #ifdef __cplusplus

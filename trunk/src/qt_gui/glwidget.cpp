@@ -195,7 +195,7 @@ bool GLWidget::makeObjects()
        textureChanged = false;
        if(textured && (currentTexture != QString(obj.texture))){
          cntr += 1;
-         //std::cout<<"binding texture "<<qPrintable(QString(obj.texture))<<std::endl;
+         //std::cout<<"binding texture "<<obj.texture<<std::endl;
          textures[cntr] = bindTexture(QImage(QString(obj.texture)), GL_TEXTURE_2D);
          textureChanged = true;
          currentTexture = QString(obj.texture);

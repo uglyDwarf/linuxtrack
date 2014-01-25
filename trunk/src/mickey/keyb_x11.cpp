@@ -62,7 +62,7 @@ int shortcutPimpl::my_x_errhandler(Display* display, XErrorEvent *event)
     //to be 100% sure there is a place for ending NULL, I sub 1 from ERR_MSG_SIZE
     XGetErrorText(display, event->error_code, msg, ERR_MSG_SIZE-1);
     printf("X Error: %s\n", msg);
-    errMsg = QString(msg);
+    errMsg = QString::fromUtf8(msg);
     errorEncountered = true;
   }
   return 0;

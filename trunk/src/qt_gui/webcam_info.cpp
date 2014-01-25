@@ -9,7 +9,7 @@
 #include <QtDebug>
 
 typedef int (*enum_webcams_fun_t)(char **ids[]);
-typedef int (*enum_webcam_formats_fun_t)(char *id, webcam_formats *all_formats);
+typedef int (*enum_webcam_formats_fun_t)(const char *id, webcam_formats *all_formats);
 typedef int (*enum_webcam_formats_cleanup_fun_t)(webcam_formats *all_formats);
 
 static enum_webcams_fun_t enum_webcams_fun = NULL;
@@ -62,7 +62,7 @@ WebcamInfo::WebcamInfo(const QString &id)
     throw(0);
   }
   webcam_id = id;
-  enum_webcam_formats_fun(webcam_id.toAscii().data(), &fmts);
+  enum_webcam_formats_fun(webcam_id.toUtf8().constData(), &fmts);
   
   int j;
   fmt_index = -1;
@@ -83,7 +83,7 @@ WebcamInfo::WebcamInfo(const QString &id)
       index = fmts.formats[j].i;
       if(fmt_index != index){
 	fmt_index = index;
-	format_strings.push_back(QString::fromAscii(fmts.fmt_strings[index]));
+	format_strings.push_back(QString::fromUtf8(fmts.fmt_strings[index]));
 	fmt_descs.push_back(QList<webcam_format*>());
 	res_list.push_back(QStringList());
       }

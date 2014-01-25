@@ -87,7 +87,7 @@ static char *get_webcam_id(int fd)
   return NULL;
 }
 
-static int is_our_webcam(char *fname, char *webcam_id)
+static int is_our_webcam(const char *fname, const char *webcam_id)
 {
   int fd = v4l2_open(fname, O_RDWR | O_NONBLOCK);
   if(fd == -1){
@@ -153,9 +153,9 @@ int ltr_int_enum_webcams(char **ids[])
 }
 
 
-static int search_for_webcam(char *webcam_id);
+static int search_for_webcam(const char *webcam_id);
 
-int ltr_int_enum_webcam_formats(char *id, webcam_formats *all_formats)
+int ltr_int_enum_webcam_formats(const char *id, webcam_formats *all_formats)
 {
   int fd = search_for_webcam(id);
   if(fd < 0){
@@ -356,7 +356,7 @@ int ltr_int_enum_webcam_formats_cleanup(webcam_formats *all_formats)
 }
 
 
-int search_for_webcam(char *webcam_id)
+int search_for_webcam(const char *webcam_id)
 {
   if(webcam_id == NULL){
     ltr_int_log_message("Please spacify webcam Id!\n");

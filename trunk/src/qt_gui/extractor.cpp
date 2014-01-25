@@ -80,7 +80,7 @@ void ExtractThread::analyzeFile(const QString fname)
     res = hash.hash(val);
     range = targets->equal_range(res);
     for(it = range.first; it != range.second; ++it){
-      //qDebug()<<cntr<<QString::fromUtf8("Checking against ")<<file.pos() <<res <<(it->second.getFname());
+      //qDebug()<<cntr<<qPrintable("Checking against ")<<file.pos() <<res <<(it->second.getFname());
       msgs.clear();
       it->second.isBlock(file, destPath, msgs);
       if(!msgs.isEmpty()){
@@ -115,7 +115,8 @@ bool ExtractThread::findCandidates(QString name)
       analyzeFile(files[i].canonicalFilePath());
     }else{
       QString outfile = QString::fromUtf8("%1/gamedata.txt").arg(destPath);
-      gameDataFound = get_game_data(qPrintable(files[i].canonicalFilePath()), qPrintable(outfile));
+      gameDataFound = get_game_data(files[i].canonicalFilePath().toUtf8().constData(), 
+                                    outfile.toUtf8().constData());
       emit progress(QString::fromUtf8("Extracted game data..."));
     }
     if(allFound()){

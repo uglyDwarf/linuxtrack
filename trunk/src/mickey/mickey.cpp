@@ -89,7 +89,7 @@ void MickeyApplyDialog::trySettings()
 {
   timer.start(1000);
   cntr = 15;
-  ui.FBString->setText(QString("Will automatically revert back in %1 seconds...").arg(cntr));
+  ui.FBString->setText(QString::fromUtf8("Will automatically revert back in %1 seconds...").arg(cntr));
   show();
   raise();
   activateWindow();
@@ -105,7 +105,7 @@ void MickeyApplyDialog::timeout()
     emit revert();
     hide();
   }else{
-    ui.FBString->setText(QString("Will automatically revert back in %1 seconds...").arg(cntr));
+    ui.FBString->setText(QString::fromUtf8("Will automatically revert back in %1 seconds...").arg(cntr));
   }
 }
 
@@ -211,12 +211,12 @@ void MickeyCalibration::timeout()
     switch(calState){
       case CENTER:
       case CENTER_ONLY:
-        ui.CalibrationText->setText(QString("Please center your head and sight."));
-        ui.FBString->setText(QString("Center position will be recorded in %1 seconds...").arg(cntr));
+        ui.CalibrationText->setText(QString::fromUtf8("Please center your head and sight."));
+        ui.FBString->setText(QString::fromUtf8("Center position will be recorded in %1 seconds...").arg(cntr));
         break;
       case CALIBRATE:
-        ui.CalibrationText->setText(QString("Please move your head to left/right and up/down extremes."));
-        ui.FBString->setText(QString("Calibration will end in %1 seconds...").arg(cntr));
+        ui.CalibrationText->setText(QString::fromUtf8("Please move your head to left/right and up/down extremes."));
+        ui.FBString->setText(QString::fromUtf8("Calibration will end in %1 seconds...").arg(cntr));
         break;
     }
 }
@@ -419,13 +419,13 @@ void Mickey::changeState(state_t newState)
   state = newState;
   switch(newState){
     case TRACKING:
-      GUI.setStatusLabel("Tracking");
+      GUI.setStatusLabel(QString::fromUtf8("Tracking"));
       break;
     case CALIBRATING:
-      GUI.setStatusLabel("Calibrating");
+      GUI.setStatusLabel(QString::fromUtf8("Calibrating"));
       break;
     case STANDBY:
-      GUI.setStatusLabel("Paused");
+      GUI.setStatusLabel(QString::fromUtf8("Paused"));
       break;
   }
 }
@@ -462,25 +462,25 @@ void Mickey::updateTimer_activated()
     if(trackingState == RUNNING){
       switch(state){
         case TRACKING:
-          GUI.setStatusLabel("Tracking");
+          GUI.setStatusLabel(QString::fromUtf8("Tracking"));
           break;
         case CALIBRATING:
-          GUI.setStatusLabel("Calibrating");
+          GUI.setStatusLabel(QString::fromUtf8("Calibrating"));
           break;
         case STANDBY:
-          GUI.setStatusLabel("Paused");
+          GUI.setStatusLabel(QString::fromUtf8("Paused"));
           break;
       }
     }else{
       switch(trackingState){
         case INITIALIZING:
-          GUI.setStatusLabel("Initializing");
+          GUI.setStatusLabel(QString::fromUtf8("Initializing"));
           break;
         case ERROR:
-          GUI.setStatusLabel("Error");
+          GUI.setStatusLabel(QString::fromUtf8("Error"));
           break;
         default:
-          GUI.setStatusLabel("Inactive");
+          GUI.setStatusLabel(QString::fromUtf8("Inactive"));
           break;
       }
     }
@@ -582,7 +582,7 @@ void MickeyGUI::deleteInstance()
 }
 
 MickeyGUI::MickeyGUI(QWidget *parent) : QWidget(parent), mickey(NULL), 
-  settings("linuxtrack", "mickey"), changed(false), hotkeySet(false)
+  settings(QString::fromUtf8("linuxtrack"), QString::fromUtf8("mickey")), changed(false), hotkeySet(false)
 {
   ui.setupUi(this);
   readPrefs();
@@ -599,9 +599,9 @@ void MickeyGUI::readPrefs()
   //Read hotkey setup
   QString modifier, key;
   
-  settings.beginGroup("Shortcut");
-  modifier = settings.value(QString("Modifier"), "None").toString();
-  key = settings.value(QString("Key"), "F9").toString();
+  settings.beginGroup(QString::fromUtf8("Shortcut"));
+  modifier = settings.value(QString::fromUtf8("Modifier"), QString::fromUtf8("None")).toString();
+  key = settings.value(QString::fromUtf8("Key"), QString::fromUtf8("F9")).toString();
   settings.endGroup();
   
   modifierIndex = ui.ModifierCombo->findText(modifier);
@@ -615,12 +615,12 @@ void MickeyGUI::readPrefs()
   
   //Axes setup
   bool relative;
-  settings.beginGroup("Axes");
-  deadzone = settings.value(QString("DeadZone"), 20).toInt();
-  sensitivity = settings.value(QString("Sensitivity"), 50).toInt();
-  curvature = settings.value(QString("Curvature"), 50).toInt();
-  stepOnly = settings.value(QString("StepOnly"), false).toBool();
-  relative = settings.value(QString("Relative"), true).toBool();
+  settings.beginGroup(QString::fromUtf8("Axes"));
+  deadzone = settings.value(QString::fromUtf8("DeadZone"), 20).toInt();
+  sensitivity = settings.value(QString::fromUtf8("Sensitivity"), 50).toInt();
+  curvature = settings.value(QString::fromUtf8("Curvature"), 50).toInt();
+  stepOnly = settings.value(QString::fromUtf8("StepOnly"), false).toBool();
+  relative = settings.value(QString::fromUtf8("Relative"), true).toBool();
   ui.SensSlider->setValue(sensitivity);
   ui.DZSlider->setValue(deadzone);
   ui.CurveSlider->setValue(curvature);
@@ -642,26 +642,26 @@ void MickeyGUI::readPrefs()
   settings.endGroup();
   
   //trans setup
-  settings.beginGroup("Transform");
-  maxValX = settings.value(QString("RangeX"), 130).toFloat();
-  maxValY = settings.value(QString("RangeY"), 130).toFloat();
+  settings.beginGroup(QString::fromUtf8("Transform"));
+  maxValX = settings.value(QString::fromUtf8("RangeX"), 130).toFloat();
+  maxValY = settings.value(QString::fromUtf8("RangeY"), 130).toFloat();
   settings.endGroup();
   
   //calibration setup
-  settings.beginGroup("Calibration");
-  calDelay = settings.value(QString("CalibrationDelay"), 10).toInt();
-  cntrDelay = settings.value(QString("CenteringDelay"), 10).toInt();
+  settings.beginGroup(QString::fromUtf8("Calibration"));
+  calDelay = settings.value(QString::fromUtf8("CalibrationDelay"), 10).toInt();
+  cntrDelay = settings.value(QString::fromUtf8("CenteringDelay"), 10).toInt();
   settings.endGroup();
   ui.CalibrationTimeout->setValue(calDelay);
   ui.CenterTimeout->setValue(cntrDelay);
 
   HelpViewer::LoadPrefs(settings);
 
-  settings.beginGroup("Misc");
-  welcome = settings.value("welcome", true).toBool();
-  newsSerial = settings.value("news", -1).toInt();
-  resize(settings.value("size", QSize(-1, -1)).toSize());
-  move(settings.value("pos", QPoint(0, 0)).toPoint());
+  settings.beginGroup(QString::fromUtf8("Misc"));
+  welcome = settings.value(QString::fromUtf8("welcome"), true).toBool();
+  newsSerial = settings.value(QString::fromUtf8("news"), -1).toInt();
+  resize(settings.value(QString::fromUtf8("size"), QSize(-1, -1)).toSize());
+  move(settings.value(QString::fromUtf8("pos"), QPoint(0, 0)).toPoint());
   settings.endGroup();
 }
 
@@ -669,47 +669,47 @@ void MickeyGUI::storePrefs()
 {
   HelpViewer::StorePrefs(settings);
   
-  settings.beginGroup("Misc");
-  settings.setValue("welcome", false);
-  settings.setValue("news", NEWS_SERIAL);
-  settings.setValue("size", size());
-  settings.setValue("pos", pos());
+  settings.beginGroup(QString::fromUtf8("Misc"));
+  settings.setValue(QString::fromUtf8("welcome"), false);
+  settings.setValue(QString::fromUtf8("news"), NEWS_SERIAL);
+  settings.setValue(QString::fromUtf8("size"), size());
+  settings.setValue(QString::fromUtf8("pos"), pos());
   settings.endGroup();
 
   if(!changed){
     return;
   }
-  if(QMessageBox::question(this, "Save prefs?", 
-    "Preferences have changed, do you want to save them?", 
+  if(QMessageBox::question(this, QString::fromUtf8("Save prefs?"), 
+    QString::fromUtf8("Preferences have changed, do you want to save them?"), 
     QMessageBox::Save | QMessageBox::Discard, QMessageBox::Save) == QMessageBox::Discard){
     return;  
   }  
   
   //Store hotkey setup
-  settings.beginGroup("Shortcut");
-  settings.setValue(QString("Modifier"), ui.ModifierCombo->currentText());
-  settings.setValue(QString("Key"), ui.KeyCombo->currentText());
+  settings.beginGroup(QString::fromUtf8("Shortcut"));
+  settings.setValue(QString::fromUtf8("Modifier"), ui.ModifierCombo->currentText());
+  settings.setValue(QString::fromUtf8("Key"), ui.KeyCombo->currentText());
   settings.endGroup();
   
   //Axes setup
-  settings.beginGroup("Axes");
-  settings.setValue(QString("DeadZone"), deadzone);
-  settings.setValue(QString("Sensitivity"), sensitivity);
-  settings.setValue(QString("Curvature"), curvature);
-  settings.setValue(QString("StepOnly"), stepOnly);
-  settings.setValue(QString("Relative"), mickey->getRelative());
+  settings.beginGroup(QString::fromUtf8("Axes"));
+  settings.setValue(QString::fromUtf8("DeadZone"), deadzone);
+  settings.setValue(QString::fromUtf8("Sensitivity"), sensitivity);
+  settings.setValue(QString::fromUtf8("Curvature"), curvature);
+  settings.setValue(QString::fromUtf8("StepOnly"), stepOnly);
+  settings.setValue(QString::fromUtf8("Relative"), mickey->getRelative());
   settings.endGroup();
   
   //trans setup
-  settings.beginGroup("Transform");
-  settings.setValue(QString("RangeX"), maxValX);
-  settings.setValue(QString("RangeY"), maxValY);
+  settings.beginGroup(QString::fromUtf8("Transform"));
+  settings.setValue(QString::fromUtf8("RangeX"), maxValX);
+  settings.setValue(QString::fromUtf8("RangeY"), maxValY);
   settings.endGroup();
 
   //calibration setup
-  settings.beginGroup("Calibration");
-  settings.setValue(QString("CalibrationDelay"), calDelay);
-  settings.setValue(QString("CenteringDelay"), cntrDelay);
+  settings.beginGroup(QString::fromUtf8("Calibration"));
+  settings.setValue(QString::fromUtf8("CalibrationDelay"), calDelay);
+  settings.setValue(QString::fromUtf8("CenteringDelay"), cntrDelay);
   settings.endGroup();
 }
 
@@ -744,9 +744,9 @@ bool MickeyGUI::getShortcut()
   }
   changed = true;
   
-  QString modifier("");
+  QString modifier(QString::fromUtf8(""));
   if(ui.ModifierCombo->currentIndex() != 0){
-    modifier = ui.ModifierCombo->currentText() + QString("+");
+    modifier = ui.ModifierCombo->currentText() + QString::fromUtf8("+");
   }
   modifier += ui.KeyCombo->currentText();
   QKeySequence seq(modifier);
@@ -756,8 +756,8 @@ bool MickeyGUI::getShortcut()
     hotkeyIndex = ui.KeyCombo->currentIndex();
     return true;
   }else{
-    QMessageBox::warning(this, "Hotkey not usable.", 
-      "The hotkey you set is already in use! Please select another one.");
+    QMessageBox::warning(this, QString::fromUtf8("Hotkey not usable."), 
+      QString::fromUtf8("The hotkey you set is already in use! Please select another one."));
     //try to revert shortcut, if it was working before...
     if(hotkeySet){
       //this should avoid recursion
@@ -781,10 +781,10 @@ void MickeyGUI::on_MickeyTabs_currentChanged(int index)
 {
   switch(index){
     case 0:
-      HelpViewer::ChangePage("tracking.htm");
+      HelpViewer::ChangePage(QString::fromUtf8("tracking.htm"));
       break;
     case 1:
-      HelpViewer::ChangePage("misc.htm");
+      HelpViewer::ChangePage(QString::fromUtf8("misc.htm"));
       break;
   }
 }
@@ -792,16 +792,16 @@ void MickeyGUI::on_MickeyTabs_currentChanged(int index)
 void MickeyGUI::show()
 {
   QWidget::show();
-  setWindowTitle(QString("Mickey v")+PACKAGE_VERSION);
+  setWindowTitle(QString::fromUtf8("Mickey v")+QString::fromUtf8(PACKAGE_VERSION));
   RestrainWidgetToScreen(this);
   if(welcome){
-    HelpViewer::ChangePage("welcome.htm");
+    HelpViewer::ChangePage(QString::fromUtf8("welcome.htm"));
     HelpViewer::ShowWindow();
   }else if(newsSerial < NEWS_SERIAL){
-    HelpViewer::ChangePage("news.htm");
+    HelpViewer::ChangePage(QString::fromUtf8("news.htm"));
     HelpViewer::ShowWindow();
   }else{
-    HelpViewer::ChangePage("tracking.htm");
+    HelpViewer::ChangePage(QString::fromUtf8("tracking.htm"));
   }
 }
 

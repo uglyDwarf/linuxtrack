@@ -26,9 +26,9 @@ bool mouseClass::init()
   bool permProblem = false;
   data->fd = open_uinput(&fileName, &permProblem);
   if(data->fd == -1){
-    QMessageBox::critical(NULL, "Error Creating Virtual Mouse", 
-      QString("There was a problem accessing the file \"%1\"\n\
-      Please check that you have the right to write to it.").arg(fileName));
+    QMessageBox::critical(NULL, QString::fromUtf8("Error Creating Virtual Mouse"), 
+      QString::fromUtf8("There was a problem accessing the file \"%1\"\n\
+      Please check that you have the right to write to it.").arg(QString::fromUtf8(fileName)));
     return false;
   }
   return create_device(data->fd);
