@@ -7,7 +7,7 @@
 #include "ltr_gui_prefs.h"
 #include "wc_driver_prefs.h"
 
-static QString currentId = QString("None");
+static QString currentId = QString::fromUtf8("None");
 
 /*
 void MacWebcamPrefs::Connect()
@@ -53,23 +53,23 @@ bool MacWebcamPrefs::Activate(const QString &ID, bool init)
 {
   QString sec;
   initializing = init;
-  if(PREF.getFirstDeviceSection(QString("MacWebcam"), ID, sec)){
+  if(PREF.getFirstDeviceSection(QString::fromUtf8("MacWebcam"), ID, sec)){
     QString currentDev, currentSection;
     deviceType_t devType;
     if(!PREF.getActiveDevice(devType, currentDev, currentSection) || (sec !=currentSection)){
       PREF.activateDevice(sec);
     }
   }else{
-    sec = "MacWebcam";
+    sec = QString::fromUtf8("MacWebcam");
     initializing = false;
     if(PREF.createSection(sec)){
-      PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"MacWebcam");
-      PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
-      PREF.addKeyVal(sec, (char *)"Resolution", (char *)"");
-      PREF.addKeyVal(sec, (char *)"Threshold", QString::number(130));
-      PREF.addKeyVal(sec, (char *)"Min-blob", QString::number(9));
-      PREF.addKeyVal(sec, (char *)"Max-blob", QString::number(231));
-      PREF.addKeyVal(sec, (char *)"Upside-down", (char *)"No");
+      PREF.addKeyVal(sec, QString::fromUtf8("Capture-device"), QString::fromUtf8("MacWebcam"));
+      PREF.addKeyVal(sec, QString::fromUtf8("Capture-device-id"), ID);
+      PREF.addKeyVal(sec, QString::fromUtf8("Resolution"), QString::fromUtf8(""));
+      PREF.addKeyVal(sec, QString::fromUtf8("Threshold"), QString::number(130));
+      PREF.addKeyVal(sec, QString::fromUtf8("Min-blob"), QString::number(9));
+      PREF.addKeyVal(sec, QString::fromUtf8("Max-blob"), QString::number(231));
+      PREF.addKeyVal(sec, QString::fromUtf8("Upside-down"), QString::fromUtf8("No"));
       PREF.activateDevice(sec);
     }else{
       return false;
@@ -81,7 +81,7 @@ bool MacWebcamPrefs::Activate(const QString &ID, bool init)
   }
   currentId = ID;
   ui.WebcamResolutionsMac->clear();
-  if((currentId != "None") && (currentId.size() != 0)){
+  if((currentId != QString::fromUtf8("None")) && (currentId.size() != 0)){
     if(wc_info != NULL){
       delete(wc_info);
     }

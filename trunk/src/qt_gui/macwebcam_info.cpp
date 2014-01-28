@@ -32,7 +32,7 @@ MacWebcamInfo::MacWebcamInfo(const QString &id)
   QList<resolution_t>::iterator i;
   QString str;
   for(i = resolutions.begin(); i != resolutions.end(); ++i){
-    str = QString("%1 x %2").arg(i->x).arg(i->y);
+    str = QString::fromUtf8("%1 x %2").arg(i->x).arg(i->y);
     res_list.push_back(str);
   }
 }
@@ -44,7 +44,7 @@ const QStringList& MacWebcamInfo::getResolutions()
 
 bool MacWebcamInfo::decodeRes(const QString &res, int &res_x, int &res_y)
 {
-  const QRegExp &res_rexp = QRegExp("^\\s*(\\d+)\\s*[xX]\\s*(\\d+)\\s*$");
+  const QRegExp &res_rexp = QRegExp(QString::fromUtf8("^\\s*(\\d+)\\s*[xX]\\s*(\\d+)\\s*$"));
   if(res_rexp.indexIn(res) == -1){
     return false;
   }
@@ -73,10 +73,11 @@ QStringList& MacWebcamInfo::EnumerateWebcams()
 {
   QStringList *res = new QStringList();
   QProcess *enum_proc = new QProcess();
-  enum_proc->start(QCoreApplication::applicationDirPath() + "/../helper/qt_cam", QStringList() << "-e");
+  enum_proc->start(QCoreApplication::applicationDirPath() + QString::fromUtf8("/../helper/qt_cam"), 
+                   QStringList() << QString::fromUtf8("-e"));
   enum_proc->waitForStarted(10000);
   enum_proc->waitForFinished(10000);
-  QString str(enum_proc->readAllStandardOutput());
-  *res = str.split("\n", QString::SkipEmptyParts);
+  QString str = QString::fromUtf8(enum_proc->readAllStandardOutput().constData());
+  *res = str.split(QString::fromUtf8("\n"), QString::SkipEmptyParts);
   return *res;
 }
