@@ -8,7 +8,7 @@
 #include "wc_driver_prefs.h"
 #include <utils.h>
 
-static QString currentId = QString("None");
+static QString currentId = QString::fromUtf8("None");
 
 /*
 void MacWebcamFtPrefs::Connect()
@@ -57,22 +57,23 @@ bool MacWebcamFtPrefs::Activate(const QString &ID, bool init)
 {
   QString sec;
   initializing = init;
-  if(PREF.getFirstDeviceSection(QString("MacWebcam-face"), ID, sec)){
+  if(PREF.getFirstDeviceSection(QString::fromUtf8("MacWebcam-face"), ID, sec)){
     QString currentDev, currentSection;
     deviceType_t devType;
     if(!PREF.getActiveDevice(devType, currentDev, currentSection) || (sec !=currentSection)){
       PREF.activateDevice(sec);
     }
   }else{
-    sec = "MacWebcam-face";
+    sec = QString::fromUtf8("MacWebcam-face");
     initializing = false;
     if(PREF.createSection(sec)){
-      PREF.addKeyVal(sec, (char *)"Capture-device", (char *)"MacWebcam-face");
-      PREF.addKeyVal(sec, (char *)"Capture-device-id", ID);
-      PREF.addKeyVal(sec, (char *)"Resolution", (char *)"");
-      QString cascadePath = PrefProxy::getDataPath("/haarcascades/haarcascade_frontalface_alt2.xml");
+      PREF.addKeyVal(sec, QString::fromUtf8("Capture-device"), QString::fromUtf8("MacWebcam-face"));
+      PREF.addKeyVal(sec, QString::fromUtf8("Capture-device-id"), ID);
+      PREF.addKeyVal(sec, QString::fromUtf8("Resolution"), QString::fromUtf8(""));
+      QString cascadePath = PrefProxy::getDataPath(
+                              QString::fromUtf8("/haarcascades/haarcascade_frontalface_alt2.xml"));
 	  QFileInfo finf = QFileInfo(cascadePath);
-	  PREF.addKeyVal(sec, (char *)"Cascade", finf.canonicalFilePath().toUtf8().constData());
+	  PREF.addKeyVal(sec, QString::fromUtf8("Cascade"), finf.canonicalFilePath());
   	  PREF.activateDevice(sec);
     }else{
       return false;
@@ -84,7 +85,7 @@ bool MacWebcamFtPrefs::Activate(const QString &ID, bool init)
   }
   currentId = ID;
   ui.WebcamFtResolutionsMac->clear();
-  if((currentId != "None") && (currentId.size() != 0)){
+  if((currentId != QString::fromUtf8("None")) && (currentId.size() != 0)){
     if(wc_info != NULL){
       delete(wc_info);
     }
@@ -100,11 +101,12 @@ bool MacWebcamFtPrefs::Activate(const QString &ID, bool init)
     on_WebcamFtResolutionsMac_activated(res_index);
     const char *cascade = ltr_int_wc_get_cascade();
     QString cascadePath;
-    if((cascade == NULL) || (!QFile::exists(cascade))){
-      cascadePath = PrefProxy::getDataPath("/haarcascades/haarcascade_frontalface_alt2.xml");
+    if((cascade == NULL) || (!QFile::exists(QString::fromUtf8(cascade)))){
+      cascadePath = PrefProxy::getDataPath(
+                      QString::fromUtf8("/haarcascades/haarcascade_frontalface_alt2.xml"));
       ltr_int_wc_set_cascade(cascadePath.toUtf8().constData());
     }else{
-      cascadePath = cascade;
+      cascadePath = QString::fromUtf8(cascade);
     }
     ui.CascadePathMac->setText(cascadePath);
     int n = (2.0 / ltr_int_wc_get_eff()) - 2;
@@ -135,7 +137,7 @@ bool MacWebcamFtPrefs::AddAvailableDevices(QComboBox &combo)
   for(i = webcams.begin(); i != webcams.end(); ++i){
     pl = new PrefsLink(MACWEBCAM_FT, *i);
     v.setValue(*pl);
-    combo.addItem((*i)+" face tracker", v);
+    combo.addItem((*i)+QString::fromUtf8(" face tracker"), v);
     if(webcam_selected && (*i == id)){
       combo.setCurrentIndex(combo.count() - 1);
       res = true;
@@ -149,13 +151,13 @@ void MacWebcamFtPrefs::on_FindCascadeMac_pressed()
 {
   QString path = ui.CascadePathMac->text();
   if(path.isEmpty()){
-    path = QString(ltr_int_get_data_path(""));
+    path = QString::fromUtf8(ltr_int_get_data_path(""));
   }else{
     QDir tmp(path);
     path = tmp.filePath(path);
   }
   QString fileName = QFileDialog::getOpenFileName(NULL,
-     "Find Harr/LBP cascade", path, "xml Files (*.xml)");
+     QString::fromUtf8("Find Harr/LBP cascade"), path, QString::fromUtf8("xml Files (*.xml)"));
   ui.CascadePathMac->setText(fileName);
   on_CascadePathMac_editingFinished();
 }

@@ -25,13 +25,13 @@ WineLauncher::WineLauncher():winePath(QString::fromUtf8("")), available(false)
     winePath = QApplication::applicationDirPath()+QString::fromUtf8("/../wine/bin/");
     QString libPath = QApplication::applicationDirPath()+QString::fromUtf8("/../wine/lib/");
     available = true;
-    QString path = winePath + QString::fromUtf8(":") + env.value("PATH");
+    QString path = winePath + QString::fromUtf8(":") + env.value(QString::fromUtf8("PATH"));
     s.str(std::string(""));
     s<<"Using internal wine; adjusting env variables:"<<std::endl;
     ltr_int_log_message(s.str().c_str());
     envSet(QString::fromUtf8("PATH"), path);
-    envSet(QString::fromUtf8("WINESERVER"), QString::fromUtf8(winePath+"wineserver"));
-    envSet(QString::fromUtf8("WINELOADER"), QString::fromUtf8(winePath+"wine"));
+    envSet(QString::fromUtf8("WINESERVER"), winePath+QString::fromUtf8("wineserver"));
+    envSet(QString::fromUtf8("WINELOADER"), winePath+QString::fromUtf8("wine"));
     envSet(QString::fromUtf8("WINEDLLPATH"), libPath+QString::fromUtf8("wine/fakedlls"));
     envSet(QString::fromUtf8("DYLD_LIBRARY_PATH"), libPath);
     envSet(QString::fromUtf8("DYLD_PRINT_ENV"), QString::fromUtf8("1"));

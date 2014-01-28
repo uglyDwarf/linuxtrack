@@ -13,6 +13,7 @@
 #include "args.h"
 #include <com_proc.h>
 #include "processing.h"
+#include <utils.h>
 
 
 
@@ -24,12 +25,12 @@
     QTCaptureDecompressedVideoOutput    *mCaptureDecompressedVideoOutput;
 }
 
--(id) initWebcam: (NSString*)devName: (int)width : (int)height;
+-(id) initWebcam: (const char*)devName: (int)width : (int)height;
 -(void)dealloc;
 -(void)start;
 -(void)stop;
 
-+(QTCaptureDevice *) findCam:(NSString*) devname;
++(QTCaptureDevice *) findCam:(const char*) devname;
 +(void) enumerateWebcams;
 
 @end
@@ -37,27 +38,57 @@
 
 @implementation cam
 
-+(QTCaptureDevice *) findCam: (NSString*)devname
+
+static printWebcamName(FILE *f, const char *name)
 {
-  NSArray *devices = [QTCaptureDevice inputDevicesWithMediaType:QTMediaTypeVideo];
+  fprintf(f, "'%s' ", name);
+  int i;
+  for(i = 0; i < strlen(name); ++i){
+    fprintf(f, "%02X ", (unsigned char)name[i]);
+  }
+  fprintf(f, "\n");
+}
+
++(QTCaptureDevice *) findCam: (const char*)devname
+{
   //[devices release];
+  const char *name;
+  size_t len = strlen(devname);
+  FILE *wcList = NULL;
+  const char *injectWebcamName = getenv("LINUXTRACK_WC_NAME");
+  if(injectWebcamName != NULL){
+    wcList = fopen(ltr_int_get_default_file_name("../../webcam_list.txt"), "w");
+    printWebcamName(wcList, devname);
+  }
+  
+  NSArray *devices = [QTCaptureDevice inputDevicesWithMediaType:QTMediaTypeVideo];
   for(QTCaptureDevice *dev in devices){
-    NSString *name = [dev localizedDisplayName];
-    if([name caseInsensitiveCompare:devname] == NSOrderedSame){
+    name = [[dev localizedDisplayName] UTF8String];
+    if(wcList != NULL){
+      printWebcamName(wcList, name);
+    }
+    if(strncmp(devname, name, len) == 0){
+      if(wcList != NULL){
+        fclose(wcList);
+      }
       return dev;
     }
+  }
+  if(wcList != NULL){
+    fclose(wcList);
   }
   return nil;
 }
 
--(id) initWebcam: (NSString*)devName: (int)width : (int)height
+-(id) initWebcam: (const char*)devName: (int)width : (int)height
 {
   NSError *err = nil;
   if((self = [super init])){
+    
     mCaptureDevice = [cam findCam:devName];
     if(mCaptureDevice == nil){
       fprintf(stderr, "Couldn't find webcam '%s'\n", 
-        [devName cStringUsingEncoding:NSStringEncodingConversionExternalRepresentation]);
+        devName);
       [self release];
       return nil;
     }
@@ -168,10 +199,26 @@
 
 +(void) enumerateWebcams
 {
+  const char *injectWebcamName = getenv("LINUXTRACK_WC_NAME");
+  if((injectWebcamName != NULL)){
+    size_t len = strlen(injectWebcamName);
+    size_t i = 0;
+    int tmp, skip;
+    if(len > 0){
+      char *name = (char *)malloc(len);
+      i = 0;
+      while(sscanf(injectWebcamName, "%02X%n", &tmp, &skip)>0){
+        injectWebcamName += skip;
+        name[i++] = tmp;
+      }
+      printf("%s\n", name);
+      free(name);
+    }
+  }
   NSArray *devices = [QTCaptureDevice inputDevicesWithMediaType:QTMediaTypeVideo];
   //[devices release];
   for(QTCaptureDevice *dev in devices){
-    printf("%s\n", [[dev localizedDisplayName] cStringUsingEncoding:NSStringEncodingConversionExternalRepresentation]);
+    printf("%s\n", [[dev localizedDisplayName] UTF8String]);
   }
 }
 
@@ -196,7 +243,7 @@ bool capture(struct mmap_s *mmm)
 
   NSApplicationLoad();
   
-  NSString *cam_name = [[NSString alloc] initWithCString:getCamName() encoding:NSASCIIStringEncoding];
+  const char *cam_name = getCamName();
   
   cam *webcam = [[cam alloc] initWebcam:cam_name:x:y];
   if(webcam == NULL){

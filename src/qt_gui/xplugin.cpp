@@ -105,7 +105,7 @@ void XPluginInstall::on_BrowseXPlane_pressed()
   if(installPlugin(sourceFile32, destPath + QString::fromUtf8("/lin.xpl")) &&
        installPlugin(sourceFile, destPath + QString::fromUtf8("/64/lin.xpl"))){
 #else
-  if(installPlugin(sourceFile, destPath + QString::fromUtf8("/mac.xpl")){
+  if(installPlugin(sourceFile, destPath + QString::fromUtf8("/mac.xpl"))){
 #endif
     QMessageBox::information(NULL, QString::fromUtf8("Linuxtrack"), 
       QString::fromUtf8("XPlane plugin installed successfuly!"));
