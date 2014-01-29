@@ -19,12 +19,6 @@
   #include "../config.h"
 #endif
 
-
-
-static XPLMHotKeyID             gFreezeKey = NULL;
-static XPLMHotKeyID             gTrackKey = NULL;
-static XPLMHotKeyID             gRecenterKey = NULL;
-
 static XPLMDataRef              head_x = NULL;
 static XPLMDataRef              head_y = NULL;
 static XPLMDataRef              head_z = NULL;
@@ -61,7 +55,6 @@ static bool initialized = false;
 
 static int xplane_ver;
 
-static void MyHotKeyCallback(void *inRefcon);    
 static int cmd_cbk(XPLMCommandRef       inCommand,
                    XPLMCommandPhase     inPhase,
                    void *               inRefcon);
@@ -98,19 +91,7 @@ PLUGIN_API int XPluginStart(char *outName,
     xplane_ver /= 10;
   }
   //fprintf(stderr, "XPlane version: %d\n", xplane_ver);
-  /* Register our hot key for the new view. */
-  gTrackKey = XPLMRegisterHotKey(XPLM_VK_F8, xplm_DownFlag, 
-                         "3D linuxTrack view",
-                         MyHotKeyCallback,
-                         (void*)START);
-  gFreezeKey = XPLMRegisterHotKey(XPLM_VK_F9, xplm_DownFlag, 
-                         "Freeze 3D linuxTrack view",
-                         MyHotKeyCallback,
-                         (void*)PAUSE);
-  gRecenterKey = XPLMRegisterHotKey(XPLM_VK_F10, xplm_DownFlag, 
-                         "Recenter 3D linuxTrack view",
-                         MyHotKeyCallback,
-                         (void*)RECENTER);
+
     run_cmd = XPLMCreateCommand("linuxtrack/ltr_run","Start/stop tracking");
     pause_cmd = XPLMCreateCommand("linuxtrack/ltr_pause","Pause tracking");
     recenter_cmd = XPLMCreateCommand("linuxtrack/ltr_recenter","Recenter tracking");
@@ -181,9 +162,6 @@ PLUGIN_API void XPluginStop(void)
                     cmd_cbk,
                     true,
                     (void *)RECENTER);
-  XPLMUnregisterHotKey(gTrackKey);
-  XPLMUnregisterHotKey(gFreezeKey);
-  XPLMUnregisterHotKey(gRecenterKey);
   XPLMUnregisterFlightLoopCallback(xlinuxtrackCallback, NULL);
   if(initialized){
     linuxtrack_shutdown();
@@ -266,27 +244,6 @@ static void deactivate(void)
   }
   if(initialized){
     linuxtrack_suspend();
-  }
-}
-
-static void MyHotKeyCallback(void *inRefcon)
-{
-  switch((intptr_t)inRefcon){
-    case START:
-      if(active_flag==false){
-        activate();
-      }else{
-        deactivate();
-      }
-      break;
-    case PAUSE:
-      freeze = (freeze == false)? true : false;
-      break;
-    case RECENTER:
-      if(initialized){
-        linuxtrack_recenter();
-      }
-      break;
   }
 }
 
