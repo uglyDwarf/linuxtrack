@@ -17,6 +17,10 @@ AS_IF([test "$debug" != "no"],
       [CFLAGS+=" -O3 " CXXFLAGS+=" -O3 "])
 
 # Checks for programs.
+AC_CHECK_PROG(BISON, [bison], [yes], )
+AS_IF([test x$BISON = x],
+ [AC_MSG_FAILURE([bison not found!])]
+)
 AC_PROG_YACC
 AC_PROG_CC
 AC_PROG_LEX
@@ -30,11 +34,11 @@ PKG_PROG_PKG_CONFIG
 # Checks for libraries.
 AC_CHECK_LIB([m], [sqrt], [LIBM=true], [AC_MSG_FAILURE([I need libm!])])
 AC_CHECK_LIB([z], [gzopen], [LIBZ=true])
-AC_CHECK_LIB([pthread], [pthread_create], [LIBPTHREAD=true], [AC_MSG_FAILURE([I need libpthread!])])
+AC_CHECK_LIB([pthread], [pthread_create], [LIBPTHREAD=true], [AC_MSG_FAILURE([libpthread not found!])])
 #AC_CHECK_LIB([openusb], [openusb_init], [LIBOPENUSB=true])
 AC_CHECK_LIB([usb-1.0], [libusb_init], [LIBUSB10=true])
 AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
-AC_CHECK_LIB([mxml], [mxmlNewXML], [LIBMXML=true], [AC_MSG_FAILURE([Libmxml is needed for ltr_gui compilation!])], [-pthread])
+AC_CHECK_LIB([mxml], [mxmlNewXML], [LIBMXML=true], [AC_MSG_FAILURE([libmxml not found!])], [-pthread])
 
 
 # Checks for header files.
