@@ -128,6 +128,7 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BISON = @BISON@
 CC = winegcc
 CFLAGS = @CFLAGS@ -g -I../.. -I../../.. -DHAVE_CONFIG_H \
 	-I@srcdir@/../.. -I@top_builddir@

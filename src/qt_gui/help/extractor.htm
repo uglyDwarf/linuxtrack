@@ -9,7 +9,7 @@
 <body>
 <h1>NP Firmware Extractor</h1>
 Some NP devices (TrackIR4+ and SmartNav4) require a firmware that has to be loaded each time the device is
-started. Also the linuxtrack Wine bridge utilizes some informations contained in the package
+started. Also the Linuxtrack-Wine bridge utilizes some informations contained in the package
 (the infamous poetry, list of supported games along with their IDs and keys for the "enhanced" interface).
 The firmware is extracted using Wine from the TrackIR windows package downloaded directly from
 NP.
@@ -21,17 +21,18 @@ NP.
 When the Extraction dialog pops up, press the <b>Download</b> button to download the latest 
 driver package. By default the newest packge available is downloaded; if it is not accessible,
 select any other from the combobox to the left of the button (all packages listed there contain 
-the same firmware, only the game list might differ a bit).
+the same firmware, only the game list might differ a bit) and try again.
 <p>
 When the package is downloaded/browsed to, a dialog containing short instructions pops up.
-After pressing <b>OK</b> the package is installed to a temporary wine prefix.
+After pressing <b>OK</b> the package is installed to a temporary Wine prefix.
 <p>
 On Linux, usual installation dialog will pop up - just install the whole thing.
 Newer packages contain some MS runtime and NP USB drivers install, both of them has to be installed
 in order to install the main package. Don't worry though, none of the installed things is going to
-last - when the data are extracted, everything is going to be removed.
+last - when the data are extracted, everything is going to be removed (and the installation happens 
+in temporary Wine prefix).
 <p>
-On Macs, due to wine configuration pecularities, the installation should be performed silently.
+On Macs, due to Wine configuration pecularities, the installation should be performed silently.
 <p>
 When the installer finishes, the extraction is started - you can follow its progress in the status
 part of the Extractor dialog. When the extraction is finished, the dialog closes by itself.
@@ -40,9 +41,9 @@ If you don't have access to the internet, just download any of the listed packag
 using the <b>Extract from installer</b> button find and open the one you downloaded.
 <p>
 If you encounter any difficulties using the above methods, you can try to install the driver by 
-hand (using wine or install on windows machine and copy the result over). Then just press the 
+hand (using Wine or install on windows machine and copy the result over). Then just press the 
 <b>Extract from unpacked</b>, browse to the directory (the whole directory!) containing the
-NP software (e.g. ~/.wine/drive_c/Program\ Files/NaturalPoint/TrackIR5) and press Open button for 
+NP software (e.g. ~/.wine/drive_c/Program\ Files/NaturalPoint/TrackIR5) and press <b>Open</b> button for 
 the extraction to begin.
 
 
@@ -53,17 +54,17 @@ of 100KB one?
 There are two main reasons that led to this decision:
 <p>
 The first one is the neglect from the NP's side - I asked couple of relatively simple questions 
-(e.g. what is their take on linuxtrack in wine, ...), and after a year of waiting without any real answer,
+(e.g. what is their take on Linuxtrack in Wine, ...), and after a year of waiting without any real answer,
 I came to a conclusion that this is not a way to go. 
 <p>
-The second reason was their attempt to impose artificial limitations on the linuxtrack itself
+The second reason was their attempt to impose artificial limitations on the Linuxtrack itself
 in order to grant me a permission to use SmartNav 4 firmware; they asked for disabling SmartNav4
 functionality on MacOS, so people couldn't use Linuxtrack to emulate a mouse. Besides of 
 being technicaly impossible to do (how a library can check what it is being used for), 
 it would be completely against the Linuxtrack's spirit.
 <p>
 For those reasons (and couple of others) I decided to cut all the bonds (they used to host Linuxtrack
-firmware package in the past - per their own request) and using wine was the only logical choice.
+firmware package in the past - per their own request) and using Wine was the only logical choice.
 Given the fact, that this step is mostly one time only, I hope the inconvenience level is not 
 too high.
 
@@ -93,7 +94,7 @@ aplicable in this case.
 The gamedata.txt list is extracted from file sgl.dat; the file is encrypted using RC4 stream cipher,
 using first 5 bytes in MD5 hash of string "NaturalPoint" as a key. The payload is XML, containing
 data on supported games, of which the only relevant part is a game ID, its name and for games using the
-"enhanced" interface there are communication keys. The linuxtrack wine bridge uses this info to determine 
+"enhanced" interface there are communication keys. The Linuxtrack-Wine bridge uses this info to determine 
 game's name when passed its ID and the keys to emulate the enhanced interface when necessary.
 
 </body>

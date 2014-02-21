@@ -299,7 +299,8 @@ Mickey::Mickey() : updateTimer(this), btnThread(this), state(STANDBY),
     exit(1);
   }
   dw = QApplication::desktop();
-  screenBBox = dw->screenGeometry();
+//  screenBBox = dw->screenGeometry();
+  screenBBox = QRect(0, 0, dw->width(), dw->height());
   screenCenter = screenBBox.center();
   updateTimer.setSingleShot(false);
   updateTimer.setInterval(8);
@@ -320,7 +321,9 @@ Mickey::~Mickey()
 
 void Mickey::screenResized(int screen)
 {
-  screenBBox = dw->screenGeometry(screen);
+  (void)screen;
+//  screenBBox = dw->screenGeometry(screen);
+  screenBBox = QRect(0, 0, dw->width(), dw->height());
   screenCenter = screenBBox.center();
 }
 
