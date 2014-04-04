@@ -24,7 +24,7 @@ class ModelCreate : public QDialog
  signals:
   void ModelCreated(const QString &section);
  public slots:
-  void exec();
+  int exec();
  private slots:
   void on_CancelButton_pressed();
   void on_CreateButton_pressed();

@@ -103,7 +103,7 @@ void LinuxtrackGui::show()
   ui.DeviceSetupSite->insertWidget(0, ds);
   showWindow->show();
   QString dbg = QProcessEnvironment::systemEnvironment().value(QString::fromUtf8("LINUXTRACK_DBG"));
-  if(dbg.contains(QChar::fromAscii('d'))){
+  if(dbg.contains(QChar::fromLatin1('d'))){
     helper->show();
   }
   QWidget::show();

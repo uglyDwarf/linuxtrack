@@ -45,7 +45,7 @@ AC_CHECK_LIB([mxml], [mxmlNewXML], [LIBMXML=true], [AC_MSG_FAILURE([libmxml not 
 AC_CHECK_HEADERS([stdint.h assert.h])
 AC_CHECK_HEADERS([stdlib.h unistd.h netdb.h sys/socket.h fcntl.h sys/ioctl.h])
 
-AC_PATH_PROGS(QMAKE_PATH, [qmake qmake-qt4])
+AC_PATH_PROGS(QMAKE_PATH, [qmake-qt4 qmake])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
