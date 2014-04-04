@@ -221,7 +221,7 @@ Extractor::Extractor(QWidget *parent) : QDialog(parent), et(NULL), dl(NULL), pro
   enableButtons(true);
   readSources();
   QString dbg = QProcessEnvironment::systemEnvironment().value(QString::fromUtf8("LINUXTRACK_DBG"));
-  if(!dbg.contains(QChar::fromAscii('d'))){
+  if(!dbg.contains(QChar::fromLatin1('d'))){
     ui.AnalyzeSourceButton->setVisible(false);
   }
 }

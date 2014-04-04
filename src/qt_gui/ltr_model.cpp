@@ -25,11 +25,11 @@ ModelCreate::~ModelCreate()
   }
 }
 
-void ModelCreate::exec()
+int ModelCreate::exec()
 {
   ui.ModelName->clear();
   ui.ModelName->setFocus();
-  QDialog::exec();
+  return QDialog::exec();
 }
 
 

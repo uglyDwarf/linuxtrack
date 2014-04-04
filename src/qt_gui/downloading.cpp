@@ -27,7 +27,7 @@ int Downloading::download(QString urlStr, QString dest)
   };
   QUrl url(urlStr);
   destination = dest;
-  origFname = url.path().split(QChar::fromAscii('/')).last();
+  origFname = url.path().split(QChar::fromLatin1('/')).last();
   fname = QString(QString::fromUtf8("%1/%2.XXXXXX")).arg(dest).arg(origFname);
   file = new QTemporaryFile(fname);
   if(!file->open(QIODevice::WriteOnly)){
