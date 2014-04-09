@@ -9,7 +9,7 @@ Currently we are supporting three types of input devices.
 
 If you own other version of Track IR or other suitable device and you'd like to contribute to out project, you're welcome.
 
-= Track IR 2, 3, 4, 5 and !SmartNav 3,4 =
+= Track IR 2, 3, 4, 5 and !SmartNav 3, 4 =
 TrackIR 4 is supported from the start of our project. Tulthix managed to understand the communication protocol and he wrote a driver for it using libusb (fully userspace).
 I added support for the rest with help from Ola (TrackIR 3), Jaša (TrackIR 2), Bill (!SmartNav 4) and Pierre (!SmartNav 3).
 
