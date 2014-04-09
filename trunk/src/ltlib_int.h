@@ -20,8 +20,8 @@ int ltr_int_shutdown(void);
 int ltr_int_suspend(void);
 int ltr_int_wakeup(void);
 void ltr_int_recenter(void);
-int ltr_int_get_camera_update(pose_t *pose);
-ltr_state_type ltr_int_get_tracking_state(void);
+int ltr_int_get_camera_update(linuxtrack_full_pose_t *pose);
+linuxtrack_state_type ltr_int_get_tracking_state(void);
 void ltr_int_register_cbk(ltr_new_frame_callback_t new_frame_cbk, void *param1,
                           ltr_status_update_callback_t status_change_cbk, void *param2);
 

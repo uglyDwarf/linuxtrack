@@ -17,7 +17,7 @@ class SCView : public QWidget
 //  void movePoint(float new_x);
  public slots:
   void redraw();
-  void newPose(pose_t *raw_pose, pose_t *unfiltered, pose_t *pose);
+  void newPose(linuxtrack_full_pose_t *raw_pose, linuxtrack_pose_t *unfiltered, linuxtrack_pose_t *pose);
  protected:
   void paintEvent(QPaintEvent *event);
 

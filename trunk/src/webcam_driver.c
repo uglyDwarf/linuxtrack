@@ -589,7 +589,7 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
     return -1;
   }
   wc_info.fd = fd;
-  wc_info.expecting_blobs = 3;
+  wc_info.expecting_blobs = MAX_BLOBS;
   
   if(set_capture_format(ccb) != true){
     ltr_int_log_message("Couldn't set capture format!\n");
@@ -824,7 +824,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
  
 #ifndef OPENCV 
   ltr_int_to_stripes(&img);
-  ltr_int_stripes_to_blobs(3, &(f->bloblist), wc_info.min_blob_pixels, 
+  ltr_int_stripes_to_blobs(MAX_BLOBS, &(f->bloblist), wc_info.min_blob_pixels, 
 		   wc_info.max_blob_pixels, &img);
   if(wc_info.flip){
     unsigned int tmp;

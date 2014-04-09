@@ -145,7 +145,7 @@ static bool ltr_int_process_message(int l_master_downlink)
 {
   message_t msg;
   struct ltr_comm *com;
-  pose_t unfiltered;
+  linuxtrack_pose_t unfiltered;
   ssize_t bytesRead = ltr_int_fifo_receive(l_master_downlink, &msg, sizeof(message_t));
   if(bytesRead < 0){
     ltr_int_log_message("Slave reader problem!\n");
@@ -161,17 +161,17 @@ static bool ltr_int_process_message(int l_master_downlink)
     case CMD_POSE:
       //printf("Have new pose!\n");
       //printf(">>>>%f %f %f\n", msg.pose.raw_yaw, msg.pose.raw_pitch, msg.pose.raw_tz);
-      ltr_int_postprocess_axes(axes, &(msg.pose), &unfiltered);
+      ltr_int_postprocess_axes(axes, &(msg.pose.pose), &unfiltered);
       //printf(">>>>%f %f %f\n", msg.pose.yaw, msg.pose.pitch, msg.pose.tz);
       
       com = mmm.data;
       ltr_int_lockSemaphore(mmm.sem);
       //printf("STATUS: %d\n", msg.pose.status);
-      if(msg.pose.status == RUNNING){
+      if(msg.pose.pose.status == RUNNING){
         //printf("PASSING TO SHM: %f %f %f\n", msg.pose.yaw, msg.pose.pitch, msg.pose.tz);
-        com->pose = msg.pose;
+        com->full_pose = msg.pose;
       }
-      com->state = msg.pose.status;
+      com->state = msg.pose.pose.status;
       com->preparing_start = false;
       ltr_int_unlockSemaphore(mmm.sem);
       break;

@@ -101,13 +101,9 @@ void WiiThread::pass_ir_data(struct cwiid_ir_src *data)
   img.bitmap = ltr_int_getFramePtr(mm);
   img.ratio = 1.0;
   
-  struct blob_type blobs_array[3] = {
-    {0.0f, 0.0f, 0},
-    {0.0f, 0.0f, 0},
-    {0.0f, 0.0f, 0}
-  };
+  struct blob_type blobs_array[MAX_BLOBS] = {{0.0,0.0,0}};
   struct bloblist_type bloblist;
-  bloblist.num_blobs = 3;
+  bloblist.num_blobs = MAX_BLOBS;
   bloblist.blobs = blobs_array;
     
   if(!get_frame){

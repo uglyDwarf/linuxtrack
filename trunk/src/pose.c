@@ -333,6 +333,9 @@ void ltr_int_pose_sort_blobs(struct bloblist_type bl)
   /* find the topmost blob
    * so few its not worth iterating */
   if(type == M_CAP){
+    if(bl.num_blobs < 3){
+      return;
+    }
     topmost_blob_index = 0;
     if (bl.blobs[1].y > bl.blobs[0].y) {
       topmost_blob_index = 1;
@@ -356,6 +359,9 @@ void ltr_int_pose_sort_blobs(struct bloblist_type bl)
       bl.blobs[2] = tmp_blob;
     }
   }else if(type == M_CLIP){
+    if(bl.num_blobs < 3){
+      return;
+    }
     //sort by y (bubble sort like... Hope I got it right;-)
     if (bl.blobs[1].y > bl.blobs[0].y) {
       tmp_blob = bl.blobs[1];
@@ -401,7 +407,7 @@ void ltr_int_pose_sort_blobs(struct bloblist_type bl)
 
 
 bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
-                        pose_t *pose, bool centering)
+                        linuxtrack_pose_t *pose, bool centering)
 {
 //  double points[3][3];
   double points[3][3] = {{28.35380,    -1.24458,    -0.11606},

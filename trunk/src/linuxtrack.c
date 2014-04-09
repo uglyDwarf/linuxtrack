@@ -38,7 +38,7 @@ THE SOFTWARE.
   #include <config.h>
 #endif
 
-
+#define BLOB_ELEMENTS 3
 
 typedef int (*ltr_gp_t)(void);
 typedef int (*ltr_init_t)(const char *cust_section);
@@ -49,10 +49,8 @@ typedef int (*ltr_get_pose_t)(float *heading,
                          float *ty,
                          float *tz,
                          uint32_t *counter);
-typedef int (*ltr_get_pose_full_t)(pose_t *pose);
-typedef ltr_state_type (*ltr_get_tracking_state_t)(void);
-
-
+typedef int (*ltr_get_pose_full_t)(linuxtrack_pose_t *pose, float blobs[], int num_blobs, int *blobs_read);
+typedef linuxtrack_state_type (*ltr_get_tracking_state_t)(void);
 
 
 static ltr_init_t ltr_init_fun = NULL;
@@ -71,7 +69,7 @@ struct func_defs_t{
   void *ref;
 };
 
-struct func_defs_t functions[] = 
+static struct func_defs_t functions[] = 
 {
   {(char*)"ltr_init", (void*)&ltr_init_fun},
   {(char*)"ltr_shutdown", (void*)&ltr_shutdown_fun},
@@ -178,17 +176,21 @@ int linuxtrack_get_pose(float *heading,
   return ltr_get_pose_fun(heading, pitch, roll, tx, ty, tz, counter);
 }
 
-int linuxtrack_get_pose_full(pose_t *pose)
+int linuxtrack_get_pose_full(linuxtrack_pose_t *pose, float blobs[], int num_blobs, int *blobs_read)
 {
   if(ltr_get_pose_full_fun == NULL){
-    memset(pose, 0, sizeof(pose_t));
+    memset(pose, 0, sizeof(linuxtrack_pose_t));
+    int i;
+    for(i = 0; i < num_blobs * BLOB_ELEMENTS; ++i){
+      blobs[i] = 0.0f;
+    }
     return -1;
   }
-  return ltr_get_pose_full_fun(pose);
+  return ltr_get_pose_full_fun(pose, blobs, num_blobs, blobs_read);
 }
 
 
-ltr_state_type linuxtrack_get_tracking_state(void)
+linuxtrack_state_type linuxtrack_get_tracking_state(void)
 {
   if(ltr_get_tracking_state_fun == NULL){
     return ERROR;

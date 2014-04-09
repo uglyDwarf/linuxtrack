@@ -12,17 +12,17 @@ class TrackerState : public QObject{
   Q_OBJECT
  public:
   static TrackerState& trackerStateInst();
-  //ltr_state_type getCurrentState();
+  //linuxtrack_state_type getCurrentState();
  private:
   TrackerState();
   ~TrackerState();
   static TrackerState *ts;
   QTimer *timer;
-  ltr_state_type prev_state;
+  linuxtrack_state_type prev_state;
  private slots:
   void pollState();
  signals:
-  void stateChanged(ltr_state_type current_state);
+  void stateChanged(linuxtrack_state_type current_state);
 };
 
 #endif

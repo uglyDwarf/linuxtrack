@@ -26,7 +26,7 @@ TrackerState::~TrackerState()
 }
 
 /*
-ltr_state_type TrackerState::getCurrentState()
+linuxtrack_state_type TrackerState::getCurrentState()
 {
   return ltr_int_get_tracking_state();
 }
@@ -34,7 +34,7 @@ ltr_state_type TrackerState::getCurrentState()
 
 void TrackerState::pollState()
 {
-  ltr_state_type current_state = ltr_int_get_tracking_state();
+  linuxtrack_state_type current_state = ltr_int_get_tracking_state();
   if(prev_state != current_state){
     emit stateChanged(current_state);
   }

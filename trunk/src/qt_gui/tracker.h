@@ -17,9 +17,9 @@ class Tracker : public QObject{
  public:
   static Tracker& trackerInst();
   //Housekeeping functions (callbacks)
-  void signalStateChange(ltr_state_type current_state);
+  void signalStateChange(linuxtrack_state_type current_state);
   void signalNewFrame(struct frame_type *frame);
-  void signalNewPose(pose_t *pose);
+  void signalNewPose(linuxtrack_full_pose_t *ful_pose);
   void signalNewSlave(const char *name);
   //Profile related stuff
   void setProfile(QString p);
@@ -58,7 +58,7 @@ class Tracker : public QObject{
  signals:
   void stateChanged(int current_state);
   void newFrame(struct frame_type *frame);
-  void newPose(pose_t *raw_pose, pose_t *unfiltered, pose_t *pose);
+  void newPose(linuxtrack_full_pose_t *raw_pose, linuxtrack_pose_t *unfiltered, linuxtrack_pose_t *pose);
   void axisChanged(int axis, int elem);
   void setCommonFF(float val);
   void initAxes();

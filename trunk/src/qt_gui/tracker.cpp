@@ -71,7 +71,7 @@ static void ltr_int_new_frame(struct frame_type *frame, void *param)
   }
   
   TRACKER.signalNewFrame(&local_frame);
-  static pose_t current_pose;
+  static linuxtrack_full_pose_t current_pose;
   ltr_int_get_camera_update(&current_pose);
   TRACKER.signalNewPose(&current_pose);
 }
@@ -104,7 +104,7 @@ Tracker::~Tracker()
   }
 }
 
-void Tracker::signalStateChange(ltr_state_type current_state)
+void Tracker::signalStateChange(linuxtrack_state_type current_state)
 {
   emit stateChanged(current_state);
 }
@@ -114,14 +114,14 @@ void Tracker::signalNewFrame(struct frame_type *frame)
   emit newFrame(frame);
 }
 
-void Tracker::signalNewPose(pose_t *pose)
+void Tracker::signalNewPose(linuxtrack_full_pose_t *full_pose)
 {
-  static pose_t processed;
-  static pose_t unfiltered;
-  processed = *pose;
+  static linuxtrack_pose_t processed;
+  static linuxtrack_pose_t unfiltered;
+  processed = full_pose->pose;
   ltr_int_postprocess_axes(axes, &processed, &unfiltered);
   //std::cout<<"TRACKER: "<<pose->pitch<<" "<<unfiltered.pitch<<" "<<processed.pitch<<std::endl;
-  emit newPose(pose, &unfiltered, &processed);
+  emit newPose(full_pose, &unfiltered, &processed);
 }
 
 

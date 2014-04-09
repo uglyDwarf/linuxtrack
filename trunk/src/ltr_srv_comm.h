@@ -21,7 +21,7 @@ typedef struct{
   uint32_t data;
   union{
     char str[500];
-    pose_t pose;
+    linuxtrack_full_pose_t pose;
     param_t param;
   };
 } message_t;
@@ -41,7 +41,7 @@ extern "C" {
 
 int ltr_int_send_message(int fifo, uint32_t cmd, uint32_t data);
 int ltr_int_send_message_w_str(int fifo, uint32_t cmd, uint32_t data, char *str);
-int ltr_int_send_data(int fifo, const pose_t *data);
+int ltr_int_send_data(int fifo, const linuxtrack_full_pose_t *data);
 int ltr_int_send_param_update(int fifo, uint32_t axis, uint32_t param, float value);
 const char *ltr_int_master_fifo_name();
 const char *ltr_int_slave_fifo_name();

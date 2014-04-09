@@ -556,7 +556,7 @@ int ltr_int_read_blobs_tir(struct bloblist_type *blt, int min, int max, image_t 
   }
   
   if(have_frame){
-    int res = ltr_int_stripes_to_blobs(3, blt, min, max, img);
+    int res = ltr_int_stripes_to_blobs(MAX_BLOBS, blt, min, max, img);
 /*    
     if(pic != NULL){
       static int fc = 0;

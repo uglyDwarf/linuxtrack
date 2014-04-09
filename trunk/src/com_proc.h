@@ -27,7 +27,7 @@ int ltr_int_getMaxBlob(struct mmap_s *mmm);
 void ltr_int_setMaxBlob(struct mmap_s *mmm, int pix);
 void ltr_int_setBlobs(struct mmap_s *mmm, struct blob_type *b, int num_blobs);
 bool ltr_int_haveNewBlobs(struct mmap_s *mmm);
-int ltr_int_getBlobs(struct mmap_s *mmm, struct blob_type * b);
+int ltr_int_getBlobs(struct mmap_s *mmm, struct blob_type * b, int num_blobs);
 unsigned char* ltr_int_getFramePtr(struct mmap_s *mmm);
 bool ltr_int_getFrameFlag(struct mmap_s *mmm);
 void ltr_int_setFrameFlag(struct mmap_s *mmm);

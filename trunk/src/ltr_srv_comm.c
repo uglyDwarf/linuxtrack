@@ -44,7 +44,7 @@ int ltr_int_send_message_w_str(int fifo, uint32_t cmd, uint32_t data, char *str)
   return ltr_int_fifo_send(fifo, &msg, sizeof(message_t));
 }
 
-int ltr_int_send_data(int fifo, const pose_t *data)
+int ltr_int_send_data(int fifo, const linuxtrack_full_pose_t *data)
 {
   message_t msg;
   memset(&msg, 0, sizeof(message_t));

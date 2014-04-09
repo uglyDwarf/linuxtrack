@@ -13,8 +13,8 @@ SCView::SCView(axis_t a, QWidget *parent)
   setAutoFillBackground(true);
   timer = new QTimer(this);
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-  connect(&TRACKER, SIGNAL(newPose(pose_t *, pose_t *, pose_t *)), 
-          this, SLOT(newPose(pose_t *, pose_t *, pose_t *)));
+  connect(&TRACKER, SIGNAL(newPose(linuxtrack_full_pose_t *, linuxtrack_pose_t *, linuxtrack_pose_t *)), 
+          this, SLOT(newPose(linuxtrack_full_pose_t *, linuxtrack_pose_t *, linuxtrack_pose_t *)));
   timer->start(50);
   setMinimumSize(400, 100);
   switch(a){
@@ -138,37 +138,37 @@ void SCView::paintEvent(QPaintEvent * /* event */)
   painter.end();
 }
 
-void SCView::newPose(pose_t *raw_pose, pose_t *unfiltered, pose_t *pose)
+void SCView::newPose(linuxtrack_full_pose_t *raw_pose, linuxtrack_pose_t *unfiltered, linuxtrack_pose_t *pose)
 {
   (void) pose;
   switch(axis){
     case PITCH:
-      rx = raw_pose->raw_pitch;
+      rx = raw_pose->pose.raw_pitch;
       px = pose->pitch;
       upx = unfiltered->pitch;
       break;
     case ROLL:
-      rx = raw_pose->raw_roll;
+      rx = raw_pose->pose.raw_roll;
       px = pose->roll;
       upx = unfiltered->roll;
       break;
     case YAW:
-      rx = raw_pose->raw_yaw;
+      rx = raw_pose->pose.raw_yaw;
       px = pose->yaw;
       upx = unfiltered->yaw;
       break;
     case TX:
-      rx = raw_pose->raw_tx;
+      rx = raw_pose->pose.raw_tx;
       px = pose->tx;
       upx = unfiltered->tx;
       break;
     case TY:
-      rx = raw_pose->raw_ty;
+      rx = raw_pose->pose.raw_ty;
       px = pose->ty;
       upx = unfiltered->ty;
       break;
     case TZ:
-      rx = raw_pose->raw_tz;
+      rx = raw_pose->pose.raw_tz;
       px = pose->tz;
       upx = unfiltered->tz;
       break;

@@ -28,7 +28,7 @@ man_MANS = ltr_gui.1 ltr_server.1
 lib_LTLIBRARIES = liblinuxtrack.la
 pkglib_LTLIBRARIES = libltr.la libmacwii.la
 bin_PROGRAMS = ltr_server1
-dist_pkgdata_DATA = linuxtrack1.conf
+dist_pkgdata_DATA = linuxtrack1.conf linuxtrack.c
 
 #ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
 #ltr_server_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)

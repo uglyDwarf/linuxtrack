@@ -60,13 +60,9 @@ static void *processingThreadFun(void *param)
 	    .h = height,
 	    .ratio = 1.0f
       };
-      struct blob_type blobs_array[3] = {
-        {0.0f, 0.0f, -1},
-        {0.0f, 0.0f, -1},
-        {0.0f, 0.0f, -1}
-      };
+      struct blob_type blobs_array[MAX_BLOBS] = {0);
       struct bloblist_type bloblist = {
-       .num_blobs = 3,
+       .num_blobs = MAX_BLOBS,
        .blobs = blobs_array
       };
       
@@ -78,7 +74,7 @@ static void *processingThreadFun(void *param)
       }else{
 #endif
         ltr_int_to_stripes(&img);
-        res = (ltr_int_stripes_to_blobs(3, &bloblist, ltr_int_getMinBlob(mmm), ltr_int_getMaxBlob(mmm), &img) == 0);
+        res = (ltr_int_stripes_to_blobs(MAX_BLOBS, &bloblist, ltr_int_getMinBlob(mmm), ltr_int_getMaxBlob(mmm), &img) == 0);
 #ifdef OPENCV
       }
 #endif

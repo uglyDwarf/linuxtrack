@@ -84,7 +84,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
     ltr_int_resetFrameFlag(mmm);
   }
   if(ltr_int_haveNewBlobs(mmm)){
-   frame->bloblist.num_blobs = ltr_int_getBlobs(mmm, frame->bloblist.blobs);
+   frame->bloblist.num_blobs = ltr_int_getBlobs(mmm, frame->bloblist.blobs, frame->bloblist.num_blobs);
    *frame_acquired = true;
   }else{
     ltr_int_usleep(5000);

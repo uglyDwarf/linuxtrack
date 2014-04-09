@@ -21,7 +21,7 @@ typedef struct{
   bool             frame_filled;
   int              frame_counter;
   int              num_blobs;
-  struct blob_type blobs[3];
+  struct blob_type blobs[MAX_BLOBS];
   unsigned char    frame;
 } comm_struct;
 
@@ -118,12 +118,13 @@ void ltr_int_setBlobs(struct mmap_s *mmm, struct blob_type *b, int num_blobs)
   comm_struct *cs = (comm_struct*)mmm->data;
   int i;
   ltr_int_lockSemaphore(mmm->sem);
-  for(i = 0; i < 3; ++i){
+  int blobs = (num_blobs < MAX_BLOBS) ? num_blobs : MAX_BLOBS;
+  for(i = 0; i < blobs; ++i){
     (cs->blobs[i]).x = b[i].x;
     (cs->blobs[i]).y = b[i].y;
     (cs->blobs[i]).score = b[i].score;
   }
-  cs->num_blobs = num_blobs;
+  cs->num_blobs = blobs;
   ++(cs->frame_counter);
   ltr_int_unlockSemaphore(mmm->sem);
 }
@@ -139,20 +140,20 @@ bool ltr_int_haveNewBlobs(struct mmap_s *mmm)
   return false;
 }
 
-int ltr_int_getBlobs(struct mmap_s *mmm, struct blob_type *b)
+int ltr_int_getBlobs(struct mmap_s *mmm, struct blob_type *b, int num_blobs)
 {
   comm_struct *cs = (comm_struct*)mmm->data;
   int i;
   ltr_int_lockSemaphore(mmm->sem);
-  for(i = 0; i < 3; ++i){
+  int blobs = (cs->num_blobs > num_blobs) ? num_blobs : cs->num_blobs;
+  for(i = 0; i < blobs; ++i){
     b[i].x = (cs->blobs[i]).x;
     b[i].y = (cs->blobs[i]).y;
     b[i].score = (cs->blobs[i]).score;
   }
   last_val = cs->frame_counter;
-  i = cs->num_blobs;
   ltr_int_unlockSemaphore(mmm->sem);
-  return i;
+  return cs->num_blobs;
 }
 
 unsigned char* ltr_int_getFramePtr(struct mmap_s *mmm)
