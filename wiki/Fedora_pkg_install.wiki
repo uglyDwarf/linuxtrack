@@ -1,5 +1,5 @@
 #summary Installation instructions - Fedora packages.
-#labels Phase-Deploy,Featured
+#labels Phase-Deploy,Deprecated
 
 = Introduction =
 
