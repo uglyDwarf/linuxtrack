@@ -364,7 +364,8 @@ man1dir = $(mandir)/man1
 NROFF = nroff
 MANS = $(man_MANS)
 am__dist_pkgdata_DATA_DIST = linuxtrack1.conf linuxtrack.c \
-	haarcascade_frontalface_alt2.xml 51-TIR.rules
+	linuxtrack_hello_world.c haarcascade_frontalface_alt2.xml \
+	51-TIR.rules
 DATA = $(desktop_DATA) $(dist_pkgdata_DATA) $(icon_DATA) \
 	$(pkgconfig_DATA)
 HEADERS = $(include_HEADERS)
@@ -549,8 +550,8 @@ lib_LTLIBRARIES = liblinuxtrack.la
 pkglib_LTLIBRARIES = libltr.la libmacwii.la $(am__append_1) \
 	$(am__append_3) $(am__append_4) $(am__append_6) \
 	$(am__append_8) libfakeusb.la $(am__append_9) $(am__append_10)
-dist_pkgdata_DATA = linuxtrack1.conf linuxtrack.c $(am__append_5) \
-	$(am__append_7)
+dist_pkgdata_DATA = linuxtrack1.conf linuxtrack.c \
+	linuxtrack_hello_world.c $(am__append_5) $(am__append_7)
 
 #ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
 #ltr_server_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)

@@ -355,6 +355,7 @@ int ltr_int_update_pose(struct frame_type *frame)
     current_pose.blob_list[i * BLOB_ELEMENTS + 2] = frame->bloblist.blobs[i].score;
   }
   current_pose.blobs = frame->bloblist.num_blobs;
+  
   pthread_mutex_unlock(&pose_mutex);
   bool res = -1;
   if(ltr_int_is_single_point()){
@@ -378,6 +379,11 @@ int ltr_int_tracking_get_pose(linuxtrack_full_pose_t *pose)
   current_pose.pose.status = pose->pose.status;
   pose->pose = current_pose.pose;
   pose->pose.counter = counter_d;
+  pose->blobs = current_pose.blobs;
+  int i;
+  for(i = 0; i < (int)current_pose.blobs * BLOB_ELEMENTS; ++i){
+    pose->blob_list[i] = current_pose.blob_list[i];
+  }
   pthread_mutex_unlock(&pose_mutex);
   return 0;
 }
