@@ -1,5 +1,5 @@
 #summary Installation instructions - Ubuntu packages
-#labels Featured,Phase-Deploy
+#labels Deprecated,Phase-Deploy
 
 = Introduction =
 
