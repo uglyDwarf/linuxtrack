@@ -54,7 +54,7 @@ char *ltr_int_init_helper(const char *cust_section, bool standalone)
       if(is_child){
         exit(1);
       }
-      return false;
+      return NULL;
     }
     free(server);
     free(section);
@@ -88,20 +88,27 @@ int ltr_get_pose(float *heading,
   //printf("OTHER_SIDE: %g %g %g\n", tmp.pose.yaw, tmp.pose.pitch, tmp.pose.roll);
   ltr_int_unlockSemaphore(mmm.sem);
   if(tmp.state != ERROR){
-    *heading = tmp.pose.yaw;
-    *pitch = tmp.pose.pitch;
-    *roll = tmp.pose.roll;
-    *tx = tmp.pose.tx;
-    *ty = tmp.pose.ty;
-    *tz = tmp.pose.tz;
-    *counter = tmp.pose.counter;
+    *heading = tmp.full_pose.pose.yaw;
+    *pitch = tmp.full_pose.pose.pitch;
+    *roll = tmp.full_pose.pose.roll;
+    *tx = tmp.full_pose.pose.tx;
+    *ty = tmp.full_pose.pose.ty;
+    *tz = tmp.full_pose.pose.tz;
+    *counter = tmp.full_pose.pose.counter;
     return 0;
   }else{
+    *heading = 0.0;
+    *pitch = 0.0;
+    *roll = 0.0;
+    *tx = 0.0;
+    *ty = 0.0;
+    *tz = 0.0;
+    *counter = 0;
     return -1;
   }
 }
 
-int ltr_get_pose_full(pose_t *pose)
+int ltr_get_pose_full(linuxtrack_pose_t *pose, float blobs[], int num_blobs, int *blobs_read)
 {
   struct ltr_comm *com = mmm.data;
   if((!initialized) || (com == NULL)) return -1;
@@ -110,9 +117,15 @@ int ltr_get_pose_full(pose_t *pose)
   tmp = *com;
   ltr_int_unlockSemaphore(mmm.sem);
   if(tmp.state != ERROR){
-    *pose = tmp.pose;
+    *pose = tmp.full_pose.pose;
+    *blobs_read = (num_blobs < (int)tmp.full_pose.blobs) ? num_blobs : (int)tmp.full_pose.blobs;
+    int i;
+    for(i = 0; i < (*blobs_read) * BLOB_ELEMENTS; ++i){
+      blobs[i] = tmp.full_pose.blob_list[i];
+    }
     return 0;
   }else{
+    *blobs_read = 0;
     return -1;
   }
 }
@@ -158,9 +171,9 @@ void ltr_recenter(void)
   ltr_int_unlockSemaphore(mmm.sem);
 }
 
-ltr_state_type ltr_get_tracking_state(void)
+linuxtrack_state_type ltr_get_tracking_state(void)
 {
-  ltr_state_type state = STOPPED;
+  linuxtrack_state_type state = STOPPED;
   struct ltr_comm *com = mmm.data;
   if((!initialized) || (com == NULL) || (com->preparing_start)){
     return state;

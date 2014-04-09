@@ -43,7 +43,7 @@ class LinuxtrackGui : public QWidget
   void on_DiscardChangesButton_pressed();
   void on_HelpButton_pressed();
   void on_LtrTab_currentChanged(int index);
-  void trackerStateHandler(ltr_state_type current_state);
+  void trackerStateHandler(linuxtrack_state_type current_state);
   void on_LegacyPose_stateChanged(int state);
   void on_LegacyRotation_stateChanged(int state);
   void on_TransRotDisable_stateChanged(int state);

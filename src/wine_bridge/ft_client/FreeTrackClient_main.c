@@ -15,6 +15,7 @@
 #include "windef.h"
 #include "winbase.h"
 #include "FreeTrackClient_dll.h"
+#include <ltlib.h>
 #include "wine/debug.h"
 #include <linuxtrack.h>
 
@@ -23,6 +24,7 @@ WINE_DEFAULT_DEBUG_CHANNEL(FreeTrackClient);
 
 typedef enum {DBG_CHECK, DBG_ON, DBG_OFF} dbg_flag_type; 
 static dbg_flag_type dbg_flag;
+static float blobs[MAX_BLOBS * 3];
 
 static dbg_flag_type get_dbg_flag(const int flag)
 {
@@ -107,8 +109,9 @@ void __stdcall FREETRACKCLIENT_FTReportName(char * name)
  */
 bool __stdcall FREETRACKCLIENT_FTGetData(FreeTrackData * data)
 {
-        pose_t pose;
-        linuxtrack_get_pose_full(&pose);
+        linuxtrack_pose_t pose;
+        int read = 0;
+        linuxtrack_get_pose_full(&pose, blobs, MAX_BLOBS, &read);
         data->yaw = pose.yaw;
         data->pitch = pose.pitch;
         data->roll = pose.roll;
@@ -122,21 +125,35 @@ bool __stdcall FREETRACKCLIENT_FTGetData(FreeTrackData * data)
         data->rx = pose.raw_tx;
         data->ry = pose.raw_ty;
         data->rz = pose.raw_tz;
-        data->x0 = pose.points_x[0];
-        data->y0 = pose.points_y[0];
-        //should be sorted by Y
-        if(pose.points_y[1] > pose.points_y[2]){
-          data->x1 = pose.points_x[1];
-          data->y1 = pose.points_y[1];
-          data->x2 = pose.points_x[2];
-          data->y2 = pose.points_y[2];
+        //will add sorting, if needed
+        if(read > 0){
+          data->x0 = blobs[0];
+          data->y0 = blobs[1];
         }else{
-          data->x1 = pose.points_x[2];
-          data->y1 = pose.points_y[2];
-          data->x2 = pose.points_x[1];
-          data->y2 = pose.points_y[1];
+          data->x0 = 0.0;
+          data->y0 = 0.0;
         }
-        data->x3 = data->y3 = 0.0;
+        if(read > 1){
+          data->x1 = blobs[3];
+          data->y1 = blobs[4];
+        }else{
+          data->x1 = 0.0;
+          data->y1 = 0.0;
+        }
+        if(read > 2){
+          data->x2 = blobs[6];
+          data->y2 = blobs[7];
+        }else{
+          data->x2 = 0.0;
+          data->y2 = 0.0;
+        }
+        if(read > 3){
+          data->x3 = blobs[9];
+          data->y3 = blobs[10];
+        }else{
+          data->x3 = 0.0;
+          data->y3 = 0.0;
+        }
         data->res_x = pose.resolution_x; data->res_y = pose.resolution_y;
         data->dataID = pose.counter;
 	return TRUE;

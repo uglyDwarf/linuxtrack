@@ -38,12 +38,14 @@ typedef enum {
   PAUSED,
   STOPPED,
   ERROR
-}ltr_state_type;
+}linuxtrack_state_type;
 
+int linuxtrack_init(const char *cust_section);
 int linuxtrack_shutdown(void);
 int linuxtrack_suspend(void);
 int linuxtrack_wakeup(void);
 int linuxtrack_recenter(void);
+linuxtrack_state_type linuxtrack_get_tracking_state(void);
 int linuxtrack_get_pose(float *heading,
                          float *pitch,
                          float *roll,
@@ -51,8 +53,6 @@ int linuxtrack_get_pose(float *heading,
                          float *ty,
                          float *tz,
                          uint32_t *counter);
-ltr_state_type linuxtrack_get_tracking_state(void);
-int linuxtrack_init(const char *cust_section);
 
 
 typedef struct{
@@ -63,7 +63,6 @@ typedef struct{
   float ty;
   float tz;
   uint32_t counter;
-  uint8_t status;
   uint32_t resolution_x;
   uint32_t resolution_y;
   float raw_pitch;
@@ -72,12 +71,10 @@ typedef struct{
   float raw_tx;
   float raw_ty;
   float raw_tz;
-  float points_x[3];
-  float points_y[3];
-  float points_s[3];
-} pose_t; 
+  uint8_t status;
+} linuxtrack_pose_t; 
 
-int linuxtrack_get_pose_full(pose_t *pose);
+int linuxtrack_get_pose_full(linuxtrack_pose_t *pose, float blobs[], int num_blobs, int *blobs_read);
 #ifdef __cplusplus
 }
 #endif

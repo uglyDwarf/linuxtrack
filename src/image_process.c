@@ -59,7 +59,7 @@ static void draw_stripe(image_t *img, int x, int y, int x_end, unsigned char col
   clip_coord(&x_end, 0, img->w-1);
   unsigned char *ptr = img->bitmap + y * img->w + x;
   x_end -= x;
-  while(x_end > 0){
+  while(x_end >= 0){
     *(++ptr) = color;
     --x_end;
   }
@@ -468,6 +468,7 @@ int ltr_int_stripes_to_blobs(int num_blobs, struct bloblist_type *blt,
   ltr_int_free_list(preblobs, true);
   preblobs = NULL;
   blt->num_blobs = (valid > num_blobs) ? num_blobs : valid;
+  //printf("Have %d blobs!\n", blt->num_blobs);
   if((img_dbg_flag == DBG_ON) && (img->bitmap != NULL)){
     static int fc = 0;
     char name[] = "fXXXXXXX.data";

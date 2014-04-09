@@ -91,7 +91,7 @@ static void state_changed(void *param)
   }
 }
 
-static bool ltr_int_is_inactive(ltr_state_type state)
+static bool ltr_int_is_inactive(linuxtrack_state_type state)
 {
   return((state == STOPPED) || (state == ERROR));
 }

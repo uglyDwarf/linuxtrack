@@ -51,7 +51,7 @@ bool ltr_int_pose_init(struct reflector_model_type rm);
 void ltr_int_pose_sort_blobs(struct bloblist_type bl);
 
 bool ltr_int_pose_process_blobs(struct bloblist_type blobs, 
-                        pose_t *pose,
+                        linuxtrack_pose_t *pose,
                         bool centering);
 bool ltr_int_is_single_point();                        
 bool ltr_int_is_face();

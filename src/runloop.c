@@ -25,8 +25,8 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
     ltr_int_cal_set_state(ERROR);
     return -1;
   }
-  frame.bloblist.blobs = ltr_int_my_malloc(sizeof(struct blob_type) * 3);
-  frame.bloblist.num_blobs = 3;
+  frame.bloblist.blobs = ltr_int_my_malloc(sizeof(struct blob_type) * MAX_BLOBS);
+  frame.bloblist.num_blobs = MAX_BLOBS;
   frame.bitmap = NULL;
   
   ltr_int_cal_set_state(RUNNING);

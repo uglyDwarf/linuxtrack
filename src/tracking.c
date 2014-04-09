@@ -17,7 +17,7 @@
 static bool recenter = false;
 static float cam_distance = 1000.0f;
 
-static pose_t current_pose;
+static linuxtrack_full_pose_t current_pose;
 
 /*******************************/
 /* private function prototypes */
@@ -179,12 +179,12 @@ static int update_pose_1pt(struct frame_type *frame)
   }
   
   pthread_mutex_lock(&pose_mutex);
-  current_pose.raw_pitch = tmp_angles[0];
-  current_pose.raw_yaw = tmp_angles[1];
-  current_pose.raw_roll = tmp_angles[2];
-  current_pose.raw_tx = tmp_translations[0];
-  current_pose.raw_ty = tmp_translations[1];
-  current_pose.raw_tz = tmp_translations[2];
+  current_pose.pose.raw_pitch = tmp_angles[0];
+  current_pose.pose.raw_yaw = tmp_angles[1];
+  current_pose.pose.raw_roll = tmp_angles[2];
+  current_pose.pose.raw_tx = tmp_translations[0];
+  current_pose.pose.raw_ty = tmp_translations[1];
+  current_pose.pose.raw_tz = tmp_translations[2];
   pthread_mutex_unlock(&pose_mutex);
   //printf("Pose updated => rp: %g, ry: %g...\n", current_pose.raw_pitch, current_pose.raw_yaw);
   return 0;
@@ -201,7 +201,7 @@ static float two_d_size(struct blob_type b1, struct blob_type b2)
 
 static int update_pose_3pt(struct frame_type *frame)
 {
-  if(frame->bloblist.num_blobs != 3){
+  if(frame->bloblist.num_blobs < 3){
     return -1;
   }
   if(ltr_int_is_finite(frame->bloblist.blobs[0].x) && ltr_int_is_finite(frame->bloblist.blobs[0].y) &&
@@ -224,7 +224,7 @@ static int update_pose_3pt(struct frame_type *frame)
       two_d_size(frame->bloblist.blobs[1], frame->bloblist.blobs[2]));
   }
   
-  pose_t t;
+  linuxtrack_pose_t t;
   if(!ltr_int_pose_process_blobs(frame->bloblist, &t, recenter)){
     return -1;
   }
@@ -251,12 +251,12 @@ static int update_pose_3pt(struct frame_type *frame)
   }
 
   pthread_mutex_lock(&pose_mutex);
-  current_pose.raw_pitch = tmp_angles[0];
-  current_pose.raw_yaw = tmp_angles[1];
-  current_pose.raw_roll = tmp_angles[2];
-  current_pose.raw_tx = tmp_translations[0];
-  current_pose.raw_ty = tmp_translations[1];
-  current_pose.raw_tz = tmp_translations[2];
+  current_pose.pose.raw_pitch = tmp_angles[0];
+  current_pose.pose.raw_yaw = tmp_angles[1];
+  current_pose.pose.raw_roll = tmp_angles[2];
+  current_pose.pose.raw_tx = tmp_translations[0];
+  current_pose.pose.raw_ty = tmp_translations[1];
+  current_pose.pose.raw_tz = tmp_translations[2];
   pthread_mutex_unlock(&pose_mutex);
   if(raw_dbg_flag == DBG_ON){
     printf("*DBG_r* yaw: %g pitch: %g roll: %g\n", angles[0], angles[1], angles[2]);
@@ -267,7 +267,7 @@ static int update_pose_3pt(struct frame_type *frame)
   return 0;
 }
 
-bool ltr_int_postprocess_axes(ltr_axes_t axes, pose_t *pose, pose_t *unfiltered)
+bool ltr_int_postprocess_axes(ltr_axes_t axes, linuxtrack_pose_t *pose, linuxtrack_pose_t *unfiltered)
 {
 //  printf(">>Pre: %f %f %f  %f %f %f\n", pose->raw_pitch, pose->raw_yaw, pose->raw_roll, 
 //         pose->raw_tx, pose->raw_ty, pose->raw_tz);
@@ -344,20 +344,21 @@ int ltr_int_update_pose(struct frame_type *frame)
   unsigned int i;
   ltr_int_pose_sort_blobs(frame->bloblist);
   pthread_mutex_lock(&pose_mutex);
-  current_pose.resolution_x = frame->width;
-  current_pose.resolution_y = frame->height;
-  for(i = 0; i < 3; ++i){
-    current_pose.points_x[i] = current_pose.points_y[i] = current_pose.points_s[i] = 0.0;
+  current_pose.pose.resolution_x = frame->width;
+  current_pose.pose.resolution_y = frame->height;
+  for(i = 0; i < MAX_BLOBS * BLOB_ELEMENTS; ++i){
+    current_pose.blob_list[i] = 0.0;
   }
   for(i = 0; i < frame->bloblist.num_blobs; ++i){
-    current_pose.points_x[i] = frame->bloblist.blobs[i].x;
-    current_pose.points_y[i] = frame->bloblist.blobs[i].y;
-    current_pose.points_s[i] = frame->bloblist.blobs[i].score;
+    current_pose.blob_list[i * BLOB_ELEMENTS] = frame->bloblist.blobs[i].x;
+    current_pose.blob_list[i * BLOB_ELEMENTS + 1] = frame->bloblist.blobs[i].y;
+    current_pose.blob_list[i * BLOB_ELEMENTS + 2] = frame->bloblist.blobs[i].score;
   }
+  current_pose.blobs = frame->bloblist.num_blobs;
   pthread_mutex_unlock(&pose_mutex);
   bool res = -1;
   if(ltr_int_is_single_point()){
-    res =  update_pose_1pt(frame);
+    res = update_pose_1pt(frame);
   }else{
     res = update_pose_3pt(frame);
   }
@@ -367,16 +368,16 @@ int ltr_int_update_pose(struct frame_type *frame)
   return res;
 }
 
-int ltr_int_tracking_get_pose(pose_t *pose)
+int ltr_int_tracking_get_pose(linuxtrack_full_pose_t *pose)
 {
   if(!tracking_initialized){
     ltr_int_init_tracking();
   }
   
   pthread_mutex_lock(&pose_mutex);
-  current_pose.status = pose->status;
-  *pose = current_pose;
-  pose->counter = counter_d;
+  current_pose.pose.status = pose->pose.status;
+  pose->pose = current_pose.pose;
+  pose->pose.counter = counter_d;
   pthread_mutex_unlock(&pose_mutex);
   return 0;
 }

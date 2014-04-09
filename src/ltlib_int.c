@@ -52,7 +52,7 @@ int ltr_int_init(void)
   return 0;
 }
 
-int ltr_int_get_camera_update(pose_t *pose)
+int ltr_int_get_camera_update(linuxtrack_full_pose_t *pose)
 {
   return ltr_int_tracking_get_pose(pose);
 }
@@ -88,7 +88,7 @@ void ltr_int_recenter(void)
   ltr_int_recenter_tracking();
 }
 
-ltr_state_type ltr_int_get_tracking_state(void)
+linuxtrack_state_type ltr_int_get_tracking_state(void)
 {
   return ltr_int_cal_get_state();
 }

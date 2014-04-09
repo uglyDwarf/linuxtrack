@@ -33,7 +33,7 @@ static lib_fun_def_t functions[] = {
 
 static void *libhandle = NULL;
 static enum ltr_request_t request = RUN;
-static ltr_state_type ltr_int_cal_device_state = STOPPED;
+static linuxtrack_state_type ltr_int_cal_device_state = STOPPED;
 
 /************************/
 /* function definitions */
@@ -119,7 +119,7 @@ int ltr_int_cal_wakeup()
   return (iface.device_wakeup)();
 }
 
-ltr_state_type ltr_int_cal_get_state()
+linuxtrack_state_type ltr_int_cal_get_state()
 {
   return ltr_int_cal_device_state;
 }
@@ -129,7 +129,7 @@ static void *ltr_status_changed_cbk_param = NULL;
 
 static char *state_desc[] = {"INITIALIZING", "RUNNING", "PAUSED", "STOPPED", "ERROR"};
 
-void ltr_int_cal_set_state(ltr_state_type new_state)
+void ltr_int_cal_set_state(linuxtrack_state_type new_state)
 {
   ltr_int_log_message("Changing state to %s!\n", state_desc[new_state]);
   ltr_int_cal_device_state = new_state;

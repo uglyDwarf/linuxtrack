@@ -21,7 +21,7 @@
 static std::multimap<std::string, int> slaves;
 static semaphore_p pfSem = NULL;
 
-static pose_t current_pose;
+static linuxtrack_full_pose_t current_pose;
 
 static ltr_new_frame_callback_t new_frame_hook = NULL;
 static ltr_status_update_callback_t status_update_hook = NULL;
@@ -101,7 +101,7 @@ void ltr_int_set_callback_hooks(ltr_new_frame_callback_t nfh, ltr_status_update_
   new_slave_hook = nsh;
 }
 
-bool ltr_int_broadcast_pose(pose_t &pose)
+bool ltr_int_broadcast_pose(linuxtrack_full_pose_t &pose)
 {
   pthread_mutex_lock(&send_mx);
   std::multimap<std::string, int>::iterator i;
@@ -145,7 +145,7 @@ static void ltr_int_state_changed(void *param)
 {
   (void)param;
   //ltr_int_log_message("State changed to %d\n", ltr_int_get_tracking_state());
-  current_pose.status = ltr_int_get_tracking_state();
+  current_pose.pose.status = ltr_int_get_tracking_state();
   if(status_update_hook != NULL){
     status_update_hook(param);
   }
@@ -224,14 +224,15 @@ size_t ltr_int_request_shutdown()
 
 bool ltr_int_master(bool standalone)
 {
-  current_pose.pitch = 0.0;
-  current_pose.yaw = 0.0;
-  current_pose.roll = 0.0;
-  current_pose.tx = 0.0;
-  current_pose.ty = 0.0;
-  current_pose.tz = 0.0;
-  current_pose.counter = 0;
-  current_pose.status = STOPPED;
+  current_pose.pose.pitch = 0.0;
+  current_pose.pose.yaw = 0.0;
+  current_pose.pose.roll = 0.0;
+  current_pose.pose.tx = 0.0;
+  current_pose.pose.ty = 0.0;
+  current_pose.pose.tz = 0.0;
+  current_pose.pose.counter = 0;
+  current_pose.pose.status = STOPPED;
+  current_pose.blobs = 0;
   gui_shutdown_request = false;
   int fifo;
   
@@ -293,10 +294,10 @@ bool ltr_int_master(bool standalone)
       if(fifo_poll.revents & POLLHUP){
         if(standalone){
           printf("We have HUP in Master!\n");
-		  pose_t dummy;
-          dummy.pitch = 0.0; dummy.yaw = 0.0; dummy.roll = 0.0; 
-          dummy.tx = 0.0; dummy.ty = 0.0; dummy.tz = 0.0;
-          dummy.counter = 0; dummy.status = PAUSED;
+          linuxtrack_full_pose_t dummy;
+          dummy.pose.pitch = 0.0; dummy.pose.yaw = 0.0; dummy.pose.roll = 0.0; 
+          dummy.pose.tx = 0.0; dummy.pose.ty = 0.0; dummy.pose.tz = 0.0;
+          dummy.pose.counter = 0; dummy.pose.status = PAUSED; dummy.blobs = 0;
           ltr_int_broadcast_pose(dummy);
         }else{
           //In gui when HUP comes, it goes forever...
@@ -332,10 +333,10 @@ bool ltr_int_master(bool standalone)
       if(ltr_int_get_tracking_state() == PAUSED){
         ++heartbeat;
         if(heartbeat > 5){
-          pose_t dummy;
-          dummy.pitch = 0.0; dummy.yaw = 0.0; dummy.roll = 0.0; 
-          dummy.tx = 0.0; dummy.ty = 0.0; dummy.tz = 0.0;
-          dummy.counter = 0; dummy.status = PAUSED;
+          linuxtrack_full_pose_t dummy;
+          dummy.pose.pitch = 0.0; dummy.pose.yaw = 0.0; dummy.pose.roll = 0.0; 
+          dummy.pose.tx = 0.0; dummy.pose.ty = 0.0; dummy.pose.tz = 0.0;
+          dummy.pose.counter = 0; dummy.pose.status = PAUSED; dummy.blobs = 0;
           ltr_int_broadcast_pose(dummy);
           heartbeat = 0;
         }

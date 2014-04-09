@@ -61,8 +61,8 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), ds(NULL),
   lv = new LogView();
   pi = new PluginInstall(ui);
   ps = new ProfileSelector(this);
-  QObject::connect(&STATE, SIGNAL(stateChanged(ltr_state_type)), 
-                   this, SLOT(trackerStateHandler(ltr_state_type)));
+  QObject::connect(&STATE, SIGNAL(stateChanged(linuxtrack_state_type)), 
+                   this, SLOT(trackerStateHandler(linuxtrack_state_type)));
   QObject::connect(&zipper, SIGNAL(finished(int, QProcess::ExitStatus)), 
                    this, SLOT(logsPackaged(int, QProcess::ExitStatus)));
   ui.ModelEditSite->addWidget(me);
@@ -256,7 +256,7 @@ void LinuxtrackGui::on_LtrTab_currentChanged(int index)
   }
 }
 
-void LinuxtrackGui::trackerStateHandler(ltr_state_type current_state)
+void LinuxtrackGui::trackerStateHandler(linuxtrack_state_type current_state)
 {
   switch(current_state){
     case STOPPED:

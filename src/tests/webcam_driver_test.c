@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
   printf("Init successfull! Res %d x %d\n", ccb.pixel_width, ccb.pixel_height);
   struct frame_type ft;
   ft.bloblist.blobs = ltr_int_my_malloc(sizeof(struct blob_type) * 3);
-  ft.bloblist.num_blobs = 3;
+  ft.bloblist.num_blobs = MAX_BLOBS;
   ft.bitmap = NULL;
   
   int i;
