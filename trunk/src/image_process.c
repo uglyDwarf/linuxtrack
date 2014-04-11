@@ -459,7 +459,11 @@ int ltr_int_stripes_to_blobs(int num_blobs, struct bloblist_type *blt,
         ltr_int_log_message("PT: %g %g\n", cal_b->x, cal_b->y);
       }
       if(img->bitmap != NULL){
-	ltr_int_draw_cross(img, x / img->ratio, y, (int) img->w/100.0);
+        if(counter < blt->expected_blobs){
+	  ltr_int_draw_cross(img, x / img->ratio, y, (int) img->w/50.0);
+	}else{
+          ltr_int_draw_cross(img, x / img->ratio, y, (int) img->w/100.0);
+	}
       }
       cal_b->score = pb->points;
     }

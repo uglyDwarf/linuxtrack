@@ -27,6 +27,7 @@ struct blob_type {
 
 struct bloblist_type {
   unsigned int num_blobs;
+  unsigned int expected_blobs;
   /* array of blobs, they will come from the driver 
    * already sorted in area.  The driver will allocate
    * memory for these, and the caller must call 
@@ -111,6 +112,7 @@ void ltr_int_cal_set_state(linuxtrack_state_type new_state);
 void ltr_int_change_state(enum ltr_request_t new_req);
 enum ltr_request_t ltr_int_get_state_request();
 void ltr_int_set_status_change_cbk(ltr_status_update_callback_t status_change_cbk, void *param);
+bool ltr_int_got_new_request();
 
 /* frees the memory allocated to the given frame.  
  * For every frame populated, with cal_populate_frame,

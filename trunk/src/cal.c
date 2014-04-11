@@ -34,6 +34,7 @@ static lib_fun_def_t functions[] = {
 static void *libhandle = NULL;
 static enum ltr_request_t request = RUN;
 static linuxtrack_state_type ltr_int_cal_device_state = STOPPED;
+static bool new_request_received = false;
 
 /************************/
 /* function definitions */
@@ -141,6 +142,12 @@ void ltr_int_cal_set_state(linuxtrack_state_type new_state)
 void ltr_int_change_state(enum ltr_request_t new_req)
 {
   request = new_req;
+  new_request_received = true;
+}
+
+bool ltr_int_got_new_request()
+{
+  return new_request_received;
 }
 
 void ltr_int_set_status_change_cbk(ltr_status_update_callback_t status_change_cbk, void *param)
@@ -154,6 +161,7 @@ enum ltr_request_t ltr_int_get_state_request()
 {
   enum ltr_request_t res = request;
   request = CONTINUE;
+  new_request_received = false;
   return res;
 }
 
