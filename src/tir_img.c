@@ -553,6 +553,9 @@ int ltr_int_read_blobs_tir(struct bloblist_type *blt, int min, int max, image_t 
     if((have_frame = process_packet(ltr_int_packet, &ptr, size)) == true){
       break;
     }
+    if(ltr_int_got_new_request()){
+      break;
+    }
   }
   
   if(have_frame){

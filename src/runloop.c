@@ -4,6 +4,7 @@
 #include "cal.h"
 #include "utils.h"
 #include "runloop.h"
+#include "pref_global.h"
 
 static pthread_cond_t state_cv = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t state_mx = PTHREAD_MUTEX_INITIALIZER;
@@ -25,8 +26,16 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
     ltr_int_cal_set_state(ERROR);
     return -1;
   }
+  struct reflector_model_type rm;
+  ltr_int_get_model_setup(&rm);
   frame.bloblist.blobs = ltr_int_my_malloc(sizeof(struct blob_type) * MAX_BLOBS);
   frame.bloblist.num_blobs = MAX_BLOBS;
+  if((rm.type == SINGLE) || (rm.type == FACE)){
+    frame.bloblist.expected_blobs = 1;  
+  }else{
+    frame.bloblist.expected_blobs = 3;  
+  }
+  
   frame.bitmap = NULL;
   
   ltr_int_cal_set_state(RUNNING);
