@@ -1,0 +1,25 @@
+#summary Linuxtrack for Download
+#labels Deprecated,Phase-Deploy
+
+= Explanation =
+Due to the fact, that Google decided not to allow creation of now downloads, this page provides links to the Linuxtrack packages.
+
+Old downloads page may be reached here: https://code.google.com/p/linux-track/downloads/list
+
+= Linux downloads=
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.8-32.zip linuxtrack-0.99.8-32.zip]
+
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.8-64.zip linuxtrack-0.99.8-64.zip]
+
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.8-32.zip linuxtrack-0.99.8-32.zip]
+
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.8-64.zip linuxtrack-0.99.8-64.zip]
+
+[http://linuxtrack.eu/repositories/universal/new_pubkey.gpg new_pubkey.gpg]
+
+= Mac downloads=
+
+[http://linuxtrack.eu/repositories/mac/linuxtrack-0.99.5.dmg linuxtrack-0.99.5.dmg]
+
+[http://linuxtrack.eu/repositories/mac/linuxtrack-0.99.9.dmg linuxtrack-0.99.9.dmg]
+
