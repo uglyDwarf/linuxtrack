@@ -11,10 +11,6 @@ Old downloads page may be reached here: https://code.google.com/p/linux-track/do
 
 [http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.8-64.zip linuxtrack-0.99.8-64.zip]
 
-[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.8-32.zip linuxtrack-0.99.8-32.zip]
-
-[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.8-64.zip linuxtrack-0.99.8-64.zip]
-
 [http://linuxtrack.eu/repositories/universal/new_pubkey.gpg new_pubkey.gpg]
 
 = Mac downloads=
@@ -22,4 +18,3 @@ Old downloads page may be reached here: https://code.google.com/p/linux-track/do
 [http://linuxtrack.eu/repositories/mac/linuxtrack-0.99.5.dmg linuxtrack-0.99.5.dmg]
 
 [http://linuxtrack.eu/repositories/mac/linuxtrack-0.99.9.dmg linuxtrack-0.99.9.dmg]
-
