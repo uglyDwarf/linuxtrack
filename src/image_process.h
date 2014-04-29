@@ -26,7 +26,7 @@ typedef struct {
 void ltr_int_prepare_for_processing(int w, int h);
 void ltr_int_cleanup_after_processing();
 void ltr_int_to_stripes(image_t *img);
-int ltr_int_stripes_to_blobs(int num_blobs, struct bloblist_type *blt, 
+int ltr_int_stripes_to_blobs(unsigned int num_blobs, struct bloblist_type *blt, 
 		     int min_pts, int max_pts, image_t *img);
 bool ltr_int_add_stripe(stripe_t *stripe, image_t *img);
 void ltr_int_draw_cross(image_t *img, int x, int y, int size);

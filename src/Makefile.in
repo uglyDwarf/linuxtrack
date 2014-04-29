@@ -364,8 +364,8 @@ man1dir = $(mandir)/man1
 NROFF = nroff
 MANS = $(man_MANS)
 am__dist_pkgdata_DATA_DIST = linuxtrack1.conf linuxtrack.c \
-	linuxtrack_hello_world.c haarcascade_frontalface_alt2.xml \
-	51-TIR.rules
+	linuxtrack_hello_world.c linuxtrack_hello_world_adv.c \
+	haarcascade_frontalface_alt2.xml 51-TIR.rules
 DATA = $(desktop_DATA) $(dist_pkgdata_DATA) $(icon_DATA) \
 	$(pkgconfig_DATA)
 HEADERS = $(include_HEADERS)
@@ -551,7 +551,8 @@ pkglib_LTLIBRARIES = libltr.la libmacwii.la $(am__append_1) \
 	$(am__append_3) $(am__append_4) $(am__append_6) \
 	$(am__append_8) libfakeusb.la $(am__append_9) $(am__append_10)
 dist_pkgdata_DATA = linuxtrack1.conf linuxtrack.c \
-	linuxtrack_hello_world.c $(am__append_5) $(am__append_7)
+	linuxtrack_hello_world.c linuxtrack_hello_world_adv.c \
+	$(am__append_5) $(am__append_7)
 
 #ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
 #ltr_server_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
@@ -666,7 +667,7 @@ qt_gui/scurve.cpp qt_gui/ltr_gui.ui qt_gui/dev_help.ui qt_gui/ltr_profiles.h \
 qt_gui/ltr.ui qt_gui/ltr_state.cpp qt_gui/tir_prefs.cpp qt_gui/ltr_show.cpp \
 qt_gui/xm8_detail.png qt_gui/main.cpp qt_gui/prefs_link.h qt_gui/macwebcam_prefs.h \
 qt_gui/webcam_info.h qt_gui/help/misc.htm qt_gui/help/dev_setup.htm qt_gui/help/axes_setup.htm \
-qt_gui/help/contents.txt qt_gui/help/news.htm qt_gui/help/welcome.htm \
+qt_gui/help/contents.txt qt_gui/help/news.htm qt_gui/help/welcome.htm qt_gui/help/interface.htm \
 qt_gui/help/model_setup.htm qt_gui/dlfirmware.h qt_gui/webcam_info.cpp qt_gui/plugin_install.h \
 qt_gui/tracker.cpp qt_gui/webcam_prefs.h qt_gui/macwebcam_prefs.cpp \
 qt_gui/log_view.h tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
