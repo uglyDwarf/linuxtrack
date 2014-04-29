@@ -12,12 +12,11 @@ bool intialize_tracking(void)
   linuxtrack_init(NULL);
   
   int timeout = 0;
-  
+  linuxtrack_state_type state;
   //wait up to 20 seconds for the tracker initialization
   while(timeout < 200){
-    if(linuxtrack_get_tracking_state() == RUNNING){
-      //recenter when tracking starts
-      linuxtrack_recenter();
+    state = linuxtrack_get_tracking_state();
+    if((state == RUNNING) || (state == PAUSED)){
       return true;
     }
     usleep(100000);

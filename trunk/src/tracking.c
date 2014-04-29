@@ -15,6 +15,7 @@
 //static struct blob_type filtered_blobs[3];
 //static bool first_frame = true;
 static bool recenter = false;
+static bool init_recenter = false;
 static float cam_distance = 1000.0f;
 
 static linuxtrack_full_pose_t current_pose;
@@ -81,6 +82,7 @@ bool ltr_int_init_tracking()
 //  first_frame = true;
   ltr_int_log_message("Tracking initialized!\n");
   tracking_initialized = true;
+  init_recenter = true;
   recenter = false;
   return true;
 }
@@ -365,6 +367,13 @@ int ltr_int_update_pose(struct frame_type *frame)
   }
   if(res == 0){
     ++counter_d;
+    if(init_recenter){
+      //discard the first valid frame to allow good recenter on the next one
+      init_recenter = false;
+      recenter = true;
+      --counter_d;
+      res = -1;
+    }
   }
   return res;
 }

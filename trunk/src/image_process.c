@@ -426,7 +426,7 @@ void ltr_int_to_stripes(image_t *img)
   //printf("\n");
 }
 
-int ltr_int_stripes_to_blobs(int num_blobs, struct bloblist_type *blt, 
+int ltr_int_stripes_to_blobs(unsigned int num_blobs, struct bloblist_type *blt, 
 		     int min_pts, int max_pts, image_t *img)
 {
   store_preblobs(true);
@@ -436,8 +436,8 @@ int ltr_int_stripes_to_blobs(int num_blobs, struct bloblist_type *blt,
   if(preblobs == NULL){
     return -1;
   }
-  int counter = 0;
-  int valid =0;
+  unsigned int counter = 0;
+  unsigned int valid =0;
   iterator i;
   struct blob_type *cal_b;
   preblob_t *pb;

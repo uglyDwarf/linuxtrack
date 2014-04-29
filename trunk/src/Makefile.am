@@ -28,7 +28,7 @@ man_MANS = ltr_gui.1 ltr_server.1
 lib_LTLIBRARIES = liblinuxtrack.la
 pkglib_LTLIBRARIES = libltr.la libmacwii.la
 bin_PROGRAMS = ltr_server1
-dist_pkgdata_DATA = linuxtrack1.conf linuxtrack.c linuxtrack_hello_world.c
+dist_pkgdata_DATA = linuxtrack1.conf linuxtrack.c linuxtrack_hello_world.c linuxtrack_hello_world_adv.c
 
 #ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
 #ltr_server_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
@@ -261,7 +261,7 @@ qt_gui/scurve.cpp qt_gui/ltr_gui.ui qt_gui/dev_help.ui qt_gui/ltr_profiles.h \
 qt_gui/ltr.ui qt_gui/ltr_state.cpp qt_gui/tir_prefs.cpp qt_gui/ltr_show.cpp \
 qt_gui/xm8_detail.png qt_gui/main.cpp qt_gui/prefs_link.h qt_gui/macwebcam_prefs.h \
 qt_gui/webcam_info.h qt_gui/help/misc.htm qt_gui/help/dev_setup.htm qt_gui/help/axes_setup.htm \
-qt_gui/help/contents.txt qt_gui/help/news.htm qt_gui/help/welcome.htm \
+qt_gui/help/contents.txt qt_gui/help/news.htm qt_gui/help/welcome.htm qt_gui/help/interface.htm \
 qt_gui/help/model_setup.htm qt_gui/dlfirmware.h qt_gui/webcam_info.cpp qt_gui/plugin_install.h \
 qt_gui/tracker.cpp qt_gui/webcam_prefs.h qt_gui/macwebcam_prefs.cpp \
 qt_gui/log_view.h tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \

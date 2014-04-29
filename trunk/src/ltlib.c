@@ -88,6 +88,7 @@ int ltr_get_pose(float *heading,
   //printf("OTHER_SIDE: %g %g %g\n", tmp.pose.yaw, tmp.pose.pitch, tmp.pose.roll);
   ltr_int_unlockSemaphore(mmm.sem);
   if(tmp.state != ERROR){
+    uint32_t passed_counter = *counter;
     *heading = tmp.full_pose.pose.yaw;
     *pitch = tmp.full_pose.pose.pitch;
     *roll = tmp.full_pose.pose.roll;
@@ -95,7 +96,11 @@ int ltr_get_pose(float *heading,
     *ty = tmp.full_pose.pose.ty;
     *tz = tmp.full_pose.pose.tz;
     *counter = tmp.full_pose.pose.counter;
-    return 0;
+    if(passed_counter != *counter){
+      return 1;
+    }else{
+      return 0;
+    }
   }else{
     *heading = 0.0;
     *pitch = 0.0;
@@ -117,15 +122,21 @@ int ltr_get_pose_full(linuxtrack_pose_t *pose, float blobs[], int num_blobs, int
   tmp = *com;
   ltr_int_unlockSemaphore(mmm.sem);
   if(tmp.state != ERROR){
+    uint32_t prev_counter = pose->counter;
     *pose = tmp.full_pose.pose;
     *blobs_read = (num_blobs < (int)tmp.full_pose.blobs) ? num_blobs : (int)tmp.full_pose.blobs;
     int i;
     for(i = 0; i < (*blobs_read) * BLOB_ELEMENTS; ++i){
       blobs[i] = tmp.full_pose.blob_list[i];
     }
-    return 0;
+    if(prev_counter != pose->counter){
+      return 1;
+    }else{
+      return 0;
+    }
   }else{
     *blobs_read = 0;
+    memset(pose, 0, sizeof(linuxtrack_pose_t));
     return -1;
   }
 }

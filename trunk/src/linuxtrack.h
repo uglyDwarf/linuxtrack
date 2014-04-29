@@ -32,6 +32,13 @@ THE SOFTWARE.
 extern "C" {
 #endif
 
+
+int linuxtrack_init(const char *cust_section);
+int linuxtrack_shutdown(void);
+int linuxtrack_suspend(void);
+int linuxtrack_wakeup(void);
+int linuxtrack_recenter(void);
+
 typedef enum {
   INITIALIZING,
   RUNNING,
@@ -40,12 +47,8 @@ typedef enum {
   ERROR
 }linuxtrack_state_type;
 
-int linuxtrack_init(const char *cust_section);
-int linuxtrack_shutdown(void);
-int linuxtrack_suspend(void);
-int linuxtrack_wakeup(void);
-int linuxtrack_recenter(void);
 linuxtrack_state_type linuxtrack_get_tracking_state(void);
+
 int linuxtrack_get_pose(float *heading,
                          float *pitch,
                          float *roll,
