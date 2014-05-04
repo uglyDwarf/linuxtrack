@@ -56,7 +56,7 @@ unix:!macx {
   HEADERS += webcam_prefs.h webcam_info.h webcam_ft_prefs.h
   FORMS += l_wc_setup.ui l_wcft_setup.ui
   SOURCES += webcam_info.cpp webcam_prefs.cpp webcam_ft_prefs.cpp
-  LIBS += "-L../.libs" "-L$${LIBDIR}" -lm -lltr -lGLU -lmxml \
+  LIBS += "-L../.libs" "-L@prefix@/lib" "-L$${LIBDIR}" -lm -lltr -lGLU -lmxml \
            "-Wl,-rpath,$${LIBDIR}"
   
   data.path += @prefix@/share/linuxtrack
