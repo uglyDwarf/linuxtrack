@@ -691,7 +691,7 @@ qt_gui/help/DetAxis.png qt_gui/help/JoyButtonsSetup4.png qt_gui/help/JoyButtonsS
 qt_gui/help/3dPreview.png qt_gui/help/ModelCreate.png qt_gui/help/JoyButtonsSetup3.png \
 qt_gui/help/Tracking.png qt_gui/help/JoyButtonsSetup2.png qt_gui/help/Model.png \
 qt_gui/help/Trackir.png qt_gui/help/Controller.png qt_gui/help/Facetracker.png \
-qt_gui/cap_1.png qt_gui/cap_np.png qt_gui/clip_1.png qt_gui/clip_np.png qt_gui/face.svg qt_gui/single.png \
+qt_gui/cap_1.png qt_gui/cap_np.png qt_gui/clip_1.png qt_gui/clip_np.png qt_gui/face.svg qt_gui/face.png qt_gui/single.png \
 51-Mickey.rules linuxtrack.pc qt_gui/help/xpl_setup.htm \
 wii_server/wii_server.cpp wii_server/wiimote.h wii_server/wiimote.cpp wii_server/wii_server.pro.in \
 wii_server/main.cpp wii_server/wii_server.h wii_server/wii_server.ui wii_server/wii_server.qrc \
@@ -704,7 +704,8 @@ mickey/chsettings.ui mickey/calibration.ui mickey/pref.ui mickey/transform.cpp \
 mickey/main.cpp mickey/help/tracking.htm mickey/help/misc.htm \
 mickey/help/news.htm mickey/help/contents.txt mickey/help/welcome.htm mickey/uinput_ifc.c \
 mickey/keyb.cpp mickey/helpview.ui mickey/keyb_x11.cpp mickey/keyb_x11.h mickey/linuxtrack.icns \
-mickey/mouse.h mickey/mouse_linux.cpp mickey/mouse_mac.cpp mickey/mickey.qrc sn4_model.h
+mickey/mouse.h mickey/mouse_linux.cpp mickey/mouse_mac.cpp mickey/mickey.qrc sn4_model.h \
+mickey/precomp_headers.h wii_server/precomp_headers.h qt_gui/precomp_headers.h
 
 desktopdir = $(datadir)/applications
 desktop_DATA = linuxtrack.desktop linuxtrack-wii.desktop
