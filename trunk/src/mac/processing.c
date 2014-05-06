@@ -60,7 +60,7 @@ static void *processingThreadFun(void *param)
 	    .h = height,
 	    .ratio = 1.0f
       };
-      struct blob_type blobs_array[MAX_BLOBS] = {0);
+      struct blob_type blobs_array[MAX_BLOBS] = {{0.0f, 0.0f, 0}};
       struct bloblist_type bloblist = {
        .num_blobs = MAX_BLOBS,
        .blobs = blobs_array

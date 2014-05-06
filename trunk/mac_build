@@ -201,7 +201,8 @@ pushd dist
   mkdir develop
   cp ../src/linuxtrack.h develop
   cp ../src/linuxtrack.c develop
-  cp ${PREFIX}/lib/liblinuxtrack.a develop
+  cp ../src/linuxtrack_hello_world.c develop
+  cp ../src/linuxtrack_hello_world_adv.c develop
   cp ../Readme.rtf .
   cp ../src/ltr_pipe .
 popd
