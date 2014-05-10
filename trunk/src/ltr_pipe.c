@@ -1203,7 +1203,6 @@ static void run_loop(void)
 
 	struct ltr_data d;
 
-	unsigned int cnt = 0;
 
 	logmsg("Working");
 
@@ -1223,13 +1222,8 @@ static void run_loop(void)
 		r = linuxtrack_get_pose(&d.h, &d.p, &d.r,
 					  &d.x, &d.y, &d.z, &d.c);
 
-		if (r != 0)
+		if (r <= 0)
 			continue;
-
-		if (d.c == cnt)
-			continue;
-
-		cnt = d.c;
 
 #ifdef LINUX
 		/* Don't use select() for uinput writing */
