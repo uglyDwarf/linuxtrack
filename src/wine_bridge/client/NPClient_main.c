@@ -263,7 +263,7 @@ int __stdcall NPCLIENT_NP_GetData(tir_data_t * data)
   if(crypted){
     enhance((unsigned char*)data, sizeof(tir_data_t), table, sizeof(table));
   }
-  return res;
+  return (res >= 0) ? 0: 1;
 }
 /******************************************************************
  *		NP_GetParameter (NPCLIENT.9)

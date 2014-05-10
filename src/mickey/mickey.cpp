@@ -456,7 +456,6 @@ void Mickey::updateTimer_activated()
   static float pitch_p = 0.0;
   float heading, pitch, roll, tx, ty, tz;
   unsigned int counter;
-  static unsigned int last_counter = 0;
   static int lastTrackingState = -1;
   int trackingState = linuxtrack_get_tracking_state();
   
@@ -500,15 +499,12 @@ void Mickey::updateTimer_activated()
       recenterFlag = false;
     }
   }
-  if(linuxtrack_get_pose(&heading, &pitch, &roll, &tx, &ty, &tz, &counter) == 0){
-    if(counter != last_counter){
-      //new frame has arrived
-      last_counter = counter;
-      heading_p = heading;
-      pitch_p = pitch;
-      //ui.XLabel->setText(QString("X: %1").arg(heading));
-      //ui.YLabel->setText(QString("Y: %1").arg(pitch));
-    }
+  if(linuxtrack_get_pose(&heading, &pitch, &roll, &tx, &ty, &tz, &counter) > 0){
+    //new frame has arrived
+    heading_p = heading;
+    pitch_p = pitch;
+    //ui.XLabel->setText(QString("X: %1").arg(heading));
+    //ui.YLabel->setText(QString("Y: %1").arg(pitch));
   }
   int elapsed = updateElapsed.elapsed();
   updateElapsed.restart();
