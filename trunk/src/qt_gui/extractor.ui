@@ -69,7 +69,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Progress informations</string>
+         <string>Progress information</string>
         </property>
        </widget>
       </item>

@@ -29,7 +29,7 @@ int open_uinput(char **fname, bool *permProblem)
       return fd;
     }else{
       if(errno == EACCES){
-        printf("Check permissons!\n");
+        printf("Check permissions!\n");
         *fname = alternative_names[i];
         *permProblem = true;
         return -1;
