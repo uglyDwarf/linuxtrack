@@ -1,20 +1,35 @@
-#summary Linuxtrack for Download
+#summary Linuxtrack packags for Download
 #labels Deprecated,Phase-Deploy
+
+= Current version: Linuxtrack 0.99.10 =
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.10-32.zip Linux 32bit universal package]
+
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.10-64.zip Linux 64bit universal package]
+
+[http://linuxtrack.eu/repositories/mac/linuxtrack-0.99.10.dmg MacOSX package]
+
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.10.tar.bz2 Source package]
+
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.10.sig Source package signature]
+
+= Older versions =
+
+[http://linuxtrack.eu/repositories/mac/linuxtrack-0.99.9.dmg linuxtrack-0.99.9 MacOS X package]
+
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.8-32.zip linuxtrack-0.99.8 32 bit Linux universal package]
+
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.8-64.zip linuxtrack-0.99.8 64 bit Linux universal package]
+
+[http://linuxtrack.eu/repositories/mac/linuxtrack-0.99.5.dmg linuxtrack-0.99.5 MacOS X package]
+
+= Miscelaneous downloads=
+
+[http://linuxtrack.eu/repositories/universal/new_pubkey.gpg Public key] used to verify the package's authenticity.
+
+
+Key fingerprint: 7546 4AFF 0819 6C02 8537  EAF3 EF44 396A 9F27 60DC
 
 = Explanation =
 Due to the fact, that Google decided not to allow creation of now downloads, this page provides links to the Linuxtrack packages.
 
 Old downloads page may be reached here: https://code.google.com/p/linux-track/downloads/list
-
-= Linux downloads=
-[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.8-32.zip linuxtrack-0.99.8-32.zip]
-
-[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.8-64.zip linuxtrack-0.99.8-64.zip]
-
-[http://linuxtrack.eu/repositories/universal/new_pubkey.gpg new_pubkey.gpg]
-
-= Mac downloads=
-
-[http://linuxtrack.eu/repositories/mac/linuxtrack-0.99.5.dmg linuxtrack-0.99.5.dmg]
-
-[http://linuxtrack.eu/repositories/mac/linuxtrack-0.99.9.dmg linuxtrack-0.99.9.dmg]
