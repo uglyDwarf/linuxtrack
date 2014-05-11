@@ -24,7 +24,7 @@
    <item>
     <widget class="QLabel" name="FBString">
      <property name="text">
-      <string>Will automaticaly revert back in X seconds...</string>
+      <string>Will automatically revert back in X seconds...</string>
      </property>
     </widget>
    </item>
