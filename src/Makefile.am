@@ -25,8 +25,7 @@ endif
 
 man_MANS = ltr_gui.1 ltr_server1.1 mickey.1
 
-lib_LTLIBRARIES = liblinuxtrack.la
-pkglib_LTLIBRARIES = libltr.la libmacwii.la
+pkglib_LTLIBRARIES = libltr.la libmacwii.la liblinuxtrack.la
 bin_PROGRAMS = ltr_server1
 dist_pkgdata_DATA = linuxtrack1.conf linuxtrack.c linuxtrack_hello_world.c linuxtrack_hello_world_adv.c
 
@@ -286,7 +285,7 @@ qt_gui/help/3dPreview.png qt_gui/help/ModelCreate.png qt_gui/help/JoyButtonsSetu
 qt_gui/help/Tracking.png qt_gui/help/JoyButtonsSetup2.png qt_gui/help/Model.png \
 qt_gui/help/Trackir.png qt_gui/help/Controller.png qt_gui/help/Facetracker.png \
 qt_gui/cap_1.png qt_gui/cap_np.png qt_gui/clip_1.png qt_gui/clip_np.png qt_gui/face.svg qt_gui/face.png qt_gui/single.png \
-51-Mickey.rules linuxtrack.pc qt_gui/help/xpl_setup.htm \
+51-Mickey.rules qt_gui/help/xpl_setup.htm \
 wii_server/wii_server.cpp wii_server/wiimote.h wii_server/wiimote.cpp wii_server/wii_server.pro.in \
 wii_server/main.cpp wii_server/wii_server.h wii_server/wii_server.ui wii_server/wii_server.qrc \
 linuxtrack-wii.desktop linuxtrack-wii.png linuxtrack-wii.svg linuxtrack-wii.xpm \
@@ -306,6 +305,4 @@ desktop_DATA = linuxtrack.desktop linuxtrack-wii.desktop
 icondir = $(datadir)/pixmaps
 icon_DATA = linuxtrack.svg linuxtrack.png linuxtrack.xpm \
             linuxtrack-wii.svg linuxtrack-wii.png linuxtrack-wii.xpm
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = linuxtrack.pc
 
