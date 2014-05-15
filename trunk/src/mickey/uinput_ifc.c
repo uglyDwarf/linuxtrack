@@ -43,50 +43,54 @@ int open_uinput(char **fname, bool *permProblem)
 bool create_device(int fd)
 {
   struct uinput_user_dev mouse;
+  int res = 0;
   memset(&mouse, 0, sizeof(mouse));
   size_t str_len = sizeof(mouse.name);
   strncpy(mouse.name, "Linuxtrack's Mickey", str_len);
   mouse.name[str_len - 1]= '\0';
   printf("Name: '%s'\n", mouse.name);
-  write(fd, &mouse, sizeof(mouse));
-  ioctl(fd, UI_SET_EVBIT, EV_REL);
-  ioctl(fd, UI_SET_RELBIT, REL_X);
-  ioctl(fd, UI_SET_RELBIT, REL_Y);
-  ioctl(fd, UI_SET_EVBIT, EV_KEY);
-  ioctl(fd, UI_SET_KEYBIT, BTN_MOUSE);
-  ioctl(fd, UI_SET_KEYBIT, BTN_LEFT);
-  ioctl(fd, UI_SET_KEYBIT, BTN_RIGHT);
-  ioctl(fd, UI_SET_KEYBIT, BTN_MIDDLE);
-  ioctl(fd, UI_DEV_CREATE, 0);
-  return true;
+  res |= write(fd, &mouse, sizeof(mouse));
+  res |= ioctl(fd, UI_SET_EVBIT, EV_REL);
+  res |= ioctl(fd, UI_SET_RELBIT, REL_X);
+  res |= ioctl(fd, UI_SET_RELBIT, REL_Y);
+  res |= ioctl(fd, UI_SET_EVBIT, EV_KEY);
+  res |= ioctl(fd, UI_SET_KEYBIT, BTN_MOUSE);
+  res |= ioctl(fd, UI_SET_KEYBIT, BTN_LEFT);
+  res |= ioctl(fd, UI_SET_KEYBIT, BTN_RIGHT);
+  res |= ioctl(fd, UI_SET_KEYBIT, BTN_MIDDLE);
+  res |= ioctl(fd, UI_DEV_CREATE, 0);
+  return (res == 0);
 }
 
-int limit(int val, int min, int max)
+static int limit(int val, int min, int max)
 {
   if(val < min) return min;
   if(val > max) return max;
   return val;
 }
 
-void movem(int fd, int dx, int dy)
+bool movem(int fd, int dx, int dy)
 {
+  int res = 0;
   struct input_event event;
   event.type = EV_REL;
   event.code = REL_X;
   event.value = limit(dx, -100, 100);
-  write(fd, &event, sizeof(event));
+  res |= write(fd, &event, sizeof(event));
   event.type = EV_REL;
   event.code = REL_Y;
   event.value = limit(dy, -100, 100);
-  write(fd, &event, sizeof(event));
+  res |= write(fd, &event, sizeof(event));
   event.type = EV_SYN;
   event.code = SYN_REPORT;
   event.value = 0;
-  write(fd, &event, sizeof(event));
+  res |= write(fd, &event, sizeof(event));
+  return (res == 0);
 }
 
-void send_click(int fd, int btn, bool pressed, struct timeval *ts)
+bool send_click(int fd, int btn, bool pressed, struct timeval *ts)
 {
+  int res = 0;
   printf("Sending click %d@%d\n", btn, pressed);
   //btn ^= 3;
   struct input_event event;
@@ -94,26 +98,29 @@ void send_click(int fd, int btn, bool pressed, struct timeval *ts)
   event.type = EV_KEY;
   event.code = btn;
   event.value = pressed;
-  write(fd, &event, sizeof(event));
+  res |= write(fd, &event, sizeof(event));
   event.type = EV_SYN;
   event.code = SYN_REPORT;
   event.value = 0;
-  write(fd, &event, sizeof(event));
+  res |= write(fd, &event, sizeof(event));
+  return (res == 0);
 }
 
-void clickm(int fd, buttons_t btns, struct timeval ts)
+bool clickm(int fd, buttons_t btns, struct timeval ts)
 {
   static int prev_btns = 0;
   printf("Click: %d / %d\n", prev_btns, btns);
   int changed = btns ^ prev_btns;
+  bool res = 0;
   
   if(changed & LEFT_BUTTON){
-    send_click(fd, BTN_LEFT, (btns & LEFT_BUTTON) != 0, &ts);
+    res = send_click(fd, BTN_LEFT, (btns & LEFT_BUTTON) != 0, &ts);
   }
   if(changed & RIGHT_BUTTON){
-    send_click(fd, BTN_RIGHT, (btns & RIGHT_BUTTON) != 0, &ts);
+    res = send_click(fd, BTN_RIGHT, (btns & RIGHT_BUTTON) != 0, &ts);
   }
   prev_btns = btns;
+  return (res == 0);
 }
 
 void close_uinput(int fd)
