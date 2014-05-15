@@ -10,8 +10,8 @@ extern "C" {
 
 int open_uinput(char **fname, bool *permProblem);
 bool create_device(int fd);
-void movem(int fd, int dx, int dy);
-void clickm(int fd, buttons_t btns, struct timeval ts);
+bool movem(int fd, int dx, int dy);
+bool clickm(int fd, buttons_t btns, struct timeval ts);
 void close_uinput(int fd);
 
 #ifdef __cplusplus
