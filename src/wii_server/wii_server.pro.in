@@ -25,6 +25,10 @@ PRECOMPILED_HEADER = precomp_headers.h
 
 QMAKE_CXXFLAGS += -DHAVE_CONFIG_H
 
+QMAKE_CXXFLAGS += $$(CXXFLAGS)
+QMAKE_CFLAGS += $$(CFLAGS)
+QMAKE_LFLAGS += $$(LDFLAGS)
+
 unix:!macx {
   QMAKE_CXXFLAGS += -fvisibility=hidden -O2 -Wall -Wextra -Wformat -Wformat-security \
     --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2
