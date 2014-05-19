@@ -117,6 +117,14 @@ AC_ARG_WITH([wine64-libs],
             [WINE64_LIBS=${with_wine64_libs}]
 )
 
+LIB32DIR="lib32"
+AC_ARG_WITH([lib32-dir],
+            [AS_HELP_STRING([--with-lib32-dir],
+              [specify 32bit library directory (usually needed only on amd64 arch.)])], 
+            [LIB32DIR=${with_lib32_dir}]
+)
+
+
 
 BCK_CC="$CC"
 BCK_CFLAGS="$CFLAGS"
@@ -184,6 +192,7 @@ AC_SUBST([OPENCV_CFLAGS])
 AC_SUBST([OPENCV_LIBS])
 AC_SUBST([WINE_LIBS])
 AC_SUBST([WINE64_LIBS])
+AC_SUBST([LIB32DIR])
 
 
 case "$host_cpu" in

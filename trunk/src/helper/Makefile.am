@@ -1,4 +1,4 @@
-l32libdir = $(prefix)/lib32/linuxtrack
+l32libdir = $(prefix)/$(LIB32DIR)/linuxtrack
 
 if ! DARWIN
   LINUXFLAGS = '-DLIB_PATH="$(pkglibdir)/"'

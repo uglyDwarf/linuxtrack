@@ -232,6 +232,7 @@ LDFLAGS = @LDFLAGS@
 LEX = @LEX@
 LEXLIB = @LEXLIB@
 LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
+LIB32DIR = @LIB32DIR@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
@@ -328,7 +329,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_makensis = @with_makensis@
 with_wine64 = @with_wine64@
-l32libdir = $(prefix)/lib32/linuxtrack
+l32libdir = $(prefix)/$(LIB32DIR)/linuxtrack
 @DARWIN_FALSE@LINUXFLAGS = '-DLIB_PATH="$(pkglibdir)/"'
 @DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@l32lib_LTLIBRARIES = liblinuxtrack.la
 liblinuxtrack_la_SOURCES = ../ltlib.c ../linuxtrack.h ../utils.c ../utils.h \

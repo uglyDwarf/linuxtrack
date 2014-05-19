@@ -52,6 +52,11 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
 QMAKE_CXXFLAGS += -Wall -Wextra -DHAVE_CONFIG_H -DHELP_BASE="'\""ltr_gui/"\"'" -I @prefix@/include
 QMAKE_CFLAGS += -Wall -Wextra -DLTR_GUI  -I @prefix@/include
 
+QMAKE_CXXFLAGS += $$(CXXFLAGS)
+QMAKE_CFLAGS += $$(CFLAGS)
+QMAKE_LFLAGS += $$(LDFLAGS)
+
+
 unix:!macx {
   QMAKE_CXXFLAGS += -fvisibility=hidden -O2 -Wall -Wextra -Wformat -Wformat-security \
     --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2

@@ -662,6 +662,7 @@ CWIID_FALSE
 CWIID_TRUE
 XPLANE_PLUGIN_FALSE
 XPLANE_PLUGIN_TRUE
+LIB32DIR
 WINE64_LIBS
 WINE_LIBS
 OPENCV_LIBS
@@ -803,6 +804,7 @@ with_xplane_sdk
 enable_ltr_32lib_on_x64
 with_wine_libs
 with_wine64_libs
+with_lib32_dir
 with_opencv_libs
 with_opencv_cflags
 '
@@ -1469,6 +1471,8 @@ Optional Packages:
                           [default=/usr/include/xplane_sdk]
   --with-wine-libs        specify Wine libraries to link aginst
   --with-wine64-libs      specify Wine64 libraries to link aginst
+  --with-lib32-dir        specify 32bit library directory (usually needed only
+                          on amd64 arch.)
   --with-opencv-libs      specify OpenCV libraries to link aginst
   --with-opencv-cflags    specify OpenCV includes
 
@@ -16670,6 +16674,16 @@ if test "${with_wine64_libs+set}" = set; then :
 fi
 
 
+LIB32DIR="lib32"
+
+# Check whether --with-lib32-dir was given.
+if test "${with_lib32_dir+set}" = set; then :
+  withval=$with_lib32_dir; LIB32DIR=${with_lib32_dir}
+
+fi
+
+
+
 
 BCK_CC="$CC"
 BCK_CFLAGS="$CFLAGS"
@@ -16935,6 +16949,7 @@ else
 $as_echo "yes" >&6; }
 
 fi
+
 
 
 
