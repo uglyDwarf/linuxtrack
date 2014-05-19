@@ -89,7 +89,7 @@ bin_PROGRAMS = ltr_server1$(EXEEXT) ltr_pipe$(EXEEXT)
 @FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@am__append_4 = libft.la
 @FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@am__append_5 = haarcascade_frontalface_alt2.xml
 @LIBZ_TRUE@am__append_6 = libtir.la
-@LIBZ_TRUE@am__append_7 = 51-TIR.rules
+@LIBZ_TRUE@am__append_7 = 51-TIR.rules 51-Mickey.rules
 @LIBUSB10_TRUE@@LIBZ_TRUE@am__append_8 = libltusb1.la 
 @XPLANE_PLUGIN_TRUE@am__append_9 = xlinuxtrack9.la
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am__append_10 = xlinuxtrack9_32.la
@@ -364,7 +364,7 @@ NROFF = nroff
 MANS = $(man_MANS)
 am__dist_pkgdata_DATA_DIST = linuxtrack1.conf linuxtrack.c \
 	linuxtrack_hello_world.c linuxtrack_hello_world_adv.c \
-	haarcascade_frontalface_alt2.xml 51-TIR.rules
+	haarcascade_frontalface_alt2.xml 51-TIR.rules 51-Mickey.rules
 DATA = $(desktop_DATA) $(dist_pkgdata_DATA) $(icon_DATA)
 HEADERS = $(include_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)

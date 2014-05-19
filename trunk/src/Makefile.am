@@ -59,7 +59,7 @@ endif
 
 if LIBZ
 pkglib_LTLIBRARIES += libtir.la
-dist_pkgdata_DATA += 51-TIR.rules
+dist_pkgdata_DATA += 51-TIR.rules 51-Mickey.rules
 if LIBUSB10
   pkglib_LTLIBRARIES += libltusb1.la 
 endif
