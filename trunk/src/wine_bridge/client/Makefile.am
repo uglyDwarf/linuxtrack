@@ -19,10 +19,10 @@ CXX = wineg++
 SUFFIXES = .o .cpp .c .rc 64.o
 
 .cpp.o :
-	$(CXX) -m32 -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -m32 -o $@ $<
 
 .c.o :
-	$(CC) -m32 -c $(CFLAGS_PRE) $(CFLAGS) $(CPPFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) $(CPPFLAGS) -m32 -o $@ $<
 
 .cpp64.o :
 	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
@@ -39,10 +39,10 @@ RCFLAGS = -I @srcdir@
 VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
 
 check_data.exe.so : check_data.o rest.o
-	winegcc -m32 $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra -g -o $@ $^
+	winegcc $(WINE_LIBS) $(LDFLAGS) -m32 -Wall -Wextra -g -o $@ $^
 
 NPClient.dll.so : NPClient.spec NPClient_main.o linuxtrack.o rest.o
-	winegcc -m32 $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra -g -o $@ -shared $^ -ldl
+	winegcc $(WINE_LIBS) $(LDFLAGS) -m32 -Wall -Wextra -g -o $@ -shared $^ -ldl
 
 NPClient64.dll.so : NPClient.spec NPClient_main64.o linuxtrack64.o rest64.o
 	winegcc  $(WINE64_LIBS) $(LDFLAGbS)  -Wall -Wextra -g -o $@ -shared $^ -ldl

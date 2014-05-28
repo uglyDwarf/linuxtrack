@@ -456,16 +456,16 @@ uninstall-am:
 
 
 .cpp.o :
-	$(CXX) -m32 -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -m32 -o $@ $<
 
 .c.o :
-	$(CC) -m32 -c $(CFLAGS_PRE) $(CFLAGS) $(CPPFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) $(CPPFLAGS) -m32 -o $@ $<
 
 .rc.o :
 	wrc -o $@ $(RCFLAGS) $<
 
 ftc.exe.so : main.o fttester.o
-	wineg++ -m32 -g -o $@ -L. $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra $^
+	wineg++ -g -o $@ -L. $(WINE_LIBS) $(LDFLAGS) -m32 -Wall -Wextra $^
 
 fttester.o : fttester.rc resource.h config.h
 
