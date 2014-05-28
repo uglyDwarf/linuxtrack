@@ -9,15 +9,15 @@ else
   LDFLAGS += -Wl,--no-warn-search-mismatch
 endif
 
-CC = winegcc -m32
+CC = winegcc
 
-CXX = wineg++ -m32
+CXX = wineg++
 
 .cpp.o :
-	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -m32 -o $@ $<
 
 .c.o :
-	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) $(CPPFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) $(CPPFLAGS) -m32 -o $@ $<
 
 .rc.o :
 	wrc -o $@ $<
@@ -31,7 +31,7 @@ CFLAGS_PRE = -I../.. -I../../.. -DHAVE_CONFIG_H \
 VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
 
 Controller.exe : main.o resources.o dinput.o linuxtrack.o
-	wineg++ -m32 -o Controller   $(LDFLAGS) $(WINE_LIBS) \
+	wineg++ -o Controller   $(LDFLAGS) $(WINE_LIBS) -m32 \
            $^ -lshell32 -ldxguid -ldinput -ldinput8 -luuid -ldl
 
 main.o : main.cpp @top_builddir@/config.h

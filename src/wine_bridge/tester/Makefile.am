@@ -19,10 +19,10 @@ CXX = wineg++
 SUFFIXES = .o .cpp .c .rc 64.o
 
 .cpp.o :
-	$(CXX) -m32 -c $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) -m32 -o $@ $<
 
 .c.o :
-	$(CC) -m32 -c $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -m32 -o $@ $<
 
 .cpp64.o :
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
@@ -43,7 +43,7 @@ Tester64.exe : main64.o rest64.o npifc64.o npview.o
 	wineg++ -g -o Tester64 -L. $(WINE64_LIBS) $(LDFLAGS) -Wall -Wextra $^
 
 Tester.exe : main.o npview.o rest.o npifc.o
-	wineg++ -m32 -g -o Tester -L. $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra $^
+	wineg++ -g -o Tester -L. $(WINE_LIBS) $(LDFLAGS) -m32 -Wall -Wextra $^
 
 main.o : main.cpp Makefile
 

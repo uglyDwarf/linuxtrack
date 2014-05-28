@@ -16,10 +16,10 @@ CXX = wineg++
 SUFFIXES = .o .cpp .c .rc
 
 .cpp.o :
-	$(CXX) -m32 -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -m32 -o $@ $<
 
 .c.o :
-	$(CC) -m32 -c $(CFLAGS_PRE) $(CFLAGS) $(CPPFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) $(CPPFLAGS) -m32 -o $@ $<
 
 .rc.o :
 	wrc -o $@ $(RCFLAGS) $<
@@ -30,7 +30,7 @@ RCFLAGS = -I @srcdir@
 VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
 
 ftc.exe.so : main.o fttester.o
-	wineg++ -m32 -g -o $@ -L. $(WINE_LIBS) $(LDFLAGS) -Wall -Wextra $^
+	wineg++ -g -o $@ -L. $(WINE_LIBS) $(LDFLAGS) -m32 -Wall -Wextra $^
 
 fttester.o : fttester.rc resource.h config.h
 
