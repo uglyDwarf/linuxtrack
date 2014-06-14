@@ -49,16 +49,16 @@ bool create_device(int fd)
   strncpy(mouse.name, "Linuxtrack's Mickey", str_len);
   mouse.name[str_len - 1]= '\0';
   printf("Name: '%s'\n", mouse.name);
-  res |= write(fd, &mouse, sizeof(mouse));
-  res |= ioctl(fd, UI_SET_EVBIT, EV_REL);
-  res |= ioctl(fd, UI_SET_RELBIT, REL_X);
-  res |= ioctl(fd, UI_SET_RELBIT, REL_Y);
-  res |= ioctl(fd, UI_SET_EVBIT, EV_KEY);
-  res |= ioctl(fd, UI_SET_KEYBIT, BTN_MOUSE);
-  res |= ioctl(fd, UI_SET_KEYBIT, BTN_LEFT);
-  res |= ioctl(fd, UI_SET_KEYBIT, BTN_RIGHT);
-  res |= ioctl(fd, UI_SET_KEYBIT, BTN_MIDDLE);
-  res |= ioctl(fd, UI_DEV_CREATE, 0);
+  res |= (write(fd, &mouse, sizeof(mouse)) == -1);
+  res |= (ioctl(fd, UI_SET_EVBIT, EV_REL) == -1);
+  res |= (ioctl(fd, UI_SET_RELBIT, REL_X) == -1);
+  res |= (ioctl(fd, UI_SET_RELBIT, REL_Y) == -1);
+  res |= (ioctl(fd, UI_SET_EVBIT, EV_KEY) == -1);
+  res |= (ioctl(fd, UI_SET_KEYBIT, BTN_MOUSE) == -1);
+  res |= (ioctl(fd, UI_SET_KEYBIT, BTN_LEFT) == -1);
+  res |= (ioctl(fd, UI_SET_KEYBIT, BTN_RIGHT) == -1);
+  res |= (ioctl(fd, UI_SET_KEYBIT, BTN_MIDDLE) == -1);
+  res |= (ioctl(fd, UI_DEV_CREATE, 0) == -1);
   return (res == 0);
 }
 
@@ -76,15 +76,15 @@ bool movem(int fd, int dx, int dy)
   event.type = EV_REL;
   event.code = REL_X;
   event.value = limit(dx, -100, 100);
-  res |= write(fd, &event, sizeof(event));
+  res |= (write(fd, &event, sizeof(event)) == -1);
   event.type = EV_REL;
   event.code = REL_Y;
   event.value = limit(dy, -100, 100);
-  res |= write(fd, &event, sizeof(event));
+  res |= (write(fd, &event, sizeof(event)) == -1);
   event.type = EV_SYN;
   event.code = SYN_REPORT;
   event.value = 0;
-  res |= write(fd, &event, sizeof(event));
+  res |= (write(fd, &event, sizeof(event)) == -1);
   return (res == 0);
 }
 
@@ -98,11 +98,11 @@ bool send_click(int fd, int btn, bool pressed, struct timeval *ts)
   event.type = EV_KEY;
   event.code = btn;
   event.value = pressed;
-  res |= write(fd, &event, sizeof(event));
+  res |= (write(fd, &event, sizeof(event)) == -1);
   event.type = EV_SYN;
   event.code = SYN_REPORT;
   event.value = 0;
-  res |= write(fd, &event, sizeof(event));
+  res |= (write(fd, &event, sizeof(event)) == -1);
   return (res == 0);
 }
 
