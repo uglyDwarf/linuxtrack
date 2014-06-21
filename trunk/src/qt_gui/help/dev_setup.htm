@@ -148,10 +148,10 @@ rid of the interference is to remove it physically.
 <ul>
 <li>A lightbulb in the field of view of your camera - the best way is to move the camera in
 such a way, that the bulb gets out of the camera's field of view. 
-<li>With TrackIR, when using the TrackClip, there can be reflections from ones glasses - there the 
-solution might be to use a TrackClip Pro, or similar active "model", as it allows to turn off TrackIR's 
-infra red LEDs.
-<li>Headtracking can be fooled easily by visually nonuniform background - having a plain color wall behind you
+<p>
+With infrared sensitive devices (TrackIR/SmartNav, Wiimote, ...) the interference sources might not be all that easily identifiable - things like lightbulbs, lit cigars, candles, IR TV and other remote controls can cause considerable interference. Also sun can cause significant problems - not only direct sun, but also areas lit (and heated) by sun can be sources of severe interference.
+<li>When using reflective markers (like TrackClip, primarily with TrackIR/SmartNav), there can be reflections from ones glasses or other reflective areas - there the solution might be to use a TrackClip Pro, or similar active "model", as it allows to turn off TrackIR's infra red LEDs.
+<li>Facetracking can be fooled easily by visually nonuniform background - having a plain color wall behind you
 is the best way to ensure smooth tracking.
 </ul>
 <p>
@@ -170,14 +170,12 @@ have the white crosses inside them through the whole range of motion you intend 
 or the cross inside it disappears, you need to set the threshold somewhat lower.
 <p>
 Another way to discriminate the "bad" blobs is according to their size - set the 
-<strong>Valid blob size</strong> to values, that only the valid blobs satisfy. Just note, that these unwanted
-blobs can still interfere with the tracking, especially when they merge with some valid blob. And don't forget
-to check, the whole range of motion - for example setting the lower limit too high might break tracking when
-you move your head farther away from the camera.
+<strong>Valid blob size</strong> to values, that only the valid blobs satisfy (for higher resolution devices the range of values might be in range of 200 - 600). Just note, that these unwanted
+blobs can still interfere with the tracking, especially when they merge with some valid blob. Also don't forget
+to check, the whole range of motion you intend to use - for example setting the lower limit too high might break tracking when you move your head farther away from the camera.
 <p>
 Speciality of some TrackIR models, when using the reflective model is setting of the illuminating IR LEDs 
-brightness.
-This can help you weaken unwanted reflections - just set the <strong>IR LEDs brightness</strong> somewhat lower.
+brightness. This can help you weaken unwanted reflections - just set the <strong>IR LEDs brightness</strong> somewhat lower.
 <p>
 When using a webcam, make sure it is correctly focused and you get sharp image (best checked in some external
 application).
