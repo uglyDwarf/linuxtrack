@@ -50,7 +50,7 @@ Now the package can be safely installed:
 
 {{{
 > cd /opt
-> sudo tar xfz ${HOME}/Downloads/linuxtrack_0.0_130127_64.tar.gz
+> sudo tar xfj ${HOME}/Downloads/linuxtrack-0.99.10-64.tar.bz2
 }}}
 
 Instead of using sudo commmand you can login as root if it is a prefered way of obtaining root privileges on your distro. Just be sure you know what are you doing, since as root you can severely damage the system!
@@ -60,7 +60,7 @@ Instead of using sudo commmand you can login as root if it is a prefered way of 
 When the package is installed, to make it a little bit convenient, let's make a link to the actual package:
 
 {{{
-> sudo ln -s linuxtrack_0.0_130127 linuxtrack
+> sudo ln -s linuxtrack-0.99.10 linuxtrack
 }}}
 
 This way several Linuxtrack versions can coexist happily - just change the link (remove the old one first using command 'sudo rm -i linuxtrack') to point to the version of your choice and rerun ltr_gui (just open it and close again to let it realize the version changed).
