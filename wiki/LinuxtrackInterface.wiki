@@ -1,222 +1,159 @@
-#summary Description of linuxtrack interface.
+#summary Description of the Linuxtrack interface.
 #labels Phase-Implementation
 
-= Introduction =
+= Linuxtrack interface =
 
-This page describes linuxtrack inteface, that allows building in headtracking capability to any program.
+Linuxtrack provides an interface allowing developers to incorporate head tracking into their applications.
 
-= Details =
+The interface consists of two files: linuxtrack.h and linuxtrack.c; just add them to your project and you get access to the Linuxtrack's functionality.
 
-Linuxtrack interface is pretty simple:
+The reason why the interface is not provided in the usual form of a library is the following: if you'd ship an application directly linked against Linuxtrack's interface library, it wouldn't work on a system where linuxtrack is not installed or configured properly. Technically the Linuxtrack might be provided in a form of a static library, but there might be problems when you'd use it to build a dynamic library (say a plugin).
 
-{{{
-typedef enum {
-  INITIALIZING,
-  RUNNING,
-  PAUSED,
-  STOPPED,
-  ERROR
-}ltr_state_type;
+The interface in its current form looks for the Linuxtrack, and when found it is used; when the Linuxtrack is not found (or not configured properly), it just indicates failure and the main application can work on.
 
-int ltr_init(char *cust_section);
-int ltr_shutdown(void);
-int ltr_suspend(void);
-int ltr_wakeup(void);
-void ltr_recenter(void);
-int ltr_get_camera_update(float *heading,
-                         float *pitch,
-                         float *roll,
-                         float *tx,
-                         float *ty,
-                         float *tz,
-                         uint32_t *counter);
-ltr_state_type ltr_get_tracking_state(void);
-void ltr_log_message(const char *format, ...);
-}}}
 
-Lets describe its functions in a more detailed way:
+==Interface overview==
 
 {{{
-int ltr_init(char *cust_section);
+int linuxtrack_init(const char *cust_section);
+int linuxtrack_shutdown(void);
+int linuxtrack_suspend(void);
+int linuxtrack_wakeup(void);
+int linuxtrack_recenter(void);
+typedef enum {INITIALIZING, RUNNING, PAUSED, STOPPED, ERROR} linuxtrack_state_type;
+linuxtrack_state_type linuxtrack_get_tracking_state(void);
+int linuxtrack_get_pose(float *heading, float *pitch, float *roll, 
+                        float *tx, float *ty, float *tz, uint32_t *counter);
 }}}
-This function initializes headtracking.
 
-Parameter _cust_section_ is a pointer to a string containing name of the profile to be used by the application.
- 
-This way user can customize the headtracking for each application separately.
+Basic Linuxtrack interface is relatively simple: *linuxtrack_init* initializes the interface provided a string identifying your application (specifies a profile to be used), *linuxtrack_shutdown* shuts the interface down.
 
-If NULL is specified, default profile is used.
+Pair *linuxtrack_suspend* and *linuxtrack_wakeup* allow you to pause and resume the tracking temporarily; technically it might seem redundant, but pausing and resuming via these two functions is usually much quicker than shutting the whole tracker down and initializing it again.
 
-It is recomended to use unique string (like name of your application) to prevent clashes.
+Function *linuxtrack_recenter* allows user to recenter the tracker when needed.
 
-Returns zero on success, nonzero value otherwise.
-----
+Function *linuxtrack_get_tracking_state* returns current state of the Linuxtrack's interface; the tracker itself runs in a different process and commands for it are delivered asynchronously. For that reason you might want to query tracker's state to see if your command was performed yet or not.
+
+Function *linuxtrack_get_pose* returns you the current pose and state info. Normally you should use it once per (your applications) frame to obtain the current pose. The pose data are processed already (filtered, scaled, response curves applied according to the profile you specified upon initialization), so it doesn't make much sense to call it any faster. 
+
+==Interface description==
 {{{
-int ltr_shutdown(void);
-int ltr_suspend(void);
-int ltr_wakeup(void);
-void ltr_recenter(void);
+int linuxtrack_init(const char *cust_section);
 }}}
+Requests initialization of the tracker. Looks for Linuxtrack installation and if it finds one, it tries to start the tracking. It is required that Linuxtrack is not only installed, but also configured correctly by the user.
 
-These functions allow you to shutdown, suspend (temporarily stop), wakeup (from suspend) and recenter the tracker.
+Parameter cust_section indicates a profile name to be used; if it is NULL, default profile ("Default") is used.
 
-They are non-blocking, which means that the request will not be fulfilled upon return, but it will be carried out as soon as possible.
+Return value of 0 means success. Note however, that it doesn't mean that the tracker started successfully - it means the initialization request was sent.
 
-To check the current state, please use *ltr_get_tracking_state* function.
-----
-{{{
-int ltr_get_camera_update(float *heading,
-                         float *pitch,
-                         float *roll,
-                         float *tx,
-                         float *ty,
-                         float *tz,
-                         uint32_t *counter);
-}}}
-
-This is the main function of the linuxtrack interface. It is meant to be called once per frame to update the view.
-
-Its parameters are pointers to floats, that will contain corresponding rotations (in degrees) and translations (in milimeters) upon successfull return.
-
-The counter parameter is pointer to the 32-bit integer, that receives current camera frame number.
-
-Returns zero on success, nonzero value otherwise.
-----
-{{{
-typedef enum {
-  INITIALIZING,
-  RUNNING,
-  PAUSED,
-  STOPPED,
-  ERROR
-}ltr_state_type;
-
-ltr_state_type ltr_get_tracking_state(void);
-}}}
-
-This function returns current linuxtrack state:
- * INITIALIZING means tracker is being initialized
- * RUNNING means tracking is on
- * PAUSED means tracking is suspended
- * STOPPED means tracker is shut down 
- * DOWN means that tracking was not initialized yet
-
-----
-{{{
-void ltr_log_message(const char *format, ...);
-}}}
-
-This is utility function, allowing you to log messages to the linuxtrack logfile. Its usage is similar to the printf function.
-
- = Linuxtrack Hello World =
-Here is the small "hello world" type of program showing usage of linuxtrack interface.
+To check, if the tracker actually started, check the return value of linuxtrack_get_tracking_state function. Just remember, that it can take several seconds for the tracker to start. Note however, that you can start calling linuxtrack_get_pose immediately - if the Linuxtrack was not initialized yet, it will just return "zero" pose (all angles and distances set to zero).
 
 {{{
-#include <linuxtrack.h>
-#include <stdio.h>
-#include <unistd.h>
-
-int main(int argc, char *argv[])
-{
-  (void) argc;
-  (void) argv;
-  printf("Hello World!\n");
-  //Initialize the tracking using Default profile
-  ltr_init(NULL);
-  //Wait for tracker initialization
-  ltr_state_type state;
-  int timeout = 100; //10 seconds timeout (for example firmware load...)
-  while(timeout > 0){
-    state = ltr_get_tracking_state();
-    if(state != RUNNING){
-      usleep(100000); //sleep 0.1s
-    }else{
-      break;
-    }
-    --timeout;
-  };
-  
-  if(ltr_get_tracking_state() != RUNNING){
-    printf("Initialization is taking too long!\n");
-    return 1;
-  }
-  
-  int i;
-  float heading, pitch, roll, x, y, z;
-  unsigned int counter;
-  
-  ltr_recenter();  
-  
-  for(i = 0; i < 30; ++i){
-    ltr_get_camera_update(&heading, &pitch, &roll, &x, &y, &z, &counter);
-    printf("%f  %f  %f\n  %f  %f  %f\n", heading, pitch, roll, x, y, z);
-    usleep(100000);
-  }
-  
-  ltr_suspend();
-  sleep(2);
-  ltr_wakeup();
-  
-  for(i = 0; i < 30; ++i){
-    ltr_get_camera_update(&heading, &pitch, &roll, &x, &y, &z, &counter);
-    printf("%f  %f  %f\n  %f  %f  %f\n", heading, pitch, roll, x, y, z);
-    usleep(100000);
-  }
-
-  ltr_shutdown();
-  return 0;
-}
+int linuxtrack_shutdown(void);
 }}}
 
- == Compilation on Linux ==
-To compile this program on Linux, use the following commands (just make the LTR_PREFIX point where you have linuxtrack installed):
+Requests tracker shutdown. Due to the fact, that there might be several applications using Linuxtrack running in parallel, the tracker actually closes down only when the last client disconnects.
+
+Return value of 0 means success.
 
 {{{
-export LTR_PREFIX=/opt/linuxtrack
-gcc -o ltr_hw -Wall -g -I ${LTR_PREFIX}/include ltr_hw.c ${LTR_PREFIX}/lib/liblinuxtrack.a 
+int linuxtrack_suspend(void);
+int linuxtrack_wakeup(void);
 }}}
 
- == Compilation on MacOS X using XCode ==
-Create an XCode project (for this example Command Line utility, Standard tool),
-and add the linuxtrack.h to the sources (can be drag'n'dropped).
+Requests the tracking be paused or resumed. Pausing the tracking is especially useful for TrackIR/SmartNav class of devices, because it turns off their IR LEDs, lowering the device's power dissipation.
 
-Then add the liblinuxtrack.a library to libraries (Ctrl-click on "Link Binary with Libraries", Add, Existing files...).
-
-The result should look similar to this:
-
-[http://linux-track.googlecode.com/files/xcode_main.png]
-
-Then adjust in Project Info the target SDK...
-
-[http://linux-track.googlecode.com/files/xcode_prj_gen.png]
-
-and deployment target
-
-[http://linux-track.googlecode.com/files/xcode_prj_bu.png]
-
-Now you can build the project and before running it, open the console window
-(menu Run / Console) to see the results.
-
-
- == Compilation on MacOS X 10.5 commandline ==
-To compile this program on MacOS X, use the following commands (just make the LTR_PREFIX point where you have linuxtrack installed):
+Return value of 0 means success.
 
 {{{
-export LTR_PREFIX=~/Desktop/develop/
-export MACOSX_DEPLOYMENT_TARGET=10.4
-gcc -o ltr_hw -arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk \
-  -mmacosx-version-min=10.4 -I${LTR_PREFIX} ltr_hw.c ${LTR_PREFIX}/liblinuxtrack.a
+int linuxtrack_recenter(void);
 }}}
 
-This will compile universal binary, that should be compatible with 10.4 - 10.6 both Intel and PPC.
+Requests the current pose should be used as a new center pose.
 
- == Compilation on MacOS X 10.6 ==
-To compile this code on MacOS X 10.6, you have to use GCC4.0, otherwise you get lots of errors (other way would be to compile using 10.5 SDK, but then you lose 10.4 compatibility).
+Return value of 0 means success.
 
-For the commandline, instead of 'gcc' use 'gcc-4.0' (cpp-4.0, g++-4.0).
+{{{
+typedef enum {INITIALIZING, RUNNING, PAUSED, STOPPED, ERROR} linuxtrack_state_type;
+linuxtrack_state_type linuxtrack_get_tracking_state(void);
+}}}
 
-In XCode, in the "Project Info" window, Build pane select "C/C++ Compiler version" to GCC 4.0. 
+Requests information on the current tracker state.
+
+Return value indicates the tracker state according to the linuxtrack_state_type enum.
+
+{{{
+int linuxtrack_get_pose(float *heading, float *pitch, float *roll, 
+                        float *tx, float *ty, float *tz, uint32_t *counter);
+}}}
+
+Requests the current pose. Heading, pitch and roll values are in degrees, translation values tx, ty, tz are in millimeters. Counter value denotes tracker frame number, from which the current pose was computed; if the number doesn't change in between two calls, the pose didn't change either.
+
+In case of a problem (Linuxtrack not installed, not configured, missconfigured, not initialized yet...), the reported pose consists of all zeros.
+
+Return value of 1 means the new pose is available, 0 means no new pose, but everything else ok, -1 signals a problem.
+
+=Advanced interface=
+If, for some reason the normal interface is not sufficient for your needs (for normal head tracking applications it should be), there is an advanced interface available. This interface provides additional low level information on current pose, like sensor resolution, raw pose values (before processing) and blob coordinates. This interface is meant mainly for computer vision research and similar applications. Please note, that using raw values completely bypasses Linuxtrack's profile system, application of sensitivity curves and filtration.
+
+==Advanced Interface overview==
+
+{{{
+typedef struct{
+  float pitch;
+  float yaw;
+  float roll;
+  float tx;
+  float ty;
+  float tz;
+  uint32_t counter;
+  uint32_t resolution_x;
+  uint32_t resolution_y;
+  float raw_pitch;
+  float raw_yaw;
+  float raw_roll;
+  float raw_tx;
+  float raw_ty;
+  float raw_tz;
+  uint8_t status;
+} linuxtrack_pose_t; 
+
+int linuxtrack_get_pose_full(linuxtrack_pose_t *pose, float blobs[], int num_blobs, int *blobs_read);
+}}}
+
+On top of the functions available in the basic interface, there is the *linuxtrack_get_pose_full* function, that provides all the low level information on the current pose.
 
 
- == Creating dynamic library ==
-The static library liblinuxtrack.a is suitable only for programs. Should you need to create a dynamic library (plugin, ...) that would contain tracking functionality, instead of the static library just add linuxtrack.c file to your sources; it will allow you to compile it in a way you need (e.g. using -fpic...).
+==Advanced interface description==
+{{{
+int linuxtrack_get_pose_full(linuxtrack_pose_t *pose, float blobs[], int num_blobs, int *blobs_read);
+}}}
+
+Requests all the low level information on the current pose. These include raw pose values (no sensitivity curves or filtration applied), sensor resolution and blob coordinates.
+
+The blobs array should contain 3 times the num_blobs elements (each blob has the x,y coordinates and a number of pixels value). Value of blobs_read indicates how many blobs were actually read.
+
+At the moment Linuxtrack reports up to 10 blobs; this limit can be increased only by its recompilation (ltlib.h, value of MAX_BLOBS macro). Note however that Wiimote is capable of reporting only 4 blobs (hardware limitation)!
+
+=Hello World examples=
+Linuxtrack provides two "Hello World" examples of the Linuxtrack's interface in external program. The first one called linuxtrack_hello_world.c shows how to use the Linuxtrack's interface, while linuxtrack_hello_world_adv.c provides example of advanced interface usage.
+
+Both programs should be fairly straightforward; all they do is tracking initialization, they track for a bit, pause the tracking, resume it, after a few moments they close the tracking and close down.
+
+There are a few things worth noting. First of all, Linuxtrack's interface is asynchronous - the fact, that a function returned only means that the request was sent, not that it was carried out. For example, running *linuxtrack_suspend* to pause tracking, does'n stop the tracking immediately; it just sent the tracker a command to pause the tracking, that will be carried out as soon as possible. If you want to be absolutely sure that the command was performed, query the tracker status. Note however, that blocking the application waiting for the status change is not recommended, mainly because it hinders user experience (unresponsive application). It can also cause race condition problems due to the fact, that several applications might issue different commands simultaneously.
+
+This might seem to be a problem, but in fact it is not. Thanks to the fact, that *linuxtrack_get_pose* and *linuxtrack_get_pose_full* return value higher than zero only when a now pose is available, you will not receive invalid pose no matter when you call it. This means, that your application can safely start calling those functions right after the initialization is requested (by means of calling *linuxtrack_init*), provided that you process the pose information only when higher than zero value is returned.
+
+By default, tracking is automatically re-centered when the tracker is started. If user looks away in that instant, he is going to need to recenter the tracking. To do that, simply call *linuxtrack_recenter*.
+
+The *initialize_tracking* function used in the examples contains a loop waiting for the tracker initialization. As discussed above, normally there is no need to do that - it would unnecessarily delay the start of your application. In the example it is used to make things simple, there aren't any clean means to close the application in case the tracker doesn't work (except for Ctrl-C, but that is not very nice way).
+
+=Building=
+The only thing that Linuxtrack interface needs is that your application is linked against libdl. The reason is, that the interface dynamically loads the Linuxtrack library (if available) and for that it needs libdl. Here is the commandline used to build the example code:
+
+{{{
+gcc -o linuxtrack_hello_world -g -I. linuxtrack.c linuxtrack_hello_world.c -ldl
+gcc -o linuxtrack_hello_world_adv -g -I. linuxtrack.c linuxtrack_hello_world_adv.c -ldl
+}}}
+
+The "-ldl" is used to link against libdl; if you use some IDE, just add it to linker flags and you should be good to go. The "-I." flag instructs the compiler to look for linuxtrack.h in the current directory (you might need it to point somewhere else, for example if you store all .h files in a single location). It is also expected that you have the linuxtrack.c file in your project directory.
