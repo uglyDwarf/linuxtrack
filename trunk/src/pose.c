@@ -155,6 +155,8 @@ static void iter_pose(struct bloblist_type blobs, double points[3][3], bool cent
   double a_max, a_min;
   double h, j, k, m, n, o, p, q;
   //printf("Pose: Iteration\n");
+  //printf("I: %15.4g   %15.4g   %15.4g\n", blobs.blobs[0].x, blobs.blobs[1].x, blobs.blobs[2].x);
+  //printf("I: %15.4g   %15.4g   %15.4g\n", blobs.blobs[0].y, blobs.blobs[1].y, blobs.blobs[2].y);
   if(type == M_CAP){
     //CAP
     pp0[0] = blobs.blobs[0].x; pp0[1] = blobs.blobs[0].y; pp0[2] = internal_focal_depth;
