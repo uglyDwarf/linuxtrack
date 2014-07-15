@@ -148,8 +148,6 @@ static int update_pose_1pt(struct frame_type *frame)
     return -1;
   }
 
-  ltr_int_remove_camera_rotation(frame->bloblist);
-
   if(recenter){
     c_x = frame->bloblist.blobs[0].x;
     c_y = frame->bloblist.blobs[0].y;
@@ -212,8 +210,6 @@ static int update_pose_3pt(struct frame_type *frame)
   }else{
     return -1;
   }
-  ltr_int_remove_camera_rotation(frame->bloblist);
-  
   if(tracking_dbg_flag == DBG_ON){
     unsigned int i;
     for(i = 0; i < frame->bloblist.num_blobs; ++i){
@@ -344,6 +340,7 @@ int ltr_int_update_pose(struct frame_type *frame)
     recenter = true;
   }
   unsigned int i;
+  ltr_int_remove_camera_rotation(frame->bloblist);
   ltr_int_pose_sort_blobs(frame->bloblist);
   pthread_mutex_lock(&pose_mutex);
   current_pose.pose.resolution_x = frame->width;
