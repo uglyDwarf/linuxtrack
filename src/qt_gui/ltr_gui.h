@@ -71,6 +71,7 @@ class LinuxtrackGui : public QWidget
   int news_serial;
   QProcess zipper;
   bool guiInit;
+  bool showWineWarning;
 };
 
 #endif

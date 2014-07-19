@@ -29,6 +29,7 @@
 #include "guardian.h"
 #include "wine_launcher.h"
 #include "xplugin.h"
+#include "wine_warn.h"
 
 static QMessageBox::StandardButton warnQuestion(const QString &message)
 {
@@ -51,7 +52,7 @@ static QMessageBox::StandardButton infoMessage(const QString &message)
 
 
 LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), ds(NULL),
-  xpInstall(NULL), initialized(false), news_serial(-1), guiInit(true)
+  xpInstall(NULL), initialized(false), news_serial(-1), guiInit(true), showWineWarning(true)
 {
   ui.setupUi(this);
   PREF;
@@ -76,6 +77,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), ds(NULL),
   move(gui_settings->value(QString::fromUtf8("pos"), QPoint(0, 0)).toPoint());
   welcome = gui_settings->value(QString::fromUtf8("welcome"), true).toBool();
   news_serial = gui_settings->value(QString::fromUtf8("news"), -1).toInt();
+  showWineWarning = gui_settings->value(QString::fromUtf8("wine_warning"), true).toBool();
   gui_settings->endGroup();
   gui_settings->beginGroup(QString::fromUtf8("TrackingWindow"));
   showWindow->resize(gui_settings->value(QString::fromUtf8("size"), QSize(800, 600)).toSize());
@@ -91,8 +93,11 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), ds(NULL),
   ui.LegacyRotation->setChecked(ltr_int_use_oldrot());
   ui.TransRotDisable->setChecked(!ltr_int_do_tr_align());
   WineLauncher wl;
-  if(!wl.wineAvailable()){
-    warningMessage(QString::fromUtf8("Wine not working, you'll not be able to install NP firmware and Wine plugin!"));
+  if(!wl.wineAvailable() && showWineWarning){
+    WineWarn w(this);
+    if(w.exec() == QDialog::Accepted){
+      showWineWarning = false;
+    }
   }
   guiInit = false;
 }
@@ -161,6 +166,7 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   gui_settings->setValue(QString::fromUtf8("pos"), pos());
   gui_settings->setValue(QString::fromUtf8("welcome"), false);
   gui_settings->setValue(QString::fromUtf8("news"), NEWS_SERIAL);
+  gui_settings->setValue(QString::fromUtf8("wine_warning"), showWineWarning);
   gui_settings->endGroup();  
   gui_settings->beginGroup(QString::fromUtf8("TrackingWindow"));
   gui_settings->setValue(QString::fromUtf8("size"), showWindow->size());
