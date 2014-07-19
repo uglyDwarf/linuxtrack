@@ -9,7 +9,7 @@
 <body>
 
 The second step to take is to select the "model" to use. Model is sort of a marker, attached to ones head,
-simplifying the head pose determination (unless you are using facetracking, then the "model" is your face).
+simplifying the head pose determination (unless you are using face-tracking, then the "model" is your face).
 <p>
 There are several available model types:
 
@@ -20,19 +20,19 @@ There are several available model types:
 <li>Face - provides 3 degrees of freedom</li>
 </ul>
 
-Model can be either active (using LEDs or other light emmiting components) or passive (using reflectors),
-although this differentiation is necessary only when you use the TrackIR or SamrtNav devices - depending
+Model can be either active (using LEDs or other light emitting components) or passive (using reflectors),
+although this differentiation is necessary only when you use the TrackIR or SmartNav devices - depending
 on the model type the TrackIR/SmartNav turns its illumination IR LEDs on.
 <p>
-If you intend to build a model on your own, loook at the <a href="http://www.free-track.net/english/" >
-Freetrack project pages</a> - it contains the "model" creation hints, tutorials and more.
+If you intend to build a model on your own, look at the <a href="http://www.free-track.net/english/" >
+FreeTrack project pages</a> - it contains the "model" creation hints, tutorials and more.
 
 <img src="Model.png" width="100%" alt="">
 
 <p>
 There are several predefined models - "NP TrackClip", "NP TrackClip Pro", "Face",
  "Single point reflective" and "Single LED" - if you use one of those, just select the one of your
- choice in the <b>Model Name</b> combobox and you can continue to the next pane.
+ choice in the <b>Model Name</b> combo box and you can continue to the next pane.
 <p>
 If none of the predefined models suits you, you can define your own.
 <p>
@@ -45,22 +45,22 @@ Type your model's name to the <b>Model Name</b> box and then select the appropri
 Available model types are these:
  <ul>
    <li><b>1 point</b> - single LED diode or reflective marker; simple but gives you only 2 degrees of freedom 
-            (pan verticaly and horizontaly)</li>
+            (pan vertically and horizontally)</li>
    <li><b>3 point Cap</b> - three LEDs or reflective markers, for example on the top of your cap; 
        provides 6 degrees of freedom</li>
    <li><b>3 point Clip</b> - three LEDs or reflective markers, for example on the side of your headset;
        provides 6 degrees of freedom</li>
-   <li><b>Face</b> - used for face tracking; provides 3 degrees of freedom (pan verticaly and 
-                     horizontaly, move back and forth)</li>
+   <li><b>Face</b> - used for face tracking; provides 3 degrees of freedom (pan vertically and 
+                     horizontally, move back and forth)</li>
  </ul>
 
 <p>
 Now fill-in the model dimensions (where applicable) according to the diagram 
-(all dimmensions are in milimeters).
+(all dimensions are in millimeters).
 The last thing to do is to select, if the model uses LEDs (obviously with the exception of face model type)
- - if it does, check the <b>Model with LEDs</b> checkbox.
+ - if it does, check the <b>Model with LEDs</b> check-box.
 After pressing the <b>Create</b> button, the new model should become available 
-in the <b>Model Name</b> combobox for you to select it.
+in the <b>Model Name</b> combo-box for you to select it.
 
 <h1>Model Tweaking</h1>
 To minimize unwanted viewpoint movement while panning, you can tweak the 3-point Clip 
@@ -81,7 +81,7 @@ To see the particular movement precisely, go to the <b>Tracking setup</b> tab, o
 Observe the horizontal movement of the cross in the axis visualization area, that represents 
 computed head movement or angle.
 <p>
-For example, the first slider in the 3 point Clip model tweaking pannel allows you to minimize the
+For example, the first slider in the 3 point Clip model tweaking panel allows you to minimize the
 back and forth head movement while looking left and right.
 To find the "sweet spot", employ the "halving of the interval" method,
 utilizing the fact, that at that point the movement is smallest and the movement direction reverses.
@@ -101,7 +101,7 @@ or just try moving the slider around in small increments to minimize the movemen
 <p>
 Repeat the above steps for both (3-point Cap)/all three (3-point Clip) sliders to reduce the amount
 of the unwanted movements; if the result doesn't satisfy you, you can remove the rest of it by
-increasing the deadzone for the axis of interest.
+increasing the dead-zone for the axis of interest.
 
 
 </body>
