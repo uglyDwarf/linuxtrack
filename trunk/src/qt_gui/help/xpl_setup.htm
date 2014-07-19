@@ -2,29 +2,29 @@
 <html>
 
 <head>
-  <title>XPlane plugin setup</title>
+  <title>X-Plane plug-in setup</title>
   <meta name="generator" content="Bluefish 2.0.2" >
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
 <body>
-<h1>XPlane plugin setup</h1>
-When you have the XPlane plugin installed according to the <A href="misc.htm#XplInstall">Xplane plugin 
+<h1>X-Plane plug-in setup</h1>
+When you have the X-Plane plug-in installed according to the <A href="misc.htm#XplInstall">X-Plane plug-in 
 installation</A>, a short setup is needed in order to use it - keys or joystick buttons have to be bound 
 in order to start, stop, recenter and pause the
 tracking. Please note, that the setup of tracking parameters (sensitivities, ...) is done in the Linuxtrack GUI, 
-XPlane plugin doesn't have any means to do that.
+X-Plane plug-in doesn't have any means to do that.
 
 <h1>Joystick buttons setup</h1>
-Joystick buttons are setup using Buttons : Adv pane in the Joystick & Equipment window, that is accesible 
-through Settings / Joystick, Keys & Equipment menu in XPlane.
+Joystick buttons are setup using Buttons : Adv pane in the Joystick & Equipment window, that is accessible 
+through Settings / Joystick, Keys & Equipment menu in X-Plane.
 
 <img src="JoyButtonsSetup1.png"  width="100%" alt="">
 <p>
-Press the desired joystick button, then check the checkbox next to the tabs (under the mouse pointer 
-in the screenshot above) and the following dialog will appear.
+Press the desired joystick button, then check the check-box next to the tabs (under the mouse pointer 
+in the screen-shot above) and the following dialog will appear.
 <img src="JoyButtonsSetup2.png"  width="100%" alt="">
 
-Click the combobox in the upper part of the dialog and select X System folder.
+Click the combo-box in the upper part of the dialog and select X System folder.
 <img src="JoyButtonsSetup3.png"  width="100%" alt=""><br>
 Select the linuxtrack line in the lower part of the dialog. 
 <img src="JoyButtonsSetup4.png"  width="100%" alt=""><br>
@@ -32,7 +32,7 @@ Finally select the desired command (ltr_run, ltr_pause or ltr_recenter).
 <img src="JoyButtonsSetup5.png"  width="100%" alt=""><br>
 
 Repeat those steps for other actions (pause, recenter) and when done, just close the window and now you 
-can controll Linuxtrack using the new bindings.
+can control Linuxtrack using the new bindings.
 
 
 
@@ -41,20 +41,20 @@ can controll Linuxtrack using the new bindings.
 Keyboard bindings are setup pretty much in the same way - use Keys pane in the Joystick & Equipment window, 
 that is accessible through Settings / Joystick, Keys & Equipment menu.
 <img src="KeysSetup1.png"  width="100%" alt=""><br>
-When you create or select a key binding, use the checkbox next to the tabs and continue the same way as for 
+When you create or select a key binding, use the check-box next to the tabs and continue the same way as for 
 joystick bindings.
 <p>
 You can also press Add new key assignment button in the middle bottom, that will create new key position - 
 just press the newly created button and then press the key (or key combination) that you want to assign to it. 
 Then again select the desired binding.
 
-<h1>PilotView interface</h1>
+<h1>Pilot View interface</h1>
 
-Recent Linuxtrack versions contain an interface, allowing Linuxtrack's XPlane plugin to communicate with 
-PilotView plugin(version 1.7+) by Sandy Barbour.
+Recent Linuxtrack versions contain an interface, allowing Linuxtrack's X-Plane plug-in to communicate with 
+Pilot View plug-in(version 1.7+) by Sandy Barbour.
 <p>
-To enable the PilotView interface, open the PilotView.ini file (located in Resources/plugins/PilotView 
-directory in your XPlane installation folder) in your favorite text editor and add a 
+To enable the Pilot View interface, open the Pilot View.ini file (located in Resources/plugins/Pilot View 
+directory in your X-Plane installation folder) in your favorite text editor and add a 
 line "EnableExternalData = 1" to the CONFIG section, so the result reads like this:
 
 <p><b>
@@ -65,18 +65,18 @@ EngineVibration = 1<br>
 ...<br>
 </b></p>
 <p>
-When done, start XPlane and start the tracking - now, when PilotView plugin is enabled, the tracking should work.
+When done, start X-Plane and start the tracking - now, when Pilot View plug-in is enabled, the tracking should work.
 
-<h2>Troubleshooting PilotView interface</h2>
+<h2>Troubleshooting Pilot View interface</h2>
 
 Should you encounter any problems, please follow these steps:
 <ul>
-    <li>Verify you have PilotView 1.7 or higher (see the titlebar of its Config window)</li>
-    <li>If you installed PilotView plugin before May 19th 2013, please download the fresh version and try 
+    <li>Verify you have Pilot View 1.7 or higher (see the title-bar of its Config window)</li>
+    <li>If you installed Pilot View plug-in before May 19th 2013, please download the fresh version and try 
     again (don't forget the required modification of the .ini file!)</li>
-    <li>If you didn't reinstal the Linuxtrack plugin, please do so in the ltr_gui (Misc. pane)</li>
-    <li>In the plugins menu inside XPlane, open Lnuxtrack and Linuxtrack Setup menu - 
-    there should be a line saying: "PilotView plugin found, chanelling headtracking data through it!". </li>
+    <li>If you didn't reinstall the Linuxtrack plug-in, please do so in the ltr_gui (Misc. pane)</li>
+    <li>In the plug-ins menu inside X-Plane, open Linuxtrack and Linuxtrack Setup menu - 
+    there should be a line saying: "Pilot View plug-in found, channeling head-tracking data through it!". </li>
 </ul>
 Should you encounter any problems getting this to work, please contact me first, so I can determine where 
 the problem is.
