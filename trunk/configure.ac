@@ -39,6 +39,7 @@ AC_CHECK_LIB([pthread], [pthread_create], [LIBPTHREAD=true], [AC_MSG_FAILURE([li
 AC_CHECK_LIB([usb-1.0], [libusb_init], [LIBUSB10=true])
 AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
 AC_CHECK_LIB([mxml], [mxmlNewXML], [LIBMXML=true], [AC_MSG_FAILURE([libmxml not found!])], [-pthread])
+AC_CHECK_LIB([crypto], [SHA1], [LIBCRYPTO=true])
 
 
 # Checks for header files.
@@ -225,6 +226,8 @@ AM_CONDITIONAL(FACE_TRACKER, [test x$build_face_tracker = xyes])
 AM_CONDITIONAL(MICKEY, [test x$build_mickey = xyes])
 AM_CONDITIONAL(WINE_PLUGIN, [test x$build_wine_plugin = xyes])
 AM_CONDITIONAL(WINE64, [test x$build_wine64_plugin = xyes])
+AM_CONDITIONAL(CRYPTO, [test  "x$ac_cv_lib_crypto_SHA1" = xyes])
+AM_CONDITIONAL(MXML, [test  "x$ac_cv_lib_mxml_mxmlNewXML" = xyes])
 
 # Checks for library functions.
 AC_CHECK_FUNCS([atexit])

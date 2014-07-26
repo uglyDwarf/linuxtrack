@@ -116,7 +116,7 @@ bool ExtractThread::findCandidates(QString name)
     }else{
       QString outfile = QString::fromUtf8("%1/gamedata.txt").arg(destPath);
       gameDataFound = get_game_data(files[i].canonicalFilePath().toUtf8().constData(), 
-                                    outfile.toUtf8().constData());
+                                    outfile.toUtf8().constData(), false);
       emit progress(QString::fromUtf8("Extracted game data..."));
     }
     if(allFound()){

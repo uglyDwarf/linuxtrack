@@ -10,7 +10,7 @@
 
 
 //First 5 bytes is MD5 hash of "NaturalPoint"
-static uint8_t key[] = {0x0e, 0x9a, 0x63, 0x71, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static uint8_t secret_key[] = {0x0e, 0x9a, 0x63, 0x71, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 static uint8_t S[256] = {0};
 
 static char *decoded = NULL;
@@ -46,9 +46,11 @@ static uint8_t rc4()
   return S[(S[i] + S[j]) % 256];
 }
 
-static bool decrypt_file(const char *fname)
+static bool decrypt_file(const char *fname, bool from_update)
 {
-  ksa(key, 16);
+  uint32_t header[5];
+  size_t datlen;
+  ksa(secret_key, 16);
   FILE *inp;
   struct stat fst;
 
@@ -58,29 +60,46 @@ static bool decrypt_file(const char *fname)
   }
 
   if(fstat(fileno(inp), &fst) != 0){
+    fclose(inp);
     printf("Cannot stat file '%s'\n", fname);
     return false;
   }
-  if((decoded = (char *)malloc(fst.st_size+1)) == NULL){
+  
+  if(from_update){
+    if(fread(&header, sizeof(uint32_t), 5, inp) != 5){
+      fclose(inp);
+      printf("Can't read the header - file '%s' is less than 20 bytes long?\n", fname);
+      return false;
+    }
+    datlen = header[4];
+  }else{
+    datlen = fst.st_size;
+  }
+  if((decoded = (char *)malloc(datlen+1)) == NULL){
     printf("malloc failed!\n");
     return false;
   }
-  memset(decoded, 0, fst.st_size+1);
-  ssize_t i;
-  size_t len = fread(decoded, 1, fst.st_size, inp);
+  memset(decoded, 0, datlen+1);
+  size_t i;
+  size_t len = fread(decoded, 1, datlen, inp);
   (void) len;
-  for(i = 0; i < fst.st_size; ++i) decoded[i] ^= rc4();
+  for(i = 0; i < datlen; ++i) decoded[i] ^= rc4();
   fclose(inp);
+  
+  //inp = fopen("tmp.dump", "w");
+  //fwrite(decoded, 1, datlen, inp);
+  //fclose(inp);
+  
   return true;
 }
 
-static bool game_data_init(const char *fname)
+static bool game_data_init(const char *fname, bool from_update)
 {
   static bool initialized = false;
   if(initialized){
     return true;
   }
-  if(!decrypt_file(fname)){
+  if(!decrypt_file(fname, from_update)){
     printf("Error decrypting file!\n");
     return false;
   }
@@ -95,14 +114,14 @@ static void game_data_close()
   free(decoded);
 }
 
-bool get_game_data(const char *input_fname, const char *output_fname)
+bool get_game_data(const char *input_fname, const char *output_fname, bool from_update)
 {
   FILE *outfile = NULL;
   if((outfile = fopen(output_fname, "w")) == NULL){
     ltr_int_log_message("Can't open the output file '%s'!\n", output_fname);
     return false;
   }
-  if(!game_data_init(input_fname)){
+  if(!game_data_init(input_fname, from_update)){
     ltr_int_log_message("Can't process the data file '%s'!\n", input_fname);
     return false;
   }
