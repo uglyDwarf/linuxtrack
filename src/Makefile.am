@@ -12,6 +12,7 @@ if DARWIN
   XLINUXTRACK_LDFLAGS = -Wl,-no_arch_warnings -arch i386 -arch x86_64
   LINUXFLAGS =
   ltr_pipe_CPPFLAGS =
+  FT_LDFLAGS =
 else
   LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
   SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1 -L/lib32 -L/usr/lib32
@@ -21,6 +22,7 @@ else
   XLINUXTRACK_CFLAGS =
   XLINUXTRACK_LDFLAGS = -Wl,--no-warn-search-mismatch
   ltr_pipe_CPPFLAGS = -DLINUX
+  FT_LDFLAGS = '-Wl,-rpath,$(libdir)'
 endif
 
 man_MANS = ltr_gui.1 ltr_server1.1 mickey.1
@@ -56,6 +58,18 @@ if FACE_TRACKER
 endif
 endif 
 endif
+
+if MXML
+if CRYPTO
+  bin_PROGRAMS += ltr_extractor
+  man_MANS += ltr_extractor.1
+endif
+endif
+
+ltr_extractor_SOURCES = hashing.c qt_gui/game_data.c game_data.h utils.c utils.h
+ltr_extractor_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS) -Iqt_gui
+ltr_extractor_LDADD = -lcrypto -lmxml
+ltr_extractor_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG}
 
 if LIBZ
 pkglib_LTLIBRARIES += libtir.la
@@ -130,7 +144,7 @@ libft_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h facetrack
 libft_la_CFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_CXXFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_LIBADD = libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
-libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
+libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS) $(FT_LDFLAGS)
 
 man_MANS += ltr_pipe.1
 bin_PROGRAMS += ltr_pipe

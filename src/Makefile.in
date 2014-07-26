@@ -82,23 +82,25 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = ltr_server1$(EXEEXT) ltr_pipe$(EXEEXT)
+bin_PROGRAMS = ltr_server1$(EXEEXT) $(am__EXEEXT_1) ltr_pipe$(EXEEXT)
 @CWIID_TRUE@am__append_1 = libwii.la
 @CWIID_TRUE@am__append_2 = wii_server.1
 @LIBV4L2_TRUE@@V4L2_TRUE@am__append_3 = libwc.la
 @FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@am__append_4 = libft.la
 @FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@am__append_5 = haarcascade_frontalface_alt2.xml
-@LIBZ_TRUE@am__append_6 = libtir.la
-@LIBZ_TRUE@am__append_7 = 51-TIR.rules 51-Mickey.rules
-@LIBUSB10_TRUE@@LIBZ_TRUE@am__append_8 = libltusb1.la 
-@XPLANE_PLUGIN_TRUE@am__append_9 = xlinuxtrack9.la
-@LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am__append_10 = xlinuxtrack9_32.la
-@MICKEY_TRUE@am__append_11 = mickey/mickey
-@MICKEY_TRUE@am__append_12 = LTR_MICKEY_TARGET_INST
-@MICKEY_TRUE@am__append_13 = LTR_MICKEY_TARGET_UNINST
-@CWIID_TRUE@am__append_14 = wii_server/wii_server
-@CWIID_TRUE@am__append_15 = LTR_WII_TARGET_INST
-@CWIID_TRUE@am__append_16 = LTR_WII_TARGET_UNINST
+@CRYPTO_TRUE@@MXML_TRUE@am__append_6 = ltr_extractor
+@CRYPTO_TRUE@@MXML_TRUE@am__append_7 = ltr_extractor.1
+@LIBZ_TRUE@am__append_8 = libtir.la
+@LIBZ_TRUE@am__append_9 = 51-TIR.rules 51-Mickey.rules
+@LIBUSB10_TRUE@@LIBZ_TRUE@am__append_10 = libltusb1.la 
+@XPLANE_PLUGIN_TRUE@am__append_11 = xlinuxtrack9.la
+@LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am__append_12 = xlinuxtrack9_32.la
+@MICKEY_TRUE@am__append_13 = mickey/mickey
+@MICKEY_TRUE@am__append_14 = LTR_MICKEY_TARGET_INST
+@MICKEY_TRUE@am__append_15 = LTR_MICKEY_TARGET_UNINST
+@CWIID_TRUE@am__append_16 = wii_server/wii_server
+@CWIID_TRUE@am__append_17 = LTR_WII_TARGET_INST
+@CWIID_TRUE@am__append_18 = LTR_WII_TARGET_UNINST
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/pathconfig.h.in $(srcdir)/local_config.h.in \
@@ -255,7 +257,16 @@ xlinuxtrack9_32_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(xlinuxtrack9_32_la_LDFLAGS) $(LDFLAGS) -o $@
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am_xlinuxtrack9_32_la_rpath =  \
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@	-rpath $(pkglibdir)
+@CRYPTO_TRUE@@MXML_TRUE@am__EXEEXT_1 = ltr_extractor$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
+am_ltr_extractor_OBJECTS = ltr_extractor-hashing.$(OBJEXT) \
+	ltr_extractor-game_data.$(OBJEXT) \
+	ltr_extractor-utils.$(OBJEXT)
+ltr_extractor_OBJECTS = $(am_ltr_extractor_OBJECTS)
+ltr_extractor_DEPENDENCIES =
+ltr_extractor_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ltr_extractor_CFLAGS) \
+	$(CFLAGS) $(ltr_extractor_LDFLAGS) $(LDFLAGS) -o $@
 am_ltr_pipe_OBJECTS = ltr_pipe-ltr_pipe.$(OBJEXT) \
 	ltr_pipe-utils.$(OBJEXT) ltr_pipe-linuxtrack.$(OBJEXT)
 ltr_pipe_OBJECTS = $(am_ltr_pipe_OBJECTS)
@@ -346,13 +357,15 @@ SOURCES = $(libfakeusb_la_SOURCES) $(libft_la_SOURCES) \
 	$(libltusb1_la_SOURCES) $(libmacwii_la_SOURCES) \
 	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(xlinuxtrack9_la_SOURCES) $(xlinuxtrack9_32_la_SOURCES) \
-	$(ltr_pipe_SOURCES) $(ltr_server1_SOURCES)
+	$(ltr_extractor_SOURCES) $(ltr_pipe_SOURCES) \
+	$(ltr_server1_SOURCES)
 DIST_SOURCES = $(libfakeusb_la_SOURCES) $(libft_la_SOURCES) \
 	$(liblinuxtrack_la_SOURCES) $(libltr_la_SOURCES) \
 	$(libltusb1_la_SOURCES) $(libmacwii_la_SOURCES) \
 	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(am__xlinuxtrack9_la_SOURCES_DIST) \
-	$(am__xlinuxtrack9_32_la_SOURCES_DIST) $(ltr_pipe_SOURCES) \
+	$(am__xlinuxtrack9_32_la_SOURCES_DIST) \
+	$(ltr_extractor_SOURCES) $(ltr_pipe_SOURCES) \
 	$(ltr_server1_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
@@ -540,18 +553,21 @@ with_wine64 = @with_wine64@
 @DARWIN_TRUE@LINUXFLAGS = 
 @DARWIN_FALSE@ltr_pipe_CPPFLAGS = -DLINUX -D_GNU_SOURCE
 @DARWIN_TRUE@ltr_pipe_CPPFLAGS = -D_GNU_SOURCE
-man_MANS = ltr_gui.1 ltr_server1.1 mickey.1 $(am__append_2) ltr_pipe.1
+@DARWIN_FALSE@FT_LDFLAGS = '-Wl,-rpath,$(libdir)'
+@DARWIN_TRUE@FT_LDFLAGS = 
+man_MANS = ltr_gui.1 ltr_server1.1 mickey.1 $(am__append_2) \
+	$(am__append_7) ltr_pipe.1
 
 #if OPENUSB
 #  pkglib_LTLIBRARIES += libltopenusb.la 
 #endif
 pkglib_LTLIBRARIES = libltr.la libmacwii.la liblinuxtrack.la \
 	$(am__append_1) $(am__append_3) $(am__append_4) \
-	$(am__append_6) $(am__append_8) libfakeusb.la $(am__append_9) \
-	$(am__append_10)
+	$(am__append_8) $(am__append_10) libfakeusb.la \
+	$(am__append_11) $(am__append_12)
 dist_pkgdata_DATA = linuxtrack1.conf linuxtrack.c \
 	linuxtrack_hello_world.c linuxtrack_hello_world_adv.c \
-	$(am__append_5) $(am__append_7)
+	$(am__append_5) $(am__append_9)
 
 #ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
 #ltr_server_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
@@ -563,6 +579,10 @@ ltr_server1_SOURCES = ltr_srv_comm.c ltr_srv_comm.h ltr_srv_slave.c ltr_srv_slav
 ltr_server1_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server1_LDADD = -lpthread libltr.la
 ltr_server1_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${LTR_SERVER_FLAGS}
+ltr_extractor_SOURCES = hashing.c qt_gui/game_data.c game_data.h utils.c utils.h
+ltr_extractor_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS) -Iqt_gui
+ltr_extractor_LDADD = -lcrypto -lmxml
+ltr_extractor_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG}
 include_HEADERS = linuxtrack.h
 liblinuxtrack_la_SOURCES = ../config.h linuxtrack.h utils.h ipc_utils.h ltlib.h \
                             ltlib.c utils.c ipc_utils.c
@@ -619,7 +639,7 @@ libft_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h facetrack
 libft_la_CFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_CXXFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_LIBADD = libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
-libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
+libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS) $(FT_LDFLAGS)
 ltr_pipe_SOURCES = ../config.h ltr_pipe.c linuxtrack.h utils.h utils.c linuxtrack.c
 ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS} -ldl
@@ -642,11 +662,11 @@ ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS} -ldl
 AM_YFLAGS = -d --name-prefix ltr_int_parser_
 AM_LFLAGS = -i
 BUILT_SOURCES = pref_flex.cpp pref_bison.cpp pref_bison.h
-noinst_SCRIPTS = qt_gui/ltr_gui $(am__append_11) $(am__append_14)
-hook_inst_targets = LTR_QT_GUI_TARGET_INST $(am__append_12) \
-	$(am__append_15)
-hook_uninst_targets = LTR_QT_GUI_TARGET_UNINST $(am__append_13) \
-	$(am__append_16)
+noinst_SCRIPTS = qt_gui/ltr_gui $(am__append_13) $(am__append_16)
+hook_inst_targets = LTR_QT_GUI_TARGET_INST $(am__append_14) \
+	$(am__append_17)
+hook_uninst_targets = LTR_QT_GUI_TARGET_UNINST $(am__append_15) \
+	$(am__append_18)
 EXTRA_DIST = qt_gui/ltr_show.h qt_gui/help_view.cpp qt_gui/ltr_tracking.h \
 qt_gui/scp_form.ui qt_gui/logview.ui qt_gui/clip.png qt_gui/webcam_prefs.cpp \
 qt_gui/scview.h qt_gui/webcam_ft_prefs.h qt_gui/scview.cpp qt_gui/dl.ui \
@@ -874,6 +894,10 @@ clean-binPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
+ltr_extractor$(EXEEXT): $(ltr_extractor_OBJECTS) $(ltr_extractor_DEPENDENCIES) $(EXTRA_ltr_extractor_DEPENDENCIES) 
+	@rm -f ltr_extractor$(EXEEXT)
+	$(AM_V_CCLD)$(ltr_extractor_LINK) $(ltr_extractor_OBJECTS) $(ltr_extractor_LDADD) $(LIBS)
+
 ltr_pipe$(EXEEXT): $(ltr_pipe_OBJECTS) $(ltr_pipe_DEPENDENCIES) $(EXTRA_ltr_pipe_DEPENDENCIES) 
 	@rm -f ltr_pipe$(EXEEXT)
 	$(AM_V_CCLD)$(ltr_pipe_LINK) $(ltr_pipe_OBJECTS) $(ltr_pipe_LDADD) $(LIBS)
@@ -1004,6 +1028,24 @@ xlinuxtrack9_32_la-xlinuxtrack9.lo: xlinuxtrack9.c
 
 xlinuxtrack9_32_la-linuxtrack.lo: linuxtrack.c
 	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xlinuxtrack9_32_la_CFLAGS) $(CFLAGS) -c -o xlinuxtrack9_32_la-linuxtrack.lo `test -f 'linuxtrack.c' || echo '$(srcdir)/'`linuxtrack.c
+
+ltr_extractor-hashing.o: hashing.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_extractor_CFLAGS) $(CFLAGS) -c -o ltr_extractor-hashing.o `test -f 'hashing.c' || echo '$(srcdir)/'`hashing.c
+
+ltr_extractor-hashing.obj: hashing.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_extractor_CFLAGS) $(CFLAGS) -c -o ltr_extractor-hashing.obj `if test -f 'hashing.c'; then $(CYGPATH_W) 'hashing.c'; else $(CYGPATH_W) '$(srcdir)/hashing.c'; fi`
+
+ltr_extractor-game_data.o: qt_gui/game_data.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_extractor_CFLAGS) $(CFLAGS) -c -o ltr_extractor-game_data.o `test -f 'qt_gui/game_data.c' || echo '$(srcdir)/'`qt_gui/game_data.c
+
+ltr_extractor-game_data.obj: qt_gui/game_data.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_extractor_CFLAGS) $(CFLAGS) -c -o ltr_extractor-game_data.obj `if test -f 'qt_gui/game_data.c'; then $(CYGPATH_W) 'qt_gui/game_data.c'; else $(CYGPATH_W) '$(srcdir)/qt_gui/game_data.c'; fi`
+
+ltr_extractor-utils.o: utils.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_extractor_CFLAGS) $(CFLAGS) -c -o ltr_extractor-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
+
+ltr_extractor-utils.obj: utils.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_extractor_CFLAGS) $(CFLAGS) -c -o ltr_extractor-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
 
 ltr_pipe-ltr_pipe.o: ltr_pipe.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-ltr_pipe.o `test -f 'ltr_pipe.c' || echo '$(srcdir)/'`ltr_pipe.c

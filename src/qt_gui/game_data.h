@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-bool get_game_data(const char *input_fname, const char *output_fname);
+bool get_game_data(const char *input_fname, const char *output_fname, bool from_update);
 
 #ifdef __cplusplus
 }
