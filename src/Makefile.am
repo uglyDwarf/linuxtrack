@@ -66,7 +66,7 @@ if CRYPTO
 endif
 endif
 
-ltr_extractor_SOURCES = hashing.c qt_gui/game_data.c game_data.h utils.c utils.h
+ltr_extractor_SOURCES = hashing.c $(srcdir)/qt_gui/game_data.c game_data.h utils.c utils.h
 ltr_extractor_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS) -Iqt_gui
 ltr_extractor_LDADD = -lcrypto -lmxml
 ltr_extractor_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG}

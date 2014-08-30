@@ -8,7 +8,7 @@
 %}
 
 %debug
-%pure_parser
+%pure-parser
 %locations
 %error-verbose
 %parse-param {prefs *prf}
