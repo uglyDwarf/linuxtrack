@@ -4,7 +4,7 @@
 #include <fstream>
 
 #include "pref.hpp"
-#include "pref_bison.h"
+#include "pref_bison.hpp"
 #include "pref_flex.h"
 #include "utils.h"
 

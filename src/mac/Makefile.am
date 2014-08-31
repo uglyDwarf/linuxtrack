@@ -7,14 +7,14 @@ SLEOPARD_LDFLAG = -L..
 DARWINFLAGS = -undefined dynamic_lookup 
 
 if DARWIN
-  pkglib_LTLIBRARIES = libmacwc.la
   bin_PROGRAMS = qt_cam WiiServer
 endif
 
 qt_cam_SOURCES = qt_camera.m args.c args.h buffer.c buffer.h mac_camera.h \
-  ../com_proc.h ../ipc_utils.h processing.c processing.h macwebcam.c ../facetrack.cpp ../facetrack.h
-qt_cam_LDADD = -lltr -lobjc -lpthread 
-qt_cam_LDFLAGS = ${AM_CFLAGS} ${SLEOPARD_LDFLAG} -framework Cocoa -framework QTKit -framework QuartzCore $(OPENCV_LIBS) -headerpad_max_install_names
+  ../com_proc.h ../ipc_utils.h processing.c processing.h macwebcam.c ../facetrack.h
+qt_cam_LDADD = libfacetrack_int.a -lltr -lobjc -lpthread 
+qt_cam_LDFLAGS = ${AM_CFLAGS} ${SLEOPARD_LDFLAG} -framework Cocoa -framework QTKit \
+  -framework QuartzCore $(OPENCV_LIBS) -headerpad_max_install_names -L${srcdir}
 qt_cam_CXXFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..  -DOPENCV $(OPENCV_CFLAGS)
 qt_cam_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..  -DOPENCV $(OPENCV_CFLAGS)
 qt_cam_OBJCFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
@@ -25,12 +25,6 @@ qt_cam_OBJCFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I.
 #sg_cam_LDFLAGS = ${AM_CFLAGS} ${SLEOPARD_LDFLAG} -framework QuickTime -framework CoreServices
 #sg_cam_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 #sg_cam_OBJCFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
-
-libmacwc_la_SOURCES = macwebcam_driver.c ../com_proc.h ../runloop.c ../runloop.h \
-  ../ipc_utils.h
-libmacwc_la_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
-libmacwc_la_LIBADD = -lltr
-libmacwc_la_LDFLAGS = -export-symbols ../drivers.sym ${AM_CFLAGS} ${SLEOPARD_LDFLAG}
 
 WiiServer_SOURCES = ../com_proc.h ../wii_com.h wiimote.m wiimote.h \
   wiimote_server.m wiimote_server.h wiisrvr_main.m ../ipc_utils.h

@@ -14,7 +14,7 @@ noinst_PROGRAMS = ltlib_test #tests
 #endif
 
 #pose_test_SOURCES = pose_test.c
-ltlib_test_SOURCES = ltlib_test.c ../utils.c ../utils.h ../linuxtrack.c ../linuxtrack.h
+ltlib_test_SOURCES = ltlib_test.c utils.c utils.h linuxtrack.c linuxtrack.h
 #webcam_driver_test_SOURCES = webcam_driver_test.c ../webcam_driver.c \
 #                ../utils.h ../utils.c ../list.c ../list.h ../pref.c ../pref.h \
 #                ../pref_bison.c ../pref_bison.h ../pref_flex.c ../pref_int.h \
@@ -29,7 +29,7 @@ ltlib_test_SOURCES = ltlib_test.c ../utils.c ../utils.h ../linuxtrack.c ../linux
                 
 
 #pose_test_LDADD = -lm -lpthread -ldl -llinuxtrack
-ltlib_test_LDADD = -lm -lpthread -ldl
+ltlib_test_LDADD = -lm -lpthread -ldl -llinuxtrack_int
 #webcam_driver_test_LDADD = -lm -lpthread -ldl -lltr -lv4l2
 #pref_test_LDADD = -lm -lpthread -ldl -lltr
 #test_LDALL = -lm

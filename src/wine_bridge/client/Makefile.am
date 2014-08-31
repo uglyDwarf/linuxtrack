@@ -36,7 +36,11 @@ SUFFIXES = .o .cpp .c .rc 64.o
 CXXFLAGS_PRE = -g -DHAVE_CONFIG_H -I../../.. -I. -I@srcdir@/../.. -I@top_builddir@
 CFLAGS_PRE = -g -I../.. -I../../.. -DHAVE_CONFIG_H -I@srcdir@/../.. -I@top_builddir@
 RCFLAGS = -I @srcdir@
-VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
+#VPATH = .:../..:@srcdir@/../..:@top_builddir@:@srcdir@
+vpath %.h @srcdir@/../..
+vpath %.h @top_builddir@
+vpath %.c @srcdir@
+vpath %.c @srcdir@/../..
 
 check_data.exe.so : check_data.o rest.o
 	winegcc $(WINE_LIBS) $(LDFLAGS) -m32 -Wall -Wextra -g -o $@ $^

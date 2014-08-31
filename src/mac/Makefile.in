@@ -14,7 +14,6 @@
 
 @SET_MAKE@
 
-
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -94,65 +93,28 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES = Info.plist
 CONFIG_CLEAN_VPATH_FILES =
-am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
-am__vpath_adj = case $$p in \
-    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-    *) f=$$p;; \
-  esac;
-am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
-am__install_max = 40
-am__nobase_strip_setup = \
-  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
-am__nobase_strip = \
-  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
-am__nobase_list = $(am__nobase_strip_setup); \
-  for p in $$list; do echo "$$p $$p"; done | \
-  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
-  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
-    if (++n[$$2] == $(am__install_max)) \
-      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
-    END { for (dir in files) print dir, files[dir] }'
-am__base_list = \
-  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
-  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__uninstall_files_from_dir = { \
-  test -z "$$files" \
-    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
-    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
-         $(am__cd) "$$dir" && rm -f $$files; }; \
-  }
-am__installdirs = "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)"
-LTLIBRARIES = $(pkglib_LTLIBRARIES)
-libmacwc_la_DEPENDENCIES =
-am__dirstamp = $(am__leading_dot)dirstamp
-am_libmacwc_la_OBJECTS = libmacwc_la-macwebcam_driver.lo \
-	../libmacwc_la-runloop.lo
-libmacwc_la_OBJECTS = $(am_libmacwc_la_OBJECTS)
-AM_V_lt = $(am__v_lt_@AM_V@)
-am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
-am__v_lt_0 = --silent
-am__v_lt_1 = 
-libmacwc_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libmacwc_la_CFLAGS) \
-	$(CFLAGS) $(libmacwc_la_LDFLAGS) $(LDFLAGS) -o $@
-@DARWIN_TRUE@am_libmacwc_la_rpath = -rpath $(pkglibdir)
+am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_WiiServer_OBJECTS = WiiServer-wiimote.$(OBJEXT) \
 	WiiServer-wiimote_server.$(OBJEXT) \
 	WiiServer-wiisrvr_main.$(OBJEXT)
 WiiServer_OBJECTS = $(am_WiiServer_OBJECTS)
 WiiServer_DEPENDENCIES =
+AM_V_lt = $(am__v_lt_@AM_V@)
+am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+am__v_lt_0 = --silent
+am__v_lt_1 = 
 WiiServer_LINK = $(LIBTOOL) $(AM_V_lt) $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(OBJCLD) $(WiiServer_OBJCFLAGS) \
 	$(OBJCFLAGS) $(WiiServer_LDFLAGS) $(LDFLAGS) -o $@
 am_qt_cam_OBJECTS = qt_cam-qt_camera.$(OBJEXT) qt_cam-args.$(OBJEXT) \
 	qt_cam-buffer.$(OBJEXT) qt_cam-processing.$(OBJEXT) \
-	qt_cam-macwebcam.$(OBJEXT) ../qt_cam-facetrack.$(OBJEXT)
+	qt_cam-macwebcam.$(OBJEXT)
 qt_cam_OBJECTS = $(am_qt_cam_OBJECTS)
-qt_cam_DEPENDENCIES =
-qt_cam_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(qt_cam_CXXFLAGS) \
-	$(CXXFLAGS) $(qt_cam_LDFLAGS) $(LDFLAGS) -o $@
+qt_cam_DEPENDENCIES = libfacetrack_int.a
+qt_cam_LINK = $(LIBTOOL) $(AM_V_lt) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(OBJCLD) $(qt_cam_OBJCFLAGS) $(OBJCFLAGS) \
+	$(qt_cam_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -186,24 +148,6 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
-LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) \
-	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
-	$(AM_CXXFLAGS) $(CXXFLAGS)
-AM_V_CXX = $(am__v_CXX_@AM_V@)
-am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
-am__v_CXX_0 = @echo "  CXX     " $@;
-am__v_CXX_1 = 
-CXXLD = $(CXX)
-CXXLINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
-am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
-am__v_CXXLD_0 = @echo "  CXXLD   " $@;
-am__v_CXXLD_1 = 
 OBJCCOMPILE = $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_OBJCFLAGS) $(OBJCFLAGS)
 LTOBJCCOMPILE = $(LIBTOOL) $(AM_V_lt) $(AM_LIBTOOLFLAGS) \
@@ -222,10 +166,8 @@ AM_V_OBJCLD = $(am__v_OBJCLD_@AM_V@)
 am__v_OBJCLD_ = $(am__v_OBJCLD_@AM_DEFAULT_V@)
 am__v_OBJCLD_0 = @echo "  OBJCLD  " $@;
 am__v_OBJCLD_1 = 
-SOURCES = $(libmacwc_la_SOURCES) $(WiiServer_SOURCES) \
-	$(qt_cam_SOURCES)
-DIST_SOURCES = $(libmacwc_la_SOURCES) $(WiiServer_SOURCES) \
-	$(qt_cam_SOURCES)
+SOURCES = $(WiiServer_SOURCES) $(qt_cam_SOURCES)
+DIST_SOURCES = $(WiiServer_SOURCES) $(qt_cam_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -393,12 +335,13 @@ AM_CFLAGS = -arch x86_64
 SLEOPARD_CFLAG = 
 SLEOPARD_LDFLAG = -L..
 DARWINFLAGS = -undefined dynamic_lookup 
-@DARWIN_TRUE@pkglib_LTLIBRARIES = libmacwc.la
 qt_cam_SOURCES = qt_camera.m args.c args.h buffer.c buffer.h mac_camera.h \
-  ../com_proc.h ../ipc_utils.h processing.c processing.h macwebcam.c ../facetrack.cpp ../facetrack.h
+  ../com_proc.h ../ipc_utils.h processing.c processing.h macwebcam.c ../facetrack.h
 
-qt_cam_LDADD = -lltr -lobjc -lpthread 
-qt_cam_LDFLAGS = ${AM_CFLAGS} ${SLEOPARD_LDFLAG} -framework Cocoa -framework QTKit -framework QuartzCore $(OPENCV_LIBS) -headerpad_max_install_names
+qt_cam_LDADD = libfacetrack_int.a -lltr -lobjc -lpthread 
+qt_cam_LDFLAGS = ${AM_CFLAGS} ${SLEOPARD_LDFLAG} -framework Cocoa -framework QTKit \
+  -framework QuartzCore $(OPENCV_LIBS) -headerpad_max_install_names -L${srcdir}
+
 qt_cam_CXXFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..  -DOPENCV $(OPENCV_CFLAGS)
 qt_cam_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..  -DOPENCV $(OPENCV_CFLAGS)
 qt_cam_OBJCFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
@@ -409,12 +352,6 @@ qt_cam_OBJCFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I.
 #sg_cam_LDFLAGS = ${AM_CFLAGS} ${SLEOPARD_LDFLAG} -framework QuickTime -framework CoreServices
 #sg_cam_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 #sg_cam_OBJCFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
-libmacwc_la_SOURCES = macwebcam_driver.c ../com_proc.h ../runloop.c ../runloop.h \
-  ../ipc_utils.h
-
-libmacwc_la_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
-libmacwc_la_LIBADD = -lltr
-libmacwc_la_LDFLAGS = -export-symbols ../drivers.sym ${AM_CFLAGS} ${SLEOPARD_LDFLAG}
 WiiServer_SOURCES = ../com_proc.h ../wii_com.h wiimote.m wiimote.h \
   wiimote_server.m wiimote_server.h wiisrvr_main.m ../ipc_utils.h
 
@@ -427,7 +364,7 @@ WiiServer_OBJCFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. 
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .cpp .lo .m .o .obj
+.SUFFIXES: .c .lo .m .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -460,48 +397,6 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 $(am__aclocal_m4_deps):
 Info.plist: $(top_builddir)/config.status $(srcdir)/Info.plist.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-
-install-pkglibLTLIBRARIES: $(pkglib_LTLIBRARIES)
-	@$(NORMAL_INSTALL)
-	@list='$(pkglib_LTLIBRARIES)'; test -n "$(pkglibdir)" || list=; \
-	list2=; for p in $$list; do \
-	  if test -f $$p; then \
-	    list2="$$list2 $$p"; \
-	  else :; fi; \
-	done; \
-	test -z "$$list2" || { \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(pkglibdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(pkglibdir)" || exit 1; \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(pkglibdir)'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(pkglibdir)"; \
-	}
-
-uninstall-pkglibLTLIBRARIES:
-	@$(NORMAL_UNINSTALL)
-	@list='$(pkglib_LTLIBRARIES)'; test -n "$(pkglibdir)" || list=; \
-	for p in $$list; do \
-	  $(am__strip_dir) \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(pkglibdir)/$$f'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(pkglibdir)/$$f"; \
-	done
-
-clean-pkglibLTLIBRARIES:
-	-test -z "$(pkglib_LTLIBRARIES)" || rm -f $(pkglib_LTLIBRARIES)
-	@list='$(pkglib_LTLIBRARIES)'; \
-	locs=`for p in $$list; do echo $$p; done | \
-	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
-	      sort -u`; \
-	test -z "$$locs" || { \
-	  echo rm -f $${locs}; \
-	  rm -f $${locs}; \
-	}
-../$(am__dirstamp):
-	@$(MKDIR_P) ..
-	@: > ../$(am__dirstamp)
-../libmacwc_la-runloop.lo: ../$(am__dirstamp)
-
-libmacwc.la: $(libmacwc_la_OBJECTS) $(libmacwc_la_DEPENDENCIES) $(EXTRA_libmacwc_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libmacwc_la_LINK) $(am_libmacwc_la_rpath) $(libmacwc_la_OBJECTS) $(libmacwc_la_LIBADD) $(LIBS)
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
@@ -555,16 +450,13 @@ clean-binPROGRAMS:
 WiiServer$(EXEEXT): $(WiiServer_OBJECTS) $(WiiServer_DEPENDENCIES) $(EXTRA_WiiServer_DEPENDENCIES) 
 	@rm -f WiiServer$(EXEEXT)
 	$(AM_V_OBJCLD)$(WiiServer_LINK) $(WiiServer_OBJECTS) $(WiiServer_LDADD) $(LIBS)
-../qt_cam-facetrack.$(OBJEXT): ../$(am__dirstamp)
 
 qt_cam$(EXEEXT): $(qt_cam_OBJECTS) $(qt_cam_DEPENDENCIES) $(EXTRA_qt_cam_DEPENDENCIES) 
 	@rm -f qt_cam$(EXEEXT)
-	$(AM_V_CXXLD)$(qt_cam_LINK) $(qt_cam_OBJECTS) $(qt_cam_LDADD) $(LIBS)
+	$(AM_V_OBJCLD)$(qt_cam_LINK) $(qt_cam_OBJECTS) $(qt_cam_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f ../*.$(OBJEXT)
-	-rm -f ../*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -577,12 +469,6 @@ distclean-compile:
 
 .c.lo:
 	$(AM_V_CC)$(LTCOMPILE) -c -o $@ $<
-
-libmacwc_la-macwebcam_driver.lo: macwebcam_driver.c
-	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwc_la_CFLAGS) $(CFLAGS) -c -o libmacwc_la-macwebcam_driver.lo `test -f 'macwebcam_driver.c' || echo '$(srcdir)/'`macwebcam_driver.c
-
-../libmacwc_la-runloop.lo: ../runloop.c
-	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwc_la_CFLAGS) $(CFLAGS) -c -o ../libmacwc_la-runloop.lo `test -f '../runloop.c' || echo '$(srcdir)/'`../runloop.c
 
 qt_cam-args.o: args.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(qt_cam_CFLAGS) $(CFLAGS) -c -o qt_cam-args.o `test -f 'args.c' || echo '$(srcdir)/'`args.c
@@ -607,21 +493,6 @@ qt_cam-macwebcam.o: macwebcam.c
 
 qt_cam-macwebcam.obj: macwebcam.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(qt_cam_CFLAGS) $(CFLAGS) -c -o qt_cam-macwebcam.obj `if test -f 'macwebcam.c'; then $(CYGPATH_W) 'macwebcam.c'; else $(CYGPATH_W) '$(srcdir)/macwebcam.c'; fi`
-
-.cpp.o:
-	$(AM_V_CXX)$(CXXCOMPILE) -c -o $@ $<
-
-.cpp.obj:
-	$(AM_V_CXX)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-.cpp.lo:
-	$(AM_V_CXX)$(LTCXXCOMPILE) -c -o $@ $<
-
-../qt_cam-facetrack.o: ../facetrack.cpp
-	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(qt_cam_CXXFLAGS) $(CXXFLAGS) -c -o ../qt_cam-facetrack.o `test -f '../facetrack.cpp' || echo '$(srcdir)/'`../facetrack.cpp
-
-../qt_cam-facetrack.obj: ../facetrack.cpp
-	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(qt_cam_CXXFLAGS) $(CXXFLAGS) -c -o ../qt_cam-facetrack.obj `if test -f '../facetrack.cpp'; then $(CYGPATH_W) '../facetrack.cpp'; else $(CYGPATH_W) '$(srcdir)/../facetrack.cpp'; fi`
 
 .m.o:
 	$(AM_V_OBJC)$(OBJCCOMPILE) -c -o $@ $<
@@ -661,7 +532,6 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-	-rm -rf ../.libs ../_libs
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -747,9 +617,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS)
+all-am: Makefile $(PROGRAMS)
 installdirs:
-	for dir in "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)"; do \
+	for dir in "$(DESTDIR)$(bindir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -778,15 +648,13 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f ../$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-libtool \
-	clean-pkglibLTLIBRARIES mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-am
 	-rm -f Makefile
@@ -811,7 +679,7 @@ install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am: install-binPROGRAMS install-pkglibLTLIBRARIES
+install-exec-am: install-binPROGRAMS
 
 install-html: install-html-am
 
@@ -850,25 +718,23 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-pkglibLTLIBRARIES
+uninstall-am: uninstall-binPROGRAMS
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean \
-	clean-binPROGRAMS clean-generic clean-libtool \
-	clean-pkglibLTLIBRARIES cscopelist-am ctags ctags-am distclean \
-	distclean-compile distclean-generic distclean-libtool \
-	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-binPROGRAMS install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-pkglibLTLIBRARIES install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
-	uninstall-binPROGRAMS uninstall-pkglibLTLIBRARIES
+	clean-binPROGRAMS clean-generic clean-libtool cscopelist-am \
+	ctags ctags-am distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-binPROGRAMS \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

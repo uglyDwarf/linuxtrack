@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.59])
 AC_INIT([LinuxTrack], [0.99.10], [http://code.google.com/p/linux-track/issues/list])
-AM_INIT_AUTOMAKE([no-dependencies -Wall -Werror subdir-objects])
+AM_INIT_AUTOMAKE([no-dependencies -Wall -Werror])
 AC_CONFIG_SRCDIR([src/tir4_driver.h])
 AC_CONFIG_HEADERS([config.h])
 AC_PROG_CXX
@@ -242,13 +242,11 @@ AC_CONFIG_FILES([
  Makefile
  src/Makefile
  src/pathconfig.h
- src/tests/Makefile
  src/mac/Makefile
  src/mac/Info.plist
  src/local_config.h
  src/qt_gui/ltr_gui.pro
  src/wii_server/wii_server.pro
- src/helper/Makefile
  src/wine_bridge/Makefile
  src/wine_bridge/client/Makefile
  src/wine_bridge/ft_client/Makefile

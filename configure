@@ -17206,7 +17206,7 @@ done
 
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/pathconfig.h src/tests/Makefile src/mac/Makefile src/mac/Info.plist src/local_config.h src/qt_gui/ltr_gui.pro src/wii_server/wii_server.pro src/helper/Makefile src/wine_bridge/Makefile src/wine_bridge/client/Makefile src/wine_bridge/ft_client/Makefile src/wine_bridge/controller/Makefile src/wine_bridge/tester/Makefile src/wine_bridge/ft_tester/Makefile src/wine_bridge/tester/npview.rc src/wine_bridge/ft_tester/fttester.rc src/wine_bridge/ltr_wine64.nsi src/wine_bridge/ltr_wine.nsi doc/Makefile src/linuxtrack.pc src/mickey/mickey.pro"
+ac_config_files="$ac_config_files Makefile src/Makefile src/pathconfig.h src/mac/Makefile src/mac/Info.plist src/local_config.h src/qt_gui/ltr_gui.pro src/wii_server/wii_server.pro src/wine_bridge/Makefile src/wine_bridge/client/Makefile src/wine_bridge/ft_client/Makefile src/wine_bridge/controller/Makefile src/wine_bridge/tester/Makefile src/wine_bridge/ft_tester/Makefile src/wine_bridge/tester/npview.rc src/wine_bridge/ft_tester/fttester.rc src/wine_bridge/ltr_wine64.nsi src/wine_bridge/ltr_wine.nsi doc/Makefile src/linuxtrack.pc src/mickey/mickey.pro"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -18364,13 +18364,11 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "src/pathconfig.h") CONFIG_FILES="$CONFIG_FILES src/pathconfig.h" ;;
-    "src/tests/Makefile") CONFIG_FILES="$CONFIG_FILES src/tests/Makefile" ;;
     "src/mac/Makefile") CONFIG_FILES="$CONFIG_FILES src/mac/Makefile" ;;
     "src/mac/Info.plist") CONFIG_FILES="$CONFIG_FILES src/mac/Info.plist" ;;
     "src/local_config.h") CONFIG_FILES="$CONFIG_FILES src/local_config.h" ;;
     "src/qt_gui/ltr_gui.pro") CONFIG_FILES="$CONFIG_FILES src/qt_gui/ltr_gui.pro" ;;
     "src/wii_server/wii_server.pro") CONFIG_FILES="$CONFIG_FILES src/wii_server/wii_server.pro" ;;
-    "src/helper/Makefile") CONFIG_FILES="$CONFIG_FILES src/helper/Makefile" ;;
     "src/wine_bridge/Makefile") CONFIG_FILES="$CONFIG_FILES src/wine_bridge/Makefile" ;;
     "src/wine_bridge/client/Makefile") CONFIG_FILES="$CONFIG_FILES src/wine_bridge/client/Makefile" ;;
     "src/wine_bridge/ft_client/Makefile") CONFIG_FILES="$CONFIG_FILES src/wine_bridge/ft_client/Makefile" ;;

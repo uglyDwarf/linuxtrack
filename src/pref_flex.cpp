@@ -512,7 +512,7 @@ char *ltr_int_parser_text;
 #line 2 "pref_flex.lpp"
   #include <string>
   #include "pref.hpp"
-  #include "pref_bison.h"
+  #include "pref_bison.hpp"
   //extern int line_num;
 #define YY_NO_INPUT 1
 
