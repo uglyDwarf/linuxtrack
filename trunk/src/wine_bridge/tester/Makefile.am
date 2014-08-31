@@ -36,7 +36,11 @@ SUFFIXES = .o .cpp .c .rc 64.o
 CXXFLAGS += -g -DHAVE_CONFIG_H -I../../.. -I. -I@srcdir@/../.. -I@top_builddir@
 CFLAGS += -g -I../.. -I../../.. -DHAVE_CONFIG_H -I@srcdir@/../.. -I@top_builddir@
 RCFLAGS = -I @srcdir@
-VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
+#VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
+vpath %.h @srcdir@/../..
+vpath %.h @top_builddir@
+vpath %.c @srcdir@
+vpath %.c @srcdir@/../..
 
 
 Tester64.exe : main64.o rest64.o npifc64.o npview.o

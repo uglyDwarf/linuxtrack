@@ -14,6 +14,7 @@
 
 @SET_MAKE@
 
+VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
   case $${target_option-} in \
@@ -119,7 +120,6 @@ am__can_run_installinfo = \
   esac
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
@@ -470,6 +470,11 @@ uninstall-am:
 
 .rc.o :
 	wrc -o $@ $(RCFLAGS) $<
+#VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
+vpath %.h @srcdir@/../..
+vpath %.h @top_builddir@
+vpath %.c @srcdir@
+vpath %.c @srcdir@/../..
 
 Tester64.exe : main64.o rest64.o npifc64.o npview.o
 	wineg++ -g -o Tester64 -L. $(WINE64_LIBS) $(LDFLAGS) -Wall -Wextra $^

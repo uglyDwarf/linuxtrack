@@ -71,7 +71,7 @@
 #line 1 "pref_bison.ypp" /* yacc.c:339  */
 
   #include "pref.hpp"
-  #include "pref_bison.h"
+  #include "pref_bison.hpp"
   #include "pref_flex.h"
   
   //void ltr_int_parser_error (char const *s);

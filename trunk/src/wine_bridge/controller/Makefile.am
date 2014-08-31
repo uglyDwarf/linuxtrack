@@ -28,7 +28,11 @@ CXXFLAGS_PRE = -isystem/usr/include/wine/windows -DHAVE_CONFIG_H \
 CFLAGS_PRE = -I../.. -I../../.. -DHAVE_CONFIG_H \
 	-I@srcdir@/../.. -I@top_builddir@
 
-VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
+#VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
+vpath %.h @srcdir@/../..
+vpath %.h @top_builddir@
+vpath %.c @srcdir@
+vpath %.c @srcdir@/../..
 
 Controller.exe : main.o resources.o dinput.o linuxtrack.o
 	wineg++ -o Controller   $(LDFLAGS) $(WINE_LIBS) -m32 \

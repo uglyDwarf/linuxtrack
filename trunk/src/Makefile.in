@@ -18,6 +18,7 @@
 
 
 
+
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -93,14 +94,15 @@ bin_PROGRAMS = ltr_server1$(EXEEXT) $(am__EXEEXT_1) ltr_pipe$(EXEEXT)
 @LIBZ_TRUE@am__append_8 = libtir.la
 @LIBZ_TRUE@am__append_9 = 51-TIR.rules 51-Mickey.rules
 @LIBUSB10_TRUE@@LIBZ_TRUE@am__append_10 = libltusb1.la 
-@XPLANE_PLUGIN_TRUE@am__append_11 = xlinuxtrack9.la
-@LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am__append_12 = xlinuxtrack9_32.la
-@MICKEY_TRUE@am__append_13 = mickey/mickey
-@MICKEY_TRUE@am__append_14 = LTR_MICKEY_TARGET_INST
-@MICKEY_TRUE@am__append_15 = LTR_MICKEY_TARGET_UNINST
-@CWIID_TRUE@am__append_16 = wii_server/wii_server
-@CWIID_TRUE@am__append_17 = LTR_WII_TARGET_INST
-@CWIID_TRUE@am__append_18 = LTR_WII_TARGET_UNINST
+@DARWIN_TRUE@am__append_11 = libmacwc.la
+@XPLANE_PLUGIN_TRUE@am__append_12 = xlinuxtrack9.la
+@LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am__append_13 = xlinuxtrack9_32.la
+@MICKEY_TRUE@am__append_14 = mickey/mickey
+@MICKEY_TRUE@am__append_15 = LTR_MICKEY_TARGET_INST
+@MICKEY_TRUE@am__append_16 = LTR_MICKEY_TARGET_UNINST
+@CWIID_TRUE@am__append_17 = wii_server/wii_server
+@CWIID_TRUE@am__append_18 = LTR_WII_TARGET_INST
+@CWIID_TRUE@am__append_19 = LTR_WII_TARGET_UNINST
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/pathconfig.h.in $(srcdir)/local_config.h.in \
@@ -118,6 +120,21 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES = pathconfig.h local_config.h linuxtrack.pc
 CONFIG_CLEAN_VPATH_FILES =
+LIBRARIES = $(noinst_LIBRARIES)
+ARFLAGS = cru
+AM_V_AR = $(am__v_AR_@AM_V@)
+am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
+am__v_AR_0 = @echo "  AR      " $@;
+am__v_AR_1 = 
+libfacetrack_int_a_AR = $(AR) $(ARFLAGS)
+libfacetrack_int_a_LIBADD =
+am_libfacetrack_int_a_OBJECTS =  \
+	libfacetrack_int_a-facetrack.$(OBJEXT)
+libfacetrack_int_a_OBJECTS = $(am_libfacetrack_int_a_OBJECTS)
+liblinuxtrack_int_a_AR = $(AR) $(ARFLAGS)
+liblinuxtrack_int_a_LIBADD =
+am_liblinuxtrack_int_a_OBJECTS = linuxtrack.$(OBJEXT)
+liblinuxtrack_int_a_OBJECTS = $(am_liblinuxtrack_int_a_OBJECTS)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -145,11 +162,11 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" \
-	"$(DESTDIR)$(man1dir)" "$(DESTDIR)$(desktopdir)" \
-	"$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(icondir)" \
-	"$(DESTDIR)$(includedir)"
-LTLIBRARIES = $(pkglib_LTLIBRARIES)
+am__installdirs = "$(DESTDIR)$(l32libdir)" "$(DESTDIR)$(pkglibdir)" \
+	"$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" \
+	"$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" \
+	"$(DESTDIR)$(icondir)" "$(DESTDIR)$(includedir)"
+LTLIBRARIES = $(l32lib_LTLIBRARIES) $(pkglib_LTLIBRARIES)
 libfakeusb_la_DEPENDENCIES = libltr.la
 am_libfakeusb_la_OBJECTS = libfakeusb_la-fakeusb.lo \
 	libfakeusb_la-tir_model.lo libfakeusb_la-tir4_model.lo \
@@ -182,6 +199,16 @@ liblinuxtrack_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(liblinuxtrack_la_CFLAGS) $(CFLAGS) \
 	$(liblinuxtrack_la_LDFLAGS) $(LDFLAGS) -o $@
+liblinuxtrack32_la_LIBADD =
+am_liblinuxtrack32_la_OBJECTS = liblinuxtrack32_la-ltlib.lo \
+	liblinuxtrack32_la-utils.lo liblinuxtrack32_la-ipc_utils.lo
+liblinuxtrack32_la_OBJECTS = $(am_liblinuxtrack32_la_OBJECTS)
+liblinuxtrack32_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(liblinuxtrack32_la_CFLAGS) $(CFLAGS) \
+	$(liblinuxtrack32_la_LDFLAGS) $(LDFLAGS) -o $@
+@DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@am_liblinuxtrack32_la_rpath =  \
+@DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@	-rpath $(l32libdir)
 libltr_la_DEPENDENCIES =
 am_libltr_la_OBJECTS = libltr_la-cal.lo libltr_la-list.lo \
 	libltr_la-dyn_load.lo libltr_la-math_utils.lo \
@@ -204,6 +231,13 @@ libltusb1_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libltusb1_la_CFLAGS) \
 	$(CFLAGS) $(libltusb1_la_LDFLAGS) $(LDFLAGS) -o $@
 @LIBUSB10_TRUE@@LIBZ_TRUE@am_libltusb1_la_rpath = -rpath $(pkglibdir)
+libmacwc_la_DEPENDENCIES =
+am_libmacwc_la_OBJECTS = libmacwc_la-macwebcam_driver.lo
+libmacwc_la_OBJECTS = $(am_libmacwc_la_OBJECTS)
+libmacwc_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libmacwc_la_CFLAGS) \
+	$(CFLAGS) $(libmacwc_la_LDFLAGS) $(LDFLAGS) -o $@
+@DARWIN_TRUE@am_libmacwc_la_rpath = -rpath $(pkglibdir)
 libmacwii_la_DEPENDENCIES = libltr.la
 am_libmacwii_la_OBJECTS = libmacwii_la-macwii_driver.lo \
 	libmacwii_la-runloop.lo libmacwii_la-wii_driver_prefs.lo
@@ -259,9 +293,8 @@ xlinuxtrack9_32_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@	-rpath $(pkglibdir)
 @CRYPTO_TRUE@@MXML_TRUE@am__EXEEXT_1 = ltr_extractor$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
-am__dirstamp = $(am__leading_dot)dirstamp
 am_ltr_extractor_OBJECTS = ltr_extractor-hashing.$(OBJEXT) \
-	$(srcdir)/qt_gui/ltr_extractor-game_data.$(OBJEXT) \
+	ltr_extractor-game_data.$(OBJEXT) \
 	ltr_extractor-utils.$(OBJEXT)
 ltr_extractor_OBJECTS = $(am_ltr_extractor_OBJECTS)
 ltr_extractor_DEPENDENCIES =
@@ -353,17 +386,22 @@ AM_V_YACC = $(am__v_YACC_@AM_V@)
 am__v_YACC_ = $(am__v_YACC_@AM_DEFAULT_V@)
 am__v_YACC_0 = @echo "  YACC    " $@;
 am__v_YACC_1 = 
-SOURCES = $(libfakeusb_la_SOURCES) $(libft_la_SOURCES) \
-	$(liblinuxtrack_la_SOURCES) $(libltr_la_SOURCES) \
-	$(libltusb1_la_SOURCES) $(libmacwii_la_SOURCES) \
+SOURCES = $(libfacetrack_int_a_SOURCES) $(liblinuxtrack_int_a_SOURCES) \
+	$(libfakeusb_la_SOURCES) $(libft_la_SOURCES) \
+	$(liblinuxtrack_la_SOURCES) $(liblinuxtrack32_la_SOURCES) \
+	$(libltr_la_SOURCES) $(libltusb1_la_SOURCES) \
+	$(libmacwc_la_SOURCES) $(libmacwii_la_SOURCES) \
 	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(xlinuxtrack9_la_SOURCES) $(xlinuxtrack9_32_la_SOURCES) \
 	$(ltr_extractor_SOURCES) $(ltr_pipe_SOURCES) \
 	$(ltr_server1_SOURCES)
-DIST_SOURCES = $(libfakeusb_la_SOURCES) $(libft_la_SOURCES) \
-	$(liblinuxtrack_la_SOURCES) $(libltr_la_SOURCES) \
-	$(libltusb1_la_SOURCES) $(libmacwii_la_SOURCES) \
-	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
+DIST_SOURCES = $(libfacetrack_int_a_SOURCES) \
+	$(liblinuxtrack_int_a_SOURCES) $(libfakeusb_la_SOURCES) \
+	$(libft_la_SOURCES) $(liblinuxtrack_la_SOURCES) \
+	$(liblinuxtrack32_la_SOURCES) $(libltr_la_SOURCES) \
+	$(libltusb1_la_SOURCES) $(libmacwc_la_SOURCES) \
+	$(libmacwii_la_SOURCES) $(libtir_la_SOURCES) \
+	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(am__xlinuxtrack9_la_SOURCES_DIST) \
 	$(am__xlinuxtrack9_32_la_SOURCES_DIST) \
 	$(ltr_extractor_SOURCES) $(ltr_pipe_SOURCES) \
@@ -565,10 +603,22 @@ man_MANS = ltr_gui.1 ltr_server1.1 mickey.1 $(am__append_2) \
 pkglib_LTLIBRARIES = libltr.la libmacwii.la liblinuxtrack.la \
 	$(am__append_1) $(am__append_3) $(am__append_4) \
 	$(am__append_8) $(am__append_10) libfakeusb.la \
-	$(am__append_11) $(am__append_12)
+	$(am__append_11) $(am__append_12) $(am__append_13)
 dist_pkgdata_DATA = linuxtrack1.conf linuxtrack.c \
 	linuxtrack_hello_world.c linuxtrack_hello_world_adv.c \
 	$(am__append_5) $(am__append_9)
+l32libdir = $(prefix)/$(LIB32DIR)/linuxtrack
+@DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@l32lib_LTLIBRARIES = liblinuxtrack32.la
+liblinuxtrack32_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h \
+  ipc_utils.c ipc_utils.h
+
+liblinuxtrack32_la_CFLAGS = $(LINUXFLAGS) -m32
+liblinuxtrack32_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" -m32 $(LINUXFLAGS)
+noinst_LIBRARIES = liblinuxtrack_int.a libfacetrack_int.a
+liblinuxtrack_int_a_SOURCES = linuxtrack.c linuxtrack.h
+libfacetrack_int_a_SOURCES = facetrack.cpp facetrack.h
+libfacetrack_int_a_CFLAGS = $(OPENCV_CFLAGS)
+libfacetrack_int_a_CXXFLAGS = $(OPENCV_CFLAGS)
 
 #ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
 #ltr_server_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
@@ -580,7 +630,7 @@ ltr_server1_SOURCES = ltr_srv_comm.c ltr_srv_comm.h ltr_srv_slave.c ltr_srv_slav
 ltr_server1_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server1_LDADD = -lpthread libltr.la
 ltr_server1_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${LTR_SERVER_FLAGS}
-ltr_extractor_SOURCES = hashing.c $(srcdir)/qt_gui/game_data.c $(srcdir)/qt_gui/game_data.h utils.c utils.h
+ltr_extractor_SOURCES = hashing.c game_data.c game_data.h utils.c utils.h
 ltr_extractor_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS) -Iqt_gui
 ltr_extractor_LDADD = -lcrypto -lmxml
 ltr_extractor_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG}
@@ -592,7 +642,7 @@ liblinuxtrack_la_CFLAGS = ${AM_CFLAGS} $(LIBLINUXTRACK_FLAGS) $(LINUXFLAGS)
 liblinuxtrack_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" ${SLEOPARD_LDFLAG}
 libltr_la_SOURCES = ../config.h cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   math_utils.c math_utils.h pose.c pose.h pref.cpp pref.hpp pref.h pref_bison.ypp \
-  pref_bison.h pref_flex.lpp pref_global.c pref_global.h \
+  pref_bison.hpp pref_flex.lpp pref_global.c pref_global.h \
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
   ltlib_int.c ltlib_int.h spline.c spline.h axis.c axis.h wii_driver_prefs.c \
   wii_driver_prefs.h tir_driver_prefs.c tir_driver_prefs.h wc_driver_prefs.c \
@@ -636,6 +686,10 @@ libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_CFLAGS = ${AM_CFLAGS}
 libwc_la_LIBADD = libltr.la -lv4l2
 libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
+libmacwc_la_SOURCES = macwebcam_driver.c com_proc.h runloop.h ipc_utils.h
+libmacwc_la_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG}
+libmacwc_la_LIBADD = -lltr
+libmacwc_la_LDFLAGS = -export-symbols ../drivers.sym ${AM_CFLAGS} ${SLEOPARD_LDFLAG}
 libft_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h facetrack.cpp facetrack.h
 libft_la_CFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_CXXFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
@@ -662,12 +716,12 @@ ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS} -ldl
 @XPLANE_PLUGIN_TRUE@xlinuxtrack9_la_LIBADD = -lm -ldl
 AM_YFLAGS = -d --name-prefix ltr_int_parser_
 AM_LFLAGS = -i
-BUILT_SOURCES = pref_flex.cpp pref_bison.cpp pref_bison.h
-noinst_SCRIPTS = qt_gui/ltr_gui $(am__append_13) $(am__append_16)
-hook_inst_targets = LTR_QT_GUI_TARGET_INST $(am__append_14) \
-	$(am__append_17)
-hook_uninst_targets = LTR_QT_GUI_TARGET_UNINST $(am__append_15) \
+BUILT_SOURCES = pref_flex.cpp pref_bison.cpp pref_bison.hpp
+noinst_SCRIPTS = qt_gui/ltr_gui $(am__append_14) $(am__append_17)
+hook_inst_targets = LTR_QT_GUI_TARGET_INST $(am__append_15) \
 	$(am__append_18)
+hook_uninst_targets = LTR_QT_GUI_TARGET_UNINST $(am__append_16) \
+	$(am__append_19)
 EXTRA_DIST = qt_gui/ltr_show.h qt_gui/help_view.cpp qt_gui/ltr_tracking.h \
 qt_gui/scp_form.ui qt_gui/logview.ui qt_gui/clip.png qt_gui/webcam_prefs.cpp \
 qt_gui/scview.h qt_gui/webcam_ft_prefs.h qt_gui/scview.cpp qt_gui/dl.ui \
@@ -696,7 +750,7 @@ ltr_server.c ltr_server.h netcomm.c netcomm.h pref_flex.h \
 qt_gui/buffering.cpp qt_gui/buffering.h qt_gui/cap_edit.ui qt_gui/cap_tweaking.ui \
 qt_gui/clip_edit.ui qt_gui/clip_tweaking.ui qt_gui/device_setup.cpp qt_gui/device_setup.h \
 qt_gui/device_setup.ui qt_gui/downloading.cpp qt_gui/downloading.h qt_gui/extractor.ui \
-qt_gui/extractor.cpp qt_gui/extractor.h qt_gui/game_data.c qt_gui/game_data.h \
+qt_gui/extractor.cpp qt_gui/extractor.h \
 qt_gui/guardian.cpp qt_gui/guardian.h qt_gui/hashing.cpp qt_gui/hashing.h qt_gui/l_wc_setup.ui \
 qt_gui/l_wcft_setup.ui qt_gui/m_wc_setup.ui qt_gui/m_wcft_setup.ui qt_gui/model_edit.ui \
 qt_gui/profile_selector.cpp qt_gui/profile_selector.h qt_gui/profile_selector.ui \
@@ -737,7 +791,7 @@ all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .cpp .h .hpp .lo .lpp .o .obj .ypp
+.SUFFIXES: .c .cpp .lo .lpp .o .obj .ypp
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -774,6 +828,54 @@ local_config.h: $(top_builddir)/config.status $(srcdir)/local_config.h.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 linuxtrack.pc: $(top_builddir)/config.status $(srcdir)/linuxtrack.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+
+clean-noinstLIBRARIES:
+	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+
+libfacetrack_int.a: $(libfacetrack_int_a_OBJECTS) $(libfacetrack_int_a_DEPENDENCIES) $(EXTRA_libfacetrack_int_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f libfacetrack_int.a
+	$(AM_V_AR)$(libfacetrack_int_a_AR) libfacetrack_int.a $(libfacetrack_int_a_OBJECTS) $(libfacetrack_int_a_LIBADD)
+	$(AM_V_at)$(RANLIB) libfacetrack_int.a
+
+liblinuxtrack_int.a: $(liblinuxtrack_int_a_OBJECTS) $(liblinuxtrack_int_a_DEPENDENCIES) $(EXTRA_liblinuxtrack_int_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f liblinuxtrack_int.a
+	$(AM_V_AR)$(liblinuxtrack_int_a_AR) liblinuxtrack_int.a $(liblinuxtrack_int_a_OBJECTS) $(liblinuxtrack_int_a_LIBADD)
+	$(AM_V_at)$(RANLIB) liblinuxtrack_int.a
+
+install-l32libLTLIBRARIES: $(l32lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	@list='$(l32lib_LTLIBRARIES)'; test -n "$(l32libdir)" || list=; \
+	list2=; for p in $$list; do \
+	  if test -f $$p; then \
+	    list2="$$list2 $$p"; \
+	  else :; fi; \
+	done; \
+	test -z "$$list2" || { \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(l32libdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(l32libdir)" || exit 1; \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(l32libdir)'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(l32libdir)"; \
+	}
+
+uninstall-l32libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@list='$(l32lib_LTLIBRARIES)'; test -n "$(l32libdir)" || list=; \
+	for p in $$list; do \
+	  $(am__strip_dir) \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(l32libdir)/$$f'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(l32libdir)/$$f"; \
+	done
+
+clean-l32libLTLIBRARIES:
+	-test -z "$(l32lib_LTLIBRARIES)" || rm -f $(l32lib_LTLIBRARIES)
+	@list='$(l32lib_LTLIBRARIES)'; \
+	locs=`for p in $$list; do echo $$p; done | \
+	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
+	      sort -u`; \
+	test -z "$$locs" || { \
+	  echo rm -f $${locs}; \
+	  rm -f $${locs}; \
+	}
 
 install-pkglibLTLIBRARIES: $(pkglib_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
@@ -818,6 +920,9 @@ libft.la: $(libft_la_OBJECTS) $(libft_la_DEPENDENCIES) $(EXTRA_libft_la_DEPENDEN
 
 liblinuxtrack.la: $(liblinuxtrack_la_OBJECTS) $(liblinuxtrack_la_DEPENDENCIES) $(EXTRA_liblinuxtrack_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(liblinuxtrack_la_LINK) -rpath $(pkglibdir) $(liblinuxtrack_la_OBJECTS) $(liblinuxtrack_la_LIBADD) $(LIBS)
+
+liblinuxtrack32.la: $(liblinuxtrack32_la_OBJECTS) $(liblinuxtrack32_la_DEPENDENCIES) $(EXTRA_liblinuxtrack32_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(liblinuxtrack32_la_LINK) $(am_liblinuxtrack32_la_rpath) $(liblinuxtrack32_la_OBJECTS) $(liblinuxtrack32_la_LIBADD) $(LIBS)
 pref_bison.hpp: pref_bison.cpp
 	@if test ! -f $@; then rm -f pref_bison.cpp; else :; fi
 	@if test ! -f $@; then $(MAKE) $(AM_MAKEFLAGS) pref_bison.cpp; else :; fi
@@ -827,6 +932,9 @@ libltr.la: $(libltr_la_OBJECTS) $(libltr_la_DEPENDENCIES) $(EXTRA_libltr_la_DEPE
 
 libltusb1.la: $(libltusb1_la_OBJECTS) $(libltusb1_la_DEPENDENCIES) $(EXTRA_libltusb1_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libltusb1_la_LINK) $(am_libltusb1_la_rpath) $(libltusb1_la_OBJECTS) $(libltusb1_la_LIBADD) $(LIBS)
+
+libmacwc.la: $(libmacwc_la_OBJECTS) $(libmacwc_la_DEPENDENCIES) $(EXTRA_libmacwc_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libmacwc_la_LINK) $(am_libmacwc_la_rpath) $(libmacwc_la_OBJECTS) $(libmacwc_la_LIBADD) $(LIBS)
 
 libmacwii.la: $(libmacwii_la_OBJECTS) $(libmacwii_la_DEPENDENCIES) $(EXTRA_libmacwii_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libmacwii_la_LINK) -rpath $(pkglibdir) $(libmacwii_la_OBJECTS) $(libmacwii_la_LIBADD) $(LIBS)
@@ -894,11 +1002,6 @@ clean-binPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-$(srcdir)/qt_gui/$(am__dirstamp):
-	@$(MKDIR_P) $(srcdir)/qt_gui
-	@: > $(srcdir)/qt_gui/$(am__dirstamp)
-$(srcdir)/qt_gui/ltr_extractor-game_data.$(OBJEXT):  \
-	$(srcdir)/qt_gui/$(am__dirstamp)
 
 ltr_extractor$(EXEEXT): $(ltr_extractor_OBJECTS) $(ltr_extractor_DEPENDENCIES) $(EXTRA_ltr_extractor_DEPENDENCIES) 
 	@rm -f ltr_extractor$(EXEEXT)
@@ -914,7 +1017,6 @@ ltr_server1$(EXEEXT): $(ltr_server1_OBJECTS) $(ltr_server1_DEPENDENCIES) $(EXTRA
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f $(srcdir)/qt_gui/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -945,6 +1047,15 @@ liblinuxtrack_la-utils.lo: utils.c
 
 liblinuxtrack_la-ipc_utils.lo: ipc_utils.c
 	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblinuxtrack_la_CFLAGS) $(CFLAGS) -c -o liblinuxtrack_la-ipc_utils.lo `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
+
+liblinuxtrack32_la-ltlib.lo: ltlib.c
+	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblinuxtrack32_la_CFLAGS) $(CFLAGS) -c -o liblinuxtrack32_la-ltlib.lo `test -f 'ltlib.c' || echo '$(srcdir)/'`ltlib.c
+
+liblinuxtrack32_la-utils.lo: utils.c
+	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblinuxtrack32_la_CFLAGS) $(CFLAGS) -c -o liblinuxtrack32_la-utils.lo `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
+
+liblinuxtrack32_la-ipc_utils.lo: ipc_utils.c
+	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblinuxtrack32_la_CFLAGS) $(CFLAGS) -c -o liblinuxtrack32_la-ipc_utils.lo `test -f 'ipc_utils.c' || echo '$(srcdir)/'`ipc_utils.c
 
 libltr_la-cal.lo: cal.c
 	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltr_la_CFLAGS) $(CFLAGS) -c -o libltr_la-cal.lo `test -f 'cal.c' || echo '$(srcdir)/'`cal.c
@@ -1003,6 +1114,9 @@ libltr_la-wii_com.lo: wii_com.c
 libltusb1_la-libusb_ifc.lo: libusb_ifc.c
 	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltusb1_la_CFLAGS) $(CFLAGS) -c -o libltusb1_la-libusb_ifc.lo `test -f 'libusb_ifc.c' || echo '$(srcdir)/'`libusb_ifc.c
 
+libmacwc_la-macwebcam_driver.lo: macwebcam_driver.c
+	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwc_la_CFLAGS) $(CFLAGS) -c -o libmacwc_la-macwebcam_driver.lo `test -f 'macwebcam_driver.c' || echo '$(srcdir)/'`macwebcam_driver.c
+
 libmacwii_la-macwii_driver.lo: macwii_driver.c
 	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwii_la_CFLAGS) $(CFLAGS) -c -o libmacwii_la-macwii_driver.lo `test -f 'macwii_driver.c' || echo '$(srcdir)/'`macwii_driver.c
 
@@ -1042,11 +1156,11 @@ ltr_extractor-hashing.o: hashing.c
 ltr_extractor-hashing.obj: hashing.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_extractor_CFLAGS) $(CFLAGS) -c -o ltr_extractor-hashing.obj `if test -f 'hashing.c'; then $(CYGPATH_W) 'hashing.c'; else $(CYGPATH_W) '$(srcdir)/hashing.c'; fi`
 
-$(srcdir)/qt_gui/ltr_extractor-game_data.o: $(srcdir)/qt_gui/game_data.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_extractor_CFLAGS) $(CFLAGS) -c -o $(srcdir)/qt_gui/ltr_extractor-game_data.o `test -f '$(srcdir)/qt_gui/game_data.c' || echo '$(srcdir)/'`$(srcdir)/qt_gui/game_data.c
+ltr_extractor-game_data.o: game_data.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_extractor_CFLAGS) $(CFLAGS) -c -o ltr_extractor-game_data.o `test -f 'game_data.c' || echo '$(srcdir)/'`game_data.c
 
-$(srcdir)/qt_gui/ltr_extractor-game_data.obj: $(srcdir)/qt_gui/game_data.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_extractor_CFLAGS) $(CFLAGS) -c -o $(srcdir)/qt_gui/ltr_extractor-game_data.obj `if test -f '$(srcdir)/qt_gui/game_data.c'; then $(CYGPATH_W) '$(srcdir)/qt_gui/game_data.c'; else $(CYGPATH_W) '$(srcdir)/$(srcdir)/qt_gui/game_data.c'; fi`
+ltr_extractor-game_data.obj: game_data.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_extractor_CFLAGS) $(CFLAGS) -c -o ltr_extractor-game_data.obj `if test -f 'game_data.c'; then $(CYGPATH_W) 'game_data.c'; else $(CYGPATH_W) '$(srcdir)/game_data.c'; fi`
 
 ltr_extractor-utils.o: utils.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_extractor_CFLAGS) $(CFLAGS) -c -o ltr_extractor-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
@@ -1104,6 +1218,12 @@ ltr_server1-ipc_utils.obj: ipc_utils.c
 
 .cpp.lo:
 	$(AM_V_CXX)$(LTCXXCOMPILE) -c -o $@ $<
+
+libfacetrack_int_a-facetrack.o: facetrack.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfacetrack_int_a_CXXFLAGS) $(CXXFLAGS) -c -o libfacetrack_int_a-facetrack.o `test -f 'facetrack.cpp' || echo '$(srcdir)/'`facetrack.cpp
+
+libfacetrack_int_a-facetrack.obj: facetrack.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfacetrack_int_a_CXXFLAGS) $(CXXFLAGS) -c -o libfacetrack_int_a-facetrack.obj `if test -f 'facetrack.cpp'; then $(CYGPATH_W) 'facetrack.cpp'; else $(CYGPATH_W) '$(srcdir)/facetrack.cpp'; fi`
 
 libfakeusb_la-tir_model.lo: tir_model.cpp
 	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfakeusb_la_CXXFLAGS) $(CXXFLAGS) -c -o libfakeusb_la-tir_model.lo `test -f 'tir_model.cpp' || echo '$(srcdir)/'`tir_model.cpp
@@ -1353,10 +1473,10 @@ distdir: $(DISTFILES)
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) \
-		$(HEADERS)
+all-am: Makefile $(LIBRARIES) $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) \
+		$(MANS) $(DATA) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(icondir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(l32libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(icondir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -1386,7 +1506,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-test -z "$(srcdir)/qt_gui/$(am__dirstamp)" || rm -f $(srcdir)/qt_gui/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1397,7 +1516,8 @@ maintainer-clean-generic:
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-libtool clean-local \
+clean-am: clean-binPROGRAMS clean-generic clean-l32libLTLIBRARIES \
+	clean-libtool clean-local clean-noinstLIBRARIES \
 	clean-pkglibLTLIBRARIES mostlyclean-am
 
 distclean: distclean-am
@@ -1418,7 +1538,8 @@ info: info-am
 info-am:
 
 install-data-am: install-desktopDATA install-dist_pkgdataDATA \
-	install-iconDATA install-includeHEADERS install-man
+	install-iconDATA install-includeHEADERS \
+	install-l32libLTLIBRARIES install-man
 
 install-dvi: install-dvi-am
 
@@ -1466,8 +1587,8 @@ ps-am:
 
 uninstall-am: uninstall-binPROGRAMS uninstall-desktopDATA \
 	uninstall-dist_pkgdataDATA uninstall-iconDATA \
-	uninstall-includeHEADERS uninstall-man \
-	uninstall-pkglibLTLIBRARIES
+	uninstall-includeHEADERS uninstall-l32libLTLIBRARIES \
+	uninstall-man uninstall-pkglibLTLIBRARIES
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
 uninstall-man: uninstall-man1
@@ -1476,7 +1597,8 @@ uninstall-man: uninstall-man1
 	uninstall-am
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean \
-	clean-binPROGRAMS clean-generic clean-libtool clean-local \
+	clean-binPROGRAMS clean-generic clean-l32libLTLIBRARIES \
+	clean-libtool clean-local clean-noinstLIBRARIES \
 	clean-pkglibLTLIBRARIES cscopelist-am ctags ctags-am distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-local distclean-tags distdir dvi dvi-am html html-am \
@@ -1485,15 +1607,16 @@ uninstall-man: uninstall-man1
 	install-dist_pkgdataDATA install-dvi install-dvi-am \
 	install-exec install-exec-am install-exec-hook install-html \
 	install-html-am install-iconDATA install-includeHEADERS \
-	install-info install-info-am install-man install-man1 \
-	install-pdf install-pdf-am install-pkglibLTLIBRARIES \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-desktopDATA uninstall-dist_pkgdataDATA \
-	uninstall-hook uninstall-iconDATA uninstall-includeHEADERS \
+	install-info install-info-am install-l32libLTLIBRARIES \
+	install-man install-man1 install-pdf install-pdf-am \
+	install-pkglibLTLIBRARIES install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
+	uninstall-binPROGRAMS uninstall-desktopDATA \
+	uninstall-dist_pkgdataDATA uninstall-hook uninstall-iconDATA \
+	uninstall-includeHEADERS uninstall-l32libLTLIBRARIES \
 	uninstall-man uninstall-man1 uninstall-pkglibLTLIBRARIES
 
 @DARWIN_TRUE@  #If ltr_server is not linked against CoreFoundation, loading libusb-1.0 would
@@ -1504,8 +1627,8 @@ uninstall-man: uninstall-man1
 #  that changed naming of headers generated by bison
 #  without a way to revert to the backwards compatible behavior.
 #  Everyone can install automake 1.12 is not an argument.
-.hpp.h:
-	cp $< $@
+#.hpp.h:
+#	cp $< $@
 
 #dirty hack to integrate qt_gui
 

@@ -93,10 +93,8 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am__dirstamp = $(am__leading_dot)dirstamp
 am_ltlib_test_OBJECTS = ltlib_test-ltlib_test.$(OBJEXT) \
-	../ltlib_test-utils.$(OBJEXT) \
-	../ltlib_test-linuxtrack.$(OBJEXT)
+	ltlib_test-utils.$(OBJEXT) ltlib_test-linuxtrack.$(OBJEXT)
 ltlib_test_OBJECTS = $(am_ltlib_test_OBJECTS)
 ltlib_test_DEPENDENCIES =
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -312,7 +310,7 @@ with_wine64 = @with_wine64@
 #endif
 
 #pose_test_SOURCES = pose_test.c
-ltlib_test_SOURCES = ltlib_test.c ../utils.c ../utils.h ../linuxtrack.c ../linuxtrack.h
+ltlib_test_SOURCES = ltlib_test.c utils.c utils.h linuxtrack.c linuxtrack.h
 #webcam_driver_test_SOURCES = webcam_driver_test.c ../webcam_driver.c \
 #                ../utils.h ../utils.c ../list.c ../list.h ../pref.c ../pref.h \
 #                ../pref_bison.c ../pref_bison.h ../pref_flex.c ../pref_int.h \
@@ -326,7 +324,7 @@ ltlib_test_SOURCES = ltlib_test.c ../utils.c ../utils.h ../linuxtrack.c ../linux
 #                ../pref_bison.c ../pref_bison.h ../pref_flex.c ../pref_int.h 
 
 #pose_test_LDADD = -lm -lpthread -ldl -llinuxtrack
-ltlib_test_LDADD = -lm -lpthread -ldl
+ltlib_test_LDADD = -lm -lpthread -ldl -llinuxtrack_int
 #webcam_driver_test_LDADD = -lm -lpthread -ldl -lltr -lv4l2
 #pref_test_LDADD = -lm -lpthread -ldl -lltr
 #test_LDALL = -lm
@@ -386,11 +384,6 @@ clean-noinstPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-../$(am__dirstamp):
-	@$(MKDIR_P) ..
-	@: > ../$(am__dirstamp)
-../ltlib_test-utils.$(OBJEXT): ../$(am__dirstamp)
-../ltlib_test-linuxtrack.$(OBJEXT): ../$(am__dirstamp)
 
 ltlib_test$(EXEEXT): $(ltlib_test_OBJECTS) $(ltlib_test_DEPENDENCIES) $(EXTRA_ltlib_test_DEPENDENCIES) 
 	@rm -f ltlib_test$(EXEEXT)
@@ -398,7 +391,6 @@ ltlib_test$(EXEEXT): $(ltlib_test_OBJECTS) $(ltlib_test_DEPENDENCIES) $(EXTRA_lt
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f ../*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -418,17 +410,17 @@ ltlib_test-ltlib_test.o: ltlib_test.c
 ltlib_test-ltlib_test.obj: ltlib_test.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-ltlib_test.obj `if test -f 'ltlib_test.c'; then $(CYGPATH_W) 'ltlib_test.c'; else $(CYGPATH_W) '$(srcdir)/ltlib_test.c'; fi`
 
-../ltlib_test-utils.o: ../utils.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ../ltlib_test-utils.o `test -f '../utils.c' || echo '$(srcdir)/'`../utils.c
+ltlib_test-utils.o: utils.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
 
-../ltlib_test-utils.obj: ../utils.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ../ltlib_test-utils.obj `if test -f '../utils.c'; then $(CYGPATH_W) '../utils.c'; else $(CYGPATH_W) '$(srcdir)/../utils.c'; fi`
+ltlib_test-utils.obj: utils.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
 
-../ltlib_test-linuxtrack.o: ../linuxtrack.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ../ltlib_test-linuxtrack.o `test -f '../linuxtrack.c' || echo '$(srcdir)/'`../linuxtrack.c
+ltlib_test-linuxtrack.o: linuxtrack.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-linuxtrack.o `test -f 'linuxtrack.c' || echo '$(srcdir)/'`linuxtrack.c
 
-../ltlib_test-linuxtrack.obj: ../linuxtrack.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ../ltlib_test-linuxtrack.obj `if test -f '../linuxtrack.c'; then $(CYGPATH_W) '../linuxtrack.c'; else $(CYGPATH_W) '$(srcdir)/../linuxtrack.c'; fi`
+ltlib_test-linuxtrack.obj: linuxtrack.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltlib_test_CFLAGS) $(CFLAGS) -c -o ltlib_test-linuxtrack.obj `if test -f 'linuxtrack.c'; then $(CYGPATH_W) 'linuxtrack.c'; else $(CYGPATH_W) '$(srcdir)/linuxtrack.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -549,7 +541,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f ../$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
