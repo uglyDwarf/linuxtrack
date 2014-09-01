@@ -633,7 +633,7 @@ ltr_server1_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${LTR_SERVER_FLAGS}
 ltr_extractor_SOURCES = hashing.c game_data.c game_data.h utils.c utils.h
 ltr_extractor_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS) -Iqt_gui
 ltr_extractor_LDADD = -lcrypto -lmxml
-ltr_extractor_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG}
+ltr_extractor_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} -pthread
 include_HEADERS = linuxtrack.h
 liblinuxtrack_la_SOURCES = ../config.h linuxtrack.h utils.h ipc_utils.h ltlib.h \
                             ltlib.c utils.c ipc_utils.c
