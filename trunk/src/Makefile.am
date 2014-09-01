@@ -94,7 +94,7 @@ endif
 ltr_extractor_SOURCES = hashing.c game_data.c game_data.h utils.c utils.h
 ltr_extractor_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS) -Iqt_gui
 ltr_extractor_LDADD = -lcrypto -lmxml
-ltr_extractor_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG}
+ltr_extractor_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} -pthread
 
 if LIBZ
 pkglib_LTLIBRARIES += libtir.la
