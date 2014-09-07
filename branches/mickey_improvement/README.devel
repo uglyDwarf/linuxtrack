@@ -1,0 +1,151 @@
+Linuxtrack interface is pretty simple:
+
+  typedef enum {
+    RUNNING,
+    PAUSED,
+    STOPPED,
+    DOWN
+  }ltr_state_type;
+  
+  int ltr_init(char *cust_section);
+  int ltr_shutdown(void);
+  int ltr_suspend(void);
+  int ltr_wakeup(void);
+  void ltr_recenter(void);
+  int ltr_get_camera_update(float *heading,
+                           float *pitch,
+                           float *roll,
+                           float *tx,
+                           float *ty,
+                           float *tz,
+                           unsigned int *counter);
+  ltr_state_type ltr_get_tracking_state(void);
+  void ltr_log_message(const char *format, ...);
+
+Lets describe its functions in a more detailed way:
+
+int ltr_init(char *cust_section);
+  This function initializes headtracking.
+
+  Parameter cust_section is a pointer to a string containing name of the 
+  profile to be used by the application. This way user can customize the 
+  headtracking for each application separately.
+  
+  If NULL is specified, default parameters are used.
+  
+  It is recomended to use unique string (like name of your application) to prevent clashes.
+  
+  Returns zero on success, nonzero value otherwise.
+
+int ltr_shutdown(void);
+int ltr_suspend(void);
+int ltr_wakeup(void);
+void ltr_recenter(void);
+
+  These functions allow you to shutdown, suspend (temporarily stop), 
+  wakeup (from suspend) and recenter the tracker.
+
+  They are non-blocking, which means that the request will not be fulfilled 
+  upon return, but it will be carried out as soon as possible.
+
+  To check the current state, please use ltr_get_tracking_state function.
+
+int ltr_get_camera_update(float *heading,
+                          float *pitch,
+                          float *roll,
+                          float *tx,
+                          float *ty,
+                          float *tz,
+                          unsigned int *counter);
+
+  This is the main function of the linuxtrack interface.
+  
+  Its parameters are pointers to floats, that will contain corresponding 
+  rotations and translations upon successfull return.
+  
+  The counter parameter is pointer to the int, that receives current camera 
+  frame number.
+  
+  Returns zero on success, nonzero value otherwise.
+
+typedef enum {
+  RUNNING,
+  PAUSED,
+  STOPPED,
+  DOWN
+}ltr_state_type;
+
+ltr_state_type ltr_get_tracking_state(void);
+
+  This function returns current linuxtrack state - RUNNING means tracking is on, 
+  PAUSED means tracking is suspended, STOPPED means tracker is shut down and 
+  finally DOWN means that tracking was not initialized yet.
+
+void ltr_log_message(const char *format, ...);
+
+  This is utility function, allowing you to log messages to the linuxtrack 
+  logfile. Its usage is similar to the printf function.
+
+  Linuxtrack Hello World
+==========================
+Here is the small "hello world" type of program showing usage of linuxtrack interface.
+
+#include <linuxtrack.h>
+#include <stdio.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[])
+{
+  (void) argc;
+  (void) argv;
+  printf("Hello World!\n");
+  //Initialize the tracking using Default profile
+  ltr_init(NULL);
+  //Wait for tracker initialization
+  ltr_state_type state;
+  int timeout = 100; //10 seconds timeout (for example firmware load...)
+  while(timeout > 0){
+    state = ltr_get_tracking_state();
+    if((state == DOWN) || (state == STOPPED)){
+      usleep(100000); //sleep 0.1s
+    }else{
+      break;
+    }
+    --timeout;
+  };
+  
+  if(ltr_get_tracking_state() != RUNNING){
+    printf("Initialization is taking too long!\n");
+    return 1;
+  }
+  
+  int i;
+  float heading, pitch, roll, x, y, z;
+  unsigned int counter;
+  
+  ltr_recenter();  
+  
+  for(i = 0; i < 30; ++i){
+    ltr_get_camera_update(&heading, &pitch, &roll, &x, &y, &z, &counter);
+    printf("%f  %f  %f\n  %f  %f  %f\n", heading, pitch, roll, x, y, z);
+    usleep(100000);
+  }
+  
+  ltr_suspend();
+  sleep(2);
+  ltr_wakeup();
+  
+  for(i = 0; i < 30; ++i){
+    ltr_get_camera_update(&heading, &pitch, &roll, &x, &y, &z, &counter);
+    printf("%f  %f  %f\n  %f  %f  %f\n", heading, pitch, roll, x, y, z);
+    usleep(100000);
+  }
+
+  ltr_shutdown();
+  return 0;
+}
+
+
+For details on compiling this program see the project wiki page
+http://code.google.com/p/linux-track/wiki/LinuxtrackInterface
+
