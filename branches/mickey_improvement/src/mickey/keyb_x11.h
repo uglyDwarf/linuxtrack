@@ -8,35 +8,51 @@
 #include <map>
 #include <X11/Xlib.h>
 
-typedef std::pair<KeyCode, unsigned int> keyPair_t;
+#ifdef QT5_OVERRIDES
+  #include <QAbstractNativeEventFilter>
+#endif
 
+class shortcut;
+
+typedef std::pair<KeyCode, unsigned int> keyPair_t;
+typedef std::map<keyPair_t, shortcut*> shortcutHash_t;
+
+bool setShortCut(const QKeySequence &s, shortcut* id);
+bool unsetShortcut(shortcut* id);
+
+#ifdef QT5_OVERRIDES
+class hotKeyFilter : public QAbstractNativeEventFilter
+{
+ protected:
+  bool nativeEventFilter(const QByteArray & eventType, void * message, long * result); 
+};
+#endif
+/*
 class shortcutPimpl : public QObject
 {
   Q_OBJECT
   public:
-   shortcutPimpl();
    ~shortcutPimpl();
-   bool setShortcut(const QKeySequence &s);
-   bool unsetShortcut();
-   void activate(){emit activated();};
+   bool setShortcut(const QKeySequence &s, shortcut* id);
+   bool unsetShortcut(shortcut* id);
+   //void activate(int id){emit activated(id);};
+   static shortcutPimpl *createShortcutObject();
   signals:
-   void activated();
+   void activated(int);
   private:
-   Display *display;
-   Window window;
-   QKeySequence seq;
-   KeyCode code;
-   unsigned int modifiers;
-   static bool errorEncountered;
-   static QString errMsg;
-   bool shortcutSet;
+   shortcutPimpl();
    static void installFilter();
    static void uninstallFilter();
    static QAbstractEventDispatcher::EventFilter prevFilter;
    static bool eventFilter(void *message);
-   static std::map<keyPair_t, shortcutPimpl*> shortcutHash;
+   static shortcutHash_t shortcutHash;
    static int my_x_errhandler(Display* display, XErrorEvent *event);
+   static bool grabKeyX(Display *display, Window &window, KeyCode code, unsigned int modifiers);
+   static bool ungrabKeyX(Display *display, Window &window, KeyCode code, unsigned int modifiers);
+   static bool removeIdFromHash(shortcut* shortcutId, keyPair_t *kp = NULL);
+   static bool translateSequence(const QKeySequence &s, KeyCode &code, unsigned int &modifiers);
 };
+*/
 
 #endif
 

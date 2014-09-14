@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>470</width>
-    <height>370</height>
+    <width>535</width>
+    <height>415</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>470</width>
-    <height>370</height>
+    <height>415</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -311,91 +311,15 @@
               </widget>
              </item>
              <item>
-              <layout class="QGridLayout" name="gridLayout_2">
-               <item row="0" column="0">
-                <widget class="QLabel" name="label">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
+              <layout class="QHBoxLayout" name="horizontalLayout_6">
+               <item>
+                <layout class="QGridLayout" name="HotkeyStack">
+                 <property name="horizontalSpacing">
+                  <number>2</number>
                  </property>
-                 <property name="text">
-                  <string>Start/Stop tracking</string>
-                 </property>
-                </widget>
+                </layout>
                </item>
-               <item row="0" column="2">
-                <widget class="QComboBox" name="KeyCombo">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <item>
-                  <property name="text">
-                   <string>F9</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>F11</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Pause</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Print</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Scroll Lock</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QComboBox" name="ModifierCombo">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <item>
-                  <property name="text">
-                   <string>None</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Ctrl</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Alt</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Shift</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Meta</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="0" column="3">
+               <item>
                 <spacer name="horizontalSpacer_2">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
@@ -597,6 +521,19 @@
          <number>6</number>
         </property>
         <item>
+         <widget class="QLabel" name="label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Status: </string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QLabel" name="StatusLabel">
           <property name="text">
            <string>Tracking</string>
@@ -621,8 +558,8 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>361</x>
-     <y>316</y>
+     <x>524</x>
+     <y>380</y>
     </hint>
     <hint type="destinationlabel">
      <x>358</x>

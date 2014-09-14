@@ -15,9 +15,9 @@
 #include "ui_calibration.h"
 #include "ui_chsettings.h"
 #include "linuxtrack.h"
-#include "keyb.h"
 #include "sn4_com.h"
 #include "help_view.h"
+#include "hotkey.h"
 
 /*
 class MickeyDialog: public QDialog
@@ -90,7 +90,7 @@ class MickeyThread : public QThread
   void run();
   void setFinish(){finish = true;};
  public slots:
-  void on_key_pressed();
+  void on_mouseHotKey_activated(int button, bool pressed);
  signals:
   void clicked();
  private:
@@ -117,9 +117,7 @@ class Mickey : public QObject
   bool getRelative(){return relative;};
   void recenter();
   void calibrate();
-  bool setShortcut(QKeySequence seq);
  private:
-  shortcut *onOffSwitch;
   QTimer updateTimer;
   MickeyTransform *trans;
   MickeyThread btnThread;
@@ -137,7 +135,7 @@ class Mickey : public QObject
   QPoint screenCenter;
   bool relative;
  private slots:
-  void onOffSwitch_activated();
+  void hotKey_activated(int id, bool pressed);
   void updateTimer_activated();
   void revertSettings();
   void keepSettings();
@@ -146,6 +144,8 @@ class Mickey : public QObject
   void finishCalibration();
   void cancelCalibration(bool calStarted);
   void screenResized(int screen);
+ signals:
+  void mouseHotKey_activated(int button, bool pressed);
 };
 
 #define GUI MickeyGUI::getInstance()
@@ -189,12 +189,14 @@ class MickeyGUI : public QWidget
   bool stepOnly;
   float maxValX, maxValY; 
   int calDelay, cntrDelay;
-  bool getShortcut();
   virtual void closeEvent(QCloseEvent *event);
   bool changed;
   bool welcome;
   int newsSerial;
   int modifierIndex, hotkeyIndex, hotkeySet;
+  HotKey *toggleHotKey;
+  HotKey *lmbHotKey;
+  HotKey *rmbHotKey;
  private slots:
   void on_SensSlider_valueChanged(int val)
     {sensitivity = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
@@ -213,15 +215,12 @@ class MickeyGUI : public QWidget
     {if(mickey != NULL){mickey->recenter();}};
   void on_HelpButton_pressed()
     {HelpViewer::ShowWindow();};
-  void on_ModifierCombo_currentIndexChanged(const QString &text)
-    {(void) text; hotkeySet = getShortcut();};
-  void on_KeyCombo_currentIndexChanged(const QString &text)
-    {(void) text; hotkeySet = getShortcut();};
   void on_CalibrationTimeout_valueChanged(int val)
     {changed = true; calDelay = val;};
   void on_CenterTimeout_valueChanged(int val)
     {changed = true; cntrDelay = val;};
   void on_MickeyTabs_currentChanged(int index);
+  void updateHotKey(const QString &prefId, const QString &hk);
  signals:
   void axisChanged();
 };
