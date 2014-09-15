@@ -352,7 +352,7 @@ void Mickey::pause()
   //btnThread.setFinish();
   //btnThread.wait();
   updateTimer.stop();
-  //ltr_suspend();
+  linuxtrack_suspend();
 }
 
 void Mickey::wakeup()
@@ -360,7 +360,7 @@ void Mickey::wakeup()
   std::cout<<"Waking up!"<<std::endl;
   updateTimer.start();
   //btnThread.start();
-  //ltr_wakeup();
+  linuxtrack_wakeup();
   //ltr_recenter();
 }
 

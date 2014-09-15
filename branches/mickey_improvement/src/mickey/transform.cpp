@@ -163,17 +163,31 @@ MickeyTransform::MickeyTransform() : accX(0.0), accY(0.0), calibrating(false), a
   GUI.getMaxVal(maxValX, maxValY);
   prevMaxValX = maxValX;
   prevMaxValY = maxValY;
+  currMaxValX = maxValX;
+  currMaxValY = maxValY;
 }
 
 MickeyTransform::~MickeyTransform()
 {
 }
 
-static float norm(float val)
+static float sign(float val)
 {
-  if(val < -1.0f) return -1.0f;
-  if(val > 1.0f) return 1.0f;
-  return val;
+  return (val >= 0 ? 1.0f : -1.0f); 
+}
+
+static float norm(float val, float limit, float &currentLimit)
+{
+  float absVal = fabsf(val);
+  //when crossing the zero, equalize currentLimit
+  if(sign(val) != sign(currentLimit)){
+    curentLimit = sign(val) * limit;
+  }
+  //if we are above the limit, extend the limit until next zero crossing
+  if(absVal > limit){
+    currentLimit = val;
+  }
+  return val / fabsf(currentLimit);
 }
 
 void MickeyTransform::update(float valX, float valY, bool relative, int elapsed, float &x, float &y)
@@ -186,8 +200,8 @@ void MickeyTransform::update(float valX, float valY, bool relative, int elapsed,
       y = accY;
       accY -= y;
     }else{
-      x = norm(-valX/maxValX);
-      y = norm(-valY/maxValY);
+      x = norm(-valX, maxValX, currMaxValX);
+      y = norm(-valY, maxValY, currMaxValY);
     }
   }else{
     if(valX > maxValX){
