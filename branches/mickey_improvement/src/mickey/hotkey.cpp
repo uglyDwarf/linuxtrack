@@ -5,8 +5,8 @@
 
 
 
-HotKey::HotKey(const QString iPrefId, int iHotKeyId, QWidget *parent) 
-           : QWidget(parent), prefId(iPrefId), hotKeyId(iHotKeyId), hotKey(QString::fromUtf8("None"))
+HotKey::HotKey(const QString &iLabel, const QString &iPrefId, int iHotKeyId, QWidget *parent) 
+           : QWidget(parent), label(iLabel), prefId(iPrefId), hotKeyId(iHotKeyId), hotKey(QString::fromUtf8("None"))
 {
   ui.setupUi(this);
   s = new shortcut();
@@ -30,7 +30,7 @@ bool HotKey::setHotKey(const QString &newHK)
     }
   }
   emit newHotKey(prefId, newHK);
-  ui.ActionLabel->setText(newHK);
+  ui.AssignButton->setText(label + QString::fromUtf8(" ") + newHK);
   hotKey = newHK;
   return true;
 }

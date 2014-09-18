@@ -456,11 +456,13 @@ void Mickey::hotKey_activated(int id, bool pressed)
       }
       break;
     case 1: //LMB
-      
       emit mouseHotKey_activated(LEFT_BUTTON, pressed);
       break;
     case 2: //RMB
       emit mouseHotKey_activated(RIGHT_BUTTON, pressed);
+      break;
+    case 3: // quick recenter
+      linuxtrack_recenter();
       break;
   }
 }
@@ -470,8 +472,11 @@ void Mickey::updateTimer_activated()
 {
   static float heading_p = 0.0;
   static float pitch_p = 0.0;
-  float heading, pitch, roll, tx, ty, tz;
-  unsigned int counter;
+  linuxtrack_pose_t full_pose;
+  float blobs[3*3];
+  int blobs_read;
+  //float heading, pitch, roll, tx, ty, tz;
+  //unsigned int counter;
   static int lastTrackingState = -1;
   int trackingState = linuxtrack_get_tracking_state();
   
@@ -515,10 +520,19 @@ void Mickey::updateTimer_activated()
       recenterFlag = false;
     }
   }
-  if(linuxtrack_get_pose(&heading, &pitch, &roll, &tx, &ty, &tz, &counter) > 0){
+//  if(linuxtrack_get_pose(&heading, &pitch, &roll, &tx, &ty, &tz, &counter) > 0){
+  if(linuxtrack_get_pose_full(&full_pose, blobs, 3, &blobs_read) > 0){
     //new frame has arrived
-    heading_p = heading;
-    pitch_p = pitch;
+    /*heading = full_pose.yaw;
+    pitch = full_pose.pitch;
+    roll = full_pose.roll;
+    tx = full_pose.tx;
+    ty = full_pose.ty;
+    tz = full_pose.tz;
+    counter = full_pose.counter;
+    */
+    heading_p = full_pose.raw_yaw;
+    pitch_p = full_pose.raw_pitch;
     //ui.XLabel->setText(QString("X: %1").arg(heading));
     //ui.YLabel->setText(QString("Y: %1").arg(pitch));
   }
@@ -600,16 +614,13 @@ void MickeyGUI::deleteInstance()
 
 
 static HotKey* addHotKey(const QString &label, const QString &prefId, int id, 
-		  QWidget *owner, QObject *target, QGridLayout *dest, QSettings *pref)
+		  QWidget *owner, QObject *target, QGridLayout *dest, QSettings *pref, int row, int column)
 {
-  HotKey *hk = new HotKey(prefId, id, owner);
+  HotKey *hk = new HotKey(label, prefId, id, owner);
   QString hkString = pref->value(prefId, QString::fromUtf8("None")).toString();
   if(hk->setHotKey(hkString)){
     std::cout<<"hk: "<<hk<<std::endl;
-    QLabel *l = new QLabel(label, owner);
-    int row = dest->rowCount();
-    dest->addWidget(l, row, 1);
-    dest->addWidget(hk, row, 2);
+    dest->addWidget(hk, row, column);
     QObject::connect(hk, SIGNAL(activated(int, bool)), target, SLOT(hotKey_activated(int, bool)));
     QObject::connect(hk, SIGNAL(newHotKey(const QString &, const QString &)), 
 		     owner, SLOT(updateHotKey(const QString &, const QString &)));
@@ -814,11 +825,13 @@ void MickeyGUI::init()
 
   settings.beginGroup(QString::fromUtf8("HotKeys"));
   toggleHotKey = addHotKey(QString::fromUtf8("Start/Stop tracking:"), QString::fromUtf8("tracking_toggle"),
-			   0, this, mickey, ui.HotkeyStack, &settings);
+			   0, this, mickey, ui.HotkeyStack, &settings, 1, 1);
   lmbHotKey = addHotKey(QString::fromUtf8("Left mouse button:"), QString::fromUtf8("l_mouse"), 
-			   1, this, mickey, ui.HotkeyStack, &settings);
+			   1, this, mickey, ui.HotkeyStack, &settings, 2, 1);
+  recenterHotKey = addHotKey(QString::fromUtf8("Quick recenter:"), QString::fromUtf8("quick_recenter"),
+			   3, this, mickey, ui.HotkeyStack, &settings, 1, 2);
   rmbHotKey = addHotKey(QString::fromUtf8("Right mouse button:"), QString::fromUtf8("r_mouse"), 
-			   2, this, mickey, ui.HotkeyStack, &settings);
+			   2, this, mickey, ui.HotkeyStack, &settings, 2, 2);
   settings.endGroup();
   ui.ApplyButton->setEnabled(false);
   mickey->setRelative(ui.RelativeCB->isChecked());

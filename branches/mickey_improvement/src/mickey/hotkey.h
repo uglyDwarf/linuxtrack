@@ -9,7 +9,7 @@
 class HotKey : public QWidget{
  Q_OBJECT
  public:
-  HotKey(const QString iPrefId, int iHotKeyId, QWidget *parent = 0);
+  HotKey(const QString &iLabel, const QString &iPrefId, int iHotKeyId, QWidget *parent = 0);
   ~HotKey(){delete s;};
   bool setHotKey(const QString &newHK);
   void getHotKey(QString &hk) const;
@@ -20,7 +20,7 @@ class HotKey : public QWidget{
   void shortcutActivated(bool pressed);
   void on_AssignButton_pressed();
  private:
-  QString prefId;
+  QString label, prefId;
   int hotKeyId;
   QString hotKey;
   Ui::HotKeySetup ui;

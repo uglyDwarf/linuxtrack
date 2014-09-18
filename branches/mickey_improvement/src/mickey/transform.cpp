@@ -176,15 +176,27 @@ static float sign(float val)
   return (val >= 0 ? 1.0f : -1.0f); 
 }
 
+static float norm(float val)
+{
+  if(val > 1.0f){
+    return 1.0;
+  }
+  if(val < -1.0){
+    return -1.0;
+  }
+  return val;
+}
+
+
 static float norm(float val, float limit, float &currentLimit)
 {
   float absVal = fabsf(val);
   //when crossing the zero, equalize currentLimit
   if(sign(val) != sign(currentLimit)){
-    curentLimit = sign(val) * limit;
+    currentLimit = sign(val) * limit;
   }
   //if we are above the limit, extend the limit until next zero crossing
-  if(absVal > limit){
+  if(absVal > fabsf(currentLimit)){
     currentLimit = val;
   }
   return val / fabsf(currentLimit);
@@ -202,6 +214,9 @@ void MickeyTransform::update(float valX, float valY, bool relative, int elapsed,
     }else{
       x = norm(-valX, maxValX, currMaxValX);
       y = norm(-valY, maxValY, currMaxValY);
+      
+      std::cout<<"valX: "<<-valX<<"=> "<<x<<"   Limit: "<<maxValX<<"   CurrentLimit:"<<currMaxValX<<std::endl;
+      
     }
   }else{
     if(valX > maxValX){

@@ -195,6 +195,7 @@ class MickeyGUI : public QWidget
   int newsSerial;
   int modifierIndex, hotkeyIndex, hotkeySet;
   HotKey *toggleHotKey;
+  HotKey *recenterHotKey;
   HotKey *lmbHotKey;
   HotKey *rmbHotKey;
  private slots:
