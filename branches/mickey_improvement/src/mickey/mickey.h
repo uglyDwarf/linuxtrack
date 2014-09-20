@@ -160,10 +160,12 @@ class MickeyGUI : public QWidget
   int getSensitivity(){return sensitivity;};
   int getDeadzone(){return deadzone;};
   int getCurvature(){return curvature;};
+  int getSmoothing(){return smoothing;};
   bool getStepOnly(){return stepOnly;};
   void setSensitivity(int value){changed = true; sensitivity = value; ui.SensSlider->setValue(sensitivity);};
   void setDeadzone(int value){changed = true; deadzone = value; ui.DZSlider->setValue(deadzone);};
   void setCurvature(int value){changed = true; curvature = value; ui.CurveSlider->setValue(curvature);};
+  void setSmoothing(int value){changed = true; smoothing = value; ui.SmoothingSlider->setValue(smoothing);};
   void setStepOnly(bool value);
   QBoxLayout *getAxisViewLayout(){return ui.PrefLayout;};
   //Transform interface
@@ -185,7 +187,7 @@ class MickeyGUI : public QWidget
   Mickey *mickey;
   Ui::Mickey ui;
   QSettings settings;
-  int sensitivity, deadzone, curvature;
+  int sensitivity, deadzone, curvature, smoothing;
   bool stepOnly;
   float maxValX, maxValY; 
   int calDelay, cntrDelay;
@@ -205,6 +207,8 @@ class MickeyGUI : public QWidget
     {deadzone = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
   void on_CurveSlider_valueChanged(int val)
     {curvature = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
+  void on_SmoothingSlider_valueChanged(int val)
+    {smoothing = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};
   void on_RelativeCB_clicked(bool checked){mickey->setRelative(checked);changed = true;};
   void on_AbsoluteCB_clicked(bool checked){mickey->setRelative(!checked);changed = true;};
   void on_StepOnly_stateChanged(int state);

@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <QPainter>
+#include "math_utils.h"
 
 const int screenMax = 1024;
 const float timeFast = 0.1;
@@ -60,6 +61,7 @@ MickeysAxis::MickeysAxis(): curveShow(NULL)
   setup.deadzone = GUI.getDeadzone();
   setup.curvature= GUI.getCurvature();
   setup.stepOnly = GUI.getStepOnly();
+  setup.smoothing = GUI.getSmoothing();
   newSetup = setup;
 }
 
@@ -112,6 +114,15 @@ void MickeysAxis::step(float valX, float valY, int elapsed, float &accX, float &
   accY += mag * sinf(angle) * getSpeed(setup.sensitivity) * (elapsed / 1000.0);
 }
 
+
+void MickeysAxis::smooth(float &valX, float &valY)
+{
+  valX = ltr_int_nonlinfilt(valX, prevX, setup.smoothing/3.0);
+  valY = ltr_int_nonlinfilt(valY, prevY, setup.smoothing/3.0);
+  prevX = valX;
+  prevY = valY;
+}
+
 void MickeysAxis::updatePixmap()
 {
   const int pointCount = 128;
@@ -132,6 +143,7 @@ void MickeysAxis::axisChanged(){
   newSetup.sensitivity = GUI.getSensitivity();
   newSetup.deadzone = GUI.getDeadzone();
   newSetup.curvature= GUI.getCurvature();
+  newSetup.smoothing= GUI.getSmoothing();
   newSetup.stepOnly = GUI.getStepOnly();
   updatePixmap();
 }
@@ -154,6 +166,7 @@ void MickeysAxis::revertSettings()
   GUI.setSensitivity(setup.sensitivity);
   GUI.setDeadzone(setup.deadzone);
   GUI.setCurvature(setup.curvature);
+  GUI.setSmoothing(setup.smoothing);
   GUI.setStepOnly(setup.stepOnly);
   updatePixmap();
 }
@@ -204,6 +217,7 @@ static float norm(float val, float limit, float &currentLimit)
 
 void MickeyTransform::update(float valX, float valY, bool relative, int elapsed, float &x, float &y)
 {
+  axis.smooth(valX, valY);
   if(!calibrating){
     if(relative){
       axis.step(norm(-valX/maxValX), norm(-valY/maxValY), elapsed, accX, accY);

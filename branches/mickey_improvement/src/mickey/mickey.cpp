@@ -671,11 +671,13 @@ void MickeyGUI::readPrefs()
   deadzone = settings.value(QString::fromUtf8("DeadZone"), 20).toInt();
   sensitivity = settings.value(QString::fromUtf8("Sensitivity"), 50).toInt();
   curvature = settings.value(QString::fromUtf8("Curvature"), 50).toInt();
+  smoothing = settings.value(QString::fromUtf8("Smoothing"), 33).toInt();
   stepOnly = settings.value(QString::fromUtf8("StepOnly"), false).toBool();
   relative = settings.value(QString::fromUtf8("Relative"), true).toBool();
   ui.SensSlider->setValue(sensitivity);
   ui.DZSlider->setValue(deadzone);
   ui.CurveSlider->setValue(curvature);
+  ui.SmoothingSlider->setValue(smoothing);
   ui.StepOnly->setCheckState(stepOnly ? Qt::Checked : Qt::Unchecked);
   if(stepOnly){
     ui.CurveSlider->setDisabled(true);
@@ -742,6 +744,7 @@ void MickeyGUI::storePrefs()
   settings.setValue(QString::fromUtf8("DeadZone"), deadzone);
   settings.setValue(QString::fromUtf8("Sensitivity"), sensitivity);
   settings.setValue(QString::fromUtf8("Curvature"), curvature);
+  settings.setValue(QString::fromUtf8("Smoothing"), smoothing);
   settings.setValue(QString::fromUtf8("StepOnly"), stepOnly);
   settings.setValue(QString::fromUtf8("Relative"), mickey->getRelative());
   settings.endGroup();
