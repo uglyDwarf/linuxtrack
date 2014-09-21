@@ -97,7 +97,7 @@ static void installFilter()
 #else
   if(prevFilter == NULL){
     prevFilter = QAbstractEventDispatcher::instance()->setEventFilter(eventFilter);
-    printf("Handler installed!\n");
+    //printf("Handler installed!\n");
   }
 #endif  
 }
@@ -111,7 +111,7 @@ static void uninstallFilter()
 #else
   if(prevFilter != NULL){
     QAbstractEventDispatcher::instance()->setEventFilter(prevFilter);
-    printf("Handler removed!\n");
+    //printf("Handler removed!\n");
   }
 #endif
 }
@@ -127,7 +127,7 @@ static int my_x_errhandler(Display* display, XErrorEvent *event)
     char msg[ERR_MSG_SIZE];
     //to be 100% sure there is a place for ending NULL, I sub 1 from ERR_MSG_SIZE
     XGetErrorText(display, event->error_code, msg, ERR_MSG_SIZE-1);
-    printf("X Error: %s\n", msg);
+    //printf("X Error: %s\n", msg);
     errMsg = QString::fromUtf8(msg);
     errorEncountered = true;
   }
@@ -155,7 +155,7 @@ static bool removeIdFromHash(shortcut* shortcutId, keyPair_t *kp = NULL)
   shortcutHash_t::iterator i;
   for(i = shortcutHash.begin(); i != shortcutHash.end(); /* empty */){
     if(i->second == shortcutId){
-      printf("Removing id %p\n", shortcutId);
+      //printf("Removing id %p\n", shortcutId);
       if(kp != NULL){
 	*kp = i->first;
       }
@@ -174,12 +174,12 @@ static bool translateSequence(const QKeySequence &s, KeyCode &code, unsigned int
   modifiers = getModifiers(s[0]);
   KeySym sym = XStringToKeysym(qPrintable(key.toString()));
   if(sym == NoSymbol){
-    printf("Unknown symbol!\n");
+    //printf("Unknown symbol!\n");
     return false;
   }
   code = XKeysymToKeycode(display, sym);
   if(code == 0){
-    printf("Unknown code!\n");
+    //printf("Unknown code!\n");
     return false;
   }
   return true;
@@ -193,7 +193,7 @@ bool setShortCut(const QKeySequence &s, shortcut* shortcutId)
   }
   removeIdFromHash(shortcutId);
   if(s.isEmpty()){
-    printf("Empty key sequence!\n");
+    //printf("Empty key sequence!\n");
     return false;
   }
   unsigned int modifiers;
@@ -205,16 +205,16 @@ bool setShortCut(const QKeySequence &s, shortcut* shortcutId)
   keyPair_t kp(code, modifiers);
   shortcutHash_t::iterator i = shortcutHash.find(kp);
   if(i != shortcutHash.end()){
-    printf("The hotkey is taken already!\n");
+    //printf("The hotkey is taken already!\n");
     return false;
   } 
   
   if(!grabKeyX(display, window, code, modifiers)){
-    printf("Problem setting shortcut!\n");
+    //printf("Problem setting shortcut!\n");
     return false;
   }
 
-  printf("Shortcut set!\n");
+  //printf("Shortcut set!\n");
   bool needInstallFilter = shortcutHash.empty();
   shortcutHash.insert(std::pair<std::pair<KeyCode, unsigned int>, shortcut *>
     (keyPair_t(code, modifiers), shortcutId));

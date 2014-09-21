@@ -40,7 +40,7 @@ int ltr_int_send_message_w_str(int fifo, uint32_t cmd, uint32_t data, char *str)
   }else{
     msg.str[0] = '\0';
   }
-  printf("Sending string %s\n", msg.str);
+  //printf("Sending string %s\n", msg.str);
   return ltr_int_fifo_send(fifo, &msg, sizeof(message_t));
 }
 

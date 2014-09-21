@@ -154,7 +154,7 @@ static void ltr_int_state_changed(void *param)
 
 bool ltr_int_register_slave(message_t &msg)
 {
-  printf("Trying to register slave!\n");
+  ltr_int_log_message("Trying to register slave!\n");
   char *tmp_fifo_name = NULL;
   if(asprintf(&tmp_fifo_name, ltr_int_slave_fifo_name(), msg.data) <= 0){
     return false;
@@ -167,7 +167,7 @@ bool ltr_int_register_slave(message_t &msg)
   }
   pthread_mutex_lock(&send_mx);
   slaves.insert(std::pair<std::string, int>(msg.str, fifo));
-  printf("Slave @fifo %d registered!\n", fifo);
+  ltr_int_log_message("Slave @fifo %d registered!\n", fifo);
   pthread_mutex_unlock(&send_mx);
   
   //Make sure the new section is created if needed...
@@ -245,7 +245,7 @@ bool ltr_int_master(bool standalone)
       return false;
     }
     if(!ltr_int_gui_lock(false)){
-      printf("Gui is active, quitting!\n");
+      ltr_int_log_message("Gui is active, quitting!\n");
       return true;
     }
     fifo = ltr_int_open_fifo_exclusive(ltr_int_master_fifo_name(), &master_lock);
@@ -266,13 +266,13 @@ bool ltr_int_master(bool standalone)
   }
   
   if(fifo <= 0){
-    printf("Master already running, quitting!\n");
+    ltr_int_log_message("Master already running, quitting!\n");
     return true;
   }
-  printf("Starting as master!\n");
+  ltr_int_log_message("Starting as master!\n");
   if(ltr_int_init() != 0){
-    printf("Could not initialize tracking!\n");
-    printf("Closing fifo %d\n", fifo);
+    ltr_int_log_message("Could not initialize tracking!\n");
+    ltr_int_log_message("Closing fifo %d\n", fifo);
     close(fifo);
     return false;
   }
@@ -293,7 +293,7 @@ bool ltr_int_master(bool standalone)
       //ltr_int_log_message("poll: %d\n", fifo_poll.revents);
       if(fifo_poll.revents & POLLHUP){
         if(standalone){
-          printf("We have HUP in Master!\n");
+          ltr_int_log_message("We have HUP in Master!\n");
           linuxtrack_full_pose_t dummy;
           dummy.pose.pitch = 0.0; dummy.pose.yaw = 0.0; dummy.pose.roll = 0.0; 
           dummy.pose.tx = 0.0; dummy.pose.ty = 0.0; dummy.pose.tz = 0.0;
@@ -352,9 +352,9 @@ bool ltr_int_master(bool standalone)
       break;
     }
   }
-  printf("Shutting down tracking!\n");
+  ltr_int_log_message("Shutting down tracking!\n");
   ltr_int_shutdown();
-  printf("Master closing fifo %d\n", fifo);
+  ltr_int_log_message("Master closing fifo %d\n", fifo);
   close(fifo);
   ltr_int_unlockSemaphore(master_lock);
   ltr_int_closeSemaphore(master_lock);

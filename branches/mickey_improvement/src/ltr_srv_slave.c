@@ -99,21 +99,21 @@ static bool start_master(int *l_master_uplink, int *l_master_downlink)
 
 static bool open_master_comms(int *l_master_uplink, int *l_master_downlink)
 {
-  printf("Opening master comms!\n");
+  ltr_int_log_message("Opening master comms!\n");
   *l_master_uplink = ltr_int_open_fifo_for_writing(ltr_int_master_fifo_name(), true);
   if(*l_master_uplink <= 0){
-    printf("Couldn't open fifo to master!\n");
+    ltr_int_log_message("Couldn't open fifo to master!\n");
     return false;
   }
   if((*l_master_downlink = ltr_int_open_slave_fifo(*l_master_uplink, ltr_int_slave_fifo_name(), 
                                                ltr_int_max_slave_fifos())) <= 0){
-    printf("Couldn't pass master our fifo!\n");
+    ltr_int_log_message("Couldn't pass master our fifo!\n");
     close(*l_master_uplink);
     *l_master_uplink = -1;
     *l_master_downlink = -1;
     return false;
   }
-  printf("Master comms opened => u -> %d  d -> %d\n", *l_master_uplink, *l_master_downlink);
+  ltr_int_log_message("Master comms opened => u -> %d  d -> %d\n", *l_master_uplink, *l_master_downlink);
   return true;
 }
 
@@ -132,7 +132,7 @@ static bool ltr_int_try_start_master(int *l_master_uplink, int *l_master_downlin
     }
     
     if(open_master_comms(l_master_uplink, l_master_downlink)){
-      printf("Master is responding!\n");
+      ltr_int_log_message("Master is responding!\n");
       return true;
     }
     sleep(2);
@@ -212,7 +212,7 @@ static bool ltr_int_process_message(int l_master_downlink)
 
 static void *ltr_int_slave_reader_thread(void *param)
 {
-  printf("Slave reader thread function entered!\n");
+  ltr_int_log_message("Slave reader thread function entered!\n");
   (void) param;
   int received_frames = 0;
   master_works = false;
@@ -220,7 +220,7 @@ static void *ltr_int_slave_reader_thread(void *param)
     if(!ltr_int_try_start_master(&master_uplink, &master_downlink)){
       break;
     }
-    printf("Master Uplink %d, Downlink %d\n", master_uplink, master_downlink);
+    ltr_int_log_message("Master Uplink %d, Downlink %d\n", master_uplink, master_downlink);
     int poll_errs = 0;
     struct pollfd downlink_poll= {
       .fd = master_downlink,

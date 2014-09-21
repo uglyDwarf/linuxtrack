@@ -24,7 +24,7 @@ void myLineEdit::keyPressEvent(QKeyEvent * event)
     seq += QString::fromUtf8("Meta+");
   }
   int k = event->key();
-  std::cout<<"Key event -> '"<<k<<std::endl;
+  //std::cout<<"Key event -> '"<<k<<std::endl;
    
   switch(k){
     case 0:
@@ -40,7 +40,7 @@ void myLineEdit::keyPressEvent(QKeyEvent * event)
       if(tgt != NULL){
         *tgt = seq; 
       }
-      std::cout<<"Key event -> '"<<seq.toUtf8().constData()<<"' !"<<k<<std::endl;
+      //std::cout<<"Key event -> '"<<seq.toUtf8().constData()<<"' !"<<k<<std::endl;
       break;
   }
   //QLineEdit::keyPressEvent(event);

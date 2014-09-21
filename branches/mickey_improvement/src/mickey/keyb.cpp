@@ -19,12 +19,12 @@ shortcut::~shortcut()
 
 bool shortcut::setShortcut(const QKeySequence &s)
 {
-  printf("Setting shortcut!\n");
+  //printf("Setting shortcut!\n");
   return setShortCut(s, this);
 }
 
 void shortcut::activate(bool pressed)
 {
-  printf("Firing shortcut!\n");
+  //printf("Firing shortcut!\n");
   emit activated(pressed);
 }

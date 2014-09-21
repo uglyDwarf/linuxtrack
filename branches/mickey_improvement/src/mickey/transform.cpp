@@ -228,9 +228,7 @@ void MickeyTransform::update(float valX, float valY, bool relative, int elapsed,
     }else{
       x = norm(-valX, maxValX, currMaxValX);
       y = norm(-valY, maxValY, currMaxValY);
-      
-      std::cout<<"valX: "<<-valX<<"=> "<<x<<"   Limit: "<<maxValX<<"   CurrentLimit:"<<currMaxValX<<std::endl;
-      
+      //std::cout<<"valX: "<<-valX<<"=> "<<x<<"   Limit: "<<maxValX<<"   CurrentLimit:"<<currMaxValX<<std::endl;
     }
   }else{
     if(valX > maxValX){
@@ -251,7 +249,7 @@ void MickeyTransform::update(float valX, float valY, bool relative, int elapsed,
 void MickeyTransform::startCalibration()
 {
   calibrating = true;
-  std::cout<<"Calibrating X: "<<prevMaxValX<<" Y: "<<prevMaxValY<<std::endl;
+  //std::cout<<"Calibrating X: "<<prevMaxValX<<" Y: "<<prevMaxValY<<std::endl;
   prevMaxValX = maxValX;
   prevMaxValY = maxValY;
   maxValX = 0.0f;
@@ -273,8 +271,8 @@ void MickeyTransform::finishCalibration()
   maxValX = (minValX > maxValX)? maxValX: minValX;
   maxValY = (minValY > maxValY)? maxValY: minValY;
   GUI.setMaxVal(maxValX, maxValY);
-  std::cout<<"Finished X: "<<maxValX<<" Y: "<<maxValY<<std::endl;
-  std::cout<<"Saved X: "<<prevMaxValX<<" Y: "<<prevMaxValY<<std::endl;
+  //std::cout<<"Finished X: "<<maxValX<<" Y: "<<maxValY<<std::endl;
+  //std::cout<<"Saved X: "<<prevMaxValX<<" Y: "<<prevMaxValY<<std::endl;
 }
 
 void MickeyTransform::cancelCalibration()
@@ -285,14 +283,14 @@ void MickeyTransform::cancelCalibration()
 
 void MickeyTransform::applySettings()
 {
-  std::cout<<"Applying X: "<<maxValX<<" Y: "<<maxValY<<std::endl;
-  std::cout<<"Saved X: "<<prevMaxValX<<" Y: "<<prevMaxValY<<std::endl;
+  //std::cout<<"Applying X: "<<maxValX<<" Y: "<<maxValY<<std::endl;
+  //std::cout<<"Saved X: "<<prevMaxValX<<" Y: "<<prevMaxValY<<std::endl;
   axis.applySettings();
 }
 
 void MickeyTransform::keepSettings()
 {
-  std::cout<<"Keeping X: "<<maxValX<<" Y: "<<maxValY<<std::endl;
+  //std::cout<<"Keeping X: "<<maxValX<<" Y: "<<maxValY<<std::endl;
   prevMaxValX = maxValX;
   prevMaxValY = maxValY;
   axis.keepSettings();
@@ -300,7 +298,7 @@ void MickeyTransform::keepSettings()
 
 void MickeyTransform::revertSettings()
 {
-  std::cout<<"Reverting to X: "<<prevMaxValX<<" Y: "<<prevMaxValY<<std::endl;
+  //std::cout<<"Reverting to X: "<<prevMaxValX<<" Y: "<<prevMaxValY<<std::endl;
   maxValX = prevMaxValX;
   maxValY = prevMaxValY;
   GUI.setMaxVal(maxValX, maxValY);

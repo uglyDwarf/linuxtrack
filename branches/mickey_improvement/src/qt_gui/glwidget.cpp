@@ -24,7 +24,7 @@ ReaderThread::ReaderThread(): QThread()
 void ReaderThread::run()
 {
      read_obj();
-     std::cout<<"Object read!"<<std::endl;
+     //std::cout<<"Object read!"<<std::endl;
      emit done();
 }
 
