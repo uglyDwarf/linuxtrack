@@ -19,6 +19,8 @@
   #include "../config.h"
 #endif
 
+#define MSG_ADD_DATAREF 0x01000000
+
 static XPLMDataRef              head_x = NULL;
 static XPLMDataRef              head_y = NULL;
 static XPLMDataRef              head_z = NULL;
@@ -46,6 +48,7 @@ static XPLMDataRef enable_view_control = NULL;
 static float  GetHeadDataRefCB(void* inRefcon);
 static int    GetHeadCtrlRefCB(void* inRefcon);
 static void   SetHeadCtrlRefCB(void* inRefcon, int outValue);
+static void revertView(void);
 
 static float current_head_x;
 static float current_head_y;
@@ -60,11 +63,13 @@ static XPLMMenuID  setupMenu = NULL;
 static int pos_init_flag = 0;
 static bool freeze = false;
 
-static float base_x;
-static float base_y;
-static float base_z;
-static float base_psi;
-static float base_the;
+static float base_x = 0.0f;
+static float base_y = 0.0f;
+static float base_z = 0.0f;
+static XPLMDataRef base_x_dr = NULL;
+static XPLMDataRef base_y_dr = NULL;
+static XPLMDataRef base_z_dr = NULL;
+
 static bool active_flag = false;
 static bool pv_present = false;
 
@@ -115,6 +120,12 @@ static int  GetHeadCtrlRefCB(void* inRefcon)
 
 static void   SetHeadCtrlRefCB(void* inRefcon, int outValue)
 {
+  if(inRefcon == (void*)&head_control_enable){
+    if((head_control_enable != 0) && (outValue == 0) && (XPLMGetDatai(view) == 1026)){
+      //Revert only when turning off while in 3D cockpit
+      revertView();
+    }
+  }
   *(int*)inRefcon = outValue;
 }
 
@@ -157,6 +168,9 @@ PLUGIN_API int XPluginStart(char *outName,
   head_x = XPLMFindDataRef("sim/graphics/view/pilots_head_x");
   head_y = XPLMFindDataRef("sim/graphics/view/pilots_head_y");
   head_z = XPLMFindDataRef("sim/graphics/view/pilots_head_z");
+  base_x_dr = XPLMFindDataRef("sim/aircraft/view/acf_peX");
+  base_y_dr = XPLMFindDataRef("sim/aircraft/view/acf_peY");
+  base_z_dr = XPLMFindDataRef("sim/aircraft/view/acf_peZ");
   
   head_psi = XPLMFindDataRef("sim/graphics/view/pilots_head_psi");
   head_the = XPLMFindDataRef("sim/graphics/view/pilots_head_the");
@@ -238,7 +252,7 @@ PLUGIN_API int XPluginStart(char *outName,
   
   enable_view_control = XPLMRegisterDataAccessor(
                       "linuxtrack/enable_head_control",
-                      xplmType_Float,                                // The types we support
+                      xplmType_Int,                                  // The types we support
                       1,                                             // Writable
                       GetHeadCtrlRefCB, SetHeadCtrlRefCB,            // Integer accessors
                       NULL, NULL,                                    // Float accessors
@@ -253,7 +267,7 @@ PLUGIN_API int XPluginStart(char *outName,
      (head_psi == NULL) || (head_the == NULL) || (head_roll == NULL) ||
      (head_x_out == NULL) || (head_y_out == NULL) || (head_z_out == NULL) ||
      (head_psi_out == NULL) || (head_the_out == NULL) || (head_roll_out == NULL) ||
-     (enable_view_control == NULL)){
+     (enable_view_control == NULL) || (base_x_dr == NULL) || (base_y_dr == NULL) || (base_z_dr == NULL)){
     return(0);
   }
   
@@ -307,6 +321,8 @@ PLUGIN_API int XPluginEnable(void)
         return 1;
 }
 
+static bool drefsPublished = false;
+
 PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFromWho,
                                       long inMessage,
                                       void *inParam)
@@ -333,6 +349,21 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFromWho,
             pv_present = true;
             XPLMSetDatai(PV_Enabled_DR, true);
           }
+          
+          if(!drefsPublished){
+            //Publish these datarefs for DataRefEditor plugin
+            XPLMPluginID PluginID = XPLMFindPluginBySignature("xplanesdk.examples.DataRefEditor");
+            if (PluginID != XPLM_NO_PLUGIN_ID){
+              XPLMSendMessageToPlugin(PluginID, MSG_ADD_DATAREF, (void*)"linuxtrack/pilots_head_x");
+              XPLMSendMessageToPlugin(PluginID, MSG_ADD_DATAREF, (void*)"linuxtrack/pilots_head_y");
+              XPLMSendMessageToPlugin(PluginID, MSG_ADD_DATAREF, (void*)"linuxtrack/pilots_head_z");
+              XPLMSendMessageToPlugin(PluginID, MSG_ADD_DATAREF, (void*)"linuxtrack/pilots_head_psi");
+              XPLMSendMessageToPlugin(PluginID, MSG_ADD_DATAREF, (void*)"linuxtrack/pilots_head_the");
+              XPLMSendMessageToPlugin(PluginID, MSG_ADD_DATAREF, (void*)"linuxtrack/pilots_head_roll");
+              XPLMSendMessageToPlugin(PluginID, MSG_ADD_DATAREF, (void*)"linuxtrack/enable_head_control");
+	      drefsPublished = true;
+            }
+	  }
         }
         break;
       default:
@@ -355,22 +386,27 @@ static void activate(void)
   }
 }
 
-static void deactivate(void)
+static void revertView(void)
 {
-  active_flag=false;
   int current_view = XPLMGetDatai(view);
-  if(PV_Enabled_DR){
-          XPLMSetDatai(PV_Enabled_DR, false);
-  }
   if((!pv_present) && (current_view == 1026)){
-    XPLMSetDataf(head_x,base_x);
-    XPLMSetDataf(head_y,base_y);
-    XPLMSetDataf(head_z,base_z);
-    XPLMSetDataf(head_psi,base_psi);
-    XPLMSetDataf(head_the,base_the);
+    XPLMSetDataf(head_x, base_x);
+    XPLMSetDataf(head_y, base_y);
+    XPLMSetDataf(head_z, base_z);
+    XPLMSetDataf(head_psi, 0.0);
+    XPLMSetDataf(head_the, 0.0);
     if(head_roll != NULL){
       XPLMSetDataf(head_roll, 0.0);
     }
+  }
+}
+
+static void deactivate()
+{
+  active_flag=false;
+  revertView();
+  if(PV_Enabled_DR){
+          XPLMSetDatai(PV_Enabled_DR, false);
   }
   if(initialized){
     linuxtrack_suspend();
@@ -408,15 +444,14 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
   (void) inCounter;
   (void) inRefcon;
   
-  bool view_changed = XPLMGetDatai(view) != 1026;
+  int currentView = XPLMGetDatai(view);
+  bool view_changed = (currentView != 1026);
 
   if(pos_init_flag){
     pos_init_flag = 0;
     base_x = XPLMGetDataf(head_x);
     base_y = XPLMGetDataf(head_y);
     base_z = XPLMGetDataf(head_z);
-    base_psi = XPLMGetDataf(head_psi);
-    base_the = XPLMGetDataf(head_the);
     view_changed = false;
   }
   //if(PV_Enabled_DR)
@@ -449,7 +484,6 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
     current_head_heading *= -1.0f;
     current_head_roll    *= -1.0f;
   }
-  
   if(pv_present){
     XPLMSetDataf(PV_TIR_X_DR, current_head_x);
     XPLMSetDataf(PV_TIR_Y_DR, current_head_y);
@@ -459,9 +493,9 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
     XPLMSetDataf(PV_TIR_Roll_DR, current_head_roll);
   }else if(head_control_enable != 0){
     if(!view_changed){
-      XPLMSetDataf(head_x,base_x + current_head_x);
-      XPLMSetDataf(head_y,base_y + current_head_y);
-      XPLMSetDataf(head_z,base_z + current_head_z);
+      XPLMSetDataf(head_x, base_x + current_head_x);
+      XPLMSetDataf(head_y, base_y + current_head_y);
+      XPLMSetDataf(head_z, base_z + current_head_z);
       XPLMSetDataf(head_psi,current_head_heading);
       XPLMSetDataf(head_the,current_head_pitch);
       if(head_roll != NULL){
