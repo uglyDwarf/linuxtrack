@@ -35,6 +35,26 @@ static XPLMDataRef PV_TIR_Pitch_DR = NULL;
 static XPLMDataRef PV_TIR_Heading_DR = NULL;
 static XPLMDataRef PV_TIR_Roll_DR = NULL;
 
+static XPLMDataRef head_x_out = NULL;
+static XPLMDataRef head_y_out = NULL;
+static XPLMDataRef head_z_out = NULL;
+static XPLMDataRef head_psi_out = NULL;
+static XPLMDataRef head_the_out = NULL;
+static XPLMDataRef head_roll_out = NULL;
+static XPLMDataRef enable_view_control = NULL;
+
+static float  GetHeadDataRefCB(void* inRefcon);
+static int    GetHeadCtrlRefCB(void* inRefcon);
+static void   SetHeadCtrlRefCB(void* inRefcon, int outValue);
+
+static float current_head_x;
+static float current_head_y;
+static float current_head_z;
+static float current_head_heading;
+static float current_head_pitch;
+static float current_head_roll;
+static int   head_control_enable;
+
 static XPLMMenuID  setupMenu = NULL;
 
 static int pos_init_flag = 0;
@@ -74,6 +94,28 @@ static void linuxTrackMenuHandler(void *inMenuRef, void *inItemRef)
   (void) inItemRef;
   setupDialog();
   return;
+}
+
+static float  GetHeadDataRefCB(void* inRefcon)
+{
+  if(inRefcon == NULL){
+    return 0.0f;
+  }
+  return *(float*)inRefcon;
+}
+
+static int  GetHeadCtrlRefCB(void* inRefcon)
+{
+  if(inRefcon == NULL){
+    return 0;
+  }
+  return *(int*)inRefcon;
+}
+
+
+static void   SetHeadCtrlRefCB(void* inRefcon, int outValue)
+{
+  *(int*)inRefcon = outValue;
 }
 
 PLUGIN_API int XPluginStart(char *outName,
@@ -122,8 +164,96 @@ PLUGIN_API int XPluginStart(char *outName,
   head_roll = XPLMFindDataRef("sim/graphics/view/field_of_view_roll_deg");
   view = XPLMFindDataRef("sim/graphics/view/view_type");
   
-  if((head_x==NULL)||(head_y==NULL)||(head_z==NULL)||
-     (head_psi==NULL)||(head_the==NULL)){
+  head_x_out = XPLMRegisterDataAccessor(
+                      "linuxtrack/pilots_head_x",
+                      xplmType_Float,                                // The types we support
+                      0,                                             // Writable
+                      NULL, NULL,                                    // Integer accessors
+                      GetHeadDataRefCB, NULL,                        // Float accessors
+                      NULL, NULL,                                    // Doubles accessors
+                      NULL, NULL,                                    // Int array accessors
+                      NULL, NULL,                                    // Float array accessors
+                      NULL, NULL,                                    // Raw data accessors
+                      (void*)&current_head_x, (void*)&current_head_x); // Refcons not used
+
+  head_y_out = XPLMRegisterDataAccessor(
+                      "linuxtrack/pilots_head_y",
+                      xplmType_Float,                                // The types we support
+                      0,                                             // Writable
+                      NULL, NULL,                                    // Integer accessors
+                      GetHeadDataRefCB, NULL,                        // Float accessors
+                      NULL, NULL,                                    // Doubles accessors
+                      NULL, NULL,                                    // Int array accessors
+                      NULL, NULL,                                    // Float array accessors
+                      NULL, NULL,                                    // Raw data accessors
+                      (void*)&current_head_y, (void*)&current_head_y); // Refcons not used
+
+  head_z_out = XPLMRegisterDataAccessor(
+                      "linuxtrack/pilots_head_z",
+                      xplmType_Float,                                // The types we support
+                      0,                                             // Writable
+                      NULL, NULL,                                    // Integer accessors
+                      GetHeadDataRefCB, NULL,                        // Float accessors
+                      NULL, NULL,                                    // Doubles accessors
+                      NULL, NULL,                                    // Int array accessors
+                      NULL, NULL,                                    // Float array accessors
+                      NULL, NULL,                                    // Raw data accessors
+                      (void*)&current_head_z, (void*)&current_head_z); // Refcons not used
+
+  head_psi_out = XPLMRegisterDataAccessor(
+                      "linuxtrack/pilots_head_psi",
+                      xplmType_Float,                                // The types we support
+                      0,                                             // Writable
+                      NULL, NULL,                                    // Integer accessors
+                      GetHeadDataRefCB, NULL,                        // Float accessors
+                      NULL, NULL,                                    // Doubles accessors
+                      NULL, NULL,                                    // Int array accessors
+                      NULL, NULL,                                    // Float array accessors
+                      NULL, NULL,                                    // Raw data accessors
+                      (void*)&current_head_heading, (void*)&current_head_heading); // Refcons not used
+
+  head_the_out = XPLMRegisterDataAccessor(
+                      "linuxtrack/pilots_head_the",
+                      xplmType_Float,                                // The types we support
+                      0,                                             // Writable
+                      NULL, NULL,                                    // Integer accessors
+                      GetHeadDataRefCB, NULL,                        // Float accessors
+                      NULL, NULL,                                    // Doubles accessors
+                      NULL, NULL,                                    // Int array accessors
+                      NULL, NULL,                                    // Float array accessors
+                      NULL, NULL,                                    // Raw data accessors
+                      (void*)&current_head_pitch, (void*)&current_head_pitch); // Refcons not used
+  
+  head_roll_out = XPLMRegisterDataAccessor(
+                      "linuxtrack/pilots_head_roll",
+                      xplmType_Float,                                // The types we support
+                      0,                                             // Writable
+                      NULL, NULL,                                    // Integer accessors
+                      GetHeadDataRefCB, NULL,                        // Float accessors
+                      NULL, NULL,                                    // Doubles accessors
+                      NULL, NULL,                                    // Int array accessors
+                      NULL, NULL,                                    // Float array accessors
+                      NULL, NULL,                                    // Raw data accessors
+                      (void*)&current_head_roll, (void*)&current_head_roll); // Refcons not used
+  
+  enable_view_control = XPLMRegisterDataAccessor(
+                      "linuxtrack/enable_head_control",
+                      xplmType_Float,                                // The types we support
+                      1,                                             // Writable
+                      GetHeadCtrlRefCB, SetHeadCtrlRefCB,            // Integer accessors
+                      NULL, NULL,                                    // Float accessors
+                      NULL, NULL,                                    // Doubles accessors
+                      NULL, NULL,                                    // Int array accessors
+                      NULL, NULL,                                    // Float array accessors
+                      NULL, NULL,                                    // Raw data accessors
+                      (void*)&head_control_enable, (void*)&head_control_enable); // Refcons not used
+  head_control_enable = 1;
+  
+  if((head_x == NULL)  ||(head_y == NULL) || (head_z == NULL) ||
+     (head_psi == NULL) || (head_the == NULL) || (head_roll == NULL) ||
+     (head_x_out == NULL) || (head_y_out == NULL) || (head_z_out == NULL) ||
+     (head_psi_out == NULL) || (head_the_out == NULL) || (head_roll_out == NULL) ||
+     (enable_view_control == NULL)){
     return(0);
   }
   
@@ -304,42 +434,38 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
     return -1.0;
   }
 
-  static float heading = 0.0;
-  static float pitch = 0.0;
-  static float roll = 0.0;
-  static float tx = 0.0;
-  static float ty = 0.0;
-  static float tz = 0.0;
   int retval;
   unsigned int counter;
   
   if(initialized && (freeze == false)){
-    retval = linuxtrack_get_pose(&heading,&pitch,&roll,
-                                   &tx, &ty, &tz, &counter);
+    retval = linuxtrack_get_pose(&current_head_heading,&current_head_pitch,&current_head_roll,
+                                   &current_head_x, &current_head_y, &current_head_z, &counter);
     if (retval < 0) {
       return -1.0;
     }
-    tx *= 1e-3;
-    ty *= 1e-3;
-    tz *= 1e-3;
+    current_head_x       *= 1e-3f;
+    current_head_y       *= 1e-3f;
+    current_head_z       *= 1e-3f;
+    current_head_heading *= -1.0f;
+    current_head_roll    *= -1.0f;
   }
   
   if(pv_present){
-    XPLMSetDataf(PV_TIR_X_DR, tx);
-    XPLMSetDataf(PV_TIR_Y_DR, ty);
-    XPLMSetDataf(PV_TIR_Z_DR, tz);
-    XPLMSetDataf(PV_TIR_Pitch_DR, pitch);
-    XPLMSetDataf(PV_TIR_Heading_DR, -heading);
-    XPLMSetDataf(PV_TIR_Roll_DR, -roll);
-  }else{
+    XPLMSetDataf(PV_TIR_X_DR, current_head_x);
+    XPLMSetDataf(PV_TIR_Y_DR, current_head_y);
+    XPLMSetDataf(PV_TIR_Z_DR, current_head_z);
+    XPLMSetDataf(PV_TIR_Pitch_DR, current_head_pitch);
+    XPLMSetDataf(PV_TIR_Heading_DR, current_head_heading);
+    XPLMSetDataf(PV_TIR_Roll_DR, current_head_roll);
+  }else if(head_control_enable != 0){
     if(!view_changed){
-      XPLMSetDataf(head_x,base_x + tx);
-      XPLMSetDataf(head_y,base_y + ty);
-      XPLMSetDataf(head_z,base_z + tz);
-      XPLMSetDataf(head_psi,-heading);
-      XPLMSetDataf(head_the,pitch);
+      XPLMSetDataf(head_x,base_x + current_head_x);
+      XPLMSetDataf(head_y,base_y + current_head_y);
+      XPLMSetDataf(head_z,base_z + current_head_z);
+      XPLMSetDataf(head_psi,current_head_heading);
+      XPLMSetDataf(head_the,current_head_pitch);
       if(head_roll != NULL){
-        XPLMSetDataf(head_roll, -roll);
+        XPLMSetDataf(head_roll, current_head_roll);
       }
     }else{
       //Make sure to cancel any roll, otherwise bad things start to happening
