@@ -7,3 +7,4 @@ ltr_get_pose
 ltr_get_pose_full
 ltr_get_tracking_state
 ltr_log_message
+ltr_explain
