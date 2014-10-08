@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
 #include "linuxtrack.h"
@@ -92,6 +93,7 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
                                  void *inRefcon);
 
 static int setupDialog();
+static void messageBox(const char *msgBoxTitle, const char *message);
 
 static void linuxTrackMenuHandler(void *inMenuRef, void *inItemRef)
 {
@@ -283,9 +285,11 @@ PLUGIN_API int XPluginStart(char *outName,
   XPLMAppendMenuItem(setupMenu, "Setup", (void *)"Setup", 1);
 
   if(!initialized){
-    linuxtrack_init(NULL);
+    linuxtrack_state_type state = linuxtrack_init(NULL);
+    if(state < LINUXTRACK_OK){
+      messageBox("Linuxtrack Problem", linuxtrack_explain(state));
+    }
   }
-  
   return(1);
 }
 
@@ -528,7 +532,6 @@ static int setupWindowHandler(XPWidgetMessage inMessage,
 			intptr_t inParam2)
 {
   (void) inWidget;
-  (void) inWidget;
   (void) inParam1;
   (void) inParam2;
   if((inMessage == xpMessage_CloseButtonPushed) || (inMessage == xpMsg_PushButtonPressed)){
@@ -620,4 +623,89 @@ static int setupDialog()
   return 0;
 }
 
+static XPWidgetID msgBox = NULL;
 
+static int msgBoxHandler(XPWidgetMessage inMessage,
+			XPWidgetID inWidget,
+			intptr_t inParam1,
+			intptr_t inParam2)
+{
+  (void) inWidget;
+  (void) inParam1;
+  (void) inParam2;
+  if((inMessage == xpMessage_CloseButtonPushed) || (inMessage == xpMsg_PushButtonPressed)){
+    XPHideWidget(msgBox);
+    XPDestroyWidget(msgBox, 1);
+    return 1;
+  }
+  return 0;
+}
+
+typedef struct {
+  const char *text;
+  int width;
+} line_t;
+
+static void messageBox(const char *msgBoxTitle, const char *message)
+{
+  fprintf(stderr, "Messagebox!\n");
+  size_t len = strlen(message) + 1; //Count also the \0!
+  char *msg_copy = (char *)malloc(len);
+  if(msg_copy == NULL){
+    return;
+  }
+  strcpy(msg_copy, message);
+  line_t lines[10];
+  size_t num_lines = 0;
+  size_t i;
+  const char *head = msg_copy;
+  int max_width = 50;
+  int title_width = XPLMMeasureString(xplmFont_Proportional, msgBoxTitle, strlen(msgBoxTitle));
+  if(max_width < title_width){
+    max_width = title_width;
+  }
+  for(i = 0; i < len; ++i){
+    if(msg_copy[i] == '\0'){
+      lines[num_lines].text = head;
+      lines[num_lines].width = XPLMMeasureString(xplmFont_Proportional, head, strlen(head));
+      if(lines[num_lines].width > max_width){
+	max_width = lines[num_lines].width;
+      }
+      ++num_lines;
+      break;
+    }
+    if(msg_copy[i] == '\n'){
+      msg_copy[i] = '\0';
+      lines[num_lines].text = head;
+      lines[num_lines].width = XPLMMeasureString(xplmFont_Proportional, head, strlen(head));
+      head = msg_copy + i + 1;
+      if(lines[num_lines].width > max_width){
+	max_width = lines[num_lines].width;
+      }
+      ++num_lines;
+    }
+  }
+  
+  int x = 250;
+  int y = 700;
+  int x2 = x + max_width + 40;
+  int y2 = y - (20 * num_lines) - 70;
+  int ptr = y - 30;
+  msgBox = XPCreateWidget(x, y, x2, y2,
+  				  1, //Visible
+				  msgBoxTitle,
+				  1, //Root
+				  NULL, //No container
+				  xpWidgetClass_MainWindow 
+  );
+  for(i = 0; i < num_lines; ++i){
+    /*XPWidgetID text = */(void)XPCreateWidget(x+20, ptr, x + 20 + lines[i].width, ptr - 15 ,
+                                   1, lines[i].text, 0, msgBox, xpWidgetClass_Caption);
+    ptr -= 20;
+  }
+  ptr -= 10;
+  /*XPWidgetID closeButton = */XPCreateWidget(x+30, ptr, x2 - 30, ptr - 15, 1, 
+  				  "Close", 0, msgBox, xpWidgetClass_Button);
+  XPAddWidgetCallback(msgBox, (XPWidgetFunc_t)msgBoxHandler);
+  free(msg_copy);
+}

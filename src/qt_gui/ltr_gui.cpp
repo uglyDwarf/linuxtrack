@@ -62,9 +62,9 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), ds(NULL),
   lv = new LogView();
   pi = new PluginInstall(ui);
   ps = new ProfileSelector(this);
-  QObject::connect(&STATE, SIGNAL(stateChanged(linuxtrack_state_type)), 
+  QObject::connect(&STATE, SIGNAL(stateChanged(linuxtrack_state_type)),
                    this, SLOT(trackerStateHandler(linuxtrack_state_type)));
-  QObject::connect(&zipper, SIGNAL(finished(int, QProcess::ExitStatus)), 
+  QObject::connect(&zipper, SIGNAL(finished(int, QProcess::ExitStatus)),
                    this, SLOT(logsPackaged(int, QProcess::ExitStatus)));
   ui.ModelEditSite->addWidget(me);
   ui.ProfileSetupSite->addWidget(ps);
@@ -167,11 +167,11 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   gui_settings->setValue(QString::fromUtf8("welcome"), false);
   gui_settings->setValue(QString::fromUtf8("news"), NEWS_SERIAL);
   gui_settings->setValue(QString::fromUtf8("wine_warning"), showWineWarning);
-  gui_settings->endGroup();  
+  gui_settings->endGroup();
   gui_settings->beginGroup(QString::fromUtf8("TrackingWindow"));
   gui_settings->setValue(QString::fromUtf8("size"), showWindow->size());
   gui_settings->setValue(QString::fromUtf8("pos"), showWindow->pos());
-  gui_settings->endGroup();  
+  gui_settings->endGroup();
   gui_settings->beginGroup(QString::fromUtf8("HelperWindow"));
   gui_settings->setValue(QString::fromUtf8("size"), helper->size());
   gui_settings->setValue(QString::fromUtf8("pos"), helper->pos());
@@ -221,8 +221,8 @@ void LinuxtrackGui::rereadPrefs()
 
 void LinuxtrackGui::on_DefaultsButton_pressed()
 {
-  if(warnQuestion(QString::fromUtf8("You are about to load default settings, removing all changes you ever did!\n") + 
-                          QString::fromUtf8("Do you really want to do that?")) == QMessageBox::Ok){  
+  if(warnQuestion(QString::fromUtf8("You are about to load default settings, removing all changes you ever did!\n") +
+                          QString::fromUtf8("Do you really want to do that?")) == QMessageBox::Ok){
     PREF.copyDefaultPrefs();
     rereadPrefs();
     ds->refresh();
@@ -231,8 +231,8 @@ void LinuxtrackGui::on_DefaultsButton_pressed()
 
 void LinuxtrackGui::on_DiscardChangesButton_pressed()
 {
-  if(warnQuestion(QString::fromUtf8("You are about to discard modifications you did since last save!\n") + 
-                          QString::fromUtf8("Do you really want to do that?")) == QMessageBox::Ok){ 
+  if(warnQuestion(QString::fromUtf8("You are about to discard modifications you did since last save!\n") +
+                          QString::fromUtf8("Do you really want to do that?")) == QMessageBox::Ok){
      rereadPrefs();
   }
 }
@@ -265,17 +265,6 @@ void LinuxtrackGui::on_LtrTab_currentChanged(int index)
 void LinuxtrackGui::trackerStateHandler(linuxtrack_state_type current_state)
 {
   switch(current_state){
-    case STOPPED:
-    case ERROR:
-      //ui.DeviceSelector->setEnabled(true);
-      //ui.CameraOrientation->setEnabled(true);
-      //ui.ModelSelector->setEnabled(true);
-      //ui.Profiles->setEnabled(true);
-      ui.DefaultsButton->setEnabled(true);
-      ui.DiscardChangesButton->setEnabled(true);
-      //ui.LegacyPose->setEnabled(true);
-      //ui.LegacyRotation->setEnabled(true);
-      break;
     case INITIALIZING:
     case RUNNING:
     case PAUSED:
@@ -289,6 +278,15 @@ void LinuxtrackGui::trackerStateHandler(linuxtrack_state_type current_state)
       //ui.LegacyRotation->setDisabled(true);
       break;
     default:
+      //ui.DeviceSelector->setEnabled(true);
+      //ui.CameraOrientation->setEnabled(true);
+      //ui.ModelSelector->setEnabled(true);
+      //ui.Profiles->setEnabled(true);
+      ui.DefaultsButton->setEnabled(true);
+      ui.DiscardChangesButton->setEnabled(true);
+      //ui.LegacyPose->setEnabled(true);
+      //ui.LegacyRotation->setEnabled(true);
+      break;
       break;
   }
 }
@@ -332,17 +330,16 @@ void LinuxtrackGui::on_TransRotDisable_stateChanged(int state)
 
 void LinuxtrackGui::on_PackageLogsButton_pressed()
 {
-  
   QString fname;
   ui.PackageLogsButton->setEnabled(false);
-  fname = QFileDialog::getSaveFileName(this, QString::fromUtf8("Save the package as..."), 
+  fname = QFileDialog::getSaveFileName(this, QString::fromUtf8("Save the package as..."),
                                        QDir::homePath(), QString::fromUtf8("Zip (*.zip)"));
   if(fname.isEmpty()){
     return;
   }
-  zipper.start(QString::fromUtf8("bash -c \"zip %1 /tmp/linuxtrack*.log\"").arg(fname));  
+  zipper.start(QString::fromUtf8("bash -c \"zip %1 /tmp/linuxtrack*.log*\"").arg(fname));
 }
-  
+
 void LinuxtrackGui::logsPackaged(int exitCode, QProcess::ExitStatus exitStatus)
 {
   (void)exitCode;

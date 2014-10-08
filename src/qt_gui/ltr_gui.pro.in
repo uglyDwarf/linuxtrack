@@ -87,7 +87,7 @@ macx {
   LIBS += -L../.libs "-L$${LIBDIR}" -L@prefix@/lib -lm -lltr -lmxml
   data.path += ltr_gui.app/Contents/Resources/linuxtrack
   data.files += sparow_opaq.obj sparow_glass.obj xm8_detail.png ../linuxtrack1.conf \
-                sources.txt spec.txt sphere.obj sphere.png
+                sources_mac.txt spec.txt sphere.obj sphere.png
   help.path += ltr_gui.app/Contents/Resources/linuxtrack/help/ltr_gui
   help.files += help/*
   INSTALLS += data help

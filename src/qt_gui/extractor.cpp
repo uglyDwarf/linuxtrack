@@ -17,6 +17,12 @@
   #include "../../config.h"
 #endif
 
+#ifndef DARWIN
+  QString sources = QString::fromUtf8("sources.txt");
+#else
+  QString sources = QString::fromUtf8("sources_mac.txt");
+#endif
+
 
 void Progress::message(qint64 read, qint64 all)
 {
@@ -151,10 +157,10 @@ QString Extractor::findSrc(const QString &name)
 
 bool Extractor::readSources()
 {
-  progress(QString::fromUtf8("Looking for existing sources.txt..."));
-  QFile f(findSrc(QString::fromUtf8("sources.txt")));
+  progress(QString::fromUtf8("Looking for existing ") + sources + QString::fromUtf8("..."));
+  QFile f(findSrc(sources));
   if(!f.open(QIODevice::ReadOnly)){
-    progress(QString::fromUtf8("sources.txt not found."));
+    progress(sources + QString::fromUtf8(" not found."));
     return false;
   }
   progress(QString::fromUtf8("Found '%1'.").arg(f.fileName()));
@@ -170,7 +176,7 @@ bool Extractor::readSources()
       ui.FWCombo->addItem(url);
     }
   }
-  progress(QString::fromUtf8("sources.txt found and read."));
+  progress(sources + QString::fromUtf8(" found and read."));
   return (ui.FWCombo->count() != 0);
 }
 

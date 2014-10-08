@@ -179,10 +179,6 @@ void LtrGuiForm::update()
 void LtrGuiForm::stateChanged(int current_state)
 {
   switch(current_state){
-    case STOPPED:
-    case ERROR:
-      trackerStopped();
-      break;
     case INITIALIZING:
     case RUNNING:
       trackerRunning();
@@ -191,6 +187,7 @@ void LtrGuiForm::stateChanged(int current_state)
       trackerPaused();
       break;
     default:
+      trackerStopped();
       break;
   }
 }

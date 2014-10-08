@@ -19,7 +19,7 @@ typedef struct{
 struct ltr_comm{
   uint8_t cmd;
   uint8_t recenter;
-  uint8_t state;
+  int8_t state;
   linuxtrack_full_pose_t full_pose;
   uint8_t dead_man_button;
   uint8_t preparing_start;
@@ -29,9 +29,9 @@ struct ltr_comm{
 extern "C" {
 #endif
 
-#ifndef LIBLINUXTRACK_SRC
-char *ltr_int_init_helper(const char *cust_section, bool standalone);
-#endif
+//#ifndef LIBLINUXTRACK_SRC
+//char *ltr_int_init_helper(const char *cust_section, bool standalone);
+//#endif
 
 #ifdef __cplusplus
 }
