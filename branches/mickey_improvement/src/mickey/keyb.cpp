@@ -23,6 +23,11 @@ bool shortcut::setShortcut(const QKeySequence &s)
   return setShortCut(s, this);
 }
 
+bool shortcut::resetShortcut()
+{
+  return unsetShortcut(this);
+}
+
 void shortcut::activate(bool pressed)
 {
   //printf("Firing shortcut!\n");

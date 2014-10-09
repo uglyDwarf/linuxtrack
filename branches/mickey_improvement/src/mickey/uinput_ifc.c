@@ -48,13 +48,15 @@ bool create_device(int fd)
   size_t str_len = sizeof(mouse.name);
   strncpy(mouse.name, "Linuxtrack's Mickey", str_len);
   mouse.name[str_len - 1]= '\0';
+  mouse.id.vendor = 0x42;
+  mouse.id.product = 0x42;
   //printf("Name: '%s'\n", mouse.name);
   res |= (write(fd, &mouse, sizeof(mouse)) == -1);
+  res |= (ioctl(fd, UI_SET_EVBIT, EV_KEY) == -1);
   res |= (ioctl(fd, UI_SET_EVBIT, EV_REL) == -1);
+  res |= (ioctl(fd, UI_SET_EVBIT, EV_SYN) == -1);
   res |= (ioctl(fd, UI_SET_RELBIT, REL_X) == -1);
   res |= (ioctl(fd, UI_SET_RELBIT, REL_Y) == -1);
-  res |= (ioctl(fd, UI_SET_EVBIT, EV_KEY) == -1);
-  res |= (ioctl(fd, UI_SET_KEYBIT, BTN_MOUSE) == -1);
   res |= (ioctl(fd, UI_SET_KEYBIT, BTN_LEFT) == -1);
   res |= (ioctl(fd, UI_SET_KEYBIT, BTN_RIGHT) == -1);
   res |= (ioctl(fd, UI_SET_KEYBIT, BTN_MIDDLE) == -1);

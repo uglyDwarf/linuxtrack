@@ -28,6 +28,8 @@ bool HotKey::setHotKey(const QString &newHK)
         QString::fromUtf8("Couldn't register new hotkey!"));
       return false;
     }
+  }else{
+    s->resetShortcut();
   }
   emit newHotKey(prefId, newHK);
   ui.AssignButton->setText(label + QString::fromUtf8(" ") + newHK);
@@ -51,7 +53,11 @@ void HotKey::on_AssignButton_pressed()
   if(res != QDialog::Accepted){
     return;
   }
-  setHotKey(newHK);
+  if(newHK.isEmpty()){
+    setHotKey(QString::fromUtf8("None"));
+  }else{
+    setHotKey(newHK);
+  }
 }
 
 

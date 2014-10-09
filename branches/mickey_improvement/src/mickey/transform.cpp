@@ -184,11 +184,6 @@ MickeyTransform::~MickeyTransform()
 {
 }
 
-static float sign(float val)
-{
-  return (val >= 0 ? 1.0f : -1.0f); 
-}
-
 static float norm(float val)
 {
   if(val > 1.0f){
@@ -200,6 +195,11 @@ static float norm(float val)
   return val;
 }
 
+/*
+static float sign(float val)
+{
+  return (val >= 0 ? 1.0f : -1.0f); 
+}
 
 static float norm(float val, float limit, float &currentLimit)
 {
@@ -214,6 +214,7 @@ static float norm(float val, float limit, float &currentLimit)
   }
   return val / fabsf(currentLimit);
 }
+*/
 
 void MickeyTransform::update(float valX, float valY, bool relative, int elapsed, float &x, float &y)
 {
@@ -226,8 +227,10 @@ void MickeyTransform::update(float valX, float valY, bool relative, int elapsed,
       y = accY;
       accY -= y;
     }else{
-      x = norm(-valX, maxValX, currMaxValX);
-      y = norm(-valY, maxValY, currMaxValY);
+//      x = norm(-valX, maxValX, currMaxValX);
+//      y = norm(-valY, maxValY, currMaxValY);
+      x = norm(-valX / maxValX);
+      y = norm(-valY / maxValY);
       //std::cout<<"valX: "<<-valX<<"=> "<<x<<"   Limit: "<<maxValX<<"   CurrentLimit:"<<currMaxValX<<std::endl;
     }
   }else{
