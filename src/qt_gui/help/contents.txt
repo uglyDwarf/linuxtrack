@@ -1,5 +1,6 @@
 "welcome.htm" "Welcome"
 "news.htm" "What's new"
+"hall_of_fame.htm" "Hall Of Fame"
 "dev_setup.htm" "Tracker Setup"
 "model_setup.htm" "Model Setup"
 "axes_setup.htm" "Tracking Setup"
