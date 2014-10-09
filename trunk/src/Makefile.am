@@ -98,7 +98,7 @@ ltr_extractor_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} -pthread
 
 if LIBZ
 pkglib_LTLIBRARIES += libtir.la
-dist_pkgdata_DATA += 51-TIR.rules 51-Mickey.rules
+dist_pkgdata_DATA += 99-TIR.rules 99-Mickey.rules
 if LIBUSB10
   pkglib_LTLIBRARIES += libltusb1.la 
 endif
@@ -309,7 +309,7 @@ qt_gui/webcam_info.h qt_gui/help/misc.htm qt_gui/help/dev_setup.htm qt_gui/help/
 qt_gui/help/contents.txt qt_gui/help/news.htm qt_gui/help/welcome.htm qt_gui/help/interface.htm \
 qt_gui/help/model_setup.htm qt_gui/dlfirmware.h qt_gui/webcam_info.cpp qt_gui/plugin_install.h \
 qt_gui/tracker.cpp qt_gui/webcam_prefs.h qt_gui/macwebcam_prefs.cpp \
-qt_gui/log_view.h tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
+qt_gui/log_view.h tir4_driver.c tir4_driver.h 99-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
 xlinuxtrack.sym linuxtrack_pre.c lt_client.c lt_server.c ltlib_client.c ltlib_client.h \
 ltr_server.c ltr_server.h netcomm.c netcomm.h pref_flex.h \
 qt_gui/buffering.cpp qt_gui/buffering.h qt_gui/cap_edit.ui qt_gui/cap_tweaking.ui \
@@ -331,7 +331,7 @@ qt_gui/help/3dPreview.png qt_gui/help/ModelCreate.png qt_gui/help/JoyButtonsSetu
 qt_gui/help/Tracking.png qt_gui/help/JoyButtonsSetup2.png qt_gui/help/Model.png \
 qt_gui/help/Trackir.png qt_gui/help/Controller.png qt_gui/help/Facetracker.png \
 qt_gui/cap_1.png qt_gui/cap_np.png qt_gui/clip_1.png qt_gui/clip_np.png qt_gui/face.svg qt_gui/face.png qt_gui/single.png \
-51-Mickey.rules qt_gui/help/xpl_setup.htm qt_gui/wine_warn.cpp qt_gui/wine_warn.h qt_gui/wine_warn.ui \
+99-Mickey.rules qt_gui/help/xpl_setup.htm qt_gui/wine_warn.cpp qt_gui/wine_warn.h qt_gui/wine_warn.ui \
 wii_server/wii_server.cpp wii_server/wiimote.h wii_server/wiimote.cpp wii_server/wii_server.pro.in \
 wii_server/main.cpp wii_server/wii_server.h wii_server/wii_server.ui wii_server/wii_server.qrc \
 linuxtrack-wii.desktop linuxtrack-wii.png linuxtrack-wii.svg linuxtrack-wii.xpm \
