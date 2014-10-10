@@ -121,6 +121,9 @@ bool clickm(int fd, buttons_t btns, struct timeval ts)
   if(changed & RIGHT_BUTTON){
     res = send_click(fd, BTN_RIGHT, (btns & RIGHT_BUTTON) != 0, &ts);
   }
+  if(changed & MIDDLE_BUTTON){
+    res = send_click(fd, BTN_MIDDLE, (btns & MIDDLE_BUTTON) != 0, &ts);
+  }
   prev_btns = btns;
   return (res == 0);
 }

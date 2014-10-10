@@ -199,7 +199,7 @@ class MickeyGUI : public QWidget
   HotKey *toggleHotKey;
   HotKey *recenterHotKey;
   HotKey *lmbHotKey;
-  HotKey *rmbHotKey;
+  HotKey *mmbHotKey;
  private slots:
   void on_SensSlider_valueChanged(int val)
     {sensitivity = val; emit axisChanged(); ui.ApplyButton->setEnabled(true);};

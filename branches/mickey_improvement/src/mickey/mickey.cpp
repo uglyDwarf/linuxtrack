@@ -458,8 +458,8 @@ void Mickey::hotKey_activated(int id, bool pressed)
     case 1: //LMB
       emit mouseHotKey_activated(LEFT_BUTTON, pressed);
       break;
-    case 2: //RMB
-      emit mouseHotKey_activated(RIGHT_BUTTON, pressed);
+    case 2: //MMB
+      emit mouseHotKey_activated(MIDDLE_BUTTON, pressed);
       break;
     case 3: // quick recenter
       linuxtrack_recenter();
@@ -654,10 +654,10 @@ MickeyGUI::~MickeyGUI()
 {
   ui.HotkeyStack->removeWidget(toggleHotKey);
   ui.HotkeyStack->removeWidget(lmbHotKey);
-  ui.HotkeyStack->removeWidget(rmbHotKey);
+  ui.HotkeyStack->removeWidget(mmbHotKey);
   delete toggleHotKey;
   delete lmbHotKey;
-  delete rmbHotKey;
+  delete mmbHotKey;
   
   delete mickey;
   
@@ -827,14 +827,17 @@ void MickeyGUI::init()
   mickey = new Mickey();
 
   settings.beginGroup(QString::fromUtf8("HotKeys"));
+  
+  ui.HotkeyStack->addWidget(new QLabel(QString::fromUtf8("Hotkey setup")), 1, 1);
   toggleHotKey = addHotKey(QString::fromUtf8("Start/Stop tracking:"), QString::fromUtf8("tracking_toggle"),
-			   0, this, mickey, ui.HotkeyStack, &settings, 1, 1);
-  lmbHotKey = addHotKey(QString::fromUtf8("Left mouse button:"), QString::fromUtf8("l_mouse"), 
-			   1, this, mickey, ui.HotkeyStack, &settings, 2, 1);
+			   0, this, mickey, ui.HotkeyStack, &settings, 2, 1);
   recenterHotKey = addHotKey(QString::fromUtf8("Quick recenter:"), QString::fromUtf8("quick_recenter"),
-			   3, this, mickey, ui.HotkeyStack, &settings, 1, 2);
-  rmbHotKey = addHotKey(QString::fromUtf8("Right mouse button:"), QString::fromUtf8("r_mouse"), 
-			   2, this, mickey, ui.HotkeyStack, &settings, 2, 2);
+			   3, this, mickey, ui.HotkeyStack, &settings, 2, 2);
+  ui.HotkeyStack->addWidget(new QLabel(QString::fromUtf8("Mouse button emulation")), 3, 1);
+  lmbHotKey = addHotKey(QString::fromUtf8("Left:"), QString::fromUtf8("l_mouse"), 
+			   1, this, mickey, ui.HotkeyStack, &settings, 4, 1);
+  mmbHotKey = addHotKey(QString::fromUtf8("Middle:"), QString::fromUtf8("m_mouse"), 
+			   2, this, mickey, ui.HotkeyStack, &settings, 4, 2);
   settings.endGroup();
   ui.ApplyButton->setEnabled(false);
   mickey->setRelative(ui.RelativeCB->isChecked());
