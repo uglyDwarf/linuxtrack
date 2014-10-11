@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.59])
-AC_INIT([LinuxTrack], [0.99.10], [http://code.google.com/p/linux-track/issues/list])
+AC_INIT([LinuxTrack], [0.99.11], [http://code.google.com/p/linux-track/issues/list])
 AM_INIT_AUTOMAKE([no-dependencies -Wall -Werror])
 AC_CONFIG_SRCDIR([src/tir4_driver.h])
 AC_CONFIG_HEADERS([config.h])
@@ -255,6 +255,8 @@ AC_CONFIG_FILES([
  src/wine_bridge/ft_tester/Makefile
  src/wine_bridge/tester/npview.rc
  src/wine_bridge/ft_tester/fttester.rc
+ src/wine_bridge/views/fake_tir.rc
+ src/wine_bridge/views/Makefile
  src/wine_bridge/ltr_wine64.nsi
  src/wine_bridge/ltr_wine.nsi
  doc/Makefile

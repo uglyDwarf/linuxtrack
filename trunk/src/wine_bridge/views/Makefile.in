@@ -78,10 +78,12 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = src/wine_bridge
+@WINE_PLUGIN_TRUE@am__append_1 = TrackIR.exe.so
+@DARWIN_TRUE@am__append_2 = -Wl,-no_arch_warnings
+@DARWIN_FALSE@am__append_3 = -Wl,--no-warn-search-mismatch
+subdir = src/wine_bridge/views
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(srcdir)/ltr_wine64.nsi.in $(srcdir)/ltr_wine.nsi.in \
-	$(dist_pkgdata_DATA)
+	$(srcdir)/fake_tir.rc.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -91,8 +93,9 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
-CONFIG_CLEAN_FILES = ltr_wine64.nsi ltr_wine.nsi
+CONFIG_CLEAN_FILES = fake_tir.rc
 CONFIG_CLEAN_VPATH_FILES =
+SCRIPTS = $(noinst_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -114,35 +117,6 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
-am__vpath_adj = case $$p in \
-    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-    *) f=$$p;; \
-  esac;
-am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
-am__install_max = 40
-am__nobase_strip_setup = \
-  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
-am__nobase_strip = \
-  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
-am__nobase_list = $(am__nobase_strip_setup); \
-  for p in $$list; do echo "$$p $$p"; done | \
-  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
-  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
-    if (++n[$$2] == $(am__install_max)) \
-      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
-    END { for (dir in files) print dir, files[dir] }'
-am__base_list = \
-  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
-  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__uninstall_files_from_dir = { \
-  test -z "$$files" \
-    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
-    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
-         $(am__cd) "$$dir" && rm -f $$files; }; \
-  }
-am__installdirs = "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(pkgdatadir)"
-DATA = $(dist_pkgdata_DATA) $(nodist_pkgdata_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
@@ -154,11 +128,11 @@ AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BISON = @BISON@
-CC = @CC@
+CC = winegcc
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CXX = @CXX@
+CXX = wineg++
 CXXCPP = @CXXCPP@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
@@ -179,7 +153,7 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
-LDFLAGS = @LDFLAGS@
+LDFLAGS = @LDFLAGS@ $(am__append_2) $(am__append_3)
 LEX = @LEX@
 LEXLIB = @LEXLIB@
 LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
@@ -280,14 +254,16 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_makensis = @with_makensis@
 with_wine64 = @with_wine64@
-@WINE_PLUGIN_TRUE@nodist_pkgdata_DATA = linuxtrack-wine.exe
-@DARWIN_FALSE@@WINE_PLUGIN_TRUE@MYLDFLAGS = -Wl,--no-warn-search-mismatch
-@DARWIN_TRUE@@WINE_PLUGIN_TRUE@MYLDFLAGS = -Wl,-no_arch_warnings
-dist_pkgdata_DATA = README.wine
-EXTRA_DIST = linuxtrack.ico linuxtrack1.ico
+noinst_SCRIPTS = $(am__append_1)
+SUFFIXES = .o .cpp .c .rc 64.o
+CXXFLAGS_PRE = -g -DHAVE_CONFIG_H -I../../.. -I. -I@srcdir@/../.. -I@top_builddir@
+CFLAGS_PRE = -g -I../.. -I../../.. -DHAVE_CONFIG_H -I@srcdir@/../.. -I@top_builddir@
+RCFLAGS = -I @srcdir@
+EXTRA_DIST = main.cpp resource.h
 all: all-am
 
 .SUFFIXES:
+.SUFFIXES: .o .cpp .c .rc 64.o
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -297,9 +273,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu --ignore-deps src/wine_bridge/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu --ignore-deps src/wine_bridge/views/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu --ignore-deps src/wine_bridge/Makefile
+	  $(AUTOMAKE) --gnu --ignore-deps src/wine_bridge/views/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -318,9 +294,7 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-ltr_wine64.nsi: $(top_builddir)/config.status $(srcdir)/ltr_wine64.nsi.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-ltr_wine.nsi: $(top_builddir)/config.status $(srcdir)/ltr_wine.nsi.in
+fake_tir.rc: $(top_builddir)/config.status $(srcdir)/fake_tir.rc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 mostlyclean-libtool:
@@ -328,48 +302,6 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-dist_pkgdataDATA: $(dist_pkgdata_DATA)
-	@$(NORMAL_INSTALL)
-	@list='$(dist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgdatadir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(pkgdatadir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgdatadir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgdatadir)" || exit $$?; \
-	done
-
-uninstall-dist_pkgdataDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(dist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(pkgdatadir)'; $(am__uninstall_files_from_dir)
-install-nodist_pkgdataDATA: $(nodist_pkgdata_DATA)
-	@$(NORMAL_INSTALL)
-	@list='$(nodist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgdatadir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(pkgdatadir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgdatadir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgdatadir)" || exit $$?; \
-	done
-
-uninstall-nodist_pkgdataDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(nodist_pkgdata_DATA)'; test -n "$(pkgdatadir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(pkgdatadir)'; $(am__uninstall_files_from_dir)
 tags TAGS:
 
 ctags CTAGS:
@@ -409,11 +341,8 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(DATA)
+all-am: Makefile $(SCRIPTS)
 installdirs:
-	for dir in "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(pkgdatadir)"; do \
-	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
-	done
 install: install-am
 install-exec: install-exec-am
 install-data: install-data-am
@@ -444,8 +373,6 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-@WINE_PLUGIN_FALSE@clean-local:
-@WINE_PLUGIN_FALSE@distclean-local:
 clean: clean-am
 
 clean-am: clean-generic clean-libtool clean-local mostlyclean-am
@@ -466,7 +393,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-dist_pkgdataDATA install-nodist_pkgdataDATA
+install-data-am:
 
 install-dvi: install-dvi-am
 
@@ -510,7 +437,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-dist_pkgdataDATA uninstall-nodist_pkgdataDATA
+uninstall-am:
 
 .MAKE: install-am install-strip
 
@@ -518,48 +445,52 @@ uninstall-am: uninstall-dist_pkgdataDATA uninstall-nodist_pkgdataDATA
 	clean-local cscopelist-am ctags-am distclean distclean-generic \
 	distclean-libtool distclean-local distdir dvi dvi-am html \
 	html-am info info-am install install-am install-data \
-	install-data-am install-dist_pkgdataDATA install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-nodist_pkgdataDATA install-pdf install-pdf-am \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-man install-pdf install-pdf-am \
 	install-ps install-ps-am install-strip installcheck \
 	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-generic \
 	mostlyclean-libtool pdf pdf-am ps ps-am tags-am uninstall \
-	uninstall-am uninstall-dist_pkgdataDATA \
-	uninstall-nodist_pkgdataDATA
+	uninstall-am
 
-@DARWIN_TRUE@@WINE_PLUGIN_TRUE@  linuxtrack-wine.exe : ltr_wine.nsi tester/Tester.exe.so controller/Controller.exe.so \
-@DARWIN_TRUE@@WINE_PLUGIN_TRUE@             client/NPClient.dll.so ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so \
-@DARWIN_TRUE@@WINE_PLUGIN_TRUE@             client/check_data.exe.so views/TrackIR.exe.so
-@DARWIN_TRUE@@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib tester/Tester.exe.so
-@DARWIN_TRUE@@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib controller/Controller.exe.so 
-@DARWIN_TRUE@@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib client/NPClient.dll.so
-@DARWIN_TRUE@@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib ft_client/FreeTrackClient.dll.so
-@DARWIN_TRUE@@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib ft_tester/ftc.exe.so
-@DARWIN_TRUE@@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib client/check_data.exe.so
-@DARWIN_TRUE@@WINE_PLUGIN_TRUE@	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib views/TrackIR.exe.so
-@DARWIN_TRUE@@WINE_PLUGIN_TRUE@	makensis $<
 
-@DARWIN_FALSE@@WINE64_TRUE@@WINE_PLUGIN_TRUE@  linuxtrack-wine.exe : ltr_wine64.nsi tester/Tester.exe.so tester/Tester64.exe.so \
-@DARWIN_FALSE@@WINE64_TRUE@@WINE_PLUGIN_TRUE@                        controller/Controller.exe.so client/NPClient.dll.so client/NPClient64.dll.so \
-@DARWIN_FALSE@@WINE64_TRUE@@WINE_PLUGIN_TRUE@                        ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so client/check_data.exe.so \
-@DARWIN_FALSE@@WINE64_TRUE@@WINE_PLUGIN_TRUE@			views/TrackIR.exe.so
-@DARWIN_FALSE@@WINE64_TRUE@@WINE_PLUGIN_TRUE@	makensis $<
-@DARWIN_FALSE@@WINE64_FALSE@@WINE_PLUGIN_TRUE@  linuxtrack-wine.exe : ltr_wine.nsi tester/Tester.exe.so controller/Controller.exe.so client/NPClient.dll.so \
-@DARWIN_FALSE@@WINE64_FALSE@@WINE_PLUGIN_TRUE@                        ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so client/check_data.exe.so \
-@DARWIN_FALSE@@WINE64_FALSE@@WINE_PLUGIN_TRUE@			views/TrackIR.exe.so
-@DARWIN_FALSE@@WINE64_FALSE@@WINE_PLUGIN_TRUE@	makensis $<
+.cpp.o :
+	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -m32 -o $@ $<
 
-@WINE_PLUGIN_TRUE@clean-local: clean-local-check
-@WINE_PLUGIN_TRUE@.PHONY: clean-local-check
-@WINE_PLUGIN_TRUE@clean-local-check:
-@WINE_PLUGIN_TRUE@	rm -f *.exe
+.c.o :
+	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) $(CPPFLAGS) -m32 -o $@ $<
 
-@WINE_PLUGIN_TRUE@distclean-local: distclean-local-check
-@WINE_PLUGIN_TRUE@.PHONY: distclean-local-check
-@WINE_PLUGIN_TRUE@distclean-local-check:
-@WINE_PLUGIN_TRUE@	rm -f *.exe
+.cpp64.o :
+	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
+
+.c64.o :
+	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) $(CPPFLAGS) -o $@ $<
+
+.rc.o :
+	wrc -o $@ $(RCFLAGS) $<
+#VPATH = .:../..:@srcdir@/../..:@top_builddir@:@srcdir@
+vpath %.h @srcdir@/../..
+vpath %.h @top_builddir@
+vpath %.c @srcdir@
+vpath %.c @srcdir@/../..
+
+TrackIR.exe.so : main.o fake_tir.o
+	winegcc $(WINE_LIBS) $(LDFLAGS) -m32 -Wall -Wextra -g -o $@ $^
+
+main.o : main.cpp resource.h
+
+fake_tir.o : fake_tir.rc resource.h config.h
+
+clean-local: clean-local-check
+.PHONY: clean-local-check
+clean-local-check:
+	rm -f *.exe* *.dll* *.sh *.o
+
+distclean-local: distclean-local-check
+.PHONY: distclean-local-check
+distclean-local-check:
+	rm -f *.exe* *.dll* *.sh *.o
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
