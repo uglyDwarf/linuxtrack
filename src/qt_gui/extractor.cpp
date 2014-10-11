@@ -46,6 +46,7 @@ void ExtractThread::run()
 {
   emit progress(QString::fromUtf8("Commencing analysis of directory '%1'...").arg(path));
   gameDataFound = false;
+  tirviewsFound = false;
   for(targets_iterator_t it = targets->begin(); it != targets->end(); ++it){
     it->second.clearFoundFlag();
   }
@@ -63,6 +64,9 @@ void ExtractThread::run()
     }
     if(!gameDataFound){
       emit progress(QString::fromUtf8("Couldn't extract game data!"));
+    }
+    if(!tirviewsFound){
+      emit progress(QString::fromUtf8("Couldn't extract TIRViews.dll!"));
     }
   }
 }
@@ -104,7 +108,7 @@ bool ExtractThread::allFound()
   for(targets_iterator_t it = targets->begin(); it != targets->end(); ++it){
     if(!it->second.foundAlready()) return false;
   }
-  return gameDataFound;
+  return gameDataFound && tirviewsFound;
 }
 
 bool ExtractThread::findCandidates(QString name)
@@ -117,7 +121,12 @@ bool ExtractThread::findCandidates(QString name)
   QFileInfoList files = dir.entryInfoList(patt, QDir::Files | QDir::Readable);
   for(i = 0; i < files.size(); ++i){
     if(quit) return false;
-    if(files[i].fileName().compare(QString::fromUtf8("sgl.dat"))){
+    if(files[i].fileName().compare(QString::fromUtf8("TIRViews.dll")) == 0){
+      QString outfile = QString::fromUtf8("%1/TIRViews.dll").arg(destPath);
+      if((tirviewsFound = QFile::copy(files[i].canonicalFilePath(), outfile))){
+        emit progress(QString::fromUtf8("Extracted TIRViews.dll..."));
+      }
+    }else if(files[i].fileName().compare(QString::fromUtf8("sgl.dat"))){
       analyzeFile(files[i].canonicalFilePath());
     }else{
       QString outfile = QString::fromUtf8("%1/gamedata.txt").arg(destPath);

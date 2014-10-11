@@ -49,6 +49,7 @@ class ExtractThread: public QThread
   QString path;
   QString destPath;
   bool gameDataFound;
+  bool tirviewsFound;
   bool quit;
   bool everything;
 };
