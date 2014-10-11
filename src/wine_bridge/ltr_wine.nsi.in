@@ -18,6 +18,7 @@ Section "Linuxtrack / TrackIR Interface"
   File /oname=NPClient.dll client\NPClient.dll.so
   File /oname=check_data.exe client\check_data.exe.so
   File /oname=linuxtrack.ico @srcdir@\controller\linuxtrack.ico
+  File /oname=TrackIR.exe views\TrackIR.exe.so
   WriteRegStr HKLM SOFTWARE\Linuxtrack "Install_dir" "$INSTDIR"
   WriteRegStr HKCU "Software\NaturalPoint\NATURALPOINT\NPClient Location" "Path" "$INSTDIR\"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Linuxtrack" "DisplayName" "Linuxtrack wine bridge"
@@ -39,6 +40,7 @@ Section "Start Menu Shortcuts"
   CreateDirectory "$SMPROGRAMS\Linuxtrack"
   CreateShortCut "$SMPROGRAMS\Linuxtrack\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
   CreateShortCut "$SMPROGRAMS\Linuxtrack\Controller.lnk" "$INSTDIR\Controller.exe" "" "$INSTDIR\linuxtrack.ico" 0
+  CreateShortCut "$SMPROGRAMS\Linuxtrack\TrackIR.lnk" "$INSTDIR\TrackIR.exe" "" "$INSTDIR\linuxtrack.ico" 0
   CreateShortCut "$SMPROGRAMS\Linuxtrack\Tester.lnk" "$INSTDIR\Tester.exe" "" "$INSTDIR\Tester.exe"
   CreateShortCut "$SMPROGRAMS\Linuxtrack\FreeTrackTester.lnk" "$INSTDIR\FreeTrackTester.exe" "" "$INSTDIR\FreeTrackTester.exe"
 SectionEnd
@@ -55,7 +57,9 @@ Section "Uninstall"
   Delete $INSTDIR\FreeTrackTester.exe
   Delete $INSTDIR\uninstall.exe
   Delete $INSTDIR\check_data.exe
+  Delete $INSTDIR\TrackIR.exe
   Delete $INSTDIR\linuxtrack.ico
+  Delete $INSTDIR\TIRViews.dll
   Delete "$SMPROGRAMS\Linuxtrack\*.*"
   RMDir "$SMPROGRAMS\Linuxtrack"
   RMDir "$INSTDIR"
