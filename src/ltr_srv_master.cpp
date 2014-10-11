@@ -349,7 +349,7 @@ bool ltr_int_master(bool standalone)
     }
     
     if(gui_shutdown_request || (!ltr_int_gui_lock(false)) || 
-       no_slaves || (ltr_int_get_tracking_state() < 0 /* LINUXTRACK_OK, but g++ on mac won't see it */)){
+       no_slaves || (ltr_int_get_tracking_state() < LINUXTRACK_OK)){
       break;
     }
   }
