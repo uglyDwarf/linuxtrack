@@ -259,7 +259,7 @@ SUFFIXES = .o .cpp .c .rc
 CXXFLAGS_PRE = -g -DHAVE_CONFIG_H -I../../.. -I. -I@srcdir@/../.. -I@top_builddir@
 CFLAGS_PRE = -g -I../.. -I../../.. -DHAVE_CONFIG_H -I@srcdir@/../.. -I@top_builddir@
 RCFLAGS = -I @srcdir@
-EXTRA_DIST = resource.h fttester.rc main.cpp
+EXTRA_DIST = resource.h main.cpp
 all: all-am
 
 .SUFFIXES:
