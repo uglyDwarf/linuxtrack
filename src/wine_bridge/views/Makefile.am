@@ -1,6 +1,6 @@
 noinst_SCRIPTS = 
 if WINE_PLUGIN
-  noinst_SCRIPTS += TrackIR.exe.so
+  noinst_SCRIPTS += TrackIR.exe
 endif #WINE_PLUGIN
 
 if DARWIN
@@ -39,8 +39,8 @@ vpath %.h @top_builddir@
 vpath %.c @srcdir@
 vpath %.c @srcdir@/../..
 
-TrackIR.exe.so : main.o fake_tir.o
-	winegcc $(WINE_LIBS) $(LDFLAGS) -m32 -Wall -Wextra -g -o $@ $^
+TrackIR.exe : main.o fake_tir.o
+	$(CXX) $(WINE_LIBS) $(LDFLAGS) -m32 -Wall -Wextra -g -o $@ $^
 
 main.o : main.cpp resource.h
 
