@@ -49,11 +49,11 @@ liblinuxtrack32_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h \
 liblinuxtrack32_la_CFLAGS = $(LINUXFLAGS) -m32
 liblinuxtrack32_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" -m32 $(LINUXFLAGS)
 
-noinst_LIBRARIES = liblinuxtrack_int.a libfacetrack_int.a
-liblinuxtrack_int_a_SOURCES = linuxtrack.c linuxtrack.h
-libfacetrack_int_a_SOURCES = facetrack.cpp facetrack.h
-libfacetrack_int_a_CFLAGS = $(OPENCV_CFLAGS)
-libfacetrack_int_a_CXXFLAGS = $(OPENCV_CFLAGS)
+noinst_LTLIBRARIES = liblinuxtrack_int.la libfacetrack_int.la
+liblinuxtrack_int_la_SOURCES = linuxtrack.c linuxtrack.h
+libfacetrack_int_la_SOURCES = facetrack.cpp facetrack.h
+libfacetrack_int_la_CFLAGS = $(OPENCV_CFLAGS)
+libfacetrack_int_la_CXXFLAGS = $(OPENCV_CFLAGS)
 
 
 #ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
@@ -171,8 +171,8 @@ endif
 
 libmacwc_la_SOURCES = macwebcam_driver.c com_proc.h runloop.h ipc_utils.h
 libmacwc_la_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG}
-libmacwc_la_LIBADD = -lltr
-libmacwc_la_LDFLAGS = -export-symbols ../drivers.sym ${AM_CFLAGS} ${SLEOPARD_LDFLAG}
+libmacwc_la_LIBADD = libltr.la
+libmacwc_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${AM_CFLAGS} ${SLEOPARD_LDFLAG}
 
 libft_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h facetrack.cpp facetrack.h
 libft_la_CFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)

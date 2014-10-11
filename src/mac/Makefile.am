@@ -12,7 +12,8 @@ endif
 
 qt_cam_SOURCES = qt_camera.m args.c args.h buffer.c buffer.h mac_camera.h \
   ../com_proc.h ../ipc_utils.h processing.c processing.h macwebcam.c ../facetrack.h
-qt_cam_LDADD = libfacetrack_int.a -lltr -lobjc -lpthread 
+EXTRA_qt_cam_SOURCES = dummy.cpp
+qt_cam_LDADD = ../libfacetrack_int.la ../libltr.la -lobjc -lpthread
 qt_cam_LDFLAGS = ${AM_CFLAGS} ${SLEOPARD_LDFLAG} -framework Cocoa -framework QTKit \
   -framework QuartzCore $(OPENCV_LIBS) -headerpad_max_install_names -L${srcdir}
 qt_cam_CXXFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..  -DOPENCV $(OPENCV_CFLAGS)
@@ -28,7 +29,7 @@ qt_cam_OBJCFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I.
 
 WiiServer_SOURCES = ../com_proc.h ../wii_com.h wiimote.m wiimote.h \
   wiimote_server.m wiimote_server.h wiisrvr_main.m ../ipc_utils.h
-WiiServer_LDADD = -lltr -lobjc -lpthread
+WiiServer_LDADD = ../libltr.la -lobjc -lpthread
 WiiServer_LDFLAGS = ${AM_CFLAGS} ${SLEOPARD_LDFLAG} -framework Cocoa -framework CoreData \
   -framework AppKit -framework Foundation -framework IOBluetooth
 WiiServer_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..

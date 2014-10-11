@@ -84,11 +84,11 @@ file_buf_t *read_contents(FILE *f, size_t len)
   }
   res->length = len;
   res->data = data;
-  size_t read = fread(data, 1, len, f);
-  if(read == len){
+  size_t read_in = fread(data, 1, len, f);
+  if(read_in == len){
     return res;
   }else{
-    printf("read_contents: Read %lu bytes instead of %lu.\n", read, len);
+    printf("read_contents: Read %lu bytes instead of %lu.\n", read_in, len);
     free(res);
     free(data);
     return NULL;
@@ -174,7 +174,7 @@ void process_file(FILE *output, const char *name)
     file_name = last_slash + 1;
   }
   if(md5sum && sha1sum){
-    fprintf(output, "%s %lu %d ", file_name, f->length, hash_csum(f));
+    fprintf(output, "%s %llu %d ", file_name, (unsigned long long)f->length, hash_csum(f));
     print_hash(output, md5sum, MD5_DIGEST_LENGTH);
     fprintf(output, " ");
     print_hash(output, sha1sum, SHA_DIGEST_LENGTH);
@@ -226,11 +226,11 @@ bool gamedata_found = false;
 
 bool read_spec(const char *spec_file)
 {
-  char *name = NULL;
+  char name[1024];
   int length;
   int csum;
-  char *md5sum = NULL;
-  char *sha1sum = NULL;
+  char md5sum[1024];
+  char sha1sum[1024];
   int res;
   struct spec_s *tail = NULL;
   FILE *f = fopen(spec_file, "r");
@@ -238,7 +238,7 @@ bool read_spec(const char *spec_file)
     return false;
   }
   while(1){
-    res = fscanf(f, "%ms %d %d %ms %ms\n", &name, &length, &csum, &md5sum, &sha1sum);
+    res = fscanf(f, "%1023s %d %d %1023s %1023s\n", name, &length, &csum, md5sum, sha1sum);
     if(res == 5){
       struct spec_s *tmp = (struct spec_s *)malloc(sizeof(struct spec_s));
       if(tmp == NULL){
@@ -265,18 +265,9 @@ bool read_spec(const char *spec_file)
         }
         tail = tmp;
       }else{
-        free(name);
         free(tmp);
         break;
       }
-    }
-    if(md5sum != NULL){
-      free(md5sum);
-      md5sum = NULL;
-    }
-    if(sha1sum != NULL){
-      free(sha1sum);
-      sha1sum = NULL;
     }
     if(res != 5){
       break;
