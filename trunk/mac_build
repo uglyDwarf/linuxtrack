@@ -127,6 +127,7 @@ pushd "$LTR_BASE"
 #have to use this hack, because autoreconf on Mac doesn't pass -I ... to the aclocal
 #export ACLOCAL="aclocal -I ./mac_m4"
 #echo "Rebuilding with mac_m4"
+make distclean
 autoreconf -if
 unset ACLOCAL
 export CPPFLAGS="-I${PREFIX}/include -I${WINE_PREFIX}/include"
