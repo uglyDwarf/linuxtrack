@@ -553,7 +553,7 @@ static void setup_ltr(void)
 {
 	logmsg("Initializing LinuxTrack library");
 
-	if (linuxtrack_init(Args.ltr_profile) != 0)
+	if (linuxtrack_init(Args.ltr_profile) < 0)
 		xerror(1, 0, "LinuxTrack library failure");
 
 	int timeout = atoi(Args.ltr_timeout);
@@ -918,7 +918,7 @@ static void write_data_il2_6dof(const struct ltr_data *d)
 	int r;
 
 	char buf[128];
-        
+
 	r = snprintf(buf, sizeof(buf),
 			"R/11\\%f\\%f\\%f\\%f\\%f\\%f",
 			d->h, -d->p, d->r, -d->z/300, -d->x/1000, d->y/1000);
