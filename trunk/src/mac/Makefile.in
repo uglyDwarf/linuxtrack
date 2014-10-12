@@ -99,7 +99,7 @@ am_WiiServer_OBJECTS = WiiServer-wiimote.$(OBJEXT) \
 	WiiServer-wiimote_server.$(OBJEXT) \
 	WiiServer-wiisrvr_main.$(OBJEXT)
 WiiServer_OBJECTS = $(am_WiiServer_OBJECTS)
-WiiServer_DEPENDENCIES =
+WiiServer_DEPENDENCIES = ../libltr.la
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -111,10 +111,10 @@ am_qt_cam_OBJECTS = qt_cam-qt_camera.$(OBJEXT) qt_cam-args.$(OBJEXT) \
 	qt_cam-buffer.$(OBJEXT) qt_cam-processing.$(OBJEXT) \
 	qt_cam-macwebcam.$(OBJEXT)
 qt_cam_OBJECTS = $(am_qt_cam_OBJECTS)
-qt_cam_DEPENDENCIES = libfacetrack_int.a
-qt_cam_LINK = $(LIBTOOL) $(AM_V_lt) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(OBJCLD) $(qt_cam_OBJCFLAGS) $(OBJCFLAGS) \
-	$(qt_cam_LDFLAGS) $(LDFLAGS) -o $@
+qt_cam_DEPENDENCIES = ../libfacetrack_int.la ../libltr.la
+qt_cam_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(qt_cam_CXXFLAGS) \
+	$(CXXFLAGS) $(qt_cam_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -148,6 +148,24 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CXXFLAGS) $(CXXFLAGS)
+AM_V_CXX = $(am__v_CXX_@AM_V@)
+am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
+am__v_CXX_0 = @echo "  CXX     " $@;
+am__v_CXX_1 = 
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
+am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
+am__v_CXXLD_0 = @echo "  CXXLD   " $@;
+am__v_CXXLD_1 = 
 OBJCCOMPILE = $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_OBJCFLAGS) $(OBJCFLAGS)
 LTOBJCCOMPILE = $(LIBTOOL) $(AM_V_lt) $(AM_LIBTOOLFLAGS) \
@@ -166,8 +184,10 @@ AM_V_OBJCLD = $(am__v_OBJCLD_@AM_V@)
 am__v_OBJCLD_ = $(am__v_OBJCLD_@AM_DEFAULT_V@)
 am__v_OBJCLD_0 = @echo "  OBJCLD  " $@;
 am__v_OBJCLD_1 = 
-SOURCES = $(WiiServer_SOURCES) $(qt_cam_SOURCES)
-DIST_SOURCES = $(WiiServer_SOURCES) $(qt_cam_SOURCES)
+SOURCES = $(WiiServer_SOURCES) $(qt_cam_SOURCES) \
+	$(EXTRA_qt_cam_SOURCES)
+DIST_SOURCES = $(WiiServer_SOURCES) $(qt_cam_SOURCES) \
+	$(EXTRA_qt_cam_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -338,7 +358,8 @@ DARWINFLAGS = -undefined dynamic_lookup
 qt_cam_SOURCES = qt_camera.m args.c args.h buffer.c buffer.h mac_camera.h \
   ../com_proc.h ../ipc_utils.h processing.c processing.h macwebcam.c ../facetrack.h
 
-qt_cam_LDADD = libfacetrack_int.a -lltr -lobjc -lpthread 
+EXTRA_qt_cam_SOURCES = dummy.cpp
+qt_cam_LDADD = ../libfacetrack_int.la ../libltr.la -lobjc -lpthread
 qt_cam_LDFLAGS = ${AM_CFLAGS} ${SLEOPARD_LDFLAG} -framework Cocoa -framework QTKit \
   -framework QuartzCore $(OPENCV_LIBS) -headerpad_max_install_names -L${srcdir}
 
@@ -355,7 +376,7 @@ qt_cam_OBJCFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I.
 WiiServer_SOURCES = ../com_proc.h ../wii_com.h wiimote.m wiimote.h \
   wiimote_server.m wiimote_server.h wiisrvr_main.m ../ipc_utils.h
 
-WiiServer_LDADD = -lltr -lobjc -lpthread
+WiiServer_LDADD = ../libltr.la -lobjc -lpthread
 WiiServer_LDFLAGS = ${AM_CFLAGS} ${SLEOPARD_LDFLAG} -framework Cocoa -framework CoreData \
   -framework AppKit -framework Foundation -framework IOBluetooth
 
@@ -364,7 +385,7 @@ WiiServer_OBJCFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. 
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .lo .m .o .obj
+.SUFFIXES: .c .cpp .lo .m .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -453,7 +474,7 @@ WiiServer$(EXEEXT): $(WiiServer_OBJECTS) $(WiiServer_DEPENDENCIES) $(EXTRA_WiiSe
 
 qt_cam$(EXEEXT): $(qt_cam_OBJECTS) $(qt_cam_DEPENDENCIES) $(EXTRA_qt_cam_DEPENDENCIES) 
 	@rm -f qt_cam$(EXEEXT)
-	$(AM_V_OBJCLD)$(qt_cam_LINK) $(qt_cam_OBJECTS) $(qt_cam_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(qt_cam_LINK) $(qt_cam_OBJECTS) $(qt_cam_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -493,6 +514,21 @@ qt_cam-macwebcam.o: macwebcam.c
 
 qt_cam-macwebcam.obj: macwebcam.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(qt_cam_CFLAGS) $(CFLAGS) -c -o qt_cam-macwebcam.obj `if test -f 'macwebcam.c'; then $(CYGPATH_W) 'macwebcam.c'; else $(CYGPATH_W) '$(srcdir)/macwebcam.c'; fi`
+
+.cpp.o:
+	$(AM_V_CXX)$(CXXCOMPILE) -c -o $@ $<
+
+.cpp.obj:
+	$(AM_V_CXX)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+.cpp.lo:
+	$(AM_V_CXX)$(LTCXXCOMPILE) -c -o $@ $<
+
+qt_cam-dummy.o: dummy.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(qt_cam_CXXFLAGS) $(CXXFLAGS) -c -o qt_cam-dummy.o `test -f 'dummy.cpp' || echo '$(srcdir)/'`dummy.cpp
+
+qt_cam-dummy.obj: dummy.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(qt_cam_CXXFLAGS) $(CXXFLAGS) -c -o qt_cam-dummy.obj `if test -f 'dummy.cpp'; then $(CYGPATH_W) 'dummy.cpp'; else $(CYGPATH_W) '$(srcdir)/dummy.cpp'; fi`
 
 .m.o:
 	$(AM_V_OBJC)$(OBJCCOMPILE) -c -o $@ $<

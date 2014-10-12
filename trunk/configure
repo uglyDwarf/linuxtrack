@@ -4004,9 +4004,9 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 if test "$debug" != "no"; then :
-  CFLAGS+=" -g -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
+  CFLAGS+=" -g -O2 -Wall -Wextra -Wformat -Wformat-security \
          --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2 "
-       CXXFLAGS+=" -g -O2 -Wall -Wextra -Wshadow -Wfloat-equal -Wformat -Wformat-security \
+       CXXFLAGS+=" -g -O2 -Wall -Wextra -Wformat -Wformat-security \
          --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2 "
        CPPFLAGS+=" -D_FORTIFY_SOURCE=2 -O2 "
 else
