@@ -16,9 +16,10 @@ class PluginInstall : public QObject
  private slots:
   void installWinePlugin();
   void instFinished(bool result);
-  void tirFirmwareInstall();
+  void tirFirmwareInstall(bool installFwOnly = false);
   void tirFirmwareInstalled(bool ok);
-  
+  void installLinuxtrackWine(bool ok);
+  void on_TIRFWButton_pressed();
  private:
   const Ui::LinuxtrackMainForm &gui;
   void Connect();

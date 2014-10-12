@@ -137,7 +137,7 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
+            <item row="2" column="0">
              <widget class="QPushButton" name="ViewLogButton">
               <property name="text">
                <string>View logfile</string>
@@ -154,10 +154,17 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
+            <item row="2" column="1">
              <widget class="QPushButton" name="PackageLogsButton">
               <property name="text">
                <string>Package logs...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QPushButton" name="TIRFWButton">
+              <property name="text">
+               <string>Reinstall TrackIR firmware</string>
               </property>
              </widget>
             </item>
