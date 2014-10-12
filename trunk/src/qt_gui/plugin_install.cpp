@@ -15,7 +15,7 @@
 PluginInstall::PluginInstall(const Ui::LinuxtrackMainForm &ui):
   gui(ui), inst(NULL), dlfw(NULL),
   poem1(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/poem1.txt")),
-  poem2(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/poem2.txt")), 
+  poem2(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/poem2.txt")),
   gameData(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/gamedata.txt"))
 {
 #ifndef DARWIN
@@ -41,6 +41,8 @@ void PluginInstall::Connect()
 {
   QObject::connect(gui.pushButton_2, SIGNAL(pressed()),
     this, SLOT(installWinePlugin()));
+  QObject::connect(gui.TIRFWButton, SIGNAL(pressed()),
+    this, SLOT(on_TIRFWButton_pressed()));
   QObject::connect(inst, SIGNAL(finished(bool)),
     this, SLOT(instFinished(bool)));
 }
@@ -48,23 +50,33 @@ void PluginInstall::Connect()
 void PluginInstall::instFinished(bool result)
 {
   if(!result){
-//    QMessageBox::warning(NULL, "Wine bridge installation problem", 
+//    QMessageBox::warning(NULL, "Wine bridge installation problem",
 //      "Wine bridge installation failed!", QMessageBox::Ok);
     gui.pushButton_2->setEnabled(true);
     return;
   }
 }
 
-void PluginInstall::tirFirmwareInstall()
+void PluginInstall::tirFirmwareInstall(bool installFwOnly)
 {
+  //fwOnly = installFwOnly;
   if(dlfw == NULL){
     dlfw = new Extractor();
-    QObject::connect(dlfw, SIGNAL(finished(bool)),
-      this, SLOT(tirFirmwareInstalled(bool)));
+    if(installFwOnly){
+      QObject::connect(dlfw, SIGNAL(finished(bool)),
+        this, SLOT(tirFirmwareInstalled(bool)));
+    }else{
+      QObject::connect(dlfw, SIGNAL(finished(bool)),
+        this, SLOT(installLinuxtrackWine(bool)));
+    }
   }
   dlfw->show();
 }
 
+void PluginInstall::on_TIRFWButton_pressed()
+{
+  tirFirmwareInstall(true);
+}
 
 bool PluginInstall::isTirFirmwareInstalled()
 {
@@ -74,17 +86,26 @@ bool PluginInstall::isTirFirmwareInstalled()
 void PluginInstall::tirFirmwareInstalled(bool ok)
 {
   (void) ok;
+  if(dlfw != NULL){
+    dlfw->hide();
+  }
+  gui.pushButton_2->setEnabled(true);
+}
+
+void PluginInstall::installLinuxtrackWine(bool ok)
+{
+  (void) ok;
   //message is issued in extractor...
 /*
   if(isTirFirmwareInstalled()){
-    QMessageBox::information(NULL, "TrackIR firmware installed OK", 
+    QMessageBox::information(NULL, "TrackIR firmware installed OK",
     "TrackIR firmware installed successfully!"
 #ifdef DARWIN
     "\nNow you can install linuxtrack-wine.exe to the Wine bottle/prefix of your choice."
 #endif
     );
   }else{
-    QMessageBox::warning(NULL, "TrackIR firmware install problem", 
+    QMessageBox::warning(NULL, "TrackIR firmware install problem",
 "TrackIR firmware package was not installed, without it\n\
 the linuxtrack-wine bridge will not be fully functional!", QMessageBox::Ok);
   }
@@ -92,11 +113,11 @@ the linuxtrack-wine bridge will not be fully functional!", QMessageBox::Ok);
   if(dlfw != NULL){
     dlfw->hide();
   }
-#ifndef DARWIN  
-  QString prefix = QFileDialog::getExistingDirectory(NULL, QString::fromUtf8("Select Wine Prefix..."), 
+#ifndef DARWIN
+  QString prefix = QFileDialog::getExistingDirectory(NULL, QString::fromUtf8("Select Wine Prefix..."),
                      QDir::homePath(), QFileDialog::ShowDirsOnly);
   QString installerPath = PREF.getDataPath(QString::fromUtf8("linuxtrack-wine.exe"));
-  
+
   inst->setEnv(QString::fromUtf8("WINEPREFIX"), prefix);
   inst->run(installerPath);
 #endif
