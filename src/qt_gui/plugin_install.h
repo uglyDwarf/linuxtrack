@@ -4,6 +4,7 @@
 #include <QObject>
 #include "ui_ltr.h"
 #include "wine_launcher.h"
+#include "extractor.h"
 
 class Extractor;
 
@@ -24,7 +25,7 @@ class PluginInstall : public QObject
   const Ui::LinuxtrackMainForm &gui;
   void Connect();
   WineLauncher *inst;
-  Extractor *dlfw;
+  TirFwExtractor *dlfw;
   bool isTirFirmwareInstalled();
   const QString poem1;
   const QString poem2;

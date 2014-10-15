@@ -20,7 +20,7 @@ class TirPrefs : public QWidget{
   Ui::TirSetupForm ui;
   //void Connect();
   bool initializing;
-  Extractor *dlfw;
+  TirFwExtractor *dlfw;
   static bool firmwareOK;
   static bool permsOK;
  signals:
