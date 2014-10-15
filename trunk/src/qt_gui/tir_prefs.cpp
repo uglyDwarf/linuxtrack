@@ -105,10 +105,10 @@ bool TirPrefs::Activate(const QString &ID, bool init)
   ui.TirMinBlob->setValue(ltr_int_tir_get_min_blob());
   ui.TirIrBright->setValue(ltr_int_tir_get_ir_brightness());
   ui.TirStatusBright->setValue(ltr_int_tir_get_status_brightness());
-  Qt::CheckState state = (ltr_int_tir_get_status_indication()) ? 
+  Qt::CheckState state = (ltr_int_tir_get_status_indication()) ?
                           Qt::Checked : Qt::Unchecked;
   ui.TirSignalizeStatus->setCheckState(state);
-  Qt::CheckState grayscale = (ltr_int_tir_get_use_grayscale()) ? 
+  Qt::CheckState grayscale = (ltr_int_tir_get_use_grayscale()) ?
                           Qt::Checked : Qt::Unchecked;
   ui.TirUseGrayscale->setCheckState(grayscale);
   if(firmwareOK){
@@ -121,7 +121,7 @@ bool TirPrefs::Activate(const QString &ID, bool init)
     //ui.TirInstallFirmware->setDisabled(true);
   }else{
     ui.TirFwLabel->setText(QString::fromUtf8("Firmware not found - TrackIr will not work!"));
-    QMessageBox::warning(NULL, QString::fromUtf8("TrackIR Firmware Installation"), 
+    QMessageBox::warning(NULL, QString::fromUtf8("TrackIR Firmware Installation"),
         QString::fromUtf8("TrackIR device was found, but you don't have the firmware installed."));
     //on_TirInstallFirmware_pressed();
   }
@@ -162,10 +162,10 @@ bool TirPrefs::AddAvailableDevices(QComboBox &combo)
   QString id;
   deviceType_t dt;
   bool tir_selected = false;
-  
+
   tirType = probeTir(firmwareOK, permsOK);
   if(!permsOK){
-    QMessageBox::warning(NULL, QString::fromUtf8("TrackIR permissions problem"), 
+    QMessageBox::warning(NULL, QString::fromUtf8("TrackIR permissions problem"),
         QString::fromUtf8("TrackIR device was found, but you don't have permissions to access it.\n \
 Please install the file 51-TIR.rules to the udev rules directory\n\
 (consult help and your distro documentation for details).\n\
@@ -176,13 +176,13 @@ You are going to need administrator privileges to do that.")
   if(tirType == 0){
     return res;
   }
-  
+
   if(PREF.getActiveDevice(dt,id)){
     if(dt == TIR){
       tir_selected = true;
     }
   }
-  
+
   PrefsLink *pl = new PrefsLink(TIR, QString::fromUtf8("Tir"));
   QVariant v;
   v.setValue(*pl);
@@ -233,7 +233,7 @@ void TirPrefs::TirFirmwareDLFinished(bool state)
 {
   if(state){
     dlfw->hide();
-    probeTir(firmwareOK, permsOK);    
+    probeTir(firmwareOK, permsOK);
     if(firmwareOK){
       ui.TirFwLabel->setText(QString::fromUtf8("Firmware found!"));
       //ui.TirInstallFirmware->setDisabled(true);
@@ -247,7 +247,7 @@ void TirPrefs::TirFirmwareDLFinished(bool state)
 void TirPrefs::on_TirInstallFirmware_pressed()
 {
   if(dlfw == NULL){
-    dlfw = new Extractor(this);
+    dlfw = new TirFwExtractor(this);
     QObject::connect(dlfw, SIGNAL(finished(bool)),
       this, SLOT(TirFirmwareDLFinished(bool)));
   }

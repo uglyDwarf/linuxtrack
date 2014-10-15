@@ -61,7 +61,7 @@ void PluginInstall::tirFirmwareInstall(bool installFwOnly)
 {
   //fwOnly = installFwOnly;
   if(dlfw == NULL){
-    dlfw = new Extractor();
+    dlfw = new TirFwExtractor();
     if(installFwOnly){
       QObject::connect(dlfw, SIGNAL(finished(bool)),
         this, SLOT(tirFirmwareInstalled(bool)));

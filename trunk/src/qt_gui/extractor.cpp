@@ -17,20 +17,6 @@
   #include "../../config.h"
 #endif
 
-#ifndef DARWIN
-  QString sources = QString::fromUtf8("sources.txt");
-#else
-  QString sources = QString::fromUtf8("sources_mac.txt");
-#endif
-
-
-void Progress::message(qint64 read, qint64 all)
-{
-  ui.ProgressBar->setValue((float)read / all * 100.0);
-  ui.InfoLabel->setText(QString::fromUtf8("Downloaded %1 of %2.").arg(read).arg(all));
-}
-
-
 void ExtractThread::start(targets_t &t, const QString &p, const QString &d)
 {
   if(!isRunning()){
@@ -50,7 +36,7 @@ void ExtractThread::run()
   for(targets_iterator_t it = targets->begin(); it != targets->end(); ++it){
     it->second.clearFoundFlag();
   }
-  
+
   findCandidates(path);
   emit progress(QString::fromUtf8("==============================="));
   if(allFound()){
@@ -59,7 +45,7 @@ void ExtractThread::run()
   }else{
     everything = false;
     for(targets_iterator_t it = targets->begin(); it != targets->end(); ++it){
-      if(!it->second.foundAlready()) 
+      if(!it->second.foundAlready())
         emit progress(QString::fromUtf8("Couldn't extract %1!").arg(it->second.getFname()));
     }
     if(!gameDataFound){
@@ -130,7 +116,7 @@ bool ExtractThread::findCandidates(QString name)
       analyzeFile(files[i].canonicalFilePath());
     }else{
       QString outfile = QString::fromUtf8("%1/gamedata.txt").arg(destPath);
-      gameDataFound = get_game_data(files[i].canonicalFilePath().toUtf8().constData(), 
+      gameDataFound = get_game_data(files[i].canonicalFilePath().toUtf8().constData(),
                                     outfile.toUtf8().constData(), false);
       emit progress(QString::fromUtf8("Extracted game data..."));
     }
@@ -138,9 +124,9 @@ bool ExtractThread::findCandidates(QString name)
       return true;
     }
   }
-  
-  QFileInfoList subdirs = 
-    dir.entryInfoList(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::NoSymLinks); 
+
+  QFileInfoList subdirs =
+    dir.entryInfoList(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
   QString dirname;
   for(i = 0; i < subdirs.size(); ++i){
     dirname = subdirs[i].canonicalFilePath();
@@ -164,7 +150,7 @@ QString Extractor::findSrc(const QString &name)
   return QString();
 }
 
-bool Extractor::readSources()
+bool Extractor::readSources(const QString &sources)
 {
   progress(QString::fromUtf8("Looking for existing ") + sources + QString::fromUtf8("..."));
   QFile f(findSrc(sources));
@@ -173,7 +159,7 @@ bool Extractor::readSources()
     return false;
   }
   progress(QString::fromUtf8("Found '%1'.").arg(f.fileName()));
-  
+
   QTextStream fs(&f);
   QString url;
   while(1){
@@ -199,7 +185,7 @@ bool Extractor::readSpec()
     return false;
   }
   progress(QString::fromUtf8("Found '%1'.").arg(f.fileName()));
-  
+
   QTextStream fs(&f);
   QString name;
     uint16_t fh;
@@ -219,13 +205,18 @@ bool Extractor::readSpec()
   return (targets.size() != 0);
 }
 
-Extractor::Extractor(QWidget *parent) : QDialog(parent), et(NULL), dl(NULL), progressDlg(NULL)
+Extractor::Extractor(QWidget *parent) : QDialog(parent), dl(NULL), progressDlg(NULL)
 {
   ui.setupUi(this);
-  et = new ExtractThread();
   wine = new WineLauncher();
   dl = new Downloading();
   progressDlg = new Progress();
+  enableButtons(true);
+}
+
+TirFwExtractor::TirFwExtractor(QWidget *parent) : Extractor(parent), et(NULL)
+{
+  et = new ExtractThread();
   QObject::connect(et, SIGNAL(progress(const QString &)), this, SLOT(progress(const QString &)));
   QObject::connect(et, SIGNAL(finished()), this, SLOT(threadFinished()));
   QObject::connect(wine, SIGNAL(finished(bool)), this, SLOT(wineFinished(bool)));
@@ -233,8 +224,12 @@ Extractor::Extractor(QWidget *parent) : QDialog(parent), et(NULL), dl(NULL), pro
   QObject::connect(dl, SIGNAL(msg(const QString &)), this, SLOT(progress(const QString &)));
   QObject::connect(dl, SIGNAL(msg(qint64, qint64)), progressDlg, SLOT(message(qint64, qint64)));
   haveSpec = readSpec();
-  enableButtons(true);
-  readSources();
+#ifndef DARWIN
+  QString sources = QString::fromUtf8("sources.txt");
+#else
+  QString sources = QString::fromUtf8("sources_mac.txt");
+#endif
+  readSources(sources);
   QString dbg = QProcessEnvironment::systemEnvironment().value(QString::fromUtf8("LINUXTRACK_DBG"));
   if(!dbg.contains(QChar::fromLatin1('d'))){
     ui.AnalyzeSourceButton->setVisible(false);
@@ -242,6 +237,13 @@ Extractor::Extractor(QWidget *parent) : QDialog(parent), et(NULL), dl(NULL), pro
 }
 
 Extractor::~Extractor()
+{
+  delete wine;
+  delete dl;
+  delete progressDlg;
+}
+
+TirFwExtractor::~TirFwExtractor()
 {
   if(et->isRunning()){
     et->stop();
@@ -255,7 +257,7 @@ Extractor::~Extractor()
   et = NULL;
 }
 
-QString makeDestPath(const QString &base)
+static QString makeDestPath(const QString &base)
 {
   QDateTime current = QDateTime::currentDateTime();
   QString result = QString::fromUtf8("%2").arg(current.toString(QString::fromUtf8("yyMMdd_hhmmss")));
@@ -270,10 +272,10 @@ QString makeDestPath(const QString &base)
 }
 
 
-void Extractor::wineFinished(bool result)
+void TirFwExtractor::wineFinished(bool result)
 {
   if(!result){
-    QMessageBox::warning(this, QString::fromUtf8("Error running Wine"), 
+    QMessageBox::warning(this, QString::fromUtf8("Error running Wine"),
       QString::fromUtf8("There was an error when extracting\n"
       "the firmware, will try the analysis\n"
       "just in case..."
@@ -284,10 +286,10 @@ void Extractor::wineFinished(bool result)
   et->start(targets, winePrefix, destPath);
 }
 
-void Extractor::extractFirmware(QString file)
+void TirFwExtractor::commenceExtraction(QString file)
 {
 #ifndef DARWIN
-  QMessageBox::information(this, QString::fromUtf8("Instructions"), 
+  QMessageBox::information(this, QString::fromUtf8("Instructions"),
   QString::fromUtf8("NP's TrackIR installer will pop up now.\n\n"
   "Install it with all components to the default location, so the firmware and other necessary "
   "elements can be extracted.\n\n"
@@ -297,9 +299,9 @@ void Extractor::extractFirmware(QString file)
 #endif
   qDebug()<<winePrefix;
   progress(QString::fromUtf8("Initializing wine and running installer %1").arg(file));
-  //To avoid adding TrackIR icons/menus to Linux "start menu"... 
+  //To avoid adding TrackIR icons/menus to Linux "start menu"...
   wine->setEnv(QString::fromUtf8("WINEDLLOVERRIDES"), QString::fromUtf8("winemenubuilder.exe=d"));
-  //To redirect wine's Desktop directory to avoid TrackIR icon being placed on Linux desktop 
+  //To redirect wine's Desktop directory to avoid TrackIR icon being placed on Linux desktop
   QFile xdgFile(winePrefix + QString::fromUtf8("/user-dirs.dirs"));
   if(xdgFile.open(QFile::WriteOnly | QFile::Truncate)){
     QTextStream xdg(&xdgFile);
@@ -316,28 +318,28 @@ void Extractor::on_BrowseInstaller_pressed()
 {
   enableButtons(false);
   ui.BrowseInstaller->setEnabled(false);
-  QString dir = QFileDialog::getOpenFileName(this, QString::fromUtf8("Open an installer:"));
-  if(dir.isEmpty()){
+  QString file = QFileDialog::getOpenFileName(this, QString::fromUtf8("Open an installer:"));
+  if(file.isEmpty()){
     enableButtons(true);
     return;
   }
   winePrefix = QDir::tempPath();
   winePrefix += QString::fromUtf8("/wineXXXXXX");
   QByteArray charData = winePrefix.toUtf8();
-  char *prefix = mkdtemp(charData.data()); 
+  char *prefix = mkdtemp(charData.data());
   if(prefix == NULL){
     enableButtons(true);
     return;
   }
   winePrefix = QString::fromUtf8(prefix);
-  extractFirmware(dir);
+  commenceExtraction(file);
 }
 
 
-void Extractor::on_BrowseDir_pressed()
+void TirFwExtractor::browseDirPressed()
 {
   enableButtons(false);
-  QString dirName = QFileDialog::getExistingDirectory(this, 
+  QString dirName = QFileDialog::getExistingDirectory(this,
     QString::fromUtf8("Open a directory containing unpacked TrackIR driver:"));
   if(dirName.isEmpty()){
     enableButtons(true);
@@ -347,7 +349,7 @@ void Extractor::on_BrowseDir_pressed()
   et->start(targets, dirName, destPath);
 }
 
-void Extractor::on_AnalyzeSourceButton_pressed()
+void TirFwExtractor::on_AnalyzeSourceButton_pressed()
 {
   enableButtons(false);
   targets.clear();
@@ -368,14 +370,14 @@ void Extractor::on_AnalyzeSourceButton_pressed()
     BlockId blk(files[i].fileName(), size, fh, md5, sha1);
     targets.insert(std::pair<uint16_t, BlockId>(fh, blk));
   }
-  
+
   QFile of(QString::fromUtf8("spec.txt"));
   if(!of.open(QFile::WriteOnly | QFile::Truncate)){
     enableButtons(true);
     return;
   }
   QTextStream out(&of);
- 
+
   for(targets_iterator_t it = targets.begin(); it != targets.end(); ++it){
     it->second.save(out);
   }
@@ -388,7 +390,7 @@ void Extractor::progress(const QString &msg)
   ui.LogView->appendPlainText(msg);
 }
 
-void Extractor::threadFinished()
+void TirFwExtractor::threadFinished()
 {
   enableButtons(true);
   bool everything = et->haveEverything();
@@ -398,7 +400,7 @@ void Extractor::threadFinished()
         QFile::remove(l);
       }
     QFile::link(destPath, l);
-    QMessageBox::information(NULL, QString::fromUtf8("Firmware extraction successfull"), 
+    QMessageBox::information(NULL, QString::fromUtf8("Firmware extraction successfull"),
       QString::fromUtf8("Firmware extraction finished successfuly!"
 #ifdef DARWIN
       "\nNow you can install linuxtrack-wine.exe to the Wine bottle/prefix of your choice."
@@ -406,7 +408,7 @@ void Extractor::threadFinished()
       )
     );
   }else{
-    QMessageBox::warning(NULL, QString::fromUtf8("Firmware extraction unsuccessfull"), 
+    QMessageBox::warning(NULL, QString::fromUtf8("Firmware extraction unsuccessfull"),
       QString::fromUtf8("Some of the files needed to fully utilize TrackIR were not "
       "found! Please see the log for more details.")
     );
@@ -417,6 +419,14 @@ void Extractor::threadFinished()
 
 void Extractor::enableButtons(bool enable)
 {
+  ui.BrowseInstaller->setEnabled(enable);
+  ui.BrowseDir->setEnabled(enable);
+  ui.DownloadButton->setEnabled(enable);
+  ui.QuitButton->setEnabled(enable);
+}
+
+void TirFwExtractor::enableButtons(bool enable)
+{
   ui.BrowseInstaller->setEnabled(haveSpec && enable);
   ui.BrowseDir->setEnabled(haveSpec && enable);
   ui.DownloadButton->setEnabled(haveSpec && enable);
@@ -425,6 +435,13 @@ void Extractor::enableButtons(bool enable)
 
 
 void Extractor::on_QuitButton_pressed()
+{
+  hide();
+  //emit finished(et->haveEverything());
+}
+
+
+void TirFwExtractor::on_QuitButton_pressed()
 {
   if(et->isRunning()){
     et->stop();
@@ -442,7 +459,7 @@ void Extractor::on_DownloadButton_pressed()
   winePrefix = QDir::tempPath();
   winePrefix += QString::fromUtf8("/wineXXXXXX");
   QByteArray charData = winePrefix.toUtf8();
-  char *prefix = mkdtemp(charData.data()); 
+  char *prefix = mkdtemp(charData.data());
   if(prefix == NULL){
     return;
   }
@@ -460,9 +477,9 @@ void Extractor::downloadDone(bool ok, QString fileName)
   progressDlg->hide();
   if(ok){
     progress(QString::fromUtf8("Downloading finished!"));
-    extractFirmware(fileName);
+    commenceExtraction(fileName);
   }else{
-    QMessageBox::warning(NULL, QString::fromUtf8("Download unsuccessfull"), 
+    QMessageBox::warning(NULL, QString::fromUtf8("Download unsuccessfull"),
       QString::fromUtf8("Download of the file was unsuccessful.\n"
       "Please check your network connection and try again;\n"
       "you can also download the file yourself and\n"
