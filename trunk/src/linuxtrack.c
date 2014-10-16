@@ -95,6 +95,7 @@ static const char *lib_locations[] = {
 "/lib/x86_64-linux-gnu/linuxtrack/liblinuxtrack.so.0",
 /* old paths */
 "/lib/liblinuxtrack.so.0",
+"/lib32/liblinuxtrack.so.0",
 "/lib32/liblinuxtrack32.so.0",
 "/lib/i386-linux-gnu/liblinuxtrack.so.0",
 "/lib/x86_64-linux-gnu/liblinuxtrack.so.0",

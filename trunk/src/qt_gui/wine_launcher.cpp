@@ -78,6 +78,19 @@ void WineLauncher::run(const QString &tgt)
   wine.start(cmd);
 }
 
+void WineLauncher::run(const QString &tgt, const QString &params)
+{
+  wine.setProcessEnvironment(env);
+  QString cmd(QString::fromUtf8("\"%1wine\" \"%2\""));
+  cmd = cmd.arg(winePath).arg(tgt);
+  cmd += QString::fromUtf8(" ") + params;
+  std::ostringstream s;
+  s<<"Launching wine command: '"<< cmd.toUtf8().constData() <<"'"<<std::endl;
+  ltr_int_log_message(s.str().c_str());
+  wine.setProcessChannelMode(QProcess::MergedChannels);
+  wine.start(cmd);
+}
+
 void WineLauncher::finished(int exitCode, QProcess::ExitStatus exitStatus)
 {
   QString status;

@@ -23,7 +23,16 @@ int main()
   sprintf(path1, "%s/.config/linuxtrack/tir_firmware/TIRViews.dll", home);
   if(symlink(path1, "TIRViews.dll") != 0){
     MessageBox(NULL,
-    "Failed to create symlink to TIRViews.dll!\nSome sames will not have headtracking available.",
+    "Failed to create symlink to TIRViews.dll!\nSome games will not have headtracking available.",
+    "Linuxtrack-wine check",
+    MB_OK);
+  }
+  sprintf(path1, "%s/.config/linuxtrack/tir_firmware/mfc42u.dll", home);
+  if(symlink(path1, "mfc42u.dll") != 0){
+    MessageBox(NULL,
+    "Failed to create symlink to mfc42u.dll!\n"
+    "Try to install TIRViews support in ltr_gui,\n"
+    "or install mfc42 into this bottle using winetricks.",
     "Linuxtrack-wine check",
     MB_OK);
   }
