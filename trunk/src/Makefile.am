@@ -315,7 +315,7 @@ ltr_server.c ltr_server.h netcomm.c netcomm.h pref_flex.h \
 qt_gui/buffering.cpp qt_gui/buffering.h qt_gui/cap_edit.ui qt_gui/cap_tweaking.ui \
 qt_gui/clip_edit.ui qt_gui/clip_tweaking.ui qt_gui/device_setup.cpp qt_gui/device_setup.h \
 qt_gui/device_setup.ui qt_gui/downloading.cpp qt_gui/downloading.h qt_gui/extractor.ui \
-qt_gui/extractor.cpp qt_gui/extractor.h \
+qt_gui/extractor.cpp qt_gui/extractor.h qt_gui/progress.cpp qt_gui/progress.h qt_gui/sources_mfc.txt \
 qt_gui/guardian.cpp qt_gui/guardian.h qt_gui/hashing.cpp qt_gui/hashing.h qt_gui/l_wc_setup.ui \
 qt_gui/l_wcft_setup.ui qt_gui/m_wc_setup.ui qt_gui/m_wcft_setup.ui qt_gui/model_edit.ui \
 qt_gui/profile_selector.cpp qt_gui/profile_selector.h qt_gui/profile_selector.ui \
