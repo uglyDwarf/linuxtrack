@@ -49,11 +49,11 @@ liblinuxtrack32_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h \
 liblinuxtrack32_la_CFLAGS = $(LINUXFLAGS) -m32
 liblinuxtrack32_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" -m32 $(LINUXFLAGS)
 
-noinst_LIBRARIES = liblinuxtrack_int.a libfacetrack_int.a
-liblinuxtrack_int_a_SOURCES = linuxtrack.c linuxtrack.h
-libfacetrack_int_a_SOURCES = facetrack.cpp facetrack.h
-libfacetrack_int_a_CFLAGS = $(OPENCV_CFLAGS)
-libfacetrack_int_a_CXXFLAGS = $(OPENCV_CFLAGS)
+noinst_LTLIBRARIES = liblinuxtrack_int.la libfacetrack_int.la
+liblinuxtrack_int_la_SOURCES = linuxtrack.c linuxtrack.h
+libfacetrack_int_la_SOURCES = facetrack.cpp facetrack.h
+libfacetrack_int_la_CFLAGS = $(OPENCV_CFLAGS)
+libfacetrack_int_la_CXXFLAGS = $(OPENCV_CFLAGS)
 
 
 #ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
@@ -98,7 +98,7 @@ ltr_extractor_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} -pthread
 
 if LIBZ
 pkglib_LTLIBRARIES += libtir.la
-dist_pkgdata_DATA += 51-TIR.rules 51-Mickey.rules
+dist_pkgdata_DATA += 99-TIR.rules 99-Mickey.rules
 if LIBUSB10
   pkglib_LTLIBRARIES += libltusb1.la 
 endif
@@ -171,8 +171,8 @@ endif
 
 libmacwc_la_SOURCES = macwebcam_driver.c com_proc.h runloop.h ipc_utils.h
 libmacwc_la_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG}
-libmacwc_la_LIBADD = -lltr
-libmacwc_la_LDFLAGS = -export-symbols ../drivers.sym ${AM_CFLAGS} ${SLEOPARD_LDFLAG}
+libmacwc_la_LIBADD = libltr.la
+libmacwc_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${AM_CFLAGS} ${SLEOPARD_LDFLAG}
 
 libft_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h facetrack.cpp facetrack.h
 libft_la_CFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
@@ -309,7 +309,7 @@ qt_gui/webcam_info.h qt_gui/help/misc.htm qt_gui/help/dev_setup.htm qt_gui/help/
 qt_gui/help/contents.txt qt_gui/help/news.htm qt_gui/help/welcome.htm qt_gui/help/interface.htm \
 qt_gui/help/model_setup.htm qt_gui/dlfirmware.h qt_gui/webcam_info.cpp qt_gui/plugin_install.h \
 qt_gui/tracker.cpp qt_gui/webcam_prefs.h qt_gui/macwebcam_prefs.cpp \
-qt_gui/log_view.h tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
+qt_gui/log_view.h tir4_driver.c tir4_driver.h 99-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
 xlinuxtrack.sym linuxtrack_pre.c lt_client.c lt_server.c ltlib_client.c ltlib_client.h \
 ltr_server.c ltr_server.h netcomm.c netcomm.h pref_flex.h \
 qt_gui/buffering.cpp qt_gui/buffering.h qt_gui/cap_edit.ui qt_gui/cap_tweaking.ui \
@@ -320,7 +320,7 @@ qt_gui/guardian.cpp qt_gui/guardian.h qt_gui/hashing.cpp qt_gui/hashing.h qt_gui
 qt_gui/l_wcft_setup.ui qt_gui/m_wc_setup.ui qt_gui/m_wcft_setup.ui qt_gui/model_edit.ui \
 qt_gui/profile_selector.cpp qt_gui/profile_selector.h qt_gui/profile_selector.ui \
 qt_gui/profile_setup.cpp qt_gui/profile_setup.h qt_gui/profile_setup.ui \
-qt_gui/progress.ui qt_gui/single_edit.ui qt_gui/sources.txt qt_gui/spec.txt qt_gui/tir_setup.ui \
+qt_gui/progress.ui qt_gui/single_edit.ui qt_gui/sources.txt qt_gui/sources_mac.txt qt_gui/spec.txt qt_gui/tir_setup.ui \
 qt_gui/wii_setup.ui qt_gui/help/extractor.htm qt_gui/sphere.png qt_gui/sphere.txt \
 qt_gui/wine_launcher.cpp qt_gui/wine_launcher.h qt_gui/xplugin.cpp qt_gui/xplugin.h \
 qt_gui/xplugin.ui qt_gui/help/Wiimote.png qt_gui/help/KeysSetup1.png qt_gui/help/Misc.png \
@@ -328,10 +328,10 @@ qt_gui/help/JoyButtonsSetup1.png qt_gui/help/XplBrowse.png qt_gui/help/CamPrevie
 qt_gui/help/Webcam.png qt_gui/help/Extractor.png qt_gui/help/XplInstall.png \
 qt_gui/help/DetAxis.png qt_gui/help/JoyButtonsSetup4.png qt_gui/help/JoyButtonsSetup5.png \
 qt_gui/help/3dPreview.png qt_gui/help/ModelCreate.png qt_gui/help/JoyButtonsSetup3.png \
-qt_gui/help/Tracking.png qt_gui/help/JoyButtonsSetup2.png qt_gui/help/Model.png \
-qt_gui/help/Trackir.png qt_gui/help/Controller.png qt_gui/help/Facetracker.png \
+qt_gui/help/Tracking.png qt_gui/help/JoyButtonsSetup2.png qt_gui/help/Model.png qt_gui/help/hall_of_fame.htm \
+qt_gui/help/Trackir.png qt_gui/help/Controller.png qt_gui/help/Facetracker.png qt_gui/help/mickey.htm \
 qt_gui/cap_1.png qt_gui/cap_np.png qt_gui/clip_1.png qt_gui/clip_np.png qt_gui/face.svg qt_gui/face.png qt_gui/single.png \
-51-Mickey.rules qt_gui/help/xpl_setup.htm qt_gui/wine_warn.cpp qt_gui/wine_warn.h qt_gui/wine_warn.ui \
+99-Mickey.rules qt_gui/help/xpl_setup.htm qt_gui/wine_warn.cpp qt_gui/wine_warn.h qt_gui/wine_warn.ui \
 wii_server/wii_server.cpp wii_server/wiimote.h wii_server/wiimote.cpp wii_server/wii_server.pro.in \
 wii_server/main.cpp wii_server/wii_server.h wii_server/wii_server.ui wii_server/wii_server.qrc \
 linuxtrack-wii.desktop linuxtrack-wii.png linuxtrack-wii.svg linuxtrack-wii.xpm \

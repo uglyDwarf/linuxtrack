@@ -38,13 +38,20 @@ int linuxtrack_shutdown(void);
 int linuxtrack_suspend(void);
 int linuxtrack_wakeup(void);
 int linuxtrack_recenter(void);
+const char *linuxtrack_explain(int err);
 
 typedef enum {
-  INITIALIZING,
-  RUNNING,
-  PAUSED,
-  STOPPED,
-  ERROR
+  LINUXTRACK_OK = 0,
+  INITIALIZING = 1,
+  RUNNING = 2,
+  PAUSED = 3,
+  STOPPED = 4,
+  //Error codes
+  err_NOT_INITIALIZED = -1,
+  err_SYMBOL_LOOKUP = -2,
+  err_NO_CONFIG = -3,
+  err_NOT_FOUND = -4,
+  err_PROCESSING_FRAME = -5
 }linuxtrack_state_type;
 
 linuxtrack_state_type linuxtrack_get_tracking_state(void);

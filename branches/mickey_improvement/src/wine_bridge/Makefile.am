@@ -6,13 +6,14 @@ if DARWIN
   MYLDFLAGS = -Wl,-no_arch_warnings
   linuxtrack-wine.exe : ltr_wine.nsi tester/Tester.exe.so controller/Controller.exe.so \
              client/NPClient.dll.so ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so \
-             client/check_data.exe.so
+             client/check_data.exe.so views/TrackIR.exe.so
 	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib tester/Tester.exe.so
 	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib controller/Controller.exe.so 
 	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib client/NPClient.dll.so
 	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib ft_client/FreeTrackClient.dll.so
 	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib ft_tester/ftc.exe.so
 	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib client/check_data.exe.so
+	install_name_tool -change $(WINE_PREFIX)/lib/libwine.1.dylib libwine.1.dylib views/TrackIR.exe.so
 	makensis $<
 
 
@@ -22,11 +23,13 @@ else
 if WINE64
   linuxtrack-wine.exe : ltr_wine64.nsi tester/Tester.exe.so tester/Tester64.exe.so \
                         controller/Controller.exe.so client/NPClient.dll.so client/NPClient64.dll.so \
-                        ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so client/check_data.exe.so
+                        ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so client/check_data.exe.so \
+			views/TrackIR.exe.so
 	makensis $<
 else
   linuxtrack-wine.exe : ltr_wine.nsi tester/Tester.exe.so controller/Controller.exe.so client/NPClient.dll.so \
-                        ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so client/check_data.exe.so
+                        ft_client/FreeTrackClient.dll.so ft_tester/ftc.exe.so client/check_data.exe.so \
+			views/TrackIR.exe.so
 	makensis $<
 endif #WINE64
 

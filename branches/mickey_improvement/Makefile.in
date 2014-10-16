@@ -87,7 +87,7 @@ host_triplet = @host@
 #endif
 #endif
 @WINE_PLUGIN_TRUE@am__append_1 = src/wine_bridge/client src/wine_bridge/controller src/wine_bridge/tester \
-@WINE_PLUGIN_TRUE@  src/wine_bridge/ft_client src/wine_bridge/ft_tester src/wine_bridge 
+@WINE_PLUGIN_TRUE@  src/wine_bridge/ft_client src/wine_bridge/ft_tester src/wine_bridge/views src/wine_bridge
 
 subdir = .
 DIST_COMMON = INSTALL NEWS README AUTHORS ChangeLog \
@@ -202,7 +202,7 @@ CSCOPE = cscope
 DIST_SUBDIRS = src src/mac doc src/wine_bridge/client \
 	src/wine_bridge/controller src/wine_bridge/tester \
 	src/wine_bridge/ft_client src/wine_bridge/ft_tester \
-	src/wine_bridge
+	src/wine_bridge/views src/wine_bridge
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)

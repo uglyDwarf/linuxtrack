@@ -27,7 +27,7 @@ DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
 HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h help_view.h \
 	   ltr_gui_prefs.h prefs_link.h tir_prefs.h device_setup.h\
            ltr_model.h window.h glwidget.h objreader.h ltr_profiles.h\
-           log_view.h ltr_state.h scp_form.h buffering.h \
+           log_view.h ltr_state.h scp_form.h buffering.h progress.h \
            scurve.h scview.h wiimote_prefs.h tracker.h plugin_install.h \
            profile_setup.h profile_selector.h guardian.h xplugin.h wine_warn.h \
            extractor.h ../game_data.h hashing.h downloading.h wine_launcher.h
@@ -37,7 +37,7 @@ FORMS += ltr_gui.ui dev_help.ui ltr.ui model_creation.ui scurve.ui scp_form.ui \
            cap_edit.ui clip_edit.ui single_edit.ui model_edit.ui \
            device_setup.ui profile_setup.ui profile_selector.ui cap_tweaking.ui clip_tweaking.ui \
            extractor.ui progress.ui xplugin.ui wine_warn.ui
-           
+
 SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            ltr_gui_prefs.cpp tir_prefs.cpp help_view.cpp buffering.cpp \
            ltr_model.cpp window.cpp glwidget.cpp objreader.cpp ltr_profiles.cpp \
@@ -45,7 +45,7 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            scurve.cpp scview.cpp wiimote_prefs.cpp \
            tracker.cpp ../ltr_srv_master.cpp  device_setup.cpp \
            ../ltr_srv_slave.c ../ltr_srv_comm.c plugin_install.cpp profile_setup.cpp \
-           profile_selector.cpp xplugin.cpp wine_warn.cpp \
+           profile_selector.cpp xplugin.cpp wine_warn.cpp progress.cpp \
            extractor.cpp ../game_data.c hashing.cpp downloading.cpp wine_launcher.cpp
 
 
@@ -67,10 +67,10 @@ unix:!macx {
   SOURCES += webcam_info.cpp webcam_prefs.cpp webcam_ft_prefs.cpp
   LIBS += "-L../.libs" "-L@prefix@/lib" "-L$${LIBDIR}" -lm -lltr -lGLU -lmxml \
            "-Wl,-rpath,$${LIBDIR}" "-Wl,-rpath,@prefix@/lib"
-  
+
   data.path += @prefix@/share/linuxtrack
   data.files += sparow_opaq.obj sparow_glass.obj xm8_detail.png sources.txt spec.txt \
-                 sphere.obj sphere.png
+                 sphere.obj sphere.png sources_mfc.txt
   help.path += @prefix@/share/linuxtrack/help/ltr_gui
   help.files += help/*
   target.path = @prefix@/bin
@@ -87,7 +87,7 @@ macx {
   LIBS += -L../.libs "-L$${LIBDIR}" -L@prefix@/lib -lm -lltr -lmxml
   data.path += ltr_gui.app/Contents/Resources/linuxtrack
   data.files += sparow_opaq.obj sparow_glass.obj xm8_detail.png ../linuxtrack1.conf \
-                sources.txt spec.txt sphere.obj sphere.png
+                sources_mac.txt spec.txt sphere.obj sphere.png sources_mfc.txt
   help.path += ltr_gui.app/Contents/Resources/linuxtrack/help/ltr_gui
   help.files += help/*
   INSTALLS += data help

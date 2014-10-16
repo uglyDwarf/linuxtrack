@@ -23,7 +23,7 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   ltr_int_cal_set_state(INITIALIZING);
   if(ltr_int_tracker_init(ccb) != 0){
     ltr_int_log_message("Problem initializing tracker!\n");
-    ltr_int_cal_set_state(ERROR);
+    ltr_int_cal_set_state(err_NOT_INITIALIZED);
     return -1;
   }
   struct reflector_model_type rm;
@@ -58,14 +58,14 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
             retval = ltr_int_tracker_get_frame(ccb, &frame, &frame_acquired);
             if(retval == -1){
               ltr_int_log_message("Error getting frame! (rv = %d)\n", retval);
-              ltr_int_cal_set_state(ERROR);
+              ltr_int_cal_set_state(err_PROCESSING_FRAME);
               stop_flag = true;
             }else{
               if(frame_acquired){
                 frame.counter = ++counter;
                 if((retval = cbk(ccb, &frame)) < 0){
                   ltr_int_log_message("Error processing frame! (rv = %d)\n", retval);
-                  ltr_int_cal_set_state(ERROR);
+                  ltr_int_cal_set_state(err_PROCESSING_FRAME);
                   stop_flag = true;
                 }
               }

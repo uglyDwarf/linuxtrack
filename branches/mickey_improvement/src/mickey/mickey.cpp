@@ -499,7 +499,11 @@ void Mickey::updateTimer_activated()
         case INITIALIZING:
           GUI.setStatusLabel(QString::fromUtf8("Initializing"));
           break;
-        case ERROR:
+        case err_NOT_INITIALIZED:
+        case err_SYMBOL_LOOKUP:
+        case err_NO_CONFIG:
+        case err_NOT_FOUND:
+        case err_PROCESSING_FRAME:
           GUI.setStatusLabel(QString::fromUtf8("Error"));
           break;
         default:

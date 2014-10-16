@@ -1,6 +1,6 @@
 noinst_SCRIPTS = 
 if WINE_PLUGIN
-  noinst_SCRIPTS += ftc.exe.so
+  noinst_SCRIPTS += TrackIR.exe
 endif #WINE_PLUGIN
 
 if DARWIN
@@ -13,7 +13,7 @@ CC = winegcc
 
 CXX = wineg++
 
-SUFFIXES = .o .cpp .c .rc
+SUFFIXES = .o .cpp .c .rc 64.o
 
 .cpp.o :
 	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -m32 -o $@ $<
@@ -21,24 +21,30 @@ SUFFIXES = .o .cpp .c .rc
 .c.o :
 	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) $(CPPFLAGS) -m32 -o $@ $<
 
+.cpp64.o :
+	$(CXX) -c $(CXXFLAGS_PRE) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
+
+.c64.o :
+	$(CC) -c $(CFLAGS_PRE) $(CFLAGS) $(CPPFLAGS) -o $@ $<
+
 .rc.o :
 	wrc -o $@ $(RCFLAGS) $<
 
 CXXFLAGS_PRE = -g -DHAVE_CONFIG_H -I../../.. -I. -I@srcdir@/../.. -I@top_builddir@
 CFLAGS_PRE = -g -I../.. -I../../.. -DHAVE_CONFIG_H -I@srcdir@/../.. -I@top_builddir@
 RCFLAGS = -I @srcdir@
-#VPATH = ../..:@srcdir@/../..:@top_builddir@:@srcdir@
+#VPATH = .:../..:@srcdir@/../..:@top_builddir@:@srcdir@
 vpath %.h @srcdir@/../..
 vpath %.h @top_builddir@
 vpath %.c @srcdir@
 vpath %.c @srcdir@/../..
 
-ftc.exe.so : main.o fttester.o
-	wineg++ -g -o $@ -L. $(WINE_LIBS) $(LDFLAGS) -m32 -Wall -Wextra $^
+TrackIR.exe : main.o fake_tir.o
+	$(CXX) $(WINE_LIBS) $(LDFLAGS) -m32 -Wall -Wextra -g -o $@ $^
 
-fttester.o : fttester.rc resource.h config.h
+main.o : main.cpp resource.h
 
-main.o : main.cpp
+fake_tir.o : fake_tir.rc resource.h config.h
 
 clean-local: clean-local-check
 .PHONY: clean-local-check
@@ -50,5 +56,5 @@ distclean-local: distclean-local-check
 distclean-local-check:
 	rm -f *.exe* *.dll* *.sh *.o
 
-EXTRA_DIST = resource.h main.cpp
+EXTRA_DIST = main.cpp resource.h
 

@@ -18,7 +18,6 @@
 
 
 
-
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -92,7 +91,7 @@ bin_PROGRAMS = ltr_server1$(EXEEXT) $(am__EXEEXT_1) ltr_pipe$(EXEEXT)
 @CRYPTO_TRUE@@MXML_TRUE@am__append_6 = ltr_extractor
 @CRYPTO_TRUE@@MXML_TRUE@am__append_7 = ltr_extractor.1
 @LIBZ_TRUE@am__append_8 = libtir.la
-@LIBZ_TRUE@am__append_9 = 51-TIR.rules 51-Mickey.rules
+@LIBZ_TRUE@am__append_9 = 99-TIR.rules 99-Mickey.rules
 @LIBUSB10_TRUE@@LIBZ_TRUE@am__append_10 = libltusb1.la 
 @DARWIN_TRUE@am__append_11 = libmacwc.la
 @XPLANE_PLUGIN_TRUE@am__append_12 = xlinuxtrack9.la
@@ -120,21 +119,6 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES = pathconfig.h local_config.h linuxtrack.pc
 CONFIG_CLEAN_VPATH_FILES =
-LIBRARIES = $(noinst_LIBRARIES)
-ARFLAGS = cru
-AM_V_AR = $(am__v_AR_@AM_V@)
-am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
-am__v_AR_0 = @echo "  AR      " $@;
-am__v_AR_1 = 
-libfacetrack_int_a_AR = $(AR) $(ARFLAGS)
-libfacetrack_int_a_LIBADD =
-am_libfacetrack_int_a_OBJECTS =  \
-	libfacetrack_int_a-facetrack.$(OBJEXT)
-libfacetrack_int_a_OBJECTS = $(am_libfacetrack_int_a_OBJECTS)
-liblinuxtrack_int_a_AR = $(AR) $(ARFLAGS)
-liblinuxtrack_int_a_LIBADD =
-am_liblinuxtrack_int_a_OBJECTS = linuxtrack.$(OBJEXT)
-liblinuxtrack_int_a_OBJECTS = $(am_liblinuxtrack_int_a_OBJECTS)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -166,16 +150,24 @@ am__installdirs = "$(DESTDIR)$(l32libdir)" "$(DESTDIR)$(pkglibdir)" \
 	"$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" \
 	"$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" \
 	"$(DESTDIR)$(icondir)" "$(DESTDIR)$(includedir)"
-LTLIBRARIES = $(l32lib_LTLIBRARIES) $(pkglib_LTLIBRARIES)
+LTLIBRARIES = $(l32lib_LTLIBRARIES) $(noinst_LTLIBRARIES) \
+	$(pkglib_LTLIBRARIES)
+libfacetrack_int_la_LIBADD =
+am_libfacetrack_int_la_OBJECTS = libfacetrack_int_la-facetrack.lo
+libfacetrack_int_la_OBJECTS = $(am_libfacetrack_int_la_OBJECTS)
+AM_V_lt = $(am__v_lt_@AM_V@)
+am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+am__v_lt_0 = --silent
+am__v_lt_1 = 
+libfacetrack_int_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(libfacetrack_int_la_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 libfakeusb_la_DEPENDENCIES = libltr.la
 am_libfakeusb_la_OBJECTS = libfakeusb_la-fakeusb.lo \
 	libfakeusb_la-tir_model.lo libfakeusb_la-tir4_model.lo \
 	libfakeusb_la-sn4_model.lo libfakeusb_la-sn3_model.lo
 libfakeusb_la_OBJECTS = $(am_libfakeusb_la_OBJECTS)
-AM_V_lt = $(am__v_lt_@AM_V@)
-am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
-am__v_lt_0 = --silent
-am__v_lt_1 = 
 libfakeusb_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(libfakeusb_la_CXXFLAGS) $(CXXFLAGS) $(libfakeusb_la_LDFLAGS) \
@@ -209,6 +201,9 @@ liblinuxtrack32_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(liblinuxtrack32_la_LDFLAGS) $(LDFLAGS) -o $@
 @DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@am_liblinuxtrack32_la_rpath =  \
 @DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@	-rpath $(l32libdir)
+liblinuxtrack_int_la_LIBADD =
+am_liblinuxtrack_int_la_OBJECTS = linuxtrack.lo
+liblinuxtrack_int_la_OBJECTS = $(am_liblinuxtrack_int_la_OBJECTS)
 libltr_la_DEPENDENCIES =
 am_libltr_la_OBJECTS = libltr_la-cal.lo libltr_la-list.lo \
 	libltr_la-dyn_load.lo libltr_la-math_utils.lo \
@@ -231,7 +226,7 @@ libltusb1_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libltusb1_la_CFLAGS) \
 	$(CFLAGS) $(libltusb1_la_LDFLAGS) $(LDFLAGS) -o $@
 @LIBUSB10_TRUE@@LIBZ_TRUE@am_libltusb1_la_rpath = -rpath $(pkglibdir)
-libmacwc_la_DEPENDENCIES =
+libmacwc_la_DEPENDENCIES = libltr.la
 am_libmacwc_la_OBJECTS = libmacwc_la-macwebcam_driver.lo
 libmacwc_la_OBJECTS = $(am_libmacwc_la_OBJECTS)
 libmacwc_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -386,22 +381,21 @@ AM_V_YACC = $(am__v_YACC_@AM_V@)
 am__v_YACC_ = $(am__v_YACC_@AM_DEFAULT_V@)
 am__v_YACC_0 = @echo "  YACC    " $@;
 am__v_YACC_1 = 
-SOURCES = $(libfacetrack_int_a_SOURCES) $(liblinuxtrack_int_a_SOURCES) \
-	$(libfakeusb_la_SOURCES) $(libft_la_SOURCES) \
-	$(liblinuxtrack_la_SOURCES) $(liblinuxtrack32_la_SOURCES) \
+SOURCES = $(libfacetrack_int_la_SOURCES) $(libfakeusb_la_SOURCES) \
+	$(libft_la_SOURCES) $(liblinuxtrack_la_SOURCES) \
+	$(liblinuxtrack32_la_SOURCES) $(liblinuxtrack_int_la_SOURCES) \
 	$(libltr_la_SOURCES) $(libltusb1_la_SOURCES) \
 	$(libmacwc_la_SOURCES) $(libmacwii_la_SOURCES) \
 	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(xlinuxtrack9_la_SOURCES) $(xlinuxtrack9_32_la_SOURCES) \
 	$(ltr_extractor_SOURCES) $(ltr_pipe_SOURCES) \
 	$(ltr_server1_SOURCES)
-DIST_SOURCES = $(libfacetrack_int_a_SOURCES) \
-	$(liblinuxtrack_int_a_SOURCES) $(libfakeusb_la_SOURCES) \
+DIST_SOURCES = $(libfacetrack_int_la_SOURCES) $(libfakeusb_la_SOURCES) \
 	$(libft_la_SOURCES) $(liblinuxtrack_la_SOURCES) \
-	$(liblinuxtrack32_la_SOURCES) $(libltr_la_SOURCES) \
-	$(libltusb1_la_SOURCES) $(libmacwc_la_SOURCES) \
-	$(libmacwii_la_SOURCES) $(libtir_la_SOURCES) \
-	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
+	$(liblinuxtrack32_la_SOURCES) $(liblinuxtrack_int_la_SOURCES) \
+	$(libltr_la_SOURCES) $(libltusb1_la_SOURCES) \
+	$(libmacwc_la_SOURCES) $(libmacwii_la_SOURCES) \
+	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(am__xlinuxtrack9_la_SOURCES_DIST) \
 	$(am__xlinuxtrack9_32_la_SOURCES_DIST) \
 	$(ltr_extractor_SOURCES) $(ltr_pipe_SOURCES) \
@@ -416,7 +410,7 @@ NROFF = nroff
 MANS = $(man_MANS)
 am__dist_pkgdata_DATA_DIST = linuxtrack1.conf linuxtrack.c \
 	linuxtrack_hello_world.c linuxtrack_hello_world_adv.c \
-	haarcascade_frontalface_alt2.xml 51-TIR.rules 51-Mickey.rules
+	haarcascade_frontalface_alt2.xml 99-TIR.rules 99-Mickey.rules
 DATA = $(desktop_DATA) $(dist_pkgdata_DATA) $(icon_DATA)
 HEADERS = $(include_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
@@ -614,11 +608,11 @@ liblinuxtrack32_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h \
 
 liblinuxtrack32_la_CFLAGS = $(LINUXFLAGS) -m32
 liblinuxtrack32_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" -m32 $(LINUXFLAGS)
-noinst_LIBRARIES = liblinuxtrack_int.a libfacetrack_int.a
-liblinuxtrack_int_a_SOURCES = linuxtrack.c linuxtrack.h
-libfacetrack_int_a_SOURCES = facetrack.cpp facetrack.h
-libfacetrack_int_a_CFLAGS = $(OPENCV_CFLAGS)
-libfacetrack_int_a_CXXFLAGS = $(OPENCV_CFLAGS)
+noinst_LTLIBRARIES = liblinuxtrack_int.la libfacetrack_int.la
+liblinuxtrack_int_la_SOURCES = linuxtrack.c linuxtrack.h
+libfacetrack_int_la_SOURCES = facetrack.cpp facetrack.h
+libfacetrack_int_la_CFLAGS = $(OPENCV_CFLAGS)
+libfacetrack_int_la_CXXFLAGS = $(OPENCV_CFLAGS)
 
 #ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
 #ltr_server_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
@@ -688,8 +682,8 @@ libwc_la_LIBADD = libltr.la -lv4l2
 libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
 libmacwc_la_SOURCES = macwebcam_driver.c com_proc.h runloop.h ipc_utils.h
 libmacwc_la_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG}
-libmacwc_la_LIBADD = -lltr
-libmacwc_la_LDFLAGS = -export-symbols ../drivers.sym ${AM_CFLAGS} ${SLEOPARD_LDFLAG}
+libmacwc_la_LIBADD = libltr.la
+libmacwc_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${AM_CFLAGS} ${SLEOPARD_LDFLAG}
 libft_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h facetrack.cpp facetrack.h
 libft_la_CFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_CXXFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
@@ -744,7 +738,7 @@ qt_gui/webcam_info.h qt_gui/help/misc.htm qt_gui/help/dev_setup.htm qt_gui/help/
 qt_gui/help/contents.txt qt_gui/help/news.htm qt_gui/help/welcome.htm qt_gui/help/interface.htm \
 qt_gui/help/model_setup.htm qt_gui/dlfirmware.h qt_gui/webcam_info.cpp qt_gui/plugin_install.h \
 qt_gui/tracker.cpp qt_gui/webcam_prefs.h qt_gui/macwebcam_prefs.cpp \
-qt_gui/log_view.h tir4_driver.c tir4_driver.h 51-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
+qt_gui/log_view.h tir4_driver.c tir4_driver.h 99-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
 xlinuxtrack.sym linuxtrack_pre.c lt_client.c lt_server.c ltlib_client.c ltlib_client.h \
 ltr_server.c ltr_server.h netcomm.c netcomm.h pref_flex.h \
 qt_gui/buffering.cpp qt_gui/buffering.h qt_gui/cap_edit.ui qt_gui/cap_tweaking.ui \
@@ -755,7 +749,7 @@ qt_gui/guardian.cpp qt_gui/guardian.h qt_gui/hashing.cpp qt_gui/hashing.h qt_gui
 qt_gui/l_wcft_setup.ui qt_gui/m_wc_setup.ui qt_gui/m_wcft_setup.ui qt_gui/model_edit.ui \
 qt_gui/profile_selector.cpp qt_gui/profile_selector.h qt_gui/profile_selector.ui \
 qt_gui/profile_setup.cpp qt_gui/profile_setup.h qt_gui/profile_setup.ui \
-qt_gui/progress.ui qt_gui/single_edit.ui qt_gui/sources.txt qt_gui/spec.txt qt_gui/tir_setup.ui \
+qt_gui/progress.ui qt_gui/single_edit.ui qt_gui/sources.txt qt_gui/sources_mac.txt qt_gui/spec.txt qt_gui/tir_setup.ui \
 qt_gui/wii_setup.ui qt_gui/help/extractor.htm qt_gui/sphere.png qt_gui/sphere.txt \
 qt_gui/wine_launcher.cpp qt_gui/wine_launcher.h qt_gui/xplugin.cpp qt_gui/xplugin.h \
 qt_gui/xplugin.ui qt_gui/help/Wiimote.png qt_gui/help/KeysSetup1.png qt_gui/help/Misc.png \
@@ -763,10 +757,10 @@ qt_gui/help/JoyButtonsSetup1.png qt_gui/help/XplBrowse.png qt_gui/help/CamPrevie
 qt_gui/help/Webcam.png qt_gui/help/Extractor.png qt_gui/help/XplInstall.png \
 qt_gui/help/DetAxis.png qt_gui/help/JoyButtonsSetup4.png qt_gui/help/JoyButtonsSetup5.png \
 qt_gui/help/3dPreview.png qt_gui/help/ModelCreate.png qt_gui/help/JoyButtonsSetup3.png \
-qt_gui/help/Tracking.png qt_gui/help/JoyButtonsSetup2.png qt_gui/help/Model.png \
-qt_gui/help/Trackir.png qt_gui/help/Controller.png qt_gui/help/Facetracker.png \
+qt_gui/help/Tracking.png qt_gui/help/JoyButtonsSetup2.png qt_gui/help/Model.png qt_gui/help/hall_of_fame.htm \
+qt_gui/help/Trackir.png qt_gui/help/Controller.png qt_gui/help/Facetracker.png qt_gui/help/mickey.htm \
 qt_gui/cap_1.png qt_gui/cap_np.png qt_gui/clip_1.png qt_gui/clip_np.png qt_gui/face.svg qt_gui/face.png qt_gui/single.png \
-51-Mickey.rules qt_gui/help/xpl_setup.htm qt_gui/wine_warn.cpp qt_gui/wine_warn.h qt_gui/wine_warn.ui \
+99-Mickey.rules qt_gui/help/xpl_setup.htm qt_gui/wine_warn.cpp qt_gui/wine_warn.h qt_gui/wine_warn.ui \
 wii_server/wii_server.cpp wii_server/wiimote.h wii_server/wiimote.cpp wii_server/wii_server.pro.in \
 wii_server/main.cpp wii_server/wii_server.h wii_server/wii_server.ui wii_server/wii_server.qrc \
 linuxtrack-wii.desktop linuxtrack-wii.png linuxtrack-wii.svg linuxtrack-wii.xpm \
@@ -830,19 +824,6 @@ local_config.h: $(top_builddir)/config.status $(srcdir)/local_config.h.in
 linuxtrack.pc: $(top_builddir)/config.status $(srcdir)/linuxtrack.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
-clean-noinstLIBRARIES:
-	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-
-libfacetrack_int.a: $(libfacetrack_int_a_OBJECTS) $(libfacetrack_int_a_DEPENDENCIES) $(EXTRA_libfacetrack_int_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f libfacetrack_int.a
-	$(AM_V_AR)$(libfacetrack_int_a_AR) libfacetrack_int.a $(libfacetrack_int_a_OBJECTS) $(libfacetrack_int_a_LIBADD)
-	$(AM_V_at)$(RANLIB) libfacetrack_int.a
-
-liblinuxtrack_int.a: $(liblinuxtrack_int_a_OBJECTS) $(liblinuxtrack_int_a_DEPENDENCIES) $(EXTRA_liblinuxtrack_int_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f liblinuxtrack_int.a
-	$(AM_V_AR)$(liblinuxtrack_int_a_AR) liblinuxtrack_int.a $(liblinuxtrack_int_a_OBJECTS) $(liblinuxtrack_int_a_LIBADD)
-	$(AM_V_at)$(RANLIB) liblinuxtrack_int.a
-
 install-l32libLTLIBRARIES: $(l32lib_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
 	@list='$(l32lib_LTLIBRARIES)'; test -n "$(l32libdir)" || list=; \
@@ -870,6 +851,17 @@ uninstall-l32libLTLIBRARIES:
 clean-l32libLTLIBRARIES:
 	-test -z "$(l32lib_LTLIBRARIES)" || rm -f $(l32lib_LTLIBRARIES)
 	@list='$(l32lib_LTLIBRARIES)'; \
+	locs=`for p in $$list; do echo $$p; done | \
+	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
+	      sort -u`; \
+	test -z "$$locs" || { \
+	  echo rm -f $${locs}; \
+	  rm -f $${locs}; \
+	}
+
+clean-noinstLTLIBRARIES:
+	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
+	@list='$(noinst_LTLIBRARIES)'; \
 	locs=`for p in $$list; do echo $$p; done | \
 	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
 	      sort -u`; \
@@ -913,6 +905,9 @@ clean-pkglibLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
+libfacetrack_int.la: $(libfacetrack_int_la_OBJECTS) $(libfacetrack_int_la_DEPENDENCIES) $(EXTRA_libfacetrack_int_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(libfacetrack_int_la_LINK)  $(libfacetrack_int_la_OBJECTS) $(libfacetrack_int_la_LIBADD) $(LIBS)
+
 libfakeusb.la: $(libfakeusb_la_OBJECTS) $(libfakeusb_la_DEPENDENCIES) $(EXTRA_libfakeusb_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(libfakeusb_la_LINK) -rpath $(pkglibdir) $(libfakeusb_la_OBJECTS) $(libfakeusb_la_LIBADD) $(LIBS)
 
@@ -924,6 +919,9 @@ liblinuxtrack.la: $(liblinuxtrack_la_OBJECTS) $(liblinuxtrack_la_DEPENDENCIES) $
 
 liblinuxtrack32.la: $(liblinuxtrack32_la_OBJECTS) $(liblinuxtrack32_la_DEPENDENCIES) $(EXTRA_liblinuxtrack32_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(liblinuxtrack32_la_LINK) $(am_liblinuxtrack32_la_rpath) $(liblinuxtrack32_la_OBJECTS) $(liblinuxtrack32_la_LIBADD) $(LIBS)
+
+liblinuxtrack_int.la: $(liblinuxtrack_int_la_OBJECTS) $(liblinuxtrack_int_la_DEPENDENCIES) $(EXTRA_liblinuxtrack_int_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(LINK)  $(liblinuxtrack_int_la_OBJECTS) $(liblinuxtrack_int_la_LIBADD) $(LIBS)
 pref_bison.hpp: pref_bison.cpp
 	@if test ! -f $@; then rm -f pref_bison.cpp; else :; fi
 	@if test ! -f $@; then $(MAKE) $(AM_MAKEFLAGS) pref_bison.cpp; else :; fi
@@ -1220,11 +1218,8 @@ ltr_server1-ipc_utils.obj: ipc_utils.c
 .cpp.lo:
 	$(AM_V_CXX)$(LTCXXCOMPILE) -c -o $@ $<
 
-libfacetrack_int_a-facetrack.o: facetrack.cpp
-	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfacetrack_int_a_CXXFLAGS) $(CXXFLAGS) -c -o libfacetrack_int_a-facetrack.o `test -f 'facetrack.cpp' || echo '$(srcdir)/'`facetrack.cpp
-
-libfacetrack_int_a-facetrack.obj: facetrack.cpp
-	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfacetrack_int_a_CXXFLAGS) $(CXXFLAGS) -c -o libfacetrack_int_a-facetrack.obj `if test -f 'facetrack.cpp'; then $(CYGPATH_W) 'facetrack.cpp'; else $(CYGPATH_W) '$(srcdir)/facetrack.cpp'; fi`
+libfacetrack_int_la-facetrack.lo: facetrack.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfacetrack_int_la_CXXFLAGS) $(CXXFLAGS) -c -o libfacetrack_int_la-facetrack.lo `test -f 'facetrack.cpp' || echo '$(srcdir)/'`facetrack.cpp
 
 libfakeusb_la-tir_model.lo: tir_model.cpp
 	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfakeusb_la_CXXFLAGS) $(CXXFLAGS) -c -o libfakeusb_la-tir_model.lo `test -f 'tir_model.cpp' || echo '$(srcdir)/'`tir_model.cpp
@@ -1474,8 +1469,8 @@ distdir: $(DISTFILES)
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
-all-am: Makefile $(LIBRARIES) $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) \
-		$(MANS) $(DATA) $(HEADERS)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) \
+		$(HEADERS)
 installdirs:
 	for dir in "$(DESTDIR)$(l32libdir)" "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(pkgdatadir)" "$(DESTDIR)$(icondir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
@@ -1518,7 +1513,7 @@ maintainer-clean-generic:
 clean: clean-am
 
 clean-am: clean-binPROGRAMS clean-generic clean-l32libLTLIBRARIES \
-	clean-libtool clean-local clean-noinstLIBRARIES \
+	clean-libtool clean-local clean-noinstLTLIBRARIES \
 	clean-pkglibLTLIBRARIES mostlyclean-am
 
 distclean: distclean-am
@@ -1599,7 +1594,7 @@ uninstall-man: uninstall-man1
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean \
 	clean-binPROGRAMS clean-generic clean-l32libLTLIBRARIES \
-	clean-libtool clean-local clean-noinstLIBRARIES \
+	clean-libtool clean-local clean-noinstLTLIBRARIES \
 	clean-pkglibLTLIBRARIES cscopelist-am ctags ctags-am distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-local distclean-tags distdir dvi dvi-am html html-am \

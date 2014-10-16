@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "ltr_srv_comm.h"
 #include "ltr_srv_master.h"
+#include "linuxtrack.h"
 #include <time.h>
 #include <sys/time.h>
 #include <poll.h>
@@ -348,7 +349,7 @@ bool ltr_int_master(bool standalone)
     }
     
     if(gui_shutdown_request || (!ltr_int_gui_lock(false)) || 
-       no_slaves || (ltr_int_get_tracking_state() == ERROR)){
+       no_slaves || (ltr_int_get_tracking_state() < LINUXTRACK_OK)){
       break;
     }
   }

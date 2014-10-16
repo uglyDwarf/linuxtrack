@@ -12,12 +12,15 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
 #include "linuxtrack.h"
 #ifdef HAVE_CONFIG_H
   #include "../config.h"
 #endif
+
+#define MSG_ADD_DATAREF 0x01000000
 
 static XPLMDataRef              head_x = NULL;
 static XPLMDataRef              head_y = NULL;
@@ -35,16 +38,39 @@ static XPLMDataRef PV_TIR_Pitch_DR = NULL;
 static XPLMDataRef PV_TIR_Heading_DR = NULL;
 static XPLMDataRef PV_TIR_Roll_DR = NULL;
 
+static XPLMDataRef head_x_out = NULL;
+static XPLMDataRef head_y_out = NULL;
+static XPLMDataRef head_z_out = NULL;
+static XPLMDataRef head_psi_out = NULL;
+static XPLMDataRef head_the_out = NULL;
+static XPLMDataRef head_roll_out = NULL;
+static XPLMDataRef enable_view_control = NULL;
+
+static float  GetHeadDataRefCB(void* inRefcon);
+static int    GetHeadCtrlRefCB(void* inRefcon);
+static void   SetHeadCtrlRefCB(void* inRefcon, int outValue);
+static void revertView(void);
+
+static float current_head_x;
+static float current_head_y;
+static float current_head_z;
+static float current_head_heading;
+static float current_head_pitch;
+static float current_head_roll;
+static int   head_control_enable;
+
 static XPLMMenuID  setupMenu = NULL;
 
 static int pos_init_flag = 0;
 static bool freeze = false;
 
-static float base_x;
-static float base_y;
-static float base_z;
-static float base_psi;
-static float base_the;
+static float base_x = 0.0f;
+static float base_y = 0.0f;
+static float base_z = 0.0f;
+static XPLMDataRef base_x_dr = NULL;
+static XPLMDataRef base_y_dr = NULL;
+static XPLMDataRef base_z_dr = NULL;
+
 static bool active_flag = false;
 static bool pv_present = false;
 
@@ -67,6 +93,7 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
                                  void *inRefcon);
 
 static int setupDialog();
+static void messageBox(const char *msgBoxTitle, const char *message);
 
 static void linuxTrackMenuHandler(void *inMenuRef, void *inItemRef)
 {
@@ -74,6 +101,34 @@ static void linuxTrackMenuHandler(void *inMenuRef, void *inItemRef)
   (void) inItemRef;
   setupDialog();
   return;
+}
+
+static float  GetHeadDataRefCB(void* inRefcon)
+{
+  if(inRefcon == NULL){
+    return 0.0f;
+  }
+  return *(float*)inRefcon;
+}
+
+static int  GetHeadCtrlRefCB(void* inRefcon)
+{
+  if(inRefcon == NULL){
+    return 0;
+  }
+  return *(int*)inRefcon;
+}
+
+
+static void   SetHeadCtrlRefCB(void* inRefcon, int outValue)
+{
+  if(inRefcon == (void*)&head_control_enable){
+    if((head_control_enable != 0) && (outValue == 0) && (XPLMGetDatai(view) == 1026)){
+      //Revert only when turning off while in 3D cockpit
+      revertView();
+    }
+  }
+  *(int*)inRefcon = outValue;
 }
 
 PLUGIN_API int XPluginStart(char *outName,
@@ -115,6 +170,9 @@ PLUGIN_API int XPluginStart(char *outName,
   head_x = XPLMFindDataRef("sim/graphics/view/pilots_head_x");
   head_y = XPLMFindDataRef("sim/graphics/view/pilots_head_y");
   head_z = XPLMFindDataRef("sim/graphics/view/pilots_head_z");
+  base_x_dr = XPLMFindDataRef("sim/aircraft/view/acf_peX");
+  base_y_dr = XPLMFindDataRef("sim/aircraft/view/acf_peY");
+  base_z_dr = XPLMFindDataRef("sim/aircraft/view/acf_peZ");
   
   head_psi = XPLMFindDataRef("sim/graphics/view/pilots_head_psi");
   head_the = XPLMFindDataRef("sim/graphics/view/pilots_head_the");
@@ -122,8 +180,96 @@ PLUGIN_API int XPluginStart(char *outName,
   head_roll = XPLMFindDataRef("sim/graphics/view/field_of_view_roll_deg");
   view = XPLMFindDataRef("sim/graphics/view/view_type");
   
-  if((head_x==NULL)||(head_y==NULL)||(head_z==NULL)||
-     (head_psi==NULL)||(head_the==NULL)){
+  head_x_out = XPLMRegisterDataAccessor(
+                      "linuxtrack/pilots_head_x",
+                      xplmType_Float,                                // The types we support
+                      0,                                             // Writable
+                      NULL, NULL,                                    // Integer accessors
+                      GetHeadDataRefCB, NULL,                        // Float accessors
+                      NULL, NULL,                                    // Doubles accessors
+                      NULL, NULL,                                    // Int array accessors
+                      NULL, NULL,                                    // Float array accessors
+                      NULL, NULL,                                    // Raw data accessors
+                      (void*)&current_head_x, (void*)&current_head_x); // Refcons not used
+
+  head_y_out = XPLMRegisterDataAccessor(
+                      "linuxtrack/pilots_head_y",
+                      xplmType_Float,                                // The types we support
+                      0,                                             // Writable
+                      NULL, NULL,                                    // Integer accessors
+                      GetHeadDataRefCB, NULL,                        // Float accessors
+                      NULL, NULL,                                    // Doubles accessors
+                      NULL, NULL,                                    // Int array accessors
+                      NULL, NULL,                                    // Float array accessors
+                      NULL, NULL,                                    // Raw data accessors
+                      (void*)&current_head_y, (void*)&current_head_y); // Refcons not used
+
+  head_z_out = XPLMRegisterDataAccessor(
+                      "linuxtrack/pilots_head_z",
+                      xplmType_Float,                                // The types we support
+                      0,                                             // Writable
+                      NULL, NULL,                                    // Integer accessors
+                      GetHeadDataRefCB, NULL,                        // Float accessors
+                      NULL, NULL,                                    // Doubles accessors
+                      NULL, NULL,                                    // Int array accessors
+                      NULL, NULL,                                    // Float array accessors
+                      NULL, NULL,                                    // Raw data accessors
+                      (void*)&current_head_z, (void*)&current_head_z); // Refcons not used
+
+  head_psi_out = XPLMRegisterDataAccessor(
+                      "linuxtrack/pilots_head_psi",
+                      xplmType_Float,                                // The types we support
+                      0,                                             // Writable
+                      NULL, NULL,                                    // Integer accessors
+                      GetHeadDataRefCB, NULL,                        // Float accessors
+                      NULL, NULL,                                    // Doubles accessors
+                      NULL, NULL,                                    // Int array accessors
+                      NULL, NULL,                                    // Float array accessors
+                      NULL, NULL,                                    // Raw data accessors
+                      (void*)&current_head_heading, (void*)&current_head_heading); // Refcons not used
+
+  head_the_out = XPLMRegisterDataAccessor(
+                      "linuxtrack/pilots_head_the",
+                      xplmType_Float,                                // The types we support
+                      0,                                             // Writable
+                      NULL, NULL,                                    // Integer accessors
+                      GetHeadDataRefCB, NULL,                        // Float accessors
+                      NULL, NULL,                                    // Doubles accessors
+                      NULL, NULL,                                    // Int array accessors
+                      NULL, NULL,                                    // Float array accessors
+                      NULL, NULL,                                    // Raw data accessors
+                      (void*)&current_head_pitch, (void*)&current_head_pitch); // Refcons not used
+  
+  head_roll_out = XPLMRegisterDataAccessor(
+                      "linuxtrack/pilots_head_roll",
+                      xplmType_Float,                                // The types we support
+                      0,                                             // Writable
+                      NULL, NULL,                                    // Integer accessors
+                      GetHeadDataRefCB, NULL,                        // Float accessors
+                      NULL, NULL,                                    // Doubles accessors
+                      NULL, NULL,                                    // Int array accessors
+                      NULL, NULL,                                    // Float array accessors
+                      NULL, NULL,                                    // Raw data accessors
+                      (void*)&current_head_roll, (void*)&current_head_roll); // Refcons not used
+  
+  enable_view_control = XPLMRegisterDataAccessor(
+                      "linuxtrack/enable_head_control",
+                      xplmType_Int,                                  // The types we support
+                      1,                                             // Writable
+                      GetHeadCtrlRefCB, SetHeadCtrlRefCB,            // Integer accessors
+                      NULL, NULL,                                    // Float accessors
+                      NULL, NULL,                                    // Doubles accessors
+                      NULL, NULL,                                    // Int array accessors
+                      NULL, NULL,                                    // Float array accessors
+                      NULL, NULL,                                    // Raw data accessors
+                      (void*)&head_control_enable, (void*)&head_control_enable); // Refcons not used
+  head_control_enable = 1;
+  
+  if((head_x == NULL)  ||(head_y == NULL) || (head_z == NULL) ||
+     (head_psi == NULL) || (head_the == NULL) || (head_roll == NULL) ||
+     (head_x_out == NULL) || (head_y_out == NULL) || (head_z_out == NULL) ||
+     (head_psi_out == NULL) || (head_the_out == NULL) || (head_roll_out == NULL) ||
+     (enable_view_control == NULL) || (base_x_dr == NULL) || (base_y_dr == NULL) || (base_z_dr == NULL)){
     return(0);
   }
   
@@ -139,9 +285,11 @@ PLUGIN_API int XPluginStart(char *outName,
   XPLMAppendMenuItem(setupMenu, "Setup", (void *)"Setup", 1);
 
   if(!initialized){
-    linuxtrack_init(NULL);
+    linuxtrack_state_type state = linuxtrack_init(NULL);
+    if(state < LINUXTRACK_OK){
+      messageBox("Linuxtrack Problem", linuxtrack_explain(state));
+    }
   }
-  
   return(1);
 }
 
@@ -177,6 +325,8 @@ PLUGIN_API int XPluginEnable(void)
         return 1;
 }
 
+static bool drefsPublished = false;
+
 PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFromWho,
                                       long inMessage,
                                       void *inParam)
@@ -203,6 +353,21 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFromWho,
             pv_present = true;
             XPLMSetDatai(PV_Enabled_DR, true);
           }
+          
+          if(!drefsPublished){
+            //Publish these datarefs for DataRefEditor plugin
+            XPLMPluginID PluginID = XPLMFindPluginBySignature("xplanesdk.examples.DataRefEditor");
+            if (PluginID != XPLM_NO_PLUGIN_ID){
+              XPLMSendMessageToPlugin(PluginID, MSG_ADD_DATAREF, (void*)"linuxtrack/pilots_head_x");
+              XPLMSendMessageToPlugin(PluginID, MSG_ADD_DATAREF, (void*)"linuxtrack/pilots_head_y");
+              XPLMSendMessageToPlugin(PluginID, MSG_ADD_DATAREF, (void*)"linuxtrack/pilots_head_z");
+              XPLMSendMessageToPlugin(PluginID, MSG_ADD_DATAREF, (void*)"linuxtrack/pilots_head_psi");
+              XPLMSendMessageToPlugin(PluginID, MSG_ADD_DATAREF, (void*)"linuxtrack/pilots_head_the");
+              XPLMSendMessageToPlugin(PluginID, MSG_ADD_DATAREF, (void*)"linuxtrack/pilots_head_roll");
+              XPLMSendMessageToPlugin(PluginID, MSG_ADD_DATAREF, (void*)"linuxtrack/enable_head_control");
+	      drefsPublished = true;
+            }
+	  }
         }
         break;
       default:
@@ -225,22 +390,27 @@ static void activate(void)
   }
 }
 
-static void deactivate(void)
+static void revertView(void)
 {
-  active_flag=false;
   int current_view = XPLMGetDatai(view);
-  if(PV_Enabled_DR){
-          XPLMSetDatai(PV_Enabled_DR, false);
-  }
   if((!pv_present) && (current_view == 1026)){
-    XPLMSetDataf(head_x,base_x);
-    XPLMSetDataf(head_y,base_y);
-    XPLMSetDataf(head_z,base_z);
-    XPLMSetDataf(head_psi,base_psi);
-    XPLMSetDataf(head_the,base_the);
+    XPLMSetDataf(head_x, base_x);
+    XPLMSetDataf(head_y, base_y);
+    XPLMSetDataf(head_z, base_z);
+    XPLMSetDataf(head_psi, 0.0);
+    XPLMSetDataf(head_the, 0.0);
     if(head_roll != NULL){
       XPLMSetDataf(head_roll, 0.0);
     }
+  }
+}
+
+static void deactivate()
+{
+  active_flag=false;
+  revertView();
+  if(PV_Enabled_DR){
+          XPLMSetDatai(PV_Enabled_DR, false);
   }
   if(initialized){
     linuxtrack_suspend();
@@ -278,15 +448,14 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
   (void) inCounter;
   (void) inRefcon;
   
-  bool view_changed = XPLMGetDatai(view) != 1026;
+  int currentView = XPLMGetDatai(view);
+  bool view_changed = (currentView != 1026);
 
   if(pos_init_flag){
     pos_init_flag = 0;
     base_x = XPLMGetDataf(head_x);
     base_y = XPLMGetDataf(head_y);
     base_z = XPLMGetDataf(head_z);
-    base_psi = XPLMGetDataf(head_psi);
-    base_the = XPLMGetDataf(head_the);
     view_changed = false;
   }
   //if(PV_Enabled_DR)
@@ -304,42 +473,37 @@ static float xlinuxtrackCallback(float inElapsedSinceLastCall,
     return -1.0;
   }
 
-  static float heading = 0.0;
-  static float pitch = 0.0;
-  static float roll = 0.0;
-  static float tx = 0.0;
-  static float ty = 0.0;
-  static float tz = 0.0;
   int retval;
   unsigned int counter;
   
   if(initialized && (freeze == false)){
-    retval = linuxtrack_get_pose(&heading,&pitch,&roll,
-                                   &tx, &ty, &tz, &counter);
+    retval = linuxtrack_get_pose(&current_head_heading,&current_head_pitch,&current_head_roll,
+                                   &current_head_x, &current_head_y, &current_head_z, &counter);
     if (retval < 0) {
       return -1.0;
     }
-    tx *= 1e-3;
-    ty *= 1e-3;
-    tz *= 1e-3;
+    current_head_x       *= 1e-3f;
+    current_head_y       *= 1e-3f;
+    current_head_z       *= 1e-3f;
+    current_head_heading *= -1.0f;
+    current_head_roll    *= -1.0f;
   }
-  
   if(pv_present){
-    XPLMSetDataf(PV_TIR_X_DR, tx);
-    XPLMSetDataf(PV_TIR_Y_DR, ty);
-    XPLMSetDataf(PV_TIR_Z_DR, tz);
-    XPLMSetDataf(PV_TIR_Pitch_DR, pitch);
-    XPLMSetDataf(PV_TIR_Heading_DR, -heading);
-    XPLMSetDataf(PV_TIR_Roll_DR, -roll);
-  }else{
+    XPLMSetDataf(PV_TIR_X_DR, current_head_x);
+    XPLMSetDataf(PV_TIR_Y_DR, current_head_y);
+    XPLMSetDataf(PV_TIR_Z_DR, current_head_z);
+    XPLMSetDataf(PV_TIR_Pitch_DR, current_head_pitch);
+    XPLMSetDataf(PV_TIR_Heading_DR, current_head_heading);
+    XPLMSetDataf(PV_TIR_Roll_DR, current_head_roll);
+  }else if(head_control_enable != 0){
     if(!view_changed){
-      XPLMSetDataf(head_x,base_x + tx);
-      XPLMSetDataf(head_y,base_y + ty);
-      XPLMSetDataf(head_z,base_z + tz);
-      XPLMSetDataf(head_psi,-heading);
-      XPLMSetDataf(head_the,pitch);
+      XPLMSetDataf(head_x, base_x + current_head_x);
+      XPLMSetDataf(head_y, base_y + current_head_y);
+      XPLMSetDataf(head_z, base_z + current_head_z);
+      XPLMSetDataf(head_psi,current_head_heading);
+      XPLMSetDataf(head_the,current_head_pitch);
       if(head_roll != NULL){
-        XPLMSetDataf(head_roll, -roll);
+        XPLMSetDataf(head_roll, current_head_roll);
       }
     }else{
       //Make sure to cancel any roll, otherwise bad things start to happening
@@ -367,7 +531,6 @@ static int setupWindowHandler(XPWidgetMessage inMessage,
 			intptr_t inParam1,
 			intptr_t inParam2)
 {
-  (void) inWidget;
   (void) inWidget;
   (void) inParam1;
   (void) inParam2;
@@ -460,4 +623,89 @@ static int setupDialog()
   return 0;
 }
 
+static XPWidgetID msgBox = NULL;
 
+static int msgBoxHandler(XPWidgetMessage inMessage,
+			XPWidgetID inWidget,
+			intptr_t inParam1,
+			intptr_t inParam2)
+{
+  (void) inWidget;
+  (void) inParam1;
+  (void) inParam2;
+  if((inMessage == xpMessage_CloseButtonPushed) || (inMessage == xpMsg_PushButtonPressed)){
+    XPHideWidget(msgBox);
+    XPDestroyWidget(msgBox, 1);
+    return 1;
+  }
+  return 0;
+}
+
+typedef struct {
+  const char *text;
+  int width;
+} line_t;
+
+static void messageBox(const char *msgBoxTitle, const char *message)
+{
+  fprintf(stderr, "Messagebox!\n");
+  size_t len = strlen(message) + 1; //Count also the \0!
+  char *msg_copy = (char *)malloc(len);
+  if(msg_copy == NULL){
+    return;
+  }
+  strcpy(msg_copy, message);
+  line_t lines[10];
+  size_t num_lines = 0;
+  size_t i;
+  const char *head = msg_copy;
+  int max_width = 50;
+  int title_width = XPLMMeasureString(xplmFont_Proportional, msgBoxTitle, strlen(msgBoxTitle));
+  if(max_width < title_width){
+    max_width = title_width;
+  }
+  for(i = 0; i < len; ++i){
+    if(msg_copy[i] == '\0'){
+      lines[num_lines].text = head;
+      lines[num_lines].width = XPLMMeasureString(xplmFont_Proportional, head, strlen(head));
+      if(lines[num_lines].width > max_width){
+	max_width = lines[num_lines].width;
+      }
+      ++num_lines;
+      break;
+    }
+    if(msg_copy[i] == '\n'){
+      msg_copy[i] = '\0';
+      lines[num_lines].text = head;
+      lines[num_lines].width = XPLMMeasureString(xplmFont_Proportional, head, strlen(head));
+      head = msg_copy + i + 1;
+      if(lines[num_lines].width > max_width){
+	max_width = lines[num_lines].width;
+      }
+      ++num_lines;
+    }
+  }
+  
+  int x = 250;
+  int y = 700;
+  int x2 = x + max_width + 40;
+  int y2 = y - (20 * num_lines) - 70;
+  int ptr = y - 30;
+  msgBox = XPCreateWidget(x, y, x2, y2,
+  				  1, //Visible
+				  msgBoxTitle,
+				  1, //Root
+				  NULL, //No container
+				  xpWidgetClass_MainWindow 
+  );
+  for(i = 0; i < num_lines; ++i){
+    /*XPWidgetID text = */(void)XPCreateWidget(x+20, ptr, x + 20 + lines[i].width, ptr - 15 ,
+                                   1, lines[i].text, 0, msgBox, xpWidgetClass_Caption);
+    ptr -= 20;
+  }
+  ptr -= 10;
+  /*XPWidgetID closeButton = */XPCreateWidget(x+30, ptr, x2 - 30, ptr - 15, 1, 
+  				  "Close", 0, msgBox, xpWidgetClass_Button);
+  XPAddWidgetCallback(msgBox, (XPWidgetFunc_t)msgBoxHandler);
+  free(msg_copy);
+}

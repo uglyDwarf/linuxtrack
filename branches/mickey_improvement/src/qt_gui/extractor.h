@@ -2,7 +2,6 @@
 #define EXTRACTOR__H
 
 #include "ui_extractor.h"
-#include "ui_progress.h"
 
 #include <QWidget>
 #include <QThread>
@@ -14,27 +13,16 @@
 #include "hashing.h"
 #include "downloading.h"
 #include "wine_launcher.h"
+#include "progress.h"
 
 typedef std::multimap<uint16_t, BlockId> targets_t;
 typedef std::multimap<uint16_t, BlockId>::iterator targets_iterator_t;
 
-class Progress: public QDialog
+class TirFwExtractThread: public QThread
 {
  Q_OBJECT
  public:
-  Progress(){ui.setupUi(this); ui.InfoLabel->setText(QString::fromUtf8(""));};
-  void show(){ui.ProgressBar->setValue(0);QWidget::show();};
- private:
-  Ui::DLProgress ui;
- public slots:
-  void message(qint64 read, qint64 all);
-};
-
-class ExtractThread: public QThread
-{
- Q_OBJECT
- public:
-  ExtractThread() : targets(NULL), gameDataFound(false){};
+  TirFwExtractThread() : targets(NULL), gameDataFound(false){};
   virtual void start(targets_t &t, const QString &p, const QString &d);
   void run();
   void stop(){quit = true;};
@@ -49,6 +37,7 @@ class ExtractThread: public QThread
   QString path;
   QString destPath;
   bool gameDataFound;
+  bool tirviewsFound;
   bool quit;
   bool everything;
 };
@@ -59,38 +48,73 @@ class Extractor: public QDialog
  public:
   Extractor(QWidget *parent = 0);
   ~Extractor();
- 
- private:
+
+ protected:
   Ui::Form ui;
   targets_t targets;
-  ExtractThread *et;
   WineLauncher *wine;
   QString winePrefix;
   Downloading *dl;
   Progress *progressDlg;
   QString destPath;
   bool readSpec();
-  bool readSources();
+  bool readSources(const QString &sources);
   QString findSrc(const QString &name);
-  void extractFirmware(QString file);
-  void enableButtons(bool enable);
-  bool haveSpec;
+  virtual void commenceExtraction(QString file){(void) file;};
+  virtual void enableButtons(bool enable);
+  virtual void browseDirPressed(){};
  signals:
   void finished(bool result);
  public slots:
   void show();
- private slots:
+ protected slots:
   void on_BrowseInstaller_pressed();
-  void on_BrowseDir_pressed();
-  void on_AnalyzeSourceButton_pressed();
+  void on_BrowseDir_pressed(){browseDirPressed();};
+  void on_AnalyzeSourceButton_pressed(){};
   void on_DownloadButton_pressed();
   void on_QuitButton_pressed();
   void on_HelpButton_pressed();
   void progress(const QString &msg);
-  void threadFinished();
-  void wineFinished(bool result);
+  void threadFinished(){};
+  void wineFinished(bool result){(void) result;};
   void downloadDone(bool ok, QString fileName);
 };
+
+class TirFwExtractor : public Extractor
+{
+ Q_OBJECT
+ public:
+  TirFwExtractor(QWidget *parent = 0);
+  ~TirFwExtractor();
+ private:
+  void commenceExtraction(QString file);
+  void enableButtons(bool enable);
+  void browseDirPressed();
+  TirFwExtractThread *et;
+  bool haveSpec;
+
+ private slots:
+  void threadFinished();
+  void wineFinished(bool result);
+  void on_AnalyzeSourceButton_pressed();
+  void on_QuitButton_pressed();
+};
+
+//mfc42u.dll is needed by TIRViews.dll
+class Mfc42uExtractor : public Extractor
+{
+ Q_OBJECT
+ public:
+  Mfc42uExtractor(QWidget *parent = 0);
+  ~Mfc42uExtractor();
+ private:
+  void commenceExtraction(QString file);
+  void enableButtons(bool enable);
+  int stage;
+ private slots:
+  void wineFinished(bool result);
+};
+
 
 
 #endif
