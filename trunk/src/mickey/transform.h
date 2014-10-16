@@ -23,7 +23,7 @@ class MickeyCurveShow : public QWidget
 };
 
 typedef struct {
-  int sensitivity, deadzone, curvature;
+  int sensitivity, deadzone, curvature, smoothing;
   bool stepOnly;
 } setup_t;
 
@@ -34,11 +34,13 @@ class MickeysAxis : public QObject
   MickeysAxis();
   ~MickeysAxis();
   void step(float valX, float valY, int elapsed, float &accX, float &accY);
+  void smooth(float &valX, float &valY);
   void applySettings();
   void revertSettings();
   void keepSettings();
  private:
   int sensitivity;
+  float prevX, prevY;
   float response(float mag, setup_t *s = NULL);
   float getSpeed(int sens);
   void updatePixmap();
@@ -72,6 +74,7 @@ class MickeyTransform : public QObject
   float accX, accY;
   bool calibrating;
   float maxValX, minValX, maxValY, minValY, prevMaxValX, prevMaxValY;
+  float currMaxValX, currMaxValY;
   MickeysAxis axis;
 };
 

@@ -18,6 +18,7 @@
 #include "math_utils.h"
 #include "transform.h"
 #include <iostream>
+#include "hotkey.h"
 
 
 //Time to wait after the tracking commences to perform a recentering [ms]
@@ -93,12 +94,12 @@ void MickeyApplyDialog::trySettings()
   show();
   raise();
   activateWindow();
-  std::cout<<"trying settings!"<<std::endl;
+  //std::cout<<"trying settings!"<<std::endl;
 }
 
 void MickeyApplyDialog::timeout()
 {
-  std::cout<<"Apl timeout!"<<std::endl;
+  //std::cout<<"Apl timeout!"<<std::endl;
   --cntr;
   if(cntr == 0){
     timer.stop();
@@ -112,7 +113,7 @@ void MickeyApplyDialog::timeout()
 void MickeyApplyDialog::on_RevertButton_pressed()
 {
   timer.stop();
-  std::cout<<"Reverting..."<<std::endl;
+  //std::cout<<"Reverting..."<<std::endl;
   emit revert();
   hide();
 }
@@ -120,7 +121,7 @@ void MickeyApplyDialog::on_RevertButton_pressed()
 void MickeyApplyDialog::on_KeepButton_pressed()
 {
   timer.stop();
-  std::cout<<"Keeping..."<<std::endl;
+  //std::cout<<"Keeping..."<<std::endl;
   emit keep();
   hide();
 }
@@ -186,7 +187,7 @@ void MickeyCalibration::cancelPressed()
 
 void MickeyCalibration::timeout()
 {
-  std::cout<<"timer!"<<std::endl;
+  //std::cout<<"timer!"<<std::endl;
   --cntr;
   if(cntr == 0){
     switch(calState){
@@ -230,18 +231,17 @@ MickeyThread::MickeyThread(Mickey *p) : QThread(p), fifo(-1), finish(false), par
 
 void MickeyThread::processClick(sn4_btn_event_t ev)
 {
-  std::cout<<"Processing click! ("<<(int)ev.btns<<")"<<std::endl;
+  //std::cout<<"Processing click! ("<<(int)ev.btns<<")"<<std::endl;
   int btns = ev.btns;
   mouse.click((buttons_t)btns, ev.timestamp);
 }
 
 //emulate mouse button press using keyboard
-void MickeyThread::on_key_pressed()
+void MickeyThread::on_mouseHotKey_activated(int button, bool pressed)
 {
-  std::cout<<"Button pressed!!!"<<std::endl;
-  fakeBtn ^= 1;
+  //std::cout<<(pressed ? "Button pressed!!!" : "Button released!!!")<<std::endl;
   sn4_btn_event_t ev;
-  ev.btns = fakeBtn;
+  ev.btns = pressed ? button : 0;
   gettimeofday(&(ev.timestamp), NULL);
   processClick(ev);
 }
@@ -282,11 +282,11 @@ Mickey::Mickey() : updateTimer(this), btnThread(this), state(STANDBY),
   calDlg(), aplDlg(), recenterFlag(true), dw(NULL) 
 {
   trans = new MickeyTransform();
-  onOffSwitch = new shortcut();
-  QObject::connect(onOffSwitch, SIGNAL(activated()), this, SLOT(onOffSwitch_activated()));
+  //QObject::connect(onOffSwitch, SIGNAL(activated()), this, SLOT(onOffSwitch_activated()));
   //QObject::connect(&lbtnSwitch, SIGNAL(activated()), &btnThread, SLOT(on_key_pressed()));
+  QObject::connect(this, SIGNAL(mouseHotKey_activated(int, bool)), 
+		   &btnThread, SLOT(on_mouseHotKey_activated(int, bool)));
   QObject::connect(&updateTimer, SIGNAL(timeout()), this, SLOT(updateTimer_activated()));
-//  QObject::connect(&btnThread, SIGNAL(clicked()), this, SLOT(threadClicked()));
   QObject::connect(&aplDlg, SIGNAL(keep()), this, SLOT(keepSettings()));
   QObject::connect(&aplDlg, SIGNAL(revert()), this, SLOT(revertSettings()));
 
@@ -317,6 +317,8 @@ Mickey::~Mickey()
   updateTimer.stop();
   delete trans;
   trans = NULL;
+  btnThread.setFinish();
+  btnThread.wait();
 }
 
 void Mickey::screenResized(int screen)
@@ -346,19 +348,19 @@ void Mickey::keepSettings()
 
 void Mickey::pause()
 {
-  std::cout<<"Pausing!"<<std::endl;
+  //std::cout<<"Pausing!"<<std::endl;
   //btnThread.setFinish();
   //btnThread.wait();
   updateTimer.stop();
-  //ltr_suspend();
+  linuxtrack_suspend();
 }
 
 void Mickey::wakeup()
 {
-  std::cout<<"Waking up!"<<std::endl;
+  //std::cout<<"Waking up!"<<std::endl;
   updateTimer.start();
   //btnThread.start();
-  //ltr_wakeup();
+  linuxtrack_wakeup();
   //ltr_recenter();
 }
 
@@ -433,18 +435,34 @@ void Mickey::changeState(state_t newState)
   }
 }
 
-void Mickey::onOffSwitch_activated()
+void Mickey::hotKey_activated(int id, bool pressed)
 {
-  std::cout<<"On/off switch activated!"<<std::endl;
-  switch(state){
-    case TRACKING:
-      changeState(STANDBY);
+  switch(id){
+    case 0: // toggle
+      if(!pressed){
+	return;
+      }
+      //std::cout<<"On/off switch activated!"<<std::endl;
+      switch(state){
+        case TRACKING:
+          changeState(STANDBY);
+          break;
+        case STANDBY:
+          changeState(TRACKING);
+          initTimer.start();
+          break;
+        default:
+          break;
+      }
       break;
-    case STANDBY:
-      changeState(TRACKING);
-      initTimer.start();
+    case 1: //LMB
+      emit mouseHotKey_activated(LEFT_BUTTON, pressed);
       break;
-    default:
+    case 2: //MMB
+      emit mouseHotKey_activated(MIDDLE_BUTTON, pressed);
+      break;
+    case 3: // quick recenter
+      linuxtrack_recenter();
       break;
   }
 }
@@ -454,8 +472,11 @@ void Mickey::updateTimer_activated()
 {
   static float heading_p = 0.0;
   static float pitch_p = 0.0;
-  float heading, pitch, roll, tx, ty, tz;
-  unsigned int counter;
+  linuxtrack_pose_t full_pose;
+  float blobs[3*3];
+  int blobs_read;
+  //float heading, pitch, roll, tx, ty, tz;
+  //unsigned int counter;
   static int lastTrackingState = -1;
   int trackingState = linuxtrack_get_tracking_state();
   
@@ -503,10 +524,19 @@ void Mickey::updateTimer_activated()
       recenterFlag = false;
     }
   }
-  if(linuxtrack_get_pose(&heading, &pitch, &roll, &tx, &ty, &tz, &counter) > 0){
+//  if(linuxtrack_get_pose(&heading, &pitch, &roll, &tx, &ty, &tz, &counter) > 0){
+  if(linuxtrack_get_pose_full(&full_pose, blobs, 3, &blobs_read) > 0){
     //new frame has arrived
-    heading_p = heading;
-    pitch_p = pitch;
+    /*heading = full_pose.yaw;
+    pitch = full_pose.pitch;
+    roll = full_pose.roll;
+    tx = full_pose.tx;
+    ty = full_pose.ty;
+    tz = full_pose.tz;
+    counter = full_pose.counter;
+    */
+    heading_p = full_pose.raw_yaw;
+    pitch_p = full_pose.raw_pitch;
     //ui.XLabel->setText(QString("X: %1").arg(heading));
     //ui.YLabel->setText(QString("Y: %1").arg(pitch));
   }
@@ -552,6 +582,7 @@ void Mickey::cancelCalibration(bool calStarted)
   changeState(TRACKING);
 }
 
+/*
 bool Mickey::setShortcut(QKeySequence seq)
 {
   bool res = onOffSwitch->setShortcut(seq);
@@ -563,6 +594,7 @@ bool Mickey::setShortcut(QKeySequence seq)
   }
   return res;
 }
+*/
 
 MickeyGUI *MickeyGUI::instance = NULL;
 
@@ -584,49 +616,72 @@ void MickeyGUI::deleteInstance()
   }
 }
 
+
+static HotKey* addHotKey(const QString &label, const QString &prefId, int id, 
+		  QWidget *owner, QObject *target, QGridLayout *dest, QSettings *pref, int row, int column)
+{
+  HotKey *hk = new HotKey(label, prefId, id, owner);
+  QString hkString = pref->value(prefId, QString::fromUtf8("None")).toString();
+  if(hk->setHotKey(hkString)){
+    //std::cout<<"hk: "<<hk<<std::endl;
+    dest->addWidget(hk, row, column);
+    QObject::connect(hk, SIGNAL(activated(int, bool)), target, SLOT(hotKey_activated(int, bool)));
+    QObject::connect(hk, SIGNAL(newHotKey(const QString &, const QString &)), 
+		     owner, SLOT(updateHotKey(const QString &, const QString &)));
+    return hk;
+  }else{
+    delete hk;
+    return NULL;
+  }
+}
+
 MickeyGUI::MickeyGUI(QWidget *parent) : QWidget(parent), mickey(NULL), 
   settings(QString::fromUtf8("linuxtrack"), QString::fromUtf8("mickey")), changed(false), hotkeySet(false)
 {
   ui.setupUi(this);
+
   readPrefs();
+  
   //mickey = new Mickey();
 }
 
+void MickeyGUI::updateHotKey(const QString &prefId, const QString &hk)
+{
+  //std::cout<<"Updating Id: "<<prefId.toUtf8().constData()<<"  "<<hk.toUtf8().constData()<<std::endl;
+  settings.beginGroup(QString::fromUtf8("HotKeys"));
+  settings.setValue(prefId, hk);
+  settings.endGroup();
+}
+
+
 MickeyGUI::~MickeyGUI()
 {
+  ui.HotkeyStack->removeWidget(toggleHotKey);
+  ui.HotkeyStack->removeWidget(lmbHotKey);
+  ui.HotkeyStack->removeWidget(mmbHotKey);
+  delete toggleHotKey;
+  delete lmbHotKey;
+  delete mmbHotKey;
+  
   delete mickey;
+  
 }
 
 void MickeyGUI::readPrefs()
 {
-  //Read hotkey setup
-  QString modifier, key;
-  
-  settings.beginGroup(QString::fromUtf8("Shortcut"));
-  modifier = settings.value(QString::fromUtf8("Modifier"), QString::fromUtf8("None")).toString();
-  key = settings.value(QString::fromUtf8("Key"), QString::fromUtf8("F9")).toString();
-  settings.endGroup();
-  
-  modifierIndex = ui.ModifierCombo->findText(modifier);
-  if(modifierIndex != -1){
-    ui.ModifierCombo->setCurrentIndex(modifierIndex);
-  }
-  hotkeyIndex = ui.KeyCombo->findText(key);
-  if(hotkeyIndex != -1){
-    ui.KeyCombo->setCurrentIndex(hotkeyIndex);
-  }
-  
   //Axes setup
   bool relative;
   settings.beginGroup(QString::fromUtf8("Axes"));
   deadzone = settings.value(QString::fromUtf8("DeadZone"), 20).toInt();
   sensitivity = settings.value(QString::fromUtf8("Sensitivity"), 50).toInt();
   curvature = settings.value(QString::fromUtf8("Curvature"), 50).toInt();
+  smoothing = settings.value(QString::fromUtf8("Smoothing"), 33).toInt();
   stepOnly = settings.value(QString::fromUtf8("StepOnly"), false).toBool();
   relative = settings.value(QString::fromUtf8("Relative"), true).toBool();
   ui.SensSlider->setValue(sensitivity);
   ui.DZSlider->setValue(deadzone);
   ui.CurveSlider->setValue(curvature);
+  ui.SmoothingSlider->setValue(smoothing);
   ui.StepOnly->setCheckState(stepOnly ? Qt::Checked : Qt::Unchecked);
   if(stepOnly){
     ui.CurveSlider->setDisabled(true);
@@ -688,17 +743,12 @@ void MickeyGUI::storePrefs()
     return;  
   }  
   
-  //Store hotkey setup
-  settings.beginGroup(QString::fromUtf8("Shortcut"));
-  settings.setValue(QString::fromUtf8("Modifier"), ui.ModifierCombo->currentText());
-  settings.setValue(QString::fromUtf8("Key"), ui.KeyCombo->currentText());
-  settings.endGroup();
-  
   //Axes setup
   settings.beginGroup(QString::fromUtf8("Axes"));
   settings.setValue(QString::fromUtf8("DeadZone"), deadzone);
   settings.setValue(QString::fromUtf8("Sensitivity"), sensitivity);
   settings.setValue(QString::fromUtf8("Curvature"), curvature);
+  settings.setValue(QString::fromUtf8("Smoothing"), smoothing);
   settings.setValue(QString::fromUtf8("StepOnly"), stepOnly);
   settings.setValue(QString::fromUtf8("Relative"), mickey->getRelative());
   settings.endGroup();
@@ -738,39 +788,6 @@ void MickeyGUI::on_StepOnly_stateChanged(int state)
   }
   emit axisChanged();
   ui.ApplyButton->setEnabled(true);
-}
-
-bool MickeyGUI::getShortcut()
-{
-  if(mickey == NULL){
-    return false;
-  }
-  changed = true;
-  
-  QString modifier(QString::fromUtf8(""));
-  if(ui.ModifierCombo->currentIndex() != 0){
-    modifier = ui.ModifierCombo->currentText() + QString::fromUtf8("+");
-  }
-  modifier += ui.KeyCombo->currentText();
-  QKeySequence seq(modifier);
-  if(mickey->setShortcut(seq)){
-    std::cout<<"Shortcut set!"<<std::endl;
-    modifierIndex = ui.ModifierCombo->currentIndex();
-    hotkeyIndex = ui.KeyCombo->currentIndex();
-    return true;
-  }else{
-    QMessageBox::warning(this, QString::fromUtf8("Hotkey not usable."), 
-      QString::fromUtf8("The hotkey you set is already in use! Please select another one."));
-    //try to revert shortcut, if it was working before...
-    if(hotkeySet){
-      //this should avoid recursion
-      hotkeySet = false;
-      ui.ModifierCombo->setCurrentIndex(modifierIndex);
-      ui.KeyCombo->setCurrentIndex(hotkeyIndex);
-      return getShortcut();
-    }
-  }
-  return false;
 }
 
 void MickeyGUI::closeEvent(QCloseEvent *event)
@@ -813,9 +830,21 @@ void MickeyGUI::init()
 {
   mickey = new Mickey();
 
+  settings.beginGroup(QString::fromUtf8("HotKeys"));
+  
+  ui.HotkeyStack->addWidget(new QLabel(QString::fromUtf8("Hotkey setup")), 1, 1);
+  toggleHotKey = addHotKey(QString::fromUtf8("Start/Stop tracking:"), QString::fromUtf8("tracking_toggle"),
+			   0, this, mickey, ui.HotkeyStack, &settings, 2, 1);
+  recenterHotKey = addHotKey(QString::fromUtf8("Quick recenter:"), QString::fromUtf8("quick_recenter"),
+			   3, this, mickey, ui.HotkeyStack, &settings, 2, 2);
+  ui.HotkeyStack->addWidget(new QLabel(QString::fromUtf8("Mouse button emulation")), 3, 1);
+  lmbHotKey = addHotKey(QString::fromUtf8("Left:"), QString::fromUtf8("l_mouse"), 
+			   1, this, mickey, ui.HotkeyStack, &settings, 4, 1);
+  mmbHotKey = addHotKey(QString::fromUtf8("Middle:"), QString::fromUtf8("m_mouse"), 
+			   2, this, mickey, ui.HotkeyStack, &settings, 4, 2);
+  settings.endGroup();
   ui.ApplyButton->setEnabled(false);
   mickey->setRelative(ui.RelativeCB->isChecked());
-  hotkeySet = getShortcut();
   changed = false;
 }
   

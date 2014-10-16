@@ -337,8 +337,9 @@ wii_server/main.cpp wii_server/wii_server.h wii_server/wii_server.ui wii_server/
 linuxtrack-wii.desktop linuxtrack-wii.png linuxtrack-wii.svg linuxtrack-wii.xpm \
 linuxtrack.desktop linuxtrack.png linuxtrack.svg linuxtrack.xpm \
 ltr_gui.1 ltr_pipe.1 ltr_server1.1 wii_server.1 mickey.1 mickey/uinput_ifc.h \
-mickey/piper.h mickey/keyb_qxt.h mickey/mickey.ui mickey/mickey.cpp \
-mickey/piper.c mickey/mickey.pro.in mickey/transform.h mickey/keyb.h mickey/mickey.h \
+mickey/piper.h mickey/keyb_qxt.h mickey/mickey.ui mickey/mickey.cpp mickey/hotkey.cpp mickey/hotkey.h mickey/hotkey.ui \
+mickey/piper.c mickey/mickey.pro.in mickey/transform.h mickey/keyb.h mickey/mickey.h mickey/my_line_edit.cpp \
+mickey/my_line_edit.h mickey/hotkey_setup_dlg.cpp  mickey/hotkey_setup_dlg.h  mickey/hotkey_setup.ui \
 mickey/chsettings.ui mickey/calibration.ui mickey/pref.ui mickey/transform.cpp \
 mickey/main.cpp mickey/help/tracking.htm mickey/help/misc.htm \
 mickey/help/news.htm mickey/help/contents.txt mickey/help/welcome.htm mickey/uinput_ifc.c \

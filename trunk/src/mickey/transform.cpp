@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <QPainter>
+#include "math_utils.h"
 
 const int screenMax = 1024;
 const float timeFast = 0.1;
@@ -60,6 +61,7 @@ MickeysAxis::MickeysAxis(): curveShow(NULL)
   setup.deadzone = GUI.getDeadzone();
   setup.curvature= GUI.getCurvature();
   setup.stepOnly = GUI.getStepOnly();
+  setup.smoothing = GUI.getSmoothing();
   newSetup = setup;
 }
 
@@ -112,6 +114,15 @@ void MickeysAxis::step(float valX, float valY, int elapsed, float &accX, float &
   accY += mag * sinf(angle) * getSpeed(setup.sensitivity) * (elapsed / 1000.0);
 }
 
+
+void MickeysAxis::smooth(float &valX, float &valY)
+{
+  valX = ltr_int_nonlinfilt(valX, prevX, setup.smoothing/3.0);
+  valY = ltr_int_nonlinfilt(valY, prevY, setup.smoothing/3.0);
+  prevX = valX;
+  prevY = valY;
+}
+
 void MickeysAxis::updatePixmap()
 {
   const int pointCount = 128;
@@ -132,6 +143,7 @@ void MickeysAxis::axisChanged(){
   newSetup.sensitivity = GUI.getSensitivity();
   newSetup.deadzone = GUI.getDeadzone();
   newSetup.curvature= GUI.getCurvature();
+  newSetup.smoothing= GUI.getSmoothing();
   newSetup.stepOnly = GUI.getStepOnly();
   updatePixmap();
 }
@@ -154,6 +166,7 @@ void MickeysAxis::revertSettings()
   GUI.setSensitivity(setup.sensitivity);
   GUI.setDeadzone(setup.deadzone);
   GUI.setCurvature(setup.curvature);
+  GUI.setSmoothing(setup.smoothing);
   GUI.setStepOnly(setup.stepOnly);
   updatePixmap();
 }
@@ -163,6 +176,8 @@ MickeyTransform::MickeyTransform() : accX(0.0), accY(0.0), calibrating(false), a
   GUI.getMaxVal(maxValX, maxValY);
   prevMaxValX = maxValX;
   prevMaxValY = maxValY;
+  currMaxValX = maxValX;
+  currMaxValY = maxValY;
 }
 
 MickeyTransform::~MickeyTransform()
@@ -171,13 +186,39 @@ MickeyTransform::~MickeyTransform()
 
 static float norm(float val)
 {
-  if(val < -1.0f) return -1.0f;
-  if(val > 1.0f) return 1.0f;
+  if(val > 1.0f){
+    return 1.0;
+  }
+  if(val < -1.0){
+    return -1.0;
+  }
   return val;
 }
 
+/*
+static float sign(float val)
+{
+  return (val >= 0 ? 1.0f : -1.0f); 
+}
+
+static float norm(float val, float limit, float &currentLimit)
+{
+  float absVal = fabsf(val);
+  //when crossing the zero, equalize currentLimit
+  if(sign(val) != sign(currentLimit)){
+    currentLimit = sign(val) * limit;
+  }
+  //if we are above the limit, extend the limit until next zero crossing
+  if(absVal > fabsf(currentLimit)){
+    currentLimit = val;
+  }
+  return val / fabsf(currentLimit);
+}
+*/
+
 void MickeyTransform::update(float valX, float valY, bool relative, int elapsed, float &x, float &y)
 {
+  axis.smooth(valX, valY);
   if(!calibrating){
     if(relative){
       axis.step(norm(-valX/maxValX), norm(-valY/maxValY), elapsed, accX, accY);
@@ -186,8 +227,11 @@ void MickeyTransform::update(float valX, float valY, bool relative, int elapsed,
       y = accY;
       accY -= y;
     }else{
-      x = norm(-valX/maxValX);
-      y = norm(-valY/maxValY);
+//      x = norm(-valX, maxValX, currMaxValX);
+//      y = norm(-valY, maxValY, currMaxValY);
+      x = norm(-valX / maxValX);
+      y = norm(-valY / maxValY);
+      //std::cout<<"valX: "<<-valX<<"=> "<<x<<"   Limit: "<<maxValX<<"   CurrentLimit:"<<currMaxValX<<std::endl;
     }
   }else{
     if(valX > maxValX){
@@ -208,7 +252,7 @@ void MickeyTransform::update(float valX, float valY, bool relative, int elapsed,
 void MickeyTransform::startCalibration()
 {
   calibrating = true;
-  std::cout<<"Calibrating X: "<<prevMaxValX<<" Y: "<<prevMaxValY<<std::endl;
+  //std::cout<<"Calibrating X: "<<prevMaxValX<<" Y: "<<prevMaxValY<<std::endl;
   prevMaxValX = maxValX;
   prevMaxValY = maxValY;
   maxValX = 0.0f;
@@ -230,8 +274,8 @@ void MickeyTransform::finishCalibration()
   maxValX = (minValX > maxValX)? maxValX: minValX;
   maxValY = (minValY > maxValY)? maxValY: minValY;
   GUI.setMaxVal(maxValX, maxValY);
-  std::cout<<"Finished X: "<<maxValX<<" Y: "<<maxValY<<std::endl;
-  std::cout<<"Saved X: "<<prevMaxValX<<" Y: "<<prevMaxValY<<std::endl;
+  //std::cout<<"Finished X: "<<maxValX<<" Y: "<<maxValY<<std::endl;
+  //std::cout<<"Saved X: "<<prevMaxValX<<" Y: "<<prevMaxValY<<std::endl;
 }
 
 void MickeyTransform::cancelCalibration()
@@ -242,14 +286,14 @@ void MickeyTransform::cancelCalibration()
 
 void MickeyTransform::applySettings()
 {
-  std::cout<<"Applying X: "<<maxValX<<" Y: "<<maxValY<<std::endl;
-  std::cout<<"Saved X: "<<prevMaxValX<<" Y: "<<prevMaxValY<<std::endl;
+  //std::cout<<"Applying X: "<<maxValX<<" Y: "<<maxValY<<std::endl;
+  //std::cout<<"Saved X: "<<prevMaxValX<<" Y: "<<prevMaxValY<<std::endl;
   axis.applySettings();
 }
 
 void MickeyTransform::keepSettings()
 {
-  std::cout<<"Keeping X: "<<maxValX<<" Y: "<<maxValY<<std::endl;
+  //std::cout<<"Keeping X: "<<maxValX<<" Y: "<<maxValY<<std::endl;
   prevMaxValX = maxValX;
   prevMaxValY = maxValY;
   axis.keepSettings();
@@ -257,7 +301,7 @@ void MickeyTransform::keepSettings()
 
 void MickeyTransform::revertSettings()
 {
-  std::cout<<"Reverting to X: "<<prevMaxValX<<" Y: "<<prevMaxValY<<std::endl;
+  //std::cout<<"Reverting to X: "<<prevMaxValX<<" Y: "<<prevMaxValY<<std::endl;
   maxValX = prevMaxValX;
   maxValY = prevMaxValY;
   GUI.setMaxVal(maxValX, maxValY);

@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
 {
   (void) argc;
   (void) argv;
-  std::cout<<"Hello World!"<<std::endl;
+  //std::cout<<"Hello World!"<<std::endl;
   
   buffering b(3);
   buffer *buf = NULL;

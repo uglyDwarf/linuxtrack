@@ -9,16 +9,16 @@ static semaphore_p lock_sem = NULL;
 
 int prepareBtnChanel()
 {
-  printf("Opening the channel!\n");
+  //printf("Opening the channel!\n");
   signal(SIGPIPE, SIG_IGN);
   char *fname = ltr_int_get_default_file_name("ltr_sn4.pipe");
   int fifo = ltr_int_open_fifo_exclusive(fname, &lock_sem);
   free(fname);
   if(fifo <= 0){
-    printf("Can't open fifo!\n");
+    //printf("Can't open fifo!\n");
     return -1;
   }
-  printf("Fifo opened!\n");
+  //printf("Fifo opened!\n");
   return fifo;
 }
 

@@ -7,18 +7,29 @@
   #include "keyb_x11.h"
 #endif
 
+#include <cstdio>
 shortcut::shortcut()
 {
-  key = new shortcutPimpl();
-  QObject::connect(key, SIGNAL(activated()), this, SIGNAL(activated()));
 }
 
 shortcut::~shortcut()
 {
-  delete key;
+  unsetShortcut(this);
 }
 
 bool shortcut::setShortcut(const QKeySequence &s)
 {
-  return key->setShortcut(s);
+  //printf("Setting shortcut!\n");
+  return setShortCut(s, this);
+}
+
+bool shortcut::resetShortcut()
+{
+  return unsetShortcut(this);
+}
+
+void shortcut::activate(bool pressed)
+{
+  //printf("Firing shortcut!\n");
+  emit activated(pressed);
 }
