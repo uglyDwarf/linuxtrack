@@ -12,6 +12,7 @@ class WineLauncher:public QObject
   ~WineLauncher();
   void setEnv(const QString &var, const QString &val);
   void run(const QString &tgt);
+  void run(const QString &tgt, const QString &params);
   bool wineAvailable();
  private:
   bool check();

@@ -17,7 +17,7 @@
   #include "../../config.h"
 #endif
 
-void ExtractThread::start(targets_t &t, const QString &p, const QString &d)
+void TirFwExtractThread::start(targets_t &t, const QString &p, const QString &d)
 {
   if(!isRunning()){
     targets = &t;
@@ -28,7 +28,7 @@ void ExtractThread::start(targets_t &t, const QString &p, const QString &d)
   }
 }
 
-void ExtractThread::run()
+void TirFwExtractThread::run()
 {
   emit progress(QString::fromUtf8("Commencing analysis of directory '%1'...").arg(path));
   gameDataFound = false;
@@ -57,7 +57,7 @@ void ExtractThread::run()
   }
 }
 
-void ExtractThread::analyzeFile(const QString fname)
+void TirFwExtractThread::analyzeFile(const QString fname)
 {
   QFile file(fname);
   if(!file.open(QIODevice::ReadOnly)){
@@ -89,7 +89,7 @@ void ExtractThread::analyzeFile(const QString fname)
   file.close();
 }
 
-bool ExtractThread::allFound()
+bool TirFwExtractThread::allFound()
 {
   for(targets_iterator_t it = targets->begin(); it != targets->end(); ++it){
     if(!it->second.foundAlready()) return false;
@@ -97,7 +97,7 @@ bool ExtractThread::allFound()
   return gameDataFound && tirviewsFound;
 }
 
-bool ExtractThread::findCandidates(QString name)
+bool TirFwExtractThread::findCandidates(QString name)
 {
   if(quit) return false;
   int i;
@@ -216,7 +216,7 @@ Extractor::Extractor(QWidget *parent) : QDialog(parent), dl(NULL), progressDlg(N
 
 TirFwExtractor::TirFwExtractor(QWidget *parent) : Extractor(parent), et(NULL)
 {
-  et = new ExtractThread();
+  et = new TirFwExtractThread();
   QObject::connect(et, SIGNAL(progress(const QString &)), this, SLOT(progress(const QString &)));
   QObject::connect(et, SIGNAL(finished()), this, SLOT(threadFinished()));
   QObject::connect(wine, SIGNAL(finished(bool)), this, SLOT(wineFinished(bool)));
@@ -234,6 +234,17 @@ TirFwExtractor::TirFwExtractor(QWidget *parent) : Extractor(parent), et(NULL)
   if(!dbg.contains(QChar::fromLatin1('d'))){
     ui.AnalyzeSourceButton->setVisible(false);
   }
+}
+
+Mfc42uExtractor::Mfc42uExtractor(QWidget *parent) : Extractor(parent)
+{
+  QObject::connect(wine, SIGNAL(finished(bool)), this, SLOT(wineFinished(bool)));
+  QObject::connect(dl, SIGNAL(done(bool, QString)), this, SLOT(downloadDone(bool, QString)));
+  QObject::connect(dl, SIGNAL(msg(const QString &)), this, SLOT(progress(const QString &)));
+  QObject::connect(dl, SIGNAL(msg(qint64, qint64)), progressDlg, SLOT(message(qint64, qint64)));
+  QString sources = QString::fromUtf8("sources_mfc.txt");
+  readSources(sources);
+  ui.AnalyzeSourceButton->setVisible(false);
 }
 
 Extractor::~Extractor()
@@ -255,6 +266,10 @@ TirFwExtractor::~TirFwExtractor()
   }
   delete et;
   et = NULL;
+}
+
+Mfc42uExtractor::~Mfc42uExtractor()
+{
 }
 
 static QString makeDestPath(const QString &base)
@@ -286,6 +301,48 @@ void TirFwExtractor::wineFinished(bool result)
   et->start(targets, winePrefix, destPath);
 }
 
+void Mfc42uExtractor::wineFinished(bool result)
+{
+  if(!result){
+    QMessageBox::warning(this, QString::fromUtf8("Error running Wine"),
+      QString::fromUtf8("There was an error extracting\n"
+      "the VC redistributable.\n"
+      "Please see the log for more details.\n\n")
+    );
+    enableButtons(true);
+    return;
+  }
+  switch(stage){
+    case 0:{
+        stage = 1;
+        QString file = winePrefix + QString::fromUtf8("/drive_c/vcredist.exe");
+        progress(QString::fromUtf8("Extracting %1").arg(file));
+        QString params = QString::fromUtf8("/C /Q /T:c:\\");
+        wine->run(file, params);
+      }
+      break;
+    case 1:{
+        stage = 0;
+        destPath = PrefProxy::getRsrcDirPath() + QString::fromUtf8("/tir_firmware/mfc42u.dll");
+        QString srcPath = winePrefix + QString::fromUtf8("/drive_c/mfc42u.dll");
+        if(!QFile::copy(srcPath, destPath)){
+          QMessageBox::warning(this, QString::fromUtf8("Error extracting mfc42u.dll"),
+            QString::fromUtf8("There was an error extracting mfc42.dll.\n"
+            "Please see the help to learn other ways\n"
+  	  "ways of obtaining this file.\n\n")
+          );
+        }else{
+          progress(QString::fromUtf8("Mfc42u.dll extracted successfuly"));
+        }
+        enableButtons(true);
+        emit finished(true);
+      }
+      break;
+    default:
+      break;
+  }
+}
+
 void TirFwExtractor::commenceExtraction(QString file)
 {
 #ifndef DARWIN
@@ -313,6 +370,16 @@ void TirFwExtractor::commenceExtraction(QString file)
   wine->run(file);
 }
 
+
+void Mfc42uExtractor::commenceExtraction(QString file)
+{
+  qDebug()<<winePrefix;
+  stage = 0;
+  progress(QString::fromUtf8("Initializing wine and extracting %1").arg(file));
+  QString params = QString::fromUtf8("/C /Q /T:c:\\");
+  wine->setEnv(QString::fromUtf8("WINEPREFIX"), winePrefix);
+  wine->run(file, params);
+}
 
 void Extractor::on_BrowseInstaller_pressed()
 {
@@ -433,13 +500,20 @@ void TirFwExtractor::enableButtons(bool enable)
   ui.QuitButton->setEnabled(enable);
 }
 
+void Mfc42uExtractor::enableButtons(bool enable)
+{
+  ui.BrowseInstaller->setEnabled(enable);
+  ui.BrowseDir->setEnabled(false);
+  ui.DownloadButton->setEnabled(enable);
+  ui.QuitButton->setEnabled(enable);
+}
+
 
 void Extractor::on_QuitButton_pressed()
 {
   hide();
   //emit finished(et->haveEverything());
 }
-
 
 void TirFwExtractor::on_QuitButton_pressed()
 {
@@ -450,7 +524,6 @@ void TirFwExtractor::on_QuitButton_pressed()
   hide();
   //emit finished(et->haveEverything());
 }
-
 
 void Extractor::on_DownloadButton_pressed()
 {

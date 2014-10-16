@@ -64,6 +64,7 @@ Section "Uninstall"
   Delete $INSTDIR\TrackIR.exe
   Delete $INSTDIR\linuxtrack.ico
   Delete $INSTDIR\TIRViews.dll
+  Delete $INSTDIR\mfc42u.dll
   Delete "$SMPROGRAMS\Linuxtrack\*.*"
   RMDir "$SMPROGRAMS\Linuxtrack"
   RMDir "$INSTDIR"

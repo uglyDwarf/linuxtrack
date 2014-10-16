@@ -16,20 +16,26 @@ class PluginInstall : public QObject
   ~PluginInstall();
  private slots:
   void installWinePlugin();
-  void instFinished(bool result);
-  void tirFirmwareInstall(bool installFwOnly = false);
-  void tirFirmwareInstalled(bool ok);
-  void installLinuxtrackWine(bool ok);
+  void tirFirmwareInstall();
+  void installLinuxtrackWine();
   void on_TIRFWButton_pressed();
+  void on_TIRViewsButton_pressed();
+  void finished(bool ok);
  private:
+  enum state{TIR_FW, MFC, LTR_W, DONE, TIR_FW_ONLY, MFC_ONLY} state;
   const Ui::LinuxtrackMainForm &gui;
   void Connect();
   WineLauncher *inst;
   TirFwExtractor *dlfw;
+  Mfc42uExtractor *dlmfc;
   bool isTirFirmwareInstalled();
+  bool isMfc42uInstalled();
+  void enableButtons(bool ena);
+  void mfc42uInstall();
   const QString poem1;
   const QString poem2;
   const QString gameData;
+  const QString mfc42u;
 };
 
 
