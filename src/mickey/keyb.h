@@ -4,8 +4,6 @@
 #include <QObject>
 #include <QKeySequence>
 
-class shortcutPimpl;
-
 class shortcut : public QObject
 {
   Q_OBJECT
@@ -13,10 +11,10 @@ class shortcut : public QObject
   shortcut();
   ~shortcut();
   bool setShortcut(const QKeySequence &s);
+  bool resetShortcut();
+  void activate(bool pressed);
  signals:
-  void activated();
- private:
-  shortcutPimpl *key;
+  void activated(bool pressed);
 };
 
 #endif

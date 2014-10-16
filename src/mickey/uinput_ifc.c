@@ -24,12 +24,12 @@ int open_uinput(char **fname, bool *permProblem)
     //printf("Checking %s\n", alternative_names[i]);
     fd = open(alternative_names[i], O_WRONLY | O_NONBLOCK);
     if(fd >= 0){
-      printf("Opened %s\n", alternative_names[i]);
+      //printf("Opened %s\n", alternative_names[i]);
       *fname = alternative_names[i];
       return fd;
     }else{
       if(errno == EACCES){
-        printf("Check permissions!\n");
+        //printf("Check permissions!\n");
         *fname = alternative_names[i];
         *permProblem = true;
         return -1;
@@ -48,13 +48,15 @@ bool create_device(int fd)
   size_t str_len = sizeof(mouse.name);
   strncpy(mouse.name, "Linuxtrack's Mickey", str_len);
   mouse.name[str_len - 1]= '\0';
-  printf("Name: '%s'\n", mouse.name);
+  mouse.id.vendor = 0x42;
+  mouse.id.product = 0x42;
+  //printf("Name: '%s'\n", mouse.name);
   res |= (write(fd, &mouse, sizeof(mouse)) == -1);
+  res |= (ioctl(fd, UI_SET_EVBIT, EV_KEY) == -1);
   res |= (ioctl(fd, UI_SET_EVBIT, EV_REL) == -1);
+  res |= (ioctl(fd, UI_SET_EVBIT, EV_SYN) == -1);
   res |= (ioctl(fd, UI_SET_RELBIT, REL_X) == -1);
   res |= (ioctl(fd, UI_SET_RELBIT, REL_Y) == -1);
-  res |= (ioctl(fd, UI_SET_EVBIT, EV_KEY) == -1);
-  res |= (ioctl(fd, UI_SET_KEYBIT, BTN_MOUSE) == -1);
   res |= (ioctl(fd, UI_SET_KEYBIT, BTN_LEFT) == -1);
   res |= (ioctl(fd, UI_SET_KEYBIT, BTN_RIGHT) == -1);
   res |= (ioctl(fd, UI_SET_KEYBIT, BTN_MIDDLE) == -1);
@@ -91,7 +93,7 @@ bool movem(int fd, int dx, int dy)
 bool send_click(int fd, int btn, bool pressed, struct timeval *ts)
 {
   int res = 0;
-  printf("Sending click %d@%d\n", btn, pressed);
+  //printf("Sending click %d@%d\n", btn, pressed);
   //btn ^= 3;
   struct input_event event;
   event.time = *ts;
@@ -109,7 +111,7 @@ bool send_click(int fd, int btn, bool pressed, struct timeval *ts)
 bool clickm(int fd, buttons_t btns, struct timeval ts)
 {
   static int prev_btns = 0;
-  printf("Click: %d / %d\n", prev_btns, btns);
+  //printf("Click: %d / %d\n", prev_btns, btns);
   int changed = btns ^ prev_btns;
   bool res = 0;
   
@@ -118,6 +120,9 @@ bool clickm(int fd, buttons_t btns, struct timeval ts)
   }
   if(changed & RIGHT_BUTTON){
     res = send_click(fd, BTN_RIGHT, (btns & RIGHT_BUTTON) != 0, &ts);
+  }
+  if(changed & MIDDLE_BUTTON){
+    res = send_click(fd, BTN_MIDDLE, (btns & MIDDLE_BUTTON) != 0, &ts);
   }
   prev_btns = btns;
   return (res == 0);

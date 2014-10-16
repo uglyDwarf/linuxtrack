@@ -27,7 +27,7 @@ void WebcamFtPrefs::on_WebcamFtFormats_activated(int index)
 {
   ui.WebcamFtResolutions->clear();
   if(currentId == QString::fromUtf8("None")){
-    std::cout<<"None!"<<std::endl;
+    //std::cout<<"None!"<<std::endl;
     return;
   }
   ui.WebcamFtResolutions->addItems(wc_info->getResolutions(index));

@@ -4,6 +4,10 @@
 #include <stdbool.h>
 #include <math.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct bez_def {
   double p0_x, p0_y;
   double p1_x, p1_y;
@@ -38,5 +42,9 @@ bool ltr_int_is_matrix_finite(double matrix[3][3]);
 double clamp_angle(double angle);
 void ltr_int_invert_matrix(double in[3][3], double out[3][3]);
 float ltr_int_nonlinfilt(float x, float y_minus_1, float filterfactor);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
