@@ -1,2 +1,0 @@
-http://download.microsoft.com/download/vc60pro/Update/2/W9XNT4/EN-US/VC6RedistSetup_deu.exe
-http://linuxtrack.eu/VC6RedistSetup_deu.exe
