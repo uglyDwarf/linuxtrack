@@ -122,6 +122,22 @@ else
   popd
 fi
 
+pushd ${BASE}
+if [ -f ${PREFIX}/bin/cabextract ]; then
+  echo 'Cabextract already installed!'
+else
+  tar xfz cabextract-1.4.tar.gz
+  pushd cabextract-1.4
+  CFLAGS="${COMMON_FLAGS}" \
+  CXXFLAGS="${COMMON_FLAGS}" \
+  LD_FLAGS="${COMMON_FLAGS}" \
+  CPPFLAGS="${COMMON_FLAGS}" \
+  ./configure --prefix=${PREFIX} 
+  make $PARALEL_MAKE >/dev/null
+  make install >/dev/null
+  popd
+fi
+
 #Build linuxtrack
 pushd "$LTR_BASE"
 #have to use this hack, because autoreconf on Mac doesn't pass -I ... to the aclocal
@@ -157,6 +173,7 @@ cp -R ${PREFIX}/lib/linuxtrack/xlinuxtrack9.0.so ${LIB_DIR}/xlinuxtrack9.0.dylib
 cp -R ${PREFIX}/lib/*.dylib ${LIB_DIR}
 cp -R ${PREFIX}/lib/linuxtrack/*.dylib ${LIB_DIR}
 cp -R ${PREFIX}/bin/qt_cam ${HELPER_DIR}
+cp -R ${PREFIX}/bin/cabextract ${HELPER_DIR}
 cp -R ${PREFIX}/share/OpenCV/*cascades ${RSRC_DIR}/linuxtrack
 cp -R ${WINE_PREFIX}/* ${WINE_DIR}
 

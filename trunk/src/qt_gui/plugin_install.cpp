@@ -16,7 +16,8 @@ PluginInstall::PluginInstall(const Ui::LinuxtrackMainForm &ui):
   state(DONE), gui(ui), inst(NULL), dlfw(NULL), dlmfc(NULL), 
   poem1(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/poem1.txt")),
   poem2(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/poem2.txt")),
-  gameData(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/gamedata.txt"))
+  gameData(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/gamedata.txt")),
+  mfc42u(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/mfc42u.dll"))
 {
 #ifndef DARWIN
   if(!QFile::exists(PREF.getDataPath(QString::fromUtf8("linuxtrack-wine.exe")))){
@@ -50,7 +51,7 @@ void PluginInstall::Connect()
   QObject::connect(gui.TIRViewsButton, SIGNAL(pressed()),
     this, SLOT(on_TIRViewsButton_pressed()));
   QObject::connect(inst, SIGNAL(finished(bool)),
-    this, SLOT(instFinished(bool)));
+    this, SLOT(finished(bool)));
 }
 
 void PluginInstall::on_TIRFWButton_pressed()
@@ -99,6 +100,14 @@ void PluginInstall::installLinuxtrackWine()
 
   inst->setEnv(QString::fromUtf8("WINEPREFIX"), prefix);
   inst->run(installerPath);
+#else
+  if(isTirFirmwareInstalled() && isMfc42uInstalled()){
+    QMessageBox::information(NULL, QString::fromUtf8("Firmware extraction successfull"),
+      QString::fromUtf8("Firmware extraction finished successfully!"
+      "\nNow you can install linuxtrack-wine.exe to the Wine bottle/prefix of your choice."
+      )
+    );
+  }
 #endif
   gui.LinuxtrackWineButton->setEnabled(true);
 }
