@@ -111,8 +111,10 @@ class Mfc42uExtractor : public Extractor
   void commenceExtraction(QString file);
   void enableButtons(bool enable);
   int stage;
+  QProcess *cabextract;
  private slots:
   void wineFinished(bool result);
+  void cabextractFinished(int exitCode, QProcess::ExitStatus status);
 };
 
 

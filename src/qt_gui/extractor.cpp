@@ -236,8 +236,11 @@ TirFwExtractor::TirFwExtractor(QWidget *parent) : Extractor(parent), et(NULL)
   }
 }
 
-Mfc42uExtractor::Mfc42uExtractor(QWidget *parent) : Extractor(parent)
+Mfc42uExtractor::Mfc42uExtractor(QWidget *parent) : Extractor(parent), cabextract(NULL)
 {
+  cabextract = new QProcess(this);
+  QObject::connect(cabextract, SIGNAL(finished(int, QProcess::ExitStatus)),
+                   this, SLOT(cabextractFinished(int, QProcess::ExitStatus)));
   QObject::connect(wine, SIGNAL(finished(bool)), this, SLOT(wineFinished(bool)));
   QObject::connect(dl, SIGNAL(done(bool, QString)), this, SLOT(downloadDone(bool, QString)));
   QObject::connect(dl, SIGNAL(msg(const QString &)), this, SLOT(progress(const QString &)));
@@ -343,6 +346,49 @@ void Mfc42uExtractor::wineFinished(bool result)
   }
 }
 
+void Mfc42uExtractor::cabextractFinished(int exitCode, QProcess::ExitStatus status)
+{
+  if((exitCode != 0) || (status != QProcess::NormalExit)){
+    QMessageBox::warning(this, QString::fromUtf8("Error running cabextract"),
+      QString::fromUtf8("There was an error extracting\n"
+      "the VC redistributable.\n"
+      "Please see the log for more details.\n\n")
+    );
+    enableButtons(true);
+    return;
+  }
+  switch(stage){
+    case 0:{
+        stage = 1;
+        QString file = winePrefix + QString::fromUtf8("/vcredist.exe");
+        progress(QString::fromUtf8("Extracting %1").arg(file));
+        QString c = PREF.getDataPath(QString::fromUtf8("/../../helper/cabextract %1").arg(file));
+        cabextract->start(c);  
+      }
+      break;
+    case 1:{
+        stage = 0;
+        destPath = PrefProxy::getRsrcDirPath() + QString::fromUtf8("/tir_firmware/mfc42u.dll");
+        QString srcPath = winePrefix + QString::fromUtf8("/mfc42u.dll");
+        if(!QFile::copy(srcPath, destPath)){
+          QMessageBox::warning(this, QString::fromUtf8("Error extracting mfc42u.dll"),
+            QString::fromUtf8("There was an error extracting mfc42.dll.\n"
+            "Please see the help to learn other ways\n"
+          "ways of obtaining this file.\n\n")
+          );
+        }else{
+          progress(QString::fromUtf8("Mfc42u.dll extracted successfuly"));
+        }
+        enableButtons(true);
+        emit finished(true);
+      }
+      break;
+    default:
+      break;
+  }
+}
+
+
 void TirFwExtractor::commenceExtraction(QString file)
 {
 #ifndef DARWIN
@@ -373,12 +419,18 @@ void TirFwExtractor::commenceExtraction(QString file)
 
 void Mfc42uExtractor::commenceExtraction(QString file)
 {
-  qDebug()<<winePrefix;
   stage = 0;
+#ifndef DARWIN
   progress(QString::fromUtf8("Initializing wine and extracting %1").arg(file));
   QString params = QString::fromUtf8("/C /Q /T:c:\\");
   wine->setEnv(QString::fromUtf8("WINEPREFIX"), winePrefix);
   wine->run(file, params);
+#else
+  progress(QString::fromUtf8("Starting cabextract to extract '%1' in '%2'.").arg(file).arg(winePrefix));
+  QString c = PREF.getDataPath(QString::fromUtf8("/../../helper/cabextract %1").arg(file));
+  cabextract->setWorkingDirectory(winePrefix);
+  cabextract->start(c);
+#endif
 }
 
 void Extractor::on_BrowseInstaller_pressed()
@@ -467,13 +519,6 @@ void TirFwExtractor::threadFinished()
         QFile::remove(l);
       }
     QFile::link(destPath, l);
-    QMessageBox::information(NULL, QString::fromUtf8("Firmware extraction successfull"),
-      QString::fromUtf8("Firmware extraction finished successfuly!"
-#ifdef DARWIN
-      "\nNow you can install linuxtrack-wine.exe to the Wine bottle/prefix of your choice."
-#endif
-      )
-    );
   }else{
     QMessageBox::warning(NULL, QString::fromUtf8("Firmware extraction unsuccessfull"),
       QString::fromUtf8("Some of the files needed to fully utilize TrackIR were not "
