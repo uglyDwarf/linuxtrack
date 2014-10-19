@@ -33,13 +33,6 @@ extern "C" {
 #endif
 
 
-int linuxtrack_init(const char *cust_section);
-int linuxtrack_shutdown(void);
-int linuxtrack_suspend(void);
-int linuxtrack_wakeup(void);
-int linuxtrack_recenter(void);
-const char *linuxtrack_explain(int err);
-
 typedef enum {
   LINUXTRACK_OK = 0,
   INITIALIZING = 1,
@@ -54,6 +47,12 @@ typedef enum {
   err_PROCESSING_FRAME = -5
 }linuxtrack_state_type;
 
+linuxtrack_state_type linuxtrack_init(const char *cust_section);
+linuxtrack_state_type linuxtrack_shutdown(void);
+linuxtrack_state_type linuxtrack_suspend(void);
+linuxtrack_state_type linuxtrack_wakeup(void);
+linuxtrack_state_type linuxtrack_recenter(void);
+const char *linuxtrack_explain(linuxtrack_state_type err);
 linuxtrack_state_type linuxtrack_get_tracking_state(void);
 
 int linuxtrack_get_pose(float *heading,
@@ -82,7 +81,7 @@ typedef struct{
   float raw_ty;
   float raw_tz;
   uint8_t status;
-} linuxtrack_pose_t; 
+} linuxtrack_pose_t;
 
 int linuxtrack_get_pose_full(linuxtrack_pose_t *pose, float blobs[], int num_blobs, int *blobs_read);
 #ifdef __cplusplus
