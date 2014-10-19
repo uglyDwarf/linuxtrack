@@ -552,9 +552,9 @@ static void setup_signals(void)
 static void setup_ltr(void)
 {
 	logmsg("Initializing LinuxTrack library");
-
-	if (linuxtrack_init(Args.ltr_profile) < 0)
-		xerror(1, 0, "LinuxTrack library failure");
+        linuxtrack_state_type res = linuxtrack_init(Args.ltr_profile);
+	if (res < LINUXTRACK_OK)
+		xerror(1, 0, linuxtrack_explain(res));
 
 	int timeout = atoi(Args.ltr_timeout);
 

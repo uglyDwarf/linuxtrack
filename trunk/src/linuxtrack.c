@@ -124,7 +124,7 @@ static void linuxtrack_log(const char *format, ...)
   va_end(ap);
 }
 
-int linuxtrack_shutdown(void)
+linuxtrack_state_type linuxtrack_shutdown(void)
 {
   int res;
   if(ltr_shutdown_fun == NULL){
@@ -149,7 +149,7 @@ int linuxtrack_shutdown(void)
   return res;
 }
 
-int linuxtrack_suspend(void)
+linuxtrack_state_type linuxtrack_suspend(void)
 {
   if(ltr_suspend_fun == NULL){
     return err_NOT_INITIALIZED;
@@ -157,7 +157,7 @@ int linuxtrack_suspend(void)
   return ltr_suspend_fun();
 }
 
-int linuxtrack_wakeup(void)
+linuxtrack_state_type linuxtrack_wakeup(void)
 {
   if(ltr_wakeup_fun == NULL){
     return err_NOT_INITIALIZED;
@@ -165,7 +165,7 @@ int linuxtrack_wakeup(void)
   return ltr_wakeup_fun();
 }
 
-int linuxtrack_recenter(void)
+linuxtrack_state_type linuxtrack_recenter(void)
 {
   if(ltr_recenter_fun == NULL){
     return err_NOT_INITIALIZED;
