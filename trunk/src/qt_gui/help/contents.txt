@@ -8,5 +8,5 @@
 "extractor.htm" "NP Firmware Extractor"
 "xpl_setup.htm" "XPlane plugin setup"
 "mickey.htm" "Virtual mouse setup"
-"interface.htm" "Linutrack Interface"
-"wine.htm" "Wine ganes support"
+"interface.htm" "Linuxtrack Interface"
+"wine.htm" "Wine games support"
