@@ -13,11 +13,12 @@
 #endif
 
 PluginInstall::PluginInstall(const Ui::LinuxtrackMainForm &ui):
-  state(DONE), gui(ui), inst(NULL), dlfw(NULL), dlmfc(NULL), 
+  state(DONE), gui(ui), inst(NULL), dlfw(NULL), dlmfc(NULL),
   poem1(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/poem1.txt")),
   poem2(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/poem2.txt")),
   gameData(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/gamedata.txt")),
-  mfc42u(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/mfc42u.dll"))
+  mfc42u(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/mfc42u.dll")),
+  tirViews(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/TIRViews.dll"))
 {
 #ifndef DARWIN
   if(!QFile::exists(PREF.getDataPath(QString::fromUtf8("linuxtrack-wine.exe")))){
@@ -56,7 +57,7 @@ void PluginInstall::Connect()
 
 void PluginInstall::on_TIRFWButton_pressed()
 {
-  state = TIR_FW_ONLY;
+  state = TIR_FW;
   tirFirmwareInstall();
 }
 
@@ -68,15 +69,23 @@ void PluginInstall::on_TIRViewsButton_pressed()
 
 void PluginInstall::installWinePlugin()
 {
-  state = TIR_FW;
-  tirFirmwareInstall();
+  if(!isTirFirmwareInstalled()){
+    state = TIR_FW;
+    tirFirmwareInstall();
+  }else if(!isMfc42uInstalled()){
+    state = MFC;
+    mfc42uInstall();
+  }else{
+    installLinuxtrackWine();
+    state = LTR_W;
+  }
 }
 
 
 
 bool PluginInstall::isTirFirmwareInstalled()
 {
-  return QFile::exists(poem1) && QFile::exists(poem2) && QFile::exists(gameData);
+  return QFile::exists(poem1) && QFile::exists(poem2) && QFile::exists(gameData) && QFile::exists(tirViews);
 }
 
 bool PluginInstall::isMfc42uInstalled()
@@ -114,9 +123,6 @@ void PluginInstall::installLinuxtrackWine()
 
 void PluginInstall::tirFirmwareInstall()
 {
-  if(isTirFirmwareInstalled()){
-    finished(true);
-  }
   if(dlfw == NULL){
     dlfw = new TirFwExtractor();
     QObject::connect(dlfw, SIGNAL(finished(bool)),
@@ -127,12 +133,11 @@ void PluginInstall::tirFirmwareInstall()
 
 void PluginInstall::mfc42uInstall()
 {
-  if(isMfc42uInstalled()){
-    finished(true);
-  }
   if(!isTirFirmwareInstalled()){
-    //QMessageBox::(QString::fromUtf8("Install TrackIR firmware first!"));
-    state = DONE;
+    QMessageBox::warning(NULL, QString::fromUtf8("Mfc42u install"),
+                         QString::fromUtf8("Install TrackIR firmware first!"));
+    state = TIR_FW;
+    tirFirmwareInstall();
     return;
   }
   if(dlmfc == NULL){

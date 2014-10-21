@@ -36,6 +36,7 @@ class PluginInstall : public QObject
   const QString poem2;
   const QString gameData;
   const QString mfc42u;
+  const QString tirViews;
 };
 
 
