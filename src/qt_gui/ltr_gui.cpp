@@ -60,7 +60,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), ds(NULL),
   grd = new Guardian(this);
   me = new ModelEdit(grd, this);
   lv = new LogView();
-  pi = new PluginInstall(ui);
+  pi = new PluginInstall(ui, this);
   ps = new ProfileSelector(this);
   QObject::connect(&STATE, SIGNAL(stateChanged(linuxtrack_state_type)),
                    this, SLOT(trackerStateHandler(linuxtrack_state_type)));
@@ -68,7 +68,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), ds(NULL),
                    this, SLOT(logsPackaged(int, QProcess::ExitStatus)));
   ui.ModelEditSite->addWidget(me);
   ui.ProfileSetupSite->addWidget(ps);
-  
+
   gui_settings = new QSettings(QString::fromUtf8("linuxtrack"), QString::fromUtf8("ltr_gui"));
   showWindow = new LtrGuiForm(ui, *gui_settings);
   helper = new LtrDevHelp();
@@ -88,7 +88,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), ds(NULL),
   helper->move(gui_settings->value(QString::fromUtf8("pos"), QPoint(0, 0)).toPoint());
   gui_settings->endGroup();
   HelpViewer::LoadPrefs(*gui_settings);
-  
+
   ui.LegacyPose->setChecked(ltr_int_use_alter());
   ui.LegacyRotation->setChecked(ltr_int_use_oldrot());
   ui.TransRotDisable->setChecked(!ltr_int_do_tr_align());
@@ -183,6 +183,7 @@ void LinuxtrackGui::closeEvent(QCloseEvent *event)
   helper->close();
   lv->close();
   ps->close();
+  pi->close();
   event->accept();
 }
 

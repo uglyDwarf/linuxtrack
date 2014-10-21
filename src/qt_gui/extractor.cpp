@@ -250,6 +250,7 @@ Mfc42uExtractor::Mfc42uExtractor(QWidget *parent) : Extractor(parent), cabextrac
   QString sources = QString::fromUtf8("sources_mfc.txt");
   readSources(sources);
   ui.AnalyzeSourceButton->setVisible(false);
+  ui.BrowseDir->setEnabled(false);
 }
 
 Extractor::~Extractor()
@@ -554,7 +555,6 @@ void TirFwExtractor::enableButtons(bool enable)
 void Mfc42uExtractor::enableButtons(bool enable)
 {
   ui.BrowseInstaller->setEnabled(enable);
-  ui.BrowseDir->setEnabled(false);
   ui.DownloadButton->setEnabled(enable);
   ui.QuitButton->setEnabled(enable);
 }

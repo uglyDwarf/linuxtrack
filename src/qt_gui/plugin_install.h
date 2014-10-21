@@ -12,14 +12,15 @@ class PluginInstall : public QObject
 {
   Q_OBJECT
  public:
-  PluginInstall(const Ui::LinuxtrackMainForm &ui);
+  PluginInstall(const Ui::LinuxtrackMainForm &ui, QObject *parent = 0);
   ~PluginInstall();
+  void close();
  private slots:
   void installWinePlugin();
   void tirFirmwareInstall();
   void installLinuxtrackWine();
   void on_TIRFWButton_pressed();
-  void on_TIRViewsButton_pressed();
+  //void on_TIRViewsButton_pressed();
   void finished(bool ok);
  private:
   enum state{TIR_FW, MFC, LTR_W, DONE, TIR_FW_ONLY, MFC_ONLY} state;

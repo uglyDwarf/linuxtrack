@@ -12,7 +12,7 @@
   #include "../../config.h"
 #endif
 
-PluginInstall::PluginInstall(const Ui::LinuxtrackMainForm &ui):
+PluginInstall::PluginInstall(const Ui::LinuxtrackMainForm &ui, QObject *parent):QObject(parent),
   state(DONE), gui(ui), inst(NULL), dlfw(NULL), dlmfc(NULL),
   poem1(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/poem1.txt")),
   poem2(PREF.getRsrcDirPath() + QString::fromUtf8("/tir_firmware/poem2.txt")),
@@ -30,13 +30,25 @@ PluginInstall::PluginInstall(const Ui::LinuxtrackMainForm &ui):
   Connect();
 }
 
+void PluginInstall::close()
+{
+  if(dlfw != NULL){
+    dlfw->close();
+  }
+  if(dlmfc != NULL){
+    dlmfc->close();
+  }
+}
+
 PluginInstall::~PluginInstall()
 {
   if(dlfw != NULL){
+    dlfw->close();
     delete dlfw;
     dlfw = NULL;
   }
   if(dlmfc != NULL){
+    dlmfc->close();
     delete dlmfc;
     dlmfc = NULL;
   }
@@ -49,8 +61,8 @@ void PluginInstall::Connect()
     this, SLOT(installWinePlugin()));
   QObject::connect(gui.TIRFWButton, SIGNAL(pressed()),
     this, SLOT(on_TIRFWButton_pressed()));
-  QObject::connect(gui.TIRViewsButton, SIGNAL(pressed()),
-    this, SLOT(on_TIRViewsButton_pressed()));
+//  QObject::connect(gui.TIRViewsButton, SIGNAL(pressed()),
+//    this, SLOT(on_TIRViewsButton_pressed()));
   QObject::connect(inst, SIGNAL(finished(bool)),
     this, SLOT(finished(bool)));
 }
@@ -61,11 +73,13 @@ void PluginInstall::on_TIRFWButton_pressed()
   tirFirmwareInstall();
 }
 
+/*
 void PluginInstall::on_TIRViewsButton_pressed()
 {
   state = MFC_ONLY;
   mfc42uInstall();
 }
+*/
 
 void PluginInstall::installWinePlugin()
 {
@@ -180,5 +194,5 @@ void PluginInstall::enableButtons(bool ena)
 {
   gui.LinuxtrackWineButton->setEnabled(ena);
   gui.TIRFWButton->setEnabled(ena);
-  gui.TIRViewsButton->setEnabled(ena);
+  //gui.TIRViewsButton->setEnabled(ena);
 }
