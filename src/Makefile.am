@@ -329,7 +329,7 @@ qt_gui/help/Webcam.png qt_gui/help/Extractor.png qt_gui/help/XplInstall.png \
 qt_gui/help/DetAxis.png qt_gui/help/JoyButtonsSetup4.png qt_gui/help/JoyButtonsSetup5.png \
 qt_gui/help/3dPreview.png qt_gui/help/ModelCreate.png qt_gui/help/JoyButtonsSetup3.png \
 qt_gui/help/Tracking.png qt_gui/help/JoyButtonsSetup2.png qt_gui/help/Model.png qt_gui/help/hall_of_fame.htm \
-qt_gui/help/Trackir.png qt_gui/help/Controller.png qt_gui/help/Facetracker.png qt_gui/help/mickey.htm \
+qt_gui/help/Trackir.png qt_gui/help/Controller.png qt_gui/help/Facetracker.png qt_gui/help/mickey.htm qt_gui/help/wine.htm \
 qt_gui/cap_1.png qt_gui/cap_np.png qt_gui/clip_1.png qt_gui/clip_np.png qt_gui/face.svg qt_gui/face.png qt_gui/single.png \
 99-Mickey.rules qt_gui/help/xpl_setup.htm qt_gui/wine_warn.cpp qt_gui/wine_warn.h qt_gui/wine_warn.ui \
 wii_server/wii_server.cpp wii_server/wiimote.h wii_server/wiimote.cpp wii_server/wii_server.pro.in \

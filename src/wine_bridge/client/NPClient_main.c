@@ -342,11 +342,11 @@ int __stdcall NPCLIENT_NP_RegisterProgramProfileID(unsigned short id)
         table[7] = (unsigned char)(gd.key2&0xff); gd.key2 >>= 8;
       }
     }
-    if(linuxtrack_init(gd.name) != 0){
+    if(linuxtrack_init(gd.name) < LINUXTRACK_OK){
       return 1;
     }
   }else{
-    if(!linuxtrack_init("Default")){
+    if(linuxtrack_init("Default") < LINUXTRACK_OK){
       return 1;
     }
   }

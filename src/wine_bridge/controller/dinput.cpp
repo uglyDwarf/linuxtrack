@@ -180,7 +180,7 @@ bool kbi_init(HWND hwnd)
   // --- End of DirectInput initialization ---
   read_prefs();
   send_keys_desc();
-  if(linuxtrack_init("Default") != 0){
+  if(linuxtrack_init("Default") < LINUXTRACK_OK){
     MessageBox(NULL, "Can't start linuxtrack!!!", "Controler", MB_OK);
     exit(1);
   }
