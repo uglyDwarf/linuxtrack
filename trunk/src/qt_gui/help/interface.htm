@@ -42,7 +42,7 @@ Pair <strong>linuxtrack_suspend</strong> and <strong>linuxtrack_wakeup</strong> 
 Function <strong>linuxtrack_recenter</strong> allows user to recenter the tracker when needed.
 <p>
 
-Function <strong>linuxtrack_get_tracking_state</strong> returns current state of the Linuxtrack's interface; the tracker itself runs in a different process and commands for it are delivered asynchronously. For that reason you might want to query tracker's state to see if your command was performed yet or not. To convert the state to a meaningfull string, function <strong>linuxtrack_explain</strong>
+Function <strong>linuxtrack_get_tracking_state</strong> returns current state of the Linuxtrack's interface; the tracker itself runs in a different process and commands for it are delivered asynchronously. For that reason you might want to query tracker's state to see if your command was performed yet or not. To convert the state id to a meaningfull string use function <strong>linuxtrack_explain</strong>.
 
 <p>
 
@@ -93,7 +93,7 @@ Return value indicates the tracker state according to the linuxtrack_state_type 
 <strong><pre>
 const char *linuxtrack_explain(linuxtrack_state_type err);
 </pre></strong>
-Returns a string describing the state.
+Returns a string describing the err state.
 <p>
 
 <strong><pre>
@@ -149,7 +149,7 @@ The blobs array should contain 3x the num_blobs elements (each blob has the x,y 
 At the moment Linuxtrack reports up to 10 blobs; this limit can be increased only by its recompilation (ltlib.h, value of MAX_BLOBS macro). Note however that Wiimote is capable of reporting only 4 blobs (hardware limitation)!
 
 <h1>X-Plane plugin interface</h1>
-In order to allow other X-Plane plugins to utilize Linuxtrack, Linuxtrack's X-Plane plugin exports the following datarefs:
+In order to allow other X-Plane plugins to utilize Linuxtrack, Linuxtrack's X-Plane plugin (xlinuxtrack) exports the following datarefs:
 
 <strong><pre>
 linuxtrack/pilots_head_x
@@ -167,7 +167,7 @@ There is one more dataref:
 linuxtrack/enable_head_control
 </pre></strong>
 
-With this integer dataref, zero means xlinuxtrack doesn't controll view, nonzero value means it does controll the view.
+With this integer dataref, you can enable or disable head controll by xlinuxtrack. Zero means xlinuxtrack doesn't controll view, nonzero value means it does controll the view.
 
 
 <h1>Hello World examples</h1>

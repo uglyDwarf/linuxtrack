@@ -12,6 +12,8 @@
 //First 5 bytes is MD5 hash of "NaturalPoint"
 static uint8_t secret_key[] = {0x0e, 0x9a, 0x63, 0x71, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 static uint8_t S[256] = {0};
+static uint8_t rc4_i = 0;
+static uint8_t rc4_j = 0;
 
 static char *decoded = NULL;
 
@@ -31,19 +33,17 @@ static void ksa(uint8_t key[], size_t len)
     S[i] = S[j];
     S[j] = tmp;
   }
+  rc4_i = rc4_j = 0;
 }
 
 static uint8_t rc4()
 {
-  static uint8_t i = 0;
-  static uint8_t j = 0;
-
-  i += 1;
-  j += S[i];
-  uint8_t tmp = S[i];
-  S[i] = S[j];
-  S[j] = tmp;
-  return S[(S[i] + S[j]) % 256];
+  rc4_i += 1;
+  rc4_j += S[rc4_i];
+  uint8_t tmp = S[rc4_i];
+  S[rc4_i] = S[rc4_j];
+  S[rc4_j] = tmp;
+  return S[(S[rc4_i] + S[rc4_j]) % 256];
 }
 
 static bool decrypt_file(const char *fname, bool from_update)
@@ -64,7 +64,7 @@ static bool decrypt_file(const char *fname, bool from_update)
     printf("Cannot stat file '%s'\n", fname);
     return false;
   }
-  
+
   if(from_update){
     if(fread(&header, sizeof(uint32_t), 5, inp) != 5){
       fclose(inp);
@@ -85,11 +85,11 @@ static bool decrypt_file(const char *fname, bool from_update)
   (void) len;
   for(i = 0; i < datlen; ++i) decoded[i] ^= rc4();
   fclose(inp);
-  
+
   //inp = fopen("tmp.dump", "w");
   //fwrite(decoded, 1, datlen, inp);
   //fclose(inp);
-  
+
   return true;
 }
 
@@ -125,23 +125,23 @@ bool get_game_data(const char *input_fname, const char *output_fname, bool from_
     ltr_int_log_message("Can't process the data file '%s'!\n", input_fname);
     return false;
   }
-  
+
   mxml_node_t *game;
   const char *name;
   const char *id;
-  for(game = mxmlFindElement(tree, tree, "Game", NULL, NULL, MXML_DESCEND); 
+  for(game = mxmlFindElement(tree, tree, "Game", NULL, NULL, MXML_DESCEND);
       game != NULL;
       game =  mxmlFindElement(game, tree, "Game", NULL, NULL, MXML_DESCEND)){
     name = mxmlElementGetAttr(game, "Name");
     id = mxmlElementGetAttr(game, "Id");
-      
+
     mxml_node_t *appid = mxmlFindElement(game, game, "ApplicationID", NULL, NULL, MXML_DESCEND);
     if(appid == NULL){
       fprintf(outfile, "%s \"%s\"\n", id, name);
     }else{
       fprintf(outfile, "%s \"%s\" (%s)\n", id, name, appid->child->value.text.string);
     }
-  }  
+  }
   fclose(outfile);
   game_data_close();
   return true;

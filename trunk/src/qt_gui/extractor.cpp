@@ -12,6 +12,8 @@
 #include "game_data.h"
 #include "ltr_gui_prefs.h"
 #include "help_view.h"
+#include "utils.h"
+
 
 #ifdef HAVE_CONFIG_H
   #include "../../config.h"
@@ -339,6 +341,7 @@ void Mfc42uExtractor::wineFinished(bool result)
         }
         enableButtons(true);
         emit finished(true);
+        hide();
       }
       break;
     default:
@@ -363,7 +366,7 @@ void Mfc42uExtractor::cabextractFinished(int exitCode, QProcess::ExitStatus stat
         QString file = winePrefix + QString::fromUtf8("/vcredist.exe");
         progress(QString::fromUtf8("Extracting %1").arg(file));
         QString c = PREF.getDataPath(QString::fromUtf8("/../../helper/cabextract %1").arg(file));
-        cabextract->start(c);  
+        cabextract->start(c);
       }
       break;
     case 1:{
@@ -381,6 +384,7 @@ void Mfc42uExtractor::cabextractFinished(int exitCode, QProcess::ExitStatus stat
         }
         enableButtons(true);
         emit finished(true);
+        hide();
       }
       break;
     default:
@@ -507,6 +511,7 @@ void TirFwExtractor::on_AnalyzeSourceButton_pressed()
 void Extractor::progress(const QString &msg)
 {
   ui.LogView->appendPlainText(msg);
+  ltr_int_log_message(msg.toUtf8().constData());
 }
 
 void TirFwExtractor::threadFinished()
@@ -526,6 +531,7 @@ void TirFwExtractor::threadFinished()
     );
   }
   emit finished(everything);
+  hide();
 }
 
 
