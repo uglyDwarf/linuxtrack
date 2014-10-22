@@ -366,8 +366,9 @@ void Mfc42uExtractor::cabextractFinished(int exitCode, QProcess::ExitStatus stat
         stage = 1;
         QString file = winePrefix + QString::fromUtf8("/vcredist.exe");
         progress(QString::fromUtf8("Extracting %1").arg(file));
-        QString c = PREF.getDataPath(QString::fromUtf8("/../../helper/cabextract %1").arg(file));
-        cabextract->start(c);
+        QString c = PREF.getDataPath(QString::fromUtf8("/../../helper/cabextract"));
+        QString command = QString::fromUtf8("\"%1\" \"%2\"").arg(c).arg(file);
+        cabextract->start(command);
       }
       break;
     case 1:{
@@ -432,9 +433,10 @@ void Mfc42uExtractor::commenceExtraction(QString file)
   wine->run(file, params);
 #else
   progress(QString::fromUtf8("Starting cabextract to extract '%1' in '%2'.").arg(file).arg(winePrefix));
-  QString c = PREF.getDataPath(QString::fromUtf8("/../../helper/cabextract %1").arg(file));
+  QString c = PREF.getDataPath(QString::fromUtf8("/../../helper/cabextract"));
+  QString command = QString::fromUtf8("\"%1\" \"%2\"").arg(c).arg(file);
   cabextract->setWorkingDirectory(winePrefix);
-  cabextract->start(c);
+  cabextract->start(command);
 #endif
 }
 
