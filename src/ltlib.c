@@ -66,7 +66,7 @@ static char *ltr_int_init_helper(const char *cust_section, bool standalone)
 
 linuxtrack_state_type ltr_get_tracking_state(void);
 
-int ltr_init(const char *cust_section)
+linuxtrack_state_type ltr_init(const char *cust_section)
 {
   if(ltr_int_init_helper(cust_section, true) != NULL){
     return ltr_get_tracking_state();
@@ -144,7 +144,7 @@ int ltr_get_pose_full(linuxtrack_pose_t *pose, float blobs[], int num_blobs, int
   }
 }
 
-int ltr_suspend(void)
+linuxtrack_state_type ltr_suspend(void)
 {
   struct ltr_comm *com = mmm.data;
   if((!initialized) || (com == NULL)) return err_NOT_INITIALIZED;
@@ -154,7 +154,7 @@ int ltr_suspend(void)
   return LINUXTRACK_OK;
 }
 
-int ltr_wakeup(void)
+linuxtrack_state_type ltr_wakeup(void)
 {
   struct ltr_comm *com = mmm.data;
   if((!initialized) || (com == NULL)) return err_NOT_INITIALIZED;
@@ -164,7 +164,7 @@ int ltr_wakeup(void)
   return LINUXTRACK_OK;
 }
 
-int ltr_shutdown(void)
+linuxtrack_state_type ltr_shutdown(void)
 {
   struct ltr_comm *com = mmm.data;
   if((!initialized) || (com == NULL)) return err_NOT_INITIALIZED;
@@ -176,7 +176,7 @@ int ltr_shutdown(void)
   return LINUXTRACK_OK;
 }
 
-int ltr_recenter(void)
+linuxtrack_state_type ltr_recenter(void)
 {
   struct ltr_comm *com = mmm.data;
   if((!initialized) || (com == NULL)) return err_NOT_INITIALIZED;
@@ -212,7 +212,7 @@ void ltr_log_message(const char *format, ...)
 
 const char *ltr_explain(linuxtrack_state_type status)
 {
-  char *res = NULL;
+  const char *res = NULL;
   switch(status){
     case INITIALIZING:
       res = "Linuxtrack is initializing.";

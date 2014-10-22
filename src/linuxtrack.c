@@ -40,8 +40,8 @@ THE SOFTWARE.
 
 #define BLOB_ELEMENTS 3
 
-typedef int (*ltr_gp_t)(void);
-typedef int (*ltr_init_t)(const char *cust_section);
+typedef linuxtrack_state_type (*ltr_gp_t)(void);
+typedef linuxtrack_state_type (*ltr_init_t)(const char *cust_section);
 typedef int (*ltr_get_pose_t)(float *heading,
                          float *pitch,
                          float *roll,
@@ -126,7 +126,7 @@ static void linuxtrack_log(const char *format, ...)
 
 linuxtrack_state_type linuxtrack_shutdown(void)
 {
-  int res;
+  linuxtrack_state_type res;
   if(ltr_shutdown_fun == NULL){
     return err_NOT_INITIALIZED;
   }
@@ -371,7 +371,7 @@ static linuxtrack_state_type linuxtrack_load_library()
   return LINUXTRACK_OK;
 }
 
-int linuxtrack_init(const char *cust_section)
+linuxtrack_state_type linuxtrack_init(const char *cust_section)
 {
   linuxtrack_state_type res = linuxtrack_load_library();
   if(res < LINUXTRACK_OK){
@@ -385,7 +385,7 @@ const char *linuxtrack_explain(linuxtrack_state_type status)
   if(ltr_explain_fun != NULL){
     return ltr_explain_fun(status);
   }
-  char *res = NULL;
+  const char *res = NULL;
   switch(status){
     case INITIALIZING:
       res = "Linuxtrack is initializing.";
@@ -403,7 +403,7 @@ const char *linuxtrack_explain(linuxtrack_state_type status)
       res = "Linuxtrack function was called without proper initialization.";
       break;
     case err_SYMBOL_LOOKUP:
-      res = "Internal error (symbol lookup). Please file an issue at Linuxtrack project page.";
+      res = "Internal error (symbol lookup). Please file an issue at http://linuxtrack.eu";
       break;
     case err_NO_CONFIG:
       res = "Linuxtrack config not found. If you have installed Linuxtrack,\n"
@@ -414,10 +414,10 @@ const char *linuxtrack_explain(linuxtrack_state_type status)
             "run ltr_gui from the new location, save preferences and try again.";
       break;
     case err_PROCESSING_FRAME:
-      res = "Internal error (frame processing). Please file an issue at Linuxtrack project page.";
+      res = "Internal error (frame processing). Please file an issue at http://linuxtrack.eu";
       break;
     default:
-      printf("UNKNOWN status code. Please file an issue at Linuxtrack project page.\n");
+      printf("UNKNOWN status code. Please file an issue at http://linuxtrack.eu\n");
      break;
   }
   return res;
