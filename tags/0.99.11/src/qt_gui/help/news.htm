@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+  <title>What's new?</title>
+  <meta name="generator" content="Bluefish 2.2.3" >
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>What's new?</h1>
+This page summarizes the most notable changes in the Linuxtrack software.
+<p>
+<h2>Linuxtrack 0.99.10</h2>
+<h3>SDK overhaul</h3>
+The SDK was overhauled to make it more programmer friendly; Linuxtrack GUI now contains SDK documentation and also two example programs are provided to make Linuxtrack's deployment easier. Another change is addition of "advanced" interface, allowing you to use Linuxtrack as a data source for your own "computer vision" applications.
+<h3>Model visualization</h3>
+Each model type has its own distinct signature picture now, that should prevent problems caused by a wrong model selection.
+<h2>Linuxtrack 0.99.8</h2>
+<h3>SmartNav3 support</h3>
+SmartNav3 support was added; it is still in an early phase, but it should be stable.
+<h2>Linuxtrack 0.99.6</h2>
+<h3>FreeTrack Client for Wine</h3>
+FreeTrack client was added to Wine bridge, allowing games using this interface to utilize Linuxtrack.
+<h2>Linuxtrack 0.99.3</h2>
+<h3>Versioning change</h3>
+I decided to change the versioning scheme - instead of 1.0 beta3 to 0.99.3. Hopefully it will make
+packaging a little bit easier.
+<h3>New Mac OS X package</h3>
+After a long pause, caused by deep changes throughout the code and followed by a sudden departure 
+of my good old Mac Mini, I've created new Mac OS X package. 
+<p>Please note, that I had to discontinue 
+support for Mac OS X 10.4 Tiger and 10.5 Leopard, along with Power PC platform - the new packages will
+be targeted towards Mac OS X 10.6 Snow Leopard and up.
+<h3>Improved 3D preview</h3>
+The 3D preview model has been reworked - the cockpit should look much better now and also the
+sky sphere should add a bit to the impression. Also the new visualization is much less resource 
+hungry and should run well on low power devices (Atom powered netbooks, ...).
+<h3>X-Plane plug-in cooperates with Pilot View</h3>
+X-Plane plug-in now cooperates with Sandy Barbour's Pilot View plug-in. Please reinstall the X-Plane 
+plug-in to get this new functionality and don't forget to enable external data usage in Pilot View.
+Please note, that you need Pilot View 1.70 to have this feature available.
+
+<h2>Linuxtrack 1.0 Beta 2</h2>
+<h3>Overhauled the pose computing</h3>
+When using three point models, you can tweak them to minimize the unwanted viewpoint movement when
+panning.
+<h3>Wine bridge fix</h3>
+Fixed problems in the Wine bridge that prevented Condor soaring simulator and Falcon AF 
+to respond to the tracking. If you experience such a problem, please reinstall the Linuxtrack-Wine plug-in.
+
+<h2>Linuxtrack 1.0 Beta 1</h2>
+This Linuxtrack release is the beginning of the Linuxtrack 1.0 Beta run. 
+
+<h3>Linuxtrack requires Wine now</h3>
+If you use any device from NP (TrackIR, SmartNav4), you have to have Wine installed in order to get
+a firmware needed to run the device.
+<p>
+When the firmware is extracted, you might find TrackIR icon on your desktop - it is perfectly safe 
+to remove it.
+<p>
+Technical info: Wine is being used to unpack windows TrackIR driver and extract the firmware from it.
+The extraction takes place in a temporary Wine prefix, that is removed when done.
+
+<h3>64bit X-Plane plug-in</h3>
+Linuxtrack now contains 64bit enabled X-Plane plug-in - it should work in both X-Plane 9 and X-Plane 10
+32 and 64 bit.
+
+<h3>Linuxtrack supports Wine games now</h3>
+By installing Wine plug-in, you enable Linuxtrack usage in TrackIR enabled windows games.
+For now, 32bit games are supported only, but 64bit will be worked on soon.
+
+<h3>Linuxtrack preferences directory changed</h3>
+Linuxtrack now stores its preferences in your home directory, under .config/linuxtrack directory.
+That includes TrackIR firmware too...
+
+<h3>Mickey, the virtual mouse</h3>
+Linuxtrack contains a virtual mouse application called mickey. It allows you to use head-tracking
+instead of, or along with conventional mouse. For the moment, mickey works on Linux only, but Mac OS X
+version is planned soon.
+
+</body>
+</html>
