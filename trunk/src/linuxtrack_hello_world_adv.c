@@ -1,18 +1,22 @@
 #include <stdio.h>
-#include <stdbool.h>
 #include <unistd.h>
+#include <stdbool.h>
 #include <linuxtrack.h>
 
 bool intialize_tracking(void)
 {
-  //Initialize the tracking using Default profile
-  linuxtrack_init(NULL);
-  
-  int timeout = 0;
   linuxtrack_state_type state;
+  //Initialize the tracking using Default profile
+  state = linuxtrack_init(NULL);
+  if(state < LINUXTRACK_OK){
+    printf("%s\n", linuxtrack_explain(state));
+    return false;
+  }
+  int timeout = 0;
   //wait up to 20 seconds for the tracker initialization
   while(timeout < 200){
     state = linuxtrack_get_tracking_state();
+    printf("Status: %s\n", linuxtrack_explain(state));
     if((state == RUNNING) || (state == PAUSED)){
       return true;
     }
@@ -23,7 +27,6 @@ bool intialize_tracking(void)
   printf("Make sure it is installed and configured correctly.\n");
   return false;
 }
-
 
 int main(int argc, char *argv[])
 {
