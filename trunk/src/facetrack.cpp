@@ -3,7 +3,9 @@
 #include "facetrack.h"
 #include "wc_driver_prefs.h"
 
-#include <cv.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/objdetect/objdetect.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include <pthread.h>
 #include <string.h>
@@ -30,7 +32,7 @@ static float last_face_w = 0.0f;
 static float last_face_h = 0.0f;
 
 static std::vector<cv::Rect> faces;
-static cv::Rect lastCandidate;    
+static cv::Rect lastCandidate;
 
 //static int frame_size = 0;
 static int frame_w = 0;
@@ -43,14 +45,14 @@ static float expFiltFactor = 0.2;
 static bool init = true;
 
 
-float ltr_int_expfilt(float x, 
+float ltr_int_expfilt(float x,
               float y_minus_1,
               float filterfactor);
 
 void ltr_int_find_faces(cv::Mat &img, float factor)
 {
   cv::Size s(lastCandidate.width*roi_factor, lastCandidate.height*roi_factor);
-  cv::Rect new_roi(lastCandidate.x - s.width, lastCandidate.y - s.height, 
+  cv::Rect new_roi(lastCandidate.x - s.width, lastCandidate.y - s.height,
     lastCandidate.width + 2 * s.width, lastCandidate.height + 2 * s.height);
   new_roi &= cv::Rect(0,0,img.cols, img.rows);
   cv::Mat roi(img, new_roi);
@@ -100,7 +102,7 @@ void ltr_int_detect(cv::Mat& img)
       current_scale = scale;
       break;
   }
-  
+
   double area = -1;
   const cv::Rect *candidate = NULL;
   for(std::vector<cv::Rect>::const_iterator i = faces.begin(); i != faces.end(); ++i){
@@ -112,17 +114,17 @@ void ltr_int_detect(cv::Mat& img)
   if(candidate != NULL){
     lastCandidate = *candidate;
     expFiltFactor = ltr_int_wc_get_eff();
-    
+
     face_x1 = candidate->x/ current_scale;
     face_y1 = candidate->y/ current_scale;
     face_x2 = (candidate->x + candidate->width) / current_scale;
     face_y2 = (candidate->y + candidate->height) / current_scale;
-    
+
     float x = (candidate->x + candidate->width / 2) / current_scale - frame_w/2;
     float y = (candidate->y + candidate->height / 2) / current_scale - frame_h/2;
     float w = candidate->width / current_scale;
     float h = candidate->height / current_scale;
-    
+
     if(init){
       last_face_x = face_x = x;
       last_face_y = face_y = y;
@@ -246,12 +248,12 @@ void ltr_int_face_detect(image_t *img, struct bloblist_type *blt)
 }
 
 
-float ltr_int_expfilt(float x, 
+float ltr_int_expfilt(float x,
                float y_minus_1,
-               float filterfactor) 
+               float filterfactor)
 {
   float y;
-  
+
   y = y_minus_1*(1.0-filterfactor) + filterfactor*x;
   return y;
 }
