@@ -1,4 +1,4 @@
-noinst_SCRIPTS = 
+noinst_SCRIPTS =
 if WINE_PLUGIN
   noinst_SCRIPTS += TrackIR.exe
 endif #WINE_PLUGIN
@@ -39,12 +39,12 @@ vpath %.h @top_builddir@
 vpath %.c @srcdir@
 vpath %.c @srcdir@/../..
 
-TrackIR.exe : main.o fake_tir.o
+TrackIR.exe : main.o rest.o
 	$(CXX) $(WINE_LIBS) $(LDFLAGS) -m32 -Wall -Wextra -g -o $@ $^
 
 main.o : main.cpp resource.h
 
-fake_tir.o : fake_tir.rc resource.h config.h
+rest.o : rest.c rest.h
 
 clean-local: clean-local-check
 .PHONY: clean-local-check
