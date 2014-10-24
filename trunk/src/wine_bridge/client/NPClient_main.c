@@ -25,9 +25,10 @@
 
 WINE_DEFAULT_DEBUG_CHANNEL(NPClient);
 
-bool crypted = false;
+static bool crypted = false;
 static unsigned char table[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 static int dbg_flag;
+static HINSTANCE thisDll;
 
 static void dbg_report(const char *msg,...)
 {
@@ -48,7 +49,7 @@ static void dbg_report(const char *msg,...)
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
     TRACE("(0x%p, %d, %p)\n", hinstDLL, fdwReason, lpvReserved);
-
+    thisDll = hinstDLL;
     switch (fdwReason)
     {
         case DLL_WINE_PREATTACH:
@@ -155,7 +156,7 @@ static unsigned int cksum(unsigned char buf[], unsigned int size)
   if((size == 0) || (buf == NULL)){
     return 0;
   }
-  
+
   int rounds = size >> 2;
   int rem = size % 4;
 
@@ -255,8 +256,8 @@ int __stdcall NPCLIENT_NP_GetData(tir_data_t * data)
   data->roll = r / 180.0 * 16383;
   data->pitch = -p / 180.0 * 16383;
   data->yaw = y / 180.0 * 16383;
-  data->tx = -limit_num(-16383.0, 15 * tx, 16383); 
-  data->ty = limit_num(-16383.0, 15 * ty, 16383); 
+  data->tx = -limit_num(-16383.0, 15 * tx, 16383);
+  data->ty = limit_num(-16383.0, 15 * ty, 16383);
   data->tz = limit_num(-16383.0, 15 * tz, 16383);
   data->cksum = cksum((unsigned char*)data, sizeof(tir_data_t));
   //printf("Cksum: %04X\n", data->cksum);
@@ -350,6 +351,10 @@ int __stdcall NPCLIENT_NP_RegisterProgramProfileID(unsigned short id)
       return 1;
     }
   }
+  char *toLock = file_path("NPClient.dll");
+  sharedLock(toLock);
+  free(toLock);
+  runFile("TrackIR.exe");
   linuxtrack_suspend();
   return 0;
 }

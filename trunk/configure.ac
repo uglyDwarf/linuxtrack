@@ -255,7 +255,6 @@ AC_CONFIG_FILES([
  src/wine_bridge/ft_tester/Makefile
  src/wine_bridge/tester/npview.rc
  src/wine_bridge/ft_tester/fttester.rc
- src/wine_bridge/views/fake_tir.rc
  src/wine_bridge/views/Makefile
  src/wine_bridge/ltr_wine64.nsi
  src/wine_bridge/ltr_wine.nsi

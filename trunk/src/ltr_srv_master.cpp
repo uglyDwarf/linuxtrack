@@ -132,7 +132,7 @@ static void ltr_int_new_frame(struct frame_type *frame, void *param)
 {
   (void)frame;
   (void)param;
-  
+
   ltr_int_get_camera_update(&current_pose);
   //printf("CurrentPose=> p:%g y:%g r:%g\n", current_pose.pitch, current_pose.yaw, current_pose.roll);
   //printf("Master status: %d x %d\n", ltr_int_get_tracking_state(), current_pose.status);
@@ -170,13 +170,13 @@ bool ltr_int_register_slave(message_t &msg)
   slaves.insert(std::pair<std::string, int>(msg.str, fifo));
   ltr_int_log_message("Slave @fifo %d registered!\n", fifo);
   pthread_mutex_unlock(&send_mx);
-  
+
   //Make sure the new section is created if needed...
   ltr_axes_t tmp_axes;
   tmp_axes = NULL;
   ltr_int_init_axes(&tmp_axes, msg.str);
   ltr_int_close_axes(&tmp_axes);
-  
+
   if(save_prefs){
     ltr_int_log_message("Checking for changed prefs...\n");
     if(ltr_int_need_saving()){
@@ -202,7 +202,7 @@ void ltr_int_wakeup_cmd()
 }
 
 void ltr_int_recenter_cmd()
-{ 
+{
   ltr_int_recenter();
 }
 
@@ -236,7 +236,7 @@ bool ltr_int_master(bool standalone)
   current_pose.blobs = 0;
   gui_shutdown_request = false;
   int fifo;
-  
+
   save_prefs = standalone;
   semaphore_p master_lock = NULL;
   if(standalone){
@@ -265,7 +265,7 @@ bool ltr_int_master(bool standalone)
     }
     ltr_int_log_message("Other master gave up, gui master taking over!\n");
   }
-  
+
   if(fifo <= 0){
     ltr_int_log_message("Master already running, quitting!\n");
     return true;
@@ -279,7 +279,7 @@ bool ltr_int_master(bool standalone)
   }
 
   ltr_int_register_cbk(ltr_int_new_frame, NULL, ltr_int_state_changed, NULL);
-  
+
   struct pollfd fifo_poll;
   int heartbeat = 0;
   fifo_poll.fd = fifo;
@@ -296,7 +296,7 @@ bool ltr_int_master(bool standalone)
         if(standalone){
           ltr_int_log_message("We have HUP in Master!\n");
           linuxtrack_full_pose_t dummy;
-          dummy.pose.pitch = 0.0; dummy.pose.yaw = 0.0; dummy.pose.roll = 0.0; 
+          dummy.pose.pitch = 0.0; dummy.pose.yaw = 0.0; dummy.pose.roll = 0.0;
           dummy.pose.tx = 0.0; dummy.pose.ty = 0.0; dummy.pose.tz = 0.0;
           dummy.pose.counter = 0; dummy.pose.status = PAUSED; dummy.blobs = 0;
           ltr_int_broadcast_pose(dummy);
@@ -335,7 +335,7 @@ bool ltr_int_master(bool standalone)
         ++heartbeat;
         if(heartbeat > 5){
           linuxtrack_full_pose_t dummy;
-          dummy.pose.pitch = 0.0; dummy.pose.yaw = 0.0; dummy.pose.roll = 0.0; 
+          dummy.pose.pitch = 0.0; dummy.pose.yaw = 0.0; dummy.pose.roll = 0.0;
           dummy.pose.tx = 0.0; dummy.pose.ty = 0.0; dummy.pose.tz = 0.0;
           dummy.pose.counter = 0; dummy.pose.status = PAUSED; dummy.blobs = 0;
           ltr_int_broadcast_pose(dummy);
@@ -347,8 +347,8 @@ bool ltr_int_master(bool standalone)
     }else if(fds < 0){
       ltr_int_my_perror("poll");
     }
-    
-    if(gui_shutdown_request || (!ltr_int_gui_lock(false)) || 
+
+    if(gui_shutdown_request || (!ltr_int_gui_lock(false)) ||
        no_slaves || (ltr_int_get_tracking_state() < LINUXTRACK_OK)){
       break;
     }

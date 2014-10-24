@@ -1,13 +1,12 @@
-#ifdef HAVE_CONFIG_H
-  #include <config.h>
-#endif
-
-
-#include "rest.h"
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <windows.h>
 #include <commctrl.h>
+#include "rest.h"
+
+#ifdef HAVE_CONFIG_H
+  #include <config.h>
+#endif
 
 
 static ssize_t my_getline(char **lineptr, size_t *n, FILE *f)
@@ -48,7 +47,7 @@ bool game_data_get_desc(int id, game_desc_t *gd)
       return false;
     }
     int tmp_id;
-    size_t tmp_str_size = 4096; 
+    size_t tmp_str_size = 4096;
     size_t tmp_code_size = 4096;
     char *tmp_str = malloc(tmp_str_size);
     char *tmp_code = malloc(tmp_code_size);
@@ -138,5 +137,89 @@ bool getDebugFlag(const int flag)
   }
 }
 
+char *file_path(const char *file)
+{
+  HKEY  hkey   = 0;
+  RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\NaturalPoint\\NATURALPOINT\\NPClient Location", 0,
+    KEY_QUERY_VALUE, &hkey);
+  if(!hkey){
+    printf("Can't open registry key\n");
+    return NULL;
+  }
 
+  BYTE path[1024];
+  DWORD buf_len = 1024;
+  LONG result = RegQueryValueEx(hkey, "Path", NULL, NULL, path, &buf_len);
+  char *full_path = NULL;
+  int res = -1;
+  if(result == ERROR_SUCCESS && buf_len > 0){
+    res = asprintf(&full_path, "%s\\%s", path, file);
+  }
+  RegCloseKey(hkey);
+  if(res > 0){
+    return full_path;
+  }else{
+    return NULL;
+  }
+}
+
+bool tryExclusiveLock(const char *file)
+{
+  HANDLE f = CreateFile(file, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+  if(f == INVALID_HANDLE_VALUE){
+    return false;
+  }
+  OVERLAPPED overlapvar;
+  overlapvar.Offset = 0;
+  overlapvar.OffsetHigh = 0;
+  overlapvar.hEvent = 0;
+  return LockFileEx(f, LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY, 0, 10, 0, &overlapvar);
+}
+
+bool sharedLock(const char *file)
+{
+  HANDLE f = CreateFile(file, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+  if(f == INVALID_HANDLE_VALUE){
+    return false;
+  }
+  OVERLAPPED overlapvar;
+  overlapvar.Offset = 0;
+  overlapvar.OffsetHigh = 0;
+  overlapvar.hEvent = 0;
+  return LockFileEx(f, LOCKFILE_FAIL_IMMEDIATELY, 0, 10, 0, &overlapvar);
+}
+
+bool runFile(const char *file)
+{
+  (void) file;
+  char *exe = file_path(file);
+  if(exe == NULL){
+    return false;
+  }
+  char *q_exe = NULL;
+  if(asprintf(&q_exe, "\"%s\"", exe) < 0){
+    free(exe);
+    return false;
+  }
+  free(exe);
+  STARTUPINFO si;
+  PROCESS_INFORMATION pi;
+  ZeroMemory(&si, sizeof(si));
+  si.cb = sizeof(si);
+  si.dwFlags = STARTF_USESHOWWINDOW;
+  si.wShowWindow = SW_HIDE;
+  ZeroMemory(&pi, sizeof(pi));
+printf("Going to run this: %s\n", q_exe);
+  bool res = CreateProcess(NULL, q_exe, NULL, NULL, false, NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi);
+  if(!res){
+    printf("Failed! (%d)\n", GetLastError());
+  }
+  CloseHandle(pi.hProcess);
+  CloseHandle(pi.hThread);
+  CloseHandle(si.hStdInput);
+  CloseHandle(si.hStdOutput);
+  CloseHandle(si.hStdError);
+  free(q_exe);
+  return res;
+}
 

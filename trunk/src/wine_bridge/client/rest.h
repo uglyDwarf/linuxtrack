@@ -1,4 +1,4 @@
-#ifndef REST__H 
+#ifndef REST__H
 #define REST__H
 
 #include <stdbool.h>
@@ -12,6 +12,10 @@ extern "C" {
 bool game_data_get_desc(int id, game_desc_t *gd);
 bool getSomeSeriousPoetry(char *verse1, char *verse2);
 bool getDebugFlag(const int flag);
+char *file_path(const char *file);
+bool tryExclusiveLock(const char *file);
+bool sharedLock(const char *file);
+bool runFile(const char *file);
 
 #ifdef __cplusplus
 }

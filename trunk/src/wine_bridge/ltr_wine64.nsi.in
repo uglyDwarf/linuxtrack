@@ -70,3 +70,25 @@ Section "Uninstall"
   RMDir "$INSTDIR"
 SectionEnd
 
+Function .onInit
+
+  ReadRegStr $R0 HKLM \
+  "Software\Microsoft\Windows\CurrentVersion\Uninstall\Linuxtrack" \
+  "UninstallString"
+  StrCmp $R0 "" done
+
+  ReadRegStr $R1 HKCU "Software\NaturalPoint\NATURALPOINT\NPClient Location" "Path"
+
+  MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
+  "Linuxtrack-Wine is already installed. $\n$\nClick `OK` to remove the \
+  previous version or `Cancel` to cancel this upgrade." \
+  IDOK uninst
+  Abort
+
+;Run the uninstaller
+uninst:
+  ClearErrors
+  Exec '$R0 /S'
+done:
+
+FunctionEnd
