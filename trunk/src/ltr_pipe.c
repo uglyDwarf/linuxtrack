@@ -122,6 +122,7 @@ struct args
 	char          *ltr_profile;
 	char          *ltr_timeout;
 	enum formats  format;
+        int           range;
 };
 
 static struct args Args = {
@@ -132,6 +133,7 @@ static struct args Args = {
 	.ltr_profile  = NULL, // DEFAULT_LTR_PROFILE
 	.ltr_timeout  = DEFAULT_LTR_TIMEOUT,
 	.format       = FORMAT_DEFAULT,
+        .range        = 180
 };
 
 
@@ -158,6 +160,9 @@ enum option_codes {
 	OPT_FORMAT_UINPUT_ABS      = 0x10,
 #endif
 	OPT_FORMAT_IL2_6DOF        = 0x11,
+#ifdef LINUX
+        OPT_UINPUT_ABS_RANGE       = 0x12
+#endif
 };
 
 
@@ -278,6 +283,12 @@ static struct option Opts[] = {
 		0,
 		OPT_FORMAT_UINPUT_ABS
 	},
+        {
+                "uinput-abs-range",
+                required_argument,
+                0,
+                OPT_UINPUT_ABS_RANGE
+        },
 #endif
 	{ 0, 0, 0, 0 }
 };
@@ -331,6 +342,7 @@ static void help(void)
 #ifdef LINUX
 "  --format-uinput-rel        uinput relative position (like a mouse)\n"
 "  --format-uinput-abs        uinput absolute position (like a joystick)\n"
+"  --uinput-abs-range=RANGE   specify precision of abs device (-RANGE to +RANGE)\n"
 #endif
 "\n",
 
@@ -413,9 +425,12 @@ static void parse_opts(int argc, char **argv)
 		case OPT_FORMAT_UINPUT_REL:
 			Args.format = FORMAT_UINPUT_REL;
 			break;
-		case OPT_FORMAT_UINPUT_ABS:
-			Args.format = FORMAT_UINPUT_ABS;
-			break;
+                case OPT_FORMAT_UINPUT_ABS:
+                        Args.format = FORMAT_UINPUT_ABS;
+                        break;
+                case OPT_UINPUT_ABS_RANGE:
+                        Args.range = atoi(optarg);
+                        break;
 #endif
 		case '?':
 			exit(EXIT_FAILURE);
@@ -645,13 +660,13 @@ static void ofd_setup_file(void)
   xioctl(UI_SET_KEYBIT, BTN_JOYSTICK);
   xioctl(UI_SET_KEYBIT, BTN_TRIGGER);
 
-		ud.absmin[ABS_X] = ud.absmin[ABS_RX] = -180;
-		ud.absmin[ABS_Y] = ud.absmin[ABS_RY] = -180;
-		ud.absmin[ABS_Z] = ud.absmin[ABS_RZ] = -180;
+		ud.absmin[ABS_X] = ud.absmin[ABS_RX] = -Args.range;
+		ud.absmin[ABS_Y] = ud.absmin[ABS_RY] = -Args.range;
+		ud.absmin[ABS_Z] = ud.absmin[ABS_RZ] = -Args.range;
 
-		ud.absmax[ABS_X] = ud.absmax[ABS_RX] =  180;
-		ud.absmax[ABS_Y] = ud.absmax[ABS_RY] =  180;
-		ud.absmax[ABS_Z] = ud.absmax[ABS_RZ] =  180;
+		ud.absmax[ABS_X] = ud.absmax[ABS_RX] =  Args.range;
+		ud.absmax[ABS_Y] = ud.absmax[ABS_RY] =  Args.range;
+		ud.absmax[ABS_Z] = ud.absmax[ABS_RZ] =  Args.range;
 		break;
 	}
 
@@ -1040,33 +1055,33 @@ static void write_data_uinput(const struct ltr_data *d)
 
 	/* heading */
 	ie.code  = (Args.format == FORMAT_UINPUT_REL) ? REL_X : ABS_X;
-	ie.value = (int32_t) -d->h;
+	ie.value = (int32_t) -(Args.range / 180.0f * d->h);
 	xwrite(&ie, sizeof(ie));
 
 	/* pitch */
 	ie.code  = (Args.format == FORMAT_UINPUT_REL) ? REL_Y : ABS_Y;
-	ie.value = (int32_t) d->p;
+	ie.value = (int32_t) (Args.range / 180.0f * d->p);
 	xwrite(&ie, sizeof(ie));
 
 	/* roll */
 	ie.code  = (Args.format == FORMAT_UINPUT_REL) ? REL_Z : ABS_Z;
-	ie.value = (int32_t) -d->r;
+	ie.value = (int32_t) -(Args.range / 180.0f * d->r);
 	xwrite(&ie, sizeof(ie));
 
 	if (Args.format == FORMAT_UINPUT_ABS) {
 		/* x */
 		ie.code  = ABS_RX;
-		ie.value = (int32_t) d->x;
+		ie.value = (int32_t) (Args.range / 300.0f * d->x);
 		xwrite(&ie, sizeof(ie));
 
 		/* y */
 		ie.code  = ABS_RY;
-		ie.value = (int32_t) d->y;
+		ie.value = (int32_t) (Args.range / 300.0f * d->y);
 		xwrite(&ie, sizeof(ie));
 
 		/* z */
 		ie.code  = ABS_RZ;
-		ie.value = (int32_t) d->z;
+		ie.value = (int32_t) (Args.range / 300.0f * d->z);
 		xwrite(&ie, sizeof(ie));
 	}
 
