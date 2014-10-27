@@ -24,6 +24,7 @@ ltr_pipe - send LinuxTrack data to STDOUT, a file or network.
 .RI [--format-mouse]
 .RI [--format-uinput-rel]
 .RI [--format-uinput-abs]
+.RI [--uinput-abs-range=RANGE]
 .SH DESCRIPTION
 ltr_pipe is a client executable that allows one to send LinuxTrack data to
 STDOUT, a file, or using UDP or TCP protocols to a network destination.
@@ -101,6 +102,10 @@ uinput relative position (like a mouse).
 .B --format-uinput-abs
 .I "(Linux only)"
 uinput absolute position (like a joystick).
+.TP
+.B --uinput-abs-range
+.I "(Linux only)"
+specify precision of the abs device (values range from -RANGE to +RANGE).
 .SH SIGNALS
 Signals could be used to do a specific LinuxTrack action. Simple shell commands
 like
