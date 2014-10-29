@@ -59,7 +59,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     s.print(stream);
     return stream;
   }
-  
+
   std::ostream &operator<<(std::ostream &stream, const prefItem &s)
   {
     s.print(stream);
@@ -75,7 +75,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     }
     stream<<std::endl;
   }
-  
+
   std::ostream &operator<<(std::ostream &stream, const prefs &q)
   {
     q.read_lock();
@@ -85,7 +85,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     }
     q.unlock();
     stream<<std::endl;
-    
+
     return stream;
   }
 
@@ -100,15 +100,13 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
   {
     pthread_rwlock_init(&lock, NULL);
   }
-  
+
   prefs::~prefs()
   {
-    write_lock();
     clear();
-    unlock();
     pthread_rwlock_destroy(&lock);
   }
-  
+
   bool prefs::changed()const
   {
     read_lock();
@@ -116,12 +114,12 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     unlock();
     return res;
   }
-  
+
   void prefs::setChangeFlag()
   {
     changed_flag = true;
   }
-  
+
   void prefs::resetChangeFlag()
   {
     write_lock();
@@ -143,29 +141,29 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     pi->registerItself(*this);
     unlock();
   }
-  
+
   void keyVal::registerItself(section &parent)
   {
     parent.registerKeyVal(*this);
   }
-  
+
   void section::registerKeyVal(keyVal &kv)
   {
     index.insert(std::pair<std::string, keyVal*>(kv.getKey(), &kv));
   }
-  
+
   void section::registerItself(prefs &parent)
   {
     parent.registerSection(*this);
   }
-  
+
   //not locking - this function is not to be called from outside;
   //  only place to call this from is addItem...
   void prefs::registerSection(section &sec)
   {
     index.insert(std::pair<std::string, section*>(sec.getName(), &sec));
   }
-  
+
   bool prefs::getValue(const std::string &sec, const std::string &key, std::string &result)const
   {
     read_lock();
@@ -202,7 +200,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     unlock();
     return true;
   }
-  
+
   bool prefs::getValue(const std::string &sec, const std::string &key, int &result)const
   {
     std::string val;
@@ -216,8 +214,8 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     unlock();
     return true;
   }
-  
-  
+
+
   void prefs::getSectionList(std::vector<std::string> &sections)const
   {
     read_lock();
@@ -227,7 +225,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     }
     unlock();
   }
-  
+
   bool prefs::sectionExists(const std::string &sec)const
   {
     read_lock();
@@ -235,13 +233,13 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     unlock();
     return (i != index.end());
   }
-  
+
   bool section::keyExists(const std::string &key)const
   {
     std::map<std::string, keyVal*>::const_iterator i = index.find(key);
     return (i != index.end());
   }
-  
+
   bool prefs::keyExists(const std::string &sec, const std::string &key)const
   {
     read_lock();
@@ -254,7 +252,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     unlock();
     return res;
   }
-  
+
   void prefs::addSection(const std::string &name)
   {
     if(sectionExists(name)){
@@ -269,7 +267,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
   {
     std::ostringstream tmpName;
     size_t cntr = 0;
-    
+
     if(!sectionExists(nameTemplate)){
       name = nameTemplate;
       addSection(name);
@@ -300,7 +298,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     keyVal *kv = new keyVal(new std::string(key), new std::string(value));
     addItem(kv);
   }
-  
+
   void section::setValue(const std::string &key, const std::string &value)
   {
     if(!keyExists(key)){
@@ -310,7 +308,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     std::map<std::string, keyVal*>::iterator i = index.find(key);
     (i->second)->setValue(value);
   }
-  
+
   void prefs::setValue(const std::string &sec, const std::string &key, const std::string &value)
   {
     if(!sectionExists(sec)){
@@ -322,7 +320,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     (i->second)->setValue(key, value);
     unlock();
   }
-  
+
   void prefs::setValue(const std::string &sec, const std::string &key, const int &value)
   {
     if(!sectionExists(sec)){
@@ -336,7 +334,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     (i->second)->setValue(key, os.str());
     unlock();
   }
-  
+
   void prefs::setValue(const std::string &sec, const std::string &key, const float &value)
   {
     if(!sectionExists(sec)){
@@ -350,7 +348,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     (i->second)->setValue(key, os.str());
     unlock();
   }
-  
+
   void prefs::addKey(const std::string &sec, const std::string &key, const std::string &value)
   {
     if(!sectionExists(sec)){
@@ -362,7 +360,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     (i->second)->addKey(key, value);
     unlock();
   }
-  
+
   bool prefs::findSection(const std::string &key, const std::string &value, std::string &name)
   {
     read_lock();
@@ -378,7 +376,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     unlock();
     return false;
   }
-  
+
   bool prefs::findSections(const std::string &key, std::vector<std::string> &nameList)
   {
     read_lock();
@@ -392,7 +390,7 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     unlock();
     return (nameList.size() > 0);
   }
-  
+
   void prefs::clear()
   {
     write_lock();
@@ -402,8 +400,8 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     index.clear();
     unlock();
   }
-  
-/*****************************************************************************************/  
+
+/*****************************************************************************************/
 static bool parse_prefs(const std::string fname, prefs *prf)
 {
   if((ltr_int_parser_in=fopen(fname.c_str(), "r")) != NULL){
@@ -428,7 +426,7 @@ static bool parse_prefs(const std::string fname, prefs *prf)
 bool ltr_int_read_prefs(const char *file, bool force_read)
 {
   static bool prefs_ok = false;
-  
+
   if((force_read == true) || (prefs_ok == false)){
     prefs::getPrefs().clear();
     char *pfile;
@@ -495,8 +493,8 @@ void ltr_int_prefs_changed(void)
 bool ltr_int_save_prefs(const char *fname)
 {
   std::string pfile;
-  
-  char *pfile_tmp = ((fname != NULL) ? 
+
+  char *pfile_tmp = ((fname != NULL) ?
                       ltr_int_get_default_file_name(fname) : ltr_int_get_default_file_name(NULL));
   if(pfile_tmp == NULL){
     ltr_int_log_message("Can't remember what the preference file name is!\n");
@@ -504,10 +502,10 @@ bool ltr_int_save_prefs(const char *fname)
   }
   pfile = std::string(pfile_tmp);
   free(pfile_tmp);
-  
+
   std::string pfile_new(pfile + ".new");
   std::string pfile_old(pfile + ".old");
-  
+
   if(!ltr_int_dump_prefs(pfile_new.c_str())){
     ltr_int_log_message("Can't store prefs to file '%s'!\n", pfile_new.c_str());
     return false;
@@ -519,12 +517,12 @@ bool ltr_int_save_prefs(const char *fname)
     return false;
   }
   delete check_prefs;
-  
+
   remove(pfile_old.c_str());
   if(rename(pfile.c_str(), pfile_old.c_str()) != 0){
     ltr_int_my_perror("rename");
     ltr_int_log_message("Can't rename '%s' to '%s'\n", pfile.c_str(), pfile_old.c_str());
-    
+
   }
   if(rename(pfile_new.c_str(), pfile.c_str()) != 0){
     ltr_int_my_perror("rename");
@@ -611,7 +609,7 @@ char *ltr_int_add_unique_section(const char *name_template)
 ///////////////////////////////////////////////////////////////////////////////
 
 //Compile with
-// g++ -o /tmp/test -g -Wall -Wextra -DPREF_CPP_TEST '-DLIB_PATH="/tmp"'  
+// g++ -o /tmp/test -g -Wall -Wextra -DPREF_CPP_TEST '-DLIB_PATH="/tmp"'
 //    pref.cpp utils.c pref_bison.cpp pref_flex.cpp -lpthread
 
 
@@ -653,45 +651,45 @@ int main(int argc, char *argv[])
   std::string itemVal4new = "Novy titul";
   std::string nameTemplate = "Game";
   //bool res;
-  
+
   std::string prefFile("./prefs.txt");
-  
+
   prefs &lprf = prefs::getPrefs();
-  
+
   //Check that fresh prefs doesn't signalize change...
   std::cout<<"Checking change signalization inactive... ";
   printResult(!ltr_int_need_saving());
-  
+
   ltr_int_change_key(secName2.c_str(), itemKey1.c_str(), itemVal1.c_str());
   ltr_int_change_key_int(secName1.c_str(), itemKey2.c_str(), itemVal2);
   ltr_int_change_key_flt(secName1.c_str(), itemKey3.c_str(), itemVal3);
   ltr_int_change_key_flt(secName4.c_str(), itemKey3.c_str(), itemVal3_1);
   lprf.addKey(secName1, itemKey4, itemVal4);
-  
+
   std::cout<<"Checking for key nonexistence...";
   printResult(!lprf.keyExists(secName1, itemKey1));
-  
+
   std::cout<<"Checking for key nonexistence part2...";
   printResult(!lprf.keyExists(secName3, itemKey1));
 
   std::cout<<"Checking for key existence...";
   printResult(lprf.keyExists(secName2, itemKey1));
-  
+
   //Check that change is signalized
   std::cout<<"Checking change signalization active... ";
   printResult(ltr_int_need_saving());
-  
+
   //Check storing of prefs...
   std::cout<<"Attempting to store prefs... ";
   printResult(ltr_int_save_prefs(prefFile.c_str()));
-  
+
   //Check that saving prefs resets change flag...
   std::cout<<"Checking change signalization after pref save... ";
   printResult(!lprf.changed());
-  
+
   std::cout<<"Clearing prefs... ";
   ltr_int_new_prefs();
-  
+
   std::vector<std::string> sections;
   ltr_int_get_section_list(sections);
   printResult(sections.size() == 0);
@@ -699,7 +697,7 @@ int main(int argc, char *argv[])
 
   std::cout<<"Reading prefs back in...";
   printResult(ltr_int_read_prefs(prefFile.c_str(), true));
-  
+
   std::cout<<"Checking if we read something in...";
   ltr_int_get_section_list(sections);
   printResult(sections.size() != 0);
@@ -709,21 +707,21 @@ int main(int argc, char *argv[])
   char *tmp_chr = ltr_int_get_key(secName2.c_str(), itemKey1.c_str());
   printResult((tmp_chr != NULL) && (tmp_chr == itemVal1));
   if(tmp_chr != NULL) free(tmp_chr);
-  
+
   std::cout<<"Checking int pref...";
   int tmp_int;
-  printResult(ltr_int_get_key_int(secName1.c_str(), itemKey2.c_str(), &tmp_int) 
+  printResult(ltr_int_get_key_int(secName1.c_str(), itemKey2.c_str(), &tmp_int)
               && (tmp_int == itemVal2));
-  
+
   std::cout<<"Checking float pref...";
   float tmp_flt;
-  printResult(ltr_int_get_key_flt(secName1.c_str(), itemKey3.c_str(), &tmp_flt) && 
+  printResult(ltr_int_get_key_flt(secName1.c_str(), itemKey3.c_str(), &tmp_flt) &&
               (fabsf(tmp_flt - itemVal3) < 1e-4));
-  
+
   std::cout<<"Checking float pref part2...";
-  printResult(ltr_int_get_key_flt(secName4.c_str(), itemKey3.c_str(), &tmp_flt) && 
+  printResult(ltr_int_get_key_flt(secName4.c_str(), itemKey3.c_str(), &tmp_flt) &&
               (fabsf(tmp_flt - itemVal3_1) < 1e-4));
-  
+
   std::cout<<"Looking for section...";
   tmp_chr = ltr_int_find_section(itemKey4, itemVal4);
   printResult((tmp_chr != NULL) && (secName1 == tmp_chr));
@@ -731,57 +729,57 @@ int main(int argc, char *argv[])
 
   std::cout<<"Adding a key that already exists...";
   lprf.addKey(secName1, itemKey4, itemVal4new);
-  printResult(lprf.getValue(secName1, itemKey4, tmp_str) && 
+  printResult(lprf.getValue(secName1, itemKey4, tmp_str) &&
               (tmp_str == itemVal4new));
-  
+
   std::cout<<"Looking for nonexistent section...";
   tmp_chr = ltr_int_find_section(itemKey4, itemVal4);
   printResult(tmp_chr == NULL);
   if(tmp_chr != NULL) free(tmp_chr);
-  
+
   std::cout<<"Checking string value in nonexistent section...";
   tmp_chr = ltr_int_get_key(secName3.c_str(), itemKey1.c_str());
   printResult(tmp_chr == NULL);
   if(tmp_chr != NULL) free(tmp_chr);
-  
+
   std::cout<<"Checking nonexistent string value...";
   tmp_chr = ltr_int_get_key(secName2.c_str(), itemKey2.c_str());
   printResult(tmp_chr == NULL);
   if(tmp_chr != NULL) free(tmp_chr);
-  
+
   std::cout<<"Checking int value in nonexistent section...";
   printResult(!ltr_int_get_key_int(secName3.c_str(), itemKey2.c_str(), &tmp_int));
-  
+
   std::cout<<"Checking flt value in nonexistent section...";
   printResult(!ltr_int_get_key_flt(secName3.c_str(), itemKey3.c_str(), &tmp_flt));
-  
+
   lprf.addSection("Game0000");
   lprf.addSection("Game0001");
   lprf.addSection("Game0003");
   std::cout<<"Checking unique section creation (part1)...";
   char *tmp_char = NULL;
-  printResult((!lprf.sectionExists("Game0002")) && 
+  printResult((!lprf.sectionExists("Game0002")) &&
     ((tmp_char = ltr_int_add_unique_section(nameTemplate.c_str())) != NULL) && (lprf.sectionExists("Game0002")));
   if(tmp_char != NULL){
     free(tmp_char);
     tmp_char = NULL;
   }
-  
+
   std::cout<<"Checking unique section creation (part2)...";
   printResult((!lprf.sectionExists("Game0004")) && (lprf.addSection(nameTemplate, tmp_str)) && (lprf.sectionExists("Game0004")));
   ltr_int_dump_prefs("");
   std::cout<<"Trying to dump prefs to a file out of reach...";
   printResult(!ltr_int_save_prefs("blabla/shouldnt.work"));
   lprf.addKey(secName3, itemKey1, itemVal1);
-  
+
   std::cout<<"Trying to dump corrupted prefs...";
   printResult(!ltr_int_save_prefs(prefFile.c_str()));
-  
+
   ltr_int_free_prefs();
-  
+
   std::cout<<"Trying to read linuxtrack prefs... (might fail)";
   printResult(ltr_int_read_prefs(NULL, true));
-  
+
   std::cout<<tests<<" tests ran, "<<fails<<" failed..."<<std::endl;
   ltr_int_free_prefs();
   return 0;
