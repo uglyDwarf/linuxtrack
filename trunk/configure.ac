@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.59])
-AC_INIT([LinuxTrack], [0.99.11], [http://code.google.com/p/linux-track/issues/list])
+AC_INIT([LinuxTrack], [0.99.11_1], [http://code.google.com/p/linux-track/issues/list])
 AM_INIT_AUTOMAKE([no-dependencies -Wall -Werror])
 AC_CONFIG_SRCDIR([src/tir4_driver.h])
 AC_CONFIG_HEADERS([config.h])
@@ -10,7 +10,7 @@ AC_PROG_CXX
 AC_PROG_OBJC
 AS_IF([test "$debug" != "no"],
       [CFLAGS+=" -g -O2 -Wall -Wextra -Wformat -Wformat-security \
-         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2 " 
+         --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2 "
        CXXFLAGS+=" -g -O2 -Wall -Wextra -Wformat -Wformat-security \
          --param ssp-buffer-size=4 -fstack-protector -D_FORTIFY_SOURCE=2 "
        CPPFLAGS+=" -D_FORTIFY_SOURCE=2 -O2 "],
@@ -61,23 +61,23 @@ AC_C_INLINE
 AC_CANONICAL_HOST
 
 
-AC_CHECK_TYPE([struct v4l2_frmsizeenum],                                                                                                  
+AC_CHECK_TYPE([struct v4l2_frmsizeenum],
   [
     AC_DEFINE([V4L2], [],[Use videodev2.h (V4L2)])
     with_v4l2=yes
-  ], [],                                                                             
+  ], [],
   [[#include  <linux/videodev2.h>
-  ]]                                                                                                           
-)                                                                                                                                             
+  ]]
+)
 
-AC_CHECK_HEADER([libv4l2.h],                                                                                                  
+AC_CHECK_HEADER([libv4l2.h],
   [
     AC_DEFINE([LIBV4L2], [],[Use libv4l2.h (V4L2)])
     with_libv4l2=yes
   ], [], []
-)                                                                                                                                             
+)
 
-AC_CHECK_HEADER([mxml.h], [], [AC_MSG_FAILURE([mxml.h is needed for ltr_gui compilation!])])                                                                                                                                             
+AC_CHECK_HEADER([mxml.h], [], [AC_MSG_FAILURE([mxml.h is needed for ltr_gui compilation!])])
 AC_CHECK_HEADER([linux/uinput.h], [build_mickey=yes], [build_mickey=no])
 
 AC_CHECK_PROG([with_wine64], [wine64], [yes])
@@ -86,7 +86,7 @@ AC_CHECK_PROG([with_makensis], [makensis], [yes])
 XPL_CPPFLAGS=
 AC_ARG_WITH([xplane_sdk],
             [AS_HELP_STRING([--with-xplane-sdk],
-              [specify path to XPlane SDK @<:@default=/usr/include/xplane_sdk@:>@])], 
+              [specify path to XPlane SDK @<:@default=/usr/include/xplane_sdk@:>@])],
             [XPL_CPPFLAGS=" -I${with_xplane_sdk}/XPLM -I${with_xplane_sdk}/Widgets "],
             [XPL_CPPFLAGS=" -I/usr/include/xplane_sdk/XPLM -I/usr/include/xplane_sdk/Widgets "]
 )
@@ -107,21 +107,21 @@ AC_ARG_ENABLE([ltr_32lib_on_x64],
 WINE_LIBS=
 AC_ARG_WITH([wine-libs],
             [AS_HELP_STRING([--with-wine-libs],
-              [specify Wine libraries to link aginst])], 
+              [specify Wine libraries to link aginst])],
             [WINE_LIBS=${with_wine_libs}]
 )
 
 WINE64_LIBS=
 AC_ARG_WITH([wine64-libs],
             [AS_HELP_STRING([--with-wine64-libs],
-              [specify Wine64 libraries to link aginst])], 
+              [specify Wine64 libraries to link aginst])],
             [WINE64_LIBS=${with_wine64_libs}]
 )
 
 LIB32DIR="lib32"
 AC_ARG_WITH([lib32-dir],
             [AS_HELP_STRING([--with-lib32-dir],
-              [specify 32bit library directory (usually needed only on amd64 arch.)])], 
+              [specify 32bit library directory (usually needed only on amd64 arch.)])],
             [LIB32DIR=${with_lib32_dir}]
 )
 
@@ -168,19 +168,19 @@ CFLAGS="$BCK_CFLAGS"
 CC="$BCK_CC"
 
 AS_IF([case $host_os in darwin*) true;; *) false;; esac],
-  [    
+  [
     AC_DEFINE([DARWIN], [], [We are on Darwin])
     with_darwin=yes
     OPENCV_LIBS=
     OPENCV_CFLAGS=
     AC_ARG_WITH([opencv-libs],
             [AS_HELP_STRING([--with-opencv-libs],
-              [specify OpenCV libraries to link aginst])], 
+              [specify OpenCV libraries to link aginst])],
             [OPENCV_LIBS=${with_opencv_libs}]
     )
     AC_ARG_WITH([opencv-cflags],
             [AS_HELP_STRING([--with-opencv-cflags],
-              [specify OpenCV includes])], 
+              [specify OpenCV includes])],
             [OPENCV_CFLAGS=${with_opencv_cflags}]
     )
   ]
@@ -203,7 +203,7 @@ x86_64) with_64_bit=yes ;;
 esac
 
 AS_IF([((test "x$pkg_cv_OPENCV_CFLAGS" != x) && (test "x$pkg_cv_OPENCV_LIBS" != x)) ||
-       ((test "x$OPENCV_CFLAGS" != x) && (test "x$OPENCV_LIBS" != x))], 
+       ((test "x$OPENCV_CFLAGS" != x) && (test "x$OPENCV_LIBS" != x))],
                                 [build_face_tracker=yes], [build_face_tracker=no])
 
 AS_IF([(test "x$WINEGCC32_COMPILES" = xyes) && (test "x$WINEGPP32_COMPILES" = xyes) &&
@@ -266,11 +266,11 @@ AC_OUTPUT
 
 AC_MSG_NOTICE([==============================================================]);
 AC_MSG_CHECKING([Webcam support])
-AS_IF([(test  "x$with_libv4l2" = xyes) || (test  "x$with_darwin" = xyes)], 
+AS_IF([(test  "x$with_libv4l2" = xyes) || (test  "x$with_darwin" = xyes)],
 								[AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 AC_MSG_CHECKING([Wiimote support])
-AS_IF([(test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes) || (test  "x$with_darwin" = xyes)], 
+AS_IF([(test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes) || (test  "x$with_darwin" = xyes)],
                                 [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 AC_MSG_CHECKING([TrackIR support])
