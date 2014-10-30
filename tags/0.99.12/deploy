@@ -1,0 +1,56 @@
+#!/usr/bin/perl -w
+#
+use strict;
+my($i, $found, $test, $rex);
+my($line);
+my($id) = 0;
+my($lib) = $ARGV[0];
+my(@rexps) = split(":", $ARGV[1]);
+for($i = 0; $i < @rexps; ++$i){
+  $rexps[$i] =~ s/\//\\\//g;
+  #$rexps[$i] =~ s/(.*)/\/$1\//;
+  $rexps[$i] = qr/^\s+$rexps[$i]/;
+}
+
+my($dylib);
+if($lib =~ /.dylib$/){
+  $dylib = 1;
+}else{
+  $dylib = 0;
+  $id = 1;
+}
+#$lib =~//;
+my($libname) = $lib;
+$libname =~ s/^.*\/([^\/]+)$/$1/;
+open(L, "otool -L ".$lib." |");
+while($line=<L>){
+  $found = 0;
+  foreach $rex (@rexps){
+    if($line =~ $rex){
+      $found = 1;
+      last;
+    }
+  }
+  if($found == 1){
+    if($id == 0){
+      if($dylib == 1){
+        system('install_name_tool -id @executable_path/../Frameworks/'.$libname." ".$lib);
+      }
+      $id = 1;
+    }else{
+      $line =~ /^\s*(\S*\/)(\S+)/;
+      $libname = $2;
+      my($libpath) = $1.$2;
+      if($dylib == 1){
+        system('install_name_tool -change '.$libpath.' @loader_path/'.$libname.' '.$lib);
+      }else{
+        system('install_name_tool -change '.$libpath.' @executable_path/../Frameworks/'.$libname.' '.$lib);
+      }
+    }
+  }
+}
+
+sub process{
+}
+
+#
