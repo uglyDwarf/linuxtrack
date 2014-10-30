@@ -133,7 +133,7 @@ static struct args Args = {
 	.ltr_profile  = NULL, // DEFAULT_LTR_PROFILE
 	.ltr_timeout  = DEFAULT_LTR_TIMEOUT,
 	.format       = FORMAT_DEFAULT,
-        .range        = 180
+        .range        = 4096
 };
 
 
@@ -1044,6 +1044,18 @@ static void write_data_mouse(const struct ltr_data *d)
  * @d:                 Data to write.
  **/
 #ifdef LINUX
+
+static float normalize(const float val)
+{
+  if(val > 1.0f){
+    return 1.0f;
+  }
+  if(val < -1.0f){
+    return -1.0f;
+  }
+  return val;
+}
+
 static void write_data_uinput(const struct ltr_data *d)
 {
 	struct input_event ie;
@@ -1055,33 +1067,33 @@ static void write_data_uinput(const struct ltr_data *d)
 
 	/* heading */
 	ie.code  = (Args.format == FORMAT_UINPUT_REL) ? REL_X : ABS_X;
-	ie.value = (int32_t) -(Args.range / 180.0f * d->h);
+	ie.value = (int32_t) -(Args.range * normalize(d->h / 180.0f));
 	xwrite(&ie, sizeof(ie));
 
 	/* pitch */
 	ie.code  = (Args.format == FORMAT_UINPUT_REL) ? REL_Y : ABS_Y;
-	ie.value = (int32_t) (Args.range / 180.0f * d->p);
+	ie.value = (int32_t) (Args.range * normalize(d->p / 180.0f));
 	xwrite(&ie, sizeof(ie));
 
 	/* roll */
 	ie.code  = (Args.format == FORMAT_UINPUT_REL) ? REL_Z : ABS_Z;
-	ie.value = (int32_t) -(Args.range / 180.0f * d->r);
+	ie.value = (int32_t) -(Args.range * normalize(d->r / 180.0f));
 	xwrite(&ie, sizeof(ie));
 
 	if (Args.format == FORMAT_UINPUT_ABS) {
 		/* x */
 		ie.code  = ABS_RX;
-		ie.value = (int32_t) (Args.range / 300.0f * d->x);
+		ie.value = (int32_t) (Args.range * normalize(d->x / 300.0f));
 		xwrite(&ie, sizeof(ie));
 
 		/* y */
 		ie.code  = ABS_RY;
-		ie.value = (int32_t) (Args.range / 300.0f * d->y);
+		ie.value = (int32_t) (Args.range * normalize(d->y / 300.0f));
 		xwrite(&ie, sizeof(ie));
 
 		/* z */
 		ie.code  = ABS_RZ;
-		ie.value = (int32_t) (Args.range / 300.0f * d->z);
+		ie.value = (int32_t) (Args.range * normalize(d->z / 300.0f));
 		xwrite(&ie, sizeof(ie));
 	}
 

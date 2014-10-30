@@ -13,7 +13,7 @@ UninstPage instfiles
 Section "Linuxtrack / TrackIR Interface"
   SectionIn RO
   SetOutPath $INSTDIR
-  File /oname=Controller.exe controller/Controller.exe.so
+  File /oname=Controller.exe controller\Controller.exe.so
   File /oname=Tester.exe tester\Tester.exe.so
   File /oname=Tester64.exe tester\Tester64.exe.so
   File /oname=NPClient.dll client\NPClient.dll.so
