@@ -108,9 +108,9 @@ file_buf_t* read_file(const char *file)
     printf("Can't open file '%s'.\n", file);
     return NULL;
   }
-  
+
   file_buf_t *res = read_contents(f, s.st_size);
-  
+
   fclose(f);
   return res;
 }
@@ -166,7 +166,7 @@ void process_file(FILE *output, const char *name)
   file_buf_t *f = read_file(name);
   unsigned char *md5sum = hash_md5(f);
   unsigned char *sha1sum = hash_sha1(f);
-  char *last_slash = rindex(name, '/'); 
+  char *last_slash = rindex(name, '/');
   const char *file_name;
   if(last_slash == NULL){
     file_name = name;
@@ -256,7 +256,7 @@ bool read_spec(const char *spec_file)
       tmp->found = false;
       tmp->index = 0;
       csum_init(&(tmp->csum_buf));
-      if(from_hex(md5sum, tmp->md5, MD5_DIGEST_LENGTH) && 
+      if(from_hex(md5sum, tmp->md5, MD5_DIGEST_LENGTH) &&
          from_hex(sha1sum, tmp->sha1, SHA_DIGEST_LENGTH)){
         if(tail == NULL){
           head = tail = tmp;
@@ -274,7 +274,7 @@ bool read_spec(const char *spec_file)
     }
   }
   fclose(f);
-  
+
   //create an array from the linked list
   tail = (struct spec_s*)malloc(sizeof(struct spec_s) * specs);
   if(tail == NULL){
@@ -369,7 +369,7 @@ bool new_char(int c, struct spec_s *spec, FILE *f)
     char *tgt_data = ltr_int_get_default_file_name("tir_firmware/%s");
     char *full_name;
     if(asprintf(&full_name, tgt_data, spec->name) < 0){
-      
+
     }
     FILE *r = fopen(full_name, "wb");
     if(r != NULL){
@@ -474,7 +474,7 @@ bool update_gamedata()
   char *src_data = ltr_int_get_default_file_name("tir_firmware/sgl.dat0");
   char *cmd = "wget --user-agent=\"NaturalPoint TrackIR 5.2.200\" -O \"%s\" "
               "\"http://www.naturalpoint.com/update/files/getfile.cgi?file_id=SGL&category=0\"";
-  char *full_cmd; 
+  char *full_cmd;
   if(asprintf(&full_cmd, cmd, src_data) < 0){
     free(src_data);
     printf("Couldn't create command to download the gamedata update.\n");
@@ -520,9 +520,10 @@ int main(int argc, char *argv[])
                    {"update",      no_argument,       NULL, 'u'},
                    {"help",        no_argument,       NULL, 'h'},
                    {0,             0,                 0,    0}
-    
+
   };
-  
+
+  ltr_int_check_root();
   while(1){
     c = getopt_long(argc, argv, "s:ceuh", long_opts, &index);
     if(c < 0){
@@ -548,7 +549,7 @@ int main(int argc, char *argv[])
         break;
     }
   }
-  
+
   if(extract){
     char *spec;
     if(custom_spec){
