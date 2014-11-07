@@ -34,10 +34,10 @@ char *ltr_int_get_lib_path(const char *libname);
 char *ltr_int_get_resource_path(const char *section, const char *rsrc);
 void ltr_int_my_perror(const char *str);
 
-typedef enum {DBG_CHECK, DBG_ON, DBG_OFF} dbg_flag_type; 
+typedef enum {DBG_CHECK, DBG_ON, DBG_OFF} dbg_flag_type;
 dbg_flag_type ltr_int_get_dbg_flag(const int flag);
 void ltr_int_usleep(unsigned int usec);
-
+void ltr_int_check_root();
 #ifdef __cplusplus
 }
 #endif

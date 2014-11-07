@@ -1287,6 +1287,7 @@ static void run_loop(void)
 
 int main(int argc, char **argv)
 {
+        ltr_int_check_root();
 	Program_name = basename(argv[0]);
 
 	parse_opts(argc, argv);
