@@ -3,7 +3,7 @@ if DARWIN
   DARWINFLAGS = -undefined dynamic_lookup
   SYSFLAGS = -DIBM=0 -DAPL=1 -DLIN=0
   #If ltr_server is not linked against CoreFoundation, loading libusb-1.0 would
-  #  cause SIG_TRAP, since CoreFoundation expects the init takes place 
+  #  cause SIG_TRAP, since CoreFoundation expects the init takes place
   #  in the main thread. Linking ltr_server against CoreFoundation solves that.
   LTR_SERVER_FLAGS = -framework CoreFoundation
   QMAKE_FLAGS = -spec macx-g++
@@ -18,7 +18,7 @@ else
   SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1 -L/lib32 -L/usr/lib32
   QMAKE_FLAGS = -spec linux-g++
   LIBLINUXTRACK_FLAGS = -fpic -fPIC
-  LTR_SERVER_FLAGS = 
+  LTR_SERVER_FLAGS =
   XLINUXTRACK_CFLAGS =
   XLINUXTRACK_LDFLAGS = -Wl,--no-warn-search-mismatch
   ltr_pipe_CPPFLAGS = -DLINUX
@@ -66,7 +66,7 @@ ltr_server1_SOURCES = ltr_srv_comm.c ltr_srv_comm.h ltr_srv_slave.c ltr_srv_slav
 ltr_server1_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server1_LDADD = -lpthread libltr.la
 ltr_server1_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${LTR_SERVER_FLAGS}
-	
+
 
 
 if CWIID
@@ -81,7 +81,7 @@ if FACE_TRACKER
   pkglib_LTLIBRARIES += libft.la
   dist_pkgdata_DATA += haarcascade_frontalface_alt2.xml
 endif
-endif 
+endif
 endif
 
 if MXML
@@ -100,11 +100,11 @@ if LIBZ
 pkglib_LTLIBRARIES += libtir.la
 dist_pkgdata_DATA += 99-TIR.rules 99-Mickey.rules
 if LIBUSB10
-  pkglib_LTLIBRARIES += libltusb1.la 
+  pkglib_LTLIBRARIES += libltusb1.la
 endif
 
 #if OPENUSB
-#  pkglib_LTLIBRARIES += libltopenusb.la 
+#  pkglib_LTLIBRARIES += libltopenusb.la
 #endif
 endif
 
@@ -125,7 +125,7 @@ libltr_la_SOURCES = ../config.h cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   wii_driver_prefs.h tir_driver_prefs.c tir_driver_prefs.h wc_driver_prefs.c \
   wc_driver_prefs.h ipc_utils.c ipc_utils.h com_proc.c com_proc.h wii_com.c wii_com.h
 libltr_la_LIBADD = -lm -lpthread -ldl
-libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXFLAGS) 
+libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 libltr_la_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 libltr_la_CXXFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 
@@ -169,7 +169,7 @@ if DARWIN
   pkglib_LTLIBRARIES += libmacwc.la
 endif
 
-libmacwc_la_SOURCES = macwebcam_driver.c com_proc.h runloop.h ipc_utils.h
+libmacwc_la_SOURCES = macwebcam_driver.c com_proc.h runloop.c runloop.h ipc_utils.h
 libmacwc_la_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG}
 libmacwc_la_LIBADD = libltr.la
 libmacwc_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${AM_CFLAGS} ${SLEOPARD_LDFLAG}
@@ -233,7 +233,7 @@ distclean-local-check:
 	-cd mickey;$(MAKE) distclean
 	-cd wii_server;$(MAKE) distclean
 
-noinst_SCRIPTS = qt_gui/ltr_gui 
+noinst_SCRIPTS = qt_gui/ltr_gui
 
 .PHONY: LTR_QT_GUI_TARGET_INST LTR_QT_GUI_TARGET_UNINST \
   LTR_MICKEY_TARGET_INST LTR_MICKEY_TARGET_UNINST \
