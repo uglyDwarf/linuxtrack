@@ -1,19 +1,29 @@
 #summary Linuxtrack packags for Download
 #labels Deprecated,Phase-Deploy
 
-= Current version: Linuxtrack 0.99.11 =
-[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.11-32.zip Linux 32bit universal package]
+= Current version: Linuxtrack 0.99.12 =
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.12-32.zip Linux 32bit universal package]
 
-[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.11-64.zip Linux 64bit universal package]
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.12-64.zip Linux 64bit universal package]
 
-[http://linuxtrack.eu/repositories/mac/linuxtrack-0.99.11.dmg MacOSX package]
+[http://linuxtrack.eu/repositories/mac/linuxtrack-0.99.12.dmg MacOSX package]
 
-[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.11.tar.bz2 Source package]
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.12.tar.bz2 Source package]
 
-[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.11.sig Source package signature]
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.12.sig Source package signature]
 
 
 = Older versions =
+
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.11-32.zip linuxtrack-0.99.11 Linux 32bit universal package]
+
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.11-64.zip linuxtrack-0.99.11 Linux 64bit universal package]
+
+[http://linuxtrack.eu/repositories/mac/linuxtrack-0.99.11.dmg linuxtrack-0.99.11 MacOSX package]
+
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.11.tar.bz2 linuxtrack-0.99.11 Source package]
+
+[http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.11.sig linuxtrack-0.99.11 Source package signature]
 
 [http://linuxtrack.eu/repositories/universal/linuxtrack-0.99.10-32.zip linuxtrack-0.99.10 Linux 32bit universal package]
 
