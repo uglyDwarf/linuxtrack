@@ -1,13 +1,14 @@
 #include "ltr_srv_comm.h"
 #include "ltr_srv_slave.h"
 #include "ltr_srv_master.h"
-
+#include "utils.h"
 #include <signal.h>
 
 int main(int argc, char *argv[])
 {
   (void) argc;
   (void) argv;
+  ltr_int_check_root();
   //Make sure that broken pipe won't bring us down
   signal(SIGPIPE, SIG_IGN);
   if(argc == 1){
