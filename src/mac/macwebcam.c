@@ -11,11 +11,12 @@ struct mmap_s mmm;
 
 int main(int argc, char *argv[])
 {
+  ltr_int_check_root();
   if(!checkCmdLine(argc, argv)){
     ltr_int_log_message("Wrong  arguments!\n");
     return EXIT_FAILURE;
   }
-  
+
   if(doEnumCams()){
     enumerateCameras();
   }else if(doCapture()){
@@ -33,6 +34,6 @@ int main(int argc, char *argv[])
   }else{
     return EXIT_FAILURE;
   }
-  
+
   return EXIT_SUCCESS;
 }

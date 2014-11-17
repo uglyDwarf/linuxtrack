@@ -92,7 +92,7 @@ bin_PROGRAMS = ltr_server1$(EXEEXT) $(am__EXEEXT_1) ltr_pipe$(EXEEXT)
 @CRYPTO_TRUE@@MXML_TRUE@am__append_7 = ltr_extractor.1
 @LIBZ_TRUE@am__append_8 = libtir.la
 @LIBZ_TRUE@am__append_9 = 99-TIR.rules 99-Mickey.rules
-@LIBUSB10_TRUE@@LIBZ_TRUE@am__append_10 = libltusb1.la 
+@LIBUSB10_TRUE@@LIBZ_TRUE@am__append_10 = libltusb1.la
 @DARWIN_TRUE@am__append_11 = libmacwc.la
 @XPLANE_PLUGIN_TRUE@am__append_12 = xlinuxtrack9.la
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am__append_13 = xlinuxtrack9_32.la
@@ -227,7 +227,8 @@ libltusb1_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(CFLAGS) $(libltusb1_la_LDFLAGS) $(LDFLAGS) -o $@
 @LIBUSB10_TRUE@@LIBZ_TRUE@am_libltusb1_la_rpath = -rpath $(pkglibdir)
 libmacwc_la_DEPENDENCIES = libltr.la
-am_libmacwc_la_OBJECTS = libmacwc_la-macwebcam_driver.lo
+am_libmacwc_la_OBJECTS = libmacwc_la-macwebcam_driver.lo \
+	libmacwc_la-runloop.lo
 libmacwc_la_OBJECTS = $(am_libmacwc_la_OBJECTS)
 libmacwc_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libmacwc_la_CFLAGS) \
@@ -592,7 +593,7 @@ man_MANS = ltr_gui.1 ltr_server1.1 mickey.1 $(am__append_2) \
 	$(am__append_7) ltr_pipe.1
 
 #if OPENUSB
-#  pkglib_LTLIBRARIES += libltopenusb.la 
+#  pkglib_LTLIBRARIES += libltopenusb.la
 #endif
 pkglib_LTLIBRARIES = libltr.la libmacwii.la liblinuxtrack.la \
 	$(am__append_1) $(am__append_3) $(am__append_4) \
@@ -643,7 +644,7 @@ libltr_la_SOURCES = ../config.h cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   wc_driver_prefs.h ipc_utils.c ipc_utils.h com_proc.c com_proc.h wii_com.c wii_com.h
 
 libltr_la_LIBADD = -lm -lpthread -ldl
-libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXFLAGS) 
+libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 libltr_la_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 libltr_la_CXXFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h sn4_com.h \
@@ -680,7 +681,7 @@ libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_CFLAGS = ${AM_CFLAGS}
 libwc_la_LIBADD = libltr.la -lv4l2
 libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
-libmacwc_la_SOURCES = macwebcam_driver.c com_proc.h runloop.h ipc_utils.h
+libmacwc_la_SOURCES = macwebcam_driver.c com_proc.h runloop.c runloop.h ipc_utils.h
 libmacwc_la_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG}
 libmacwc_la_LIBADD = libltr.la
 libmacwc_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${AM_CFLAGS} ${SLEOPARD_LDFLAG}
@@ -1115,6 +1116,9 @@ libltusb1_la-libusb_ifc.lo: libusb_ifc.c
 
 libmacwc_la-macwebcam_driver.lo: macwebcam_driver.c
 	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwc_la_CFLAGS) $(CFLAGS) -c -o libmacwc_la-macwebcam_driver.lo `test -f 'macwebcam_driver.c' || echo '$(srcdir)/'`macwebcam_driver.c
+
+libmacwc_la-runloop.lo: runloop.c
+	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwc_la_CFLAGS) $(CFLAGS) -c -o libmacwc_la-runloop.lo `test -f 'runloop.c' || echo '$(srcdir)/'`runloop.c
 
 libmacwii_la-macwii_driver.lo: macwii_driver.c
 	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwii_la_CFLAGS) $(CFLAGS) -c -o libmacwii_la-macwii_driver.lo `test -f 'macwii_driver.c' || echo '$(srcdir)/'`macwii_driver.c
@@ -1616,7 +1620,7 @@ uninstall-man: uninstall-man1
 	uninstall-man uninstall-man1 uninstall-pkglibLTLIBRARIES
 
 @DARWIN_TRUE@  #If ltr_server is not linked against CoreFoundation, loading libusb-1.0 would
-@DARWIN_TRUE@  #  cause SIG_TRAP, since CoreFoundation expects the init takes place 
+@DARWIN_TRUE@  #  cause SIG_TRAP, since CoreFoundation expects the init takes place
 @DARWIN_TRUE@  #  in the main thread. Linking ltr_server against CoreFoundation solves that.
 
 #dirty hack to allow usage of automake > 1.12,

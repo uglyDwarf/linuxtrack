@@ -8,6 +8,7 @@
 
  int main(int argc, char *argv[])
  {
+     ltr_int_check_root();
      ltr_int_log_message("Starting Mickey controller!\n");
      setenv("LC_ALL", "C", 1);
      setlocale(LC_ALL, "C");

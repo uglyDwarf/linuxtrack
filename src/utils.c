@@ -53,7 +53,7 @@ bool ltr_int_set_logfile(char *fname)
   if(output_stream == NULL){
     return false;
   }
-  rewind(output_stream); //rewind to obtain lock on the whole file 
+  rewind(output_stream); //rewind to obtain lock on the whole file
   fd = fileno(output_stream);
   if(lockf(fd, F_TLOCK, 0) != 0){
     fclose(output_stream);
@@ -86,7 +86,7 @@ bool ltr_int_test_file(char *fname, time_t *ts)
     *ts = 0;
     return false;
   }
-  
+
   *ts = finfo.st_mtime;
   return false;
 }
@@ -98,7 +98,7 @@ bool ltr_int_open_logfile()
   int cntr;
   for(cntr = 0; cntr < MAX_LOGS; ++cntr){
     if(asprintf(&fname, logfile_template, cntr) < 0){
-      //most probably memory allocation failed, 
+      //most probably memory allocation failed,
       //  and there is not much we can do about it.
       return false;
     }
@@ -109,7 +109,7 @@ bool ltr_int_open_logfile()
     free(fname);
     fname = NULL;
   }
-  
+
   if(fname == NULL){
     int min_index = -1;
     //find oldest one
@@ -124,7 +124,7 @@ bool ltr_int_open_logfile()
     //construct name of the oldest one
     if(min_index >= 0){
       if(asprintf(&fname, logfile_template, min_index) < 0){
-        //most probably memory allocation failed, 
+        //most probably memory allocation failed,
         //  and there is not much we can do about it.
         return false;
       }
@@ -153,7 +153,7 @@ void ltr_int_valog_message(const char *format, va_list va)
   struct tm  *ts = localtime(&now);
   char       buf[80];
   strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", ts);
-  
+
   fprintf(output_stream, "[%s] ", buf);
   vfprintf(output_stream, format, va);
   fflush(output_stream);
@@ -245,7 +245,7 @@ char *ltr_int_get_app_path(const char *suffix)
     free(fname);
     return NULL;
   }
-  
+
   free(fname);
   fname = NULL;
   char key[2048];
@@ -375,7 +375,7 @@ void ltr_int_my_perror(const char *str)
 void ltr_int_usleep(unsigned int usec)
 {
   struct timespec req, rem;
-  
+
   req.tv_sec = usec / 1000000;
   req.tv_nsec = (usec % 1000000) * 1000;
   while(1){
@@ -395,5 +395,11 @@ void ltr_int_usleep(unsigned int usec)
   }
 }
 
-
-
+void ltr_int_check_root()
+{
+  if(geteuid() == 0){
+    ltr_int_log_message("Linuxtrack components aren't supposed running with root privileges!\n");
+    printf("Linuxtrack components aren't supposed running with root privileges!\n");
+    exit(0);
+  }
+}
