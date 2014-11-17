@@ -169,7 +169,7 @@ if DARWIN
   pkglib_LTLIBRARIES += libmacwc.la
 endif
 
-libmacwc_la_SOURCES = macwebcam_driver.c com_proc.h runloop.h ipc_utils.h
+libmacwc_la_SOURCES = macwebcam_driver.c com_proc.h runloop.c runloop.h ipc_utils.h
 libmacwc_la_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG}
 libmacwc_la_LIBADD = libltr.la
 libmacwc_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${AM_CFLAGS} ${SLEOPARD_LDFLAG}
