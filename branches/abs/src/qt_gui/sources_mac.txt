@@ -1,0 +1,5 @@
+http://media.naturalpoint.com/software/TrackIR_4.2.039.Final.exe
+http://media.naturalpoint.com/software/TrackIR_5.2.2.Final.exe
+http://media.naturalpoint.com/software/TrackIR_5.2.1.Final.exe
+http://media.naturalpoint.com/software/TrackIR_5.2.Final.exe
+

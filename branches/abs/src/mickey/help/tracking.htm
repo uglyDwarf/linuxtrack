@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+  <title>Tracking setup</title>
+  <meta name="generator" content="Bluefish 2.2.3" >
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>Tracking setup</h1>
+This part of the Mickey user interface allows you to set parameters of the tracking like cursor 
+speed, dead-zone and others.
+
+<p>
+<b>Sensitivity</b> slider allows you to set the top speed of the mouse cursor. Leftmost position
+is the slowest, rightmost the fastest. Please note, that this setting doesn't change the sensitivity
+curve visualization (the view is normalized to the sensitivity).
+
+<p>
+<b>Dead-zone</b> slider specifies percentage of the full movement range (up to 50%) that is ignored 
+and doesn't cause any cursor movement. It allows for neck muscle relaxation as it doesn't require
+you to hold your head exactly centered to hold the cursor steady.
+
+<p>
+<b>Curvature</b> slider is used to modify the feel of the tracker; when moved to the right off 
+the center position, the tracking is more precise around the center; when moved to the left,
+the speed rises more abruptly allowing for faster, yet less precise cursor control.
+
+<p>
+<b>Step only</b> check-box disables the <b>Curvature</b> slider and causes the cursor either stand
+still (when inside the dead-zone) or running the full speed in the direction of head movement.
+
+<p>
+<b>Apply changes</b> button allows you to check the new settings; when the result is unsatisfactory,
+either click the <b>Revert changes</b> button or wait for the timeout to get back to the previous state.
+If you like the settings, make sure you click the <b>Keep</b> button!
+
+<p>
+<b>Calibrate</b> button commences the calibration process. The first stage is the re-centering - center 
+your sight and wait for the timeout; the calibration itself is started next - before the time is up,
+move your head to the left/right/top/bottom extremes. It allows the software to optimize the tracking
+to the range of motion of your head.
+
+<p>
+<b>Recenter</b> button allows only to center the view without going through the full blown calibration.
+
+</body>
+</html>

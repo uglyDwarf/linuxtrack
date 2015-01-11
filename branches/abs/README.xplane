@@ -1,0 +1,6 @@
+Linuxtrack package contains two plugnins for XPlane simulator.
+
+xlinuxtrack.so.0 is the legacy plugin, usable on XPlane v8.XX and v9.XX
+xlinuxtrack9.so.0 is the current plugin for XPlane v9.XX and up
+
+The xlinuxtrack9 plugin is installed by default (via ltr_gui).

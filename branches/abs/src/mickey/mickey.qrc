@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="ltr">
+    <file>../linuxtrack.svg</file>
+  </qresource>
+</RCC>
