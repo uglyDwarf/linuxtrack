@@ -29,7 +29,7 @@ typedef enum {MR_OK, MR_FAIL, MR_OFTEN} mr_res_t;
 
 static bool parent_alive()
 {
-  //Check whether parent lives 
+  //Check whether parent lives
   //  (if not, we got orphaned and got adopted by init)
   return (getppid() == ppid);
 }
@@ -40,7 +40,7 @@ static int ltr_int_open_slave_fifo(int l_master_uplink, const char *name_templat
   char *data_fifo_name = NULL;
   //Open the data passing fifo and pass it to the master...
   int fifo_number = -1;
-  int l_master_downlink = ltr_int_open_unique_fifo(&data_fifo_name, &fifo_number, name_template, 
+  int l_master_downlink = ltr_int_open_unique_fifo(&data_fifo_name, &fifo_number, name_template,
                                                  max_fifos, &slave_lock);
   ltr_int_log_message("Trying to open unique fifo %s => %d\n", data_fifo_name, l_master_downlink);
   free(data_fifo_name);
@@ -83,7 +83,7 @@ static bool start_master(int *l_master_uplink, int *l_master_downlink)
     ltr_int_unlockSemaphore(master_lock);
     ltr_int_closeSemaphore(master_lock);
     close_master_comms(l_master_uplink, l_master_downlink);
-    ltr_int_log_message("Master is not running, start it\n"); 
+    ltr_int_log_message("Master is not running, start it\n");
     char *args[] = {"srv", NULL};
     args[0] = ltr_int_get_app_path("/ltr_server1");
     ltr_int_fork_child(args, &is_child);
@@ -105,7 +105,7 @@ static bool open_master_comms(int *l_master_uplink, int *l_master_downlink)
     ltr_int_log_message("Couldn't open fifo to master!\n");
     return false;
   }
-  if((*l_master_downlink = ltr_int_open_slave_fifo(*l_master_uplink, ltr_int_slave_fifo_name(), 
+  if((*l_master_downlink = ltr_int_open_slave_fifo(*l_master_uplink, ltr_int_slave_fifo_name(),
                                                ltr_int_max_slave_fifos())) <= 0){
     ltr_int_log_message("Couldn't pass master our fifo!\n");
     close(*l_master_uplink);
@@ -121,16 +121,16 @@ static bool ltr_int_try_start_master(int *l_master_uplink, int *l_master_downlin
 {
   int master_restart_retries = master_retries;
   while(master_restart_retries > 0){
-    
+
     close_master_comms(l_master_uplink, l_master_downlink);
     if(ltr_int_gui_lock(false)){
-      
+
       start_master(l_master_uplink, l_master_downlink);
       --master_restart_retries;
     }else{
       master_restart_retries = master_retries;
     }
-    
+
     if(open_master_comms(l_master_uplink, l_master_downlink)){
       ltr_int_log_message("Master is responding!\n");
       return true;
@@ -154,7 +154,7 @@ static bool ltr_int_process_message(int l_master_downlink)
   }else if(bytesRead == 0){
     return true;
   }
-  
+
   switch(msg.cmd){
     case CMD_NOP:
       break;
@@ -163,7 +163,9 @@ static bool ltr_int_process_message(int l_master_downlink)
       //printf(">>>>%f %f %f\n", msg.pose.raw_yaw, msg.pose.raw_pitch, msg.pose.raw_tz);
       ltr_int_postprocess_axes(axes, &(msg.pose.pose), &unfiltered);
       //printf(">>>>%f %f %f\n", msg.pose.yaw, msg.pose.pitch, msg.pose.tz);
-      
+      printf("Raw center: %f  %f  %f\n", msg.pose.pose.raw_tx, msg.pose.pose.raw_ty, msg.pose.pose.raw_tz);
+      printf("Raw angles: %f  %f  %f\n", msg.pose.pose.raw_pitch, msg.pose.pose.raw_yaw, msg.pose.pose.raw_roll);
+
       com = mmm.data;
       ltr_int_lockSemaphore(mmm.sem);
       //printf("STATUS: %d\n", msg.pose.status);
@@ -176,7 +178,7 @@ static bool ltr_int_process_message(int l_master_downlink)
       ltr_int_unlockSemaphore(mmm.sem);
       break;
     case CMD_PARAM:
-      //printf("Changing %s of %s to %f!!!\n", ltr_int_axis_param_get_desc(msg.param.param_id), 
+      //printf("Changing %s of %s to %f!!!\n", ltr_int_axis_param_get_desc(msg.param.param_id),
       //  ltr_int_axis_get_desc(msg.param.axis_id), msg.param.flt_val);
       if(msg.param.axis_id == MISC){
         switch(msg.param.param_id){
@@ -188,6 +190,9 @@ static bool ltr_int_process_message(int l_master_downlink)
             break;
           case MISC_LEGR:
             ltr_int_set_use_oldrot(msg.param.flt_val > 0.5f);
+            break;
+          case MISC_FOCAL_LENGTH:
+            ltr_int_set_focal_length(msg.param.flt_val);
             break;
           default:
             ltr_int_log_message("Wrong misc param: %d\n", msg.param.param_id);
@@ -325,7 +330,7 @@ bool ltr_int_slave(const char *c_profile, const char *c_com_file, const char *pp
     return false;
   }
   free(com_file);
-  
+
   if(pthread_create(&reader_tid, NULL, ltr_int_slave_reader_thread, NULL) == 0){
     ltr_int_slave_main_loop();
     pthread_join(reader_tid, NULL);
