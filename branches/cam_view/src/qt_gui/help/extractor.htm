@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+  <title>NP Firmware Extractor</title>
+  <meta name="generator" content="Bluefish 2.2.3" >
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>NP Firmware Extractor</h1>
+Some NP devices (TrackIR4+ and SmartNav4) require a firmware that has to be loaded each time the device is
+started. Also the Linuxtrack-Wine bridge utilizes some informations contained in the package
+(the infamous poetry, list of supported games along with their IDs and keys for the "enhanced" interface).
+The firmware is extracted using Wine from the TrackIR windows package downloaded directly from
+NP.
+
+<h2>Firmware extraction</h2>
+
+<img src="Extractor.png" width="100%" alt="">
+<p>
+When the Extraction dialog pops up, press the <b>Download</b> button to download the latest 
+driver package. By default the newest package available is downloaded; if it is not accessible,
+select any other from the combo-box to the left of the button (all packages listed there contain 
+the same firmware, only the game list might differ a bit) and try again.
+<p>
+When the package is downloaded/browsed to, a dialog containing short instructions pops up.
+After pressing <b>OK</b> the package is installed to a temporary Wine prefix.
+<p>
+On Linux, usual installation dialog will pop up - just install the whole thing.
+Newer packages contain some MS runtime and NP USB drivers install, both of them has to be installed
+in order to install the main package. Don't worry though, none of the installed things is going to
+last - when the data are extracted, everything is going to be removed (and the installation happens 
+in temporary Wine prefix).
+<p>
+On Macs, due to Wine configuration peculiarities, the installation should be performed silently.
+<p>
+When the installer finishes, the extraction is started - you can follow its progress in the status
+part of the Extractor dialog. When the extraction is finished, the dialog closes by itself.
+<p>
+If you don't have access to the Internet, just download any of the listed packages elsewhere and
+using the <b>Extract from installer</b> button find and open the one you downloaded.
+<p>
+If you encounter any difficulties using the above methods, you can try to install the driver by 
+hand (using Wine or install on windows machine and copy the result over). Then just press the 
+<b>Extract from unpacked</b>, browse to the directory (the whole directory!) containing the
+NP software (e.g. ~/.wine/drive_c/Program\ Files/NaturalPoint/TrackIR5) and press <b>Open</b> button for 
+the extraction to begin.
+
+
+<h2>Why so complicated?</h2>
+Maybe you wander, why is the whole thing that complicated, or why to download ~20MB package instead
+of 100KB one?
+<p>
+There are two main reasons that led to this decision:
+<p>
+The first one is the neglect from the NP's side - I asked couple of relatively simple questions 
+(e.g. what is their take on Linuxtrack in Wine, ...), and after a year of waiting without any real answer,
+I came to a conclusion that this is not a way to go. 
+<p>
+The second reason was their attempt to impose artificial limitations on the Linuxtrack itself
+in order to grant me a permission to use SmartNav 4 firmware; they asked for disabling SmartNav4
+functionality on Mac OS, so people couldn't use Linuxtrack to emulate a mouse. Besides of 
+being technically impossible to do (how a library can check what it is being used for), 
+it would be completely against the Linuxtrack's spirit.
+<p>
+For those reasons (and couple of others) I decided to cut all the bonds (they used to host Linuxtrack
+firmware package in the past - per their own request) and using Wine was the only logical choice.
+Given the fact, that this step is mostly one time only, I hope the inconvenience level is not 
+too high.
+
+<h2>Technical informations</h2>
+The extracted files are in the following path:
+
+~/.config/linuxtrack/tir_firmware
+
+and it contains the following files:
+<ul>
+<li><b>poem1.txt</b> The first haiku verse - so called DLL signature</li>
+<li><b>poem2.txt</b> The second haiku verse - so called Application signature</li>
+<li><b>gamedata.txt</b> List of TrackIR enhanced games along with their IDs</li>
+<li><b>sn4.fw.gz</b> SmartNav4 firmware</li>
+<li><b>tir4.fw.gz</b> TrackIR4 firmware</li>
+<li><b>tir5.fw.gz</b> TrackIR5 firmware</li>
+<li><b>tir5v2.fw.gz</b> TrackIR5 rev 2 firmware</li>
+</ul>
+
+The haiku verses are used by most games to verify that there is a TrackIR software on the other side.
+It was used to prevent other programs from emulating the interface (most notably FreeTrack).
+The claim was based on the fact, that those strings contain NP's trademark and they are copyrighted.
+My belief is, that since most games refuse to work without it, it is a part of the interface and 
+therefore not copyright-able in order to provide means of interoperability. Also Fair use should be 
+applicable in this case.
+<p>
+The gamedata.txt list is extracted from file sgl.dat; the file is encrypted using RC4 stream cipher,
+using first 5 bytes in MD5 hash of string "NaturalPoint" as a key. The payload is XML, containing
+data on supported games, of which the only relevant part is a game ID, its name and for games using the
+"enhanced" interface there are communication keys. The Linuxtrack-Wine bridge uses this info to determine 
+game's name when passed its ID and the keys to emulate the enhanced interface when necessary.
+
+</body>
+</html>
+

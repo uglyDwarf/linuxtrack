@@ -1,0 +1,15 @@
+Debug flags
+-----------
+For example - all on:
+export LINUXTRACK_DBG=pfutr
+
+p - log 2D points passing through image_process (webcam, tir) and save imgs.
+f - load fake usb for tir model
+u - log packets sent to/from TIR
+t - print blob coordinates
+r - print raw pose
+
+
+export LINUXTRACK_STIMULI=/tmp/file.X
+
+Sets input to play packets from for TIR model. 

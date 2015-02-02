@@ -1,0 +1,122 @@
+.TH ltr_pipe 1 "23 April 2011"
+.IX ltr_pipe
+.SH NAME
+ltr_pipe - send LinuxTrack data to STDOUT, a file or network.
+.SH SYNOPSYS
+.B ltr_pipe
+.RI [-hV]
+.RI [--help]
+.RI [--version]
+.RI [--output-stdout]
+.RI [--output-file=FILENAME]
+.RI [--output-net-udp]
+.RI [--output-net-tcp]
+.RI [--dst-host=HOST]
+.RI [--dst-port=PORT]
+.RI [--ltr-profile=PROFILE]
+.RI [--ltr-timeout=SECONDS]
+.RI [--format-default]
+.RI [--format-flightgear]
+.RI [--format-il2]
+.RI [--format-il2-6dof]
+.RI [--format-silentwings]
+.RI [--format-headtrack]
+.RI [--format-mouse]
+.RI [--format-uinput-rel]
+.RI [--format-uinput-abs]
+.RI [--uinput-abs-range=RANGE]
+.SH DESCRIPTION
+ltr_pipe is a client executable that allows one to send LinuxTrack data to
+STDOUT, a file, or using UDP or TCP protocols to a network destination.
+.SH OPTIONS
+.TP
+.TP
+.B Generic options:
+.TP
+.B -h, --help
+Give this help list.
+.TP
+.B -V, --version
+Print program version.
+.TP
+.B Output options:
+.TP
+.B --output-stdout
+Write data to STDOUT.
+.TP
+.B --output-file=FILENAME
+Write data to a file.
+.TP
+.B --output-net-udp
+Write data to network using UDP protocol.
+.TP
+.B --output-net-tcp
+Write data to network using TCP protocol.
+.TP
+.B Network options:
+.TP
+.B --dst-host=HOST
+Destination host (default: 127.0.0.1).
+.TP
+.B --dst-port=PORT
+Destination port (default: 6543).
+.TP
+.B LinuxTrack options:
+.TP
+.B --ltr-profile=PROFILE
+LinuxTrack profile name (default: Default).
+.TP
+.B --ltr-timeout=SECONDS
+LinuxTrack init timeout (default: 10).
+.TP
+.B String output data format options:
+.TP
+.B --format-default
+Write all LinuxTrack values in strings. Each string consists of the following
+seven colums separated by tabs: heading, pitch, roll, x, y, z, counter.
+.TP
+.B --format-flightgear
+FlightGear format.
+.TP
+.B --format-il2
+IL-2 Shturmovik DeviceLink format.
+.TP
+.B --format-il2-6dof
+IL-2 Shturmovik version 4.11+, DeviceLink format.
+.TP
+.B --format-silentwings
+Silent Wings remote control format.
+.TP
+.B Binary output data format options:
+.TP
+.B --format-headtrack
+EasyHeadTrack compatible format.
+.TP
+.B --format-mouse
+ImPS/2 mouse format.
+.TP
+.B --format-uinput-rel
+.I "(Linux only)"
+uinput relative position (like a mouse).
+.TP
+.B --format-uinput-abs
+.I "(Linux only)"
+uinput absolute position (like a joystick).
+.TP
+.B --uinput-abs-range
+.I "(Linux only)"
+specify precision of the abs device (values range from -RANGE to +RANGE).
+.SH SIGNALS
+Signals could be used to do a specific LinuxTrack action. Simple shell commands
+like
+.B "kill -HUP `pidof ltr_pipe`"
+or
+.B "kill -USR1 `pidof ltr_pipe`"
+could be bound somehow to a key or key combination in order to send signals
+to ltr_pipe.
+.TP
+.B -HUP
+Recenter command.
+.TP
+.B -USR1
+Suspend/wake-up command.

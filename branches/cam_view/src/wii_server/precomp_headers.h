@@ -1,0 +1,15 @@
+#include <QApplication>
+#include <QLocale>
+#include <QVariant>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QHeaderView>
+#include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QWidget>
+#include <QObject>
+#include <QThread>
+#include <QTimer>
+#include <QMessageBox>
