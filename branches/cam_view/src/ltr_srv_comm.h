@@ -26,7 +26,7 @@ typedef struct{
   };
 } message_t;
 
-enum cmds {CMD_NOP, CMD_NEW_FIFO, CMD_PAUSE, CMD_WAKEUP, CMD_RECENTER, CMD_POSE, CMD_PARAM};
+enum cmds {CMD_NOP, CMD_NEW_FIFO, CMD_PAUSE, CMD_WAKEUP, CMD_RECENTER, CMD_POSE, CMD_PARAM, CMD_FRAMES};
 
 #ifdef __cplusplus
 extern "C" {

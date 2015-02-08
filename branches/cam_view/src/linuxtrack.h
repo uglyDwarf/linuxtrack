@@ -84,6 +84,8 @@ typedef struct{
 } linuxtrack_pose_t;
 
 int linuxtrack_get_pose_full(linuxtrack_pose_t *pose, float blobs[], int num_blobs, int *blobs_read);
+linuxtrack_state_type linuxtrack_request_frames(void);
+int linuxtrack_get_frame(int *req_width, int *req_height, size_t buf_size, uint8_t *buffer);
 #ifdef __cplusplus
 }
 #endif

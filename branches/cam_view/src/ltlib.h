@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include "linuxtrack.h"
 
-typedef enum{RUN_CMD, PAUSE_CMD, STOP_CMD, NOP_CMD} ltr_cmd;
+typedef enum{RUN_CMD, PAUSE_CMD, STOP_CMD, FRAMES_CMD, NOP_CMD} ltr_cmd;
 
 #define MAX_BLOBS 10
 #define BLOB_ELEMENTS 3
@@ -14,7 +14,7 @@ typedef struct{
   linuxtrack_pose_t pose;
   uint32_t blobs;
   float blob_list[BLOB_ELEMENTS * MAX_BLOBS];
-}linuxtrack_full_pose_t; 
+}linuxtrack_full_pose_t;
 
 struct ltr_comm{
   uint8_t cmd;

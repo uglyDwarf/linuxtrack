@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include "ltlib.h"
 #include "linuxtrack.h"
+#include "ipc_utils.h"
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +26,7 @@ int ltr_int_get_camera_update(linuxtrack_full_pose_t *pose);
 linuxtrack_state_type ltr_int_get_tracking_state(void);
 void ltr_int_register_cbk(ltr_new_frame_callback_t new_frame_cbk, void *param1,
                           ltr_status_update_callback_t status_change_cbk, void *param2);
+void ltr_int_publish_frames_cmd(void);
 
 #ifdef __cplusplus
 }

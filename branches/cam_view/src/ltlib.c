@@ -186,6 +186,16 @@ linuxtrack_state_type ltr_recenter(void)
   return LINUXTRACK_OK;
 }
 
+linuxtrack_state_type ltr_request_frames(void)
+{
+  struct ltr_comm *com = mmm.data;
+  if((!initialized) || (com == NULL)) return err_NOT_INITIALIZED;
+  ltr_int_lockSemaphore(mmm.sem);
+  com->cmd = FRAMES_CMD;
+  ltr_int_unlockSemaphore(mmm.sem);
+  return LINUXTRACK_OK;
+}
+
 linuxtrack_state_type ltr_get_tracking_state(void)
 {
   linuxtrack_state_type state = STOPPED;
@@ -248,3 +258,51 @@ const char *ltr_explain(linuxtrack_state_type status)
   }
   return res;
 }
+
+static struct mmap_s mmap;
+
+int ltr_get_frame(int *req_width, int *req_height, size_t buf_size, uint8_t *buffer)
+{
+  struct ltr_comm *com = mmm.data;
+  if((!initialized) || (com == NULL)) return 0;
+  struct ltr_comm tmp;
+  ltr_int_lockSemaphore(mmm.sem);
+  tmp = *com;
+  ltr_int_unlockSemaphore(mmm.sem);
+  if(tmp.state < LINUXTRACK_OK){
+    return 0;
+  }
+  uint32_t p_w = tmp.full_pose.pose.resolution_x;
+  uint32_t p_h = tmp.full_pose.pose.resolution_y;
+
+  if(p_w * p_h > mmap.size){
+    ltr_int_unmap_file(&mmap);
+    int data_size = 2 * p_w * p_h + (3 * sizeof(uint32_t));
+    char *fname = ltr_int_get_default_file_name("frames.dat");
+    if(!ltr_int_mmap_file(fname, data_size, &mmap)){
+      free(fname);
+      return 0;
+    }
+    free(fname);
+  }
+  if(mmap.data == NULL){
+    return 0;
+  }
+  uint32_t *data = (uint32_t*)mmap.data;
+  uint32_t *flag = data;
+  uint32_t *w = data + 1;
+  uint32_t *h = data + 2;
+  uint32_t frame_size = (*w) * (*h);
+  *req_width = *w;
+  *req_height = *h;
+  if((p_w * p_h) < frame_size){ //Size had to change, mmap not big enough
+    return 0;
+  }
+  if(buf_size < frame_size){
+    return 0;
+  }
+  uint8_t *buf = ((uint8_t*)mmap.data) + (3 * sizeof(uint32_t)) + (*flag) * frame_size;
+  memcpy(buffer, buf, frame_size);
+  return 1;
+}
+
