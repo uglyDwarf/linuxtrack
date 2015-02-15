@@ -58,7 +58,7 @@ bool ltr_int_is_model_active()
   return res;
 }
 
-static bool_val_t use_alter = UNSET; 
+static bool_val_t use_alter = UNSET;
 
 bool ltr_int_use_alter()
 {
@@ -84,7 +84,25 @@ void ltr_int_set_use_alter(bool state)
   ltr_int_change_key("Global", "Legacy-pose-computation", state?"yes":"no");
 }
 
-static bool_val_t use_oldrot = UNSET; 
+static float focal_length = -1.0f;
+
+float ltr_int_get_focal_length()
+{
+  if(focal_length < 0.0f){
+    if((!ltr_int_get_key_flt("Global", "Focal-length", &focal_length)) || (focal_length < 0.0f)){
+      focal_length = 660.0f;
+    }
+  }
+  return focal_length;
+}
+
+void ltr_int_set_focal_length(float fl)
+{
+  focal_length = fl;
+  ltr_int_change_key_flt("Global", "Focal-length", fl);
+}
+
+static bool_val_t use_oldrot = UNSET;
 
 bool ltr_int_use_oldrot()
 {
@@ -111,14 +129,14 @@ void ltr_int_set_use_oldrot(bool state)
 }
 
 
-static bool_val_t tr_align = UNSET; 
+static bool_val_t tr_align = UNSET;
 
 bool ltr_int_do_tr_align()
 {
   if(tr_align == UNSET){
     tr_align = YES;
     static char *tmp = NULL;
-    tmp = ltr_int_get_key("Global", "Align-translations"); 
+    tmp = ltr_int_get_key("Global", "Align-translations");
     if(tmp != NULL){
       if(strcasecmp(tmp, "yes") == 0){
         tr_align = YES;
@@ -189,7 +207,7 @@ bool ltr_int_get_device(struct camera_control_block *ccb)
     }
     free(dev_type);
   }
-  
+
   char *dev_id = ltr_int_get_key(dev_section, "Capture-device-id");
   free(dev_section);
   if (dev_id == NULL) {
@@ -224,18 +242,18 @@ static bool setup_cap(reflector_model_type *rm, char *model_section)
 {
   static char *ids[] = {"Cap-X", "Cap-Y", "Cap-Z", "Head-Y", "Head-Z"};
   ltr_int_log_message("Setting up Cap\n");
-  
+
   float x, y, z, hy, hz;
   bool res = ltr_int_get_key_flt(model_section, ids[X], &x) &&
     ltr_int_get_key_flt(model_section, ids[Y], &y) &&
     ltr_int_get_key_flt(model_section, ids[Z], &z) &&
     ltr_int_get_key_flt(model_section, ids[H_Y], &hy) &&
     ltr_int_get_key_flt(model_section, ids[H_Z], &hz);
-  
+
   if(!res){
     return false;
   }
-  
+
   rm->p0[0] = 0;
   rm->p0[1] = y;
   rm->p0[2] = 0;
@@ -257,9 +275,9 @@ typedef enum {Y1, Y2, Z1, Z2, HX, HY, HZ} clip_index;
 static bool setup_clip(reflector_model_type *rm, char *model_section)
 {
   ltr_int_log_message("Setting up Clip...\n");
-  static char *ids[] = {"Clip-Y1", "Clip-Y2", "Clip-Z1", "Clip-Z2", 
+  static char *ids[] = {"Clip-Y1", "Clip-Y2", "Clip-Z1", "Clip-Z2",
   			"Head-X", "Head-Y", "Head-Z"};
-  
+
   float y1, y2, z1, z2, hx, hy, hz;
   bool res = ltr_int_get_key_flt(model_section, ids[Y1], &y1) &&
     ltr_int_get_key_flt(model_section, ids[Y2], &y2) &&
@@ -275,11 +293,11 @@ static bool setup_clip(reflector_model_type *rm, char *model_section)
   z1 is horizontal dist of upper and middle point
   z2 is horizontal dist of uper and lower point
   hx,hy,hz are head center coords with upper point as origin
-  */ 
+  */
   if(!res){
     return false;
   }
-  
+
   rm->p0[0] = 0;
   rm->p0[1] = y1;
   rm->p0[2] = -z1;
@@ -304,7 +322,7 @@ bool ltr_int_get_model_setup(reflector_model_type *rm)
   static bool res = false;
   char *model_type = ltr_int_get_key(model_section, "Model-type");
   assert(model_type != NULL);
-  
+
   if(strcasecmp(model_type, "Cap") == 0){
     res = setup_cap(rm, model_section);
   }else if(strcasecmp(model_type, "Clip") == 0){

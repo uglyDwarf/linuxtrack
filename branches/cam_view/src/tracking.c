@@ -23,11 +23,11 @@ static linuxtrack_full_pose_t current_pose;
 /*******************************/
 /* private function prototypes */
 /*******************************/
-/*static float expfilt(float x, 
+/*static float expfilt(float x,
               float y_minus_1,
               float filtfactor);
 
-static void expfilt_vec(float x[3], 
+static void expfilt_vec(float x[3],
               float y_minus_1[3],
               float filtfactor,
               float res[3]);
@@ -72,7 +72,7 @@ bool ltr_int_init_tracking()
   }else{
     behind = false;
   }
-  
+
   if(ltr_int_check_pose() == false){
     ltr_int_log_message("Can't get pose setup!\n");
     return false;
@@ -95,8 +95,6 @@ int ltr_int_recenter_tracking()
 
 
 static pthread_mutex_t pose_mutex = PTHREAD_MUTEX_INITIALIZER;
-static double angles[3] = {0.0f, 0.0f, 0.0f};
-static double translations[3] = {0.0f, 0.0f, 0.0f};
 
 static void ltr_int_rotate_camera(float *x, float *y, int cam_orientation)
 {
@@ -127,12 +125,12 @@ static int update_pose_1pt(struct frame_type *frame)
   static float c_x = 0.0f;
   static float c_y = 0.0f;
   static float c_z = 0.0f;
-  
+
   //printf("Updating pose 1pt...\n");
   if(!ltr_int_check_pose()){
     return -1;
   }
-  
+
   //printf("Updating pose...\n");
   if(tracking_dbg_flag == DBG_ON){
     unsigned int i;
@@ -141,8 +139,8 @@ static int update_pose_1pt(struct frame_type *frame)
                           frame->bloblist.blobs[i].score);
     }
   }
-  
-  if((frame->bloblist.num_blobs > 0) && ltr_int_is_finite(frame->bloblist.blobs[0].x) 
+
+  if((frame->bloblist.num_blobs > 0) && ltr_int_is_finite(frame->bloblist.blobs[0].x)
      && ltr_int_is_finite(frame->bloblist.blobs[0].y)){
   }else{
     return -1;
@@ -154,11 +152,11 @@ static int update_pose_1pt(struct frame_type *frame)
     c_z = cam_distance * sqrtf((float)frame->bloblist.blobs[0].score);
     recenter = false;
   }
-  
+
   double tmp_angles[3], tmp_translations[3];
-  
+
 //printf("cz = %f, z = %f\n", c_z, sqrtf((float)frame->bloblist.blobs[0].score));
-  //angles will be approximately "normalized" to (-100, 100); 
+  //angles will be approximately "normalized" to (-100, 100);
   //  the rest should be handled by sensitivities
   tmp_angles[0] = (frame->bloblist.blobs[0].y - c_y) * 200.0 / frame->width;
   tmp_angles[1] = (c_x - frame->bloblist.blobs[0].x) * 200.0 / frame->width;
@@ -170,14 +168,14 @@ static int update_pose_1pt(struct frame_type *frame)
   }else{
     tmp_translations[2] = 0.0f;
   }
-  
+
   if(behind){
     tmp_angles[0] *= -1;
     //prudent, but not really needed as it is presend only in facetracking and
     //  face can't be tracked from behind ;) Well, normaly it can't ;)
     tmp_translations[2] *= -1;
   }
-  
+
   pthread_mutex_lock(&pose_mutex);
   current_pose.pose.raw_pitch = tmp_angles[0];
   current_pose.pose.raw_yaw = tmp_angles[1];
@@ -185,6 +183,12 @@ static int update_pose_1pt(struct frame_type *frame)
   current_pose.pose.raw_tx = tmp_translations[0];
   current_pose.pose.raw_ty = tmp_translations[1];
   current_pose.pose.raw_tz = tmp_translations[2];
+  current_pose.abs_pose.abs_pitch = 0;
+  current_pose.abs_pose.abs_yaw = 0;
+  current_pose.abs_pose.abs_roll = 0;
+  current_pose.abs_pose.abs_tx = 0;
+  current_pose.abs_pose.abs_ty = 0;
+  current_pose.abs_pose.abs_tz = 0;
   pthread_mutex_unlock(&pose_mutex);
   //printf("Pose updated => rp: %g, ry: %g...\n", current_pose.raw_pitch, current_pose.raw_yaw);
   return 0;
@@ -195,7 +199,7 @@ static float two_d_size(struct blob_type b1, struct blob_type b2)
 {
   float d1 = b1.x - b2.x;
   float d2 = b1.y - b2.y;
-  return sqrtf((d1 * d1) + (d2 * d2)); 
+  return sqrtf((d1 * d1) + (d2 * d2));
 }
 
 
@@ -216,26 +220,27 @@ static int update_pose_3pt(struct frame_type *frame)
       ltr_int_log_message("*DBG_t* %d: %g %g %d\n", i, frame->bloblist.blobs[i].x, frame->bloblist.blobs[i].y,
                           frame->bloblist.blobs[i].score);
     }
-    ltr_int_log_message("*DBG_t* d1 = %g   d2 = %g   d3 = %g\n", 
+    ltr_int_log_message("*DBG_t* d1 = %g   d2 = %g   d3 = %g\n",
       two_d_size(frame->bloblist.blobs[0], frame->bloblist.blobs[1]),
       two_d_size(frame->bloblist.blobs[0], frame->bloblist.blobs[2]),
       two_d_size(frame->bloblist.blobs[1], frame->bloblist.blobs[2]));
   }
-  
+
   linuxtrack_pose_t t;
-  if(!ltr_int_pose_process_blobs(frame->bloblist, &t, recenter)){
+  linuxtrack_abs_pose_t abs_pose;
+  if(!ltr_int_pose_process_blobs(frame->bloblist, &t, &abs_pose, recenter)){
     return -1;
   }
   recenter = false;
   double tmp_angles[3], tmp_translations[3];
-  
 
-  tmp_angles[0] = t.pitch;
-  tmp_angles[1] = t.yaw;
-  tmp_angles[2] = t.roll;
-  tmp_translations[0] = t.tx;
-  tmp_translations[1] = t.ty;
-  tmp_translations[2] = t.tz;
+
+  tmp_angles[0] = t.raw_pitch;
+  tmp_angles[1] = t.raw_yaw;
+  tmp_angles[2] = t.raw_roll;
+  tmp_translations[0] = t.raw_tx;
+  tmp_translations[1] = t.raw_ty;
+  tmp_translations[2] = t.raw_tz;
 
   if(!ltr_int_is_vector_finite(tmp_angles) || !ltr_int_is_vector_finite(tmp_translations)){
     return -1;
@@ -255,19 +260,25 @@ static int update_pose_3pt(struct frame_type *frame)
   current_pose.pose.raw_tx = tmp_translations[0];
   current_pose.pose.raw_ty = tmp_translations[1];
   current_pose.pose.raw_tz = tmp_translations[2];
+  current_pose.abs_pose.abs_pitch = abs_pose.abs_pitch;
+  current_pose.abs_pose.abs_yaw = abs_pose.abs_yaw;
+  current_pose.abs_pose.abs_roll = abs_pose.abs_roll;
+  current_pose.abs_pose.abs_tx = abs_pose.abs_tx;
+  current_pose.abs_pose.abs_ty = abs_pose.abs_ty;
+  current_pose.abs_pose.abs_tz = abs_pose.abs_tz;
   pthread_mutex_unlock(&pose_mutex);
   if(raw_dbg_flag == DBG_ON){
-    printf("*DBG_r* yaw: %g pitch: %g roll: %g\n", angles[0], angles[1], angles[2]);
-    ltr_int_log_message("*DBG_r* x: %g y: %g z: %g\n", 
-                        translations[0], translations[1], translations[2]);
+    printf("*DBG_r* yaw: %g pitch: %g roll: %g\n", tmp_angles[0], tmp_angles[1], tmp_angles[2]);
+    ltr_int_log_message("*DBG_r* x: %g y: %g z: %g\n",
+                        tmp_translations[0], tmp_translations[1], tmp_translations[2]);
   }
-  
+
   return 0;
 }
 
 bool ltr_int_postprocess_axes(ltr_axes_t axes, linuxtrack_pose_t *pose, linuxtrack_pose_t *unfiltered)
 {
-//  printf(">>Pre: %f %f %f  %f %f %f\n", pose->raw_pitch, pose->raw_yaw, pose->raw_roll, 
+//  printf(">>Pre: %f %f %f  %f %f %f\n", pose->raw_pitch, pose->raw_yaw, pose->raw_roll,
 //         pose->raw_tx, pose->raw_ty, pose->raw_tz);
 //  static float filterfactor=1.0;
 //  ltr_int_get_filter_factor(&filterfactor);
@@ -275,22 +286,22 @@ bool ltr_int_postprocess_axes(ltr_axes_t axes, linuxtrack_pose_t *pose, linuxtra
   static float filtered_translations[3] = {0.0f, 0.0f, 0.0f};
   //ltr_int_get_axes_ff(axes, filter_factors);
   double raw_angles[3];
-  
+
   //Single point must be "denormalized"
-  
+
   raw_angles[0] = unfiltered->pitch = ltr_int_val_on_axis(axes, PITCH, pose->raw_pitch);
   raw_angles[1] = unfiltered->yaw = ltr_int_val_on_axis(axes, YAW, pose->raw_yaw);
   raw_angles[2] = unfiltered->roll = ltr_int_val_on_axis(axes, ROLL, pose->raw_roll);
   //printf(">>Raw: %f %f %f\n", raw_angles[0], raw_angles[1], raw_angles[2]);
-  
+
   if(!ltr_int_is_vector_finite(raw_angles)){
     return false;
   }
-  
+
   pose->pitch = clamp_angle(ltr_int_filter_axis(axes, PITCH, raw_angles[0], &(filtered_angles[0])));
   pose->yaw = clamp_angle(ltr_int_filter_axis(axes, YAW, raw_angles[1], &(filtered_angles[1])));
   pose->roll = clamp_angle(ltr_int_filter_axis(axes, ROLL, raw_angles[2], &(filtered_angles[2])));
-  
+
   double rotated[3];
   double transform[3][3];
 
@@ -300,7 +311,7 @@ bool ltr_int_postprocess_axes(ltr_axes_t axes, linuxtrack_pose_t *pose, linuxtra
   displacement[2] = ltr_int_val_on_axis(axes, TZ, pose->raw_tz);
   if(ltr_int_do_tr_align()){
     //printf("Translations: Aligned\n");
-    ltr_int_euler_to_matrix(pose->pitch / 180.0 * M_PI, pose->yaw / 180.0 * M_PI, 
+    ltr_int_euler_to_matrix(pose->pitch / 180.0 * M_PI, pose->yaw / 180.0 * M_PI,
                             pose->roll / 180.0 * M_PI, transform);
     ltr_int_matrix_times_vec(transform, displacement, rotated);
     if(!ltr_int_is_vector_finite(rotated)){
@@ -319,11 +330,11 @@ bool ltr_int_postprocess_axes(ltr_axes_t axes, linuxtrack_pose_t *pose, linuxtra
     unfiltered->tz = displacement[2];
   }
 
-  pose->tx = 
+  pose->tx =
     ltr_int_filter_axis(axes, TX, unfiltered->tx, &(filtered_translations[0]));
-  pose->ty = 
+  pose->ty =
     ltr_int_filter_axis(axes, TY, unfiltered->ty, &(filtered_translations[1]));
-  pose->tz = 
+  pose->tz =
     ltr_int_filter_axis(axes, TZ, unfiltered->tz, &(filtered_translations[2]));
   //printf(">>Post: %f %f %f  %f %f %f\n", pose->pitch, pose->yaw, pose->roll, pose->tx, pose->ty, pose->tz);
   return true;
@@ -354,7 +365,7 @@ int ltr_int_update_pose(struct frame_type *frame)
     current_pose.blob_list[i * BLOB_ELEMENTS + 2] = frame->bloblist.blobs[i].score;
   }
   current_pose.blobs = frame->bloblist.num_blobs;
-  
+
   pthread_mutex_unlock(&pose_mutex);
   bool res = -1;
   if(ltr_int_is_single_point()){
@@ -380,10 +391,11 @@ int ltr_int_tracking_get_pose(linuxtrack_full_pose_t *pose)
   if(!tracking_initialized){
     ltr_int_init_tracking();
   }
-  
+
   pthread_mutex_lock(&pose_mutex);
   current_pose.pose.status = pose->pose.status;
   pose->pose = current_pose.pose;
+  pose->abs_pose = current_pose.abs_pose;
   pose->pose.counter = counter_d;
   pose->blobs = current_pose.blobs;
   int i;

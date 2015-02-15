@@ -92,6 +92,7 @@ LinuxtrackGui::LinuxtrackGui(QWidget *parent) : QWidget(parent), ds(NULL),
   ui.LegacyPose->setChecked(ltr_int_use_alter());
   ui.LegacyRotation->setChecked(ltr_int_use_oldrot());
   ui.TransRotDisable->setChecked(!ltr_int_do_tr_align());
+  ui.FocalLength->setValue(ltr_int_get_focal_length());
   WineLauncher wl;
   if(!wl.wineAvailable() && showWineWarning){
     WineWarn w(this);
@@ -328,6 +329,12 @@ void LinuxtrackGui::on_TransRotDisable_stateChanged(int state)
   }
 }
 
+void LinuxtrackGui::on_FocalLength_valueChanged(double val)
+{
+  if(guiInit) return;
+  ltr_int_set_focal_length(val);
+  TRACKER.miscChange(MISC_FOCAL_LENGTH, (float)val);
+}
 
 void LinuxtrackGui::on_PackageLogsButton_pressed()
 {

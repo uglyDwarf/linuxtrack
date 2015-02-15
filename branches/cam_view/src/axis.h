@@ -19,7 +19,7 @@ enum axis_param_t {AXIS_ENABLED, AXIS_DEADZONE,
                    AXIS_LLIMIT, AXIS_RLIMIT,
                    AXIS_FILTER,
                    AXIS_INVERTED,
-                   AXIS_FULL, MISC_LEGR, MISC_ALTER, MISC_ALIGN, AXIS_DEFAULT = 1024};
+                   AXIS_FULL, MISC_LEGR, MISC_ALTER, MISC_ALIGN, MISC_FOCAL_LENGTH, AXIS_DEFAULT = 1024};
 
 void ltr_int_init_axes(ltr_axes_t *axes, const char *profile);
 void ltr_int_close_axes(ltr_axes_t *axes);

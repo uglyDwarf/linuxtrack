@@ -31,13 +31,13 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
   frame.bloblist.blobs = ltr_int_my_malloc(sizeof(struct blob_type) * MAX_BLOBS);
   frame.bloblist.num_blobs = MAX_BLOBS;
   if((rm.type == SINGLE) || (rm.type == FACE)){
-    frame.bloblist.expected_blobs = 1;  
+    frame.bloblist.expected_blobs = 1;
   }else{
-    frame.bloblist.expected_blobs = 3;  
+    frame.bloblist.expected_blobs = 3;
   }
-  
+
   frame.bitmap = NULL;
-  
+
   ltr_int_cal_set_state(RUNNING);
   while(1){
     switch(ltr_int_cal_get_state()){
@@ -102,7 +102,7 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
       break;
     }
   }
-  
+
   ltr_int_tracker_close();
   ltr_int_frame_free(ccb, &frame);
   ltr_int_cal_set_state(STOPPED);

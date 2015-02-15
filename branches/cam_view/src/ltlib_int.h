@@ -27,6 +27,9 @@ linuxtrack_state_type ltr_int_get_tracking_state(void);
 void ltr_int_register_cbk(ltr_new_frame_callback_t new_frame_cbk, void *param1,
                           ltr_status_update_callback_t status_change_cbk, void *param2);
 void ltr_int_publish_frames_cmd(void);
+linuxtrack_state_type ltr_notification_on(void);
+int ltr_get_notify_pipe(void);
+int ltr_wait(int timeout);
 
 #ifdef __cplusplus
 }

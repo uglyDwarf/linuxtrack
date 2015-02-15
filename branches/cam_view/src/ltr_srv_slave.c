@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <poll.h>
+#include <fcntl.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <ipc_utils.h>
@@ -24,6 +25,8 @@ static semaphore_p slave_lock = NULL;
 static semaphore_p master_lock = NULL;
 static const int master_retries = 3;
 static pid_t ppid = 0;
+static int notify_pipe = -1;
+static bool notify = false;
 
 typedef enum {MR_OK, MR_FAIL, MR_OFTEN} mr_res_t;
 
@@ -163,6 +166,8 @@ static bool ltr_int_process_message(int l_master_downlink)
       //printf(">>>>%f %f %f\n", msg.pose.raw_yaw, msg.pose.raw_pitch, msg.pose.raw_tz);
       ltr_int_postprocess_axes(axes, &(msg.pose.pose), &unfiltered);
       //printf(">>>>%f %f %f\n", msg.pose.yaw, msg.pose.pitch, msg.pose.tz);
+      //printf("Raw center: %f  %f  %f\n", msg.pose.pose.raw_tx, msg.pose.pose.raw_ty, msg.pose.pose.raw_tz);
+      //printf("Raw angles: %f  %f  %f\n", msg.pose.pose.raw_pitch, msg.pose.pose.raw_yaw, msg.pose.pose.raw_roll);
 
       com = mmm.data;
       ltr_int_lockSemaphore(mmm.sem);
@@ -174,6 +179,12 @@ static bool ltr_int_process_message(int l_master_downlink)
       com->state = msg.pose.pose.status;
       com->preparing_start = false;
       ltr_int_unlockSemaphore(mmm.sem);
+      if(notify && (notify_pipe > 0)){
+        uint8_t tmp = 0;
+        if(write(notify_pipe, &tmp, 1) < 0){
+          ;
+        }
+      }
       break;
     case CMD_PARAM:
       //printf("Changing %s of %s to %f!!!\n", ltr_int_axis_param_get_desc(msg.param.param_id),
@@ -188,6 +199,9 @@ static bool ltr_int_process_message(int l_master_downlink)
             break;
           case MISC_LEGR:
             ltr_int_set_use_oldrot(msg.param.flt_val > 0.5f);
+            break;
+          case MISC_FOCAL_LENGTH:
+            ltr_int_set_focal_length(msg.param.flt_val);
             break;
           default:
             ltr_int_log_message("Wrong misc param: %d\n", msg.param.param_id);
@@ -274,31 +288,44 @@ static void ltr_int_slave_main_loop()
       cmd = (ltr_cmd)com->cmd;
       com->cmd = NOP_CMD;
       recenter = com->recenter;
+      notify = com->notify;
       com->recenter = false;
       ltr_int_unlockSemaphore(mmm.sem);
     }
-    switch(cmd){
-      case PAUSE_CMD:
-        ltr_int_send_message(master_uplink, CMD_PAUSE, 0);
+    int res = 0;
+    do{
+      switch(cmd){
+        case PAUSE_CMD:
+          res = ltr_int_send_message(master_uplink, CMD_PAUSE, 0);
+          break;
+        case RUN_CMD:
+          res = ltr_int_send_message(master_uplink, CMD_WAKEUP, 0);
+          break;
+        case STOP_CMD:
+          quit_flag = true;
+          break;
+        case FRAMES_CMD:
+          res = ltr_int_send_message(master_uplink, CMD_FRAMES, 0);
+          break;
+        default:
+          break;
+      }
+      if(res < 0){
+        usleep(100000);
+      }
+      if(!parent_alive()){
+        //printf("Parent %lu died! (3)\n", (unsigned long)ppid);
         break;
-      case RUN_CMD:
-        ltr_int_send_message(master_uplink, CMD_WAKEUP, 0);
-        break;
-      case STOP_CMD:
-        quit_flag = true;
-        break;
-      case FRAMES_CMD:
-        ltr_int_send_message(master_uplink, CMD_FRAMES, 0);
-        break;
-      default:
-        break;
-    }
+      }
+    }while((res < 0) && (!quit_flag));
     cmd = NOP_CMD;
     if(recenter){
       ltr_int_log_message("Slave sending master recenter request!\n");
-      ltr_int_send_message(master_uplink, CMD_RECENTER, 0);
+      if(ltr_int_send_message(master_uplink, CMD_RECENTER, 0) >= 0){
+        //clear request only on successfull transmission
+        recenter = false;
+      }
     }
-    recenter = false;
     if(!parent_alive()){
       //printf("Parent %lu died! (3)\n", (unsigned long)ppid);
       break;
@@ -309,11 +336,22 @@ static void ltr_int_slave_main_loop()
 
 //main slave function
 
-bool ltr_int_slave(const char *c_profile, const char *c_com_file, const char *ppid_str)
+bool ltr_int_slave(const char *c_profile, const char *c_com_file, const char *ppid_str,
+                   const char *close_pipe_str, const char *notify_pipe_str)
 {
   unsigned long tmp_ppid;
   profile_name = ltr_int_my_strdup(c_profile);
   sscanf(ppid_str, "%lu", &tmp_ppid);
+  int tmp_pipe = -1;
+  sscanf(close_pipe_str, "%d", &tmp_pipe);
+  if(tmp_pipe > 0){
+    close(tmp_pipe);
+  }
+  sscanf(notify_pipe_str, "%d", &notify_pipe);
+  if(notify_pipe > 0){
+    fcntl(notify_pipe, F_SETFL, fcntl(notify_pipe, F_GETFL) | O_NONBLOCK);
+  }
+  printf("Slave pipe: %d\n", notify_pipe);
   //printf("Going to monitor parent %lu!\n", tmp_ppid);
   ppid = (pid_t)tmp_ppid;
   if(!ltr_int_read_prefs(NULL, false)){
@@ -340,6 +378,7 @@ bool ltr_int_slave(const char *c_profile, const char *c_com_file, const char *pp
   ltr_int_free_prefs();
   free(profile_name);
   ltr_int_gui_lock_clean();
+  close(notify_pipe);
   return true;
 }
 
