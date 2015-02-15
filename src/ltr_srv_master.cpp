@@ -109,6 +109,7 @@ bool ltr_int_broadcast_pose(linuxtrack_full_pose_t &pose)
   int res;
   bool checkSlaves = false;
   //Send updated pose to all clients
+  //printf("Master: %g  %g  %g\n", pose.pose.raw_pitch, pose.pose.raw_yaw, pose.pose.raw_roll);
   for(i = slaves.begin(); i != slaves.end();){
     res = ltr_int_send_data(i->second, &pose);
     if(res == -EPIPE){
@@ -134,8 +135,9 @@ static void ltr_int_new_frame(struct frame_type *frame, void *param)
   (void)param;
 
   ltr_int_get_camera_update(&current_pose);
-  //printf("CurrentPose=> p:%g y:%g r:%g\n", current_pose.pitch, current_pose.yaw, current_pose.roll);
-  //printf("Master status: %d x %d\n", ltr_int_get_tracking_state(), current_pose.status);
+  //printf("CurrentPose=> p:%g y:%g r:%g\n", current_pose.pose.pitch, current_pose.pose.yaw,
+  //       current_pose.pose.roll);
+  //printf("Master status: %d x %d\n", ltr_int_get_tracking_state(), current_pose.pose.status);
   if(new_frame_hook != NULL){
     new_frame_hook(frame, (void*)&current_pose);
   }

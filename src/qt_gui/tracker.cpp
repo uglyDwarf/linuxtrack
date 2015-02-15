@@ -54,12 +54,12 @@ static void ltr_int_new_frame(struct frame_type *frame, void *param)
   local_frame.width = frame->width;
   local_frame.height = frame->height;
   local_frame.counter = frame->counter;
-  
+
   if(initBuffers){
     buf.resizeBuffers(frame->width, frame->height);
     initBuffers = false;
   }
-  
+
   if(frame->bitmap != NULL){
     buf.bufferWritten();
   }
@@ -69,7 +69,7 @@ static void ltr_int_new_frame(struct frame_type *frame, void *param)
   }else{
     frame->bitmap = NULL;
   }
-  
+
   TRACKER.signalNewFrame(&local_frame);
   static linuxtrack_full_pose_t current_pose;
   ltr_int_get_camera_update(&current_pose);
@@ -82,11 +82,11 @@ buffering *Tracker::getBuffers()
 }
 
 
-Tracker::Tracker() : axes(LTR_AXES_T_INITIALIZER), axes_valid(false), 
+Tracker::Tracker() : axes(LTR_AXES_T_INITIALIZER), axes_valid(false),
   currentProfile(QString::fromUtf8("Default")), common_ff(0.0)
 {
   if(!ltr_int_gui_lock(true)){
-    QMessageBox::warning(NULL, QString::fromUtf8("Linuxtrack"), 
+    QMessageBox::warning(NULL, QString::fromUtf8("Linuxtrack"),
       QString::fromUtf8("Another linuxtrack gui is running already!"),
                          QMessageBox::Ok);
   }
@@ -139,6 +139,7 @@ void Tracker::signalNewSlave(const char *name)
   ltr_int_change(NULL, MISC, MISC_LEGR, ltr_int_use_oldrot()?1.0:0.0);
   ltr_int_change(NULL, MISC, MISC_ALTER, ltr_int_use_alter()?1.0:0.0);
   ltr_int_change(NULL, MISC, MISC_ALIGN, ltr_int_do_tr_align()?1.0:0.0);
+  ltr_int_change(NULL, MISC, MISC_FOCAL_LENGTH, ltr_int_get_focal_length());
   ltr_int_close_axes(&tmp_axes);
 }
 
@@ -152,7 +153,7 @@ void Tracker::setProfile(QString p)
   PREF.getProfileSection(currentProfile, profileSection);
   //std::cout<<"Set profile "<<currentProfile.toStdString()<<" - "<<p.toStdString()<<std::endl;
   ltr_int_init_axes(&axes, currentProfile.toUtf8().constData());
-  
+
   common_ff = 1.0;
   int i;
   for(i = PITCH; i <= TZ; ++i){
@@ -211,12 +212,18 @@ bool Tracker::axisChange(axis_t axis, axis_param_t elem, bool enabled)
   ltr_int_set_axis_bool_param(axes, axis, elem, enabled);
   emit axisChanged(axis, elem);
   ltr_int_change(profileSection.toUtf8().constData(), axis, elem, enabled?1.0:0.0);
-  return true; 
+  return true;
 }
 
 bool Tracker::miscChange(axis_param_t elem, bool enabled)
 {
   ltr_int_change(NULL, MISC, elem, enabled?1.0:0.0);
+  return true;
+}
+
+bool Tracker::miscChange(axis_param_t elem, float val)
+{
+  ltr_int_change(NULL, MISC, elem, val);
   return true;
 }
 

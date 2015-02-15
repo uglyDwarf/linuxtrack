@@ -144,6 +144,48 @@ int ltr_get_pose_full(linuxtrack_pose_t *pose, float blobs[], int num_blobs, int
   }
 }
 
+int ltr_get_abs_pose(float *heading,
+                         float *pitch,
+                         float *roll,
+                         float *tx,
+                         float *ty,
+                         float *tz,
+                         uint32_t *counter)
+{
+  struct ltr_comm *com = mmm.data;
+  if((!initialized) || (com == NULL)) return 0;
+  struct ltr_comm tmp;
+  ltr_int_lockSemaphore(mmm.sem);
+  tmp = *com;
+  //printf("OTHER_SIDE: %g %g %g\n", tmp.pose.yaw, tmp.pose.pitch, tmp.pose.roll);
+  ltr_int_unlockSemaphore(mmm.sem);
+  if(tmp.state >= LINUXTRACK_OK){
+    uint32_t passed_counter = *counter;
+    *heading = tmp.full_pose.abs_pose.abs_yaw;
+    *pitch = tmp.full_pose.abs_pose.abs_pitch;
+    *roll = tmp.full_pose.abs_pose.abs_roll;
+    *tx = tmp.full_pose.abs_pose.abs_tx;
+    *ty = tmp.full_pose.abs_pose.abs_ty;
+    *tz = tmp.full_pose.abs_pose.abs_tz;
+    *counter = tmp.full_pose.pose.counter;
+    if(passed_counter != *counter){
+      return 1;// flag new data
+    }else{
+      return 0;
+    }
+  }else{
+    *heading = 0.0;
+    *pitch = 0.0;
+    *roll = 0.0;
+    *tx = 0.0;
+    *ty = 0.0;
+    *tz = 0.0;
+    *counter = 0;
+    return 0;
+  }
+}
+
+
 linuxtrack_state_type ltr_suspend(void)
 {
   struct ltr_comm *com = mmm.data;

@@ -23,16 +23,17 @@ class Tracker : public QObject{
   void signalNewSlave(const char *name);
   //Profile related stuff
   void setProfile(QString p);
-  
+
   bool axisChange(axis_t axis, axis_param_t elem, bool enabled);
   bool axisChange(axis_t axis, axis_param_t elem, float val);
   bool miscChange(axis_param_t elem, bool enabled);
-  
+  bool miscChange(axis_param_t elem, float val);
+
   bool axisGetBool(axis_t axis, axis_param_t elem);
   float axisGet(axis_t axis, axis_param_t elem);
-  
+
   float axisGetValue(axis_t axis, float val);
-  
+
   bool axisIsSymetrical(axis_t axis);
   bool setCommonFilterFactor(float c_f);
   float getCommonFilterFactor();

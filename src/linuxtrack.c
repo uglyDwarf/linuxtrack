@@ -63,6 +63,7 @@ static ltr_get_pose_t ltr_get_pose_fun = NULL;
 static ltr_get_pose_full_t ltr_get_pose_full_fun = NULL;
 static ltr_get_tracking_state_t ltr_get_tracking_state_fun = NULL;
 static ltr_explain_t ltr_explain_fun = NULL;
+static ltr_get_pose_t ltr_get_abs_pose_fun = NULL;
 
 static void *lib_handle = NULL;
 
@@ -83,6 +84,7 @@ static struct func_defs_t functions[] =
   {(char*)"ltr_get_pose_full", (void *)&ltr_get_pose_full_fun, 1},
   {(char*)"ltr_get_tracking_state", (void *)&ltr_get_tracking_state_fun, 1},
   {(char*)"ltr_explain", (void *)&ltr_explain_fun, 0},
+  {(char*)"ltr_get_abs_pose", (void *)&ltr_get_abs_pose_fun, 1},
   {(char*)NULL, NULL, 0}
 };
 
@@ -189,6 +191,23 @@ int linuxtrack_get_pose(float *heading,
     return 0;
   }
   return ltr_get_pose_fun(heading, pitch, roll, tx, ty, tz, counter);
+}
+
+//RetVal 0 means no new data
+int linuxtrack_get_abs_pose(float *heading,
+                            float *pitch,
+                            float *roll,
+                            float *tx,
+                            float *ty,
+                            float *tz,
+                            uint32_t *counter)
+{
+  if(ltr_get_abs_pose_fun == NULL){
+    *heading = *pitch = *roll = *tx = *ty = *tz = 0.0f;
+    *counter = 0;
+    return 0;
+  }
+  return ltr_get_abs_pose_fun(heading, pitch, roll, tx, ty, tz, counter);
 }
 
 //RetVal 0 means no new data
