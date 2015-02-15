@@ -2,7 +2,7 @@
 //#include <stdarg.h>
 #include <pthread.h>
 #include "pref_global.h"
-#include "utils.h" 
+#include "utils.h"
 #include "pref.h"
 #include "cal.h"
 #include "tracking.h"

@@ -70,7 +70,7 @@ int ltr_int_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
       assert(0);
       break;
   }
-  
+
   ltr_int_log_message("Loading library '%s'\n", libname);
   if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
     return -1;
@@ -128,11 +128,17 @@ linuxtrack_state_type ltr_int_cal_get_state()
 static ltr_status_update_callback_t ltr_status_changed_cbk = NULL;
 static void *ltr_status_changed_cbk_param = NULL;
 
-static char *state_desc[] = {"INITIALIZING", "RUNNING", "PAUSED", "STOPPED", "ERROR"};
+static char *state_desc[] = {"OK", "INITIALIZING", "RUNNING", "PAUSED", "STOPPED"};
 
 void ltr_int_cal_set_state(linuxtrack_state_type new_state)
 {
-  ltr_int_log_message("Changing state to %s!\n", state_desc[new_state]);
+  char *msg;
+  if(new_state < 0){
+    msg = "ERROR";
+  }else{
+    msg = state_desc[new_state];
+  }
+  ltr_int_log_message("Changing state to %s!\n", msg);
   ltr_int_cal_device_state = new_state;
   if(ltr_status_changed_cbk != NULL){
     ltr_status_changed_cbk(ltr_status_changed_cbk_param);

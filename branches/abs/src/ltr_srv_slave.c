@@ -282,25 +282,37 @@ static void ltr_int_slave_main_loop()
       com->recenter = false;
       ltr_int_unlockSemaphore(mmm.sem);
     }
-    switch(cmd){
-      case PAUSE_CMD:
-        ltr_int_send_message(master_uplink, CMD_PAUSE, 0);
+    int res = 0;
+    do{
+      switch(cmd){
+        case PAUSE_CMD:
+          res = ltr_int_send_message(master_uplink, CMD_PAUSE, 0);
+          break;
+        case RUN_CMD:
+          res = ltr_int_send_message(master_uplink, CMD_WAKEUP, 0);
+          break;
+        case STOP_CMD:
+          quit_flag = true;
+          break;
+        default:
+          break;
+      }
+      if(res < 0){
+        usleep(100000);
+      }
+      if(!parent_alive()){
+        //printf("Parent %lu died! (3)\n", (unsigned long)ppid);
         break;
-      case RUN_CMD:
-        ltr_int_send_message(master_uplink, CMD_WAKEUP, 0);
-        break;
-      case STOP_CMD:
-        quit_flag = true;
-        break;
-      default:
-        break;
-    }
+      }
+    }while((res < 0) && (!quit_flag));
     cmd = NOP_CMD;
     if(recenter){
       ltr_int_log_message("Slave sending master recenter request!\n");
-      ltr_int_send_message(master_uplink, CMD_RECENTER, 0);
+      if(ltr_int_send_message(master_uplink, CMD_RECENTER, 0) >= 0){
+        //clear request only on successfull transmission
+        recenter = false;
+      }
     }
-    recenter = false;
     if(!parent_alive()){
       //printf("Parent %lu died! (3)\n", (unsigned long)ppid);
       break;
