@@ -13,6 +13,8 @@ extern "C" {
 
 char *ltr_int_get_device_section();
 bool ltr_int_is_model_active();
+float ltr_int_get_focal_length();
+void ltr_int_set_focal_length(float fl);
 bool ltr_int_use_alter();
 void ltr_int_set_use_alter(bool state);
 bool ltr_int_use_oldrot();

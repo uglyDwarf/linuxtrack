@@ -163,6 +163,8 @@ static bool ltr_int_process_message(int l_master_downlink)
       //printf(">>>>%f %f %f\n", msg.pose.raw_yaw, msg.pose.raw_pitch, msg.pose.raw_tz);
       ltr_int_postprocess_axes(axes, &(msg.pose.pose), &unfiltered);
       //printf(">>>>%f %f %f\n", msg.pose.yaw, msg.pose.pitch, msg.pose.tz);
+      //printf("Raw center: %f  %f  %f\n", msg.pose.pose.raw_tx, msg.pose.pose.raw_ty, msg.pose.pose.raw_tz);
+      //printf("Raw angles: %f  %f  %f\n", msg.pose.pose.raw_pitch, msg.pose.pose.raw_yaw, msg.pose.pose.raw_roll);
 
       com = mmm.data;
       ltr_int_lockSemaphore(mmm.sem);
@@ -188,6 +190,9 @@ static bool ltr_int_process_message(int l_master_downlink)
             break;
           case MISC_LEGR:
             ltr_int_set_use_oldrot(msg.param.flt_val > 0.5f);
+            break;
+          case MISC_FOCAL_LENGTH:
+            ltr_int_set_focal_length(msg.param.flt_val);
             break;
           default:
             ltr_int_log_message("Wrong misc param: %d\n", msg.param.param_id);

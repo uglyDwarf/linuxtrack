@@ -4,7 +4,7 @@
 #ifdef HAVE_CONFIG_H
   #include "../../config.h"
 #endif
- 
+
 #include <QCloseEvent>
 #include <QProcess>
 #include <linuxtrack.h>
@@ -46,6 +46,7 @@ class LinuxtrackGui : public QWidget
   void trackerStateHandler(linuxtrack_state_type current_state);
   void on_LegacyPose_stateChanged(int state);
   void on_LegacyRotation_stateChanged(int state);
+  void on_FocalLength_valueChanged(double val);
   void on_TransRotDisable_stateChanged(int state);
   void on_ViewLogButton_pressed();
   void on_XplanePluginButton_pressed();
