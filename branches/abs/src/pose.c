@@ -423,7 +423,7 @@ void ltr_int_pose_sort_blobs(struct bloblist_type bl)
 
 
 bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
-                        linuxtrack_pose_t *pose, bool centering)
+                        linuxtrack_pose_t *pose, linuxtrack_abs_pose_t *abs_pose, bool centering)
 {
 //  double points[3][3];
   double points[3][3] = {{28.35380,    -1.24458,    -0.11606},
@@ -445,7 +445,7 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
 
   double angles[3];
   double displacement[3];
-  double abs_pose[3] = {0.0, 0.0, 0.0};
+  double abs_center[3] = {0.0, 0.0, 0.0};
   double abs_angles[3] = {0.0, 0.0, 0.0};
   if(ltr_int_use_oldrot()){
     //printf("Rotations: Old algo\n");
@@ -483,9 +483,9 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
         center_ref[i] = new_center[i];
       }
     }
-    abs_pose[0] = new_center[0];
-    abs_pose[1] = new_center[1];
-    abs_pose[2] = new_center[2];
+    abs_center[0] = new_center[0];
+    abs_center[1] = new_center[1];
+    abs_center[2] = new_center[2];
     ltr_int_make_vec(new_center, center_ref, displacement);
   //  ltr_int_print_vec(center_ref, "ref_pt");
   //  ltr_int_print_vec(displacement, "mv");
@@ -509,7 +509,7 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
       }
     }
     if(!ltr_int_get_pose(points[0], points[1], points[2], c_base, tr_center,
-                         tr_rot, angles, displacement, abs_pose, abs_angles)){
+                         tr_rot, angles, displacement, abs_center, abs_angles)){
       ltr_int_log_message("Couldn't determine the pose in new pose!\n");
       return false;
     }
@@ -518,20 +518,19 @@ bool ltr_int_pose_process_blobs(struct bloblist_type blobs,
   ltr_int_mul_vec(angles, 180.0 /M_PI, angles);
   ltr_int_mul_vec(abs_angles, 180.0 /M_PI, abs_angles);
 
-  //printf("Raw Pitch: %g   Yaw: %g  Roll: %g\n", angles[0], angles[1], angles[2]);
   if(ltr_int_is_vector_finite(angles) && ltr_int_is_vector_finite(displacement)){
-    pose->pitch = angles[0];
-    pose->yaw = angles[1];
-    pose->roll = angles[2];
-    pose->tx = displacement[0];
-    pose->ty = displacement[1];
-    pose->tz = displacement[2];
-    pose->raw_pitch = abs_angles[0];
-    pose->raw_yaw = abs_angles[1];
-    pose->raw_roll = abs_angles[2];
-    pose->raw_tx = abs_pose[0];
-    pose->raw_ty = abs_pose[1];
-    pose->raw_tz = abs_pose[2];
+    pose->raw_pitch = angles[0];
+    pose->raw_yaw = angles[1];
+    pose->raw_roll = angles[2];
+    pose->raw_tx = displacement[0];
+    pose->raw_ty = displacement[1];
+    pose->raw_tz = displacement[2];
+    abs_pose->abs_pitch = abs_angles[0];
+    abs_pose->abs_yaw = abs_angles[1];
+    abs_pose->abs_roll = abs_angles[2];
+    abs_pose->abs_tx = abs_center[0];
+    abs_pose->abs_ty = abs_center[1];
+    abs_pose->abs_tz = abs_center[2];
     return true;
   }
   return false;

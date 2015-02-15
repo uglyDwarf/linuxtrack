@@ -95,8 +95,6 @@ int ltr_int_recenter_tracking()
 
 
 static pthread_mutex_t pose_mutex = PTHREAD_MUTEX_INITIALIZER;
-static double angles[3] = {0.0f, 0.0f, 0.0f};
-static double translations[3] = {0.0f, 0.0f, 0.0f};
 
 static void ltr_int_rotate_camera(float *x, float *y, int cam_orientation)
 {
@@ -185,6 +183,12 @@ static int update_pose_1pt(struct frame_type *frame)
   current_pose.pose.raw_tx = tmp_translations[0];
   current_pose.pose.raw_ty = tmp_translations[1];
   current_pose.pose.raw_tz = tmp_translations[2];
+  current_pose.abs_pose.abs_pitch = 0;
+  current_pose.abs_pose.abs_yaw = 0;
+  current_pose.abs_pose.abs_roll = 0;
+  current_pose.abs_pose.abs_tx = 0;
+  current_pose.abs_pose.abs_ty = 0;
+  current_pose.abs_pose.abs_tz = 0;
   pthread_mutex_unlock(&pose_mutex);
   //printf("Pose updated => rp: %g, ry: %g...\n", current_pose.raw_pitch, current_pose.raw_yaw);
   return 0;
@@ -223,19 +227,20 @@ static int update_pose_3pt(struct frame_type *frame)
   }
 
   linuxtrack_pose_t t;
-  if(!ltr_int_pose_process_blobs(frame->bloblist, &t, recenter)){
+  linuxtrack_abs_pose_t abs_pose;
+  if(!ltr_int_pose_process_blobs(frame->bloblist, &t, &abs_pose, recenter)){
     return -1;
   }
   recenter = false;
   double tmp_angles[3], tmp_translations[3];
 
 
-  tmp_angles[0] = t.pitch;
-  tmp_angles[1] = t.yaw;
-  tmp_angles[2] = t.roll;
-  tmp_translations[0] = t.tx;
-  tmp_translations[1] = t.ty;
-  tmp_translations[2] = t.tz;
+  tmp_angles[0] = t.raw_pitch;
+  tmp_angles[1] = t.raw_yaw;
+  tmp_angles[2] = t.raw_roll;
+  tmp_translations[0] = t.raw_tx;
+  tmp_translations[1] = t.raw_ty;
+  tmp_translations[2] = t.raw_tz;
 
   if(!ltr_int_is_vector_finite(tmp_angles) || !ltr_int_is_vector_finite(tmp_translations)){
     return -1;
@@ -249,23 +254,23 @@ static int update_pose_3pt(struct frame_type *frame)
   }
 
   pthread_mutex_lock(&pose_mutex);
-  current_pose.pose.pitch = tmp_angles[0];
-  current_pose.pose.yaw = tmp_angles[1];
-  current_pose.pose.roll = tmp_angles[2];
-  current_pose.pose.tx = tmp_translations[0];
-  current_pose.pose.ty = tmp_translations[1];
-  current_pose.pose.tz = tmp_translations[2];
-  current_pose.pose.raw_pitch = t.raw_pitch;
-  current_pose.pose.raw_yaw = t.raw_yaw;
-  current_pose.pose.raw_roll = t.raw_roll;
-  current_pose.pose.raw_tx = t.raw_tx;
-  current_pose.pose.raw_ty = t.raw_ty;
-  current_pose.pose.raw_tz = t.raw_tz;
+  current_pose.pose.raw_pitch = tmp_angles[0];
+  current_pose.pose.raw_yaw = tmp_angles[1];
+  current_pose.pose.raw_roll = tmp_angles[2];
+  current_pose.pose.raw_tx = tmp_translations[0];
+  current_pose.pose.raw_ty = tmp_translations[1];
+  current_pose.pose.raw_tz = tmp_translations[2];
+  current_pose.abs_pose.abs_pitch = abs_pose.abs_pitch;
+  current_pose.abs_pose.abs_yaw = abs_pose.abs_yaw;
+  current_pose.abs_pose.abs_roll = abs_pose.abs_roll;
+  current_pose.abs_pose.abs_tx = abs_pose.abs_tx;
+  current_pose.abs_pose.abs_ty = abs_pose.abs_ty;
+  current_pose.abs_pose.abs_tz = abs_pose.abs_tz;
   pthread_mutex_unlock(&pose_mutex);
   if(raw_dbg_flag == DBG_ON){
-    printf("*DBG_r* yaw: %g pitch: %g roll: %g\n", angles[0], angles[1], angles[2]);
+    printf("*DBG_r* yaw: %g pitch: %g roll: %g\n", tmp_angles[0], tmp_angles[1], tmp_angles[2]);
     ltr_int_log_message("*DBG_r* x: %g y: %g z: %g\n",
-                        translations[0], translations[1], translations[2]);
+                        tmp_translations[0], tmp_translations[1], tmp_translations[2]);
   }
 
   return 0;
@@ -284,9 +289,9 @@ bool ltr_int_postprocess_axes(ltr_axes_t axes, linuxtrack_pose_t *pose, linuxtra
 
   //Single point must be "denormalized"
 
-  raw_angles[0] = unfiltered->pitch = ltr_int_val_on_axis(axes, PITCH, pose->pitch);
-  raw_angles[1] = unfiltered->yaw = ltr_int_val_on_axis(axes, YAW, pose->yaw);
-  raw_angles[2] = unfiltered->roll = ltr_int_val_on_axis(axes, ROLL, pose->roll);
+  raw_angles[0] = unfiltered->pitch = ltr_int_val_on_axis(axes, PITCH, pose->raw_pitch);
+  raw_angles[1] = unfiltered->yaw = ltr_int_val_on_axis(axes, YAW, pose->raw_yaw);
+  raw_angles[2] = unfiltered->roll = ltr_int_val_on_axis(axes, ROLL, pose->raw_roll);
   //printf(">>Raw: %f %f %f\n", raw_angles[0], raw_angles[1], raw_angles[2]);
 
   if(!ltr_int_is_vector_finite(raw_angles)){
@@ -301,9 +306,9 @@ bool ltr_int_postprocess_axes(ltr_axes_t axes, linuxtrack_pose_t *pose, linuxtra
   double transform[3][3];
 
   double displacement[3];
-  displacement[0] = ltr_int_val_on_axis(axes, TX, pose->tx);
-  displacement[1] = ltr_int_val_on_axis(axes, TY, pose->ty);
-  displacement[2] = ltr_int_val_on_axis(axes, TZ, pose->tz);
+  displacement[0] = ltr_int_val_on_axis(axes, TX, pose->raw_tx);
+  displacement[1] = ltr_int_val_on_axis(axes, TY, pose->raw_ty);
+  displacement[2] = ltr_int_val_on_axis(axes, TZ, pose->raw_tz);
   if(ltr_int_do_tr_align()){
     //printf("Translations: Aligned\n");
     ltr_int_euler_to_matrix(pose->pitch / 180.0 * M_PI, pose->yaw / 180.0 * M_PI,
@@ -390,6 +395,7 @@ int ltr_int_tracking_get_pose(linuxtrack_full_pose_t *pose)
   pthread_mutex_lock(&pose_mutex);
   current_pose.pose.status = pose->pose.status;
   pose->pose = current_pose.pose;
+  pose->abs_pose = current_pose.abs_pose;
   pose->pose.counter = counter_d;
   pose->blobs = current_pose.blobs;
   int i;

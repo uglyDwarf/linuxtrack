@@ -134,6 +134,8 @@ typedef struct{
 } linuxtrack_pose_t;
 
 int linuxtrack_get_pose_full(linuxtrack_pose_t *pose, float blobs[], int num_blobs, int *blobs_read);
+int linuxtrack_get_abs_pose(float *heading, float *pitch, float *roll,
+                        float *tx, float *ty, float *tz, uint32_t *counter);
 </pre>
 
 On top of the functions available in the basic interface, there is the <strong>linuxtrack_get_pose_full</strong> function, that provides all the low level informations on the current pose.
@@ -147,6 +149,12 @@ Requests all the low level informations on the current pose. These include raw p
 The blobs array should contain 3x the num_blobs elements (each blob has the x,y coordinates and a number of pixels value). Value of blobs_read indicates how many blobs were actually read.
 <p>
 At the moment Linuxtrack reports up to 10 blobs; this limit can be increased only by its recompilation (ltlib.h, value of MAX_BLOBS macro). Note however that Wiimote is capable of reporting only 4 blobs (hardware limitation)!
+
+<strong><pre>
+int linuxtrack_get_abs_pose(float *heading, float *pitch, float *roll,
+                        float *tx, float *ty, float *tz, uint32_t *counter);
+</pre></strong>
+Same as <strong>linuxtrack_get_pose</strong>, with the exception that the absolute pose in camera coordinates is provided.
 
 <h1>X-Plane plugin interface</h1>
 In order to allow other X-Plane plugins to utilize Linuxtrack, Linuxtrack's X-Plane plugin (xlinuxtrack) exports the following datarefs:

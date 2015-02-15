@@ -84,6 +84,15 @@ typedef struct{
 } linuxtrack_pose_t;
 
 int linuxtrack_get_pose_full(linuxtrack_pose_t *pose, float blobs[], int num_blobs, int *blobs_read);
+
+int linuxtrack_get_abs_pose(float *heading,
+                            float *pitch,
+                            float *roll,
+                            float *tx,
+                            float *ty,
+                            float *tz,
+                            uint32_t *counter);
+
 #ifdef __cplusplus
 }
 #endif
