@@ -348,7 +348,7 @@ int ltr_get_frame(int *req_width, int *req_height, size_t buf_size, uint8_t *buf
 
   if(p_w * p_h > mmap.size){
     ltr_int_unmap_file(&mmap);
-    int data_size = 2 * p_w * p_h + (3 * sizeof(uint32_t));
+    int data_size = FRAME_BUFFERS * p_w * p_h + (3 * sizeof(uint32_t));
     char *fname = ltr_int_get_default_file_name("frames.dat");
     if(!ltr_int_mmap_file(fname, data_size, &mmap)){
       free(fname);
@@ -360,19 +360,18 @@ int ltr_get_frame(int *req_width, int *req_height, size_t buf_size, uint8_t *buf
     return 0;
   }
   uint32_t *data = (uint32_t*)mmap.data;
-  uint32_t *flag = data;
-  uint32_t *w = data + 1;
-  uint32_t *h = data + 2;
-  uint32_t frame_size = (*w) * (*h);
-  *req_width = *w;
-  *req_height = *h;
+
+  *req_width = data[1];
+  *req_height = data[2];
+  unsigned int flag = data[0];
+  uint32_t frame_size = (*req_width) * (*req_height);
   if((p_w * p_h) < frame_size){ //Size had to change, mmap not big enough
     return 0;
   }
   if(buf_size < frame_size){
     return 0;
   }
-  uint8_t *buf = ((uint8_t*)mmap.data) + (3 * sizeof(uint32_t)) + (*flag) * frame_size;
+  uint8_t *buf = ((uint8_t*)mmap.data) + (3 * sizeof(uint32_t)) + flag * frame_size;
   memcpy(buffer, buf, frame_size);
   return 1;
 }
@@ -382,8 +381,12 @@ int ltr_wait(int timeout)
   bool hup = false;
   int res = ltr_int_pipe_poll(notify_pipe, timeout, &hup);
   if(res > 0){
-    uint8_t tmp;
-    while(read(notify_pipe, &tmp, sizeof(tmp)) > 0);
+    uint8_t tmp[1024];
+    ssize_t read_res = -1;
+    while((read_res = read(notify_pipe, &tmp, sizeof(tmp))) > 0);
+    if(read_res > 1){
+      printf("Dumped %d bytes\n", (int)read_res);
+    }
   }
   return res;
 }

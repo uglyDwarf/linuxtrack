@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+const unsigned int FRAME_BUFFERS = 3;
+
 struct frame_type;
 typedef void (*ltr_new_frame_callback_t)(struct frame_type *frame, void *);
 typedef void (*ltr_status_update_callback_t)(void *);

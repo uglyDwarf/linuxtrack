@@ -182,7 +182,7 @@ static bool ltr_int_process_message(int l_master_downlink)
       if(notify && (notify_pipe > 0)){
         uint8_t tmp = 0;
         if(write(notify_pipe, &tmp, 1) < 0){
-          ;
+          printf("Notification pipe full!\n");
         }
       }
       break;

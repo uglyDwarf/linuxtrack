@@ -13,10 +13,10 @@
 ProfileSelector::ProfileSelector(QWidget *parent) : QWidget(parent), ps(NULL), initializing(true)
 {
   ui.setupUi(this);
-  
+
   //To make sure that at least default exists
   TRACKER.setProfile(QString::fromUtf8("Default"));
-  
+
   QStringList profiles;
   ui.Profiles->addItems(Profile::getProfiles().getProfileNames());
   initializing = false;
@@ -87,7 +87,7 @@ void ProfileSelector::on_ImportProfile_pressed()
   }
   QFile f(fname);
   if(!f.open(QIODevice::ReadOnly)){
-    QMessageBox::warning(this, QString::fromUtf8("Problem importing profile!"), 
+    QMessageBox::warning(this, QString::fromUtf8("Problem importing profile!"),
       QString::fromUtf8("There was a problem opening the profile file '") + fname + QString::fromUtf8("'!") );
     return;
   }
@@ -105,6 +105,7 @@ int ccc = PROFILE.isProfile(newName);
   }
   setCurrentProfile(newName);
   ps->importProfile(tf);
+  refresh();
 }
 
 void ProfileSelector::on_ExportProfile_pressed()
@@ -120,7 +121,7 @@ void ProfileSelector::on_ExportProfile_pressed()
   }
   QFile f(fname);
   if(!f.open(QIODevice::WriteOnly | QFile::Truncate)){
-    QMessageBox::warning(this, QString::fromUtf8("Problem exporting profile!"), 
+    QMessageBox::warning(this, QString::fromUtf8("Problem exporting profile!"),
       QString::fromUtf8("There was a problem saving the profile to file '") + fname + QString::fromUtf8("'!") );
     return;
   }

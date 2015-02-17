@@ -98,6 +98,7 @@ linuxtrack_state_type linuxtrack_request_frames(void);
 int linuxtrack_get_frame(int *req_width, int *req_height, size_t buf_size, uint8_t *buffer);
 linuxtrack_state_type linuxtrack_notification_on(void);
 int linuxtrack_get_notify_pipe(void);
+int linuxtrack_wait(int timeout);
 
 #ifdef __cplusplus
 }
