@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include "linuxtrack.h"
 
-typedef enum{RUN_CMD, PAUSE_CMD, STOP_CMD, NOP_CMD} ltr_cmd;
+typedef enum{RUN_CMD, PAUSE_CMD, STOP_CMD, FRAMES_CMD, NOP_CMD} ltr_cmd;
 
 #define MAX_BLOBS 10
 #define BLOB_ELEMENTS 3
@@ -29,6 +29,7 @@ typedef struct{
 struct ltr_comm{
   uint8_t cmd;
   uint8_t recenter;
+  uint8_t notify;
   int8_t state;
   linuxtrack_full_pose_t full_pose;
   uint8_t dead_man_button;

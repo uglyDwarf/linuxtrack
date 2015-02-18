@@ -70,10 +70,10 @@ static char *get_webcam_id(int fd)
   int ioctl_res = v4l2_ioctl(fd, VIDIOC_QUERYCAP, &capability);
   if(ioctl_res == 0){
     __u32 cap = capability.capabilities;
-    ltr_int_log_message("  Found V4L2 webcam: '%s'\n", 
+    ltr_int_log_message("  Found V4L2 webcam: '%s'\n",
       		capability.card);
     //Look for capabilities we need
-    if((cap & V4L2_CAP_VIDEO_CAPTURE) && 
+    if((cap & V4L2_CAP_VIDEO_CAPTURE) &&
       (cap & V4L2_CAP_STREAMING)){
       ////for leading space infested name verification
       //  char *spaced_name = NULL;
@@ -94,7 +94,7 @@ static int is_our_webcam(const char *fname, const char *webcam_id)
     ltr_int_log_message("Can't open file '%s'!\n", fname);
     return -1;
   }
-  
+
   char *current_id = get_webcam_id(fd);
   char *stripped = current_id + strspn(current_id, " \t");
   if((current_id != NULL) && strncasecmp(stripped, webcam_id, strlen(webcam_id)) == 0){
@@ -134,14 +134,14 @@ int ltr_int_enum_webcams(char **ids[])
 	free(fname);
 	return -1;
       }
-      
+
       id = get_webcam_id(fd);
       if(id != NULL){
         //get rid of leading spaces!
         char *tmp = id + strspn(id, " \t");
 	++counter;
 	ltr_int_add_element(wc_list, ltr_int_my_strdup(tmp));
-	free(id); 
+	free(id);
       }
       v4l2_close(fd);
       free(fname);
@@ -161,7 +161,7 @@ int ltr_int_enum_webcam_formats(const char *id, webcam_formats *all_formats)
   if(fd < 0){
     return -1;
   }
-  
+
   int fmt_cntr = 0;
   int sizes_cntr;
   int ival_cntr;
@@ -171,7 +171,7 @@ int ltr_int_enum_webcam_formats(const char *id, webcam_formats *all_formats)
   struct v4l2_frmivalenum ival;
   plist fmt_strings = ltr_int_create_list();
   plist formats = ltr_int_create_list();
-/*  
+/*
   strcpy(fmt.description, "YUYVVV");
   ltr_int_log_message("Supported format: %s\n", (char *)fmt.description);
   ltr_int_add_element(fmt_strings, ltr_int_my_strdup((char *)fmt.description));
@@ -182,7 +182,7 @@ int ltr_int_enum_webcam_formats(const char *id, webcam_formats *all_formats)
   fmt_cntr++;
   ival.discrete.denominator = 22;
   ival.discrete.numerator = 1;
-  	    ltr_int_log_message("Supported framerate: %f\n", 
+  	    ltr_int_log_message("Supported framerate: %f\n",
 				(float)ival.discrete.denominator / ival.discrete.numerator);
 	    webcam_format *new_fmt = (webcam_format*)ltr_int_my_malloc(sizeof(webcam_format));
 	    new_fmt->i = fmt_cntr - 1;
@@ -240,7 +240,7 @@ int ltr_int_enum_webcam_formats(const char *id, webcam_formats *all_formats)
 	    break;
 	  }
 	  if(ival.type == V4L2_FRMIVAL_TYPE_DISCRETE){
-	    ltr_int_log_message("Supported framerate: %f\n", 
+	    ltr_int_log_message("Supported framerate: %f\n",
 				(float)ival.discrete.denominator / ival.discrete.numerator);
 	    new_fmt = (webcam_format*)ltr_int_my_malloc(sizeof(webcam_format));
 	    new_fmt->i = fmt_cntr - 1;
@@ -252,7 +252,7 @@ int ltr_int_enum_webcam_formats(const char *id, webcam_formats *all_formats)
 	    ltr_int_add_element(formats, new_fmt);
 	    ++items;
 	  }else if(ival.type == V4L2_FRMIVAL_TYPE_STEPWISE){
-	    ltr_int_log_message("Supported framerate from %d/%d to %d/%d with step %d/%d", 
+	    ltr_int_log_message("Supported framerate from %d/%d to %d/%d with step %d/%d",
 				ival.stepwise.min.denominator, ival.stepwise.min.numerator,
 				ival.stepwise.max.denominator, ival.stepwise.max.numerator,
 				ival.stepwise.step.denominator, ival.stepwise.step.numerator);
@@ -276,7 +276,7 @@ int ltr_int_enum_webcam_formats(const char *id, webcam_formats *all_formats)
 	    ++items;
 	    break;
 	  }else if(ival.type == V4L2_FRMIVAL_TYPE_CONTINUOUS){
-	    ltr_int_log_message("Supported framerate from %d/%d to %d/%d with step %d/%d", 
+	    ltr_int_log_message("Supported framerate from %d/%d to %d/%d with step %d/%d",
 				ival.stepwise.min.denominator, ival.stepwise.min.numerator,
 				ival.stepwise.max.denominator, ival.stepwise.max.numerator,
 				ival.stepwise.step.denominator, ival.stepwise.step.numerator);
@@ -311,20 +311,20 @@ int ltr_int_enum_webcam_formats(const char *id, webcam_formats *all_formats)
     }
   }
 
-  
+
   //Make table of all format descriptions
   char **strs = (char **)ltr_int_my_malloc((fmt_cntr + 1) * sizeof(char *));
   int cntr = 0;
   iterator i;
   char *desc;
   ltr_int_init_iterator(fmt_strings, &i);
-  
+
   while((desc = (char *)ltr_int_get_next(&i)) != NULL){
     strs[cntr++] = desc;
   }
   strs[cntr] = NULL;
   all_formats->fmt_strings = strs;
-  
+
   //Make table of all formats
   webcam_format *fmt_array = (webcam_format*)ltr_int_my_malloc(items * sizeof(webcam_format));
   ltr_int_init_iterator(formats, &i);
@@ -335,7 +335,7 @@ int ltr_int_enum_webcam_formats(const char *id, webcam_formats *all_formats)
   }
   all_formats->formats = fmt_array;
   all_formats->entries = items;
-  
+
   ltr_int_free_list(formats, true);
   ltr_int_free_list(fmt_strings, false);
   v4l2_close(fd);
@@ -400,18 +400,18 @@ static bool read_pref_format(struct v4l2_format *fmt)
     ltr_int_log_message("No pixel format specified!\n");
     return false;
   }
-  
+
   int x, y;
   if(!ltr_int_wc_get_resolution(&x, &y)){
     return false;
   }
-  
+
   fmt->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   fmt->fmt.pix.width = x;
   fmt->fmt.pix.height = y;
   fmt->fmt.pix.pixelformat = *(__u32*)pix;
   fmt->fmt.pix.field = V4L2_FIELD_ANY;
-  
+
   wc_info.fourcc = *(__u32*)pix;
   return true;
 }
@@ -423,7 +423,7 @@ static bool set_capture_format(struct camera_control_block *ccb)
   if(read_pref_format(&fmt) != true){
     return false;
   }
-  
+
   if(0 != v4l2_ioctl(wc_info.fd, VIDIOC_S_FMT, &fmt)){
     switch(errno){
       case EBUSY:
@@ -448,7 +448,7 @@ static bool set_stream_params()
   if(!ltr_int_wc_get_fps(&num, &den)){
     ltr_int_log_message("I don't understand fps specification!\n");
     return false;
-  } 
+  }
 
   struct v4l2_streamparm sp;
   memset(&sp, 0, sizeof(sp));
@@ -478,7 +478,7 @@ static int request_streaming_buffers()
   reqb.count = NUM_OF_BUFFERS;
   reqb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   reqb.memory = V4L2_MEMORY_MMAP;
-  
+
   //request buffers from driver
   if(0 != v4l2_ioctl(wc_info.fd, VIDIOC_REQBUFS, &reqb)){
     ltr_int_log_message("Couldn't get streaming buffers! (%s)\n", strerror(errno));
@@ -496,7 +496,7 @@ static int request_streaming_buffers()
 /*
  * Prepares buffers for streaming (mmaps them and allocs
  * space for output BW frames)
- * 
+ *
  * Returns TRUE on success, FALSE otherwise
  */
 static bool setup_streaming_buffers()
@@ -510,13 +510,13 @@ static bool setup_streaming_buffers()
   //alloc memory for array of buffers
   buffers = ltr_int_my_malloc(wc_info.buffers * sizeof(mmap_buffer));
   memset(buffers, 0, sizeof(mmap_buffer) * wc_info.buffers);
-  
-  //initialize buffer structures... 
+
+  //initialize buffer structures...
   unsigned int cntr;
   for(cntr = 0; cntr < wc_info.buffers; ++cntr){
     struct v4l2_buffer buf;
     memset(&buf, 0, sizeof(buf));
-    
+
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     buf.memory = V4L2_MEMORY_MMAP;
     buf.index = cntr;
@@ -525,7 +525,7 @@ static bool setup_streaming_buffers()
       ltr_int_log_message("Request for buffer failed...\n");
       return false;
     }
-    
+
     buffers[cntr].length = buf.length;
     buffers[cntr].start = v4l2_mmap(NULL, buf.length, PROT_READ | PROT_WRITE,
       MAP_SHARED, wc_info.fd, buf.m.offset);
@@ -541,7 +541,7 @@ static bool setup_streaming_buffers()
 
 /*
  * Unmaps and frees streaming buffers...
- *  
+ *
  * Returns TRUE on success, FALSE otherwise
  */
 static bool release_buffers()
@@ -590,7 +590,7 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
   }
   wc_info.fd = fd;
   wc_info.expecting_blobs = MAX_BLOBS;
-  
+
   if(set_capture_format(ccb) != true){
     ltr_int_log_message("Couldn't set capture format!\n");
     v4l2_close(fd);
@@ -651,7 +651,7 @@ int ltr_int_tracker_resume()
   for(cntr = 0; cntr < wc_info.buffers; ++cntr){
     struct v4l2_buffer buf;
     memset(&buf, 0, sizeof(buf));
-    
+
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     buf.memory = V4L2_MEMORY_MMAP;
     buf.index = cntr;
@@ -662,7 +662,7 @@ int ltr_int_tracker_resume()
     }
   }
   ltr_int_log_message("Buffers queued, starting to stream!\n");
-  
+
   if(-1 == v4l2_ioctl(wc_info.fd, VIDIOC_STREAMON, &type)){
     ltr_int_log_message("Start of streaming failed!\n");
     return -1;
@@ -684,7 +684,7 @@ int ltr_int_tracker_pause()
 static void get_bw_image(unsigned char *source_buf, unsigned char *dest_buf, unsigned int bytes_used)
 {
   unsigned int cntr, cntr1;
-  
+
   if(wc_info.fourcc == *(__u32*)"YUYV"){
     for(cntr = cntr1 = 0; cntr < bytes_used; cntr += 2, ++cntr1){
       if(source_buf[cntr] > wc_info.threshold){
@@ -705,7 +705,7 @@ static void get_bw_image(unsigned char *source_buf, unsigned char *dest_buf, uns
     float y;
     for(cntr = cntr1 = 0; cntr < bytes_used; cntr += 3, ++cntr1){
       //Y  =      (0.257 * R) + (0.504 * G) + (0.098 * B) + 16
-      y = 0.257 * ((float)source_buf[cntr]) 
+      y = 0.257 * ((float)source_buf[cntr])
         + 0.504 * ((float)source_buf[cntr + 1])
         + 0.098 * ((float)source_buf[cntr + 2]) + 16;
       if(y > 255) y = 255.0;
@@ -719,7 +719,7 @@ static void get_bw_image(unsigned char *source_buf, unsigned char *dest_buf, uns
     float y;
     for(cntr = cntr1 = 0; cntr < bytes_used; cntr += 3, ++cntr1){
       //Y  =      (0.257 * R) + (0.504 * G) + (0.098 * B) + 16
-      y = 0.257 * ((float)source_buf[cntr + 2]) 
+      y = 0.257 * ((float)source_buf[cntr + 2])
         + 0.504 * ((float)source_buf[cntr + 1])
         + 0.098 * ((float)source_buf[cntr + 0]) + 16;
       if(y > 255) y = 255.0;
@@ -755,7 +755,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
     .events = POLLIN | POLLRDNORM,
     .revents = 0
   };
-  
+
   while(1){
     res = poll(&pfd, 1, 500);
     if(res == 1){
@@ -779,7 +779,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
       return -1;
     }
   };
-  
+
   while(-1 == v4l2_ioctl(wc_info.fd, VIDIOC_DQBUF, &buf)){
     switch(errno){
       case EAGAIN:
@@ -791,7 +791,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
     }
   }
   assert(buf.index < wc_info.buffers);
-  
+
   unsigned char *source_buf = (buffers[buf.index]).start;
   unsigned char *dest_buf = (f->bitmap != NULL) ? f->bitmap : wc_info.bw_frame;
   get_bw_image(source_buf, dest_buf, buf.bytesused);
@@ -807,7 +807,7 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
     .h = wc_info.h,
     .ratio = 1.0f
   };
-  
+
 #ifdef DEBUG
   //Save sequence of frames
   static int frm_cntr = 0;
@@ -821,10 +821,10 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
     fclose(ff);
   }
 #endif
- 
-#ifndef OPENCV 
+
+#ifndef OPENCV
   ltr_int_to_stripes(&img);
-  ltr_int_stripes_to_blobs(MAX_BLOBS, &(f->bloblist), wc_info.min_blob_pixels, 
+  ltr_int_stripes_to_blobs(MAX_BLOBS, &(f->bloblist), wc_info.min_blob_pixels,
 		   wc_info.max_blob_pixels, &img);
   if(wc_info.flip){
     unsigned int tmp;

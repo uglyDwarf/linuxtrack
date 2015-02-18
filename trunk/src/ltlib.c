@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <fcntl.h>
 
 #include "ltlib_int.h"
 #include "ipc_utils.h"
@@ -10,6 +11,7 @@
 
 static struct mmap_s mmm;
 static bool initialized = false;
+static int notify_pipe = -1;
 
 static int make_mmap()
 {
@@ -33,6 +35,9 @@ int ltr_wakeup(void);
 static char *ltr_int_init_helper(const char *cust_section, bool standalone)
 {
   char pid[16];
+  char pipe0[16];
+  char pipe1[16];
+  int fd[2];
   bool is_child;
   if(initialized) return mmm.fname;
   if(make_mmap() != 0) return NULL;
@@ -41,6 +46,9 @@ static char *ltr_int_init_helper(const char *cust_section, bool standalone)
   com->preparing_start = true;
   initialized = true;
   if(standalone){
+    if(pipe(fd) < 0){
+      fd[0] = fd[1] = -1;
+    }
     char *server = ltr_int_get_app_path("/ltr_server1");
     if(cust_section == NULL){
       cust_section = "Default";
@@ -48,7 +56,9 @@ static char *ltr_int_init_helper(const char *cust_section, bool standalone)
     char *section = ltr_int_my_strdup(cust_section);
     ltr_int_sanitize_name(section);
     snprintf(pid, sizeof(pid), "%lu", (unsigned long)getpid());
-    char *args[] = {server, section, mmm.fname, pid, NULL};
+    snprintf(pipe0, sizeof(pipe0), "%d", fd[0]);
+    snprintf(pipe1, sizeof(pipe1), "%d", fd[1]);
+    char *args[] = {server, section, mmm.fname, pid, pipe0, pipe1, NULL};
     if(!ltr_int_fork_child(args, &is_child)){
       com->state = err_NOT_INITIALIZED;
       free(server);
@@ -59,6 +69,9 @@ static char *ltr_int_init_helper(const char *cust_section, bool standalone)
     }
     free(server);
     free(section);
+    close(fd[1]);
+    notify_pipe = fd[0];
+    fcntl(notify_pipe, F_SETFL, fcntl(notify_pipe, F_GETFL) | O_NONBLOCK);
   }
   ltr_wakeup();
   return mmm.fname;
@@ -228,6 +241,31 @@ linuxtrack_state_type ltr_recenter(void)
   return LINUXTRACK_OK;
 }
 
+linuxtrack_state_type ltr_notification_on(void)
+{
+  struct ltr_comm *com = mmm.data;
+  if((!initialized) || (com == NULL)) return err_NOT_INITIALIZED;
+  ltr_int_lockSemaphore(mmm.sem);
+  com->notify = true;
+  ltr_int_unlockSemaphore(mmm.sem);
+  return LINUXTRACK_OK;
+}
+
+int ltr_get_notify_pipe(void)
+{
+  return notify_pipe;
+}
+
+linuxtrack_state_type ltr_request_frames(void)
+{
+  struct ltr_comm *com = mmm.data;
+  if((!initialized) || (com == NULL)) return err_NOT_INITIALIZED;
+  ltr_int_lockSemaphore(mmm.sem);
+  com->cmd = FRAMES_CMD;
+  ltr_int_unlockSemaphore(mmm.sem);
+  return LINUXTRACK_OK;
+}
+
 linuxtrack_state_type ltr_get_tracking_state(void)
 {
   linuxtrack_state_type state = STOPPED;
@@ -290,3 +328,62 @@ const char *ltr_explain(linuxtrack_state_type status)
   }
   return res;
 }
+
+static struct mmap_s mmap;
+
+int ltr_get_frame(int *req_width, int *req_height, size_t buf_size, uint8_t *buffer)
+{
+  struct ltr_comm *com = mmm.data;
+  if((!initialized) || (com == NULL)) return 0;
+  struct ltr_comm tmp;
+  ltr_int_lockSemaphore(mmm.sem);
+  tmp = *com;
+  ltr_int_unlockSemaphore(mmm.sem);
+  if(tmp.state < LINUXTRACK_OK){
+    return 0;
+  }
+  uint32_t p_w = tmp.full_pose.pose.resolution_x;
+  uint32_t p_h = tmp.full_pose.pose.resolution_y;
+
+  if(p_w * p_h > mmap.size){
+    ltr_int_unmap_file(&mmap);
+    int data_size = FRAME_BUFFERS * p_w * p_h + (3 * sizeof(uint32_t));
+    char *fname = ltr_int_get_default_file_name("frames.dat");
+    if(!ltr_int_mmap_file(fname, data_size, &mmap)){
+      free(fname);
+      return 0;
+    }
+    free(fname);
+  }
+  if(mmap.data == NULL){
+    return 0;
+  }
+  uint32_t *data = (uint32_t*)mmap.data;
+
+  *req_width = data[1];
+  *req_height = data[2];
+  unsigned int flag = data[0];
+  uint32_t frame_size = (*req_width) * (*req_height);
+  if((p_w * p_h) < frame_size){ //Size had to change, mmap not big enough
+    return 0;
+  }
+  if(buf_size < frame_size){
+    return 0;
+  }
+  uint8_t *buf = ((uint8_t*)mmap.data) + (3 * sizeof(uint32_t)) + flag * frame_size;
+  memcpy(buffer, buf, frame_size);
+  return 1;
+}
+
+int ltr_wait(int timeout)
+{
+  bool hup = false;
+  int res = ltr_int_pipe_poll(notify_pipe, timeout, &hup);
+  if(res > 0){
+    uint8_t tmp[1024];
+    ssize_t read_res = -1;
+    while((read_res = read(notify_pipe, &tmp, sizeof(tmp))) > 0);
+  }
+  return res;
+}
+

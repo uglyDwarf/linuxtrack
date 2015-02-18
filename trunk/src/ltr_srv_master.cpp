@@ -330,6 +330,9 @@ bool ltr_int_master(bool standalone)
             //printf("Cmd to register new slave...\n");
             ltr_int_register_slave(msg);
             break;
+          case CMD_FRAMES:
+            ltr_int_publish_frames_cmd();
+            break;
         }
       }
     }else if(fds == 0){
