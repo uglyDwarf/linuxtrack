@@ -65,16 +65,17 @@ static void publish_frame(struct frame_type *frame)
     int next_index = inc_frame_index(current_index);
     frame->bitmap = buf_base + next_index * frame_size;
     *flag = current_index;
+    memset(frame->bitmap, 0, frame->width * frame->height);
   }else if(frame->bitmap == NULL){
     *flag = 0;
     memset(buf_base, 0, frame->width * frame->height);
     frame->bitmap = buf_base + frame_size;
+    memset(frame->bitmap, 0, frame->width * frame->height);
   }else{
     //someone else has supplied the frame
     memcpy(current_buf, frame->bitmap, current_w * current_h);
     *flag = current_index;
   }
-  memset(frame->bitmap, 0, frame->width * frame->height);
 }
 
 void ltr_int_publish_frames_cmd(void){
@@ -86,11 +87,11 @@ static int frame_callback(struct camera_control_block *ccb, struct frame_type *f
 {
   (void)ccb;
   ltr_int_update_pose(frame);
-  if(ltr_new_frame_cbk != NULL){
-    ltr_new_frame_cbk(frame, ltr_new_frame_cbk_param);
-  }
   if(publish_frames){
     publish_frame(frame);
+  }
+  if(ltr_new_frame_cbk != NULL){
+    ltr_new_frame_cbk(frame, ltr_new_frame_cbk_param);
   }
   return 0;
 }

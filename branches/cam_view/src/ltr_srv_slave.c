@@ -182,7 +182,7 @@ static bool ltr_int_process_message(int l_master_downlink)
       if(notify && (notify_pipe > 0)){
         uint8_t tmp = 0;
         if(write(notify_pipe, &tmp, 1) < 0){
-          printf("Notification pipe full!\n");
+          //Don't report, it would overfill logs
         }
       }
       break;
@@ -351,7 +351,6 @@ bool ltr_int_slave(const char *c_profile, const char *c_com_file, const char *pp
   if(notify_pipe > 0){
     fcntl(notify_pipe, F_SETFL, fcntl(notify_pipe, F_GETFL) | O_NONBLOCK);
   }
-  printf("Slave pipe: %d\n", notify_pipe);
   //printf("Going to monitor parent %lu!\n", tmp_ppid);
   ppid = (pid_t)tmp_ppid;
   if(!ltr_int_read_prefs(NULL, false)){

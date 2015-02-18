@@ -71,7 +71,6 @@ static char *ltr_int_init_helper(const char *cust_section, bool standalone)
     free(section);
     close(fd[1]);
     notify_pipe = fd[0];
-    printf("Client pipe: %d\n", notify_pipe);
     fcntl(notify_pipe, F_SETFL, fcntl(notify_pipe, F_GETFL) | O_NONBLOCK);
   }
   ltr_wakeup();
@@ -384,9 +383,6 @@ int ltr_wait(int timeout)
     uint8_t tmp[1024];
     ssize_t read_res = -1;
     while((read_res = read(notify_pipe, &tmp, sizeof(tmp))) > 0);
-    if(read_res > 1){
-      printf("Dumped %d bytes\n", (int)read_res);
-    }
   }
   return res;
 }
