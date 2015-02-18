@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <poll.h>
+#include <fcntl.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <ipc_utils.h>
@@ -24,6 +25,8 @@ static semaphore_p slave_lock = NULL;
 static semaphore_p master_lock = NULL;
 static const int master_retries = 3;
 static pid_t ppid = 0;
+static int notify_pipe = -1;
+static bool notify = false;
 
 typedef enum {MR_OK, MR_FAIL, MR_OFTEN} mr_res_t;
 
@@ -176,6 +179,12 @@ static bool ltr_int_process_message(int l_master_downlink)
       com->state = msg.pose.pose.status;
       com->preparing_start = false;
       ltr_int_unlockSemaphore(mmm.sem);
+      if(notify && (notify_pipe > 0)){
+        uint8_t tmp = 0;
+        if(write(notify_pipe, &tmp, 1) < 0){
+          //Don't report, it would overfill logs
+        }
+      }
       break;
     case CMD_PARAM:
       //printf("Changing %s of %s to %f!!!\n", ltr_int_axis_param_get_desc(msg.param.param_id),
@@ -279,6 +288,7 @@ static void ltr_int_slave_main_loop()
       cmd = (ltr_cmd)com->cmd;
       com->cmd = NOP_CMD;
       recenter = com->recenter;
+      notify = com->notify;
       com->recenter = false;
       ltr_int_unlockSemaphore(mmm.sem);
     }
@@ -293,6 +303,9 @@ static void ltr_int_slave_main_loop()
           break;
         case STOP_CMD:
           quit_flag = true;
+          break;
+        case FRAMES_CMD:
+          res = ltr_int_send_message(master_uplink, CMD_FRAMES, 0);
           break;
         default:
           break;
@@ -323,11 +336,21 @@ static void ltr_int_slave_main_loop()
 
 //main slave function
 
-bool ltr_int_slave(const char *c_profile, const char *c_com_file, const char *ppid_str)
+bool ltr_int_slave(const char *c_profile, const char *c_com_file, const char *ppid_str,
+                   const char *close_pipe_str, const char *notify_pipe_str)
 {
   unsigned long tmp_ppid;
   profile_name = ltr_int_my_strdup(c_profile);
   sscanf(ppid_str, "%lu", &tmp_ppid);
+  int tmp_pipe = -1;
+  sscanf(close_pipe_str, "%d", &tmp_pipe);
+  if(tmp_pipe > 0){
+    close(tmp_pipe);
+  }
+  sscanf(notify_pipe_str, "%d", &notify_pipe);
+  if(notify_pipe > 0){
+    fcntl(notify_pipe, F_SETFL, fcntl(notify_pipe, F_GETFL) | O_NONBLOCK);
+  }
   //printf("Going to monitor parent %lu!\n", tmp_ppid);
   ppid = (pid_t)tmp_ppid;
   if(!ltr_int_read_prefs(NULL, false)){
@@ -354,6 +377,7 @@ bool ltr_int_slave(const char *c_profile, const char *c_com_file, const char *pp
   ltr_int_free_prefs();
   free(profile_name);
   ltr_int_gui_lock_clean();
+  close(notify_pipe);
   return true;
 }
 

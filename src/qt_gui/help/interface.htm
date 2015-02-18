@@ -136,6 +136,12 @@ typedef struct{
 int linuxtrack_get_pose_full(linuxtrack_pose_t *pose, float blobs[], int num_blobs, int *blobs_read);
 int linuxtrack_get_abs_pose(float *heading, float *pitch, float *roll,
                         float *tx, float *ty, float *tz, uint32_t *counter);
+linuxtrack_state_type linuxtrack_request_frames(void);
+int linuxtrack_get_frame(int *req_width, int *req_height, size_t buf_size, uint8_t *buffer);
+linuxtrack_state_type linuxtrack_notification_on(void);
+int linuxtrack_get_notify_pipe(void);
+int linuxtrack_wait(int timeout);
+
 </pre>
 
 On top of the functions available in the basic interface, there is the <strong>linuxtrack_get_pose_full</strong> function, that provides all the low level informations on the current pose.
@@ -156,6 +162,41 @@ int linuxtrack_get_abs_pose(float *heading, float *pitch, float *roll,
 </pre></strong>
 Same as <strong>linuxtrack_get_pose</strong>, with the exception that the absolute pose in camera coordinates is provided.
 
+<strong><pre>
+linuxtrack_state_type linuxtrack_request_frames(void);
+</pre></strong>
+By calling this function, you notify the tracker that you wish to receive "images" from the tracking device.
+<p>
+
+<strong><pre>
+int linuxtrack_get_frame(int *req_width, int *req_height, size_t buf_size, uint8_t *buffer);
+</pre></strong>
+Copies an image (if available)to the client supplied buffer. Buffer size is passed through buf_size
+parameter (to avoid overrun). Parameters req_widht and req_height return the width and height of the frame.
+<p>
+Returns zero in case of a problem - check the req_width/req_height values to see if the buffer passed-in is big enough and enlarge it, if necessary.
+<p>
+Nonzero value means success.
+<p>
+<strong><pre>
+linuxtrack_state_type linuxtrack_notification_on(void);
+</pre></strong>
+Requests notifications on incomming frames be sent via a pipe.
+<p>
+<strong><pre>
+int linuxtrack_get_notify_pipe(void);
+</pre></strong>
+This function is to be used if you need to implement the polling yourself (you poll on several files, ...). In any other case, <strong>linuxtrack_wait</strong> is easier way to receive notifications.
+<p>
+Returns file descriptor of the notifications pipe. The pipe is set for nonblocking access. Make sure you read all that is in the pipe in order to receive notification when new frame arrives.
+<p>
+<strong><pre>
+int linuxtrack_wait(int timeout);
+</pre></strong>
+When called, the function block until either a new frame arrives, or until the timeout (in miliseconds) is up.
+<p>
+Returns one in case of the new frame arrival; zero means timeout and negative value means problem (other side of the pipe hanged-up, ...).
+<p>
 <h1>X-Plane plugin interface</h1>
 In order to allow other X-Plane plugins to utilize Linuxtrack, Linuxtrack's X-Plane plugin (xlinuxtrack) exports the following datarefs:
 

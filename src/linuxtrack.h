@@ -26,6 +26,7 @@ THE SOFTWARE.
 #ifndef LINUX_TRACK__H
 #define LINUX_TRACK__H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -92,6 +93,12 @@ int linuxtrack_get_abs_pose(float *heading,
                             float *ty,
                             float *tz,
                             uint32_t *counter);
+
+linuxtrack_state_type linuxtrack_request_frames(void);
+int linuxtrack_get_frame(int *req_width, int *req_height, size_t buf_size, uint8_t *buffer);
+linuxtrack_state_type linuxtrack_notification_on(void);
+int linuxtrack_get_notify_pipe(void);
+int linuxtrack_wait(int timeout);
 
 #ifdef __cplusplus
 }

@@ -9,3 +9,8 @@ ltr_get_tracking_state
 ltr_log_message
 ltr_explain
 ltr_get_abs_pose
+ltr_request_frames
+ltr_get_frame
+ltr_notification_on
+ltr_get_notify_pipe
+ltr_wait
