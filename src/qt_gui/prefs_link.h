@@ -11,7 +11,8 @@ typedef enum{
   WIIMOTE,
   TIR,
   MACWEBCAM,
-  MACWEBCAM_FT
+  MACWEBCAM_FT,
+  MACPS3EYE
 } deviceType_t;
 
 

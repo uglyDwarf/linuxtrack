@@ -241,6 +241,12 @@ libmacwii_la_OBJECTS = $(am_libmacwii_la_OBJECTS)
 libmacwii_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libmacwii_la_CFLAGS) \
 	$(CFLAGS) $(libmacwii_la_LDFLAGS) $(LDFLAGS) -o $@
+libp3e_la_DEPENDENCIES = libltr.la
+am_libp3e_la_OBJECTS = ps3eye.lo ps3eye_driver.lo libp3e_la-runloop.lo
+libp3e_la_OBJECTS = $(am_libp3e_la_OBJECTS)
+libp3e_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(libp3e_la_LDFLAGS) $(LDFLAGS) -o $@
 libtir_la_DEPENDENCIES = libltr.la
 am_libtir_la_OBJECTS = tir_hw.lo tir_img.lo tir_driver.lo runloop.lo
 libtir_la_OBJECTS = $(am_libtir_la_OBJECTS)
@@ -387,17 +393,17 @@ SOURCES = $(libfacetrack_int_la_SOURCES) $(libfakeusb_la_SOURCES) \
 	$(liblinuxtrack32_la_SOURCES) $(liblinuxtrack_int_la_SOURCES) \
 	$(libltr_la_SOURCES) $(libltusb1_la_SOURCES) \
 	$(libmacwc_la_SOURCES) $(libmacwii_la_SOURCES) \
-	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
-	$(xlinuxtrack9_la_SOURCES) $(xlinuxtrack9_32_la_SOURCES) \
-	$(ltr_extractor_SOURCES) $(ltr_pipe_SOURCES) \
-	$(ltr_server1_SOURCES)
+	$(libp3e_la_SOURCES) $(libtir_la_SOURCES) $(libwc_la_SOURCES) \
+	$(libwii_la_SOURCES) $(xlinuxtrack9_la_SOURCES) \
+	$(xlinuxtrack9_32_la_SOURCES) $(ltr_extractor_SOURCES) \
+	$(ltr_pipe_SOURCES) $(ltr_server1_SOURCES)
 DIST_SOURCES = $(libfacetrack_int_la_SOURCES) $(libfakeusb_la_SOURCES) \
 	$(libft_la_SOURCES) $(liblinuxtrack_la_SOURCES) \
 	$(liblinuxtrack32_la_SOURCES) $(liblinuxtrack_int_la_SOURCES) \
 	$(libltr_la_SOURCES) $(libltusb1_la_SOURCES) \
 	$(libmacwc_la_SOURCES) $(libmacwii_la_SOURCES) \
-	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
-	$(am__xlinuxtrack9_la_SOURCES_DIST) \
+	$(libp3e_la_SOURCES) $(libtir_la_SOURCES) $(libwc_la_SOURCES) \
+	$(libwii_la_SOURCES) $(am__xlinuxtrack9_la_SOURCES_DIST) \
 	$(am__xlinuxtrack9_32_la_SOURCES_DIST) \
 	$(ltr_extractor_SOURCES) $(ltr_pipe_SOURCES) \
 	$(ltr_server1_SOURCES)
@@ -597,7 +603,7 @@ man_MANS = ltr_gui.1 ltr_server1.1 mickey.1 $(am__append_2) \
 #endif
 pkglib_LTLIBRARIES = libltr.la libmacwii.la liblinuxtrack.la \
 	$(am__append_1) $(am__append_3) $(am__append_4) \
-	$(am__append_8) $(am__append_10) libfakeusb.la \
+	$(am__append_8) $(am__append_10) libfakeusb.la libp3e.la \
 	$(am__append_11) $(am__append_12) $(am__append_13)
 dist_pkgdata_DATA = linuxtrack1.conf linuxtrack.c \
 	linuxtrack_hello_world.c linuxtrack_hello_world_adv.c \
@@ -667,6 +673,12 @@ libfakeusb_la_CFLAGS = ${AM_CFLAGS}
 libfakeusb_la_CXXFLAGS = ${AM_CFLAGS}
 libfakeusb_la_LIBADD = libltr.la
 libfakeusb_la_LDFLAGS = ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+libp3e_la_SOURCES = ps3eye.cpp ps3eye.h ps3eye_driver.cpp \
+                    runloop.c runloop.h
+
+libp3e_la_CFLAGS = ${AM_CFLAGS}
+libp3e_la_LIBADD = -lusb-1.0 libltr.la
+libp3e_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
 libwii_la_CFLAGS = ${AM_CFLAGS}
 libwii_la_LIBADD = -lcwiid libltr.la
@@ -939,6 +951,9 @@ libmacwc.la: $(libmacwc_la_OBJECTS) $(libmacwc_la_DEPENDENCIES) $(EXTRA_libmacwc
 libmacwii.la: $(libmacwii_la_OBJECTS) $(libmacwii_la_DEPENDENCIES) $(EXTRA_libmacwii_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libmacwii_la_LINK) -rpath $(pkglibdir) $(libmacwii_la_OBJECTS) $(libmacwii_la_LIBADD) $(LIBS)
 
+libp3e.la: $(libp3e_la_OBJECTS) $(libp3e_la_DEPENDENCIES) $(EXTRA_libp3e_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(libp3e_la_LINK) -rpath $(pkglibdir) $(libp3e_la_OBJECTS) $(libp3e_la_LIBADD) $(LIBS)
+
 libtir.la: $(libtir_la_OBJECTS) $(libtir_la_DEPENDENCIES) $(EXTRA_libtir_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libtir_la_LINK) $(am_libtir_la_rpath) $(libtir_la_OBJECTS) $(libtir_la_LIBADD) $(LIBS)
 
@@ -1128,6 +1143,9 @@ libmacwii_la-runloop.lo: runloop.c
 
 libmacwii_la-wii_driver_prefs.lo: wii_driver_prefs.c
 	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmacwii_la_CFLAGS) $(CFLAGS) -c -o libmacwii_la-wii_driver_prefs.lo `test -f 'wii_driver_prefs.c' || echo '$(srcdir)/'`wii_driver_prefs.c
+
+libp3e_la-runloop.lo: runloop.c
+	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libp3e_la_CFLAGS) $(CFLAGS) -c -o libp3e_la-runloop.lo `test -f 'runloop.c' || echo '$(srcdir)/'`runloop.c
 
 libwc_la-webcam_driver.lo: webcam_driver.c
 	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libwc_la_CFLAGS) $(CFLAGS) -c -o libwc_la-webcam_driver.lo `test -f 'webcam_driver.c' || echo '$(srcdir)/'`webcam_driver.c
