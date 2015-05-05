@@ -339,7 +339,7 @@ extern int ltr_int_parser_lex \
 #undef YY_DECL
 #endif
 
-#line 54 "/home/tbuilder/devel/ltr_abs/src/pref_flex.lpp"
+#line 54 "/home/tbuilder/devel/ps3eye_mac/src/pref_flex.lpp"
 
 
 #line 346 "../pref_flex.h"

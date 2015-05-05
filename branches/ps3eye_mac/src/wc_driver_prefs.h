@@ -42,6 +42,41 @@ bool ltr_int_wc_set_eff(float new_eff);
 int ltr_int_wc_get_optim_level();
 bool ltr_int_wc_set_optim_level(int opt);
 
+int ltr_int_wc_get_exposure();
+bool ltr_int_wc_set_exposure(int e);
+
+int ltr_int_wc_get_gain();
+bool ltr_int_wc_set_gain(int e);
+
+int ltr_int_wc_get_brightness();
+bool ltr_int_wc_set_brightness(int e);
+
+int ltr_int_wc_get_contrast();
+bool ltr_int_wc_set_contrast(int e);
+
+int ltr_int_wc_get_sharpness();
+bool ltr_int_wc_set_sharpness(int e);
+
+int ltr_int_wc_get_hue();
+bool ltr_int_wc_set_hue(int e);
+
+int ltr_int_wc_get_r_ballance();
+bool ltr_int_wc_set_r_ballance(int e);
+
+int ltr_int_wc_get_b_balance();
+bool ltr_int_wc_set_b_ballance(int e);
+
+bool ltr_int_wc_get_agc();
+bool ltr_int_wc_set_agc(bool v);
+
+bool ltr_int_wc_get_awb();
+bool ltr_int_wc_set_awb(bool v);
+
+bool ltr_int_wc_get_horiz_flip();
+bool ltr_int_wc_set_horiz_flip(bool v);
+
+bool ltr_int_wc_get_vert_flip();
+bool ltr_int_wc_set_vert_flip(bool v);
 #ifdef __cplusplus
 }
 #endif

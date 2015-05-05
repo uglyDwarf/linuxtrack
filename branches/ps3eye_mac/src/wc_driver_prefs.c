@@ -21,6 +21,18 @@ static bool flip = false;
 static char *cascade = NULL;
 static float exp_filt = 0.1;
 static int optim_level = 0;
+static int exposure = 120;
+static int gain = 20;
+static int brightness = 20;
+static int contrast = 37;
+static int sharpness;
+static int hue = 143;
+static int r_ballance = 128;
+static int b_ballance = 128;
+static bool agc;
+static bool awb;
+static bool horiz_flip;
+static bool vert_flip;
 
 static char max_blob_key[] = "Max-blob";
 static char min_blob_key[] = "Min-blob";
@@ -33,6 +45,21 @@ static char flip_key[] = "Upside-down";
 static char cascade_key[] = "Cascade";
 static char exp_filter_key[] = "Exp-filter-factor";
 static char optim_key[] = "Optimization-level";
+static char exposure_key[] = "Exposure";
+static char gain_key[] = "Gain";
+static char brightness_key[] = "Brightness";
+static char contrast_key[] = "Contrast";
+static char sharpness_key[] = "Sharpness";
+static char hue_key[] = "Hue";
+static char r_ballance_key[] = "Red-ballance";
+static char b_ballance_key[] = "Blue-ballance";
+static char agc_key[] = "AGC";
+static char awb_key[] = "AWB";
+static char horiz_flip_key[] = "Horizontal-flip";
+static char vert_flip_key[] = "Vertical-flip";
+
+static char yes[] = "Yes";
+static char no[] = "No";
 
 bool ltr_int_wc_init_prefs()
 {
@@ -96,6 +123,57 @@ bool ltr_int_wc_init_prefs()
   }
   if(!ltr_int_get_key_int(dev, optim_key, &optim_level)){
     optim_level= 0;
+  }
+  //PS3Eye for Mac specific controls
+  if(!ltr_int_get_key_int(dev, exposure_key, &exposure)){
+    exposure = 0;
+  }
+  if(!ltr_int_get_key_int(dev, gain_key, &gain)){
+    gain = 0;
+  }
+  if(!ltr_int_get_key_int(dev, brightness_key, &brightness)){
+    brightness = 0;
+  }
+  if(!ltr_int_get_key_int(dev, contrast_key, &contrast)){
+    contrast = 0;
+  }
+  if(!ltr_int_get_key_int(dev, sharpness_key, &sharpness)){
+    sharpness = 0;
+  }
+  if(!ltr_int_get_key_int(dev, hue_key, &hue)){
+    hue = 0;
+  }
+  if(!ltr_int_get_key_int(dev, r_ballance_key, &r_ballance)){
+    r_ballance = 0;
+  }
+  if(!ltr_int_get_key_int(dev, b_ballance_key, &b_ballance)){
+    b_ballance = 0;
+  }
+
+
+  if((tmp = ltr_int_get_key(dev, agc_key)) != NULL){
+    agc = (strcasecmp(tmp, "Yes") == 0) ? true : false;
+    free(tmp);
+  }else{
+    agc = false;
+  }
+  if((tmp = ltr_int_get_key(dev, awb_key)) != NULL){
+    awb = (strcasecmp(tmp, "Yes") == 0) ? true : false;
+    free(tmp);
+  }else{
+    awb = false;
+  }
+  if((tmp = ltr_int_get_key(dev, horiz_flip_key)) != NULL){
+    horiz_flip = (strcasecmp(tmp, "Yes") == 0) ? true : false;
+    free(tmp);
+  }else{
+    horiz_flip = false;
+  }
+  if((tmp = ltr_int_get_key(dev, vert_flip_key)) != NULL){
+    vert_flip = (strcasecmp(tmp, "Yes") == 0) ? true : false;
+    free(tmp);
+  }else{
+    vert_flip = false;
   }
   free(dev);
   return true;
@@ -229,8 +307,6 @@ bool ltr_int_wc_get_flip()
 
 bool ltr_int_wc_set_flip(bool new_flip)
 {
-  char yes[] = "Yes";
-  char no[] = "No";
   char *val = (new_flip) ? yes : no;
   flip = new_flip;
   return ltr_int_change_key(ltr_int_get_device_section(), flip_key, val);
@@ -277,3 +353,84 @@ bool ltr_int_wc_set_optim_level(int opt)
   return ltr_int_change_key_int(ltr_int_get_device_section(), optim_key, opt);
 }
 
+int ltr_int_wc_get_exposure(){return exposure;}
+int ltr_int_wc_get_gain(){return gain;}
+int ltr_int_wc_get_brightness(){return brightness;}
+int ltr_int_wc_get_contrast(){return contrast;}
+int ltr_int_wc_get_sharpness(){return sharpness;}
+int ltr_int_wc_get_hue(){return hue;}
+int ltr_int_wc_get_r_ballance(){return r_ballance;}
+int ltr_int_wc_get_b_ballance(){return b_ballance;}
+bool ltr_int_wc_get_agc(){return agc;}
+bool ltr_int_wc_get_awb(){return awb;}
+bool ltr_int_wc_get_horiz_flip(){return horiz_flip;}
+bool ltr_int_wc_get_vert_flip(){return vert_flip;}
+
+
+bool ltr_int_wc_set_exposure(int e)
+{
+  return ltr_int_change_key_int(ltr_int_get_device_section(), exposure_key, (exposure = e));
+}
+
+bool ltr_int_wc_set_gain(int e)
+{
+  return ltr_int_change_key_int(ltr_int_get_device_section(), gain_key, (gain = e));
+}
+
+bool ltr_int_wc_set_brightness(int e)
+{
+  return ltr_int_change_key_int(ltr_int_get_device_section(), brightness_key, (brightness = e));
+}
+
+bool ltr_int_wc_set_contrast(int e)
+{
+  return ltr_int_change_key_int(ltr_int_get_device_section(), contrast_key, (contrast = e));
+}
+
+bool ltr_int_wc_set_sharpness(int e)
+{
+  return ltr_int_change_key_int(ltr_int_get_device_section(), sharpness_key, (sharpness = e));
+}
+
+bool ltr_int_wc_set_hue(int e)
+{
+  return ltr_int_change_key_int(ltr_int_get_device_section(), hue_key, (hue = e));
+}
+
+bool ltr_int_wc_set_r_ballance(int e)
+{
+  return ltr_int_change_key_int(ltr_int_get_device_section(), r_ballance_key, (r_ballance = e));
+}
+
+bool ltr_int_wc_set_b_ballance(int e)
+{
+  return ltr_int_change_key_int(ltr_int_get_device_section(), b_ballance_key, (b_ballance = e));
+}
+
+bool ltr_int_wc_set_agc(bool v)
+{
+  char *val = (v) ? yes : no;
+  agc = v;
+  return ltr_int_change_key(ltr_int_get_device_section(), agc_key, val);
+}
+
+bool ltr_int_wc_set_awb(bool v)
+{
+  char *val = (v) ? yes : no;
+  awb = v;
+  return ltr_int_change_key(ltr_int_get_device_section(), awb_key, val);
+}
+
+bool ltr_int_wc_set_horiz_flip(bool v)
+{
+  char *val = (v) ? yes : no;
+  horiz_flip = v;
+  return ltr_int_change_key(ltr_int_get_device_section(), horiz_flip_key, val);
+}
+
+bool ltr_int_wc_set_vert_flip(bool v)
+{
+  char *val = (v) ? yes : no;
+  vert_flip = v;
+  return ltr_int_change_key(ltr_int_get_device_section(), vert_flip_key, val);
+}

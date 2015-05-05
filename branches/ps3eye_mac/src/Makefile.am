@@ -108,7 +108,7 @@ endif
 #endif
 endif
 
-pkglib_LTLIBRARIES += libfakeusb.la
+pkglib_LTLIBRARIES += libfakeusb.la libp3e.la
 
 include_HEADERS = linuxtrack.h
 
@@ -148,6 +148,11 @@ libfakeusb_la_CFLAGS = ${AM_CFLAGS}
 libfakeusb_la_CXXFLAGS = ${AM_CFLAGS}
 libfakeusb_la_LIBADD = libltr.la
 libfakeusb_la_LDFLAGS = ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+libp3e_la_SOURCES = ps3eye.cpp ps3eye.h ps3eye_driver.cpp \
+                    runloop.c runloop.h
+libp3e_la_CFLAGS = ${AM_CFLAGS}
+libp3e_la_LIBADD = -lusb-1.0 libltr.la
+libp3e_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
 
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
 libwii_la_CFLAGS = ${AM_CFLAGS}
