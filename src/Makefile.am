@@ -84,6 +84,13 @@ endif
 endif
 endif
 
+bin_PROGRAMS += ltr_recenter
+
+ltr_recenter_SOURCES = ltr_recenter.c ipc_utils.h ltr_srv_comm.c ltr_srv_comm.h
+ltr_recenter_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
+ltr_recenter_LDADD = -ldl liblinuxtrack.la libltr.la
+ltr_recenter_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} -pthread
+
 if MXML
 if CRYPTO
   bin_PROGRAMS += ltr_extractor

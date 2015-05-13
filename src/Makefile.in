@@ -82,7 +82,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = ltr_server1$(EXEEXT) $(am__EXEEXT_1) ltr_pipe$(EXEEXT)
+bin_PROGRAMS = ltr_server1$(EXEEXT) ltr_recenter$(EXEEXT) \
+	$(am__EXEEXT_1) ltr_pipe$(EXEEXT)
 @CWIID_TRUE@am__append_1 = libwii.la
 @CWIID_TRUE@am__append_2 = wii_server.1
 @LIBV4L2_TRUE@@V4L2_TRUE@am__append_3 = libwc.la
@@ -304,6 +305,13 @@ ltr_pipe_LDADD = $(LDADD)
 ltr_pipe_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ltr_pipe_CFLAGS) \
 	$(CFLAGS) $(ltr_pipe_LDFLAGS) $(LDFLAGS) -o $@
+am_ltr_recenter_OBJECTS = ltr_recenter-ltr_recenter.$(OBJEXT) \
+	ltr_recenter-ltr_srv_comm.$(OBJEXT)
+ltr_recenter_OBJECTS = $(am_ltr_recenter_OBJECTS)
+ltr_recenter_DEPENDENCIES = liblinuxtrack.la libltr.la
+ltr_recenter_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ltr_recenter_CFLAGS) \
+	$(CFLAGS) $(ltr_recenter_LDFLAGS) $(LDFLAGS) -o $@
 am_ltr_server1_OBJECTS = ltr_server1-ltr_srv_comm.$(OBJEXT) \
 	ltr_server1-ltr_srv_slave.$(OBJEXT) ltr_srv_master.$(OBJEXT) \
 	ltr_server1-ltr_server1.$(OBJEXT) \
@@ -390,7 +398,7 @@ SOURCES = $(libfacetrack_int_la_SOURCES) $(libfakeusb_la_SOURCES) \
 	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(xlinuxtrack9_la_SOURCES) $(xlinuxtrack9_32_la_SOURCES) \
 	$(ltr_extractor_SOURCES) $(ltr_pipe_SOURCES) \
-	$(ltr_server1_SOURCES)
+	$(ltr_recenter_SOURCES) $(ltr_server1_SOURCES)
 DIST_SOURCES = $(libfacetrack_int_la_SOURCES) $(libfakeusb_la_SOURCES) \
 	$(libft_la_SOURCES) $(liblinuxtrack_la_SOURCES) \
 	$(liblinuxtrack32_la_SOURCES) $(liblinuxtrack_int_la_SOURCES) \
@@ -400,7 +408,7 @@ DIST_SOURCES = $(libfacetrack_int_la_SOURCES) $(libfakeusb_la_SOURCES) \
 	$(am__xlinuxtrack9_la_SOURCES_DIST) \
 	$(am__xlinuxtrack9_32_la_SOURCES_DIST) \
 	$(ltr_extractor_SOURCES) $(ltr_pipe_SOURCES) \
-	$(ltr_server1_SOURCES)
+	$(ltr_recenter_SOURCES) $(ltr_server1_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -625,6 +633,10 @@ ltr_server1_SOURCES = ltr_srv_comm.c ltr_srv_comm.h ltr_srv_slave.c ltr_srv_slav
 ltr_server1_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server1_LDADD = -lpthread libltr.la
 ltr_server1_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${LTR_SERVER_FLAGS}
+ltr_recenter_SOURCES = ltr_recenter.c ipc_utils.h ltr_srv_comm.c ltr_srv_comm.h
+ltr_recenter_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
+ltr_recenter_LDADD = -ldl liblinuxtrack.la libltr.la
+ltr_recenter_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} -pthread
 ltr_extractor_SOURCES = hashing.c game_data.c game_data.h utils.c utils.h
 ltr_extractor_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS) -Iqt_gui
 ltr_extractor_LDADD = -lcrypto -lmxml
@@ -1011,6 +1023,10 @@ ltr_pipe$(EXEEXT): $(ltr_pipe_OBJECTS) $(ltr_pipe_DEPENDENCIES) $(EXTRA_ltr_pipe
 	@rm -f ltr_pipe$(EXEEXT)
 	$(AM_V_CCLD)$(ltr_pipe_LINK) $(ltr_pipe_OBJECTS) $(ltr_pipe_LDADD) $(LIBS)
 
+ltr_recenter$(EXEEXT): $(ltr_recenter_OBJECTS) $(ltr_recenter_DEPENDENCIES) $(EXTRA_ltr_recenter_DEPENDENCIES) 
+	@rm -f ltr_recenter$(EXEEXT)
+	$(AM_V_CCLD)$(ltr_recenter_LINK) $(ltr_recenter_OBJECTS) $(ltr_recenter_LDADD) $(LIBS)
+
 ltr_server1$(EXEEXT): $(ltr_server1_OBJECTS) $(ltr_server1_DEPENDENCIES) $(EXTRA_ltr_server1_DEPENDENCIES) 
 	@rm -f ltr_server1$(EXEEXT)
 	$(AM_V_CXXLD)$(ltr_server1_LINK) $(ltr_server1_OBJECTS) $(ltr_server1_LDADD) $(LIBS)
@@ -1188,6 +1204,18 @@ ltr_pipe-linuxtrack.o: linuxtrack.c
 
 ltr_pipe-linuxtrack.obj: linuxtrack.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ltr_pipe_CPPFLAGS) $(CPPFLAGS) $(ltr_pipe_CFLAGS) $(CFLAGS) -c -o ltr_pipe-linuxtrack.obj `if test -f 'linuxtrack.c'; then $(CYGPATH_W) 'linuxtrack.c'; else $(CYGPATH_W) '$(srcdir)/linuxtrack.c'; fi`
+
+ltr_recenter-ltr_recenter.o: ltr_recenter.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_recenter_CFLAGS) $(CFLAGS) -c -o ltr_recenter-ltr_recenter.o `test -f 'ltr_recenter.c' || echo '$(srcdir)/'`ltr_recenter.c
+
+ltr_recenter-ltr_recenter.obj: ltr_recenter.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_recenter_CFLAGS) $(CFLAGS) -c -o ltr_recenter-ltr_recenter.obj `if test -f 'ltr_recenter.c'; then $(CYGPATH_W) 'ltr_recenter.c'; else $(CYGPATH_W) '$(srcdir)/ltr_recenter.c'; fi`
+
+ltr_recenter-ltr_srv_comm.o: ltr_srv_comm.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_recenter_CFLAGS) $(CFLAGS) -c -o ltr_recenter-ltr_srv_comm.o `test -f 'ltr_srv_comm.c' || echo '$(srcdir)/'`ltr_srv_comm.c
+
+ltr_recenter-ltr_srv_comm.obj: ltr_srv_comm.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_recenter_CFLAGS) $(CFLAGS) -c -o ltr_recenter-ltr_srv_comm.obj `if test -f 'ltr_srv_comm.c'; then $(CYGPATH_W) 'ltr_srv_comm.c'; else $(CYGPATH_W) '$(srcdir)/ltr_srv_comm.c'; fi`
 
 ltr_server1-ltr_srv_comm.o: ltr_srv_comm.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server1_CFLAGS) $(CFLAGS) -c -o ltr_server1-ltr_srv_comm.o `test -f 'ltr_srv_comm.c' || echo '$(srcdir)/'`ltr_srv_comm.c
