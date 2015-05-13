@@ -44,6 +44,11 @@ extern "C" {
 //char *ltr_int_init_helper(const char *cust_section, bool standalone);
 //#endif
 
+linuxtrack_state_type ltr_init(const char *cust_section);
+linuxtrack_state_type ltr_recenter(void);
+linuxtrack_state_type ltr_shutdown(void);
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -368,6 +368,22 @@ bool ltr_int_make_fifo(const char *name)
   return true;
 }
 
+
+bool ltr_int_is_fifo_locked(const char *name)
+{
+  char *lock_name = NULL;
+  if(asprintf(&lock_name, "%s.lock", name) == -1){
+    return -1;
+  }
+  int res = ltr_int_server_running_already(lock_name, true, NULL, false);
+  free(lock_name);
+  if(res == 0){
+    return false;
+  }
+  return true;
+}
+
+
 int ltr_int_open_fifo_exclusive(const char *name, semaphore_p *lock_sem)
 {
   char *lock_name = NULL;
