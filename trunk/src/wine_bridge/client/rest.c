@@ -173,7 +173,9 @@ bool tryExclusiveLock(const char *file)
   overlapvar.Offset = 0;
   overlapvar.OffsetHigh = 0;
   overlapvar.hEvent = 0;
-  return LockFileEx(f, LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY, 0, 10, 0, &overlapvar);
+  bool res = LockFileEx(f, LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY, 0, 10, 0, &overlapvar);
+  CloseHandle(f);
+  return res;
 }
 
 bool sharedLock(const char *file)
@@ -186,7 +188,9 @@ bool sharedLock(const char *file)
   overlapvar.Offset = 0;
   overlapvar.OffsetHigh = 0;
   overlapvar.hEvent = 0;
-  return LockFileEx(f, LOCKFILE_FAIL_IMMEDIATELY, 0, 10, 0, &overlapvar);
+  bool res = LockFileEx(f, LOCKFILE_FAIL_IMMEDIATELY, 0, 10, 0, &overlapvar);
+  CloseHandle(f);
+  return res;
 }
 
 bool runFile(const char *file)
