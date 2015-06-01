@@ -30,6 +30,7 @@
 static char *pref_file = "linuxtrack1.conf";
 
 static const char *logfile_template = "/tmp/linuxtrack%02d.log";
+static char logfile_rnd_template[] = "/tmp/linuxtrack_log.XXXXXX";
 static char *logfile_name = NULL;
 static FILE *output_stream = NULL;
 static char error_buf[2048];
@@ -48,8 +49,19 @@ static void ltr_int_atexit(void)
 bool ltr_int_set_logfile(char *fname)
 {
   int fd;
-  //The file might be opened by other process, so don't truncate
-  output_stream = fopen(fname, "a+");
+  bool rnd_name = false;
+  if(fname != NULL){
+    //The file might be opened by other process, so don't truncate
+    output_stream = fopen(fname, "a+");
+  }else{
+    fd = mkstemp(logfile_rnd_template);
+    if(fd < 0){
+      perror("mkstemp");
+      return false;
+    }
+    output_stream = fdopen(fd, "a+");
+    rnd_name = true;
+  }
   if(output_stream == NULL){
     return false;
   }
@@ -64,7 +76,11 @@ bool ltr_int_set_logfile(char *fname)
   fcntl(fd, F_SETFD, FD_CLOEXEC);
   atexit(ltr_int_atexit);
   //output_stream = freopen(fname, "w+", stderr);
-  logfile_name = fname;
+  if(!rnd_name){
+    logfile_name = fname;
+  }else{
+    logfile_name = ltr_int_my_strdup(logfile_rnd_template);
+  }
   return true;
 }
 
@@ -146,6 +162,12 @@ void ltr_int_valog_message(const char *format, va_list va)
     //try four times
     for(cntr = 0; cntr < 5; ++cntr){
       if(ltr_int_open_logfile()) break;
+    }
+    if(output_stream == NULL){
+      if(!ltr_int_set_logfile(NULL)){
+        printf("Can't open any logfile. Bailing out.\n");
+        exit(0);
+      }
     }
     fprintf(output_stream, "Linuxtrack version %s\n", PACKAGE_VERSION);
   }

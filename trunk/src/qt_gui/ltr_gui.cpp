@@ -345,7 +345,7 @@ void LinuxtrackGui::on_PackageLogsButton_pressed()
   if(fname.isEmpty()){
     return;
   }
-  zipper.start(QString::fromUtf8("bash -c \"zip %1 /tmp/linuxtrack*.log*\"").arg(fname));
+  zipper.start(QString::fromUtf8("bash -c \"zip %1 /tmp/linuxtrack*\"").arg(fname));
 }
 
 void LinuxtrackGui::logsPackaged(int exitCode, QProcess::ExitStatus exitStatus)
