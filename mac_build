@@ -68,6 +68,23 @@ else
 fi
 popd
 
+##Build liblo
+pushd ${BASE}
+if [ -f ${PREFIX}/lib/liblo.a ]; then
+  echo 'Liblo already exists!'
+else
+  export CFLAGS=${COMMON_FLAGS}
+  tar xfz liblo-0.28.tar.gz
+  pushd liblo-0.28
+  ./configure --prefix=${PREFIX} --disable-dependency-tracking \
+      --enable-static --disable-shared >/dev/null
+  make $PARALEL_MAKE >/dev/null
+  make install >/dev/null
+  unset CFLAGS
+  popd
+fi
+popd
+
 #Build OpenCV
 pushd ${BASE}
 if [ -f ${PREFIX}/bin/opencv_traincascade ]; then
@@ -223,6 +240,7 @@ pushd dist
   cp ../src/linuxtrack_hello_world_adv.c develop
   cp ../Readme.rtf .
   cp ../src/ltr_pipe .
+  cp ../src/osc_server .
 popd
 echo "Going to create the .dmg..."
 rm -f linuxtrack*.dmg
