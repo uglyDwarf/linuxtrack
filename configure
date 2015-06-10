@@ -662,6 +662,8 @@ LIBV4L2_FALSE
 LIBV4L2_TRUE
 V4L2_FALSE
 V4L2_TRUE
+LO_FALSE
+LO_TRUE
 CWIID_FALSE
 CWIID_TRUE
 XPLANE_PLUGIN_FALSE
@@ -16156,6 +16158,46 @@ if test "x$ac_cv_lib_cwiid_cwiid_open" = xyes; then :
   LIBCWIID=true
 fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for lo_send_bundle in -llo" >&5
+$as_echo_n "checking for lo_send_bundle in -llo... " >&6; }
+if ${ac_cv_lib_lo_lo_send_bundle+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-llo  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char lo_send_bundle ();
+int
+main ()
+{
+return lo_send_bundle ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_lo_lo_send_bundle=yes
+else
+  ac_cv_lib_lo_lo_send_bundle=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_lo_lo_send_bundle" >&5
+$as_echo "$ac_cv_lib_lo_lo_send_bundle" >&6; }
+if test "x$ac_cv_lib_lo_lo_send_bundle" = xyes; then :
+  LIBLO=true
+fi
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for mxmlNewXML in -lmxml" >&5
 $as_echo_n "checking for mxmlNewXML in -lmxml... " >&6; }
 if ${ac_cv_lib_mxml_mxmlNewXML+:} false; then :
@@ -17032,6 +17074,14 @@ else
   CWIID_FALSE=
 fi
 
+ if test "x$ac_cv_lib_lo_lo_send_bundle" = xyes; then
+  LO_TRUE=
+  LO_FALSE='#'
+else
+  LO_TRUE='#'
+  LO_FALSE=
+fi
+
  if test x$with_v4l2 = xyes; then
   V4L2_TRUE=
   V4L2_FALSE='#'
@@ -17339,6 +17389,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${CWIID_TRUE}" && test -z "${CWIID_FALSE}"; then
   as_fn_error $? "conditional \"CWIID\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${LO_TRUE}" && test -z "${LO_FALSE}"; then
+  as_fn_error $? "conditional \"LO\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${V4L2_TRUE}" && test -z "${V4L2_FALSE}"; then
@@ -19887,6 +19941,15 @@ else
 $as_echo "no" >&6; }
 fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking OSC support" >&5
+$as_echo_n "checking OSC support... " >&6; }
+if test  "x$ac_cv_lib_lo_lo_send_bundle" = xyes; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
 
 
 

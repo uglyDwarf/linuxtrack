@@ -38,6 +38,7 @@ AC_CHECK_LIB([pthread], [pthread_create], [LIBPTHREAD=true], [AC_MSG_FAILURE([li
 #AC_CHECK_LIB([openusb], [openusb_init], [LIBOPENUSB=true])
 AC_CHECK_LIB([usb-1.0], [libusb_init], [LIBUSB10=true])
 AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
+AC_CHECK_LIB([lo], [lo_send_bundle], [LIBLO=true])
 AC_CHECK_LIB([mxml], [mxmlNewXML], [LIBMXML=true], [AC_MSG_FAILURE([libmxml not found!])], [-pthread])
 AC_CHECK_LIB([crypto], [SHA1], [LIBCRYPTO=true])
 
@@ -215,6 +216,7 @@ AS_IF([(test "x$WINEGCC_COMPILES" = xyes) && (test "x$WINEGPP_COMPILES" = xyes) 
 
 AM_CONDITIONAL(XPLANE_PLUGIN, [test x$build_xplane_plugin = xyes])
 AM_CONDITIONAL(CWIID, [test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes])
+AM_CONDITIONAL(LO, [test "x$ac_cv_lib_lo_lo_send_bundle" = xyes])
 AM_CONDITIONAL(V4L2, [test x$with_v4l2 = xyes])
 AM_CONDITIONAL(LIBV4L2, [test x$with_libv4l2 = xyes])
 AM_CONDITIONAL(DARWIN, [test x$with_darwin = xyes])
@@ -289,6 +291,8 @@ AS_IF([test  "x$build_mickey" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([n
 AC_MSG_CHECKING([Wine plugin])
 AS_IF([test  "x$build_wine_plugin" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
+AC_MSG_CHECKING([OSC support])
+AS_IF([test  "x$ac_cv_lib_lo_lo_send_bundle" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 
 

@@ -283,7 +283,7 @@ static void ltr_int_slave_main_loop()
   bool recenter = false;
   bool quit_flag = false;
   while(!quit_flag){
-    if((com->cmd != NOP_CMD) || com->recenter){
+    if((com->cmd != NOP_CMD) || com->recenter || com->notify){
       ltr_int_lockSemaphore(mmm.sem);
       cmd = (ltr_cmd)com->cmd;
       com->cmd = NOP_CMD;
