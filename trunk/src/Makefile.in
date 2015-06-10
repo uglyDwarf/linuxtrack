@@ -82,27 +82,28 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = ltr_server1$(EXEEXT) ltr_recenter$(EXEEXT) \
-	$(am__EXEEXT_1) ltr_pipe$(EXEEXT)
+bin_PROGRAMS = ltr_server1$(EXEEXT) $(am__EXEEXT_1) \
+	ltr_recenter$(EXEEXT) $(am__EXEEXT_2) ltr_pipe$(EXEEXT)
 @CWIID_TRUE@am__append_1 = libwii.la
 @CWIID_TRUE@am__append_2 = wii_server.1
-@LIBV4L2_TRUE@@V4L2_TRUE@am__append_3 = libwc.la
-@FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@am__append_4 = libft.la
-@FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@am__append_5 = haarcascade_frontalface_alt2.xml
-@CRYPTO_TRUE@@MXML_TRUE@am__append_6 = ltr_extractor
-@CRYPTO_TRUE@@MXML_TRUE@am__append_7 = ltr_extractor.1
-@LIBZ_TRUE@am__append_8 = libtir.la
-@LIBZ_TRUE@am__append_9 = 99-TIR.rules 99-Mickey.rules
-@LIBUSB10_TRUE@@LIBZ_TRUE@am__append_10 = libltusb1.la
-@DARWIN_TRUE@am__append_11 = libmacwc.la
-@XPLANE_PLUGIN_TRUE@am__append_12 = xlinuxtrack9.la
-@LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am__append_13 = xlinuxtrack9_32.la
-@MICKEY_TRUE@am__append_14 = mickey/mickey
-@MICKEY_TRUE@am__append_15 = LTR_MICKEY_TARGET_INST
-@MICKEY_TRUE@am__append_16 = LTR_MICKEY_TARGET_UNINST
-@CWIID_TRUE@am__append_17 = wii_server/wii_server
-@CWIID_TRUE@am__append_18 = LTR_WII_TARGET_INST
-@CWIID_TRUE@am__append_19 = LTR_WII_TARGET_UNINST
+@LO_TRUE@am__append_3 = osc_server
+@LIBV4L2_TRUE@@V4L2_TRUE@am__append_4 = libwc.la
+@FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@am__append_5 = libft.la
+@FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@am__append_6 = haarcascade_frontalface_alt2.xml
+@CRYPTO_TRUE@@MXML_TRUE@am__append_7 = ltr_extractor
+@CRYPTO_TRUE@@MXML_TRUE@am__append_8 = ltr_extractor.1
+@LIBZ_TRUE@am__append_9 = libtir.la
+@LIBZ_TRUE@am__append_10 = 99-TIR.rules 99-Mickey.rules
+@LIBUSB10_TRUE@@LIBZ_TRUE@am__append_11 = libltusb1.la
+@DARWIN_TRUE@am__append_12 = libmacwc.la
+@XPLANE_PLUGIN_TRUE@am__append_13 = xlinuxtrack9.la
+@LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am__append_14 = xlinuxtrack9_32.la
+@MICKEY_TRUE@am__append_15 = mickey/mickey
+@MICKEY_TRUE@am__append_16 = LTR_MICKEY_TARGET_INST
+@MICKEY_TRUE@am__append_17 = LTR_MICKEY_TARGET_UNINST
+@CWIID_TRUE@am__append_18 = wii_server/wii_server
+@CWIID_TRUE@am__append_19 = LTR_WII_TARGET_INST
+@CWIID_TRUE@am__append_20 = LTR_WII_TARGET_UNINST
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/pathconfig.h.in $(srcdir)/local_config.h.in \
@@ -288,7 +289,8 @@ xlinuxtrack9_32_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(xlinuxtrack9_32_la_LDFLAGS) $(LDFLAGS) -o $@
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am_xlinuxtrack9_32_la_rpath =  \
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@	-rpath $(pkglibdir)
-@CRYPTO_TRUE@@MXML_TRUE@am__EXEEXT_1 = ltr_extractor$(EXEEXT)
+@LO_TRUE@am__EXEEXT_1 = osc_server$(EXEEXT)
+@CRYPTO_TRUE@@MXML_TRUE@am__EXEEXT_2 = ltr_extractor$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
 am_ltr_extractor_OBJECTS = ltr_extractor-hashing.$(OBJEXT) \
 	ltr_extractor-game_data.$(OBJEXT) \
@@ -321,6 +323,13 @@ ltr_server1_DEPENDENCIES = libltr.la
 ltr_server1_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(ltr_server1_LDFLAGS) $(LDFLAGS) -o $@
+am_osc_server_OBJECTS = osc_server-osc_server.$(OBJEXT) \
+	osc_server-linuxtrack.$(OBJEXT)
+osc_server_OBJECTS = $(am_osc_server_OBJECTS)
+osc_server_LDADD = $(LDADD)
+osc_server_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(osc_server_CFLAGS) \
+	$(CFLAGS) $(osc_server_LDFLAGS) $(LDFLAGS) -o $@
 SCRIPTS = $(noinst_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -398,7 +407,8 @@ SOURCES = $(libfacetrack_int_la_SOURCES) $(libfakeusb_la_SOURCES) \
 	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(xlinuxtrack9_la_SOURCES) $(xlinuxtrack9_32_la_SOURCES) \
 	$(ltr_extractor_SOURCES) $(ltr_pipe_SOURCES) \
-	$(ltr_recenter_SOURCES) $(ltr_server1_SOURCES)
+	$(ltr_recenter_SOURCES) $(ltr_server1_SOURCES) \
+	$(osc_server_SOURCES)
 DIST_SOURCES = $(libfacetrack_int_la_SOURCES) $(libfakeusb_la_SOURCES) \
 	$(libft_la_SOURCES) $(liblinuxtrack_la_SOURCES) \
 	$(liblinuxtrack32_la_SOURCES) $(liblinuxtrack_int_la_SOURCES) \
@@ -408,7 +418,8 @@ DIST_SOURCES = $(libfacetrack_int_la_SOURCES) $(libfakeusb_la_SOURCES) \
 	$(am__xlinuxtrack9_la_SOURCES_DIST) \
 	$(am__xlinuxtrack9_32_la_SOURCES_DIST) \
 	$(ltr_extractor_SOURCES) $(ltr_pipe_SOURCES) \
-	$(ltr_recenter_SOURCES) $(ltr_server1_SOURCES)
+	$(ltr_recenter_SOURCES) $(ltr_server1_SOURCES) \
+	$(osc_server_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -598,18 +609,18 @@ with_wine64 = @with_wine64@
 @DARWIN_FALSE@FT_LDFLAGS = '-Wl,-rpath,$(libdir)'
 @DARWIN_TRUE@FT_LDFLAGS = 
 man_MANS = ltr_gui.1 ltr_server1.1 mickey.1 $(am__append_2) \
-	$(am__append_7) ltr_pipe.1
+	$(am__append_8) ltr_pipe.1
 
 #if OPENUSB
 #  pkglib_LTLIBRARIES += libltopenusb.la
 #endif
 pkglib_LTLIBRARIES = libltr.la libmacwii.la liblinuxtrack.la \
-	$(am__append_1) $(am__append_3) $(am__append_4) \
-	$(am__append_8) $(am__append_10) libfakeusb.la \
-	$(am__append_11) $(am__append_12) $(am__append_13)
+	$(am__append_1) $(am__append_4) $(am__append_5) \
+	$(am__append_9) $(am__append_11) libfakeusb.la \
+	$(am__append_12) $(am__append_13) $(am__append_14)
 dist_pkgdata_DATA = linuxtrack1.conf linuxtrack.c \
 	linuxtrack_hello_world.c linuxtrack_hello_world_adv.c \
-	$(am__append_5) $(am__append_9)
+	$(am__append_6) $(am__append_10)
 l32libdir = $(prefix)/$(LIB32DIR)/linuxtrack
 @DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@l32lib_LTLIBRARIES = liblinuxtrack32.la
 liblinuxtrack32_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h \
@@ -705,6 +716,9 @@ libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFL
 ltr_pipe_SOURCES = ../config.h ltr_pipe.c linuxtrack.h utils.h utils.c linuxtrack.c
 ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS} -ldl
+osc_server_SOURCES = osc_server.c linuxtrack.h linuxtrack.c
+osc_server_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
+osc_server_LDFLAGS = $(LINUXFLAGS) -pthread -llo -ldl
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@xlinuxtrack9_32_la_SOURCES = xlinuxtrack9.c linuxtrack.c linuxtrack.h
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@xlinuxtrack9_32_la_CFLAGS = ${XPL_CPPFLAGS} $(SYSFLAGS) \
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@    -fPIC -m32 $(DARWINCFLAGS) ${AM_CFLAGS} $(LINUXFLAGS) ${XLINUXTRACK_CFLAGS}
@@ -724,11 +738,11 @@ ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS} -ldl
 AM_YFLAGS = -d --name-prefix ltr_int_parser_
 AM_LFLAGS = -i
 BUILT_SOURCES = pref_flex.cpp pref_bison.cpp pref_bison.hpp
-noinst_SCRIPTS = qt_gui/ltr_gui $(am__append_14) $(am__append_17)
-hook_inst_targets = LTR_QT_GUI_TARGET_INST $(am__append_15) \
-	$(am__append_18)
-hook_uninst_targets = LTR_QT_GUI_TARGET_UNINST $(am__append_16) \
+noinst_SCRIPTS = qt_gui/ltr_gui $(am__append_15) $(am__append_18)
+hook_inst_targets = LTR_QT_GUI_TARGET_INST $(am__append_16) \
 	$(am__append_19)
+hook_uninst_targets = LTR_QT_GUI_TARGET_UNINST $(am__append_17) \
+	$(am__append_20)
 EXTRA_DIST = qt_gui/ltr_show.h qt_gui/help_view.cpp qt_gui/ltr_tracking.h \
 qt_gui/scp_form.ui qt_gui/logview.ui qt_gui/clip.png qt_gui/webcam_prefs.cpp \
 qt_gui/scview.h qt_gui/webcam_ft_prefs.h qt_gui/scview.cpp qt_gui/dl.ui \
@@ -1031,6 +1045,10 @@ ltr_server1$(EXEEXT): $(ltr_server1_OBJECTS) $(ltr_server1_DEPENDENCIES) $(EXTRA
 	@rm -f ltr_server1$(EXEEXT)
 	$(AM_V_CXXLD)$(ltr_server1_LINK) $(ltr_server1_OBJECTS) $(ltr_server1_LDADD) $(LIBS)
 
+osc_server$(EXEEXT): $(osc_server_OBJECTS) $(osc_server_DEPENDENCIES) $(EXTRA_osc_server_DEPENDENCIES) 
+	@rm -f osc_server$(EXEEXT)
+	$(AM_V_CCLD)$(osc_server_LINK) $(osc_server_OBJECTS) $(osc_server_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -1240,6 +1258,18 @@ ltr_server1-ipc_utils.o: ipc_utils.c
 
 ltr_server1-ipc_utils.obj: ipc_utils.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ltr_server1_CFLAGS) $(CFLAGS) -c -o ltr_server1-ipc_utils.obj `if test -f 'ipc_utils.c'; then $(CYGPATH_W) 'ipc_utils.c'; else $(CYGPATH_W) '$(srcdir)/ipc_utils.c'; fi`
+
+osc_server-osc_server.o: osc_server.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(osc_server_CFLAGS) $(CFLAGS) -c -o osc_server-osc_server.o `test -f 'osc_server.c' || echo '$(srcdir)/'`osc_server.c
+
+osc_server-osc_server.obj: osc_server.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(osc_server_CFLAGS) $(CFLAGS) -c -o osc_server-osc_server.obj `if test -f 'osc_server.c'; then $(CYGPATH_W) 'osc_server.c'; else $(CYGPATH_W) '$(srcdir)/osc_server.c'; fi`
+
+osc_server-linuxtrack.o: linuxtrack.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(osc_server_CFLAGS) $(CFLAGS) -c -o osc_server-linuxtrack.o `test -f 'linuxtrack.c' || echo '$(srcdir)/'`linuxtrack.c
+
+osc_server-linuxtrack.obj: linuxtrack.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(osc_server_CFLAGS) $(CFLAGS) -c -o osc_server-linuxtrack.obj `if test -f 'linuxtrack.c'; then $(CYGPATH_W) 'linuxtrack.c'; else $(CYGPATH_W) '$(srcdir)/linuxtrack.c'; fi`
 
 .cpp.o:
 	$(AM_V_CXX)$(CXXCOMPILE) -c -o $@ $<

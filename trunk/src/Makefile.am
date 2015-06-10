@@ -74,6 +74,10 @@ if CWIID
   man_MANS += wii_server.1
 endif
 
+if LO
+  bin_PROGRAMS += osc_server
+endif
+
 if V4L2
 if LIBV4L2
   pkglib_LTLIBRARIES += libwc.la
@@ -193,6 +197,10 @@ ltr_pipe_CPPFLAGS += -D_GNU_SOURCE
 ltr_pipe_SOURCES = ../config.h ltr_pipe.c linuxtrack.h utils.h utils.c linuxtrack.c
 ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS} -ldl
+
+osc_server_SOURCES = osc_server.c linuxtrack.h linuxtrack.c
+osc_server_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
+osc_server_LDFLAGS = $(LINUXFLAGS) -pthread -llo -ldl
 
 if XPLANE_PLUGIN
 pkglib_LTLIBRARIES += xlinuxtrack9.la
