@@ -223,6 +223,7 @@ static bool ltr_int_process_message(int l_master_downlink)
   return true;
 }
 
+static bool quit_flag;
 
 static void *ltr_int_slave_reader_thread(void *param)
 {
@@ -249,7 +250,7 @@ static void *ltr_int_slave_reader_thread(void *param)
         ltr_int_my_perror("poll");
         if(poll_errs > 3){break;}else{continue;}
       }else if(fds == 0){
-        if(!parent_alive()){
+        if(!parent_alive() || quit_flag){
           //printf("Parent %lu died! (1)\n", (unsigned long)ppid);
           return NULL;
         }
@@ -265,7 +266,7 @@ static void *ltr_int_slave_reader_thread(void *param)
           master_works = true;
         }
       }
-      if(!parent_alive()){
+      if(!parent_alive() || quit_flag){
         //printf("Parent %lu died! (2)\n", (unsigned long)ppid);
         return NULL;
       }
@@ -281,7 +282,6 @@ static void ltr_int_slave_main_loop()
   struct ltr_comm *com = mmm.data;
   ltr_cmd cmd = NOP_CMD;
   bool recenter = false;
-  bool quit_flag = false;
   while(!quit_flag){
     if((com->cmd != NOP_CMD) || com->recenter || com->notify){
       ltr_int_lockSemaphore(mmm.sem);
@@ -366,6 +366,7 @@ bool ltr_int_slave(const char *c_profile, const char *c_com_file, const char *pp
   }
   free(com_file);
 
+  quit_flag = false;
   if(pthread_create(&reader_tid, NULL, ltr_int_slave_reader_thread, NULL) == 0){
     ltr_int_slave_main_loop();
     pthread_join(reader_tid, NULL);
