@@ -23,7 +23,7 @@ struct mmap_s{
   semaphore_p lock_sem;
 };
 
-int ltr_int_server_running_already(const char *lockName, bool isAbsolute, 
+int ltr_int_server_running_already(const char *lockName, bool isAbsolute,
                                    semaphore_p *psem, bool should_lock);
 LIBLINUXTRACK_PRIVATE bool ltr_int_fork_child(char *args[], bool *is_child);
 bool ltr_int_wait_child_exit(int limit);
@@ -43,16 +43,12 @@ int ltr_int_open_tmp_file(char *fname);
 void ltr_int_close_tmp_file(char *fname, int fd);
 //LIBLINUXTRACK_PRIVATE char *ltr_int_get_com_file_name();
 
-bool ltr_int_is_fifo_locked(const char *name);
-bool ltr_int_make_fifo(const char *name);
-int ltr_int_open_fifo_exclusive(const char *name, semaphore_p *lock_sem);
-int ltr_int_open_fifo_for_writing(const char *name, bool wait);
-int ltr_int_open_unique_fifo(char **name, int *num, const char *name_template, int max, 
-                             semaphore_p *lock_sem);
-int ltr_int_fifo_send(int fifo, void *buf, size_t size);
-ssize_t ltr_int_fifo_receive(int fifo, void *buf, size_t size);
+int ltr_int_socket_send(int socket, void *buf, size_t size);
+ssize_t ltr_int_socket_receive(int socket, void *buf, size_t size);
 int ltr_int_pipe_poll(int pipe, int timeout, bool *hup);
-
+int ltr_int_create_server_socket(const char *name);
+int ltr_int_connect_to_socket(const char *name);
+int ltr_int_close_socket(int socket);
 #ifdef __cplusplus
 }
 #endif

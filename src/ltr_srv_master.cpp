@@ -15,6 +15,8 @@
 #include <utils.h>
 #include <axis.h>
 #include <pref.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 
 #include <map>
 #include <string>
@@ -113,7 +115,7 @@ bool ltr_int_broadcast_pose(linuxtrack_full_pose_t &pose)
   for(i = slaves.begin(); i != slaves.end();){
     res = ltr_int_send_data(i->second, &pose);
     if(res == -EPIPE){
-      ltr_int_log_message("Slave @fifo %d left!\n", i->second);
+      ltr_int_log_message("Slave @socket %d left!\n", i->second);
       close(i->second);
       i->second = -1;
       slaves.erase(i++);
@@ -155,22 +157,12 @@ static void ltr_int_state_changed(void *param)
   ltr_int_broadcast_pose(current_pose);
 }
 
-bool ltr_int_register_slave(message_t &msg)
+bool ltr_int_register_slave(int socket, message_t &msg)
 {
   ltr_int_log_message("Trying to register slave!\n");
-  char *tmp_fifo_name = NULL;
-  if(asprintf(&tmp_fifo_name, ltr_int_slave_fifo_name(), msg.data) <= 0){
-    return false;
-  }
-  std::string fifo_name(tmp_fifo_name);
-  free(tmp_fifo_name);
-  int fifo = ltr_int_open_fifo_for_writing(fifo_name.c_str(), true);
-  if(fifo <= 0){
-    return false;
-  }
   pthread_mutex_lock(&send_mx);
-  slaves.insert(std::pair<std::string, int>(msg.str, fifo));
-  ltr_int_log_message("Slave @fifo %d registered!\n", fifo);
+  slaves.insert(std::pair<std::string, int>(msg.str, socket));
+  ltr_int_log_message("Slave with profile '%s' @socket %d registered!\n", msg.str, socket);
   pthread_mutex_unlock(&send_mx);
 
   //Make sure the new section is created if needed...
@@ -220,8 +212,178 @@ size_t ltr_int_request_shutdown()
   return 0;
 }
 
+
+
+struct pollfd *descs = NULL;
+size_t max_len = 0;
+size_t current_len = 0;
+nfds_t numfd = 0;
+
+bool add_poll_desc(int fd){
+  ltr_int_log_message("Adding fd %d\n", fd);
+  if(current_len >= max_len){
+    if(max_len > 0){
+      max_len *= 2;
+      descs = (struct pollfd*)realloc(descs, max_len * sizeof(struct pollfd));
+      if(descs){
+        memset(descs + current_len * sizeof(struct pollfd), 0,
+               (max_len - current_len) * sizeof(struct pollfd));
+      }
+    }else{
+      max_len = 1;
+      descs = (struct pollfd*)malloc(max_len * sizeof(struct pollfd));
+      if(descs){
+        memset(descs, 0, max_len * sizeof(struct pollfd));
+      }
+    }
+    if(descs == NULL){
+      ltr_int_my_perror("m/re-alloc");
+      ltr_int_log_message("Can't alloc enough memory for the poll!\n");
+      exit(1);
+    }
+  }
+  descs[current_len].fd = fd;
+  descs[current_len].events = POLLIN;
+  ++current_len;
+  return true;
+}
+
+bool remove_poll_desc(int fd){
+  nfds_t i;
+  for(i = 0; i < current_len; ++i){
+    if(descs[i].fd == fd){
+      if(i < (current_len - 1)){
+        descs[i] = descs[current_len];
+      }else{
+        //last fd, just decrement current_len
+        // Intentionaly empty
+      }
+      --current_len;
+    }
+  }
+  return true;
+}
+
+void print_descs(void)
+{
+  nfds_t i;
+  for(i = 0; i < current_len; ++i){
+    printf("%ld: fd=%d\n", i, descs[i].fd);
+  }
+}
+
+
+int ltr_int_master_main_loop(int socket)
+{
+  int res;
+  int new_fd;
+  bool close_conn;
+  int heartbeat = 0;
+  no_slaves = false;
+
+  struct sockaddr_un address;
+  socklen_t address_len = sizeof(address);
+  add_poll_desc(socket);
+  while(1){
+    if(gui_shutdown_request || (!ltr_int_gui_lock(false)) ||
+       no_slaves || (ltr_int_get_tracking_state() < LINUXTRACK_OK)){
+      break;
+    }
+
+    close_conn = false;
+    ltr_int_log_message("Going to poll\n");
+    res = poll(descs, current_len, 2000);
+    if(res < 0){
+      ltr_int_my_perror("poll");
+      continue;
+    }else if(res == 0){
+      if(ltr_int_get_tracking_state() == PAUSED){
+        ++heartbeat;
+        if(heartbeat > 5){
+          linuxtrack_full_pose_t dummy;
+          dummy.pose.pitch = 0.0; dummy.pose.yaw = 0.0; dummy.pose.roll = 0.0;
+          dummy.pose.tx = 0.0; dummy.pose.ty = 0.0; dummy.pose.tz = 0.0;
+          dummy.pose.counter = 0; dummy.pose.status = PAUSED; dummy.blobs = 0;
+          ltr_int_broadcast_pose(dummy);
+          heartbeat = 0;
+        }
+      }else{
+        heartbeat = 0;
+      }
+      continue;
+    }
+    nfds_t i;
+    for(i = 0; i < current_len; ++i){
+      if(descs[i].revents == 0){
+        continue;
+      }
+      if(descs[i].revents){
+        if(descs[i].revents & POLLIN){
+          if(descs[i].fd == socket){
+            do{
+              new_fd = accept(socket, (struct sockaddr*)&address, &address_len);
+              if(new_fd < 0){
+                if(errno != EWOULDBLOCK){
+                  ltr_int_my_perror("accept");
+                }
+                //No more connection requests
+                break;
+              }else{
+                add_poll_desc(new_fd);
+              }
+            }while(new_fd >= 0);
+          }else{
+            message_t msg;
+            msg.cmd = CMD_NOP;
+            ssize_t x = ltr_int_socket_receive(descs[i].fd, &msg, sizeof(message_t));
+            if(x < 0){
+              if(x != -EWOULDBLOCK){
+                close_conn = true;
+                descs[i].fd = -1;
+              }
+            }else if(x == 0){
+              close_conn = true;
+              descs[i].fd = -1;
+            }else{
+              //ltr_int_log_message("Received a message from slave (%d)!!!\n", msg.cmd);
+              switch(msg.cmd){
+                case CMD_PAUSE:
+                  ltr_int_suspend_cmd();
+                  break;
+                case CMD_WAKEUP:
+                  ltr_int_wakeup_cmd();
+                  break;
+                case CMD_RECENTER:
+                  ltr_int_recenter_cmd();
+                  break;
+                case CMD_NEW_SOCKET:
+                  //ltr_int_log_message("Cmd to register new slave...\n");
+                  ltr_int_register_slave(descs[i].fd, msg);
+                  break;
+                case CMD_FRAMES:
+                  ltr_int_publish_frames_cmd();
+                  break;
+              }
+            }
+          }
+        }
+        if(descs[i].revents & POLLHUP){
+          close_conn = true;
+          descs[i].fd = -1;
+        }
+      }
+    }
+    if(close_conn){
+      remove_poll_desc(-1);
+    }
+  }
+  return 0;
+}
+
+
+
 //Try making sure, that gui will be the only master
-//  - opening and locking fifo in the gui constructor?
+//  - opening and locking socket in the gui constructor?
 //  - when master running already, make it close to let us jump to its place???
 
 
@@ -237,10 +399,9 @@ bool ltr_int_master(bool standalone)
   current_pose.pose.status = STOPPED;
   current_pose.blobs = 0;
   gui_shutdown_request = false;
-  int fifo;
+  int socket;
 
   save_prefs = standalone;
-  semaphore_p master_lock = NULL;
   if(standalone){
     //Detach from the caller, retaining stdin/out/err
     // Does weird things to gui ;)
@@ -251,14 +412,14 @@ bool ltr_int_master(bool standalone)
       ltr_int_log_message("Gui is active, quitting!\n");
       return true;
     }
-    fifo = ltr_int_open_fifo_exclusive(ltr_int_master_fifo_name(), &master_lock);
+    socket = ltr_int_create_server_socket(ltr_int_master_socket_name());
   }else{
     if(!ltr_int_gui_lock(true)){
       ltr_int_log_message("Couldn't lock gui lockfile!\n");
       return false;
     }
     int counter = 10;
-    while((fifo = ltr_int_open_fifo_exclusive(ltr_int_master_fifo_name(), &master_lock)) <= 0){
+    while((socket = ltr_int_create_server_socket(ltr_int_master_socket_name())) <= 0){
       if((counter--) <= 0){
         ltr_int_log_message("The other master doesn't give up!\n");
         return false;
@@ -268,102 +429,28 @@ bool ltr_int_master(bool standalone)
     ltr_int_log_message("Other master gave up, gui master taking over!\n");
   }
 
-  if(fifo <= 0){
+  if(socket < 0){
     ltr_int_log_message("Master already running, quitting!\n");
     return true;
   }
   ltr_int_log_message("Starting as master!\n");
   if(ltr_int_init() != 0){
     ltr_int_log_message("Could not initialize tracking!\n");
-    ltr_int_log_message("Closing fifo %d\n", fifo);
-    close(fifo);
+    ltr_int_log_message("Closing socket %d\n", socket);
+    close(socket);
+    unlink(ltr_int_master_socket_name());
     return false;
   }
 
   ltr_int_register_cbk(ltr_int_new_frame, NULL, ltr_int_state_changed, NULL);
 
-  struct pollfd fifo_poll;
-  int heartbeat = 0;
-  fifo_poll.fd = fifo;
-  fifo_poll.events = POLLIN;
-  fifo_poll.revents = 0;
-  no_slaves = false;
-  while(1){
-    fifo_poll.events = POLLIN;
-    int fds = poll(&fifo_poll, 1, 1000);
-    //printf("Master: poll returned %d @ %d!\n", fifo_poll.revents, fds);
-    if(fds > 0){
-      //ltr_int_log_message("poll: %d\n", fifo_poll.revents);
-      if(fifo_poll.revents & POLLHUP){
-        if(standalone){
-          ltr_int_log_message("We have HUP in Master!\n");
-          linuxtrack_full_pose_t dummy;
-          dummy.pose.pitch = 0.0; dummy.pose.yaw = 0.0; dummy.pose.roll = 0.0;
-          dummy.pose.tx = 0.0; dummy.pose.ty = 0.0; dummy.pose.tz = 0.0;
-          dummy.pose.counter = 0; dummy.pose.status = PAUSED; dummy.blobs = 0;
-          ltr_int_broadcast_pose(dummy);
-        }else{
-          //In gui when HUP comes, it goes forever...
-          //!!! remove all clients!!!
-          sleep(1);
-        }
-      }
-      message_t msg;
-      msg.cmd = CMD_NOP;
-      ssize_t res = ltr_int_fifo_receive(fifo, &msg, sizeof(message_t));
-      if(res < 0){
-        ltr_int_my_perror("read");
-      }
-      if(res > 0){
-        //printf("Received a message from slave (%d)!!!\n", msg.cmd);
-        switch(msg.cmd){
-          case CMD_PAUSE:
-            ltr_int_suspend_cmd();
-            break;
-          case CMD_WAKEUP:
-            ltr_int_wakeup_cmd();
-            break;
-          case CMD_RECENTER:
-            ltr_int_recenter_cmd();
-            break;
-          case CMD_NEW_FIFO:
-            //printf("Cmd to register new slave...\n");
-            ltr_int_register_slave(msg);
-            break;
-          case CMD_FRAMES:
-            ltr_int_publish_frames_cmd();
-            break;
-        }
-      }
-    }else if(fds == 0){
-      if(ltr_int_get_tracking_state() == PAUSED){
-        ++heartbeat;
-        if(heartbeat > 5){
-          linuxtrack_full_pose_t dummy;
-          dummy.pose.pitch = 0.0; dummy.pose.yaw = 0.0; dummy.pose.roll = 0.0;
-          dummy.pose.tx = 0.0; dummy.pose.ty = 0.0; dummy.pose.tz = 0.0;
-          dummy.pose.counter = 0; dummy.pose.status = PAUSED; dummy.blobs = 0;
-          ltr_int_broadcast_pose(dummy);
-          heartbeat = 0;
-        }
-      }else{
-        heartbeat = 0;
-      }
-    }else if(fds < 0){
-      ltr_int_my_perror("poll");
-    }
+  ltr_int_master_main_loop(socket);
 
-    if(gui_shutdown_request || (!ltr_int_gui_lock(false)) ||
-       no_slaves || (ltr_int_get_tracking_state() < LINUXTRACK_OK)){
-      break;
-    }
-  }
   ltr_int_log_message("Shutting down tracking!\n");
   ltr_int_shutdown();
-  ltr_int_log_message("Master closing fifo %d\n", fifo);
-  close(fifo);
-  ltr_int_unlockSemaphore(master_lock);
-  ltr_int_closeSemaphore(master_lock);
+  ltr_int_log_message("Master closing socket %d\n", socket);
+  close(socket);
+  unlink(ltr_int_master_socket_name());
   ltr_int_gui_lock_clean();
   int cntr = 10;
   while((ltr_int_get_tracking_state() != STOPPED) && (cntr > 0)){

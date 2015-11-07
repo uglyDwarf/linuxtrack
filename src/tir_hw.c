@@ -13,6 +13,7 @@
 #include "tir.h"
 #include "ipc_utils.h"
 
+
 #define TIR_CONFIGURATION 1
 #define TIR_INTERFACE 0
 #define TIR_OUT_EP  0x01
@@ -99,7 +100,7 @@ static bool ltr_int_open_sn4_pipe()
     return true;
   }
   char *fname = ltr_int_get_default_file_name(sn4_pipe_name);
-  sn4_pipe = ltr_int_open_fifo_for_writing(fname, false);
+  sn4_pipe = ltr_int_create_server_socket(fname);
   free(fname);
   return(sn4_pipe > 0);
 }
@@ -114,7 +115,7 @@ void ltr_int_send_sn4_data(uint8_t data[], size_t length)
     printf("There was problem opening the pipe!\n");
     return;
   }
-  ltr_int_fifo_send(sn4_pipe, (void *)data, length);
+  ltr_int_socket_send(sn4_pipe, (void *)data, length);
 }
 
 static void ltr_int_close_sn4_pipe()
@@ -122,7 +123,8 @@ static void ltr_int_close_sn4_pipe()
   if(sn4_pipe <= 0){
     return;
   }
-  close(sn4_pipe);
+  ltr_int_close_socket(sn4_pipe);
+  unlink(ltr_int_get_default_file_name(sn4_pipe_name));
   sn4_pipe = -1;
   ltr_int_log_message("SN4 pipe closed!\n");
 }
@@ -154,10 +156,10 @@ static void cksum_firmware(firmware_t *fw)
   assert(fw != NULL);
   unsigned int cksum = 0;
   unsigned int byte = 0;
-  
+
   unsigned char *firmware = fw->firmware;
   size_t size = fw->size;
-  
+
   while(size > 0){
     byte = (unsigned int)*firmware;
 
@@ -166,7 +168,7 @@ static void cksum_firmware(firmware_t *fw)
     cksum ^= byte;
 
     --size;
-    ++firmware; 
+    ++firmware;
   }
   fw->cksum = cksum & 0xffff;
 }
@@ -195,12 +197,12 @@ static bool read_status_tir(tir_status_t *status)
     counter++;
   }
   ltr_int_log_message("Status packet: %02X %02X %02X %02X %02X %02X %02X\n",
-    ltr_int_packet[0], ltr_int_packet[1], ltr_int_packet[2], ltr_int_packet[3], 
+    ltr_int_packet[0], ltr_int_packet[1], ltr_int_packet[2], ltr_int_packet[3],
     ltr_int_packet[4], ltr_int_packet[5], ltr_int_packet[6]);
-  
+
   status->fw_loaded = (ltr_int_packet[3] == 1) ? true : false;
   status->cfg_flag = ltr_int_packet[6];
-  status->fw_cksum = (((unsigned int)ltr_int_packet[4]) << 8) + (unsigned int)ltr_int_packet[5]; 
+  status->fw_cksum = (((unsigned int)ltr_int_packet[4]) << 8) + (unsigned int)ltr_int_packet[5];
   return true;
 }
 
@@ -271,7 +273,7 @@ static bool load_firmware(firmware_t *fw)
   unsigned int bytesRead = 0;
   size_t *size = &(fw->size);
   *size = 0;
-  
+
   char *fw_path = ltr_int_find_firmware(device);
   ltr_int_log_message("Loading firmware '%s'\n", fw_path);
   f = gzopen(fw_path, "rb");
@@ -281,7 +283,7 @@ static bool load_firmware(firmware_t *fw)
     return false;
   }
   free(fw_path);
-  
+
   while(1){
     bytesRead = gzread(f, ptr, FW_SIZE_INCREMENT);
     *size += bytesRead;
@@ -294,7 +296,7 @@ static bool load_firmware(firmware_t *fw)
     }
     ptr = tbuf + *size; //realloc can move data!!!
   }
-  
+
   gzclose(f);
   if(tbuf != NULL){
     fw->firmware = tbuf;
@@ -314,7 +316,7 @@ static bool upload_firmware(firmware_t *fw)
   unsigned char len;
   unsigned char *firmware = fw->firmware;
   size_t size = fw->size;
-  
+
   if(!ltr_int_send_data(out_ep, Fpga_init, sizeof(Fpga_init))){
     ltr_int_log_message("Couldn't init fpga!\n");
     return false;
@@ -334,7 +336,7 @@ static bool upload_firmware(firmware_t *fw)
     }
   }
   ltr_int_log_message("Firmware uploaded!\n");
-  
+
   return true;
 }
 
@@ -477,13 +479,13 @@ static bool set_exposure(unsigned int exp)
 {
   unsigned char Set_exposure_h[] =  {0x23, 0x42, 0x08, 0x01, 0x00, 0x00};
   unsigned char Set_exposure_l[] =  {0x23, 0x42, 0x10, 0x8F, 0x00, 0x00};
-  
+
   Set_exposure_h[3] = exp >> 8;
   Set_exposure_l[3] = exp & 0xFF;
   ltr_int_log_message("Setting exposure.\n");
-  return ltr_int_send_data(out_ep, Set_exposure_h, sizeof(Set_exposure_h)) && 
+  return ltr_int_send_data(out_ep, Set_exposure_h, sizeof(Set_exposure_h)) &&
     ltr_int_send_data(out_ep, Set_exposure_l, sizeof(Set_exposure_l));
-  
+
 }
 
 static bool stop_camera_tir2()
@@ -597,7 +599,7 @@ static bool stop_camera_sn3()
   ltr_int_log_message("Stopping SmartNav3 camera!\n");
   ltr_int_send_data(out_ep, Video_off, sizeof(Video_off));
   ltr_int_send_data(out_ep, Fifo_flush, sizeof(Fifo_flush));
-  
+
   turn_led_off_tir(TIR_LED_GREEN);
   turn_led_off_tir(TIR_LED_IR);
   turn_led_off_tir(TIR_LED_RED);
@@ -618,7 +620,7 @@ static bool start_camera_tir2()
   ltr_int_log_message("Starting TIR2 camera!\n");
   ltr_int_send_data(out_ep, Video_on,sizeof(Video_on));
   ltr_int_usleep(120000);
-  if(ir_on){ 
+  if(ir_on){
     turn_led_on_tir(TIR_LED_IR);
     ltr_int_usleep(64000);
   }
@@ -628,7 +630,7 @@ static bool start_camera_tir2()
     set_status_led_tir4(true);
     ltr_int_usleep(64000);
   }
-  if(ir_on){ 
+  if(ir_on){
     turn_led_on_tir(TIR_LED_IR);
     ltr_int_usleep(64000);
   }
@@ -642,7 +644,7 @@ static bool start_camera_tir3()
   ltr_int_usleep(2000);
   ltr_int_send_data(out_ep, Camera_stop,sizeof(Camera_stop));
   ltr_int_usleep(2000);
-  if(ir_on){ 
+  if(ir_on){
     turn_led_on_tir(TIR_LED_IR);
     ltr_int_usleep(2000);
   }
@@ -659,11 +661,11 @@ static bool start_camera_tir4()
 {
   stop_camera_tir();
   ltr_int_send_data(out_ep, Video_on,sizeof(Video_on));
-  if(ir_on){ 
+  if(ir_on){
     turn_led_on_tir(TIR_LED_IR);
   }
   flush_fifo_tir();
-  if(ltr_int_tir_get_status_indication()) 
+  if(ltr_int_tir_get_status_indication())
     set_status_led_tir4(true);
   return true;
 }
@@ -672,12 +674,12 @@ static bool start_camera_tir5()
 {
   stop_camera_tir();
   ltr_int_send_data(out_ep, Video_on,sizeof(Video_on));
-  if(ir_on){ 
+  if(ir_on){
     control_ir_led_tir(true);
   }else{
     control_ir_led_tir(false);
   }
-  if(ltr_int_tir_get_status_indication()) 
+  if(ltr_int_tir_get_status_indication())
     set_status_led_tir5(true);
   return true;
 }
@@ -691,7 +693,7 @@ static bool start_camera_sn4()
     ltr_int_send_data(out_ep, SN4_normal_mode,sizeof(SN4_normal_mode));
   }
   ltr_int_send_data(out_ep, Video_on,sizeof(Video_on));
-  if(ir_on){ 
+  if(ir_on){
     turn_led_on_tir(TIR_LED_IR);
   }
   if(ltr_int_tir_get_status_indication()){
@@ -706,7 +708,7 @@ static bool start_camera_sn3()
   ltr_int_send_data(out_ep, Video_on,sizeof(Video_on));
   ltr_int_send_data(out_ep, Fifo_flush,sizeof(Fifo_flush));
   turn_led_on_tir(TIR_LED_GREEN);
-  if(ir_on){ 
+  if(ir_on){
     turn_led_on_tir(TIR_LED_IR);
   }
   turn_led_on_tir(TIR_LED_BLUE);
@@ -723,7 +725,7 @@ static bool init_camera_tir2(bool force_fw_load, bool p_ir_on)
 {
   (void) force_fw_load;
   size_t t;
-  
+
   ir_on = p_ir_on;
   ltr_int_log_message("Initializing TIR2 camera!\n");
   turn_led_off_tir(TIR_LED_IR);
@@ -761,7 +763,7 @@ static bool init_camera_tir3(bool force_fw_load, bool p_ir_on)
 {
   (void) force_fw_load;
   size_t t;
-  
+
   ir_on = p_ir_on;
   ltr_int_log_message("Initializing TIR3 camera!\n");
   if(!stop_camera_tir()){
@@ -793,7 +795,7 @@ static bool init_camera_tir4(bool force_fw_load, bool p_ir_on)
 {
   tir_status_t status;
   size_t t;
-  
+
   ir_on = p_ir_on;
 
   if(!stop_camera_tir()){
@@ -816,7 +818,7 @@ static bool init_camera_tir4(bool force_fw_load, bool p_ir_on)
     ltr_int_log_message("Error loading firmware!\n");
     return false;
   }
-  
+
   if(force_fw_load | (!status.fw_loaded) | (status.fw_cksum != firmware.cksum)){
     upload_firmware(&firmware);
   }
@@ -825,12 +827,12 @@ static bool init_camera_tir4(bool force_fw_load, bool p_ir_on)
     ltr_int_log_message("Couldn't retrieve status!\n");
     return false;
   }
-  
+
   if(status.fw_cksum != firmware.cksum){
     ltr_int_log_message("Firmware not loaded correctly!\n");
     return false;
   }
-  
+
   if(status.cfg_flag == 1){
     ltr_int_send_data(out_ep, Cfg_reload,sizeof(Cfg_reload));
     while(status.cfg_flag != 2){
@@ -847,12 +849,12 @@ static bool init_camera_tir4(bool force_fw_load, bool p_ir_on)
     ltr_int_log_message("TIR configuration problem!\n");
     return false;
   }
-  
-  
+
+
   if((device == TIR5)||(device == TIR5V2)){
     ltr_int_send_data(out_ep, Precision_mode,sizeof(Precision_mode));
   }
-  
+
   free(firmware.firmware);
   ltr_int_log_message("TIR4 camera initialized.\n");
   return true;
@@ -865,9 +867,9 @@ static bool init_camera_tir5(bool force_fw_load, bool p_ir_on)
   (void) force_fw_load;
   tir_status_t status;
   ir_on = p_ir_on;
-  
+
   stop_camera_tir();
-  
+
   read_rom_data_tir();
   control_ir_led_tir(true);
   flush_fifo_tir();
@@ -909,7 +911,7 @@ static bool init_camera_sn4(bool force_fw_load, bool p_ir_on)
   ltr_int_log_message("Initializing SmartNav4...\n");
   tir_status_t status;
   size_t t;
-  
+
   ir_on = p_ir_on;
 
   if(!stop_camera_tir()){
@@ -930,7 +932,7 @@ static bool init_camera_sn4(bool force_fw_load, bool p_ir_on)
   do{
     ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
   }while(t > 0);
-  
+
   if(!read_status_tir(&status)){
     return false;
   }
@@ -943,7 +945,7 @@ static bool init_camera_sn4(bool force_fw_load, bool p_ir_on)
     upload_firmware(&firmware);
     ltr_int_send_data(out_ep, unk_7,sizeof(unk_7));
     ltr_int_send_data(out_ep, unk_e,sizeof(unk_e));
-    
+
     ltr_int_log_message("Flushing packets...\n");
     do{
       ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
@@ -952,12 +954,12 @@ static bool init_camera_sn4(bool force_fw_load, bool p_ir_on)
       ltr_int_log_message("Couldn't retrieve status!\n");
       return false;
     }
-    
+
     if(status.fw_cksum != firmware.cksum){
       ltr_int_log_message("Firmware not loaded correctly!\n");
       return false;
     }
-    
+
     if(status.cfg_flag == 1){
       ltr_int_send_data(out_ep, Cfg_reload,sizeof(Cfg_reload));
       while(status.cfg_flag != 2){
@@ -971,12 +973,12 @@ static bool init_camera_sn4(bool force_fw_load, bool p_ir_on)
       ltr_int_send_data(out_ep, unk_c, sizeof(unk_c));
       ltr_int_send_data(out_ep, unk_d, sizeof(unk_d));
       ltr_int_set_threshold_tir(0x78);
-      
+
     }else if(status.cfg_flag != 2){
       ltr_int_log_message("SmatrNav4 configuration problem!\n");
       return false;
     }
-    
+
     free(firmware.firmware);
   }
   if(ltr_int_open_sn4_pipe()){
@@ -984,7 +986,7 @@ static bool init_camera_sn4(bool force_fw_load, bool p_ir_on)
   }else{
     ltr_int_log_message("Couldn't open SN4 pipe - mouse clicks will not be available!\n");
   }
-  
+
   ltr_int_log_message("SmartNav4 camera initialized.\n");
   return true;
 }
@@ -993,7 +995,7 @@ static bool init_camera_sn3(bool force_fw_load, bool p_ir_on)
 {
   (void) force_fw_load;
   size_t t;
-  
+
   ir_on = p_ir_on;
   ltr_int_log_message("Initializing SN3 camera!\n");
   if(!stop_camera_tir()){
@@ -1025,7 +1027,7 @@ bool ltr_int_open_tir(bool force_fw_load, bool switch_ir_on)
     ltr_int_log_message("Tir not found!\n");
     return false;
   }
-  
+
   //Tir3 uses endpoint 2, while Tir4 and 5 use endpoint 1!
   if((device <= TIR3) || (device == SMARTNAV3)){
     cfg_in_ep = ltr_int_data_in_ep = TIR_IN_EP;
@@ -1038,13 +1040,13 @@ bool ltr_int_open_tir(bool force_fw_load, bool switch_ir_on)
     cfg_in_ep = ltr_int_data_in_ep = TIR_IN_EP;
     out_ep = TIR_OUT_EP;
   }
-  
-  
+
+
   if(!ltr_int_prepare_device(TIR_CONFIGURATION, TIR_INTERFACE)){
     ltr_int_log_message("Couldn't prepare!\n");
     return false;
   }
-  
+
   switch(device){
     case TIR2:
       tir_iface = &tir2;

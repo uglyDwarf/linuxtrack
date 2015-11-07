@@ -15,12 +15,23 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/file.h>
+#include <sys/ioctl.h>
 #include <fcntl.h>
 #include <poll.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 
 #include "ipc_utils.h"
 #include "utils.h"
+
+//UNIX_PATH_MAX is defined in linux/un.h, but that doesn't seem portable.
+//  So I use this instead...
+struct sockaddr_un sizecheck;
+#ifndef UNIX_PATH_MAX
+#define UNIX_PATH_MAX sizeof(sizecheck.sun_path)
+#endif
+
 
 static pid_t child;
 
@@ -70,7 +81,7 @@ bool ltr_int_child_alive()
 //    -1 error
 //     0 server not running
 //     1 server running
-int ltr_int_server_running_already(const char *lockName, bool isAbsolute, 
+int ltr_int_server_running_already(const char *lockName, bool isAbsolute,
                                    semaphore_p *psem, bool should_lock)
 {
   char *lockFile;
@@ -98,7 +109,7 @@ int ltr_int_server_running_already(const char *lockName, bool isAbsolute,
   }else{
     lock_result = ltr_int_testLockSemaphore(pfSem);
   }
-  
+
   if(lock_result == false){
     ltr_int_log_message("Can't lock - server runs already!\n");
     result = 1;
@@ -246,7 +257,7 @@ static bool ltr_int_mmap(int fd, ssize_t tmp_size, struct mmap_s *m)
       doTruncate = false;
     }
   }
-  
+
   if(doTruncate){
     int res = ftruncate(fd, tmp_size);
     if (res == -1) {
@@ -272,7 +283,7 @@ bool ltr_int_mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
     ltr_int_my_perror("open: ");
     return false;
   }
-  
+
   if(!ltr_int_mmap(fd, tmp_size, m)){
     close(fd);
     return false;
@@ -288,14 +299,14 @@ bool ltr_int_mmap_file(const char *fname, size_t tmp_size, struct mmap_s *m)
 bool ltr_int_mmap_file_exclusive(size_t tmp_size, struct mmap_s *m)
 {
   umask(S_IWGRP | S_IWOTH);
-  
+
   char *file_name = ltr_int_my_strdup(mmapped_file_name());
   int fd = ltr_int_open_tmp_file(file_name);
   if(fd < 0){
     ltr_int_my_perror("mkstemp");
     return false;
   }
-  
+
   if(!ltr_int_mmap(fd, tmp_size, m)){
     ltr_int_close_tmp_file(file_name, fd);
     free(file_name);
@@ -334,160 +345,154 @@ bool ltr_int_unmap_file(struct mmap_s *m)
 
 
 
-bool ltr_int_make_fifo(const char *name)
+int ltr_int_make_socket(const char *name)
 {
   if(name == NULL){
     ltr_int_log_message("Name must be set! (NULL passed)\n");
+    return -1;
   }
   struct stat info;
   if(stat(name, &info) == 0){
-    //file exists, check if it is fifo...
-    if(S_ISFIFO(info.st_mode)){
-      ltr_int_log_message("Fifo exists already!\n");
-      return true;
+    //file exists, check if it is socket...
+    if(S_ISSOCK(info.st_mode)){
+      ltr_int_log_message("Socket exists already!\n");
+      int tmp_sock = ltr_int_connect_to_socket(name);
+      if(tmp_sock < 0){
+        ltr_int_log_message("Couldn't connect, will try removing the socket!\n");
+        if(unlink(name) != 0){
+          ltr_int_my_perror("unlink");
+          return -1;
+        }
+      }else{
+        ltr_int_log_message("Master is responding on the other end!\n");
+        shutdown(tmp_sock, SHUT_RDWR);
+        close(tmp_sock);
+        return -1;
+      }
     }else if(S_ISDIR(info.st_mode)){
       ltr_int_log_message("Directory exists! Will try to remove it.\n");
       if(rmdir(name) != 0){
         ltr_int_my_perror("rmdir");
-        return false;
+        return -1;
       }
     }else{
-      ltr_int_log_message("File exists, but it is not a fifo! Will try to remove it.\n");
+      ltr_int_log_message("File exists, but it is not a socket! Will try to remove it.\n");
       if(unlink(name) != 0){
         ltr_int_my_perror("unlink");
-        return false;
+        return -1;
       }
     }
   }
+  struct sockaddr_un address;
+  int socket_fd = -1;
+
+  socket_fd = socket(PF_UNIX, SOCK_STREAM, 0);
+  if(socket_fd < 0){
+    ltr_int_my_perror("socket");
+    return -1;
+  }
+  int set = 1;
+  if(ioctl(socket_fd, FIONBIO, (char *)&set) < 0){
+    perror("ioctl");
+    close(socket_fd);
+    return -1;
+  }
+  memset(&address, 0, sizeof(struct sockaddr_un));
+  address.sun_family = AF_UNIX;
+  strncpy(address.sun_path, name, UNIX_PATH_MAX);
+
   //At this point, the file should not exist.
-  if(mkfifo(name, S_IRUSR | S_IWUSR) != 0){
-    ltr_int_my_perror("mkfifo");
-    return false;
+  if(bind(socket_fd, (struct sockaddr_un *) &address, sizeof(struct sockaddr_un)) != 0){
+    ltr_int_my_perror("bind");
+    return -1;
   }
-  ltr_int_log_message("Fifo created!\n");
-  return true;
+  if(listen(socket_fd, 1) != 0){
+    ltr_int_my_perror("listen");
+    return -1;
+  }
+  ltr_int_log_message("Socket created!\n");
+  return socket_fd;
 }
 
 
-bool ltr_int_is_fifo_locked(const char *name)
-{
-  char *lock_name = NULL;
-  if(asprintf(&lock_name, "%s.lock", name) == -1){
-    return -1;
-  }
-  int res = ltr_int_server_running_already(lock_name, true, NULL, false);
-  free(lock_name);
-  if(res == 0){
-    return false;
-  }
-  return true;
-}
 
-
-int ltr_int_open_fifo_exclusive(const char *name, semaphore_p *lock_sem)
-{
-  char *lock_name = NULL;
-  if(asprintf(&lock_name, "%s.lock", name) == -1){
-    return -1;
-  }
-  if(ltr_int_server_running_already(lock_name, true, lock_sem, true) != 0){
-    ltr_int_log_message("Fifo %s (lock %s) could not be locked, closing it!\n", name, lock_name);
-    return -1;
-  }
-  ltr_int_log_message("Fifo %s (lock %s) locked!!!", name, lock_name);
-  free(lock_name);
-  if(!ltr_int_make_fifo(name)){
-    ltr_int_unlockSemaphore(*lock_sem);
-    ltr_int_closeSemaphore(*lock_sem);
-    ltr_int_log_message("Fifo %s could not be created!\n", name);
-    return -1;
-  }
-  int fifo = -1;
-  if((fifo = open(name, O_RDONLY | O_NONBLOCK)) > 0){
-    ltr_int_log_message("Fifo %s (fd %d) opened and locked!\n", name, fifo);
-    return fifo;
-  }
-  return -1;
-}
-
-int ltr_int_open_fifo_for_writing(const char *name, bool waitForOpen){
+int ltr_int_create_server_socket(const char *name){
   //ltr_int_log_message("Trying to open fifo '%s'...\n", name);
-  if(!ltr_int_make_fifo(name)){
-    ltr_int_log_message("Failed to create fifo for writing!\n");
-    return -1;
-  }
-  
-  //Open the pipe (handling the wait for the other party to open reading end)
-  //  Todo: add some timeout?
   int fifo = -1;
-  int timeout = 3;
-  while(timeout > 0){
-    --timeout;
-    if((fifo = open(name, O_WRONLY | O_NONBLOCK)) < 0){
-      ltr_int_my_perror("open_fifo_for_writing");
-      //ltr_int_log_message("Fifo for writing failed to open (%s)!\n", name);
-      if(errno != ENXIO){
-        ltr_int_my_perror("open@open_fifo_for_writing");
-        return -1;
-      }
-      fifo = -1;
-      if(!waitForOpen){
-        return -1;
-      }
-      sleep(1);
-    }else{
-      break;
-    }
+  fifo = ltr_int_make_socket(name);
+  if(fifo < 0){
+    ltr_int_log_message("Failed to create socket!\n");
+    return -1;
   }
   return fifo;
 }
 
-int ltr_int_open_unique_fifo(char **name, int *num, const char *template, int max, semaphore_p *lock_sem)
-{
-  //although I could come up with method allowing more than 100
-  //  fifos to be checked, there is not a point doing so
-  int i;
-  char *fifo_name = NULL;
-  int fifo = -1;
-  for(i = 0; i < max; ++i){
-    if(asprintf(&fifo_name, template, i) > 0){
-      fifo = ltr_int_open_fifo_exclusive(fifo_name, lock_sem);
-      if(fifo > 0){
-        break;
-      }
-      free(fifo_name);
-      fifo_name = NULL;
-    }
-  }
-  *name = fifo_name;
-  *num = i;
-  return fifo;
-}
 
-int ltr_int_fifo_send(int fifo, void *buf, size_t size)
-{
-  if(fifo <= 0){
+int ltr_int_connect_to_socket(const char *name){
+  //ltr_int_log_message("Trying to open fifo '%s'...\n", name);
+  printf("Will try to connect to socket '%s'\n", name);
+  struct sockaddr_un address;
+  int socket_fd = -1;
+
+  socket_fd = socket(PF_UNIX, SOCK_STREAM, 0);
+  if(socket_fd < 0){
+    ltr_int_my_perror("socket");
     return -1;
   }
-  if(write(fifo, buf, size) < 0){
-    ltr_int_log_message("Write @fd %d failed:\n", fifo);
+  int set = 1;
+  if(ioctl(socket_fd, FIONBIO, (char *)&set) < 0){
+    perror("ioctl");
+    close(socket_fd);
+    return -1;
+  }
+  memset(&address, 0, sizeof(struct sockaddr_un));
+  address.sun_family = AF_UNIX;
+  strncpy(address.sun_path, name, UNIX_PATH_MAX);
+
+  if(connect(socket_fd, (struct sockaddr *) &address, sizeof(struct sockaddr_un)) != 0){
+    ltr_int_my_perror("connect");
+    return -1;
+  }
+
+  if(socket_fd < 0){
+    ltr_int_log_message("Failed to connect to socket!\n");
+    return -1;
+  }
+  return socket_fd;
+}
+
+
+int ltr_int_socket_send(int socket, void *buf, size_t size)
+{
+  if(socket <= 0){
+    return -1;
+  }
+  if(write(socket, buf, size) < 0){
+    ltr_int_log_message("Write @fd %d failed:\n", socket);
     int err = errno;
-    ltr_int_my_perror("write@pipe_send");
+    ltr_int_my_perror("write@socket_send");
     return -err;
    }
   return 0;
 }
 
-ssize_t ltr_int_fifo_receive(int fifo, void *buf, size_t size)
+ssize_t ltr_int_socket_receive(int socket, void *buf, size_t size)
 {
   //Assumption is, that write/read of less than 512 bytes should be atomic...
-  ssize_t num_read = read(fifo, buf, size);
+  ssize_t num_read = read(socket, buf, size);
   if(num_read > 0){
     return num_read;
   }else if(num_read < 0){
-    ltr_int_my_perror("read@fifo_receive");
+    ltr_int_my_perror("read@socket_receive");
     return -errno;
   }
+  return 0;
+}
+
+int ltr_int_close_socket(int socket)
+{
+  shutdown(socket, SHUT_RDWR);
+  close(socket);
   return 0;
 }
 

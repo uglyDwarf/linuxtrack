@@ -5,37 +5,33 @@
 #include "../utils.h"
 #include "../ipc_utils.h"
 
-static semaphore_p lock_sem = NULL;
-
 int prepareBtnChanel()
 {
   //printf("Opening the channel!\n");
   signal(SIGPIPE, SIG_IGN);
-  char *fname = ltr_int_get_default_file_name("ltr_sn4.pipe");
-  int fifo = ltr_int_open_fifo_exclusive(fname, &lock_sem);
+  char *fname = ltr_int_get_default_file_name("ltr_sn4.socket");
+  int socket = ltr_int_connect_to_socket(fname);
   free(fname);
-  if(fifo <= 0){
-    //printf("Can't open fifo!\n");
+  if(socket <= 0){
+    //printf("Can't open socket!\n");
     return -1;
   }
-  //printf("Fifo opened!\n");
-  return fifo;
+  //printf("Socket opened!\n");
+  return socket;
 }
 
-int closeBtnChannel(int fifo)
+int closeBtnChannel(int socket)
 {
-  close(fifo);
-  ltr_int_unlockSemaphore(lock_sem);
-  ltr_int_closeSemaphore(lock_sem);
+  ltr_int_close_socket(socket);
   return 0;
 }
 
-bool fetch_data(int fifo, void *data, ssize_t length, ssize_t *read)
+bool fetch_data(int socket, void *data, ssize_t length, ssize_t *read)
 {
   assert(data != NULL);
   assert(read != NULL);
   *read = 0;
-  int res = ltr_int_pipe_poll(fifo, 1000, NULL);
+  int res = ltr_int_pipe_poll(socket, 1000, NULL);
   switch(res){
     case 0://Timeout
       return true;
@@ -47,7 +43,7 @@ bool fetch_data(int fifo, void *data, ssize_t length, ssize_t *read)
       return false;
       break;
   }
-  *read = ltr_int_fifo_receive(fifo, data, length);
+  *read = ltr_int_socket_receive(socket, data, length);
   return true;
 }
 
@@ -58,9 +54,9 @@ int main(int argc, char *argv[])
   (void)argc;
   (void)argv;
   sn4_btn_event_t ev;
-  int fifo = prepareBtnChanel();
+  int socket = prepareBtnChanel();
   ssize_t read;
-  while(fetch_data(fifo, (void*)&ev, sizeof(ev), &read)){
+  while(fetch_data(socket, (void*)&ev, sizeof(ev), &read)){
     if(read == sizeof(ev)){
       printf("Piper received %ld\n", read);
       printf("%d\n", ev.btns);

@@ -16,11 +16,14 @@ int main(int argc, char *argv[]){
     close(n);
   }
 
-  if(!ltr_int_is_fifo_locked(ltr_int_master_fifo_name())){
+  int socket =  ltr_int_connect_to_socket(ltr_int_master_socket_name());
+  if(socket < 0){
     //printf("Server not running!\n");
     return 1;
   }
-  
+  ltr_int_close_socket(socket);
+  socket = -1;
+
   if(ltr_init(NULL) < LINUXTRACK_OK){
     //printf("Can't initialize communication.\n");
     return 1;
