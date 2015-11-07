@@ -291,7 +291,6 @@ int ltr_int_master_main_loop(int socket)
     }
 
     close_conn = false;
-    ltr_int_log_message("Going to poll\n");
     res = poll(descs, current_len, 2000);
     if(res < 0){
       ltr_int_my_perror("poll");
