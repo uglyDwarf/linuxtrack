@@ -135,9 +135,9 @@ PLUGIN_API int XPluginStart(char *outName,
                             char *outSig,
                             char *outDesc)
 {
-  strcpy(outName, "linuxTrack");
-  strcpy(outSig, "linuxtrack.camera");
-  strcpy(outDesc, "A plugin that controls view using your webcam.");
+  strcpy(outName, "linuxTrack_v"VERSION);
+  strcpy(outSig, "linuxtrack.headtracker");
+  strcpy(outDesc, "A plugin that brings headtracking to Linux and Mac");
 
   int sdk_ver;
   XPLMHostApplicationID app_id;

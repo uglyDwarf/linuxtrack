@@ -25,7 +25,7 @@
 
 #include "utils.h"
 
-#define MAX_LOGS 5
+#define MAX_LOGS 10
 
 static char *pref_file = "linuxtrack1.conf";
 
