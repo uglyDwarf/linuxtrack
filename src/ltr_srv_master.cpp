@@ -266,7 +266,7 @@ bool remove_poll_desc(){
     if(descs[i].revents & POLLHUP){
       ltr_int_log_message("Removing hanged fd %d\n", descs[i].fd);
       if(i < (current_len - 1)){
-        descs[i] = descs[current_len];
+        descs[i] = descs[current_len - 1];
       }else{
         //last fd, just decrement current_len
         // Intentionaly empty
@@ -274,7 +274,7 @@ bool remove_poll_desc(){
       --current_len;
     }
   }
-  //ltr_int_log_message("Watched descriptors after garbage collection.");
+  //ltr_int_log_message("Watched descriptors after garbage collection.\n");
   //print_descs();
   return true;
 }
