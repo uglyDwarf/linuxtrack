@@ -32,7 +32,7 @@
 
 #define DEFAULT_DST_HOST      "127.0.0.1"
 #define DEFAULT_DST_PORT      "6543"
-#define DEFAULT_LTR_TIMEOUT   "10"
+#define DEFAULT_LTR_TIMEOUT   "20"
 #define DEFAULT_LTR_PROFILE   "Default"
 
 

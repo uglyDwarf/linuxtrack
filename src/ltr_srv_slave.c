@@ -72,9 +72,9 @@ static bool start_master()
 static bool open_master_comms(int *l_master_uplink)
 {
   ltr_int_log_message("Opening master comms!\n");
-  printf("open_master_comms\n");
+  //printf("open_master_comms\n");
   *l_master_uplink = ltr_int_connect_to_socket(ltr_int_master_socket_name());
-  printf("====================");
+  //printf("====================");
   if(*l_master_uplink <= 0){
     ltr_int_log_message("Couldn't connect to master's socket!\n");
     return false;
@@ -215,6 +215,7 @@ static void *ltr_int_slave_reader_thread(void *param)
     };
     while(1){
       uplink_poll.events = POLLIN;
+      uplink_poll.revents = 0;
       int fds = poll(&uplink_poll, 1, 1000);
       if(fds < 0){
         ++poll_errs;
@@ -228,6 +229,7 @@ static void *ltr_int_slave_reader_thread(void *param)
         continue;
       }
       if(uplink_poll.revents & POLLHUP){
+        ltr_int_log_message("Got hangup from master uplink.\n");
         break;
       }
       //We have a new message
@@ -267,15 +269,18 @@ static void ltr_int_slave_main_loop()
     do{
       switch(cmd){
         case PAUSE_CMD:
+          ltr_int_log_message("Sending pause command to master @ fd %d\n", master_uplink);
           res = ltr_int_send_message(master_uplink, CMD_PAUSE, 0);
           break;
         case RUN_CMD:
+          ltr_int_log_message("Sending run command to master @ fd %d\n", master_uplink);
           res = ltr_int_send_message(master_uplink, CMD_WAKEUP, 0);
           break;
         case STOP_CMD:
           quit_flag = true;
           break;
         case FRAMES_CMD:
+          ltr_int_log_message("Sending frames command to master @ fd %d\n", master_uplink);
           res = ltr_int_send_message(master_uplink, CMD_FRAMES, 0);
           break;
         default:

@@ -1,4 +1,4 @@
-SUBDIRS = src src/mac doc #src/tests 
+SUBDIRS = src src/mac doc src/osc_server_mac #src/tests 
 #if ! DARWIN
 #SUBDIRS += src/mickey
 #if X64

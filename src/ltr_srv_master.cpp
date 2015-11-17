@@ -244,23 +244,8 @@ bool add_poll_desc(int fd){
   }
   descs[current_len].fd = fd;
   descs[current_len].events = POLLIN;
+  descs[current_len].revents = 0;
   ++current_len;
-  return true;
-}
-
-bool remove_poll_desc(int fd){
-  nfds_t i;
-  for(i = 0; i < current_len; ++i){
-    if(descs[i].fd == fd){
-      if(i < (current_len - 1)){
-        descs[i] = descs[current_len];
-      }else{
-        //last fd, just decrement current_len
-        // Intentionaly empty
-      }
-      --current_len;
-    }
-  }
   return true;
 }
 
@@ -268,8 +253,30 @@ void print_descs(void)
 {
   nfds_t i;
   for(i = 0; i < current_len; ++i){
-    printf("%ld: fd=%d\n", i, descs[i].fd);
+    ltr_int_log_message("%ld: fd=%d, ev=%d, rev=%d\n", (long int)i, 
+      descs[i].fd, descs[i].events, descs[i].revents);
   }
+}
+
+bool remove_poll_desc(){
+  nfds_t i;
+  //ltr_int_log_message("Watched descriptors before garbage collection.\n");
+  //print_descs();
+  for(i = 0; i < current_len; ++i){
+    if(descs[i].revents & POLLHUP){
+      ltr_int_log_message("Removing hanged fd %d\n", descs[i].fd);
+      if(i < (current_len - 1)){
+        descs[i] = descs[current_len - 1];
+      }else{
+        //last fd, just decrement current_len
+        // Intentionaly empty
+      }
+      --current_len;
+    }
+  }
+  //ltr_int_log_message("Watched descriptors after garbage collection.\n");
+  //print_descs();
+  return true;
 }
 
 
@@ -279,6 +286,7 @@ int ltr_int_master_main_loop(int socket)
   int new_fd;
   bool close_conn;
   int heartbeat = 0;
+  nfds_t i;
   no_slaves = false;
 
   struct sockaddr_un address;
@@ -291,6 +299,9 @@ int ltr_int_master_main_loop(int socket)
     }
 
     close_conn = false;
+    for(i = 0; i < current_len; ++i){
+      descs[i].revents = 0;
+    }
     res = poll(descs, current_len, 2000);
     if(res < 0){
       ltr_int_my_perror("poll");
@@ -311,7 +322,6 @@ int ltr_int_master_main_loop(int socket)
       }
       continue;
     }
-    nfds_t i;
     for(i = 0; i < current_len; ++i){
       if(descs[i].revents == 0){
         continue;
@@ -335,14 +345,16 @@ int ltr_int_master_main_loop(int socket)
             message_t msg;
             msg.cmd = CMD_NOP;
             ssize_t x = ltr_int_socket_receive(descs[i].fd, &msg, sizeof(message_t));
+            //ltr_int_log_message("Read %d bytes from fd %d.\n", (int)x, descs[i].fd);
             if(x < 0){
               if(x != -EWOULDBLOCK){
+                ltr_int_log_message("Unexpected error %d reading from fd %d.\n", x, descs[i].fd);
                 close_conn = true;
                 descs[i].fd = -1;
               }
             }else if(x == 0){
-              close_conn = true;
-              descs[i].fd = -1;
+              //close_conn = true;
+              //descs[i].fd = -1;
             }else{
               //ltr_int_log_message("Received a message from slave (%d)!!!\n", msg.cmd);
               switch(msg.cmd){
@@ -367,13 +379,13 @@ int ltr_int_master_main_loop(int socket)
           }
         }
         if(descs[i].revents & POLLHUP){
+          ltr_int_log_message("Hangup at fd %d\n", descs[i].fd);
           close_conn = true;
-          descs[i].fd = -1;
         }
       }
     }
     if(close_conn){
-      remove_poll_desc(-1);
+      remove_poll_desc();
     }
   }
   return 0;

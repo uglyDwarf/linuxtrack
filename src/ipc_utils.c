@@ -402,7 +402,7 @@ int ltr_int_make_socket(const char *name)
   strncpy(address.sun_path, name, UNIX_PATH_MAX);
 
   //At this point, the file should not exist.
-  if(bind(socket_fd, (struct sockaddr_un *) &address, sizeof(struct sockaddr_un)) != 0){
+  if(bind(socket_fd, (struct sockaddr *) &address, sizeof(struct sockaddr_un)) != 0){
     ltr_int_my_perror("bind");
     return -1;
   }

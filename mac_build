@@ -223,6 +223,22 @@ pushd dist
   install_name_tool -change ${PREFIX}/lib/linuxtrack/libltr.0.dylib \
     @executable_path/../Frameworks/libltr.0.dylib WiiServer.app/Contents/MacOS/WiiServer
 
+  echo "Creating OscServer.app"
+  mkdir -p OscServer.app/Contents/MacOS
+  mkdir -p OscServer.app/Contents/Frameworks/
+  mkdir -p OscServer.app/Contents/Resources/
+  cp -r ../src/osc_server_mac/English.lproj OscServer.app/Contents/Resources
+  rm -f OscServer.app/Contents/Resources/English.lproj/MainMenu.xib
+  cp ../src/osc_server_mac/linuxtrack.icns OscServer.app/Contents/Resources
+  cp ../src/osc_server_mac/OscServer-Info.plist OscServer.app/Contents/Info.plist
+  cp ../src/osc_server_mac/PkgInfo OscServer.app/Contents
+  cp -R ${PREFIX}/bin/OscServer OscServer.app/Contents/MacOS
+  cp -R ${PREFIX}/lib/linuxtrack/libltr.0.dylib OscServer.app/Contents/Frameworks/
+  install_name_tool -id @executable_path/../Frameworks/libltr.0.dylib \
+    OscServer.app/Contents/Frameworks/libltr.0.dylib
+  install_name_tool -change ${PREFIX}/lib/linuxtrack/libltr.0.dylib \
+    @executable_path/../Frameworks/libltr.0.dylib OscServer.app/Contents/MacOS/OscServer
+
   mv ../src/qt_gui/ltr_gui.app .
   cp ${PREFIX}/share/linuxtrack/linuxtrack-wine.exe .
   cp -R ${PREFIX}/bin/ltr_server1 ${BIN_DIR}

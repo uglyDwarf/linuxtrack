@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.59])
-AC_INIT([LinuxTrack], [0.99.12fix], [http://code.google.com/p/linux-track/issues/list])
+AC_INIT([LinuxTrack], [0.99.12socket1], [http://code.google.com/p/linux-track/issues/list])
 AM_INIT_AUTOMAKE([no-dependencies -Wall -Werror])
 AC_CONFIG_SRCDIR([src/tir4_driver.h])
 AC_CONFIG_HEADERS([config.h])
@@ -246,6 +246,8 @@ AC_CONFIG_FILES([
  src/pathconfig.h
  src/mac/Makefile
  src/mac/Info.plist
+ src/osc_server_mac/Makefile
+ src/osc_server_mac/OscServer-Info.plist
  src/local_config.h
  src/qt_gui/ltr_gui.pro
  src/wii_server/wii_server.pro
