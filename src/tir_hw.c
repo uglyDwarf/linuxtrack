@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <time.h>
+#include <sys/time.h>
 #include "tir_hw.h"
 #include "tir_img.h"
 #include "usb_ifc.h"
@@ -174,26 +176,47 @@ static void cksum_firmware(firmware_t *fw)
 }
 
 
+static int time_diff_msec(struct timeval *tv1, struct timeval *tv2)
+{
+  int res = (int)(1000.0 * difftime(tv1->tv_sec, tv2->tv_sec) + (tv2->tv_usec - tv1->tv_usec) / 1000.0);
+  return res;
+}
+
+
 static bool read_status_tir(tir_status_t *status)
 {
   assert(status != NULL);
   size_t t;
   int counter = 0;
+  struct timeval tv1, tv2;
+  struct timezone tz;
+  gettimeofday(&tv1, &tz);
+
   while(counter < 20){
     ltr_int_log_message("Requesting status.\n");
     if(!ltr_int_send_data(out_ep, Get_status, sizeof(Get_status))){
       ltr_int_log_message("Couldn't send status request!\n");
       return false;
     }
-    if(!ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 1000)){
-      ltr_int_log_message("Couldn't receive status!\n");
-      return false;
+
+    while(1){
+      if(!ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 500)){
+        ltr_int_log_message("Couldn't receive status!\n");
+        return false;
+      }
+      if((t > 2) && (ltr_int_packet[0] == 0x07) && (ltr_int_packet[1] == 0x20)){
+        break;
+      }
+      gettimeofday(&tv2, &tz);
+      if(time_diff_msec(&tv1, &tv2) > 100){
+        ltr_int_log_message("Status request timed out, will try again...\n");
+        tv1 = tv2;
+        break;
+      }
     }
     if((t > 2) && (ltr_int_packet[0] == 0x07) && (ltr_int_packet[1] == 0x20)){
       break;
     }
-    ltr_int_log_message("Status request timed out, will try again...\n");
-    ltr_int_usleep(10000);
     counter++;
   }
   ltr_int_log_message("Status packet: %02X %02X %02X %02X %02X %02X %02X\n",
@@ -209,22 +232,34 @@ static bool read_status_tir(tir_status_t *status)
 static bool read_rom_data_tir3()
 {
   size_t t;
-  if(!ltr_int_send_data(out_ep, unk_1, sizeof(unk_1))){
-    ltr_int_log_message("Couldn't send config data request!\n");
-    return false;
-  }
-  ltr_int_usleep(6000);
-
   int counter = 0;
+  struct timeval tv1, tv2;
+  struct timezone tz;
   while(counter < 20){
-    if(!ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 1000)){
-      ltr_int_log_message("Couldn't receive status!\n");
+    if(!ltr_int_send_data(out_ep, unk_1, sizeof(unk_1))){
+      ltr_int_log_message("Couldn't send config data request!\n");
       return false;
+    }
+    ltr_int_usleep(6000);
+    gettimeofday(&tv1, &tz);
+    while(1){
+      if(!ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 1000)){
+        ltr_int_log_message("Couldn't receive status!\n");
+        return false;
+      }
+      if((ltr_int_packet[0] == 0x09) && (ltr_int_packet[1] == 0x40)){
+        break;
+      }
+      gettimeofday(&tv2, &tz);
+      if(time_diff_msec(&tv1, &tv2) > 100){
+        ltr_int_log_message("Status request timed out, will try again...\n");
+        tv1 = tv2;
+        break;
+      }
     }
     if((ltr_int_packet[0] == 0x09) && (ltr_int_packet[1] == 0x40)){
       break;
     }
-    ltr_int_usleep(10000);
     counter++;
   }
   return true;
@@ -240,22 +275,36 @@ static bool read_rom_data_tir()
   }while(t > 0);
   ltr_int_log_message("Sending get_conf request.\n");
   int counter = 0;
+  struct timeval tv1, tv2;
+  struct timezone tz;
+  gettimeofday(&tv1, &tz);
   while(counter < 10){
     if(!ltr_int_send_data(out_ep, Get_conf, sizeof(Get_conf))){
       ltr_int_log_message("Couldn't send config data request!\n");
       return false;
     }
-    ltr_int_log_message("Requesting data...\n");
-    if(!ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 500)){
-      ltr_int_log_message("Couldn't receive status!\n");
-      return false;
+
+    while(1){
+      ltr_int_log_message("Requesting data...\n");
+      if(!ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 500)){
+        ltr_int_log_message("Couldn't receive status!\n");
+        return false;
+      }
+      //Tir4/5 0x14, Tir3 0x09, SN4 0x15...
+      if((t > 2) && (ltr_int_packet[1] == 0x40)){
+        break;
+      }
+      gettimeofday(&tv2, &tz);
+      if(time_diff_msec(&tv1, &tv2) > 100){
+        ltr_int_log_message("Request for data timed out. Will try later...\n");
+        tv1 = tv2;
+        break;
+      }
     }
     //Tir4/5 0x14, Tir3 0x09, SN4 0x15...
     if((t > 2) && (ltr_int_packet[1] == 0x40)){
       break;
     }
-    ltr_int_log_message("Request for data timed out. Will try later...\n");
-    ltr_int_usleep(10000);
     counter++;
   }
   return true;

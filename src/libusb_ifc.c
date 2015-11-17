@@ -24,7 +24,7 @@ bool ltr_int_init_usb()
     return false;
   }
   ltr_int_log_message("Libusb initialized successfuly.\n");
-  
+
   libusb_set_debug(usb_context, 0);
   ltr_int_log_message("Libusb debug level set.\n");
   return true;
@@ -56,7 +56,7 @@ dev_found ltr_int_find_tir(unsigned int devid)
   libusb_device **list;
   libusb_device *found = NULL;
   dev_found dev = NOT_TIR;
-  
+
   ltr_int_log_message("Requesting device list.\n");
   ssize_t cnt = libusb_get_device_list(usb_context, &list);
   ltr_int_log_message("Device list received (%d devices).\n", cnt);
@@ -75,7 +75,7 @@ dev_found ltr_int_find_tir(unsigned int devid)
       break;
     }
   }
-  
+
   if(!found){
     for(i = 0; i < cnt; i++){
       libusb_device *device = list[i];
@@ -223,7 +223,7 @@ bool ltr_int_prepare_device(unsigned int config, unsigned int interface)
 static bool ltr_int_log_packet(const char *dir, unsigned char data[], size_t size)
 {
   char *buffer = ltr_int_my_malloc(size * 3 + 1);
-  static const char table[] = {'0', '1', '2', '3', '4', '5', '6', '7', 
+  static const char table[] = {'0', '1', '2', '3', '4', '5', '6', '7',
                                '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
   size_t i;
   char *buf_ptr = buffer;
@@ -248,11 +248,13 @@ bool ltr_int_send_data(int out_ep, unsigned char data[], size_t size)
   if(comm_dbg_flag == DBG_ON){
     ltr_int_log_packet("out", data, size);
   }
+  //ltr_int_log_message("Sending bulk data.\n");
   if((res = libusb_bulk_transfer(handle, out_ep, data, size, &transferred, 500))){
-    ltr_int_log_message("Problem writing data to TIR@ep %d! %d - %d transferred\n", 
+    ltr_int_log_message("Problem writing data to TIR@ep %d! %d - %d transferred\n",
       out_ep, res, transferred);
     return false;
   }
+  //ltr_int_log_message("Bulk data sent.\n");
   return true;
 }
 
@@ -264,9 +266,10 @@ bool ltr_int_receive_data(int in_ep, unsigned char data[], size_t size, size_t *
   }
   *transferred = 0;
   int res;
+  //ltr_int_log_message("Reading bulk data.\n");
   if((res = libusb_bulk_transfer(handle, in_ep, data, size, (int*)transferred, timeout))){
     if(res != LIBUSB_ERROR_TIMEOUT){
-      ltr_int_log_message("Problem reading data from TIR@ep %d! %d - %d transferred\n", 
+      ltr_int_log_message("Problem reading data from TIR@ep %d! %d - %d transferred\n",
         in_ep, res, *transferred);
       return false;
     }else{
@@ -277,6 +280,7 @@ bool ltr_int_receive_data(int in_ep, unsigned char data[], size_t size, size_t *
       ltr_int_log_packet("in", data, *transferred);
     }
   }
+  //ltr_int_log_message("Bulk data received.\n");
   return true;
 }
 
