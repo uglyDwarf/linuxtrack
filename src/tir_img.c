@@ -31,7 +31,7 @@ static bool process_stripe_sn4(unsigned char p_stripe[])
 {
   stripe_t stripe;
   unsigned char rest;
-  
+
     stripe.vline = p_stripe[0];
     stripe.hstart = p_stripe[1];
     stripe.hstop = p_stripe[2];
@@ -67,12 +67,12 @@ static bool process_stripe_sn4gr(unsigned char p_stripe[], size_t size)
   unsigned char rest;
   size_t i, j;
   unsigned int last_vline = 0;
-    
+
   if(size < 4){
     return false;
   }
   i = 0;
-  
+
   while(i < (size - 4)){
     stripe.hstart = p_stripe[i];
     stripe.vline = p_stripe[i + 1];
@@ -104,7 +104,7 @@ static bool process_stripe_sn4gr(unsigned char p_stripe[], size_t size)
     stripe.hstop = stripe.hstart + stripe.points - 1;
     if(p_stripe[i] == 0){
       ++i;
-      //printf("%ld x (%d %d) y %d (%d points)\n", i, stripe.hstart, 
+      //printf("%ld x (%d %d) y %d (%d points)\n", i, stripe.hstart,
       //  stripe.hstop, stripe.vline, stripe.points);
       if(!ltr_int_add_stripe(&stripe, p_img)){
         ltr_int_log_message("Couldn't add stripe!\n");
@@ -114,8 +114,8 @@ static bool process_stripe_sn4gr(unsigned char p_stripe[], size_t size)
       //printf(">> %02X <<(%ld %ld)\n", p_stripe[i], i, size);
       break;
     }
-    
-  }  
+
+  }
   return true;
 }
 
@@ -125,7 +125,7 @@ static bool process_stripe_tir4(unsigned char p_stripe[])
 {
   stripe_t stripe;
   unsigned char rest;
-  
+
     stripe.vline = p_stripe[0];
     stripe.hstart = p_stripe[1];
     stripe.hstop = p_stripe[2];
@@ -188,15 +188,15 @@ static bool is_next_frame_tir2(unsigned char p_stripe[])
 static bool process_stripe_tir5(unsigned char payload[])
 {
   stripe_t stripe;
-    stripe.hstart = (((unsigned int)payload[0]) << 2) | 
+    stripe.hstart = (((unsigned int)payload[0]) << 2) |
                      (((unsigned int)payload[1]) >> 6);
-    stripe.vline = ((((unsigned int)payload[1]) & 0x3F) << 3) | 
+    stripe.vline = ((((unsigned int)payload[1]) & 0x3F) << 3) |
                     ((((unsigned int)payload[2]) & 0xE0) >> 5);
-    stripe.points = (((((unsigned int)payload[2]) & 0x1F) << 5) | 
+    stripe.points = (((((unsigned int)payload[2]) & 0x1F) << 5) |
                     (((unsigned int)payload[3]) >> 3));
     stripe.hstop =  stripe.points + stripe.hstart - 1;
     stripe.sum_x = (((unsigned int)payload[3]) & 7) << 17 |
-                    (((unsigned int)payload[4]) << 9) | 
+                    (((unsigned int)payload[4]) << 9) |
 		    ((unsigned int)payload[5]) << 1 |
 		    ((unsigned int)payload[6]) >>7;
     stripe.sum = (((unsigned int)payload[6]) & 0x7F) << 8 |
@@ -254,18 +254,24 @@ static bool process_packet_tir5(unsigned char data[], size_t *ptr, unsigned int 
       return false;
     }
   }
-  
+
   switch(type){
     case 0:
     case 5:
       pkt_no = data[*ptr];
       *ptr += 4;
-      while(ps > 0){
+      while(1){
 	if(type == 0){
+          if(ps < 4){
+            break;
+          }
 	  process_stripe_tir4((unsigned char *)&(data[*ptr]));
 	  *ptr += 4;
           ps -= 4;
 	}else{
+          if(ps < 8){
+            break;
+          }
 	  process_stripe_tir5((unsigned char *)&(data[*ptr]));
 	  *ptr += 8;
           ps -= 8;
@@ -285,7 +291,7 @@ static bool process_packet_sn4(unsigned char data[], size_t *ptr, unsigned int p
 {
   bool have_frame = false;
   unsigned int ps = 0;
-  static unsigned char prev_btns = 3; 
+  static unsigned char prev_btns = 3;
   unsigned char btns = data[*ptr];
   unsigned char type = data[*ptr + 1];
 
@@ -293,7 +299,7 @@ static bool process_packet_sn4(unsigned char data[], size_t *ptr, unsigned int p
     *ptr += limit;
     return false;
   }
-  
+
   ps = data[limit - 4];
   ps = (ps << 8) + data[limit - 3];
   ps = (ps << 8) + data[limit - 2];
@@ -303,7 +309,7 @@ static bool process_packet_sn4(unsigned char data[], size_t *ptr, unsigned int p
     ltr_int_log_message("Bad packet size! %d x %d\n", ps, pktsize - 8);
     return false;
   }
-  
+
   if(btns != prev_btns){
     sn4_btn_event_t ev;
     ev.btns = btns;
@@ -312,7 +318,7 @@ static bool process_packet_sn4(unsigned char data[], size_t *ptr, unsigned int p
     ltr_int_send_sn4_data((void*)&ev, sizeof(ev));
 //    printf("Sending %d!\n", btns);
   }
-  
+
   ps -= 8; // header
   switch(type){
     case 4:
@@ -430,7 +436,7 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
   static unsigned int limit = -1;
   static int pktsize = 0;
   bool have_frame;
-  
+
   while(1){
     if(*ptr >= size){
       return false;
@@ -461,7 +467,7 @@ bool process_packet(unsigned char data[], size_t *ptr, size_t size)
           pktsize = size;
           limit= (*ptr) + pktsize;
           break;
-          
+
         default:
           ltr_int_log_message("ERROR!!! ('%02X %02X')\n", data[*ptr], data[*ptr + 1]);
 /*	  printf("Error at %d\n", *ptr);
@@ -557,10 +563,10 @@ int ltr_int_read_blobs_tir(struct bloblist_type *blt, int min, int max, image_t 
       break;
     }
   }
-  
+
   if(have_frame){
     int res = ltr_int_stripes_to_blobs(MAX_BLOBS, blt, min, max, img);
-/*    
+/*
     if(pic != NULL){
       static int fc = 0;
       char name[] = "fXXXXXXX.raw";

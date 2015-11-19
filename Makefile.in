@@ -199,10 +199,11 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
-DIST_SUBDIRS = src src/mac doc src/wine_bridge/client \
-	src/wine_bridge/controller src/wine_bridge/tester \
-	src/wine_bridge/ft_client src/wine_bridge/ft_tester \
-	src/wine_bridge/views src/wine_bridge
+DIST_SUBDIRS = src src/mac doc src/osc_server_mac \
+	src/wine_bridge/client src/wine_bridge/controller \
+	src/wine_bridge/tester src/wine_bridge/ft_client \
+	src/wine_bridge/ft_tester src/wine_bridge/views \
+	src/wine_bridge
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -380,7 +381,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 with_makensis = @with_makensis@
 with_wine64 = @with_wine64@
-SUBDIRS = src src/mac doc $(am__append_1)
+SUBDIRS = src src/mac doc src/osc_server_mac $(am__append_1)
 dist_pkgdata_DATA = README README.devel README.xplane
 EXTRA_DIST = Readme.rtf deploy mac_build pkgconf_extract mac_m4/fake_pkg_conf.m4
 AM_DISTCHECK_CONFIGURE_FLAGS = --with-xplane-sdk=$(HOME)/devel/SDK/CHeaders \
