@@ -174,10 +174,13 @@ void ltr_int_valog_message(const char *format, va_list va)
   }
   time_t now = time(NULL);
   struct tm  *ts = localtime(&now);
+  //struct timeval tv;
+  //gettimeofday(&tv, NULL);
   char       buf[80];
   strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", ts);
 
   fprintf(output_stream, "[%s] ", buf);
+  //fprintf(output_stream, "[%s %lld] ", buf, (long long)tv.tv_usec);
   vfprintf(output_stream, format, va);
   fflush(output_stream);
 }
