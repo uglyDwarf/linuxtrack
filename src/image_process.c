@@ -60,7 +60,8 @@ static void draw_stripe(image_t *img, int x, int y, int x_end, unsigned char col
   unsigned char *ptr = img->bitmap + y * img->w + x;
   x_end -= x;
   while(x_end >= 0){
-    *(++ptr) = color;
+    *ptr = color;
+    ++ptr;
     --x_end;
   }
 }
@@ -265,6 +266,37 @@ bool ltr_int_add_stripe(stripe_t *stripe, image_t *img)
   assert(current.ranges != NULL);
   assert(stripe != NULL);
   assert(img != NULL);
+  
+  bool stripe_ok = true;
+  
+  if(stripe->vline > (unsigned int)img->h){
+    ltr_int_log_message("Stripe ignored. (vline %d > img. height %d)\n", 
+                        stripe->vline, img->h);
+    stripe_ok = false;
+  }
+  
+  if(stripe->hstart > (unsigned int)img->w){
+    ltr_int_log_message("Stripe ignored. (hstart %d > img. width %d)\n",
+                        stripe->hstart, img->w);
+    stripe_ok = false;
+  }
+
+  if(stripe->hstop > (unsigned int)img->w){
+    ltr_int_log_message("Stripe ignored. (hstop %d > img. width %d)\n",
+                        stripe->hstop, img->w);
+    stripe_ok = false;
+  }
+
+  if(stripe->hstart > stripe->hstop){
+    ltr_int_log_message("Stripe ignored. (hstart %d > hstop %d)\n",
+                        stripe->hstart, stripe->hstop);
+    stripe_ok = false;
+  }
+  
+  if(!stripe_ok){
+    return false;
+  }
+  
   if(img->bitmap != NULL){
     draw_stripe(img, stripe->hstart, stripe->vline, stripe->hstop, 0x80);
   }
