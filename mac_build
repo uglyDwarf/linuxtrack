@@ -58,8 +58,8 @@ if [ -f ${PREFIX}/lib/libusb-1.0.dylib ]; then
   echo 'Libusb-1.0 already exists!'
 else
   export CFLAGS=${COMMON_FLAGS}
-  tar xfj libusbx-1.0.16.tar.bz2
-  pushd libusbx-1.0.16
+  tar xfj libusb-1.0.20.tar.bz2
+  pushd libusb-1.0.20
   ./configure --prefix=${PREFIX} --disable-dependency-tracking >/dev/null
   make $PARALEL_MAKE >/dev/null
   make install >/dev/null
