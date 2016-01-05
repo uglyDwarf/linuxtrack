@@ -167,7 +167,9 @@ bool sendPose(lo_address addr)
   }
 
   lo_send_bundle(addr, bundle);
-  lo_bundle_free_recursive(bundle);
+  //Available on newer versions only
+  //lo_bundle_free_recursive(bundle);
+  lo_bundle_free_messages(bundle);
   return true;
 }
 
