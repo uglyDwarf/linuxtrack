@@ -30,6 +30,9 @@
 /* Define to 1 if you have the <netdb.h> header file. */
 #undef HAVE_NETDB_H
 
+/* New version of liblo containing lo_bundle_free_recursive available */
+#undef HAVE_NEW_LIBLO
+
 /* Define to 1 if you have the `select' function. */
 #undef HAVE_SELECT
 

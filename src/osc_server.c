@@ -7,6 +7,8 @@
 #include <linuxtrack.h>
 #include <pthread.h>
 
+#include <config.h>
+
 static pthread_t tid;
 static bool loopOn = true;
 
@@ -168,8 +170,11 @@ bool sendPose(lo_address addr)
 
   lo_send_bundle(addr, bundle);
   //Available on newer versions only
-  //lo_bundle_free_recursive(bundle);
+#ifdef HAVE_NEW_LIBLO
+  lo_bundle_free_recursive(bundle);
+#else
   lo_bundle_free_messages(bundle);
+#endif
   return true;
 }
 
