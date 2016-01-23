@@ -275,15 +275,15 @@ bool ltr_int_add_stripe(stripe_t *stripe, image_t *img)
     stripe_ok = false;
   }
   
-  if(stripe->hstart > (unsigned int)img->w){
+  if(stripe->hstart > (unsigned int)img->w * img->ratio){
     ltr_int_log_message("Stripe ignored. (hstart %d > img. width %d)\n",
-                        stripe->hstart, img->w);
+                        stripe->hstart, img->w * img->ratio);
     stripe_ok = false;
   }
 
-  if(stripe->hstop > (unsigned int)img->w){
+  if(stripe->hstop > (unsigned int)img->w * img->ratio){
     ltr_int_log_message("Stripe ignored. (hstop %d > img. width %d)\n",
-                        stripe->hstop, img->w);
+                        stripe->hstop, img->w * img->ratio);
     stripe_ok = false;
   }
 
@@ -401,6 +401,8 @@ void ltr_int_cleanup_after_processing()
     free(next.ranges);
     next.ranges = NULL;
   }
+  current.limit= 0;
+  next.limit = 0;
 }
 
 void ltr_int_to_stripes(image_t *img)
