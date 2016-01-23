@@ -226,8 +226,8 @@ bool add_poll_desc(int fd){
       max_len *= 2;
       descs = (struct pollfd*)realloc(descs, max_len * sizeof(struct pollfd));
       if(descs){
-        memset(descs + current_len * sizeof(struct pollfd), 0,
-               (max_len - current_len) * sizeof(struct pollfd));
+        memset(descs + current_len, 0,
+               (max_len - current_len) * sizeof(struct pollfd));//???
       }
     }else{
       max_len = 1;
