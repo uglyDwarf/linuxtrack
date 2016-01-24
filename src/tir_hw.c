@@ -176,9 +176,9 @@ static void cksum_firmware(firmware_t *fw)
 }
 
 
-static int time_diff_msec(struct timeval *tv1, struct timeval *tv2)
+static int time_diff_msec(struct timeval *tv1, struct timeval *tv0)
 {
-  int res = (int)(1000.0 * difftime(tv1->tv_sec, tv2->tv_sec) + (tv2->tv_usec - tv1->tv_usec) / 1000.0);
+  int res = (int)(1000.0 * difftime(tv1->tv_sec, tv0->tv_sec) + (tv1->tv_usec - tv0->tv_usec) / 1000.0);
   return res;
 }
 
@@ -208,7 +208,7 @@ static bool read_status_tir(tir_status_t *status)
         break;
       }
       gettimeofday(&tv2, &tz);
-      if(time_diff_msec(&tv1, &tv2) > 100){
+      if(time_diff_msec(&tv2, &tv1) > 100){
         ltr_int_log_message("Status request timed out, will try again...\n");
         tv1 = tv2;
         break;
@@ -251,7 +251,7 @@ static bool read_rom_data_tir3()
         break;
       }
       gettimeofday(&tv2, &tz);
-      if(time_diff_msec(&tv1, &tv2) > 100){
+      if(time_diff_msec(&tv2, &tv1) > 100){
         ltr_int_log_message("Status request timed out, will try again...\n");
         tv1 = tv2;
         break;
@@ -295,7 +295,7 @@ static bool read_rom_data_tir()
         break;
       }
       gettimeofday(&tv2, &tz);
-      if(time_diff_msec(&tv1, &tv2) > 100){
+      if(time_diff_msec(&tv2, &tv1) > 100){
         ltr_int_log_message("Request for data timed out. Will try later...\n");
         tv1 = tv2;
         break;
