@@ -41,17 +41,17 @@ WineLauncher::WineLauncher():winePath(QString::fromUtf8("")), available(false)
   }else{
     available = true;
   }
-  QObject::connect(&wine, SIGNAL(finished(int, QProcess::ExitStatus)), 
+  QObject::connect(&wine, SIGNAL(finished(int, QProcess::ExitStatus)),
     this, SLOT(finished(int, QProcess::ExitStatus)));
-  QObject::connect(&wine, SIGNAL(error(QProcess::ProcessError)), 
+  QObject::connect(&wine, SIGNAL(error(QProcess::ProcessError)),
     this, SLOT(error(QProcess::ProcessError)));
 }
 
 WineLauncher::~WineLauncher()
 {
-  QObject::disconnect(&wine, SIGNAL(finished(int, QProcess::ExitStatus)), 
+  QObject::disconnect(&wine, SIGNAL(finished(int, QProcess::ExitStatus)),
     this, SLOT(finished(int, QProcess::ExitStatus)));
-  QObject::disconnect(&wine, SIGNAL(error(QProcess::ProcessError)), 
+  QObject::disconnect(&wine, SIGNAL(error(QProcess::ProcessError)),
     this, SLOT(error(QProcess::ProcessError)));
   if(wine.state() != QProcess::NotRunning){
     wine.waitForFinished(10000);
@@ -118,7 +118,7 @@ void WineLauncher::finished(int exitCode, QProcess::ExitStatus exitStatus)
 }
 
 const QString errorStr(QProcess::ProcessError error)
-{  
+{
   QString reason;
   switch(error){
     case QProcess::FailedToStart:
@@ -182,10 +182,10 @@ bool WineLauncher::check()
 void PluginInstall::installWinePlugin()
 {
   gui.pushButton_2->setEnabled(false);
-  QString prefix = QFileDialog::getExistingDirectory(NULL, QString("Select Wine Prefix..."), 
+  QString prefix = QFileDialog::getExistingDirectory(NULL, QString("Select Wine Prefix..."),
                      QDir::homePath()+"/.wine", QFileDialog::ShowDirsOnly);
   QString installerPath = PREF.getDataPath("linuxtrack-wine.exe");
-  
+
   QString program = "/bin/bash";
   QString arg = QString("WINEPREFIX=") + prefix + " wine " + installerPath;
   QStringList args;

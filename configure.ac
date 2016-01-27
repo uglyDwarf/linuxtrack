@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.59])
-AC_INIT([LinuxTrack], [0.99.14], [https://github.com/uglyDwarf/linuxtrack/issues])
+AC_INIT([LinuxTrack], [0.99.15], [https://github.com/uglyDwarf/linuxtrack/issues])
 AM_INIT_AUTOMAKE([subdir-objects no-dependencies -Wall -Werror])
 AC_CONFIG_SRCDIR([src/tir4_driver.h])
 AC_CONFIG_HEADERS([config.h])
@@ -39,7 +39,7 @@ AC_CHECK_LIB([pthread], [pthread_create], [LIBPTHREAD=true], [AC_MSG_FAILURE([li
 AC_CHECK_LIB([usb-1.0], [libusb_init], [LIBUSB10=true])
 AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
 AC_CHECK_LIB([lo], [lo_send_bundle], [LIBLO=true])
-AC_CHECK_LIB([lo], [lo_bundle_free_recursive], [AC_DEFINE([HAVE_NEW_LIBLO], [1], 
+AC_CHECK_LIB([lo], [lo_bundle_free_recursive], [AC_DEFINE([HAVE_NEW_LIBLO], [1],
       [New version of liblo containing lo_bundle_free_recursive available])])
 AC_CHECK_LIB([mxml], [mxmlNewXML], [LIBMXML=true], [AC_MSG_FAILURE([libmxml not found!])], [-pthread])
 AC_CHECK_LIB([crypto], [SHA1], [LIBCRYPTO=true])

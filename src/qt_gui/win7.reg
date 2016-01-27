@@ -1,0 +1,18 @@
+REGEDIT4
+
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion]
+"CSDVersion"="Service Pack 1"
+"CurrentBuildNumber"="7601"
+"CurrentType"="Uniprocessor Free"
+"CurrentVersion"="6.1"
+"ProductName"="Microsoft Windows 7"
+
+[HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\ProductOptions]
+"ProductType"="WinNT"
+
+[HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Windows]
+"CSDVersion"=dword:00000100
+
+[HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment]
+"OS"="Windows_NT"
+

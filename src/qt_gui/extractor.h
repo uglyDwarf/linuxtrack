@@ -92,6 +92,8 @@ class TirFwExtractor : public Extractor
   void browseDirPressed();
   TirFwExtractThread *et;
   bool haveSpec;
+  bool wineInitialized;
+  QString installerFile;
 
  private slots:
   void threadFinished();

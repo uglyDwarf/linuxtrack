@@ -295,16 +295,29 @@ static QString makeDestPath(const QString &base)
 
 void TirFwExtractor::wineFinished(bool result)
 {
-  if(!result){
-    QMessageBox::warning(this, QString::fromUtf8("Error running Wine"),
-      QString::fromUtf8("There was an error when extracting\n"
-      "the firmware, will try the analysis\n"
-      "just in case..."
-      "Please see the log for more details.\n\n")
-    );
+  if(!wineInitialized){
+    wineInitialized = true;
+    if(!result){
+      QMessageBox::warning(this, QString::fromUtf8("Error running Wine"),
+        QString::fromUtf8("There was an error initializing\n"
+        "the wine prefix; wil try to install the firmware\n"
+        "just in case..."
+        "Please see the log for more details.\n\n")
+      );
+    }
+    wine->run(installerFile, QString::fromUtf8("/s /a /s"));
+  }else{
+    if(!result){
+      QMessageBox::warning(this, QString::fromUtf8("Error running Wine"),
+        QString::fromUtf8("There was an error when extracting\n"
+        "the firmware, will try the analysis\n"
+        "just in case..."
+        "Please see the log for more details.\n\n")
+      );
+    }
+    destPath = makeDestPath(PrefProxy::getRsrcDirPath());
+    et->start(targets, winePrefix, destPath);
   }
-  destPath = makeDestPath(PrefProxy::getRsrcDirPath());
-  et->start(targets, winePrefix, destPath);
 }
 
 void Mfc42uExtractor::wineFinished(bool result)
@@ -419,7 +432,11 @@ void TirFwExtractor::commenceExtraction(QString file)
     wine->setEnv(QString::fromUtf8("XDG_CONFIG_HOME"), winePrefix);
   }
   wine->setEnv(QString::fromUtf8("WINEPREFIX"), winePrefix);
-  wine->run(file);
+  installerFile = file;
+  //New TrackIR installer needs at least Vista ti run, while Wine defaults to windows XP
+  // This hack set Windows version to 7...
+  QString win7regFile = PrefProxy::getDataPath(QString::fromUtf8("win7.reg"));
+  wine->run(QString::fromUtf8("regedit\" \"%1").arg(win7regFile));
 }
 
 
