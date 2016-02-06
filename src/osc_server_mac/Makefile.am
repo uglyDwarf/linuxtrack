@@ -8,6 +8,7 @@ DARWINFLAGS = -undefined dynamic_lookup
 
 if DARWIN
   bin_PROGRAMS = OscServer
+  noinst_SCRIPTS = English.lproj/MainMenu.nib
 endif
 
 OscServer_SOURCES = ../linuxtrack.h OscServerAppDelegate.h OscServerAppDelegate.m \
@@ -17,8 +18,6 @@ OscServer_LDFLAGS = ${AM_CFLAGS} ${SLEOPARD_LDFLAG} -framework Cocoa -framework 
   -framework AppKit -framework Foundation
 OscServer_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 OscServer_OBJCFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
-
-noinst_SCRIPTS = English.lproj/MainMenu.nib
 
 English.lproj/MainMenu.nib : English.lproj/MainMenu.xib
 	ibtool --errors --warnings --notices --output-format human-readable-text \

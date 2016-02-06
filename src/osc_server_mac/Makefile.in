@@ -330,6 +330,7 @@ AM_CFLAGS = -arch x86_64
 SLEOPARD_CFLAG = 
 SLEOPARD_LDFLAG = -L..
 DARWINFLAGS = -undefined dynamic_lookup 
+@DARWIN_TRUE@noinst_SCRIPTS = English.lproj/MainMenu.nib
 OscServer_SOURCES = ../linuxtrack.h OscServerAppDelegate.h OscServerAppDelegate.m \
   osc_server.c osc_server.h main.m ../linuxtrack.c
 
@@ -339,7 +340,6 @@ OscServer_LDFLAGS = ${AM_CFLAGS} ${SLEOPARD_LDFLAG} -framework Cocoa -framework 
 
 OscServer_CFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
 OscServer_OBJCFLAGS = ${AM_CFLAGS} ${SLEOPARD_CFLAG} -I${srcdir} -I${srcdir}/.. -I..
-noinst_SCRIPTS = English.lproj/MainMenu.nib
 all: all-am
 
 .SUFFIXES:
