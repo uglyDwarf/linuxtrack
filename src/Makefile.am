@@ -360,7 +360,8 @@ mickey/main.cpp mickey/help/tracking.htm mickey/help/misc.htm \
 mickey/help/news.htm mickey/help/contents.txt mickey/help/welcome.htm mickey/uinput_ifc.c \
 mickey/keyb.cpp mickey/helpview.ui mickey/keyb_x11.cpp mickey/keyb_x11.h mickey/linuxtrack.icns \
 mickey/mouse.h mickey/mouse_linux.cpp mickey/mouse_mac.cpp mickey/mickey.qrc sn4_model.h \
-mickey/precomp_headers.h wii_server/precomp_headers.h qt_gui/precomp_headers.h ltr_extractor.1
+mickey/precomp_headers.h wii_server/precomp_headers.h qt_gui/precomp_headers.h ltr_extractor.1 \
+qt_gui/win7.reg
 
 desktopdir = $(datadir)/applications
 desktop_DATA = linuxtrack.desktop linuxtrack-wii.desktop
