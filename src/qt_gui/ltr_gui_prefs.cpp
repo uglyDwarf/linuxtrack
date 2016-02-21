@@ -33,7 +33,7 @@ PrefProxy::PrefProxy()
     checkPrefix(true);
     return;
   }
-  
+
   ltr_int_log_message("Couldn't load preferences (GUI), copying default!\n");
   if(!makeRsrcDir()){
     throw;
@@ -94,7 +94,7 @@ bool PrefProxy::makeRsrcDir()
       }
     }
     if(!QFile::rename(targetDir, bck)){
-      msg = QString(QString::fromUtf8("Can't rename '") + targetDir + 
+      msg = QString(QString::fromUtf8("Can't rename '") + targetDir +
                     QString::fromUtf8("' to '") + bck + QString::fromUtf8("'!"));
       goto problem;
     }
@@ -107,7 +107,7 @@ bool PrefProxy::makeRsrcDir()
  problem:
   ltr_int_log_message(QString(msg+QString::fromUtf8("\n")).toUtf8().data());
   warnMessage(msg);
-  return false;  
+  return false;
 }
 
 
@@ -132,22 +132,22 @@ bool PrefProxy::copyDefaultPrefs()
       }
     }
     if(!QFile::rename(target, bck)){
-      msg = QString(QString::fromUtf8("Can't rename '") + target + QString::fromUtf8("' to '") + 
+      msg = QString(QString::fromUtf8("Can't rename '") + target + QString::fromUtf8("' to '") +
                     bck + QString::fromUtf8("'!"));
       goto problem;
     }
   }
   if(!QFile::copy(source, target)){
-    msg = QString(QString::fromUtf8("Can't copy '") + source + QString::fromUtf8("' to '") + 
+    msg = QString(QString::fromUtf8("Can't copy '") + source + QString::fromUtf8("' to '") +
                   target + QString::fromUtf8("'!"));
     goto problem;
   }
-  
+
   return true;
  problem:
   ltr_int_log_message(QString(msg+QString::fromUtf8("\n")).toUtf8().constData());
   warnMessage(msg);
-  return false;  
+  return false;
 }
 
 
@@ -178,7 +178,7 @@ void PrefProxy::SavePrefsOnExit()
     QMessageBox::StandardButton res;
     res = QMessageBox::warning(NULL, QString::fromUtf8("Linuxtrack"),
        QString::fromUtf8("Preferences were modified,") +
-       QString::fromUtf8("Do you want to save them?"), 
+       QString::fromUtf8("Do you want to save them?"),
        QMessageBox::Save | QMessageBox::Close, QMessageBox::Save);
     if(res == QMessageBox::Save){
       savePrefs();
@@ -198,7 +198,7 @@ bool PrefProxy::activateModel(const QString &sectionName)
   return true;
 }
 
-bool PrefProxy::createSection(QString 
+bool PrefProxy::createSection(QString
 &sectionName)
 {
   char *tmp = ltr_int_add_unique_section(sectionName.toUtf8().constData());
@@ -211,7 +211,7 @@ bool PrefProxy::createSection(QString
   }
 }
 
-bool PrefProxy::getKeyVal(const QString &sectionName, const QString &keyName, 
+bool PrefProxy::getKeyVal(const QString &sectionName, const QString &keyName,
 			  QString &result)
 {
   char *val = ltr_int_get_key(sectionName.toUtf8().constData(), keyName.toUtf8().constData());
@@ -236,33 +236,33 @@ bool PrefProxy::getKeyVal(const QString &keyName, QString &result)
 }
 */
 
-bool PrefProxy::addKeyVal(const QString &sectionName, const QString &keyName, 
+bool PrefProxy::addKeyVal(const QString &sectionName, const QString &keyName,
 			  const QString &value)
 {
-  return ltr_int_change_key(sectionName.toUtf8().constData(), keyName.toUtf8().constData(), 
+  return ltr_int_change_key(sectionName.toUtf8().constData(), keyName.toUtf8().constData(),
 		 value.toUtf8().constData());
 }
 
-bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
+bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName,
 			  const QString &value)
 {
-  return ltr_int_change_key(sectionName.toUtf8().constData(), keyName.toUtf8().constData(), 
+  return ltr_int_change_key(sectionName.toUtf8().constData(), keyName.toUtf8().constData(),
 		 value.toUtf8().constData());
 }
 
-bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
+bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName,
                           const int &value)
 {
   return ltr_int_change_key_int(sectionName.toUtf8().constData(), keyName.toUtf8().constData(), value);
 }
 
-bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
+bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName,
                           const float &value)
 {
   return ltr_int_change_key_flt(sectionName.toUtf8().constData(), keyName.toUtf8().constData(), value);
 }
 
-bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName, 
+bool PrefProxy::setKeyVal(const QString &sectionName, const QString &keyName,
                           const double &value)
 {
   return ltr_int_change_key_flt(sectionName.toUtf8().constData(), keyName.toUtf8().constData(), value);
@@ -279,7 +279,7 @@ bool PrefProxy::getFirstDeviceSection(const QString &devType, QString &result)
   }
 }
 
-bool PrefProxy::getFirstDeviceSection(const QString &devType, 
+bool PrefProxy::getFirstDeviceSection(const QString &devType,
 				      const QString &devId, QString &result)
 {
   QStringList sections;
@@ -289,7 +289,7 @@ bool PrefProxy::getFirstDeviceSection(const QString &devType,
     devName = ltr_int_get_key(sections[i].toUtf8().constData(), "Capture-device");
     devIdStr = ltr_int_get_key(sections[i].toUtf8().constData(), "Capture-device-id");
     if((devName != NULL) && (devIdStr != NULL)){
-      if((devType.compare(QString::fromUtf8(devName), Qt::CaseInsensitive) == 0) 
+      if((devType.compare(QString::fromUtf8(devName), Qt::CaseInsensitive) == 0)
          && (devId.compare(QString::fromUtf8(devIdStr), Qt::CaseInsensitive) == 0)){
 	result = QString(sections[i]);
 	return true;
@@ -310,7 +310,7 @@ bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id, QString &sec
   if((devName == NULL) || (devId == NULL)){
     return false;
   }
-  
+
   QString dn = QString::fromUtf8(devName);
   if(dn.compare(QString::fromUtf8("Webcam"), Qt::CaseInsensitive) == 0){
     devType = WEBCAM;
@@ -326,6 +326,8 @@ bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id, QString &sec
     devType = TIR;
   }else if(dn.compare(QString::fromUtf8("Tir_openusb"), Qt::CaseInsensitive) == 0){
     devType = TIR;
+  }else if(dn.compare(QString::fromUtf8("Joystick"), Qt::CaseInsensitive) == 0){
+    devType = JOYSTICK;
   }else{
     devType = NONE;
   }
@@ -394,12 +396,12 @@ bool PrefProxy::savePrefs()
 
 QString PrefProxy::getDataPath(QString file)
 {
-  char *path = ltr_int_get_data_path_prefix(file.toUtf8().constData(), 
+  char *path = ltr_int_get_data_path_prefix(file.toUtf8().constData(),
                                             QApplication::applicationDirPath().toUtf8().constData());
   QString res = QString::fromUtf8(path);
   free(path);
-  return res; 
-/*  
+  return res;
+/*
   QString appPath = QApplication::applicationDirPath();
 #ifndef DARWIN
   return appPath + QString::fromUtf8("/../share/linuxtrack/") + file;
@@ -414,7 +416,7 @@ QString PrefProxy::getLibPath(QString file)
   char *path = ltr_int_get_lib_path(file.toUtf8().constData());
   QString res = QString::fromUtf8(path);
   free(path);
-  return res;   
+  return res;
 /*
   QString appPath = QApplication::applicationDirPath();
 #ifndef DARWIN

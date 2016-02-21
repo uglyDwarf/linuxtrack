@@ -1,0 +1,8 @@
+ltr_int_joy_enum_joysticks
+ltr_int_joy_free_joysticks
+ltr_int_joy_enum_axes
+ltr_int_joy_free_axes
+ltr_int_rl_run
+ltr_int_rl_shutdown
+ltr_int_rl_suspend
+ltr_int_rl_wakeup

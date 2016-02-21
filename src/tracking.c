@@ -195,6 +195,60 @@ static int update_pose_1pt(struct frame_type *frame)
 }
 
 
+static int update_absolute_pose(struct frame_type *frame)
+{
+  static float c_pitch = 0.0f;
+  static float c_yaw = 0.0f;
+  static float c_roll = 0.0f;
+  static float c_tx = 0.0f;
+  static float c_ty = 0.0f;
+  static float c_tz = 0.0f;
+
+  //printf("Updating pose 1pt...\n");
+  if(!ltr_int_check_pose()){
+    return -1;
+  }
+
+  //printf("Updating pose...\n");
+  if(tracking_dbg_flag == DBG_ON){
+    unsigned int i;
+    for(i = 0; i < frame->bloblist.num_blobs; ++i){
+      ltr_int_log_message("*DBG_t* %d: %g %g %d\n", i, frame->bloblist.blobs[i].x, frame->bloblist.blobs[i].y,
+                          frame->bloblist.blobs[i].score);
+    }
+  }
+
+  if(recenter){
+    c_pitch = frame->bloblist.blobs[0].y;
+    c_yaw = frame->bloblist.blobs[0].x;
+    c_roll = frame->bloblist.blobs[1].x;
+    c_tx = frame->bloblist.blobs[1].y;
+    c_ty = frame->bloblist.blobs[2].x;
+    c_tz = frame->bloblist.blobs[2].y;
+    recenter = false;
+  }
+
+  //double tmp_angles[3], tmp_translations[3];
+
+  pthread_mutex_lock(&pose_mutex);
+  current_pose.pose.raw_pitch = frame->bloblist.blobs[0].y - c_pitch;
+  current_pose.pose.raw_yaw = frame->bloblist.blobs[0].x - c_yaw;
+  current_pose.pose.raw_roll = frame->bloblist.blobs[1].x - c_roll;
+  current_pose.pose.raw_tx = frame->bloblist.blobs[1].y - c_tx;
+  current_pose.pose.raw_ty = frame->bloblist.blobs[2].x - c_ty;
+  current_pose.pose.raw_tz = frame->bloblist.blobs[2].y - c_tz;
+  current_pose.abs_pose.abs_pitch = frame->bloblist.blobs[0].y;
+  current_pose.abs_pose.abs_yaw = frame->bloblist.blobs[0].x;
+  current_pose.abs_pose.abs_roll = frame->bloblist.blobs[1].x;
+  current_pose.abs_pose.abs_tx = frame->bloblist.blobs[1].y;
+  current_pose.abs_pose.abs_ty = frame->bloblist.blobs[2].x;
+  current_pose.abs_pose.abs_tz = frame->bloblist.blobs[2].y;
+  pthread_mutex_unlock(&pose_mutex);
+  //printf("Pose updated => rp: %g, ry: %g...\n", current_pose.raw_pitch, current_pose.raw_yaw);
+  return 0;
+}
+
+
 static float two_d_size(struct blob_type b1, struct blob_type b2)
 {
   float d1 = b1.x - b2.x;
@@ -370,6 +424,8 @@ int ltr_int_update_pose(struct frame_type *frame)
   bool res = -1;
   if(ltr_int_is_single_point()){
     res = update_pose_1pt(frame);
+  }else if(ltr_int_is_absolute()){
+    res = update_absolute_pose(frame);
   }else{
     res = update_pose_3pt(frame);
   }

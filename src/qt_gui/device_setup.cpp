@@ -12,6 +12,7 @@
 #endif
 #include "tir_prefs.h"
 #include "wiimote_prefs.h"
+#include "joy_prefs.h"
 #include "help_view.h"
 #include "ltr_gui_prefs.h"
 #include "guardian.h"
@@ -47,7 +48,7 @@ int DeviceSetup::orientValues[] = {ORIENT_NOP, // 0
                                    ORIENT_FLIP_X | ORIENT_FLIP_Y  | ORIENT_FROM_BEHIND, // 11
                                    ORIENT_FLIP_X | ORIENT_XCHG_XY | ORIENT_FROM_BEHIND}; // 13
 
-DeviceSetup::DeviceSetup(Guardian *grd, QBoxLayout *tgt, QWidget *parent) 
+DeviceSetup::DeviceSetup(Guardian *grd, QBoxLayout *tgt, QWidget *parent)
   : QWidget(parent), devPrefs(NULL), target(tgt)
 {
   grd->regTgt(this);
@@ -70,7 +71,7 @@ void DeviceSetup::initOrientations()
   int i;
   int orientVal = 0;
   int orientIndex = 0;
-  
+
   QString orient;
   if(PREF.getKeyVal(QString::fromUtf8("Global"), QString::fromUtf8("Camera-orientation"), orient)){
     orientVal=orient.toInt();
@@ -84,7 +85,7 @@ void DeviceSetup::initOrientations()
       orientIndex = i;
     }
   }
-  
+
   ui.CameraOrientation->setCurrentIndex(orientIndex);
 }
 
@@ -100,29 +101,33 @@ void DeviceSetup::on_DeviceSelector_activated(int index)
   }
   QVariant v = ui.DeviceSelector->itemData(index);
   PrefsLink pl = v.value<PrefsLink>();
-#ifndef DARWIN  
+#ifndef DARWIN
   if(pl.deviceType == WEBCAM){
     devPrefs = new WebcamPrefs(pl.ID, this);
     emit deviceTypeChanged(pl.deviceType, QString::fromUtf8("Webcam"));
-  }else 
+  }else
   if(pl.deviceType == WEBCAM_FT){
     devPrefs = new WebcamFtPrefs(pl.ID, this);
     emit deviceTypeChanged(pl.deviceType, QString::fromUtf8("Webcam Face Tracker"));
+  }else
+  if(pl.deviceType == JOYSTICK){
+    devPrefs = new JoyPrefs(pl.ID, this);
+    emit deviceTypeChanged(pl.deviceType, QString::fromUtf8("Joystick"));
   }else
 #else
   if(pl.deviceType == MACWEBCAM){
     devPrefs = new MacWebcamPrefs(pl.ID, this);
     emit deviceTypeChanged(pl.deviceType, QString::fromUtf8("Webcam"));
-  }else 
+  }else
   if(pl.deviceType == MACWEBCAM_FT){
     devPrefs = new MacWebcamFtPrefs(pl.ID, this);
     emit deviceTypeChanged(pl.deviceType, QString::fromUtf8("Webcam Face Tracker"));
   }else
-#endif   
+#endif
   if(pl.deviceType == WIIMOTE){
     devPrefs = new WiimotePrefs(pl.ID, this);
     emit deviceTypeChanged(pl.deviceType, QString::fromUtf8("Wiimote"));
-  }else 
+  }else
   if(pl.deviceType == TIR){
     devPrefs = new TirPrefs(pl.ID, this);
     emit deviceTypeChanged(pl.deviceType, QString::fromUtf8("TrackIR"));
@@ -149,7 +154,7 @@ void DeviceSetup::on_RefreshDevices_pressed()
 void DeviceSetup::refresh()
 {
   ui.DeviceSelector->clear();
-  bool res = false; 
+  bool res = false;
   res |= WiimotePrefs::AddAvailableDevices(*(ui.DeviceSelector));
   res |= TirPrefs::AddAvailableDevices(*(ui.DeviceSelector));
 #ifdef DARWIN
@@ -158,6 +163,7 @@ void DeviceSetup::refresh()
 #else
   res |= WebcamFtPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   res |= WebcamPrefs::AddAvailableDevices(*(ui.DeviceSelector));
+  res |= JoyPrefs::AddAvailableDevices(*(ui.DeviceSelector));
 #endif
   if(!res){
     initialized = true;

@@ -14,25 +14,25 @@ extern "C" {
 enum ltr_request_t {CONTINUE, RUN, PAUSE, SHUTDOWN};
 
 struct blob_type {
-  /* coordinates of the blob on the screen 
-   * these coordinates will have the center of 
+  /* coordinates of the blob on the screen
+   * these coordinates will have the center of
    * the screen at (0,0).*
    * (+resx/2,+resy/2) = top right corner
    * (-resx/2,-resy/2) = bottom left corner
    */
-  float x,y; 
+  float x,y;
   /* total # pixels area, used for sorting/scoring blobs */
-  unsigned int score; 
+  unsigned int score;
 };
 
 struct bloblist_type {
   unsigned int num_blobs;
   unsigned int expected_blobs;
-  /* array of blobs, they will come from the driver 
+  /* array of blobs, they will come from the driver
    * already sorted in area.  The driver will allocate
-   * memory for these, and the caller must call 
+   * memory for these, and the caller must call
    * frame_free(frame) to free these when finished */
-  struct blob_type *blobs; 
+  struct blob_type *blobs;
 };
 
 struct frame_type {
@@ -51,7 +51,8 @@ typedef enum cal_device_category_type {
   tir,
   tir_open,
   mac_webcam,
-  mac_webcam_ft
+  mac_webcam_ft,
+  joystick
 } cal_device_category_type;
 
 struct cal_device_type {
@@ -88,22 +89,22 @@ typedef struct {
 
 int ltr_int_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk);
 
-/* call to shutdown the inited device 
+/* call to shutdown the inited device
  * typically called once at close
  * turns all leds off
- * must call init to restart again after a shutdown 
+ * must call init to restart again after a shutdown
  * a return value < 0 indicates error */
 int ltr_int_cal_shutdown();
 
-/* suspend the currently inited camera device. 
+/* suspend the currently inited camera device.
  * All leds on the camera will be deactivated
- * call cal_wakeup to un-suspend 
+ * call cal_wakeup to un-suspend
  * the frame queue will be flushed
  * a return value < 0 indicates error */
 int ltr_int_cal_suspend();
 
-/* unsuspend the currently suspended (and inited) 
- * camera device. 
+/* unsuspend the currently suspended (and inited)
+ * camera device.
  * a return value < 0 indicates error */
 int ltr_int_cal_wakeup();
 
@@ -114,16 +115,16 @@ enum ltr_request_t ltr_int_get_state_request();
 void ltr_int_set_status_change_cbk(ltr_status_update_callback_t status_change_cbk, void *param);
 bool ltr_int_got_new_request();
 
-/* frees the memory allocated to the given frame.  
+/* frees the memory allocated to the given frame.
  * For every frame populated, with cal_populate_frame,
- * this must be called when finished with the frame to 
+ * this must be called when finished with the frame to
  * prevent memory leaks.
  * a return value < 0 indicates error */
 void ltr_int_frame_free(struct camera_control_block *ccb,
                 struct frame_type *f);
 
-/* primarily for debug, will print a string 
- * represtentation of the given frame to stdout */ 
+/* primarily for debug, will print a string
+ * represtentation of the given frame to stdout */
 void ltr_int_frame_print(struct frame_type f);
 
 #ifdef __cplusplus

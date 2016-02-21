@@ -185,6 +185,12 @@ libft_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 @FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@am_libft_la_rpath =  \
 @FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@	-rpath \
 @FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@	$(pkglibdir)
+libjoy_la_LIBADD =
+am_libjoy_la_OBJECTS = runloop.lo joy.lo
+libjoy_la_OBJECTS = $(am_libjoy_la_OBJECTS)
+libjoy_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(libjoy_la_LDFLAGS) $(LDFLAGS) -o $@
 liblinuxtrack_la_LIBADD =
 am_liblinuxtrack_la_OBJECTS = liblinuxtrack_la-ltlib.lo \
 	liblinuxtrack_la-utils.lo liblinuxtrack_la-ipc_utils.lo
@@ -216,7 +222,8 @@ am_libltr_la_OBJECTS = libltr_la-cal.lo libltr_la-list.lo \
 	libltr_la-spline.lo libltr_la-axis.lo \
 	libltr_la-wii_driver_prefs.lo libltr_la-tir_driver_prefs.lo \
 	libltr_la-wc_driver_prefs.lo libltr_la-ipc_utils.lo \
-	libltr_la-com_proc.lo libltr_la-wii_com.lo
+	libltr_la-com_proc.lo libltr_la-wii_com.lo \
+	libltr_la-joy_driver_prefs.lo
 libltr_la_OBJECTS = $(am_libltr_la_OBJECTS)
 libltr_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(libltr_la_CXXFLAGS) \
@@ -400,21 +407,23 @@ am__v_YACC_ = $(am__v_YACC_@AM_DEFAULT_V@)
 am__v_YACC_0 = @echo "  YACC    " $@;
 am__v_YACC_1 = 
 SOURCES = $(libfacetrack_int_la_SOURCES) $(libfakeusb_la_SOURCES) \
-	$(libft_la_SOURCES) $(liblinuxtrack_la_SOURCES) \
-	$(liblinuxtrack32_la_SOURCES) $(liblinuxtrack_int_la_SOURCES) \
-	$(libltr_la_SOURCES) $(libltusb1_la_SOURCES) \
-	$(libmacwc_la_SOURCES) $(libmacwii_la_SOURCES) \
-	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
+	$(libft_la_SOURCES) $(libjoy_la_SOURCES) \
+	$(liblinuxtrack_la_SOURCES) $(liblinuxtrack32_la_SOURCES) \
+	$(liblinuxtrack_int_la_SOURCES) $(libltr_la_SOURCES) \
+	$(libltusb1_la_SOURCES) $(libmacwc_la_SOURCES) \
+	$(libmacwii_la_SOURCES) $(libtir_la_SOURCES) \
+	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(xlinuxtrack9_la_SOURCES) $(xlinuxtrack9_32_la_SOURCES) \
 	$(ltr_extractor_SOURCES) $(ltr_pipe_SOURCES) \
 	$(ltr_recenter_SOURCES) $(ltr_server1_SOURCES) \
 	$(osc_server_SOURCES)
 DIST_SOURCES = $(libfacetrack_int_la_SOURCES) $(libfakeusb_la_SOURCES) \
-	$(libft_la_SOURCES) $(liblinuxtrack_la_SOURCES) \
-	$(liblinuxtrack32_la_SOURCES) $(liblinuxtrack_int_la_SOURCES) \
-	$(libltr_la_SOURCES) $(libltusb1_la_SOURCES) \
-	$(libmacwc_la_SOURCES) $(libmacwii_la_SOURCES) \
-	$(libtir_la_SOURCES) $(libwc_la_SOURCES) $(libwii_la_SOURCES) \
+	$(libft_la_SOURCES) $(libjoy_la_SOURCES) \
+	$(liblinuxtrack_la_SOURCES) $(liblinuxtrack32_la_SOURCES) \
+	$(liblinuxtrack_int_la_SOURCES) $(libltr_la_SOURCES) \
+	$(libltusb1_la_SOURCES) $(libmacwc_la_SOURCES) \
+	$(libmacwii_la_SOURCES) $(libtir_la_SOURCES) \
+	$(libwc_la_SOURCES) $(libwii_la_SOURCES) \
 	$(am__xlinuxtrack9_la_SOURCES_DIST) \
 	$(am__xlinuxtrack9_32_la_SOURCES_DIST) \
 	$(ltr_extractor_SOURCES) $(ltr_pipe_SOURCES) \
@@ -614,7 +623,7 @@ man_MANS = ltr_gui.1 ltr_server1.1 mickey.1 $(am__append_2) \
 #if OPENUSB
 #  pkglib_LTLIBRARIES += libltopenusb.la
 #endif
-pkglib_LTLIBRARIES = libltr.la libmacwii.la liblinuxtrack.la \
+pkglib_LTLIBRARIES = libltr.la libmacwii.la liblinuxtrack.la libjoy.la \
 	$(am__append_1) $(am__append_4) $(am__append_5) \
 	$(am__append_9) $(am__append_11) libfakeusb.la \
 	$(am__append_12) $(am__append_13) $(am__append_14)
@@ -664,7 +673,8 @@ libltr_la_SOURCES = ../config.h cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
   ltlib_int.c ltlib_int.h spline.c spline.h axis.c axis.h wii_driver_prefs.c \
   wii_driver_prefs.h tir_driver_prefs.c tir_driver_prefs.h wc_driver_prefs.c \
-  wc_driver_prefs.h ipc_utils.c ipc_utils.h com_proc.c com_proc.h wii_com.c wii_com.h
+  wc_driver_prefs.h ipc_utils.c ipc_utils.h com_proc.c com_proc.h wii_com.c wii_com.h \
+  joy_driver_prefs.c joy_driver_prefs.h
 
 libltr_la_LIBADD = -lm -lpthread -ldl
 libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
@@ -675,6 +685,8 @@ libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h sn4_com.h \
 
 libtir_la_LIBADD = -lz libltr.la
 libtir_la_LDFLAGS = -export-symbols "${srcdir}/tir.sym" $(LINUXFLAGS) ${SLEOPARD_LDFLAG}
+libjoy_la_SOURCES = runloop.c runloop.h joy.c
+libjoy_la_LDFLAGS = -export-symbols "${srcdir}/joy_driver.sym" $(LINUXFLAGS)
 libltusb1_la_SOURCES = libusb_ifc.c usb_ifc.h
 libltusb1_la_CFLAGS = ${AM_CFLAGS}
 libltusb1_la_LIBADD = -lusb-1.0 libltr.la
@@ -801,7 +813,8 @@ mickey/main.cpp mickey/help/tracking.htm mickey/help/misc.htm \
 mickey/help/news.htm mickey/help/contents.txt mickey/help/welcome.htm mickey/uinput_ifc.c \
 mickey/keyb.cpp mickey/helpview.ui mickey/keyb_x11.cpp mickey/keyb_x11.h mickey/linuxtrack.icns \
 mickey/mouse.h mickey/mouse_linux.cpp mickey/mouse_mac.cpp mickey/mickey.qrc sn4_model.h \
-mickey/precomp_headers.h wii_server/precomp_headers.h qt_gui/precomp_headers.h ltr_extractor.1
+mickey/precomp_headers.h wii_server/precomp_headers.h qt_gui/precomp_headers.h ltr_extractor.1 \
+qt_gui/win7.reg
 
 desktopdir = $(datadir)/applications
 desktop_DATA = linuxtrack.desktop linuxtrack-wii.desktop
@@ -940,6 +953,9 @@ libfakeusb.la: $(libfakeusb_la_OBJECTS) $(libfakeusb_la_DEPENDENCIES) $(EXTRA_li
 
 libft.la: $(libft_la_OBJECTS) $(libft_la_DEPENDENCIES) $(EXTRA_libft_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(libft_la_LINK) $(am_libft_la_rpath) $(libft_la_OBJECTS) $(libft_la_LIBADD) $(LIBS)
+
+libjoy.la: $(libjoy_la_OBJECTS) $(libjoy_la_DEPENDENCIES) $(EXTRA_libjoy_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libjoy_la_LINK) -rpath $(pkglibdir) $(libjoy_la_OBJECTS) $(libjoy_la_LIBADD) $(LIBS)
 
 liblinuxtrack.la: $(liblinuxtrack_la_OBJECTS) $(liblinuxtrack_la_DEPENDENCIES) $(EXTRA_liblinuxtrack_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(liblinuxtrack_la_LINK) -rpath $(pkglibdir) $(liblinuxtrack_la_OBJECTS) $(liblinuxtrack_la_LIBADD) $(LIBS)
@@ -1144,6 +1160,9 @@ libltr_la-com_proc.lo: com_proc.c
 
 libltr_la-wii_com.lo: wii_com.c
 	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltr_la_CFLAGS) $(CFLAGS) -c -o libltr_la-wii_com.lo `test -f 'wii_com.c' || echo '$(srcdir)/'`wii_com.c
+
+libltr_la-joy_driver_prefs.lo: joy_driver_prefs.c
+	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltr_la_CFLAGS) $(CFLAGS) -c -o libltr_la-joy_driver_prefs.lo `test -f 'joy_driver_prefs.c' || echo '$(srcdir)/'`joy_driver_prefs.c
 
 libltusb1_la-libusb_ifc.lo: libusb_ifc.c
 	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libltusb1_la_CFLAGS) $(CFLAGS) -c -o libltusb1_la-libusb_ifc.lo `test -f 'libusb_ifc.c' || echo '$(srcdir)/'`libusb_ifc.c

@@ -67,7 +67,7 @@ ltr_server1_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server1_LDADD = -lpthread libltr.la
 ltr_server1_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${LTR_SERVER_FLAGS}
 
-
+pkglib_LTLIBRARIES += libjoy.la
 
 if CWIID
   pkglib_LTLIBRARIES += libwii.la
@@ -134,7 +134,8 @@ libltr_la_SOURCES = ../config.h cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   utils.c utils.h image_process.c image_process.h tracking.c tracking.h \
   ltlib_int.c ltlib_int.h spline.c spline.h axis.c axis.h wii_driver_prefs.c \
   wii_driver_prefs.h tir_driver_prefs.c tir_driver_prefs.h wc_driver_prefs.c \
-  wc_driver_prefs.h ipc_utils.c ipc_utils.h com_proc.c com_proc.h wii_com.c wii_com.h
+  wc_driver_prefs.h ipc_utils.c ipc_utils.h com_proc.c com_proc.h wii_com.c wii_com.h \
+  joy_driver_prefs.c joy_driver_prefs.h
 libltr_la_LIBADD = -lm -lpthread -ldl
 libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 libltr_la_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
@@ -144,6 +145,9 @@ libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h sn4_com.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
 libtir_la_LIBADD = -lz libltr.la
 libtir_la_LDFLAGS = -export-symbols "${srcdir}/tir.sym" $(LINUXFLAGS) ${SLEOPARD_LDFLAG}
+
+libjoy_la_SOURCES = runloop.c runloop.h joy.c
+libjoy_la_LDFLAGS = -export-symbols "${srcdir}/joy_driver.sym" $(LINUXFLAGS)
 
 libltusb1_la_SOURCES = libusb_ifc.c usb_ifc.h
 libltusb1_la_CFLAGS = ${AM_CFLAGS}
@@ -360,7 +364,8 @@ mickey/main.cpp mickey/help/tracking.htm mickey/help/misc.htm \
 mickey/help/news.htm mickey/help/contents.txt mickey/help/welcome.htm mickey/uinput_ifc.c \
 mickey/keyb.cpp mickey/helpview.ui mickey/keyb_x11.cpp mickey/keyb_x11.h mickey/linuxtrack.icns \
 mickey/mouse.h mickey/mouse_linux.cpp mickey/mouse_mac.cpp mickey/mickey.qrc sn4_model.h \
-mickey/precomp_headers.h wii_server/precomp_headers.h qt_gui/precomp_headers.h ltr_extractor.1
+mickey/precomp_headers.h wii_server/precomp_headers.h qt_gui/precomp_headers.h ltr_extractor.1 \
+qt_gui/win7.reg
 
 desktopdir = $(datadir)/applications
 desktop_DATA = linuxtrack.desktop linuxtrack-wii.desktop

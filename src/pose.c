@@ -23,7 +23,7 @@ static double model_base[3][3];
 static double center_ref[3] = {0.0, 0.0, 0.0};
 static double center_base[3][3];
 
-static enum {M_CAP, M_CLIP, M_SINGLE, M_FACE} type;
+static enum {M_CAP, M_CLIP, M_SINGLE, M_FACE, M_ABSOLUTE} type;
 //static bool use_alter = false;
 //static bool use_old_pose = false;
 
@@ -72,6 +72,13 @@ bool ltr_int_pose_init(struct reflector_model_type rm)
       type = M_FACE;
       #ifdef PT_DBG
         printf("MODEL:FACE\n");
+      #endif
+      return true;
+      break;
+    case ABSOLUTE:
+      type = M_ABSOLUTE;
+      #ifdef PT_DBG
+        printf("MODEL:ABSOLUTE\n");
       #endif
       return true;
       break;
@@ -144,6 +151,11 @@ bool ltr_int_is_single_point()
 bool ltr_int_is_face()
 {
   return type == M_FACE;
+}
+
+bool ltr_int_is_absolute()
+{
+  return type == M_ABSOLUTE;
 }
 
 static double blob_dist(struct blob_type b0, struct blob_type b1)

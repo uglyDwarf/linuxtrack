@@ -201,6 +201,11 @@ bool ltr_int_get_device(struct camera_control_block *ccb)
       ccb->device.category = wiimote;
       dev_ok = true;
     }
+    if(strcasecmp(dev_type, "Joystick") == 0){
+      ltr_int_log_message("Device Type: Joystick\n");
+      ccb->device.category = joystick;
+      dev_ok = true;
+    }
     if(dev_ok == false){
       ltr_int_log_message("Wrong device type found: '%s'\n", dev_type);
       ltr_int_log_message(" Valid options are: 'Tir4', 'Tir', 'Tir_openusb', 'Webcam', 'Wiimote'.\n");
@@ -332,6 +337,9 @@ bool ltr_int_get_model_setup(reflector_model_type *rm)
     res = true;
   }else if(strcasecmp(model_type, "Face") == 0){
     rm->type = FACE;
+    res = true;
+  }else if(strcasecmp(model_type, "Absolute") == 0){
+    rm->type = ABSOLUTE;
     res = true;
   }else{
     ltr_int_log_message("Unknown modeltype specified in section %s\n", model_section);

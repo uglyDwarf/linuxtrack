@@ -66,6 +66,9 @@ int ltr_int_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
     case wiimote:
       libname = "libmacwii";
       break;
+    case joystick:
+      libname = "libjoy";
+      break;
     default:
       assert(0);
       break;
