@@ -384,6 +384,7 @@ joystickNames_t *ltr_int_joy_enum_joysticks(ifc_type_t ifc)
     return NULL;
   }
   jsNames->nameList = NULL;
+  jsNames->namesFound = 0;
   enumerateJoyFiles(ifc, "/dev/input", storeJoyNames, (void *)jsNames);
 
   size_t i;
