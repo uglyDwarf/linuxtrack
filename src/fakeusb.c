@@ -20,33 +20,27 @@ static int get_tir_type()
   if(fname == NULL){
     return TIR2;
   }
-  int last = strlen(fname);
-  if(last == 0){
+  char *dot = strrchr(fname, '.');
+  if(dot == NULL){
     return TIR2;
   }
-  switch(fname[last-1]){
-    case '2': 
-      return TIR2;
-      break;
-    case '3': 
-      return TIR3;
-      break;
-    case '4': 
-      return TIR4;
-      break;
-    case '5': 
-      return TIR5;
-      break;
-    case 'S':
-      return SMARTNAV4;
-      break;
-    case 's':
-      return SMARTNAV3;
-      break;
-    default:
-      return TIR2;
-      break;
+  //skip the dot
+  dot += 1;
+  if(strcmp("tir5v3", dot) == 0){
+    return TIR5V3;
+  }else if(strcmp("tir5", dot) == 0){
+    return TIR5;
+  }else if(strcmp("tir4", dot) == 0){
+    return TIR4;
+  }else if(strcmp("tir3", dot) == 0){
+    return TIR3;
+  }else if(strcmp("sn3", dot) == 0){
+    return SMARTNAV3;
+  }else if(strcmp("sn4", dot) == 0){
+    return SMARTNAV4;
   }
+  //fallback
+  return TIR2;
 }
 
 static char pkt_dir[10];
@@ -111,6 +105,7 @@ bool ltr_int_init_usb()
     case SMARTNAV4:
     case TIR4:
     case TIR5:
+    case TIR5V3:
       return init_model(data_file, current_model);
       break;
     default:
@@ -143,6 +138,7 @@ bool ltr_int_send_data(int out_ep, unsigned char data[], size_t size)
     case SMARTNAV4:
     case TIR4:
     case TIR5:
+    case TIR5V3:
       fakeusb_send(out_ep, data, size);
       return true;
     default:
@@ -178,6 +174,7 @@ bool ltr_int_receive_data(int in_ep, unsigned char data[], size_t size, size_t *
     case SMARTNAV4:
     case TIR4:
     case TIR5:
+    case TIR5V3:
       fakeusb_receive(in_ep, data, size, transferred, timeout);
       ltr_int_usleep(8000);
       return true;
@@ -215,6 +212,7 @@ void ltr_int_finish_usb(unsigned int interface)
     case SMARTNAV4:
     case TIR4:
     case TIR5:
+    case TIR5V3:
       close_model();
       break;
     default:

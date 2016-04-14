@@ -82,6 +82,9 @@ bool init_model(char fname[], int type)
       case TIR5:
         model = new tir4(fname);
         break;
+      case TIR5V3:
+        model = new tir5v3(fname);
+        break;
       default:
         return false;
         break;

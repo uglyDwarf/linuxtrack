@@ -70,6 +70,7 @@ static tir_interface tir4;
 static tir_interface tir5;
 static tir_interface smartnav3;
 static tir_interface smartnav4;
+static tir_interface tir5v3;
 static tir_interface *tir_iface = NULL;
 
 static const char *sn4_pipe_name = "ltr_sn4.pipe";
@@ -421,8 +422,13 @@ static bool flush_fifo_tir()
   return ltr_int_send_data(out_ep, Fifo_flush,sizeof(Fifo_flush));
 }
 
+static bool set_threshold_tir5v3(unsigned int t);
+
 bool ltr_int_set_threshold_tir(unsigned int val)
 {
+  if(device == TIR5V3){
+    return set_threshold_tir5v3(val);
+  }
   unsigned char pkt[] = {0x15, 0x96, 0x01, 0x00};
   size_t pkt_len = sizeof(pkt);
   if(val > 253){
@@ -1110,6 +1116,9 @@ bool ltr_int_open_tir(bool force_fw_load, bool switch_ir_on)
     case TIR5V2:
       tir_iface = &tir5;
       break;
+    case TIR5V3:
+      tir_iface = &tir5v3;
+      break;
     case SMARTNAV4:
       tir_iface = &smartnav4;
       break;
@@ -1255,6 +1264,14 @@ static void get_tir5_info(tir_info *info)
   info->dev_type = TIR5;
 }
 
+static void get_tir5v3_info(tir_info *info)
+{
+  info->width = 640;
+  info->height = 480;
+  info->hf = 1.0f;
+  info->dev_type = TIR5V3;
+}
+
 static void get_sn4_info(tir_info *info)
 {
   info->width = 640;
@@ -1322,6 +1339,7 @@ char *ltr_int_find_firmware(dev_found dev)
     case TIR3:
     case TIR2:
     case SMARTNAV3:
+    case TIR5V3:
       //no firmware needed
       fw_file = NULL;
       break;
@@ -1405,4 +1423,300 @@ static tir_interface smartnav3 = {
   .set_status_led_tir = set_status_led_sn3
 };
 
+
+static int rand_range(int l, int h)
+{
+  if(h <= l){
+    return h;
+  }
+  int w = h - l + 1;
+  if(w > 0){
+    return l + (rand() % w);
+  }else{
+    return h;
+  }
+}
+
+static bool send_packet_tir5v3(uint8_t packet[], int wait)
+{
+  // Expects packet of 24 bytes
+  uint8_t r1 = (rand_range(1, 15) << 4) + rand_range(1,15);
+  packet[0] ^= 0x69 ^ packet[r1 >> 4] ^ packet[r1 & 0x0F];
+  packet[17] = r1;
+  if(ltr_int_send_data(out_ep, packet, 24)){
+    if(wait > 0){
+      ltr_int_usleep(wait);
+    }
+    return true;
+  }
+  return false;
+}
+
+
+
+static bool send_packet_4_tir5v3(uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, int wait)
+{
+  uint8_t packet[24];
+  unsigned int i;
+  packet[0] = v1;
+  for(i = 1; i < sizeof(packet); ++i){
+    packet[i] = rand();
+  }
+  uint8_t r1 = rand_range(6, 14);
+  packet[1] ^= (packet[1] ^ r1) & 8;
+  packet[2] ^= (packet[2] ^ r1) & 4;
+  packet[3] ^= (packet[3] ^ r1) & 2;
+  packet[4] ^= (packet[4] ^ r1) & 1;
+
+  packet[r1] = packet[16] ^ v2;
+  packet[r1 - 1] = packet[19] ^ v3;
+  packet[r1 + 1] = packet[18] ^ v4;
+
+  return send_packet_tir5v3(packet, wait);
+}
+
+static bool send_packet_2_tir5v3(uint8_t v1, uint8_t v2, int wait)
+{
+  uint8_t packet[24];
+  unsigned int i;
+  packet[0] = v1;
+  for(i = 1; i < sizeof(packet); ++i){
+    packet[i] = rand();
+  }
+  uint8_t r1 = rand_range(2, 15);
+  uint8_t r2 = rand_range(0, 3);
+  packet[1] ^= (packet[1] ^ r1) & 8;
+  packet[2] ^= (packet[2] ^ r1) & 4;
+  packet[3] ^= (packet[3] ^ r1) & 2;
+  packet[4] ^= (packet[4] ^ r1) & 1;
+  packet[r1] = ((v2 << 4) | (packet[r1] & 0x0F)) ^ (packet[16] & 0xF0);
+  packet[r1 + 1] = (r2 << 6) | (packet[r1 + 1] & 0x3F);
+  return send_packet_tir5v3(packet, wait);
+}
+
+static bool send_packet_1_tir5v3(uint8_t v1, int wait)
+{
+  uint8_t packet[24];
+  unsigned int i;
+  packet[0] = v1;
+  for(i = 1; i < sizeof(packet); ++i){
+    packet[i] = rand();
+  }
+  return send_packet_tir5v3(packet, wait);
+}
+
+static bool set_threshold_tir5v3(unsigned int t)
+{
+  return send_packet_4_tir5v3(0x19, 0x05, t >> 7, (t << 1) & 0xFF, 50000);
+}
+
+static bool set_ir_led_tir5v3(bool ir)
+{
+  return send_packet_4_tir5v3(0x19, 0x09, 00, ir ? 0x01 : 0x00, 50000);
+}
+
+static bool set_ir_brightness_raw_tir5v3(unsigned int b)
+{
+  bool res = true;
+  res &= send_packet_4_tir5v3(0x23, 0x35, 0x02, b & 0xFF, 50000);
+  res &= send_packet_4_tir5v3(0x23, 0x35, 0x01, b >> 8, 50000);
+  res &= send_packet_4_tir5v3(0x23, 0x35, 0x00, 0x00, 50000);
+  res &= send_packet_4_tir5v3(0x23, 0x3B, 0x8F, (b >> 4) & 0xFF, 50000);
+  res &= send_packet_4_tir5v3(0x23, 0x3B, 0x8E, b >> 12, 50000);
+  return res;
+}
+
+static bool set_ir_brightness_tir5v3(unsigned int b)
+{
+  unsigned int value_map[] = {150, 250, 350};
+  b -= 5;
+  if(b < 3){
+    return set_ir_brightness_raw_tir5v3(value_map[b] << 4);
+  }else{
+    return false;
+  }
+}
+
+static bool set_status_led_tir5v3(bool running)
+{
+  uint8_t brightness = ltr_int_tir_get_status_brightness();
+  uint8_t leds = running ? 0x22 : 0x33;
+  return send_packet_4_tir5v3(0x19, 0x04, brightness, leds, 50000);
+}
+
+static bool read_status_tir5v3(tir_status_t *status)
+{
+  assert(status != NULL);
+  size_t t;
+  int counter = 0;
+  struct timeval tv1, tv2;
+  struct timezone tz;
+  gettimeofday(&tv1, &tz);
+  memset(status, 0, sizeof(tir_status_t));
+  while(counter < 20){
+    ltr_int_log_message("Requesting status.\n");
+    if(!send_packet_2_tir5v3(0x1A, 0x07, 50000)){
+      ltr_int_log_message("Couldn't send status request!\n");
+      return false;
+    }
+
+    while(1){
+      if(!ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 500)){
+        ltr_int_log_message("Couldn't receive status!\n");
+        return false;
+      }
+      if((t > 2) && (ltr_int_packet[0] >= 0x07) && (ltr_int_packet[1] == 0x20)){
+        break;
+      }
+      gettimeofday(&tv2, &tz);
+      if(time_diff_msec(&tv2, &tv1) > 100){
+        ltr_int_log_message("Status request timed out, will try again...\n");
+        tv1 = tv2;
+        break;
+      }
+    }
+    if((t > 2) && (ltr_int_packet[0] >= 0x07) && (ltr_int_packet[1] == 0x20)){
+      break;
+    }
+    counter++;
+  }
+  ltr_int_log_message("Status packet: %02X %02X %02X %02X %02X %02X %02X\n",
+    ltr_int_packet[0], ltr_int_packet[1], ltr_int_packet[2], ltr_int_packet[3],
+    ltr_int_packet[4], ltr_int_packet[5], ltr_int_packet[6]);
+
+  status->fw_loaded = (ltr_int_packet[3] == 1) ? true : false;
+  status->cfg_flag = 0;
+  status->fw_cksum = 0;
+  return true;
+}
+
+static bool read_rom_data_tir5v3()
+{
+  size_t t;
+  ltr_int_log_message("Flushing packets...\n");
+  do{
+    ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 100);
+  }while(t > 0);
+  ltr_int_log_message("Sending get_conf request.\n");
+  int counter = 0;
+  struct timeval tv1, tv2;
+  struct timezone tz;
+  gettimeofday(&tv1, &tz);
+  while(counter < 10){
+    if(!send_packet_1_tir5v3(*Get_conf, 50000)){
+      ltr_int_log_message("Couldn't send config data request!\n");
+      return false;
+    }
+
+    while(1){
+      ltr_int_log_message("Requesting data...\n");
+      if(!ltr_int_receive_data(cfg_in_ep, ltr_int_packet, sizeof(ltr_int_packet), &t, 500)){
+        ltr_int_log_message("Couldn't receive status!\n");
+        return false;
+      }
+      //Tir4/5 0x14, Tir3 0x09, SN4 0x15...
+      if((t > 2) && (ltr_int_packet[1] == 0x40)){
+        break;
+      }
+      gettimeofday(&tv2, &tz);
+      if(time_diff_msec(&tv2, &tv1) > 100){
+        ltr_int_log_message("Request for data timed out. Will try later...\n");
+        tv1 = tv2;
+        break;
+      }
+    }
+    //Tir4/5 0x14, Tir3 0x09, SN4 0x15...
+    if((t > 2) && (ltr_int_packet[1] == 0x40)){
+      break;
+    }
+    counter++;
+  }
+  return true;
+}
+
+static bool start_camera_tir5v3()
+{
+  set_ir_led_tir5v3(ir_on);
+  set_ir_brightness_tir5v3(ltr_int_tir_get_ir_brightness());
+  set_threshold_tir5v3(ltr_int_tir_get_threshold());
+  set_threshold_tir5v3(ltr_int_tir_get_threshold());
+  send_packet_4_tir5v3(0x19, 0x04, 0x00, 0x00, 50000);
+  send_packet_4_tir5v3(0x19, 0x03, 0x00, 0x05, 50000);
+  send_packet_2_tir5v3(0x1A, 0x04, 50000);
+  set_ir_led_tir5v3(ir_on);
+  if(ltr_int_tir_get_status_indication()){
+    set_status_led_tir5v3(true);
+  }
+  return true;
+}
+
+static bool stop_camera_tir5v3()
+{
+  send_packet_2_tir5v3(0x1A, 0x05, 50000);
+  set_ir_led_tir5v3(false);
+  send_packet_2_tir5v3(0x1A, 0x05, 50000);
+  send_packet_1_tir5v3(0x13, 50000);
+  return true;
+}
+static bool init_camera_tir5v3(bool force_fw_load, bool p_ir_on)
+{
+  (void) force_fw_load;
+  ir_on = p_ir_on;
+  tir_status_t status;
+
+  send_packet_2_tir5v3(0x1A, 0x00, 50000);
+  send_packet_2_tir5v3(0x1A, 0x00, 50000);
+  send_packet_1_tir5v3(0x13, 50000);
+  read_status_tir5v3(&status);
+  send_packet_2_tir5v3(0x1A, 0x01, 50000);
+  read_status_tir5v3(&status);
+  send_packet_2_tir5v3(0x1A, 0x02, 50000);
+  read_status_tir5v3(&status);
+
+  int cntr = 3;
+  while(cntr){
+    send_packet_2_tir5v3(0x1A, 0x03, 50000);
+    read_status_tir5v3(&status);
+    if(status.fw_loaded){
+      break;
+    }
+    --cntr;
+  }
+  read_rom_data_tir5v3();
+  set_threshold_tir5v3(0x96);
+  set_ir_brightness_raw_tir5v3(0x780);
+  set_ir_led_tir5v3(true);
+
+  send_packet_4_tir5v3(0x19, 0x03, 0x00, 0x05, 50000);
+  send_packet_4_tir5v3(0x19, 0x04, 0x00, 0x00, 50000);
+
+  return true;
+}
+
+static bool close_camera_tir5v3()
+{
+  stop_camera_tir5v3();
+  ltr_int_log_message("Closing the TIR5 camera.\n");
+  set_threshold_tir5v3(0x96);
+  set_ir_brightness_raw_tir5v3(0x780);
+  set_ir_led_tir5v3(true);
+
+  send_packet_4_tir5v3(0x19, 0x03, 0x00, 0x05, 50000);
+  set_ir_led_tir5v3(false);
+  send_packet_2_tir5v3(0x1A, 0x06, 50000);
+  send_packet_1_tir5v3(0x13, 50000);
+  send_packet_2_tir5v3(0x1A, 0x00, 50000);
+  ltr_int_finish_usb(TIR_INTERFACE);
+  ltr_int_log_message("TIR5 camera closed.\n");
+  return true;
+}
+
+static tir_interface tir5v3 = {
+  .stop_camera_tir = stop_camera_tir5v3,      //
+  .start_camera_tir = start_camera_tir5v3,    //
+  .init_camera_tir = init_camera_tir5v3,      //
+  .close_camera_tir = close_camera_tir5v3,    //
+  .get_tir_info = get_tir5v3_info,            //x
+  .set_status_led_tir = set_status_led_tir5v3 //x
+};
 

@@ -128,3 +128,210 @@ void tir4::do_whatever()
 }
 
 
+//======================================================================================
+tir5v3::tir5v3(std::string fname) : device_model(fname), state(0), camera_on(false)
+{
+  std::cout<<"Initializing TrackIR5 ver. 3"<<std::endl;
+}
+
+/*
+  $r1 = $bytes[17];
+  $res = $bytes[0] ^ $bytes[$r1 & 0x0F] ^ $bytes[$r1 >> 4] ^ 0x69;
+  $r2 = ($bytes[1] & 8) | ($bytes[2] & 4) | ($bytes[3] & 2) | ($bytes[4] & 1);
+  if($res != 0x1A){
+    #printf("Decode: %02X %02X\n", $r1, $r2);
+    $res <<= 8;
+    $res += $bytes[$r2] ^ $bytes[16];
+    $res <<= 8;
+    $res+= $bytes[$r2-1] ^ $bytes[19];
+    $res <<= 8;
+    $res += $bytes[$r2+1] ^ $bytes[18];
+    return sprintf("0x%08X", $res);
+  }else{
+    $res <<= 8;
+    $res += ($bytes[$r2] ^ $bytes[16]) >> 4;
+    return sprintf("0x%04X", $res);
+  }
+ */
+
+int tir5v3::deobfuscate_command(unsigned char packet[], unsigned char command[])
+{
+  unsigned char r1 = packet[17];
+  command[0] = packet[0] ^ packet[r1 & 0x0F] ^ packet[r1 >> 4] ^ 0x69;
+  unsigned char r2 = (packet[1] & 8) | (packet[2] & 4) | (packet[3] & 2) | (packet[4] & 1);
+  if(command[0] == 0x1A){  //2 bytes command
+    command[1] = ((packet[r2] ^ packet[16]) >> 4) & 7;
+    return 2;
+  }else if((command[0] == 0x19) || (command[0] == 0x23)){ //4 bytes command
+    command[1] = packet[r2] ^ packet[16];
+    command[2] = packet[r2 - 1] ^ packet[19];
+    command[3] = packet[r2 + 1] ^ packet[18];
+    return 4;
+  }else{ //1 byte command, decoded already
+    return 1;
+  }
+}
+
+bool tir5v3::report_state()
+{
+  unsigned char config[] = {0x11, 0x20, 0x01, (unsigned char)((state > 2) ? 0x01 : 0x00),
+                            0x01, 0x78, 0xF7, 0x0B, 0xA2, 0x8F, 0xB9, 0x23, 0x3F, 0x9E,
+                            0x12, 0xCC, 0xD9};
+  enqueue_packet(config, sizeof(config));
+  return true;
+}
+
+bool tir5v3::get_config()
+{
+  unsigned char config[] = {0x14, 0x40, 0x03, 0x01, 0x04, 0x16, 0xE0, 0x23, 0x00,
+      0x00, 0x78, 0x02, 0x80, 0x01, 0xE0, 0x96, 0x00, 0x18, 0xDF, 0x20};
+  enqueue_packet(config, sizeof(config));
+  return true;
+}
+
+bool tir5v3::change_state(unsigned char new_state)
+{
+  if(state > 6){
+    std::cout << "Received request to go to nonexistent state " << new_state << "."
+            << std::endl;
+    return false;
+  }
+  printf("Changing state: %d -> %d.\n", state, new_state);
+  state = new_state;
+  if(state == 4){
+    camera_on = true;
+  }
+  return true;
+}
+
+const char *led_state(int v)
+{
+  return v ? "On" : "Off";
+}
+
+bool tir5v3::set_register(unsigned char v0, unsigned char v1,
+                          unsigned char v2, unsigned char v3)
+{
+  //printf("Setting register ", v1, v2, v3);
+  if(v0 == 0x19){
+    switch(v1){
+      case 0x05:
+        printf("Setting light filter: %g\n", ((v2 << 8) + v3) / 2.0);
+        break;
+      case 0x04:
+        printf("Setting LEDs: Intensity %d, L Green %s, L Red %s, R Green %s, R Red %s\n", v2,
+              led_state(v3 & 2),    led_state(v3 & 1),
+              led_state(v3 & 0x20), led_state(v3 & 0x20));
+        break;
+      case 0x09:
+        if(v2 == 0){
+          printf("IR LEDs %s\n", led_state(v3 & 1));
+        }else{
+          printf("UNKNOWN REGISTER SET: 0x19 0x%02X 0x%02X 0x%02X\n", v1, v2, v3);
+        }
+        break;
+      case 0x35:
+      case 0x3B:
+        printf("Setting IR LED intensity.\n");
+        //TODO: more checks
+        break;
+      default:
+        printf("UNKNOWN REGISTER SET: 0x19 0x%02X 0x%02X 0x%02X\n", v1, v2, v3);
+        break;
+    }
+  }else if(v0 == 0x23){
+    switch(v1){
+      case 0x35:
+      case 0x3B:
+        printf("Setting IR LED intensity.\n");
+        //TODO: more checks
+        break;
+      default:
+        printf("UNKNOWN REGISTER SET: 0x%02X 0x%02X 0x%02X 0x%02X\n", v0, v1, v2, v3);
+        break;
+    }
+  }
+  return true;
+}
+
+bool tir5v3::camera_off()
+{
+  printf("Turning camera Off.\n");
+  camera_on = false;
+  return true;
+}
+
+bool tir5v3::send_packet(int ep, unsigned char packet[], size_t length)
+{
+  if(length == 0){
+    return true;
+  }
+  unsigned char command[4];
+  size_t i;
+  printf("Packet: ");
+  for(i = 0; i < length; ++i){
+    printf("0x%02X ", packet[i]);
+  }
+  printf("\n");
+  int cmd_len = deobfuscate_command(packet, command);
+  print_packet(ep, command, cmd_len);
+  switch(command[0]){
+    case 0x1A:
+      if(command[1] == 7){
+        report_state();
+      }else{
+        change_state(command[1]);
+      }
+      break;
+    case 0x12:
+      break;
+    case 0x13:
+      camera_off();
+      break;
+    case 0x19: //set register
+    case 0x23:
+      set_register(command[0], command[1], command[2], command[3]);
+      break;
+    case 0x17: //get config request
+      get_config();
+      std::cout<<"Got config request!"<<std::endl;
+      break;
+    default:
+      std::cout<<"Unknown packet!"<<std::endl;
+      break;
+  }
+  return true;
+}
+
+bool tir5v3::receive_packet(int ep, unsigned char packet[], size_t length, size_t *read, int timeout)
+{
+  (void) timeout;
+  if(ep != 0x82){
+    return false;
+  }
+  *read = 0;
+  //std::cout<<"Fakeussb: Request to read from ep: "<<std::hex<<ep<<std::endl;
+  if(pkt_buf_size() <= 0){
+    if(state != 4){
+      return false;
+    }
+    std::vector<unsigned char> data;
+    if(inp_data.read_next(data)){
+      *read = packet2data(data, packet, length);
+    }
+  }else{
+    *read = packet2data(packet_buffer.front(), packet, length);
+//    printf("Packet: ");
+//    for(size_t i = 0; i < *read; ++i){
+//      printf("%02X ", packet[i]);
+//      if((i > 0) && (i % 16 == 0)){
+//        printf("\n");
+//      }else if((i > 0) && (i % 4 == 0)){
+//        printf(" ");
+//      }
+//    }
+//    printf("\n");
+    packet_buffer.pop();
+  }
+  return true;
+}

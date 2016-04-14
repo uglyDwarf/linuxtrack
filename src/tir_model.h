@@ -62,6 +62,26 @@ class device_model
   std::queue<packet_t> packet_buffer;
 };
 
+class tir5v3 : public device_model
+{
+ public:
+  tir5v3(std::string fname);
+  virtual ~tir5v3(){};
+  virtual bool send_packet(int ep, unsigned char packet[], size_t length);
+  virtual bool receive_packet(int ep, unsigned char packet[], size_t length,
+                              size_t *read, int timeout);
+ private:
+  int state;
+  bool camera_on;
+  virtual bool change_state(unsigned char new_state);
+  virtual bool get_config();
+  virtual bool report_state();
+  virtual bool set_register(unsigned char v0, unsigned char v1,
+                            unsigned char v2, unsigned char v3);
+  bool camera_off();
+  int deobfuscate_command(unsigned char packet[], unsigned char command[]);
+};
+
 class smartnav3 : public device_model
 {
  public:
