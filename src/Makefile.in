@@ -781,7 +781,7 @@ qt_gui/help/contents.txt qt_gui/help/news.htm qt_gui/help/welcome.htm qt_gui/hel
 qt_gui/help/model_setup.htm qt_gui/dlfirmware.h qt_gui/webcam_info.cpp qt_gui/plugin_install.h \
 qt_gui/tracker.cpp qt_gui/webcam_prefs.h qt_gui/macwebcam_prefs.cpp \
 qt_gui/log_view.h tir4_driver.c tir4_driver.h 99-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
-xlinuxtrack.sym linuxtrack_pre.c lt_client.c lt_server.c ltlib_client.c ltlib_client.h \
+xlinuxtrack.sym joy_driver.sym linuxtrack_pre.c lt_client.c lt_server.c ltlib_client.c ltlib_client.h \
 ltr_server.c ltr_server.h netcomm.c netcomm.h pref_flex.h \
 qt_gui/buffering.cpp qt_gui/buffering.h qt_gui/cap_edit.ui qt_gui/cap_tweaking.ui \
 qt_gui/clip_edit.ui qt_gui/clip_tweaking.ui qt_gui/device_setup.cpp qt_gui/device_setup.h \
@@ -790,7 +790,8 @@ qt_gui/extractor.cpp qt_gui/extractor.h qt_gui/progress.cpp qt_gui/progress.h qt
 qt_gui/guardian.cpp qt_gui/guardian.h qt_gui/hashing.cpp qt_gui/hashing.h qt_gui/l_wc_setup.ui \
 qt_gui/l_wcft_setup.ui qt_gui/m_wc_setup.ui qt_gui/m_wcft_setup.ui qt_gui/model_edit.ui \
 qt_gui/profile_selector.cpp qt_gui/profile_selector.h qt_gui/profile_selector.ui \
-qt_gui/profile_setup.cpp qt_gui/profile_setup.h qt_gui/profile_setup.ui \
+qt_gui/profile_setup.cpp qt_gui/profile_setup.h qt_gui/profile_setup.ui qt_gui/joy_prefs.cpp qt_gui/joy_prefs.h \
+qt_gui/joy_setup.ui \
 qt_gui/progress.ui qt_gui/single_edit.ui qt_gui/sources.txt qt_gui/sources_mac.txt qt_gui/spec.txt qt_gui/tir_setup.ui \
 qt_gui/wii_setup.ui qt_gui/help/extractor.htm qt_gui/sphere.png qt_gui/sphere.txt \
 qt_gui/wine_launcher.cpp qt_gui/wine_launcher.h qt_gui/xplugin.cpp qt_gui/xplugin.h \
