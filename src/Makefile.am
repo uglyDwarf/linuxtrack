@@ -67,7 +67,9 @@ ltr_server1_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server1_LDADD = -lpthread libltr.la
 ltr_server1_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${LTR_SERVER_FLAGS}
 
+if ! DARWIN
 pkglib_LTLIBRARIES += libjoy.la
+endif
 
 if CWIID
   pkglib_LTLIBRARIES += libwii.la

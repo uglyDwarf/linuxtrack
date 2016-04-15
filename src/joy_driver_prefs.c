@@ -1,4 +1,4 @@
-#include <malloc.h>
+#include <stdlib.h>
 #include "joy_driver_prefs.h"
 #include "pref.h"
 #include "pref_global.h"

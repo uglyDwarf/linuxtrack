@@ -9,10 +9,10 @@
 #else
 #include "webcam_prefs.h"
 #include "webcam_ft_prefs.h"
+#include "joy_prefs.h"
 #endif
 #include "tir_prefs.h"
 #include "wiimote_prefs.h"
-#include "joy_prefs.h"
 #include "help_view.h"
 #include "ltr_gui_prefs.h"
 #include "guardian.h"
