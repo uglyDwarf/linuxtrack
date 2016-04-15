@@ -71,7 +71,7 @@ dev_found ltr_int_find_tir(unsigned int devid)
     libusb_device *device = list[i];
     if(is_tir(device, 0x0159)){
       found = device;
-      dev = TIR5V2;
+      dev = TIR5V3;
       break;
     }
   }

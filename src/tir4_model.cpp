@@ -1,4 +1,6 @@
 #include "tir_model.h"
+#include <iostream>
+#include <iomanip>
 
 void device_model::enqueue_packet(const unsigned char data[], const size_t length)
 {
@@ -36,8 +38,9 @@ size_t device_model::packet2data(const packet_t packet,
 void device_model::print_packet(int ep, unsigned char data[], size_t length)
 {
   std::cout<<"Fakeusb: (EP: "<<ep<<") "<<std::hex;
+  std::cout<<"0x";
   for(size_t i = 0; i < length; ++i){
-    std::cout<<(int)data[i]<<",";
+    std::cout<<std::uppercase<<std::setw(2)<<std::setfill('0')<<(int)data[i];
   }
   std::cout<<std::endl;
 }
@@ -270,7 +273,7 @@ bool tir5v3::send_packet(int ep, unsigned char packet[], size_t length)
   size_t i;
   printf("Packet: ");
   for(i = 0; i < length; ++i){
-    printf("0x%02X ", packet[i]);
+    printf("%02X ", packet[i]);
   }
   printf("\n");
   int cmd_len = deobfuscate_command(packet, command);

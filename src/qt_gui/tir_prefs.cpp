@@ -167,7 +167,7 @@ bool TirPrefs::AddAvailableDevices(QComboBox &combo)
   if(!permsOK){
     QMessageBox::warning(NULL, QString::fromUtf8("TrackIR permissions problem"),
         QString::fromUtf8("TrackIR device was found, but you don't have permissions to access it.\n \
-Please install the file 51-TIR.rules to the udev rules directory\n\
+Please install the file 99-TIR.rules to the udev rules directory\n\
 (consult help and your distro documentation for details).\n\
 You are going to need administrator privileges to do that.")
                         );

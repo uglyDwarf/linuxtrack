@@ -1101,7 +1101,7 @@ bool ltr_int_open_tir(bool force_fw_load, bool switch_ir_on)
     ltr_int_log_message("Couldn't prepare!\n");
     return false;
   }
-
+  ltr_int_log_message("Device %d.\n", device);
   switch(device){
     case TIR2:
       tir_iface = &tir2;
@@ -1117,6 +1117,7 @@ bool ltr_int_open_tir(bool force_fw_load, bool switch_ir_on)
       tir_iface = &tir5;
       break;
     case TIR5V3:
+      ltr_int_log_message("Initializing TrackIR 5 revision 3.\n");
       tir_iface = &tir5v3;
       break;
     case SMARTNAV4:
@@ -1443,6 +1444,15 @@ static bool send_packet_tir5v3(uint8_t packet[], int wait)
   uint8_t r1 = (rand_range(1, 15) << 4) + rand_range(1,15);
   packet[0] ^= 0x69 ^ packet[r1 >> 4] ^ packet[r1 & 0x0F];
   packet[17] = r1;
+  ltr_int_log_message("*tir5v3* Packet:"
+                      " %02X %02X %02X %02X %02X %02X %02X %02X"
+                      " %02X %02X %02X %02X %02X %02X %02X %02X"
+                      " %02X %02X %02X %02X %02X %02X %02X %02X\n",
+                      packet[0], packet[1], packet[2], packet[3], packet[4], packet[5],
+                      packet[6], packet[7], packet[8], packet[9], packet[10], packet[11],
+                      packet[12], packet[13], packet[14], packet[15], packet[16], packet[17],
+                      packet[18], packet[19], packet[20], packet[21], packet[22], packet[23]
+  );
   if(ltr_int_send_data(out_ep, packet, 24)){
     if(wait > 0){
       ltr_int_usleep(wait);
@@ -1456,6 +1466,7 @@ static bool send_packet_tir5v3(uint8_t packet[], int wait)
 
 static bool send_packet_4_tir5v3(uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, int wait)
 {
+  ltr_int_log_message("*tir5v3* Intent: 0x%02X%02X%02X%02X\n", v1, v2, v3, v4);
   uint8_t packet[24];
   unsigned int i;
   packet[0] = v1;
@@ -1477,13 +1488,14 @@ static bool send_packet_4_tir5v3(uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4,
 
 static bool send_packet_2_tir5v3(uint8_t v1, uint8_t v2, int wait)
 {
+  ltr_int_log_message("*tir5v3* Intent: 0x%02X%02X\n", v1, v2);
   uint8_t packet[24];
   unsigned int i;
   packet[0] = v1;
   for(i = 1; i < sizeof(packet); ++i){
     packet[i] = rand();
   }
-  uint8_t r1 = rand_range(2, 15);
+  uint8_t r1 = rand_range(2, 14);
   uint8_t r2 = rand_range(0, 3);
   packet[1] ^= (packet[1] ^ r1) & 8;
   packet[2] ^= (packet[2] ^ r1) & 4;
@@ -1496,6 +1508,7 @@ static bool send_packet_2_tir5v3(uint8_t v1, uint8_t v2, int wait)
 
 static bool send_packet_1_tir5v3(uint8_t v1, int wait)
 {
+  ltr_int_log_message("*tir5v3* Intent: 0x%02X\n", v1);
   uint8_t packet[24];
   unsigned int i;
   packet[0] = v1;
@@ -1654,7 +1667,7 @@ static bool stop_camera_tir5v3()
 {
   send_packet_2_tir5v3(0x1A, 0x05, 50000);
   set_ir_led_tir5v3(false);
-  send_packet_2_tir5v3(0x1A, 0x05, 50000);
+  send_packet_2_tir5v3(0x1A, 0x06, 50000);
   send_packet_1_tir5v3(0x13, 50000);
   return true;
 }
