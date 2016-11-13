@@ -55,6 +55,14 @@ static bool start_master()
   if(socket < 0){
     //no master there yet, so lets start one
     ltr_int_log_message("Master is not running, start it\n");
+
+    if(!getenv("LTR_KEEP_LD_LIBRARY_PATH")){
+      ltr_int_log_message("Reseting LD_LIBRARY_PATH.\n");
+      unsetenv("LD_LIBRARY_PATH");
+    }else{
+      ltr_int_log_message("LTR_KEEP_LD_LIBRARY_PATH set, keeping LD_LIBRARY_PATH set.\n");
+    }
+
     char *args[] = {"srv", NULL};
     args[0] = ltr_int_get_app_path("/ltr_server1");
     ltr_int_fork_child(args, &is_child);
