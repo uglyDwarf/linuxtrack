@@ -121,7 +121,7 @@ endif
 #endif
 endif
 
-pkglib_LTLIBRARIES += libfakeusb.la
+pkglib_LTLIBRARIES += libfakeusb.la libp3e.la
 
 include_HEADERS = linuxtrack.h
 
@@ -137,7 +137,7 @@ libltr_la_SOURCES = ../config.h cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   ltlib_int.c ltlib_int.h spline.c spline.h axis.c axis.h wii_driver_prefs.c \
   wii_driver_prefs.h tir_driver_prefs.c tir_driver_prefs.h wc_driver_prefs.c \
   wc_driver_prefs.h ipc_utils.c ipc_utils.h com_proc.c com_proc.h wii_com.c wii_com.h \
-  joy_driver_prefs.c joy_driver_prefs.h
+  joy_driver_prefs.c joy_driver_prefs.h ps3_prefs.c ps3_prefs.h
 libltr_la_LIBADD = -lm -lpthread -ldl
 libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 libltr_la_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
@@ -165,6 +165,11 @@ libfakeusb_la_CFLAGS = ${AM_CFLAGS}
 libfakeusb_la_CXXFLAGS = ${AM_CFLAGS}
 libfakeusb_la_LIBADD = libltr.la
 libfakeusb_la_LDFLAGS = ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+
+libp3e_la_SOURCES = ps3eye_driver.cpp  runloop.c runloop.h
+libp3e_la_CFLAGS = ${AM_CFLAGS}
+libp3e_la_LIBADD = -lusb-1.0 libltr.la
+libp3e_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
 
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
 libwii_la_CFLAGS = ${AM_CFLAGS}

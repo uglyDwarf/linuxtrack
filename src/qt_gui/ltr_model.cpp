@@ -10,7 +10,6 @@
 ModelCreate::ModelCreate(QWidget *parent) : QDialog(parent), validator(NULL), modelEditor(NULL)
 {
   ui.setupUi(this);
-  ui.Model3PtCap->click();
   validator = new QRegExpValidator(QRegExp(QString::fromUtf8("^[^\\[\\]]*$")), this);
   ui.ModelName->setValidator(validator);
 }
@@ -55,8 +54,10 @@ void ModelCreate::on_CreateButton_pressed()
     return;
   }
   if(PREF.createSection(sec)){
-    if(ui.ModelFace->isChecked()){
+    if(ui.ModelTypeCombo->currentIndex() == 3){
       PREF.addKeyVal(sec, QString::fromUtf8("Model-type"), QString::fromUtf8("Face"));
+    }else if(ui.ModelTypeCombo->currentIndex() == 4){
+      PREF.addKeyVal(sec, QString::fromUtf8("Model-type"), QString::fromUtf8("Absolute"));
     }else{
       emit dump(sec);
     }
@@ -81,27 +82,27 @@ void ModelCreate::activateEditor(QWidget *editor)
   if(modelEditor != NULL){
     ui.MdlLayout->addWidget(modelEditor);
     QObject::connect(this, SIGNAL(dump(const QString &)), modelEditor, SLOT(dump(const QString &)));
+  }else{
+    
   }
 }
 
-void ModelCreate::on_Model3PtCap_pressed()
+void ModelCreate::on_ModelTypeCombo_currentIndexChanged(int index)
 {
-  activateEditor(new CapEdit(this));
-}
-
-void ModelCreate::on_Model3PtClip_pressed()
-{
-  activateEditor(new ClipEdit(this));
-}
-
-void ModelCreate::on_Model1Pt_pressed()
-{
-  activateEditor(new SingleEdit(this));
-}
-
-void ModelCreate::on_ModelFace_pressed()
-{
-  activateEditor(NULL);
+  switch(index){
+    case 0:
+      activateEditor(new CapEdit(this));
+      break;
+    case 1:
+      activateEditor(new ClipEdit(this));
+      break;
+    case 2:
+      activateEditor(new SingleEdit(this));
+      break;
+    default:
+      activateEditor(NULL);      
+      break;
+  }
 }
 
 
@@ -196,6 +197,12 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
     ui.ModelPreview->setPixmap(QPixmap(QString::fromUtf8(":/ltr/face.png")));
     HelpViewer::ChangePage(QString::fromUtf8("1pt.htm"));
     modelType = MDL_FACE;
+    modelTweaker = NULL;
+  }else if(type.compare(QString::fromUtf8("Absolute"), Qt::CaseInsensitive) == 0){
+    //ui.ModelTypeLabel->setText("Absolute");
+    ui.ModelPreview->setPixmap(QPixmap(QString::fromUtf8(":/ltr/face.png")));
+    HelpViewer::ChangePage(QString::fromUtf8("1pt.htm"));
+    modelType = MDL_ABSOLUTE;
     modelTweaker = NULL;
   }else if(type.compare(QString::fromUtf8("SinglePoint"), Qt::CaseInsensitive) == 0){
     //ui.ModelTypeLabel->setText("1 Point");

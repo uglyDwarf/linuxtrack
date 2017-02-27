@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>530</width>
     <height>300</height>
    </rect>
   </property>
@@ -54,49 +54,53 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QLabel" name="label_2">
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Model Type</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QRadioButton" name="Model1Pt">
+           <widget class="QLabel" name="label_2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
             <property name="text">
-             <string>1 Point</string>
+             <string>Model Type</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="Model3PtCap">
-            <property name="text">
-             <string>3 Point Cap</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="Model3PtClip">
-            <property name="text">
-             <string>3 Point Clip</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="ModelFace">
-            <property name="text">
-             <string>Face</string>
-            </property>
+           <widget class="QComboBox" name="ModelTypeCombo">
+            <item>
+             <property name="text">
+              <string>3 Point Cap</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>3 Point Clip</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>1 Point</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Face</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Absolute</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>

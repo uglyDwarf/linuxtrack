@@ -29,11 +29,21 @@ void Guardian::checkDeviceNModel()
       QMessageBox::warning(parentWidget, QString::fromUtf8("Linuxtrack"),
                            devDesc + QString::fromUtf8(" requires Face type Model!"), QMessageBox::Ok);
     }
+  }else if(devType == JOYSTICK){
+    //face tracker needs face model
+    if(mdlType != MDL_ABSOLUTE){
+      QMessageBox::warning(parentWidget, QString::fromUtf8("Linuxtrack"),
+                           devDesc + QString::fromUtf8(" requires Absolute type Model!"), QMessageBox::Ok);
+    }
   }else{
     //ordinary tracker needs other than face model
     if(mdlType == MDL_FACE){
       QMessageBox::warning(parentWidget, QString::fromUtf8("Linuxtrack"),
                            devDesc + QString::fromUtf8(" won't work correctly with Face type Model!"), 
+                           QMessageBox::Ok);
+    }else if(mdlType == MDL_ABSOLUTE){
+      QMessageBox::warning(parentWidget, QString::fromUtf8("Linuxtrack"),
+                           devDesc + QString::fromUtf8(" won't work correctly with Absolute type Model!"), 
                            QMessageBox::Ok);
     }
   }

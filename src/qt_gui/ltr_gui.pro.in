@@ -30,13 +30,14 @@ HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h help_view.h \
            log_view.h ltr_state.h scp_form.h buffering.h progress.h \
            scurve.h scview.h wiimote_prefs.h tracker.h plugin_install.h \
            profile_setup.h profile_selector.h guardian.h xplugin.h wine_warn.h \
-           extractor.h ../game_data.h hashing.h downloading.h wine_launcher.h
+           extractor.h ../game_data.h hashing.h downloading.h wine_launcher.h \
+           macps3eye_prefs.h macwebcam_info.h ../ps3_prefs.h
 
 FORMS += ltr_gui.ui dev_help.ui ltr.ui model_creation.ui scurve.ui scp_form.ui \
            logview.ui wii_setup.ui tir_setup.ui \
            cap_edit.ui clip_edit.ui single_edit.ui model_edit.ui \
            device_setup.ui profile_setup.ui profile_selector.ui cap_tweaking.ui clip_tweaking.ui \
-           extractor.ui progress.ui xplugin.ui wine_warn.ui
+           extractor.ui progress.ui xplugin.ui wine_warn.ui m_ps3eye_setup.ui
 
 SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            ltr_gui_prefs.cpp tir_prefs.cpp help_view.cpp buffering.cpp \
@@ -46,7 +47,8 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            tracker.cpp ../ltr_srv_master.cpp  device_setup.cpp \
            ../ltr_srv_slave.c ../ltr_srv_comm.c plugin_install.cpp profile_setup.cpp \
            profile_selector.cpp xplugin.cpp wine_warn.cpp progress.cpp \
-           extractor.cpp ../game_data.c hashing.cpp downloading.cpp wine_launcher.cpp
+           extractor.cpp ../game_data.c hashing.cpp downloading.cpp wine_launcher.cpp \
+           macps3eye_prefs.cpp macwebcam_info.cpp ../ps3_prefs.c
 
 
 QMAKE_CXXFLAGS += -Wall -Wextra -DHAVE_CONFIG_H -DHELP_BASE="'\""ltr_gui/"\"'" -I @prefix@/include

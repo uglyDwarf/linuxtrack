@@ -11,7 +11,7 @@
 #include "ui_clip_tweaking.h"
 #include "ui_cap_tweaking.h"
 
-typedef enum {MDL_1PT, MDL_3PT_CLIP, MDL_3PT_CAP, MDL_FACE} modelType_t;
+typedef enum {MDL_1PT, MDL_3PT_CLIP, MDL_3PT_CAP, MDL_FACE, MDL_ABSOLUTE} modelType_t;
 class Guardian;
 
 class ModelCreate : public QDialog
@@ -26,12 +26,9 @@ class ModelCreate : public QDialog
  public slots:
   int exec();
  private slots:
+  void on_ModelTypeCombo_currentIndexChanged(int index);
   void on_CancelButton_pressed();
   void on_CreateButton_pressed();
-  void on_Model3PtCap_pressed();
-  void on_Model3PtClip_pressed();
-  void on_Model1Pt_pressed();
-  void on_ModelFace_pressed();
  signals:
   void dump(const QString &sec);
  private:

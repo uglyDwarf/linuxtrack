@@ -326,8 +326,8 @@ bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id, QString &sec
     devType = TIR;
   }else if(dn.compare(QString::fromUtf8("Tir_openusb"), Qt::CaseInsensitive) == 0){
     devType = TIR;
-  }else if(dn.compare(QString::fromUtf8("Joystick"), Qt::CaseInsensitive) == 0){
-    devType = JOYSTICK;
+  }else if(dn.compare(QString::fromUtf8("PS3Eye"), Qt::CaseInsensitive) == 0){
+    devType = MACPS3EYE;
   }else{
     devType = NONE;
   }

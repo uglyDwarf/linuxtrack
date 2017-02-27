@@ -114,9 +114,8 @@ bool ltr_int_init_usb()
   return true;
 }
 
-dev_found ltr_int_find_tir(unsigned int devid)
+dev_found ltr_int_find_tir(void)
 {
-  (void) devid;
   printf("Looking for the TrackIr\n");
   return get_tir_type();
 }

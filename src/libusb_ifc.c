@@ -9,8 +9,9 @@ static libusb_context *usb_context = NULL;
 static libusb_device_handle *handle = NULL;
 static bool interface_claimed = false;
 static dbg_flag_type comm_dbg_flag = DBG_CHECK;
+static bool kernel_driver_active = false;
 
-bool ltr_int_init_usb()
+bool ltr_int_init_usb(void)
 {
   ltr_int_log_message("Initializing libusb.\n");
 
@@ -28,6 +29,25 @@ bool ltr_int_init_usb()
   libusb_set_debug(usb_context, 0);
   ltr_int_log_message("Libusb debug level set.\n");
   return true;
+}
+
+static bool is_device(libusb_device *dev, unsigned int vid, unsigned int devid)
+{
+  struct libusb_device_descriptor desc;
+
+  //ltr_int_log_message("Checking, if device is Track IR.\n");
+  if(libusb_get_device_descriptor(dev, &desc)){
+    ltr_int_log_message("Error getting device descriptor!\n");
+    return false;
+  }
+  //ltr_int_log_message("Device descriptor received.\n");
+  if((desc.idVendor == vid) && (desc.idProduct == devid)){
+    ltr_int_log_message("Device is a Ps3Eye(%04X:%04X).\n", desc.idVendor, desc.idProduct);
+    return true;
+  }else{
+    //ltr_int_log_message("Device is not a Ps3Eye(%04X:%04X).\n", desc.idVendor, desc.idProduct);
+    return false;
+  }
 }
 
 static bool is_tir(libusb_device *dev, unsigned int devid)
@@ -49,9 +69,53 @@ static bool is_tir(libusb_device *dev, unsigned int devid)
   }
 }
 
-dev_found ltr_int_find_tir(unsigned int devid)
+bool ltr_int_find_p3e(void)
 {
-  (void) devid;
+  libusb_device **list;
+  libusb_device *found = NULL;
+
+  ltr_int_log_message("Requesting device list.\n");
+  ssize_t cnt = libusb_get_device_list(usb_context, &list);
+  ltr_int_log_message("Device list received (%d devices).\n", cnt);
+  ssize_t i = 0;
+  int err = 0;
+  if (cnt < 0){
+    ltr_int_log_message("Error enumerating devices!\n");
+    return false;
+  }
+
+  for(i = 0; i < cnt; i++){
+    libusb_device *device = list[i];
+    if(is_device(device, 0x1415, 0x2000)){
+      found = device;
+      break;
+    }
+  }
+
+  if(found){
+    ltr_int_log_message("Opening handle to the device found.\n");
+    err = libusb_open(found, &handle);
+    if(err){
+      ltr_int_log_message("Error opening device!\n");
+      return false;
+    }
+    ltr_int_log_message("Handle opened successfully.\n");
+  }else{
+    ltr_int_log_message("Can't find any Ps3 Eye!\n");
+  }
+  ltr_int_log_message("Freeing device list.\n");
+  libusb_free_device_list(list, 1);
+  ltr_int_log_message("Device list freed.\n");
+  if(handle != NULL){
+    return true;
+  }else{
+    ltr_int_log_message("Bad handle!\n");
+    return false;
+  }
+}
+
+dev_found ltr_int_find_tir(void)
+{
   // discover devices
   libusb_device **list;
   libusb_device *found = NULL;
@@ -200,6 +264,14 @@ static bool configure_tir(int config)
 static bool claim_tir(int config, unsigned int interface)
 {
   ltr_int_log_message("Trying to claim TrackIR interface.\n");
+  if(libusb_kernel_driver_active(handle, interface)){
+    ltr_int_log_message("Kernel driver active, going to detach it.\n");
+    kernel_driver_active = true;
+    if(libusb_detach_kernel_driver(handle, interface) != 0){
+      ltr_int_log_message("Couldn't detach kernel driver!\n");
+      return false;
+    }
+  }
   if(libusb_claim_interface(handle, interface)){
     ltr_int_log_message("Couldn't claim interface!\n");
     interface_claimed = false;
@@ -269,6 +341,27 @@ bool ltr_int_send_data(int out_ep, unsigned char data[], size_t size)
   return true;
 }
 
+bool ltr_int_ctrl_data(uint8_t req_type, uint8_t req, uint16_t val, uint16_t index,
+                            unsigned char data[], size_t size)
+{
+  int res;
+  if(comm_dbg_flag == DBG_ON){
+    ltr_int_log_message("***libusb_dump*** req_type: %d req: %d val: %d index: %d\n",
+                        req_type, req, val, index);
+    ltr_int_log_packet("ctrl", data, size);
+  }
+  //ltr_int_log_message("Sending control data.\n");
+  if((res = libusb_control_transfer(handle, req_type, req, val, index, data, size, 500)) < 0){
+    ltr_int_log_message("Problem sending control request req_type: %d req: %d val: %d index: %d! %d\n",
+      req_type, req, val, index, res);
+    return false;
+  }
+  //ltr_int_log_message("Control data sent.\n");
+  return true;
+}
+
+
+
 bool ltr_int_receive_data(int in_ep, unsigned char data[], size_t size, size_t *transferred,
                   long timeout)
 {
@@ -304,6 +397,13 @@ void ltr_int_finish_usb(unsigned int interface)
     ltr_int_log_message("TrackIR interface released.\n");
   }
   interface_claimed = false;
+  if(kernel_driver_active){
+    //just in case...
+    libusb_reset_device(handle);
+    if(libusb_attach_kernel_driver(handle, interface) != 0){
+      ltr_int_log_message("Couldn't re-attach the kernel driver!\n");
+    }
+  }
   ltr_int_log_message("Closing TrackIR handle.\n");
   libusb_close(handle);
   ltr_int_log_message("Exiting libusb.\n");

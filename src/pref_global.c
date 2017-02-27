@@ -206,6 +206,11 @@ bool ltr_int_get_device(struct camera_control_block *ccb)
       ccb->device.category = joystick;
       dev_ok = true;
     }
+    if(strcasecmp(dev_type, "Ps3Eye") == 0){
+      ltr_int_log_message("Device Type: PS3Eye\n");
+      ccb->device.category = mac_ps3eye;
+      dev_ok = true;
+    }
     if(dev_ok == false){
       ltr_int_log_message("Wrong device type found: '%s'\n", dev_type);
       ltr_int_log_message(" Valid options are: 'Tir4', 'Tir', 'Tir_openusb', 'Webcam', 'Wiimote'.\n");

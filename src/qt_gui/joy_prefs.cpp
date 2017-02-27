@@ -52,7 +52,8 @@ static bool enumerateAxes(ifc_type_t ifc, const QString &joyName)
   if(!res){
     return false;
   }
-  axisMap.insert(std::pair<int, QString>(-1, QString::fromUtf8("-1")));
+  axisMap.clear();
+  axisMap.insert(std::pair<int, QString>(-1, QString::fromUtf8("-")));
   for(size_t i = 0; i < axes.axes; ++i){
     axisMap.insert(std::pair<int, QString>(axes.axesList[i], QString::fromUtf8(axes.axisNames[i])));
   }
@@ -127,8 +128,14 @@ bool JoyPrefs::Activate(const QString &ID, bool init)
     return false;
   }
   std::map<int, QString>::iterator a;
-  int cntr = 1;
+  int cntr = 0;
   axisComboMap.insert(std::pair<int, int>(-1, 0));
+  ui.PitchCombo->clear();
+  ui.YawCombo->clear();
+  ui.RollCombo->clear();
+  ui.TXCombo->clear();
+  ui.TYCombo->clear();
+  ui.TZCombo->clear();
   for(a = axisMap.begin(); a != axisMap.end(); ++a){
     ui.PitchCombo->addItem(a->second, QVariant(a->first));
     ui.YawCombo->addItem(a->second, QVariant(a->first));
