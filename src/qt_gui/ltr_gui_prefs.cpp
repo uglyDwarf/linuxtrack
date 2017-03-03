@@ -328,6 +328,8 @@ bool PrefProxy::getActiveDevice(deviceType_t &devType, QString &id, QString &sec
     devType = TIR;
   }else if(dn.compare(QString::fromUtf8("PS3Eye"), Qt::CaseInsensitive) == 0){
     devType = MACPS3EYE;
+  }else if(dn.compare(QString::fromUtf8("PS3Eye-face"), Qt::CaseInsensitive) == 0){
+    devType = MACPS3EYE_FT;
   }else{
     devType = NONE;
   }

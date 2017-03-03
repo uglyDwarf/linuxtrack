@@ -72,6 +72,9 @@ int ltr_int_cal_run(struct camera_control_block *ccb, frame_callback_fun cbk)
     case mac_ps3eye:
       libname = "libp3e";
       break;
+    case mac_ps3eye_ft:
+      libname = "libp3eft";
+      break;
     default:
       assert(0);
       break;

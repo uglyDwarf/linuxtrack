@@ -53,7 +53,8 @@ typedef enum cal_device_category_type {
   mac_webcam,
   mac_webcam_ft,
   joystick,
-  mac_ps3eye
+  mac_ps3eye,
+  mac_ps3eye_ft
 } cal_device_category_type;
 
 struct cal_device_type {

@@ -15,6 +15,6 @@ endif
 
 
 dist_pkgdata_DATA = README README.devel README.xplane
-EXTRA_DIST = Readme.rtf deploy mac_build pkgconf_extract mac_m4/fake_pkg_conf.m4
+EXTRA_DIST = Readme.rtf deploy mac_build pkgconf_extract mac_m4/fake_pkg_conf.m4 LICENSE.md
 AM_DISTCHECK_CONFIGURE_FLAGS = --with-xplane-sdk=$(HOME)/devel/SDK/CHeaders \
   --with-wine-libs="-L/usr/lib/i386-linux-gnu -L/usr/lib/i386-linux-gnu/wine"

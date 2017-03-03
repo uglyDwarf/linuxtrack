@@ -49,6 +49,15 @@ bool ltr_int_ps3_set_min_blob(int val);
 int ltr_int_ps3_get_mode(void);
 bool ltr_int_ps3_set_mode(int val);
 
+int ltr_int_ps3_get_optim_level();
+bool ltr_int_ps3_set_optim_level(int opt);
+
+float ltr_int_ps3_get_eff();
+bool ltr_int_ps3_set_eff(float new_eff);
+
+const char *ltr_int_ps3_get_cascade();
+bool ltr_int_ps3_set_cascade(const char *new_cascade);
+
 #ifdef __cplusplus
 }
 #endif

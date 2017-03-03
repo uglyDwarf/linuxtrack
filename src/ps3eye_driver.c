@@ -7,7 +7,12 @@
 #include <string.h>
 #include "ps3_prefs.h"
 #include "cal.h"
+#ifndef OPENCV
 #include "image_process.h"
+#else
+#include "facetrack.h"
+#endif
+
 
 #define OV534_REG_ADDRESS       0xf1    /* sensor address */
 #define OV534_REG_SUBADDR       0xf2

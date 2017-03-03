@@ -84,7 +84,7 @@ if V4L2
 if LIBV4L2
   pkglib_LTLIBRARIES += libwc.la
 if FACE_TRACKER
-  pkglib_LTLIBRARIES += libft.la
+  pkglib_LTLIBRARIES += libft.la libp3eft.la
   dist_pkgdata_DATA += haarcascade_frontalface_alt2.xml
 endif
 endif
@@ -166,11 +166,6 @@ libfakeusb_la_CXXFLAGS = ${AM_CFLAGS}
 libfakeusb_la_LIBADD = libltr.la
 libfakeusb_la_LDFLAGS = ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
 
-libp3e_la_SOURCES = ps3eye_driver.cpp  runloop.c runloop.h
-libp3e_la_CFLAGS = ${AM_CFLAGS}
-libp3e_la_LIBADD = -lusb-1.0 libltr.la
-libp3e_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
-
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
 libwii_la_CFLAGS = ${AM_CFLAGS}
 libwii_la_LIBADD = -lcwiid libltr.la
@@ -201,6 +196,17 @@ libft_la_CFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_CXXFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_LIBADD = libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
 libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS) $(FT_LDFLAGS)
+
+libp3e_la_SOURCES = ps3eye_driver.c ps3eye_driver.h runloop.c runloop.h
+libp3e_la_CFLAGS = ${AM_CFLAGS}
+libp3e_la_LIBADD = -lusb-1.0 libltr.la
+libp3e_la_LDFLAGS = -export-symbols "${srcdir}/ps3eye.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
+
+libp3eft_la_SOURCES = ps3eye_driver.c ps3eye_driver.h runloop.c runloop.h facetrack.cpp facetrack.h
+libp3eft_la_CFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
+libp3eft_la_CXXFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
+libp3eft_la_LIBADD = -lusb-1.0 libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
+libp3eft_la_LDFLAGS = -export-symbols "${srcdir}/ps3eye.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS) $(FT_LDFLAGS)
 
 man_MANS += ltr_pipe.1
 bin_PROGRAMS += ltr_pipe
@@ -334,7 +340,7 @@ qt_gui/xm8_detail.png qt_gui/main.cpp qt_gui/prefs_link.h qt_gui/macwebcam_prefs
 qt_gui/webcam_info.h qt_gui/help/misc.htm qt_gui/help/dev_setup.htm qt_gui/help/axes_setup.htm \
 qt_gui/help/contents.txt qt_gui/help/news.htm qt_gui/help/welcome.htm qt_gui/help/interface.htm \
 qt_gui/help/model_setup.htm qt_gui/dlfirmware.h qt_gui/webcam_info.cpp qt_gui/plugin_install.h \
-qt_gui/tracker.cpp qt_gui/webcam_prefs.h qt_gui/macwebcam_prefs.cpp \
+qt_gui/tracker.cpp qt_gui/webcam_prefs.h qt_gui/macwebcam_prefs.cpp ps3eye.sym \
 qt_gui/log_view.h tir4_driver.c tir4_driver.h 99-TIR.rules drivers.sym liblt.sym tir.sym webcam_driver.sym \
 xlinuxtrack.sym joy_driver.sym linuxtrack_pre.c lt_client.c lt_server.c ltlib_client.c ltlib_client.h \
 ltr_server.c ltr_server.h netcomm.c netcomm.h pref_flex.h \
@@ -346,7 +352,8 @@ qt_gui/guardian.cpp qt_gui/guardian.h qt_gui/hashing.cpp qt_gui/hashing.h qt_gui
 qt_gui/l_wcft_setup.ui qt_gui/m_wc_setup.ui qt_gui/m_wcft_setup.ui qt_gui/model_edit.ui \
 qt_gui/profile_selector.cpp qt_gui/profile_selector.h qt_gui/profile_selector.ui \
 qt_gui/profile_setup.cpp qt_gui/profile_setup.h qt_gui/profile_setup.ui qt_gui/joy_prefs.cpp qt_gui/joy_prefs.h \
-qt_gui/joy_setup.ui \
+qt_gui/joy_setup.ui qt_gui/m_ps3eye_ft_setup.ui qt_gui/m_ps3eye_setup.ui qt_gui/macps3eyeft_prefs.cpp \
+qt_gui/macps3eyeft_prefs.h qt_gui/macps3eye_prefs.cpp qt_gui/macps3eye_prefs.h \
 qt_gui/progress.ui qt_gui/single_edit.ui qt_gui/sources.txt qt_gui/sources_mac.txt qt_gui/spec.txt qt_gui/tir_setup.ui \
 qt_gui/wii_setup.ui qt_gui/help/extractor.htm qt_gui/sphere.png qt_gui/sphere.txt \
 qt_gui/wine_launcher.cpp qt_gui/wine_launcher.h qt_gui/xplugin.cpp qt_gui/xplugin.h \

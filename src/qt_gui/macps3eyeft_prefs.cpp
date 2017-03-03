@@ -1,45 +1,43 @@
 #include <QMessageBox>
 #include <iostream>
 #include <QByteArray>
-#include "ui_m_ps3eye_setup.h"
-#include "macps3eye_prefs.h"
+#include "ui_m_ps3eye_ft_setup.h"
+#include "macps3eyeft_prefs.h"
 #include "ltr_gui_prefs.h"
 #include "ps3_prefs.h"
 #include "ps3eye_driver.h"
+#include "utils.h"
 
 static QString currentId = QString::fromUtf8("None");
 
-MacP3ePrefs::MacP3ePrefs(const QString &dev_id, QWidget *parent) : QWidget(parent), id(dev_id)
+MacP3eFtPrefs::MacP3eFtPrefs(const QString &dev_id, QWidget *parent) : QWidget(parent), id(dev_id)
 {
   ui.setupUi(this);
   Activate(id, true);
 }
 
-MacP3ePrefs::~MacP3ePrefs()
+MacP3eFtPrefs::~MacP3eFtPrefs()
 {
   ltr_int_ps3_close_prefs();
 }
 
-bool MacP3ePrefs::Activate(const QString &ID, bool init)
+bool MacP3eFtPrefs::Activate(const QString &ID, bool init)
 {
   QString sec;
   initializing = init;
-  if(PREF.getFirstDeviceSection(QString::fromUtf8("Ps3Eye"), ID, sec)){
+  if(PREF.getFirstDeviceSection(QString::fromUtf8("Ps3Eye-face"), ID, sec)){
     QString currentDev, currentSection;
     deviceType_t devType;
     if(!PREF.getActiveDevice(devType, currentDev, currentSection) || (sec !=currentSection)){
       PREF.activateDevice(sec);
     }
   }else{
-    sec = QString::fromUtf8("Ps3Eye");
+    sec = QString::fromUtf8("Ps3Eye-face");
     initializing = false;
     if(PREF.createSection(sec)){
-      PREF.addKeyVal(sec, QString::fromUtf8("Capture-device"), QString::fromUtf8("Ps3Eye"));
+      PREF.addKeyVal(sec, QString::fromUtf8("Capture-device"), QString::fromUtf8("Ps3Eye-face"));
       PREF.addKeyVal(sec, QString::fromUtf8("Capture-device-id"), ID);
       PREF.addKeyVal(sec, QString::fromUtf8("Mode"), QString::number(0));
-      PREF.addKeyVal(sec, QString::fromUtf8("Threshold"), QString::number(130));
-      PREF.addKeyVal(sec, QString::fromUtf8("Min-blob"), QString::number(9));
-      PREF.addKeyVal(sec, QString::fromUtf8("Max-blob"), QString::number(231));
       PREF.addKeyVal(sec, QString::fromUtf8("Exposure"), QString::number(120));
       PREF.addKeyVal(sec, QString::fromUtf8("Gain"), QString::number(20));
       PREF.addKeyVal(sec, QString::fromUtf8("Brightness"), QString::number(0));
@@ -50,6 +48,10 @@ bool MacP3ePrefs::Activate(const QString &ID, bool init)
       PREF.addKeyVal(sec, QString::fromUtf8("AutoExposure"), QString::fromUtf8("0"));
       PREF.addKeyVal(sec, QString::fromUtf8("PowerLine-Frequency"), QString::fromUtf8("0"));
       PREF.addKeyVal(sec, QString::fromUtf8("Fps"), QString::fromUtf8("60"));
+      QString cascadePath = PrefProxy::getDataPath(
+                              QString::fromUtf8("/haarcascades/haarcascade_frontalface_alt2.xml"));
+	  QFileInfo finf = QFileInfo(cascadePath);
+	  PREF.addKeyVal(sec, QString::fromUtf8("Cascade"), finf.canonicalFilePath());
       PREF.activateDevice(sec);
     }else{
       return false;
@@ -115,9 +117,6 @@ bool MacP3ePrefs::Activate(const QString &ID, bool init)
     }
     ui.WebcamResolutionsMac->setCurrentIndex(index);
 
-    ui.WebcamThresholdMac->setValue(ltr_int_ps3_get_threshold());
-    ui.WebcamMaxBlobMac->setValue(ltr_int_ps3_get_max_blob());
-    ui.WebcamMinBlobMac->setValue(ltr_int_ps3_get_min_blob());
     ui.EXPOSURE->setValue(ltr_int_ps3_get_ctrl_val(e_EXPOSURE));
     ui.GAIN->setValue(ltr_int_ps3_get_ctrl_val(e_GAIN));
     ui.BRIGHTNESS->setValue(ltr_int_ps3_get_ctrl_val(e_BRIGHTNESS));
@@ -127,12 +126,30 @@ bool MacP3ePrefs::Activate(const QString &ID, bool init)
     ui.AWB->setCheckState((ltr_int_ps3_get_ctrl_val(e_AUTOWHITEBALANCE)) ? Qt::Checked : Qt::Unchecked);
     ui.AEX->setCheckState((ltr_int_ps3_get_ctrl_val(e_AUTOEXPOSURE)) ? Qt::Checked : Qt::Unchecked);
     ui.PLF50->setCheckState((ltr_int_ps3_get_ctrl_val(e_PLFREQ)) ? Qt::Checked : Qt::Unchecked);
+
+    const char *cascade = ltr_int_ps3_get_cascade();
+    QString cascadePath;
+    if((cascade == NULL) || (!QFile::exists(QString::fromUtf8(cascade)))){
+      cascadePath = PrefProxy::getDataPath(
+                      QString::fromUtf8("/haarcascades/haarcascade_frontalface_alt2.xml"));
+      ltr_int_ps3_set_cascade(cascadePath.toUtf8().constData());
+    }else{
+      cascadePath = QString::fromUtf8(cascade);
+    }
+    ui.CascadePathMac->setText(cascadePath);
+    int n = (2.0 / ltr_int_ps3_get_eff()) - 2;
+    ui.ExpFilterFactorMac->setValue(n);
+    on_ExpFilterFactorMac_valueChanged(n);
+    n = ltr_int_ps3_get_optim_level();
+    ui.OptimLevelMac->setValue(n);
+    on_OptimLevelMac_valueChanged(n);
+
   }
   initializing = false;
   return true;
 }
 
-void MacP3ePrefs::on_WebcamResolutionsMac_activated(int index)
+void MacP3eFtPrefs::on_WebcamResolutionsMac_activated(int index)
 {
   if(index < 10){
     ltr_int_ps3_set_mode(0);
@@ -193,35 +210,20 @@ void MacP3ePrefs::on_WebcamResolutionsMac_activated(int index)
   ltr_int_ps3_set_ctrl_val(e_FPS, fps);
 }
 
-void MacP3ePrefs::on_WebcamThresholdMac_valueChanged(int i)
-{
-  if(!initializing) ltr_int_ps3_set_threshold(i);
-}
-
-void MacP3ePrefs::on_WebcamMinBlobMac_valueChanged(int i)
-{
-  if(!initializing) ltr_int_ps3_set_min_blob(i);
-}
-
-void MacP3ePrefs::on_WebcamMaxBlobMac_valueChanged(int i)
-{
-  if(!initializing) ltr_int_ps3_set_max_blob(i);
-}
-
-bool MacP3ePrefs::AddAvailableDevices(QComboBox &combo)
+bool MacP3eFtPrefs::AddAvailableDevices(QComboBox &combo)
 {
   bool res = false;
   QString id;
   deviceType_t dt;
   bool webcam_selected = false;
-  if(PREF.getActiveDevice(dt,id) && (dt == MACPS3EYE)){
+  if(PREF.getActiveDevice(dt,id) && (dt == MACPS3EYE_FT)){
     webcam_selected = true;
   }
   QVariant v;
   if(ltr_int_find_p3e()){
-    PrefsLink *pl = new PrefsLink(MACPS3EYE, QString::fromUtf8("PS3Eye"));
+    PrefsLink *pl = new PrefsLink(MACPS3EYE_FT, QString::fromUtf8("PS3Eye-face"));
     v.setValue(*pl);
-    combo.addItem(QString::fromUtf8("Ps3Eye"), v);
+    combo.addItem(QString::fromUtf8("Ps3Eye face tracker"), v);
     if(webcam_selected){
       combo.setCurrentIndex(combo.count() - 1);
       res = true;
@@ -230,49 +232,86 @@ bool MacP3ePrefs::AddAvailableDevices(QComboBox &combo)
   return res;
 }
 
-void MacP3ePrefs::on_EXPOSURE_valueChanged(int i)
+void MacP3eFtPrefs::on_EXPOSURE_valueChanged(int i)
 {
   if(!initializing){ltr_int_ps3_set_ctrl_val(e_EXPOSURE, i);}
 }
 
-void MacP3ePrefs::on_GAIN_valueChanged(int i)
+void MacP3eFtPrefs::on_GAIN_valueChanged(int i)
 {
   if(!initializing){ltr_int_ps3_set_ctrl_val(e_GAIN, i);}
 }
 
-void MacP3ePrefs::on_BRIGHTNESS_valueChanged(int i)
+void MacP3eFtPrefs::on_BRIGHTNESS_valueChanged(int i)
 {
   if(!initializing){ltr_int_ps3_set_ctrl_val(e_BRIGHTNESS, i);}
 }
 
-void MacP3ePrefs::on_CONTRAST_valueChanged(int i)
+void MacP3eFtPrefs::on_CONTRAST_valueChanged(int i)
 {
   if(!initializing){ltr_int_ps3_set_ctrl_val(e_CONTRAST, i);}
 }
 
-void MacP3ePrefs::on_SHARPNESS_valueChanged(int i)
+void MacP3eFtPrefs::on_SHARPNESS_valueChanged(int i)
 {
   if(!initializing){ltr_int_ps3_set_ctrl_val(e_SHARPNESS, i);}
 }
 
-void MacP3ePrefs::on_AGC_stateChanged(int state)
+void MacP3eFtPrefs::on_AGC_stateChanged(int state)
 {
   if(!initializing){ltr_int_ps3_set_ctrl_val(e_AUTOGAIN, state == Qt::Checked);}
 }
 
-void MacP3ePrefs::on_AWB_stateChanged(int state)
+void MacP3eFtPrefs::on_AWB_stateChanged(int state)
 {
   if(!initializing){ltr_int_ps3_set_ctrl_val(e_AUTOWHITEBALANCE, state == Qt::Checked);}
 }
 
-void MacP3ePrefs::on_AEX_stateChanged(int state)
+void MacP3eFtPrefs::on_AEX_stateChanged(int state)
 {
   if(!initializing){ltr_int_ps3_set_ctrl_val(e_AUTOEXPOSURE, state == Qt::Checked);}
 }
 
-void MacP3ePrefs::on_PLF50_stateChanged(int state)
+void MacP3eFtPrefs::on_PLF50_stateChanged(int state)
 {
   if(!initializing){ltr_int_ps3_set_ctrl_val(e_PLFREQ, state == Qt::Checked);}
 }
 
+void MacP3eFtPrefs::on_FindCascadeMac_pressed()
+{
+  QString path = ui.CascadePathMac->text();
+  if(path.isEmpty()){
+    path = QString::fromUtf8(ltr_int_get_data_path(""));
+  }else{
+    QDir tmp(path);
+    path = tmp.filePath(path);
+  }
+  QString fileName = QFileDialog::getOpenFileName(NULL,
+     QString::fromUtf8("Find Harr/LBP cascade"), path, QString::fromUtf8("xml Files (*.xml)"));
+  ui.CascadePathMac->setText(fileName);
+  on_CascadePathMac_editingFinished();
+}
+
+void MacP3eFtPrefs::on_CascadePathMac_editingFinished()
+{
+  if(!initializing){
+    ltr_int_ps3_set_cascade(ui.CascadePathMac->text().toUtf8().constData());
+  }
+}
+
+void MacP3eFtPrefs::on_ExpFilterFactorMac_valueChanged(int value)
+{
+  float a = 2 / (value + 2.0); //EWMA window size
+  //ui.ExpFiltFactorValMac->setText(QString("%1").arg(a, 0, 'g', 2));
+  if(!initializing){
+    ltr_int_ps3_set_eff(a);
+  }
+}
+
+void MacP3eFtPrefs::on_OptimLevelMac_valueChanged(int value)
+{
+  if(!initializing){
+    ltr_int_ps3_set_optim_level(value);
+  }
+}
 

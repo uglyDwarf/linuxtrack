@@ -12,6 +12,7 @@
 #include "joy_prefs.h"
 #endif
 #include "macps3eye_prefs.h"
+#include "macps3eyeft_prefs.h"
 #include "tir_prefs.h"
 #include "wiimote_prefs.h"
 #include "help_view.h"
@@ -129,6 +130,10 @@ void DeviceSetup::on_DeviceSelector_activated(int index)
     devPrefs = new MacP3ePrefs(pl.ID, this);
     emit deviceTypeChanged(pl.deviceType, QString::fromUtf8("PS3Eye"));
   }else
+  if(pl.deviceType == MACPS3EYE_FT){
+    devPrefs = new MacP3eFtPrefs(pl.ID, this);
+    emit deviceTypeChanged(pl.deviceType, QString::fromUtf8("PS3Eye Face Tracker"));
+  }else
   if(pl.deviceType == WIIMOTE){
     devPrefs = new WiimotePrefs(pl.ID, this);
     emit deviceTypeChanged(pl.deviceType, QString::fromUtf8("Wiimote"));
@@ -163,6 +168,7 @@ void DeviceSetup::refresh()
   res |= WiimotePrefs::AddAvailableDevices(*(ui.DeviceSelector));
   res |= TirPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   res |= MacP3ePrefs::AddAvailableDevices(*(ui.DeviceSelector));
+  res |= MacP3eFtPrefs::AddAvailableDevices(*(ui.DeviceSelector));
 #ifdef DARWIN
   res |= MacWebcamFtPrefs::AddAvailableDevices(*(ui.DeviceSelector));
   res |= MacWebcamPrefs::AddAvailableDevices(*(ui.DeviceSelector));

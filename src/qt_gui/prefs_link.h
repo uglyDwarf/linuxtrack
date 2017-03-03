@@ -13,7 +13,8 @@ typedef enum{
   MACWEBCAM,
   MACWEBCAM_FT,
   JOYSTICK,
-  MACPS3EYE
+  MACPS3EYE,
+  MACPS3EYE_FT
 } deviceType_t;
 
 

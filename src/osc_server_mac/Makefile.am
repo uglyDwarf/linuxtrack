@@ -1,5 +1,5 @@
 EXTRA_DIST = OscServer-Info.plist English.lproj/InfoPlist.strings \
-English.lproj/MainMenu.xib PkgInfo
+English.lproj/MainMenu.xib PkgInfo linuxtrack.icns 
 
 AM_CFLAGS = -arch x86_64
 SLEOPARD_CFLAG = 
