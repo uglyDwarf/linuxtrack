@@ -1,5 +1,5 @@
 #ifndef PS3EYE_DRIVER__H
-#defne PS3EYE_DRIVER__H
+#define PS3EYE_DRIVER__H
 
 #ifdef __cplusplus
 extern "C" {

@@ -7,8 +7,29 @@
 #include "ps3_prefs.h"
 #include "ps3eye_driver.h"
 #include "utils.h"
+#include "dyn_load.h"
 
 static QString currentId = QString::fromUtf8("None");
+
+typedef int (*ltr_int_find_p3e_fun_t)(void);
+static ltr_int_find_p3e_fun_t ltr_int_find_p3e_fun = NULL;
+static lib_fun_def_t functions[] = {
+  {(char *)"ltr_int_find_p3e", (void*) &ltr_int_find_p3e_fun},
+  {NULL, NULL}
+};
+
+
+static bool find_p3e(void)
+{
+  void *libhandle = NULL;
+  int res = 0;
+  if((libhandle = ltr_int_load_library((char *)"libp3e", functions)) != NULL){
+    res = ltr_int_find_p3e_fun();
+    ltr_int_unload_library(libhandle, functions);
+  }
+  return res;
+}
+
 
 MacP3eFtPrefs::MacP3eFtPrefs(const QString &dev_id, QWidget *parent) : QWidget(parent), id(dev_id)
 {
@@ -220,7 +241,7 @@ bool MacP3eFtPrefs::AddAvailableDevices(QComboBox &combo)
     webcam_selected = true;
   }
   QVariant v;
-  if(ltr_int_find_p3e()){
+  if(find_p3e()){
     PrefsLink *pl = new PrefsLink(MACPS3EYE_FT, QString::fromUtf8("PS3Eye-face"));
     v.setValue(*pl);
     combo.addItem(QString::fromUtf8("Ps3Eye face tracker"), v);
