@@ -40,7 +40,7 @@ bool game_data_get_desc(int id, game_desc_t *gd)
 {
   FILE *f = NULL;
   char *home = getenv("HOME");
-  char *path1 = malloc(200 + strlen(home));
+  char *path1 = (char *)malloc(200 + strlen(home));
   sprintf(path1, "%s/.config/linuxtrack/tir_firmware/gamedata.txt", home);
     if((f = fopen(path1, "r"))== NULL){
       printf("Can't open data file '%s'!\n", path1);
@@ -49,8 +49,8 @@ bool game_data_get_desc(int id, game_desc_t *gd)
     int tmp_id;
     size_t tmp_str_size = 4096;
     size_t tmp_code_size = 4096;
-    char *tmp_str = malloc(tmp_str_size);
-    char *tmp_code = malloc(tmp_code_size);
+    char *tmp_str = (char *)malloc(tmp_str_size);
+    char *tmp_code = (char *)malloc(tmp_code_size);
     unsigned int c1, c2;
     int cnt;
     gd->name = NULL;
@@ -58,7 +58,7 @@ bool game_data_get_desc(int id, game_desc_t *gd)
       cnt = my_getline(&tmp_str, &tmp_str_size, f);
       if(cnt > 0){
         if(tmp_str_size > tmp_code_size){
-          tmp_code = realloc(tmp_code, tmp_str_size);
+          tmp_code = (char *)realloc(tmp_code, tmp_str_size);
         }
         cnt = sscanf(tmp_str, "%d \"%[^\"]\" (%08x%08x)", &tmp_id, tmp_code, &c1, &c2);
         if(cnt == 2){
@@ -90,8 +90,8 @@ bool getSomeSeriousPoetry(char *verse1, char *verse2)
 {
   bool res = true;
   char *home = getenv("HOME");
-  char *path1 = malloc(200 + strlen(home));
-  char *path2 = malloc(200 + strlen(home));
+  char *path1 = (char *)malloc(200 + strlen(home));
+  char *path2 = (char *)malloc(200 + strlen(home));
   sprintf(path1, "%s/.config/linuxtrack/tir_firmware/poem1.txt", home);
   sprintf(path2, "%s/.config/linuxtrack/tir_firmware/poem2.txt", home);
   FILE *f1 = fopen(path1, "rb");
