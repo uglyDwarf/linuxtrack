@@ -132,7 +132,7 @@ int ltr_int_enum_webcams(char **ids[])
       if(fd == -1){
 	ltr_int_log_message("Can't open file '%s'!\n", fname);
 	free(fname);
-	return -1;
+	continue;
       }
 
       id = get_webcam_id(fd);
