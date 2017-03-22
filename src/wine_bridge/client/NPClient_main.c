@@ -256,9 +256,13 @@ int __stdcall NPCLIENT_NP_GetData(tir_data_t * data)
   data->roll = r / 180.0 * 16383;
   data->pitch = -p / 180.0 * 16383;
   data->yaw = y / 180.0 * 16383;
-  data->tx = -limit_num(-16383.0, 15 * tx, 16383);
-  data->ty = limit_num(-16383.0, 15 * ty, 16383);
-  data->tz = limit_num(-16383.0, 15 * tz, 16383);
+
+  // TrackIR software seems to use a factor of approximately 0.03mm per unity
+  // to represent the displacements (16383 ~ 50.11cm), which leads to factor
+  // 32.7 (16383 / 501.1).
+  data->tx = -limit_num(-16383.0, 32.7 * tx, 16383);
+  data->ty = limit_num(-16383.0, 32.7 * ty, 16383);
+  data->tz = limit_num(-16383.0, 32.7 * tz, 16383);
   data->cksum = cksum((unsigned char*)data, sizeof(tir_data_t));
   //printf("Cksum: %04X\n", data->cksum);
   if(crypted){
