@@ -260,7 +260,8 @@ libp3e_la_OBJECTS = $(am_libp3e_la_OBJECTS)
 libp3e_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libp3e_la_CFLAGS) \
 	$(CFLAGS) $(libp3e_la_LDFLAGS) $(LDFLAGS) -o $@
-libp3eft_la_DEPENDENCIES = libltr.la $(am__DEPENDENCIES_1)
+libp3eft_la_DEPENDENCIES = libltusb1.la libltr.la \
+	$(am__DEPENDENCIES_1)
 am_libp3eft_la_OBJECTS = libp3eft_la-ps3eye_driver.lo \
 	libp3eft_la-runloop.lo libp3eft_la-facetrack.lo
 libp3eft_la_OBJECTS = $(am_libp3eft_la_OBJECTS)
@@ -747,7 +748,7 @@ libp3e_la_LDFLAGS = -export-symbols "${srcdir}/ps3eye.sym" ${SLEOPARD_LDFLAG} $(
 libp3eft_la_SOURCES = ps3eye_driver.c ps3eye_driver.h runloop.c runloop.h facetrack.cpp facetrack.h
 libp3eft_la_CFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libp3eft_la_CXXFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
-libp3eft_la_LIBADD = -lusb-1.0 libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
+libp3eft_la_LIBADD = libltusb1.la libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
 libp3eft_la_LDFLAGS = -export-symbols "${srcdir}/ps3eye.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS) $(FT_LDFLAGS)
 ltr_pipe_SOURCES = ../config.h ltr_pipe.c linuxtrack.h utils.h utils.c linuxtrack.c
 ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)

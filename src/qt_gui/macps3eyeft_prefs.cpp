@@ -23,7 +23,7 @@ static bool find_p3e(void)
 {
   void *libhandle = NULL;
   int res = 0;
-  if((libhandle = ltr_int_load_library((char *)"libp3e", functions)) != NULL){
+  if((libhandle = ltr_int_load_library((char *)"libp3eft", functions)) != NULL){
     res = ltr_int_find_p3e_fun();
     ltr_int_unload_library(libhandle, functions);
   }

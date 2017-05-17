@@ -185,7 +185,7 @@ libp3e_la_LDFLAGS = -export-symbols "${srcdir}/ps3eye.sym" ${SLEOPARD_LDFLAG} $(
 libp3eft_la_SOURCES = ps3eye_driver.c ps3eye_driver.h runloop.c runloop.h facetrack.cpp facetrack.h
 libp3eft_la_CFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libp3eft_la_CXXFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
-libp3eft_la_LIBADD = -lusb-1.0 libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
+libp3eft_la_LIBADD = libltusb1.la libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
 libp3eft_la_LDFLAGS = -export-symbols "${srcdir}/ps3eye.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS) $(FT_LDFLAGS)
 
 man_MANS += ltr_pipe.1
