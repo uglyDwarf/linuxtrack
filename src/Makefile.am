@@ -31,9 +31,6 @@ pkglib_LTLIBRARIES = libltr.la libmacwii.la liblinuxtrack.la
 bin_PROGRAMS = ltr_server1
 dist_pkgdata_DATA = linuxtrack1.conf linuxtrack.c linuxtrack_hello_world.c linuxtrack_hello_world_adv.c
 
-
-
-
 l32libdir = $(prefix)/$(LIB32DIR)/linuxtrack
 
 if ! DARWIN
@@ -55,12 +52,6 @@ libfacetrack_int_la_SOURCES = facetrack.cpp facetrack.h
 libfacetrack_int_la_CFLAGS = $(OPENCV_CFLAGS)
 libfacetrack_int_la_CXXFLAGS = $(OPENCV_CFLAGS)
 
-
-#ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
-#ltr_server_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
-#ltr_server_LDADD = -lpthread libltr.la
-#ltr_server_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${LTR_SERVER_FLAGS}
-
 ltr_server1_SOURCES = ltr_srv_comm.c ltr_srv_comm.h ltr_srv_slave.c ltr_srv_slave.h \
 	ltr_srv_master.cpp ltr_srv_master.h ltr_server1.c ipc_utils.c ipc_utils.h
 ltr_server1_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
@@ -76,18 +67,17 @@ if CWIID
   man_MANS += wii_server.1
 endif
 
-if LO
+if OSC_SUPPORT
   bin_PROGRAMS += osc_server
 endif
 
-if V4L2
-if LIBV4L2
+if WEBCAM_SUPPORT
   pkglib_LTLIBRARIES += libwc.la
+endif
+
 if FACE_TRACKER
   pkglib_LTLIBRARIES += libft.la libp3eft.la
   dist_pkgdata_DATA += haarcascade_frontalface_alt2.xml
-endif
-endif
 endif
 
 bin_PROGRAMS += ltr_recenter
@@ -97,28 +87,18 @@ ltr_recenter_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_recenter_LDADD = -ldl liblinuxtrack.la libltr.la
 ltr_recenter_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} -pthread
 
-if MXML
-if CRYPTO
-  bin_PROGRAMS += ltr_extractor
-  man_MANS += ltr_extractor.1
-endif
-endif
+# libmxml and libcrypto are mandatory for the GUI, so this can be added directly
+bin_PROGRAMS += ltr_extractor
+man_MANS += ltr_extractor.1
 
 ltr_extractor_SOURCES = hashing.c game_data.c game_data.h utils.c utils.h
 ltr_extractor_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS) -Iqt_gui
 ltr_extractor_LDADD = -lcrypto -lmxml
 ltr_extractor_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} -pthread
 
-if LIBZ
-pkglib_LTLIBRARIES += libtir.la
-dist_pkgdata_DATA += 99-TIR.rules 99-Mickey.rules
-if LIBUSB10
-  pkglib_LTLIBRARIES += libltusb1.la
-endif
-
-#if OPENUSB
-#  pkglib_LTLIBRARIES += libltopenusb.la
-#endif
+if TRACKIR_SUPPORT
+  pkglib_LTLIBRARIES += libtir.la libltusb1.la
+  dist_pkgdata_DATA += 99-TIR.rules 99-Mickey.rules
 endif
 
 pkglib_LTLIBRARIES += libfakeusb.la libp3e.la
@@ -199,7 +179,7 @@ libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFL
 
 libp3e_la_SOURCES = ps3eye_driver.c ps3eye_driver.h runloop.c runloop.h
 libp3e_la_CFLAGS = ${AM_CFLAGS}
-libp3e_la_LIBADD = -lusb-1.0 libltr.la
+libp3e_la_LIBADD = libltusb1.la libltr.la
 libp3e_la_LDFLAGS = -export-symbols "${srcdir}/ps3eye.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
 
 libp3eft_la_SOURCES = ps3eye_driver.c ps3eye_driver.h runloop.c runloop.h facetrack.cpp facetrack.h

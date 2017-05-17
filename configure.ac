@@ -32,24 +32,44 @@ AM_PROG_CC_C_O
 PKG_PROG_PKG_CONFIG
 
 # Checks for libraries.
+# need math
 AC_CHECK_LIB([m], [sqrt], [LIBM=true], [AC_MSG_FAILURE([I need libm!])])
-AC_CHECK_LIB([z], [gzopen], [LIBZ=true])
+# server is multithreaded, so we need this
 AC_CHECK_LIB([pthread], [pthread_create], [LIBPTHREAD=true], [AC_MSG_FAILURE([libpthread not found!])])
-#AC_CHECK_LIB([openusb], [openusb_init], [LIBOPENUSB=true])
+# needed to extract the game data from the NP's software
+AC_CHECK_LIB([mxml], [mxmlNewXML], [LIBMXML=true], [AC_MSG_FAILURE([libmxml not found!])], [-pthread])
+AC_CHECK_HEADER([mxml.h], [], [AC_MSG_FAILURE([mxml.h is needed for ltr_gui compilation!])])
+# needed for the data extraction from the NP's software
+AC_CHECK_LIB([crypto], [SHA1], [LIBCRYPTO=true], [AC_MSG_FAILURE([libcrypto not found!])])
+
+# Qt is needed for the GUI
+AC_PATH_PROGS(QMAKE_PATH, [qmake qmake-qt4])
+
+
+# used to decompress the TrackIR firmware, if necessary
+AC_CHECK_LIB([z], [gzopen], [LIBZ=true])
+# necessary for TrackIR
 AC_CHECK_LIB([usb-1.0], [libusb_init], [LIBUSB10=true])
+# used to communicate with a Wiimote
 AC_CHECK_LIB([cwiid], [cwiid_open], [LIBCWIID=true])
+# used by the osc frontend
 AC_CHECK_LIB([lo], [lo_send_bundle], [LIBLO=true])
 AC_CHECK_LIB([lo], [lo_bundle_free_recursive], [AC_DEFINE([HAVE_NEW_LIBLO], [1],
       [New version of liblo containing lo_bundle_free_recursive available])])
-AC_CHECK_LIB([mxml], [mxmlNewXML], [LIBMXML=true], [AC_MSG_FAILURE([libmxml not found!])], [-pthread])
-AC_CHECK_LIB([crypto], [SHA1], [LIBCRYPTO=true])
 
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdint.h assert.h])
 AC_CHECK_HEADERS([stdlib.h unistd.h netdb.h sys/socket.h fcntl.h sys/ioctl.h])
 
-AC_PATH_PROGS(QMAKE_PATH, [qmake-qt4 qmake])
+# Checks for library functions.
+AC_CHECK_FUNCS([atexit])
+AC_CHECK_FUNCS([memset])
+AC_CHECK_FUNCS([select])
+AC_CHECK_FUNCS([socket])
+AC_CHECK_FUNCS([strerror])
+AC_CHECK_FUNCS([gettimeofday])
+
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -63,7 +83,7 @@ AC_C_INLINE
 
 AC_CANONICAL_HOST
 
-
+# used by the webcam driver on Linux
 AC_CHECK_TYPE([struct v4l2_frmsizeenum],
   [
     AC_DEFINE([V4L2], [],[Use videodev2.h (V4L2)])
@@ -80,10 +100,12 @@ AC_CHECK_HEADER([libv4l2.h],
   ], [], []
 )
 
-AC_CHECK_HEADER([mxml.h], [], [AC_MSG_FAILURE([mxml.h is needed for ltr_gui compilation!])])
 AC_CHECK_HEADER([linux/uinput.h], [build_mickey=yes], [build_mickey=no])
 
+# if wine64 is present, try building the 64bit binaries too
 AC_CHECK_PROG([with_wine64], [wine64], [yes])
+
+#needed to create an installer for the linuxtrack-wine
 AC_CHECK_PROG([with_makensis], [makensis], [yes])
 
 XPL_CPPFLAGS=
@@ -107,6 +129,7 @@ AC_ARG_ENABLE([ltr_32lib_on_x64],
 		[with_ltr_32lib_on_x64=yes]
 )
 
+# needed to have the right libraries to link against
 WINE_LIBS=
 AC_ARG_WITH([wine-libs],
             [AS_HELP_STRING([--with-wine-libs],
@@ -121,6 +144,7 @@ AC_ARG_WITH([wine64-libs],
             [WINE64_LIBS=${with_wine64_libs}]
 )
 
+# is this needed anymore?
 LIB32DIR="lib32"
 AC_ARG_WITH([lib32-dir],
             [AS_HELP_STRING([--with-lib32-dir],
@@ -129,7 +153,7 @@ AC_ARG_WITH([lib32-dir],
 )
 
 
-
+# checking that winegcc works...
 BCK_CC="$CC"
 BCK_CFLAGS="$CFLAGS"
 BCK_CPPFLAGS="$CPPFLAGS"
@@ -189,7 +213,7 @@ AS_IF([case $host_os in darwin*) true;; *) false;; esac],
   ]
 )
 
-m4_ifdef([PKG_CHECK_MODULES], [PKG_CHECK_MODULES([OPENCV], [opencv >= 2.0])])
+m4_ifdef([PKG_CHECK_MODULES], [PKG_CHECK_MODULES([OPENCV], [opencv >= 2.0], [], [AC_MSG_RESULT([Opencl not present.])])])
 
 
 AC_SUBST([OPENCV_CFLAGS])
@@ -198,15 +222,19 @@ AC_SUBST([WINE_LIBS])
 AC_SUBST([WINE64_LIBS])
 AC_SUBST([LIB32DIR])
 
-
+# nasty... How about crosscompilation?
 case "$host_cpu" in
 i[[3456]]86) with_64_bit=no ;;
 x86_64) with_64_bit=yes ;;
 *) AC_MSG_ERROR([unsupported CPU type]) ;;
 esac
 
-AS_IF([((test "x$pkg_cv_OPENCV_CFLAGS" != x) && (test "x$pkg_cv_OPENCV_LIBS" != x)) ||
-       ((test "x$OPENCV_CFLAGS" != x) && (test "x$OPENCV_LIBS" != x))],
+AS_IF([(test  "x$with_libv4l2" = xyes) || (test  "x$with_darwin" = xyes)],
+				[webcam_support=yes], [webcam_support=yes])
+
+AS_IF([(test "x$webcam_support" = xyes) &&
+       (((test "x$pkg_cv_OPENCV_CFLAGS" != x) && (test "x$pkg_cv_OPENCV_LIBS" != x)) ||
+       ((test "x$OPENCV_CFLAGS" != x) && (test "x$OPENCV_LIBS" != x)))],
                                 [build_face_tracker=yes], [build_face_tracker=no])
 
 AS_IF([(test "x$WINEGCC32_COMPILES" = xyes) && (test "x$WINEGPP32_COMPILES" = xyes) &&
@@ -215,32 +243,28 @@ AS_IF([(test "x$WINEGCC32_COMPILES" = xyes) && (test "x$WINEGPP32_COMPILES" = xy
 AS_IF([(test "x$WINEGCC_COMPILES" = xyes) && (test "x$WINEGPP_COMPILES" = xyes) &&
   (test "x$with_makensis" = xyes) ], [build_wine64_plugin=yes], [build_wine64_plugin=no])
 
+AS_IF([test  "x$ac_cv_lib_lo_lo_send_bundle" = xyes],
+                                [build_osc_support=yes], [buildt_osc_support=no])
+
+AS_IF([(test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes) || (test  "x$with_darwin" = xyes)],
+                                [wiimote_support=yes], [wiimote_support=no])
+
+AS_IF([(test  "x$ac_cv_lib_usb_1_0_libusb_init" = xyes) &&
+       (test "x$ac_cv_lib_z_gzopen" = xyes)], 
+       [trackir_support=yes], [trackir_support=no])
 
 AM_CONDITIONAL(XPLANE_PLUGIN, [test x$build_xplane_plugin = xyes])
 AM_CONDITIONAL(CWIID, [test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes])
-AM_CONDITIONAL(LO, [test "x$ac_cv_lib_lo_lo_send_bundle" = xyes])
-AM_CONDITIONAL(V4L2, [test x$with_v4l2 = xyes])
-AM_CONDITIONAL(LIBV4L2, [test x$with_libv4l2 = xyes])
+AM_CONDITIONAL(OSC_SUPPORT, [test "x$build_osc_support" = xyes])
+AM_CONDITIONAL(WEBCAM_SUPPORT, [test x$webcam_support = xyes])
 AM_CONDITIONAL(DARWIN, [test x$with_darwin = xyes])
-AM_CONDITIONAL(LIBUSB10, [test "x$ac_cv_lib_usb_1_0_libusb_init" = xyes])
-AM_CONDITIONAL(LIBZ, [test  "x$ac_cv_lib_z_gzopen" = xyes])
+AM_CONDITIONAL(TRACKIR_SUPPORT, [test x$trackir_support = xyes])
 AM_CONDITIONAL(X64, [test  "x$with_64_bit" = xyes])
 AM_CONDITIONAL([LTR32ON64], [test  "x$with_ltr_32lib_on_x64" = xyes])
 AM_CONDITIONAL(FACE_TRACKER, [test x$build_face_tracker = xyes])
 AM_CONDITIONAL(MICKEY, [test x$build_mickey = xyes])
 AM_CONDITIONAL(WINE_PLUGIN, [test x$build_wine_plugin = xyes])
 AM_CONDITIONAL(WINE64, [test x$build_wine64_plugin = xyes])
-AM_CONDITIONAL(CRYPTO, [test  "x$ac_cv_lib_crypto_SHA1" = xyes])
-AM_CONDITIONAL(MXML, [test  "x$ac_cv_lib_mxml_mxmlNewXML" = xyes])
-
-# Checks for library functions.
-AC_CHECK_FUNCS([atexit])
-AC_CHECK_FUNCS([memset])
-AC_CHECK_FUNCS([select])
-AC_CHECK_FUNCS([socket])
-AC_CHECK_FUNCS([strerror])
-AC_CHECK_FUNCS([gettimeofday])
-
 
 AC_CONFIG_FILES([
  Makefile
@@ -270,18 +294,17 @@ AC_CONFIG_FILES([
 ])
 AC_OUTPUT
 
-AC_MSG_NOTICE([==============================================================]);
+AC_MSG_NOTICE([===============================================================]);
+AC_MSG_NOTICE([===                         Summary                         ===]);
+AC_MSG_NOTICE([===============================================================]);
 AC_MSG_CHECKING([Webcam support])
-AS_IF([(test  "x$with_libv4l2" = xyes) || (test  "x$with_darwin" = xyes)],
-								[AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
+AS_IF([(test  "x$webcam_support" = xyes)], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 AC_MSG_CHECKING([Wiimote support])
-AS_IF([(test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes) || (test  "x$with_darwin" = xyes)],
-                                [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
+AS_IF([(test  "x$wiimote_support" = xyes)], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 AC_MSG_CHECKING([TrackIR support])
-AS_IF([(test  "x$ac_cv_lib_usb_1_0_libusb_init" = xyes) \
-             && (test "x$ac_cv_lib_z_gzopen" = xyes)], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
+AS_IF([(test  "x$trackir_support" = xyes)], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 AC_MSG_CHECKING([Facetracker support])
 AS_IF([(test  "x$build_face_tracker" = xyes)], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
@@ -296,7 +319,7 @@ AC_MSG_CHECKING([Wine plugin])
 AS_IF([test  "x$build_wine_plugin" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 AC_MSG_CHECKING([OSC support])
-AS_IF([test  "x$ac_cv_lib_lo_lo_send_bundle" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
+AS_IF([test  "x$build_osc_support" = xyes], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no])])
 
 
 

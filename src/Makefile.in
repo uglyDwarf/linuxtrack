@@ -93,28 +93,25 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = ltr_server1$(EXEEXT) $(am__EXEEXT_1) \
-	ltr_recenter$(EXEEXT) $(am__EXEEXT_2) ltr_pipe$(EXEEXT)
+	ltr_recenter$(EXEEXT) ltr_extractor$(EXEEXT) ltr_pipe$(EXEEXT)
 @DARWIN_FALSE@am__append_1 = libjoy.la
 @CWIID_TRUE@am__append_2 = libwii.la
 @CWIID_TRUE@am__append_3 = wii_server.1
-@LO_TRUE@am__append_4 = osc_server
-@LIBV4L2_TRUE@@V4L2_TRUE@am__append_5 = libwc.la
-@FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@am__append_6 = libft.la libp3eft.la
-@FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@am__append_7 = haarcascade_frontalface_alt2.xml
-@CRYPTO_TRUE@@MXML_TRUE@am__append_8 = ltr_extractor
-@CRYPTO_TRUE@@MXML_TRUE@am__append_9 = ltr_extractor.1
-@LIBZ_TRUE@am__append_10 = libtir.la
-@LIBZ_TRUE@am__append_11 = 99-TIR.rules 99-Mickey.rules
-@LIBUSB10_TRUE@@LIBZ_TRUE@am__append_12 = libltusb1.la
-@DARWIN_TRUE@am__append_13 = libmacwc.la
-@XPLANE_PLUGIN_TRUE@am__append_14 = xlinuxtrack9.la
-@LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am__append_15 = xlinuxtrack9_32.la
-@MICKEY_TRUE@am__append_16 = mickey/mickey
-@MICKEY_TRUE@am__append_17 = LTR_MICKEY_TARGET_INST
-@MICKEY_TRUE@am__append_18 = LTR_MICKEY_TARGET_UNINST
-@CWIID_TRUE@am__append_19 = wii_server/wii_server
-@CWIID_TRUE@am__append_20 = LTR_WII_TARGET_INST
-@CWIID_TRUE@am__append_21 = LTR_WII_TARGET_UNINST
+@OSC_SUPPORT_TRUE@am__append_4 = osc_server
+@WEBCAM_SUPPORT_TRUE@am__append_5 = libwc.la
+@FACE_TRACKER_TRUE@am__append_6 = libft.la libp3eft.la
+@FACE_TRACKER_TRUE@am__append_7 = haarcascade_frontalface_alt2.xml
+@TRACKIR_SUPPORT_TRUE@am__append_8 = libtir.la libltusb1.la
+@TRACKIR_SUPPORT_TRUE@am__append_9 = 99-TIR.rules 99-Mickey.rules
+@DARWIN_TRUE@am__append_10 = libmacwc.la
+@XPLANE_PLUGIN_TRUE@am__append_11 = xlinuxtrack9.la
+@LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am__append_12 = xlinuxtrack9_32.la
+@MICKEY_TRUE@am__append_13 = mickey/mickey
+@MICKEY_TRUE@am__append_14 = LTR_MICKEY_TARGET_INST
+@MICKEY_TRUE@am__append_15 = LTR_MICKEY_TARGET_UNINST
+@CWIID_TRUE@am__append_16 = wii_server/wii_server
+@CWIID_TRUE@am__append_17 = LTR_WII_TARGET_INST
+@CWIID_TRUE@am__append_18 = LTR_WII_TARGET_UNINST
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -190,9 +187,7 @@ libft_la_OBJECTS = $(am_libft_la_OBJECTS)
 libft_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(libft_la_CXXFLAGS) \
 	$(CXXFLAGS) $(libft_la_LDFLAGS) $(LDFLAGS) -o $@
-@FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@am_libft_la_rpath =  \
-@FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@	-rpath \
-@FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@	$(pkglibdir)
+@FACE_TRACKER_TRUE@am_libft_la_rpath = -rpath $(pkglibdir)
 libjoy_la_LIBADD =
 am_libjoy_la_OBJECTS = runloop.lo joy.lo
 libjoy_la_OBJECTS = $(am_libjoy_la_OBJECTS)
@@ -243,7 +238,7 @@ libltusb1_la_OBJECTS = $(am_libltusb1_la_OBJECTS)
 libltusb1_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libltusb1_la_CFLAGS) \
 	$(CFLAGS) $(libltusb1_la_LDFLAGS) $(LDFLAGS) -o $@
-@LIBUSB10_TRUE@@LIBZ_TRUE@am_libltusb1_la_rpath = -rpath $(pkglibdir)
+@TRACKIR_SUPPORT_TRUE@am_libltusb1_la_rpath = -rpath $(pkglibdir)
 libmacwc_la_DEPENDENCIES = libltr.la
 am_libmacwc_la_OBJECTS = libmacwc_la-macwebcam_driver.lo \
 	libmacwc_la-runloop.lo
@@ -259,7 +254,7 @@ libmacwii_la_OBJECTS = $(am_libmacwii_la_OBJECTS)
 libmacwii_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libmacwii_la_CFLAGS) \
 	$(CFLAGS) $(libmacwii_la_LDFLAGS) $(LDFLAGS) -o $@
-libp3e_la_DEPENDENCIES = libltr.la
+libp3e_la_DEPENDENCIES = libltusb1.la libltr.la
 am_libp3e_la_OBJECTS = libp3e_la-ps3eye_driver.lo libp3e_la-runloop.lo
 libp3e_la_OBJECTS = $(am_libp3e_la_OBJECTS)
 libp3e_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -272,23 +267,21 @@ libp3eft_la_OBJECTS = $(am_libp3eft_la_OBJECTS)
 libp3eft_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(libp3eft_la_CXXFLAGS) \
 	$(CXXFLAGS) $(libp3eft_la_LDFLAGS) $(LDFLAGS) -o $@
-@FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@am_libp3eft_la_rpath =  \
-@FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@	-rpath \
-@FACE_TRACKER_TRUE@@LIBV4L2_TRUE@@V4L2_TRUE@	$(pkglibdir)
+@FACE_TRACKER_TRUE@am_libp3eft_la_rpath = -rpath $(pkglibdir)
 libtir_la_DEPENDENCIES = libltr.la
 am_libtir_la_OBJECTS = tir_hw.lo tir_img.lo tir_driver.lo runloop.lo
 libtir_la_OBJECTS = $(am_libtir_la_OBJECTS)
 libtir_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(libtir_la_LDFLAGS) $(LDFLAGS) -o $@
-@LIBZ_TRUE@am_libtir_la_rpath = -rpath $(pkglibdir)
+@TRACKIR_SUPPORT_TRUE@am_libtir_la_rpath = -rpath $(pkglibdir)
 libwc_la_DEPENDENCIES = libltr.la
 am_libwc_la_OBJECTS = libwc_la-webcam_driver.lo libwc_la-runloop.lo
 libwc_la_OBJECTS = $(am_libwc_la_OBJECTS)
 libwc_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libwc_la_CFLAGS) \
 	$(CFLAGS) $(libwc_la_LDFLAGS) $(LDFLAGS) -o $@
-@LIBV4L2_TRUE@@V4L2_TRUE@am_libwc_la_rpath = -rpath $(pkglibdir)
+@WEBCAM_SUPPORT_TRUE@am_libwc_la_rpath = -rpath $(pkglibdir)
 libwii_la_DEPENDENCIES = libltr.la
 am_libwii_la_OBJECTS = libwii_la-wiimote_driver.lo \
 	libwii_la-runloop.lo
@@ -321,8 +314,7 @@ xlinuxtrack9_32_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(xlinuxtrack9_32_la_LDFLAGS) $(LDFLAGS) -o $@
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am_xlinuxtrack9_32_la_rpath =  \
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@	-rpath $(pkglibdir)
-@LO_TRUE@am__EXEEXT_1 = osc_server$(EXEEXT)
-@CRYPTO_TRUE@@MXML_TRUE@am__EXEEXT_2 = ltr_extractor$(EXEEXT)
+@OSC_SUPPORT_TRUE@am__EXEEXT_1 = osc_server$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
 am_ltr_extractor_OBJECTS = ltr_extractor-hashing.$(OBJEXT) \
 	ltr_extractor-game_data.$(OBJEXT) \
@@ -650,19 +642,14 @@ with_wine64 = @with_wine64@
 @DARWIN_FALSE@FT_LDFLAGS = '-Wl,-rpath,$(libdir)'
 @DARWIN_TRUE@FT_LDFLAGS = 
 man_MANS = ltr_gui.1 ltr_server1.1 mickey.1 $(am__append_3) \
-	$(am__append_9) ltr_pipe.1
-
-#if OPENUSB
-#  pkglib_LTLIBRARIES += libltopenusb.la
-#endif
+	ltr_extractor.1 ltr_pipe.1
 pkglib_LTLIBRARIES = libltr.la libmacwii.la liblinuxtrack.la \
 	$(am__append_1) $(am__append_2) $(am__append_5) \
-	$(am__append_6) $(am__append_10) $(am__append_12) \
-	libfakeusb.la libp3e.la $(am__append_13) $(am__append_14) \
-	$(am__append_15)
+	$(am__append_6) $(am__append_8) libfakeusb.la libp3e.la \
+	$(am__append_10) $(am__append_11) $(am__append_12)
 dist_pkgdata_DATA = linuxtrack1.conf linuxtrack.c \
 	linuxtrack_hello_world.c linuxtrack_hello_world_adv.c \
-	$(am__append_7) $(am__append_11)
+	$(am__append_7) $(am__append_9)
 l32libdir = $(prefix)/$(LIB32DIR)/linuxtrack
 @DARWIN_FALSE@@LTR32ON64_TRUE@@X64_TRUE@l32lib_LTLIBRARIES = liblinuxtrack32.la
 liblinuxtrack32_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h \
@@ -675,11 +662,6 @@ liblinuxtrack_int_la_SOURCES = linuxtrack.c linuxtrack.h
 libfacetrack_int_la_SOURCES = facetrack.cpp facetrack.h
 libfacetrack_int_la_CFLAGS = $(OPENCV_CFLAGS)
 libfacetrack_int_la_CXXFLAGS = $(OPENCV_CFLAGS)
-
-#ltr_server_SOURCES = ltr_server.c ipc_utils.c ipc_utils.h utils.c utils.h
-#ltr_server_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
-#ltr_server_LDADD = -lpthread libltr.la
-#ltr_server_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${LTR_SERVER_FLAGS}
 ltr_server1_SOURCES = ltr_srv_comm.c ltr_srv_comm.h ltr_srv_slave.c ltr_srv_slave.h \
 	ltr_srv_master.cpp ltr_srv_master.h ltr_server1.c ipc_utils.c ipc_utils.h
 
@@ -760,7 +742,7 @@ libft_la_LIBADD = libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
 libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS) $(FT_LDFLAGS)
 libp3e_la_SOURCES = ps3eye_driver.c ps3eye_driver.h runloop.c runloop.h
 libp3e_la_CFLAGS = ${AM_CFLAGS}
-libp3e_la_LIBADD = -lusb-1.0 libltr.la
+libp3e_la_LIBADD = libltusb1.la libltr.la
 libp3e_la_LDFLAGS = -export-symbols "${srcdir}/ps3eye.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
 libp3eft_la_SOURCES = ps3eye_driver.c ps3eye_driver.h runloop.c runloop.h facetrack.cpp facetrack.h
 libp3eft_la_CFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
@@ -792,11 +774,11 @@ osc_server_LDFLAGS = $(LINUXFLAGS) -pthread -llo -ldl
 AM_YFLAGS = -d --name-prefix ltr_int_parser_
 AM_LFLAGS = -i
 BUILT_SOURCES = pref_flex.cpp pref_bison.cpp pref_bison.hpp
-noinst_SCRIPTS = qt_gui/ltr_gui $(am__append_16) $(am__append_19)
-hook_inst_targets = LTR_QT_GUI_TARGET_INST $(am__append_17) \
-	$(am__append_20)
-hook_uninst_targets = LTR_QT_GUI_TARGET_UNINST $(am__append_18) \
-	$(am__append_21)
+noinst_SCRIPTS = qt_gui/ltr_gui $(am__append_13) $(am__append_16)
+hook_inst_targets = LTR_QT_GUI_TARGET_INST $(am__append_14) \
+	$(am__append_17)
+hook_uninst_targets = LTR_QT_GUI_TARGET_UNINST $(am__append_15) \
+	$(am__append_18)
 EXTRA_DIST = qt_gui/ltr_show.h qt_gui/help_view.cpp qt_gui/ltr_tracking.h \
 qt_gui/scp_form.ui qt_gui/logview.ui qt_gui/clip.png qt_gui/webcam_prefs.cpp \
 qt_gui/scview.h qt_gui/webcam_ft_prefs.h qt_gui/scview.cpp qt_gui/dl.ui \

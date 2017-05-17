@@ -636,10 +636,6 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
-MXML_FALSE
-MXML_TRUE
-CRYPTO_FALSE
-CRYPTO_TRUE
 WINE64_FALSE
 WINE64_TRUE
 WINE_PLUGIN_FALSE
@@ -652,18 +648,14 @@ LTR32ON64_FALSE
 LTR32ON64_TRUE
 X64_FALSE
 X64_TRUE
-LIBZ_FALSE
-LIBZ_TRUE
-LIBUSB10_FALSE
-LIBUSB10_TRUE
+TRACKIR_SUPPORT_FALSE
+TRACKIR_SUPPORT_TRUE
 DARWIN_FALSE
 DARWIN_TRUE
-LIBV4L2_FALSE
-LIBV4L2_TRUE
-V4L2_FALSE
-V4L2_TRUE
-LO_FALSE
-LO_TRUE
+WEBCAM_SUPPORT_FALSE
+WEBCAM_SUPPORT_TRUE
+OSC_SUPPORT_FALSE
+OSC_SUPPORT_TRUE
 CWIID_FALSE
 CWIID_TRUE
 XPLANE_PLUGIN_FALSE
@@ -15960,6 +15952,7 @@ $as_echo "no" >&6; }
 fi
 
 # Checks for libraries.
+# need math
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for sqrt in -lm" >&5
 $as_echo_n "checking for sqrt in -lm... " >&6; }
 if ${ac_cv_lib_m_sqrt+:} false; then :
@@ -16005,46 +15998,7 @@ as_fn_error $? "I need libm!
 See \`config.log' for more details" "$LINENO" 5; }
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for gzopen in -lz" >&5
-$as_echo_n "checking for gzopen in -lz... " >&6; }
-if ${ac_cv_lib_z_gzopen+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lz  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char gzopen ();
-int
-main ()
-{
-return gzopen ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_z_gzopen=yes
-else
-  ac_cv_lib_z_gzopen=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_z_gzopen" >&5
-$as_echo "$ac_cv_lib_z_gzopen" >&6; }
-if test "x$ac_cv_lib_z_gzopen" = xyes; then :
-  LIBZ=true
-fi
-
+# server is multithreaded, so we need this
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_create in -lpthread" >&5
 $as_echo_n "checking for pthread_create in -lpthread... " >&6; }
 if ${ac_cv_lib_pthread_pthread_create+:} false; then :
@@ -16090,7 +16044,200 @@ as_fn_error $? "libpthread not found!
 See \`config.log' for more details" "$LINENO" 5; }
 fi
 
-#AC_CHECK_LIB([openusb], [openusb_init], [LIBOPENUSB=true])
+# needed to extract the game data from the NP's software
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for mxmlNewXML in -lmxml" >&5
+$as_echo_n "checking for mxmlNewXML in -lmxml... " >&6; }
+if ${ac_cv_lib_mxml_mxmlNewXML+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lmxml -pthread $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char mxmlNewXML ();
+int
+main ()
+{
+return mxmlNewXML ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_mxml_mxmlNewXML=yes
+else
+  ac_cv_lib_mxml_mxmlNewXML=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mxml_mxmlNewXML" >&5
+$as_echo "$ac_cv_lib_mxml_mxmlNewXML" >&6; }
+if test "x$ac_cv_lib_mxml_mxmlNewXML" = xyes; then :
+  LIBMXML=true
+else
+  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "libmxml not found!
+See \`config.log' for more details" "$LINENO" 5; }
+fi
+
+ac_fn_c_check_header_mongrel "$LINENO" "mxml.h" "ac_cv_header_mxml_h" "$ac_includes_default"
+if test "x$ac_cv_header_mxml_h" = xyes; then :
+
+else
+  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "mxml.h is needed for ltr_gui compilation!
+See \`config.log' for more details" "$LINENO" 5; }
+fi
+
+
+# needed for the data extraction from the NP's software
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for SHA1 in -lcrypto" >&5
+$as_echo_n "checking for SHA1 in -lcrypto... " >&6; }
+if ${ac_cv_lib_crypto_SHA1+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lcrypto  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char SHA1 ();
+int
+main ()
+{
+return SHA1 ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_crypto_SHA1=yes
+else
+  ac_cv_lib_crypto_SHA1=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypto_SHA1" >&5
+$as_echo "$ac_cv_lib_crypto_SHA1" >&6; }
+if test "x$ac_cv_lib_crypto_SHA1" = xyes; then :
+  LIBCRYPTO=true
+else
+  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "libcrypto not found!
+See \`config.log' for more details" "$LINENO" 5; }
+fi
+
+
+# Qt is needed for the GUI
+for ac_prog in qmake qmake-qt4
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_QMAKE_PATH+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $QMAKE_PATH in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_QMAKE_PATH="$QMAKE_PATH" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_QMAKE_PATH="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+QMAKE_PATH=$ac_cv_path_QMAKE_PATH
+if test -n "$QMAKE_PATH"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $QMAKE_PATH" >&5
+$as_echo "$QMAKE_PATH" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$QMAKE_PATH" && break
+done
+
+
+
+# used to decompress the TrackIR firmware, if necessary
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for gzopen in -lz" >&5
+$as_echo_n "checking for gzopen in -lz... " >&6; }
+if ${ac_cv_lib_z_gzopen+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lz  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char gzopen ();
+int
+main ()
+{
+return gzopen ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_z_gzopen=yes
+else
+  ac_cv_lib_z_gzopen=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_z_gzopen" >&5
+$as_echo "$ac_cv_lib_z_gzopen" >&6; }
+if test "x$ac_cv_lib_z_gzopen" = xyes; then :
+  LIBZ=true
+fi
+
+# necessary for TrackIR
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libusb_init in -lusb-1.0" >&5
 $as_echo_n "checking for libusb_init in -lusb-1.0... " >&6; }
 if ${ac_cv_lib_usb_1_0_libusb_init+:} false; then :
@@ -16131,6 +16278,7 @@ if test "x$ac_cv_lib_usb_1_0_libusb_init" = xyes; then :
   LIBUSB10=true
 fi
 
+# used to communicate with a Wiimote
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for cwiid_open in -lcwiid" >&5
 $as_echo_n "checking for cwiid_open in -lcwiid... " >&6; }
 if ${ac_cv_lib_cwiid_cwiid_open+:} false; then :
@@ -16171,6 +16319,7 @@ if test "x$ac_cv_lib_cwiid_cwiid_open" = xyes; then :
   LIBCWIID=true
 fi
 
+# used by the osc frontend
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for lo_send_bundle in -llo" >&5
 $as_echo_n "checking for lo_send_bundle in -llo... " >&6; }
 if ${ac_cv_lib_lo_lo_send_bundle+:} false; then :
@@ -16253,91 +16402,6 @@ $as_echo "#define HAVE_NEW_LIBLO 1" >>confdefs.h
 
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for mxmlNewXML in -lmxml" >&5
-$as_echo_n "checking for mxmlNewXML in -lmxml... " >&6; }
-if ${ac_cv_lib_mxml_mxmlNewXML+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmxml -pthread $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char mxmlNewXML ();
-int
-main ()
-{
-return mxmlNewXML ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_mxml_mxmlNewXML=yes
-else
-  ac_cv_lib_mxml_mxmlNewXML=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mxml_mxmlNewXML" >&5
-$as_echo "$ac_cv_lib_mxml_mxmlNewXML" >&6; }
-if test "x$ac_cv_lib_mxml_mxmlNewXML" = xyes; then :
-  LIBMXML=true
-else
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "libmxml not found!
-See \`config.log' for more details" "$LINENO" 5; }
-fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for SHA1 in -lcrypto" >&5
-$as_echo_n "checking for SHA1 in -lcrypto... " >&6; }
-if ${ac_cv_lib_crypto_SHA1+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lcrypto  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char SHA1 ();
-int
-main ()
-{
-return SHA1 ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_crypto_SHA1=yes
-else
-  ac_cv_lib_crypto_SHA1=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypto_SHA1" >&5
-$as_echo "$ac_cv_lib_crypto_SHA1" >&6; }
-if test "x$ac_cv_lib_crypto_SHA1" = xyes; then :
-  LIBCRYPTO=true
-fi
-
 
 
 # Checks for header files.
@@ -16368,50 +16432,73 @@ fi
 done
 
 
-for ac_prog in qmake-qt4 qmake
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_QMAKE_PATH+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $QMAKE_PATH in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_QMAKE_PATH="$QMAKE_PATH" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_QMAKE_PATH="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
+# Checks for library functions.
+for ac_func in atexit
+do :
+  ac_fn_c_check_func "$LINENO" "atexit" "ac_cv_func_atexit"
+if test "x$ac_cv_func_atexit" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_ATEXIT 1
+_ACEOF
 
-  ;;
-esac
 fi
-QMAKE_PATH=$ac_cv_path_QMAKE_PATH
-if test -n "$QMAKE_PATH"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $QMAKE_PATH" >&5
-$as_echo "$QMAKE_PATH" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-  test -n "$QMAKE_PATH" && break
 done
+
+for ac_func in memset
+do :
+  ac_fn_c_check_func "$LINENO" "memset" "ac_cv_func_memset"
+if test "x$ac_cv_func_memset" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_MEMSET 1
+_ACEOF
+
+fi
+done
+
+for ac_func in select
+do :
+  ac_fn_c_check_func "$LINENO" "select" "ac_cv_func_select"
+if test "x$ac_cv_func_select" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_SELECT 1
+_ACEOF
+
+fi
+done
+
+for ac_func in socket
+do :
+  ac_fn_c_check_func "$LINENO" "socket" "ac_cv_func_socket"
+if test "x$ac_cv_func_socket" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_SOCKET 1
+_ACEOF
+
+fi
+done
+
+for ac_func in strerror
+do :
+  ac_fn_c_check_func "$LINENO" "strerror" "ac_cv_func_strerror"
+if test "x$ac_cv_func_strerror" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_STRERROR 1
+_ACEOF
+
+fi
+done
+
+for ac_func in gettimeofday
+do :
+  ac_fn_c_check_func "$LINENO" "gettimeofday" "ac_cv_func_gettimeofday"
+if test "x$ac_cv_func_gettimeofday" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_GETTIMEOFDAY 1
+_ACEOF
+
+fi
+done
+
 
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -16626,7 +16713,7 @@ esac
 
 
 
-
+# used by the webcam driver on Linux
 ac_fn_c_check_type "$LINENO" "struct v4l2_frmsizeenum" "ac_cv_type_struct_v4l2_frmsizeenum" "#include  <linux/videodev2.h>
 
 
@@ -16655,17 +16742,6 @@ fi
 
 
 
-ac_fn_c_check_header_mongrel "$LINENO" "mxml.h" "ac_cv_header_mxml_h" "$ac_includes_default"
-if test "x$ac_cv_header_mxml_h" = xyes; then :
-
-else
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "mxml.h is needed for ltr_gui compilation!
-See \`config.log' for more details" "$LINENO" 5; }
-fi
-
-
 ac_fn_c_check_header_mongrel "$LINENO" "linux/uinput.h" "ac_cv_header_linux_uinput_h" "$ac_includes_default"
 if test "x$ac_cv_header_linux_uinput_h" = xyes; then :
   build_mickey=yes
@@ -16675,6 +16751,7 @@ fi
 
 
 
+# if wine64 is present, try building the 64bit binaries too
 # Extract the first word of "wine64", so it can be a program name with args.
 set dummy wine64; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -16712,6 +16789,8 @@ $as_echo "no" >&6; }
 fi
 
 
+
+#needed to create an installer for the linuxtrack-wine
 # Extract the first word of "makensis", so it can be a program name with args.
 set dummy makensis; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -16783,6 +16862,7 @@ else
 fi
 
 
+# needed to have the right libraries to link against
 WINE_LIBS=
 
 # Check whether --with-wine-libs was given.
@@ -16801,6 +16881,7 @@ if test "${with_wine64_libs+set}" = set; then :
 fi
 
 
+# is this needed anymore?
 LIB32DIR="lib32"
 
 # Check whether --with-lib32-dir was given.
@@ -16811,7 +16892,7 @@ fi
 
 
 
-
+# checking that winegcc works...
 BCK_CC="$CC"
 BCK_CFLAGS="$CFLAGS"
 BCK_CPPFLAGS="$CPPFLAGS"
@@ -17044,31 +17125,13 @@ fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$OPENCV_PKG_ERRORS" >&5
 
-	as_fn_error $? "Package requirements (opencv >= 2.0) were not met:
-
-$OPENCV_PKG_ERRORS
-
-Consider adjusting the PKG_CONFIG_PATH environment variable if you
-installed software in a non-standard prefix.
-
-Alternatively, you may set the environment variables OPENCV_CFLAGS
-and OPENCV_LIBS to avoid the need to call pkg-config.
-See the pkg-config man page for more details." "$LINENO" 5
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: Opencl not present." >&5
+$as_echo "Opencl not present." >&6; }
 elif test $pkg_failed = untried; then
      	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
-is in your PATH or set the PKG_CONFIG environment variable to the full
-path to pkg-config.
-
-Alternatively, you may set the environment variables OPENCV_CFLAGS
-and OPENCV_LIBS to avoid the need to call pkg-config.
-See the pkg-config man page for more details.
-
-To get pkg-config, see <http://pkg-config.freedesktop.org/>.
-See \`config.log' for more details" "$LINENO" 5; }
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: Opencl not present." >&5
+$as_echo "Opencl not present." >&6; }
 else
 	OPENCV_CFLAGS=$pkg_cv_OPENCV_CFLAGS
 	OPENCV_LIBS=$pkg_cv_OPENCV_LIBS
@@ -17084,15 +17147,22 @@ fi
 
 
 
-
+# nasty... How about crosscompilation?
 case "$host_cpu" in
 i[3456]86) with_64_bit=no ;;
 x86_64) with_64_bit=yes ;;
 *) as_fn_error $? "unsupported CPU type" "$LINENO" 5 ;;
 esac
 
-if ((test "x$pkg_cv_OPENCV_CFLAGS" != x) && (test "x$pkg_cv_OPENCV_LIBS" != x)) ||
-       ((test "x$OPENCV_CFLAGS" != x) && (test "x$OPENCV_LIBS" != x)); then :
+if (test  "x$with_libv4l2" = xyes) || (test  "x$with_darwin" = xyes); then :
+  webcam_support=yes
+else
+  webcam_support=yes
+fi
+
+if (test "x$webcam_support" = xyes) &&
+       (((test "x$pkg_cv_OPENCV_CFLAGS" != x) && (test "x$pkg_cv_OPENCV_LIBS" != x)) ||
+       ((test "x$OPENCV_CFLAGS" != x) && (test "x$OPENCV_LIBS" != x))); then :
   build_face_tracker=yes
 else
   build_face_tracker=no
@@ -17112,6 +17182,24 @@ else
   build_wine64_plugin=no
 fi
 
+if test  "x$ac_cv_lib_lo_lo_send_bundle" = xyes; then :
+  build_osc_support=yes
+else
+  buildt_osc_support=no
+fi
+
+if (test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes) || (test  "x$with_darwin" = xyes); then :
+  wiimote_support=yes
+else
+  wiimote_support=no
+fi
+
+if (test  "x$ac_cv_lib_usb_1_0_libusb_init" = xyes) &&
+       (test "x$ac_cv_lib_z_gzopen" = xyes); then :
+  trackir_support=yes
+else
+  trackir_support=no
+fi
 
  if test x$build_xplane_plugin = xyes; then
   XPLANE_PLUGIN_TRUE=
@@ -17129,28 +17217,20 @@ else
   CWIID_FALSE=
 fi
 
- if test "x$ac_cv_lib_lo_lo_send_bundle" = xyes; then
-  LO_TRUE=
-  LO_FALSE='#'
+ if test "x$build_osc_support" = xyes; then
+  OSC_SUPPORT_TRUE=
+  OSC_SUPPORT_FALSE='#'
 else
-  LO_TRUE='#'
-  LO_FALSE=
+  OSC_SUPPORT_TRUE='#'
+  OSC_SUPPORT_FALSE=
 fi
 
- if test x$with_v4l2 = xyes; then
-  V4L2_TRUE=
-  V4L2_FALSE='#'
+ if test x$webcam_support = xyes; then
+  WEBCAM_SUPPORT_TRUE=
+  WEBCAM_SUPPORT_FALSE='#'
 else
-  V4L2_TRUE='#'
-  V4L2_FALSE=
-fi
-
- if test x$with_libv4l2 = xyes; then
-  LIBV4L2_TRUE=
-  LIBV4L2_FALSE='#'
-else
-  LIBV4L2_TRUE='#'
-  LIBV4L2_FALSE=
+  WEBCAM_SUPPORT_TRUE='#'
+  WEBCAM_SUPPORT_FALSE=
 fi
 
  if test x$with_darwin = xyes; then
@@ -17161,20 +17241,12 @@ else
   DARWIN_FALSE=
 fi
 
- if test "x$ac_cv_lib_usb_1_0_libusb_init" = xyes; then
-  LIBUSB10_TRUE=
-  LIBUSB10_FALSE='#'
+ if test x$trackir_support = xyes; then
+  TRACKIR_SUPPORT_TRUE=
+  TRACKIR_SUPPORT_FALSE='#'
 else
-  LIBUSB10_TRUE='#'
-  LIBUSB10_FALSE=
-fi
-
- if test  "x$ac_cv_lib_z_gzopen" = xyes; then
-  LIBZ_TRUE=
-  LIBZ_FALSE='#'
-else
-  LIBZ_TRUE='#'
-  LIBZ_FALSE=
+  TRACKIR_SUPPORT_TRUE='#'
+  TRACKIR_SUPPORT_FALSE=
 fi
 
  if test  "x$with_64_bit" = xyes; then
@@ -17224,91 +17296,6 @@ else
   WINE64_TRUE='#'
   WINE64_FALSE=
 fi
-
- if test  "x$ac_cv_lib_crypto_SHA1" = xyes; then
-  CRYPTO_TRUE=
-  CRYPTO_FALSE='#'
-else
-  CRYPTO_TRUE='#'
-  CRYPTO_FALSE=
-fi
-
- if test  "x$ac_cv_lib_mxml_mxmlNewXML" = xyes; then
-  MXML_TRUE=
-  MXML_FALSE='#'
-else
-  MXML_TRUE='#'
-  MXML_FALSE=
-fi
-
-
-# Checks for library functions.
-for ac_func in atexit
-do :
-  ac_fn_c_check_func "$LINENO" "atexit" "ac_cv_func_atexit"
-if test "x$ac_cv_func_atexit" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_ATEXIT 1
-_ACEOF
-
-fi
-done
-
-for ac_func in memset
-do :
-  ac_fn_c_check_func "$LINENO" "memset" "ac_cv_func_memset"
-if test "x$ac_cv_func_memset" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_MEMSET 1
-_ACEOF
-
-fi
-done
-
-for ac_func in select
-do :
-  ac_fn_c_check_func "$LINENO" "select" "ac_cv_func_select"
-if test "x$ac_cv_func_select" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_SELECT 1
-_ACEOF
-
-fi
-done
-
-for ac_func in socket
-do :
-  ac_fn_c_check_func "$LINENO" "socket" "ac_cv_func_socket"
-if test "x$ac_cv_func_socket" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_SOCKET 1
-_ACEOF
-
-fi
-done
-
-for ac_func in strerror
-do :
-  ac_fn_c_check_func "$LINENO" "strerror" "ac_cv_func_strerror"
-if test "x$ac_cv_func_strerror" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_STRERROR 1
-_ACEOF
-
-fi
-done
-
-for ac_func in gettimeofday
-do :
-  ac_fn_c_check_func "$LINENO" "gettimeofday" "ac_cv_func_gettimeofday"
-if test "x$ac_cv_func_gettimeofday" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_GETTIMEOFDAY 1
-_ACEOF
-
-fi
-done
-
 
 
 ac_config_files="$ac_config_files Makefile src/Makefile src/pathconfig.h src/mac/Makefile src/mac/Info.plist src/osc_server_mac/Makefile src/osc_server_mac/OscServer-Info.plist src/local_config.h src/qt_gui/ltr_gui.pro src/wii_server/wii_server.pro src/wine_bridge/Makefile src/wine_bridge/client/Makefile src/wine_bridge/ft_client/Makefile src/wine_bridge/controller/Makefile src/wine_bridge/tester/Makefile src/wine_bridge/ft_tester/Makefile src/wine_bridge/tester/npview.rc src/wine_bridge/ft_tester/fttester.rc src/wine_bridge/views/Makefile src/wine_bridge/ltr_wine64.nsi src/wine_bridge/ltr_wine.nsi doc/Makefile src/linuxtrack.pc src/mickey/mickey.pro"
@@ -17446,28 +17433,20 @@ if test -z "${CWIID_TRUE}" && test -z "${CWIID_FALSE}"; then
   as_fn_error $? "conditional \"CWIID\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${LO_TRUE}" && test -z "${LO_FALSE}"; then
-  as_fn_error $? "conditional \"LO\" was never defined.
+if test -z "${OSC_SUPPORT_TRUE}" && test -z "${OSC_SUPPORT_FALSE}"; then
+  as_fn_error $? "conditional \"OSC_SUPPORT\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${V4L2_TRUE}" && test -z "${V4L2_FALSE}"; then
-  as_fn_error $? "conditional \"V4L2\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${LIBV4L2_TRUE}" && test -z "${LIBV4L2_FALSE}"; then
-  as_fn_error $? "conditional \"LIBV4L2\" was never defined.
+if test -z "${WEBCAM_SUPPORT_TRUE}" && test -z "${WEBCAM_SUPPORT_FALSE}"; then
+  as_fn_error $? "conditional \"WEBCAM_SUPPORT\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${DARWIN_TRUE}" && test -z "${DARWIN_FALSE}"; then
   as_fn_error $? "conditional \"DARWIN\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${LIBUSB10_TRUE}" && test -z "${LIBUSB10_FALSE}"; then
-  as_fn_error $? "conditional \"LIBUSB10\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${LIBZ_TRUE}" && test -z "${LIBZ_FALSE}"; then
-  as_fn_error $? "conditional \"LIBZ\" was never defined.
+if test -z "${TRACKIR_SUPPORT_TRUE}" && test -z "${TRACKIR_SUPPORT_FALSE}"; then
+  as_fn_error $? "conditional \"TRACKIR_SUPPORT\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${X64_TRUE}" && test -z "${X64_FALSE}"; then
@@ -17492,14 +17471,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${WINE64_TRUE}" && test -z "${WINE64_FALSE}"; then
   as_fn_error $? "conditional \"WINE64\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${CRYPTO_TRUE}" && test -z "${CRYPTO_FALSE}"; then
-  as_fn_error $? "conditional \"CRYPTO\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${MXML_TRUE}" && test -z "${MXML_FALSE}"; then
-  as_fn_error $? "conditional \"MXML\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
@@ -19925,11 +19896,15 @@ $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ==============================================================" >&5
-$as_echo "$as_me: ==============================================================" >&6;};
+{ $as_echo "$as_me:${as_lineno-$LINENO}: ===============================================================" >&5
+$as_echo "$as_me: ===============================================================" >&6;};
+{ $as_echo "$as_me:${as_lineno-$LINENO}: ===                         Summary                         ===" >&5
+$as_echo "$as_me: ===                         Summary                         ===" >&6;};
+{ $as_echo "$as_me:${as_lineno-$LINENO}: ===============================================================" >&5
+$as_echo "$as_me: ===============================================================" >&6;};
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking Webcam support" >&5
 $as_echo_n "checking Webcam support... " >&6; }
-if (test  "x$with_libv4l2" = xyes) || (test  "x$with_darwin" = xyes); then :
+if (test  "x$webcam_support" = xyes); then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -19939,7 +19914,7 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking Wiimote support" >&5
 $as_echo_n "checking Wiimote support... " >&6; }
-if (test  "x$ac_cv_lib_cwiid_cwiid_open" = xyes) || (test  "x$with_darwin" = xyes); then :
+if (test  "x$wiimote_support" = xyes); then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -19949,8 +19924,7 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking TrackIR support" >&5
 $as_echo_n "checking TrackIR support... " >&6; }
-if (test  "x$ac_cv_lib_usb_1_0_libusb_init" = xyes) \
-             && (test "x$ac_cv_lib_z_gzopen" = xyes); then :
+if (test  "x$trackir_support" = xyes); then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -20000,7 +19974,7 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking OSC support" >&5
 $as_echo_n "checking OSC support... " >&6; }
-if test  "x$ac_cv_lib_lo_lo_send_bundle" = xyes; then :
+if test  "x$build_osc_support" = xyes; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
