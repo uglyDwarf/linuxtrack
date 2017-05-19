@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include "utils.h"
+#define USB_IMPL_ONLY
 #include "usb_ifc.h"
 #include <math.h>
 #include <string.h>
@@ -1109,20 +1110,44 @@ int ltr_int_tracker_resume(void)
 int ltr_int_tracker_init(struct camera_control_block *ccb)
 {
   (void) ccb;
-  if(sd_init()){
+  usb_err = 0;
+  if(!ltr_int_init_usb()){
+    ltr_int_log_message("Failed to initialize usb!\n");
     return -1;
   }
+
+  if(!ltr_int_find_p3e()){
+    ltr_int_log_message("Can't find the Ps3Eye!\n");
+    goto failed;
+  }
+
+  if(!ltr_int_prepare_device(1, 0)){
+    ltr_int_log_message("Couldn't prepare!\n");
+    goto failed;
+  }
+
+  if(sd_init()){
+    goto failed;
+  }
+  if(!ltr_int_ps3_init_prefs()){
+    goto failed;
+  }
   if(!ltr_int_ps3_get_resolution(&w, &h)){
-    return -1;
+    goto failed;
   }
   ltr_int_prepare_for_processing(w, h);
   return ltr_int_tracker_resume();
+
+ failed:
+  ltr_int_finish_usb(-1);
+  return -1;
 }
 
 int ltr_int_tracker_close(void)
 {
   sd_stopN();
   ltr_int_cleanup_after_processing();
+  ltr_int_finish_usb(-1);
   return 0;
 }
 
@@ -1187,5 +1212,16 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
      *frame_acquired = true;
   }
   return 0;
+}
+
+int ltr_int_ps3eye_found(void)
+{
+  if(!ltr_int_init_usb()){
+    ltr_int_log_message("Failed to initialize usb!\n");
+    return 0;
+  }
+  bool res = ltr_int_find_p3e();
+  ltr_int_finish_usb(-1);
+  return res;
 }
 

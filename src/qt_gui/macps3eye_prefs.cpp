@@ -9,10 +9,10 @@
 #include "dyn_load.h"
 
 
-typedef int (*ltr_int_find_p3e_fun_t)(void);
-static ltr_int_find_p3e_fun_t ltr_int_find_p3e_fun = NULL;
+typedef int (*ltr_int_ps3eye_found_fun_t)(void);
+static ltr_int_ps3eye_found_fun_t ltr_int_ps3eye_found_fun = NULL;
 static lib_fun_def_t functions[] = {
-  {(char *)"ltr_int_find_p3e", (void*) &ltr_int_find_p3e_fun},
+  {(char *)"ltr_int_ps3eye_found", (void*) &ltr_int_ps3eye_found_fun},
   {NULL, NULL}
 };
 
@@ -22,7 +22,7 @@ static bool find_p3e(void)
   void *libhandle = NULL;
   int res = 0;
   if((libhandle = ltr_int_load_library((char *)"libp3e", functions)) != NULL){
-    res = ltr_int_find_p3e_fun();
+    res = ltr_int_ps3eye_found_fun();
     ltr_int_unload_library(libhandle, functions);
   }
   return res;

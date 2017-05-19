@@ -74,11 +74,6 @@ bool ltr_int_find_p3e(void)
   libusb_device **list;
   libusb_device *found = NULL;
 
-  ltr_int_log_message("Initializing the usb.\n");
-  if(!ltr_int_init_usb()){
-    ltr_int_log_message("Failed to initialize usb!\n");
-    return 0;
-  }
   ltr_int_log_message("Requesting device list.\n");
   ssize_t cnt = libusb_get_device_list(usb_context, &list);
   ltr_int_log_message("Device list received (%d devices).\n", cnt);
@@ -86,7 +81,6 @@ bool ltr_int_find_p3e(void)
   int err = 0;
   if (cnt < 0){
     ltr_int_log_message("Error enumerating devices!\n");
-    ltr_int_finish_usb(-1);
     return false;
   }
 
@@ -103,7 +97,6 @@ bool ltr_int_find_p3e(void)
     err = libusb_open(found, &handle);
     if(err){
       ltr_int_log_message("Error opening device!\n");
-      ltr_int_finish_usb(-1);
       return false;
     }
     ltr_int_log_message("Handle opened successfully.\n");
@@ -113,7 +106,6 @@ bool ltr_int_find_p3e(void)
   ltr_int_log_message("Freeing device list.\n");
   libusb_free_device_list(list, 1);
   ltr_int_log_message("Device list freed.\n");
-  ltr_int_finish_usb(-1);
   if(handle != NULL){
     return true;
   }else{
