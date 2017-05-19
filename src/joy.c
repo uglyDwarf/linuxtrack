@@ -538,8 +538,8 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb,
   *frame_acquired = true;
   //f->bitmap = &bm;
 
-  printf("Yaw: %f     Pitch: %f     Roll: %f\n", yaw, pitch, roll);
-  printf("X: %f       Y: %f         Z: %f\n", tx, ty, tz);
+  //printf("Yaw: %f     Pitch: %f     Roll: %f\n", yaw, pitch, roll);
+  //printf("X: %f       Y: %f         Z: %f\n", tx, ty, tz);
 
   return 0;
 }
