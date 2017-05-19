@@ -23,7 +23,7 @@ void Guardian::regTgt(DeviceSetup *ds)
 
 void Guardian::checkDeviceNModel()
 {
-  if((devType == WEBCAM_FT) || (devType == MACWEBCAM_FT)){
+  if((devType == WEBCAM_FT) || (devType == MACWEBCAM_FT) || (devType == MACPS3EYE_FT)){
     //face tracker needs face model
     if(mdlType != MDL_FACE){
       QMessageBox::warning(parentWidget, QString::fromUtf8("Linuxtrack"),
