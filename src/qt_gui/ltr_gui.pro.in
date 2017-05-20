@@ -48,7 +48,7 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            ../ltr_srv_slave.c ../ltr_srv_comm.c plugin_install.cpp profile_setup.cpp \
            profile_selector.cpp xplugin.cpp wine_warn.cpp progress.cpp \
            extractor.cpp ../game_data.c hashing.cpp downloading.cpp wine_launcher.cpp \
-           macps3eye_prefs.cpp macwebcam_info.cpp ../ps3_prefs.c macps3eyeft_prefs.cpp
+           macps3eye_prefs.cpp macwebcam_info.cpp macps3eyeft_prefs.cpp
 
 
 QMAKE_CXXFLAGS += -Wall -Wextra -DHAVE_CONFIG_H -DHELP_BASE="'\""ltr_gui/"\"'" -I @prefix@/include

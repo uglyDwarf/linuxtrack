@@ -1085,7 +1085,11 @@ static unsigned int threshold = 128;
 static void get_bw_image(const unsigned char *source_buf, unsigned char *dest_buf, unsigned int bytes_used)
 {
   unsigned int cntr, cntr1;
-  threshold = ltr_int_ps3_get_threshold();
+  #ifdef OPENCV
+    threshold = 0;
+  #else
+    threshold = ltr_int_ps3_get_threshold();
+  #endif
   for(cntr = cntr1 = 0; cntr < bytes_used; cntr += 2, ++cntr1){
     if(source_buf[cntr] > threshold){
       dest_buf[cntr1] = source_buf[cntr];
@@ -1136,6 +1140,11 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
     goto failed;
   }
   ltr_int_prepare_for_processing(w, h);
+#ifdef OPENCV
+  if(!ltr_int_init_face_detect()){
+    ltr_int_log_message("Couldn't initialize facetracking!\n");
+  }
+#endif
   return ltr_int_tracker_resume();
 
  failed:
@@ -1146,6 +1155,9 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
 int ltr_int_tracker_close(void)
 {
   sd_stopN();
+#ifdef OPENCV
+  ltr_int_stop_face_detect();
+#endif
   ltr_int_cleanup_after_processing();
   ltr_int_finish_usb(-1);
   return 0;

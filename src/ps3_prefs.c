@@ -62,7 +62,7 @@ static int optim_level = 0;
 static char *cascade = NULL;
 static int width, height;
 
-static int ctrl_changed = 0;
+static volatile int ctrl_changed = 0;
 
 static t_control controls[e_NUMCTRLS] = {
   {.def = 0,   .min = -90, .max = 90,  .val = &hue,              .desc = "Hue",
@@ -106,7 +106,9 @@ bool ltr_int_ps3_ctrl_changed(t_controls ctrl)
 
 int ltr_int_ps3_controls_changed(void)
 {
-  return ctrl_changed;
+  int res = ctrl_changed;
+  ctrl_changed = 0;
+  return res;
 }
 
 int ltr_int_ps3_get_ctrl_val(t_controls ctrl)
