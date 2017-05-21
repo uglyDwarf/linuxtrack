@@ -1088,7 +1088,7 @@ static void get_bw_image(const unsigned char *source_buf, unsigned char *dest_bu
   #ifdef OPENCV
     threshold = 0;
   #else
-    threshold = ltr_int_ps3_get_threshold();
+    threshold = ltr_int_wc_get_threshold();
   #endif
   for(cntr = cntr1 = 0; cntr < bytes_used; cntr += 2, ++cntr1){
     if(source_buf[cntr] > threshold){
@@ -1216,8 +1216,8 @@ int ltr_int_tracker_get_frame(struct camera_control_block *ccb, struct frame_typ
 
 #ifndef OPENCV
     ltr_int_to_stripes(&img);
-    ltr_int_stripes_to_blobs(MAX_BLOBS, &(f->bloblist), ltr_int_ps3_get_min_blob(),
-                    ltr_int_ps3_get_max_blob(), &img);
+    ltr_int_stripes_to_blobs(MAX_BLOBS, &(f->bloblist), ltr_int_wc_get_min_blob(),
+                    ltr_int_wc_get_max_blob(), &img);
 #else
     ltr_int_face_detect(&img, &(f->bloblist));
 #endif
