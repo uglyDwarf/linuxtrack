@@ -7,6 +7,8 @@ extern "C" {
 #include <stdbool.h>
 #endif
 
+#include "wc_driver_prefs.h"
+
 typedef enum{
   e_HUE = 0,
   e_SATURATION,
@@ -26,7 +28,6 @@ typedef enum{
 } t_controls;
 
 bool ltr_int_ps3_init_prefs(void);
-
 bool ltr_int_ps3_close_prefs();
 
 bool ltr_int_ps3_set_ctrl_val(t_controls ctrl, int val);
@@ -37,26 +38,8 @@ bool ltr_int_ps3_ctrl_changed(t_controls ctrl);
 //bool ltr_int_ps3_set_resolution(int w, int h);
 bool ltr_int_ps3_get_resolution(int *w, int *h);
 
-int ltr_int_ps3_get_threshold(void);
-bool ltr_int_ps3_set_threshold(int val);
-
-int ltr_int_ps3_get_max_blob(void);
-bool ltr_int_ps3_set_max_blob(int val);
-
-int ltr_int_ps3_get_min_blob(void);
-bool ltr_int_ps3_set_min_blob(int val);
-
 int ltr_int_ps3_get_mode(void);
 bool ltr_int_ps3_set_mode(int val);
-
-int ltr_int_ps3_get_optim_level();
-bool ltr_int_ps3_set_optim_level(int opt);
-
-float ltr_int_ps3_get_eff();
-bool ltr_int_ps3_set_eff(float new_eff);
-
-const char *ltr_int_ps3_get_cascade();
-bool ltr_int_ps3_set_cascade(const char *new_cascade);
 
 #ifdef __cplusplus
 }

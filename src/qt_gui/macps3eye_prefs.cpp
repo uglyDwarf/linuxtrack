@@ -136,9 +136,9 @@ bool MacP3ePrefs::Activate(const QString &ID, bool init)
     }
     ui.WebcamResolutionsMac->setCurrentIndex(index);
 
-    ui.WebcamThresholdMac->setValue(ltr_int_ps3_get_threshold());
-    ui.WebcamMaxBlobMac->setValue(ltr_int_ps3_get_max_blob());
-    ui.WebcamMinBlobMac->setValue(ltr_int_ps3_get_min_blob());
+    ui.WebcamThresholdMac->setValue(ltr_int_wc_get_threshold());
+    ui.WebcamMaxBlobMac->setValue(ltr_int_wc_get_max_blob());
+    ui.WebcamMinBlobMac->setValue(ltr_int_wc_get_min_blob());
     ui.EXPOSURE->setValue(ltr_int_ps3_get_ctrl_val(e_EXPOSURE));
     ui.GAIN->setValue(ltr_int_ps3_get_ctrl_val(e_GAIN));
     ui.BRIGHTNESS->setValue(ltr_int_ps3_get_ctrl_val(e_BRIGHTNESS));
@@ -216,17 +216,17 @@ void MacP3ePrefs::on_WebcamResolutionsMac_activated(int index)
 
 void MacP3ePrefs::on_WebcamThresholdMac_valueChanged(int i)
 {
-  if(!initializing) ltr_int_ps3_set_threshold(i);
+  if(!initializing) ltr_int_wc_set_threshold(i);
 }
 
 void MacP3ePrefs::on_WebcamMinBlobMac_valueChanged(int i)
 {
-  if(!initializing) ltr_int_ps3_set_min_blob(i);
+  if(!initializing) ltr_int_wc_set_min_blob(i);
 }
 
 void MacP3ePrefs::on_WebcamMaxBlobMac_valueChanged(int i)
 {
-  if(!initializing) ltr_int_ps3_set_max_blob(i);
+  if(!initializing) ltr_int_wc_set_max_blob(i);
 }
 
 bool MacP3ePrefs::AddAvailableDevices(QComboBox &combo)

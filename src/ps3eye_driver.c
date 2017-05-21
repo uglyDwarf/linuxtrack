@@ -258,7 +258,7 @@ static void ov534_reg_write(uint16_t reg, uint8_t val)
     return;
   }
 
-  ltr_int_log_message( "SET 01 0000 %04x %02x\n", reg, val);
+  //ltr_int_log_message( "SET 01 0000 %04x %02x\n", reg, val);
   ret = ltr_int_ctrl_data(
           /*LIBUSB_ENDPOINT_OUT*/ (0x00) |
           /*LIBUSB_REQUEST_TYPE_VENDOR*/ (0x02 << 5) |
@@ -283,7 +283,7 @@ static uint8_t ov534_reg_read(uint16_t reg)
           /*LIBUSB_REQUEST_TYPE_VENDOR*/ (0x02 << 5) |
           /*LIBUSB_RECIPIENT_DEVICE*/ (0x00),
           0x01, 0x00, reg, &data, 1);
-  ltr_int_log_message("GET 01 0000 %04x %02x\n", reg, data);
+  //ltr_int_log_message("GET 01 0000 %04x %02x\n", reg, data);
   if(!ret){
     ltr_int_log_message("ov534_reg_read failed\n");
     usb_err = -1;
@@ -345,7 +345,7 @@ static int sccb_check_status()
 
 static void sccb_reg_write(uint8_t reg, uint8_t val)
 {
-  ltr_int_log_message("sccb write: %02x %02x\n", reg, val);
+  //ltr_int_log_message("sccb write: %02x %02x\n", reg, val);
   ov534_reg_write(OV534_REG_SUBADDR, reg);
   ov534_reg_write(OV534_REG_WRITE, val);
   ov534_reg_write(OV534_REG_OPERATION, OV534_OP_WRITE_3);

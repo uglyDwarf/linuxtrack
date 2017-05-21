@@ -2,12 +2,8 @@
 #include "utils.h"
 #include "pref.h"
 #include "pref_global.h"
+#include "wc_driver_prefs.h"
 
-
-static char max_blob_key[] = "Max-blob";
-static char min_blob_key[] = "Min-blob";
-static char threshold_key[] = "Threshold";
-//static char id_key[] = "Capture-device-id";
 static char autogain_key[] = "AutoGain";
 static char awb_key[] = "AWB";
 static char autoexposure_key[] = "AutoExposure";
@@ -23,10 +19,6 @@ static char hue_key[] = "Hue";
 static char hflip_key[] = "HFlip";
 static char vflip_key[] = "VFlip";
 static char saturation_key[] = "Saturation";
-static char cascade_key[] = "Cascade";
-static char exp_filter_key[] = "Exp-filter-factor";
-static char optim_key[] = "Optimization-level";
-
 
 typedef struct{
   int def;
@@ -54,12 +46,6 @@ static int vflip;
 static int plfreq;
 static int fps;
 
-static int threshold = 128;
-static int min_blob = 4;
-static int max_blob = 2500;
-static float exp_filt = 0.1;
-static int optim_level = 0;
-static char *cascade = NULL;
 static int width, height;
 
 static volatile int ctrl_changed = 0;
@@ -217,10 +203,7 @@ bool ltr_int_ps3_init_prefs(void)
   if(dev == NULL){
     return false;
   }
-  
-  ltr_int_get_key_int(dev, max_blob_key, &max_blob);
-  ltr_int_get_key_int(dev, min_blob_key, &min_blob);
-  ltr_int_get_key_int(dev, threshold_key, &threshold);
+  ltr_int_wc_init_prefs();
   ltr_int_get_key_int(dev, autogain_key, &autogain);
   ltr_int_get_key_int(dev, awb_key, &autowhitebalance);
   ltr_int_get_key_int(dev, autoexposure_key, &autoexposure);
@@ -235,19 +218,12 @@ bool ltr_int_ps3_init_prefs(void)
   
   ltr_int_mode_2_wh(mode);
 
-  char *tmp = ltr_int_get_key(dev, cascade_key);
-  if(cascade != NULL){
-    free(cascade);
-  }
-  cascade = tmp;
-  ltr_int_get_key_flt(dev, exp_filter_key, &exp_filt);
-  ltr_int_get_key_int(dev, optim_key, &optim_level);
-
   return true;
 }
 
 bool ltr_int_ps3_close_prefs(void)
 {
+  ltr_int_wc_close_prefs();
   return true;
 }
 
@@ -265,80 +241,5 @@ bool ltr_int_ps3_get_resolution(int *w, int *h)
   *w = width;
   *h = height;
   return true;
-}
-
-
-int ltr_int_ps3_get_threshold(void)
-{
-  return threshold;
-}
-
-bool ltr_int_ps3_set_threshold(int val)
-{
-  threshold = val;
-  return ltr_int_change_key_int(ltr_int_get_device_section(), threshold_key, val);
-}
-
-int ltr_int_ps3_get_max_blob(void)
-{
-  return max_blob;
-}
-
-bool ltr_int_ps3_set_max_blob(int val)
-{
-  max_blob = val;
-  return ltr_int_change_key_int(ltr_int_get_device_section(), max_blob_key, val);
-}
-
-int ltr_int_ps3_get_min_blob(void)
-{
-  return min_blob;
-}
-
-bool ltr_int_ps3_set_min_blob(int val)
-{
-  min_blob = val;
-  return ltr_int_change_key_int(ltr_int_get_device_section(), min_blob_key, val);
-}
-
-int ltr_int_ps3_get_optim_level()
-{
-  return optim_level;
-}
-
-bool ltr_int_ps3_set_optim_level(int opt)
-{
-  optim_level = opt;
-  return ltr_int_change_key_int(ltr_int_get_device_section(), optim_key, opt);
-}
-
-float ltr_int_ps3_get_eff()
-{
-  return exp_filt;
-}
-
-bool ltr_int_ps3_set_eff(float new_eff)
-{
-  char tmp[1024];
-  if(snprintf(tmp, sizeof(tmp), "%g", new_eff) != 0){
-    exp_filt = new_eff;
-    return ltr_int_change_key(ltr_int_get_device_section(), exp_filter_key, tmp);
-  }else{
-    return false;
-  }
-}
-
-const char *ltr_int_ps3_get_cascade()
-{
-  return cascade;
-}
-
-bool ltr_int_ps3_set_cascade(const char *new_cascade)
-{
-  if(cascade != NULL){
-    free(cascade);
-  }
-  cascade = (new_cascade != NULL) ? ltr_int_my_strdup(new_cascade) : NULL;
-  return ltr_int_change_key(ltr_int_get_device_section(), cascade_key, new_cascade);
 }
 

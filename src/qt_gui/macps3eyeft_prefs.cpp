@@ -149,20 +149,20 @@ bool MacP3eFtPrefs::Activate(const QString &ID, bool init)
     ui.AEX->setCheckState((ltr_int_ps3_get_ctrl_val(e_AUTOEXPOSURE)) ? Qt::Checked : Qt::Unchecked);
     ui.PLF50->setCheckState((ltr_int_ps3_get_ctrl_val(e_PLFREQ)) ? Qt::Checked : Qt::Unchecked);
 
-    const char *cascade = ltr_int_ps3_get_cascade();
+    const char *cascade = ltr_int_wc_get_cascade();
     QString cascadePath;
     if((cascade == NULL) || (!QFile::exists(QString::fromUtf8(cascade)))){
       cascadePath = PrefProxy::getDataPath(
                       QString::fromUtf8("/haarcascades/haarcascade_frontalface_alt2.xml"));
-      ltr_int_ps3_set_cascade(cascadePath.toUtf8().constData());
+      ltr_int_wc_set_cascade(cascadePath.toUtf8().constData());
     }else{
       cascadePath = QString::fromUtf8(cascade);
     }
     ui.CascadePathMac->setText(cascadePath);
-    int n = (2.0 / ltr_int_ps3_get_eff()) - 2;
+    int n = (2.0 / ltr_int_wc_get_eff()) - 2;
     ui.ExpFilterFactorMac->setValue(n);
     on_ExpFilterFactorMac_valueChanged(n);
-    n = ltr_int_ps3_get_optim_level();
+    n = ltr_int_wc_get_optim_level();
     ui.OptimLevelMac->setValue(n);
     on_OptimLevelMac_valueChanged(n);
 
@@ -317,7 +317,7 @@ void MacP3eFtPrefs::on_FindCascadeMac_pressed()
 void MacP3eFtPrefs::on_CascadePathMac_editingFinished()
 {
   if(!initializing){
-    ltr_int_ps3_set_cascade(ui.CascadePathMac->text().toUtf8().constData());
+    ltr_int_wc_set_cascade(ui.CascadePathMac->text().toUtf8().constData());
   }
 }
 
@@ -326,14 +326,14 @@ void MacP3eFtPrefs::on_ExpFilterFactorMac_valueChanged(int value)
   float a = 2 / (value + 2.0); //EWMA window size
   //ui.ExpFiltFactorValMac->setText(QString("%1").arg(a, 0, 'g', 2));
   if(!initializing){
-    ltr_int_ps3_set_eff(a);
+    ltr_int_wc_set_eff(a);
   }
 }
 
 void MacP3eFtPrefs::on_OptimLevelMac_valueChanged(int value)
 {
   if(!initializing){
-    ltr_int_ps3_set_optim_level(value);
+    ltr_int_wc_set_optim_level(value);
   }
 }
 
