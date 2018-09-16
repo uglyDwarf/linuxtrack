@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <QtHelpProject version="1.0">
+      <namespace>uglyDwarf.com.mickey.1.0</namespace>
+      <virtualFolder>doc</virtualFolder>
+      <customFilter name="Mickey 0.99.20">
+          <filterAttribute>mickey</filterAttribute>
+          <filterAttribute>0.99.20</filterAttribute>
+      </customFilter>
+      <filterSection>
+          <filterAttribute>mickey</filterAttribute>
+          <filterAttribute>0.99.20</filterAttribute>
+          <toc>
+              <section title="Mickey Manual" ref="help/welcome.htm">
+                <section title="What's new" ref="help/news.htm"/>
+                <section title="Tracking Setup" ref="help/tracking.htm"/>
+                <section title="Miscelaneous Setup" ref="help/misc.htm"/>
+              </section>
+          </toc>
+          <keywords>
+          </keywords>
+          <files>
+              <file>help/*.htm*</file>
+          </files>
+      </filterSection>
+  </QtHelpProject>

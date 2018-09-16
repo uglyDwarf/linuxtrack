@@ -88,9 +88,11 @@
 #include <QtOpenGL>
 #include <QVBoxLayout>
 #include <QVector>
-#include <QWebView>
 #include <QWidget>
 #include <sstream>
-#include <vector> 
+#include <vector>
+#include <QSplitter>
+#include <QHelpEngine>
+#include <QHelpContentWidget>
 #endif
 

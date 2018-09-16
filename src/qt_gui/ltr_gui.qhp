@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <QtHelpProject version="1.0">
+      <namespace>uglyDwarf.com.linuxtrack.1.0</namespace>
+      <virtualFolder>doc</virtualFolder>
+      <customFilter name="Linuxtrack 0.99.20">
+          <filterAttribute>linuxtrack</filterAttribute>
+          <filterAttribute>0.99.20</filterAttribute>
+      </customFilter>
+      <filterSection>
+          <filterAttribute>linuxtrack</filterAttribute>
+          <filterAttribute>0.99.20</filterAttribute>
+          <toc>
+              <section title="Linuxtrack Manual" ref="help/welcome.htm">
+                <section title="What's new" ref="help/news.htm"/>
+                <section title="Hall Of Fame" ref="help/hall_of_fame.htm"/>
+                <section title="Tracker Setup" ref="help/dev_setup.htm"/>
+                <section title="Model Setup" ref="help/model_setup.htm"/>
+                <section title="Tracking Setup" ref="help/axes_setup.htm"/>
+                <section title="Miscelaneous" ref="help/misc.htm"/>
+                <section title="NP Firmware Extractor" ref="help/extractor.htm"/>
+                <section title="XPlane plugin setup" ref="help/xpl_setup.htm"/>
+                <section title="Virtual mouse setup" ref="help/mickey.htm"/>
+                <section title="Linuxtrack Interface" ref="help/interface.htm"/>
+                <section title="Wine games support" ref="help/wine.htm"/>
+              </section>
+          </toc>
+          <keywords>
+          </keywords>
+          <files>
+              <file>help/*.htm*</file>
+              <file>help/*.png</file>
+          </files>
+      </filterSection>
+  </QtHelpProject>

@@ -9,7 +9,7 @@
 <body>
 
 The first step in Linuxtrack configuration is selection of the tracking device.
-Select the device of your choice from the "<strong>Tracking device</strong>" combo box<br> and the device 
+Select the device of your choice from the "<strong>Tracking device</strong>" combo box and the device 
 specific options appear below.
 <p> 
 If you can't find the device you want to use (e.g. web-cam attached after Linuxtrack GUI was started, ...), 
@@ -27,10 +27,11 @@ Supported device types are the following:
 <A href="#Web-cam">Web-cam Setup</A><br>
 <A href="#Web-cam_ft">Web-cam Setup for face tracking</A><br>
 <A href="#TIR">TrackIR Setup (including SmartNav devices)</A><br>
+<A href="#JOY">HID device setup</A><br>
 
 
 <h1><A name="Wiimote">Wiimote Setup</A></h1>
-<img src="Wiimote.png" width="100%" alt="">
+<img src="Wiimote.png" width="100%" >
 <p>If Wiimote is the tracking device of your choice, first of all, make sure you have the Wiimote
 server running (comes along with Linuxtrack) and connected to the Wiimote.
 <p>
@@ -48,7 +49,7 @@ Running state (in this state you are going to spend most of the time after all).
 
 
 <h1><A name="Web-cam">Web-cam Setup</A></h1>
-<img src="Web-cam.png" width="100%" alt="">
+<img src="Webcam.png" width="100%" >
 <p>To configure a web-cam, first of all you have to set the <strong>Pixel Format</strong>.
 The preferred format is YUYV (native UVC web-cam format), but you can experiment and see
 which one works the best for you (just avoid the JPEG/MJPG formats as they aren't supported).
@@ -69,7 +70,7 @@ On Linux you can use the guvcview for this purpose.
 
 
 <h1><A name="Web-cam_ft">Web-cam Setup for face tracking</A></h1>
-<img src="Facetracker.png" width="100%" alt="">
+<img src="Facetracker.png" width="100%" >
 <p>To configure a web-cam, first of all you have to set the <strong>Pixel Format</strong>.
 The preferred format is YUYV (native UVC web-cam format), but you can experiment and see
 which one works the best for you (just avoid the JPEG/MJPG formats as they aren't supported).
@@ -99,7 +100,7 @@ less reliable. Just try it out and see how does it work for you.
 
 
 <h1><A name="TIR">TrackIR/SmartNav Setup</A></h1>
-<img src="Trackir.png" width="100%" alt=""><br>
+<img src="Trackir.png" width="100%" ><br>
 If you are a Mac user, you can skip to the next paragraph now...
 When you intend to use TrackIR on Linux, most probably you'll need to get access rights to the device.
 The easiest way to do that, is to install the 99-TIR.rules file (comes with Linuxtrack) to the udev rules 
@@ -114,9 +115,33 @@ driver package from NP and extracts firmware needed to run the device.
 <A href="#StartTracking">Now you can try to start the tracking to verify the device is set up correctly.</A>
 
 
+<h1><A name="JOY">HID device setup</h1>
+Linuxtrack allows you to use a HID device (joystick, ED tracker, ...) as a source of headtracking information
+(at the moment Linux only).<br>
+
+Select the device you intend to use in the <b>Tracking Device</b> combobox. You'll probably be presented with
+a warning message that you need to use the Absolute model; in that case head to the <b>Model Setup</b> pane,
+select the Absolute model in the <b>Model Name</b> combobox and head back to the <b>Device Setup</b> pane.<br>
+
+You can also select an interface to use for communication with the device. Of the two possibilities (Evdev/Joystick),
+probably the Evdev is a beeter choice, where possible. The reason is, that evdev provides raw data from the device,
+which can be used directly; the joystick interface is dependent on the proper calibration using the jscal command
+(or some GUI equivalent) - without it the device might be off center and not using the full range of available motion.
+<br>
+
+Now you can select the device axes to use for each of available six head rotations/movements. The easiest way
+is to start the tracking by pressing the <b>Start</b> button in the Tracking window and switch to the <b>3D View</b>.
+Go back to the <b>Device Setup</b> and in the <b>Pitch</b> combo select one of the available axes; now wiggle all the
+device axes and see which one will control the pitch in the <b>3D View</b>. If the active axis was intended for
+different rotation/movement, then select it as a source for the appropriate rotation/movement. If the axis works 
+"backwards", go to the <b>Tracking Setup</b> pane and check the <b>Invert</b> checkbox for the rotation/movment in
+question. In the <b>3D View</b> confirm that the axis work as expected and move to the next one.
+<p>
+When done with axes setup, you can jump to the <A href="axes_setup.htm">Tracking Setup</A> chapter.
+
 
 <h1><A name="#StartTracking">Starting the tracking for the first time</A></h1>
-<img src="CamPreview.png" width="100%" alt=""><br>
+<img src="CamPreview.png" width="100%" ><br>
 To start the tracking, switch to the <strong>Tracking window</strong>. 
 There you can start, pause and stop the tracking and there is a button to recenter the tracker
 (needed when your view is off while looking to the center of the screen).

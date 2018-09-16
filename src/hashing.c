@@ -542,6 +542,7 @@ int main(int argc, char *argv[])
           custom_spec = true;
           spec_path = optarg;
         }
+        break;
       case 'h':
         print_help();
         break;

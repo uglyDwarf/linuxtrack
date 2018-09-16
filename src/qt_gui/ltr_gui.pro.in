@@ -11,10 +11,12 @@ INCLUDEPATH += ..
 INCLUDEPATH += @srcdir@
 INCLUDEPATH += @srcdir@/..
 RESOURCES = ltr_rc.qrc
-QT          += opengl network webkit
+#QT          += opengl network webkit
+QT          += opengl network help
 
 contains(QT_VERSION, ^5.*){
-       QT += webkitwidgets widgets
+#       QT += webkitwidgets widgets
+       QT += widgets
 }
 
 VPATH     = @srcdir@
@@ -24,14 +26,15 @@ PRECOMPILED_HEADER = precomp_headers.h
 
 DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
 # Input
-HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h help_view.h \
+HEADERS += ltr_gui.h ltr_show.h ltr_dev_help.h help_view.h\
 	   ltr_gui_prefs.h prefs_link.h tir_prefs.h device_setup.h\
            ltr_model.h window.h glwidget.h objreader.h ltr_profiles.h\
            log_view.h ltr_state.h scp_form.h buffering.h progress.h \
            scurve.h scview.h wiimote_prefs.h tracker.h plugin_install.h \
            profile_setup.h profile_selector.h guardian.h xplugin.h wine_warn.h \
            extractor.h ../game_data.h hashing.h downloading.h wine_launcher.h \
-           macps3eye_prefs.h macwebcam_info.h ../ps3_prefs.h macps3eyeft_prefs.h
+           macps3eye_prefs.h macwebcam_info.h ../ps3_prefs.h macps3eyeft_prefs.h \
+           help_viewer.h
 
 FORMS += ltr_gui.ui dev_help.ui ltr.ui model_creation.ui scurve.ui scp_form.ui \
            logview.ui wii_setup.ui tir_setup.ui \
@@ -48,8 +51,8 @@ SOURCES += main.cpp ltr_gui.cpp ltr_show.cpp ltr_dev_help.cpp \
            ../ltr_srv_slave.c ../ltr_srv_comm.c plugin_install.cpp profile_setup.cpp \
            profile_selector.cpp xplugin.cpp wine_warn.cpp progress.cpp \
            extractor.cpp ../game_data.c hashing.cpp downloading.cpp wine_launcher.cpp \
-           macps3eye_prefs.cpp macwebcam_info.cpp macps3eyeft_prefs.cpp
-
+           macps3eye_prefs.cpp macwebcam_info.cpp macps3eyeft_prefs.cpp \
+           help_viewer.cpp
 
 QMAKE_CXXFLAGS += -Wall -Wextra -DHAVE_CONFIG_H -DHELP_BASE="'\""ltr_gui/"\"'" -I @prefix@/include
 QMAKE_CFLAGS += -Wall -Wextra -DLTR_GUI  -I @prefix@/include
@@ -57,7 +60,6 @@ QMAKE_CFLAGS += -Wall -Wextra -DLTR_GUI  -I @prefix@/include
 QMAKE_CXXFLAGS += $$(CXXFLAGS)
 QMAKE_CFLAGS += $$(CFLAGS)
 QMAKE_LFLAGS += $$(LDFLAGS)
-
 
 unix:!macx {
   QMAKE_CXXFLAGS += -fvisibility=hidden -O2 -Wall -Wextra -Wformat -Wformat-security \
@@ -74,7 +76,7 @@ unix:!macx {
   data.files += sparow_opaq.obj sparow_glass.obj xm8_detail.png sources.txt spec.txt \
                  sphere.obj sphere.png sources_mfc.txt win7.reg
   help.path += @prefix@/share/linuxtrack/help/ltr_gui
-  help.files += help/*
+  help.files += help.qhc help.qch 
   target.path = @prefix@/bin
   INSTALLS += target data help
 }
@@ -91,7 +93,7 @@ macx {
   data.files += sparow_opaq.obj sparow_glass.obj xm8_detail.png ../linuxtrack1.conf \
                 sources_mac.txt spec.txt sphere.obj sphere.png sources_mfc.txt win7.reg
   help.path += ltr_gui.app/Contents/Resources/linuxtrack/help/ltr_gui
-  help.files += help/*
+  help.files += help.qhc help.qch 
   INSTALLS += data help
   ICON = linuxtrack.icns
 }

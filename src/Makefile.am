@@ -11,16 +11,18 @@ if DARWIN
   XLINUXTRACK_CFLAGS = -arch i386 -arch x86_64
   XLINUXTRACK_LDFLAGS = -Wl,-no_arch_warnings -arch i386 -arch x86_64
   LINUXFLAGS =
+  LINUXLDFLAGS =
   ltr_pipe_CPPFLAGS =
   FT_LDFLAGS =
 else
-  LINUXFLAGS = '-Wl,-rpath,$(pkglibdir)' '-DLIB_PATH="$(pkglibdir)/"'
-  SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1 -L/lib32 -L/usr/lib32
+  LINUXFLAGS = '-DLIB_PATH="$(pkglibdir)/"'
+  LINUXLDLFAGS = '-Wl,-rpath,$(pkglibdir)'
+  SYSFLAGS = -DIBM=0 -DAPL=0 -DLIN=1
   QMAKE_FLAGS = -spec linux-g++
   LIBLINUXTRACK_FLAGS = -fpic -fPIC
   LTR_SERVER_FLAGS =
   XLINUXTRACK_CFLAGS =
-  XLINUXTRACK_LDFLAGS = -Wl,--no-warn-search-mismatch
+  XLINUXTRACK_LDFLAGS =  -L/lib32 -L/usr/lib32 -Wl,--no-warn-search-mismatch
   ltr_pipe_CPPFLAGS = -DLINUX
   FT_LDFLAGS = '-Wl,-rpath,$(libdir)'
 endif
@@ -44,7 +46,7 @@ endif
 liblinuxtrack32_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h \
   ipc_utils.c ipc_utils.h
 liblinuxtrack32_la_CFLAGS = $(LINUXFLAGS) -m32
-liblinuxtrack32_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" -m32 $(LINUXFLAGS)
+liblinuxtrack32_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" -m32 $(LINUXLDFLAGS)
 
 noinst_LTLIBRARIES = liblinuxtrack_int.la libfacetrack_int.la
 liblinuxtrack_int_la_SOURCES = linuxtrack.c linuxtrack.h
@@ -56,7 +58,7 @@ ltr_server1_SOURCES = ltr_srv_comm.c ltr_srv_comm.h ltr_srv_slave.c ltr_srv_slav
 	ltr_srv_master.cpp ltr_srv_master.h ltr_server1.c ipc_utils.c ipc_utils.h
 ltr_server1_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_server1_LDADD = -lpthread libltr.la
-ltr_server1_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${LTR_SERVER_FLAGS}
+ltr_server1_LDFLAGS = $(LINUXLDFLAGS) ${SLEOPARD_LDFLAG} ${LTR_SERVER_FLAGS}
 
 if ! DARWIN
 pkglib_LTLIBRARIES += libjoy.la
@@ -85,7 +87,7 @@ bin_PROGRAMS += ltr_recenter
 ltr_recenter_SOURCES = ltr_recenter.c ipc_utils.h ltr_srv_comm.c ltr_srv_comm.h
 ltr_recenter_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_recenter_LDADD = -ldl liblinuxtrack.la libltr.la
-ltr_recenter_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} -pthread
+ltr_recenter_LDFLAGS = $(LINUXLDFLAGS) ${SLEOPARD_LDFLAG} -pthread
 
 # libmxml and libcrypto are mandatory for the GUI, so this can be added directly
 bin_PROGRAMS += ltr_extractor
@@ -94,7 +96,7 @@ man_MANS += ltr_extractor.1
 ltr_extractor_SOURCES = hashing.c game_data.c game_data.h utils.c utils.h
 ltr_extractor_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS) -Iqt_gui
 ltr_extractor_LDADD = -lcrypto -lmxml
-ltr_extractor_LDFLAGS = $(LINUXFLAGS) ${SLEOPARD_LDFLAG} -pthread
+ltr_extractor_LDFLAGS = $(LINUXLDFLAGS) ${SLEOPARD_LDFLAG} -pthread
 
 if TRACKIR_SUPPORT
   pkglib_LTLIBRARIES += libtir.la libltusb1.la
@@ -119,37 +121,37 @@ libltr_la_SOURCES = ../config.h cal.c cal.h list.c list.h dyn_load.c dyn_load.h\
   wc_driver_prefs.h ipc_utils.c ipc_utils.h com_proc.c com_proc.h wii_com.c wii_com.h \
   joy_driver_prefs.c joy_driver_prefs.h ps3_prefs.c ps3_prefs.h
 libltr_la_LIBADD = -lm -lpthread -ldl
-libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+libltr_la_LDFLAGS = -export-symbols-regex '^ltr_int' ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXLDFLAGS)
 libltr_la_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 libltr_la_CXXFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 
 libtir_la_SOURCES = tir.h tir_hw.c tir_hw.h sn4_com.h \
     tir_img.c tir_img.h usb_ifc.h tir_driver.h tir_driver.c runloop.c runloop.h
 libtir_la_LIBADD = -lz libltr.la
-libtir_la_LDFLAGS = -export-symbols "${srcdir}/tir.sym" $(LINUXFLAGS) ${SLEOPARD_LDFLAG}
+libtir_la_LDFLAGS = -export-symbols "${srcdir}/tir.sym" $(LINUXLDFLAGS) ${SLEOPARD_LDFLAG}
 
 libjoy_la_SOURCES = runloop.c runloop.h joy.c
-libjoy_la_LDFLAGS = -export-symbols "${srcdir}/joy_driver.sym" $(LINUXFLAGS)
+libjoy_la_LDFLAGS = -export-symbols "${srcdir}/joy_driver.sym" $(LINUXLDFLAGS)
 
 libltusb1_la_SOURCES = libusb_ifc.c usb_ifc.h
 libltusb1_la_CFLAGS = ${AM_CFLAGS}
 libltusb1_la_LIBADD = -lusb-1.0 libltr.la
-libltusb1_la_LDFLAGS = ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
+libltusb1_la_LDFLAGS = ${SLEOPARD_LDFLAG} $(LINUXLDFLAGS)
 #libltopenusb_la_SOURCES = openusb_ifc.c usb_ifc.h
 #libltopenusb_la_CFLAGS = ${AM_CFLAGS}
 #libltopenusb_la_LIBADD = -lopenusb libltr.la
-#libltopenusb_la_LDFLAGS = ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
+#libltopenusb_la_LDFLAGS = ${SLEOPARD_LDFLAG} $(LINUXLDFLAGS)
 libfakeusb_la_SOURCES = fakeusb.c usb_ifc.h tir_model.cpp tir_model.h tir4_model.cpp \
                         sn4_model.cpp sn3_model.cpp
 libfakeusb_la_CFLAGS = ${AM_CFLAGS}
 libfakeusb_la_CXXFLAGS = ${AM_CFLAGS}
 libfakeusb_la_LIBADD = libltr.la
-libfakeusb_la_LDFLAGS = ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXFLAGS)
+libfakeusb_la_LDFLAGS = ${SLEOPARD_LDFLAG} ${AM_CFLAGS} $(LINUXLDFLAGS)
 
 libwii_la_SOURCES = wiimote_driver.c wiimote_driver.h runloop.c runloop.h
 libwii_la_CFLAGS = ${AM_CFLAGS}
 libwii_la_LIBADD = -lcwiid libltr.la
-libwii_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
+libwii_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${SLEOPARD_LDFLAG} $(LINUXLDFLAGS)
 
 libmacwii_la_SOURCES = macwii_driver.c wii_com.h com_proc.h \
   runloop.c runloop.h wii_driver_prefs.c wii_driver_prefs.h ipc_utils.h
@@ -160,7 +162,7 @@ libmacwii_la_LDFLAGS = -export-symbols "${srcdir}/drivers.sym" ${AM_CFLAGS} ${SL
 libwc_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h
 libwc_la_CFLAGS = ${AM_CFLAGS}
 libwc_la_LIBADD = libltr.la -lv4l2
-libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
+libwc_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXLDFLAGS)
 
 if DARWIN
   pkglib_LTLIBRARIES += libmacwc.la
@@ -175,29 +177,29 @@ libft_la_SOURCES = webcam_driver.c webcam_driver.h runloop.c runloop.h facetrack
 libft_la_CFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_CXXFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libft_la_LIBADD = libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
-libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS) $(FT_LDFLAGS)
+libft_la_LDFLAGS = -export-symbols "${srcdir}/webcam_driver.sym" ${SLEOPARD_LDFLAG} $(LINUXLDFLAGS) $(FT_LDFLAGS)
 
 libp3e_la_SOURCES = ps3eye_driver.c ps3eye_driver.h runloop.c runloop.h
 libp3e_la_CFLAGS = ${AM_CFLAGS}
-libp3e_la_LIBADD = libltusb1.la libltr.la
-libp3e_la_LDFLAGS = -export-symbols "${srcdir}/ps3eye.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS)
+libp3e_la_LIBADD = libltr.la
+libp3e_la_LDFLAGS = -export-symbols "${srcdir}/ps3eye.sym" ${SLEOPARD_LDFLAG} $(LINUXLDFLAGS)
 
 libp3eft_la_SOURCES = ps3eye_driver.c ps3eye_driver.h runloop.c runloop.h facetrack.cpp facetrack.h
 libp3eft_la_CFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
 libp3eft_la_CXXFLAGS = ${AM_CFLAGS} -DOPENCV $(OPENCV_CFLAGS)
-libp3eft_la_LIBADD = libltusb1.la libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
-libp3eft_la_LDFLAGS = -export-symbols "${srcdir}/ps3eye.sym" ${SLEOPARD_LDFLAG} $(LINUXFLAGS) $(FT_LDFLAGS)
+libp3eft_la_LIBADD = libltr.la -lv4l2 -lpthread $(OPENCV_LIBS)
+libp3eft_la_LDFLAGS = -export-symbols "${srcdir}/ps3eye.sym" ${SLEOPARD_LDFLAG} $(LINUXLDFLAGS) $(FT_LDFLAGS)
 
 man_MANS += ltr_pipe.1
 bin_PROGRAMS += ltr_pipe
 ltr_pipe_CPPFLAGS += -D_GNU_SOURCE
 ltr_pipe_SOURCES = ../config.h ltr_pipe.c linuxtrack.h utils.h utils.c linuxtrack.c
 ltr_pipe_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
-ltr_pipe_LDFLAGS = $(LINUXFLAGS) ${LTR_PIPE_FLAGS} -ldl
+ltr_pipe_LDFLAGS = $(LINUXLDFLAGS) ${LTR_PIPE_FLAGS} -ldl
 
 osc_server_SOURCES = osc_server.c linuxtrack.h linuxtrack.c
 osc_server_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
-osc_server_LDFLAGS = $(LINUXFLAGS) -pthread -llo -ldl
+osc_server_LDFLAGS = $(LINUXLDFLAGS) -pthread -llo -ldl
 
 if XPLANE_PLUGIN
 pkglib_LTLIBRARIES += xlinuxtrack9.la
@@ -207,14 +209,14 @@ if LTR32ON64
   xlinuxtrack9_32_la_CFLAGS = ${XPL_CPPFLAGS} $(SYSFLAGS) \
     -fPIC -m32 $(DARWINCFLAGS) ${AM_CFLAGS} $(LINUXFLAGS) ${XLINUXTRACK_CFLAGS}
   xlinuxtrack9_32_la_LDFLAGS = -module -shared -fPIC -m32 $(DARWINFLAGS) -dynamiclib \
-    -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${XLINUXTRACK_LDFLAGS}
+    -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXLDFLAGS) ${SLEOPARD_LDFLAG} ${XLINUXTRACK_LDFLAGS}
   xlinuxtrack9_32_la_LIBADD = -lm -ldl
 endif
 xlinuxtrack9_la_SOURCES = xlinuxtrack9.c linuxtrack.c linuxtrack.h
 xlinuxtrack9_la_CFLAGS = ${XPL_CPPFLAGS} $(SYSFLAGS) \
   -fPIC $(DARWINCFLAGS) ${AM_CFLAGS} $(LINUXFLAGS) ${XLINUXTRACK_CFLAGS}
 xlinuxtrack9_la_LDFLAGS = -module -shared -fPIC $(DARWINFLAGS) -dynamiclib \
-  -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXFLAGS) ${SLEOPARD_LDFLAG} ${XLINUXTRACK_LDFLAGS}
+  -export-symbols "${srcdir}/xlinuxtrack.sym" $(LINUXLDFLAGS) ${SLEOPARD_LDFLAG} ${XLINUXTRACK_LDFLAGS}
 xlinuxtrack9_la_LIBADD = -lm -ldl
 endif
 
@@ -234,15 +236,15 @@ BUILT_SOURCES = pref_flex.cpp pref_bison.cpp pref_bison.hpp
 clean-local: clean-local-check
 .PHONY: clean-local-check
 clean-local-check:
-	-cd qt_gui;$(MAKE) clean
-	-cd mickey;$(MAKE) clean
+	-cd qt_gui;$(MAKE) clean; rm -f help.qch help.qhc
+	-cd mickey;$(MAKE) clean; rm -f help.qch help.qhc
 	-cd wii_server;$(MAKE) clean
 
 distclean-local: distclean-local-check
 .PHONY: distclean-local-check
 distclean-local-check:
-	-cd qt_gui;$(MAKE) distclean
-	-cd mickey;$(MAKE) distclean
+	-cd qt_gui;$(MAKE) distclean; rm -f help.qch help.qhc
+	-cd mickey;$(MAKE) distclean; rm -f help.qch help.qhc
 	-cd wii_server;$(MAKE) distclean
 
 noinst_SCRIPTS = qt_gui/ltr_gui
@@ -266,25 +268,40 @@ if CWIID
   hook_uninst_targets += LTR_WII_TARGET_UNINST
 endif
 
-qt_gui/ltr_gui :
+qt_gui/help.qhc qt_gui/help.qch : qt_gui/ltr_gui.qhcp qt_gui/ltr_gui.qhp qt_gui/help/xpl_setup.htm \
+  qt_gui/help/extractor.htm qt_gui/help/misc.htm qt_gui/help/news.htm qt_gui/help/dev_setup.htm \
+  qt_gui/help/interface.htm qt_gui/help/axes_setup.htm qt_gui/help/mickey.htm qt_gui/help/model_setup.htm \
+  qt_gui/help/hall_of_fame.htm qt_gui/help/wine.htm qt_gui/help/welcome.htm \
+  qt_gui/help/Wiimote.png qt_gui/help/KeysSetup1.png qt_gui/help/JoyButtonsSetup1.png \
+  qt_gui/help/XplBrowse.png qt_gui/help/Webcam.png qt_gui/help/Extractor.png qt_gui/help/XplInstall.png \
+  qt_gui/help/Misc.png qt_gui/help/DetAxis.png qt_gui/help/JoyButtonsSetup4.png qt_gui/help/JoyButtonsSetup5.png \
+  qt_gui/help/3dPreview.png qt_gui/help/ModelCreate.png qt_gui/help/JoyButtonsSetup3.png qt_gui/help/CamPreview.png \
+  qt_gui/help/Tracking.png qt_gui/help/JoyButtonsSetup2.png qt_gui/help/Model.png qt_gui/help/Trackir.png \
+  qt_gui/help/Controller.png qt_gui/help/Facetracker.png
+	pushd qt_gui; qcollectiongenerator -o help.qhc ltr_gui.qhcp; popd
+qt_gui/ltr_gui : qt_gui/help.qhc qt_gui/help.qch
 	pushd qt_gui; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE); popd
 
 wii_server/wii_server :
 	pushd wii_server; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE); popd
 
-mickey/mickey :
-	pushd mickey; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE); popd
+mickey/help.qhc mickey/help.qch : mickey/mickey.qhcp mickey/mickey.qhp \
+  mickey/help/tracking.htm mickey/help/misc.htm mickey/help/news.htm mickey/help/welcome.htm
+	pushd mickey; qcollectiongenerator -o help.qhc; popd
+mickey/mickey : mickey/help.qhc mickey/help.qch
+	pushd mickey; qcollectiongenerator -o help.qhc mickey.qhcp; \
+	${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE); popd
 
 
 install-exec-hook: $(hook_inst_targets)
 
-LTR_QT_GUI_TARGET_INST:
+LTR_QT_GUI_TARGET_INST: qt_gui/help.qhc qt_gui/help.qch
 	pushd qt_gui;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} install; popd
 
 LTR_WII_TARGET_INST:
 	pushd wii_server;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} install; popd
 
-LTR_MICKEY_TARGET_INST:
+LTR_MICKEY_TARGET_INST: mickey/help.qhc mickey/help.qch
 	pushd mickey;  ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE) INSTALL_ROOT=${DESTDIR} install; popd
 
 uninstall-hook: $(hook_uninst_targets)
@@ -360,7 +377,7 @@ mickey/help/news.htm mickey/help/contents.txt mickey/help/welcome.htm mickey/uin
 mickey/keyb.cpp mickey/helpview.ui mickey/keyb_x11.cpp mickey/keyb_x11.h mickey/linuxtrack.icns \
 mickey/mouse.h mickey/mouse_linux.cpp mickey/mouse_mac.cpp mickey/mickey.qrc sn4_model.h \
 mickey/precomp_headers.h wii_server/precomp_headers.h qt_gui/precomp_headers.h ltr_extractor.1 \
-qt_gui/win7.reg
+qt_gui/win7.reg qt_gui/ltr_gui.qhcp qt_gui/ltr_gui.qhp mickey/mickey.qhcp mickey/mickey.qhp
 
 desktopdir = $(datadir)/applications
 desktop_DATA = linuxtrack.desktop linuxtrack-wii.desktop

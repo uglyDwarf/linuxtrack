@@ -1,13 +1,15 @@
+#ifndef HELP_VIEW__H
+#define HELP_VIEW__H
+
 #include <QWidget>
-#include <QFile>
-#include <QTextStream>
-#include <QWebView>
-#include <QSplitter>
-#include <QListWidget>
 #include "ui_logview.h"
-#include "QMap"
+#include "help_viewer.h"
 
 class QSettings;
+class QHelpEngine;
+class QHelpContentWidget;
+class QSplitter;
+class HelpViewWidget;
 
 class HelpViewer : public QWidget{
   Q_OBJECT
@@ -26,16 +28,17 @@ class HelpViewer : public QWidget{
  private slots:
   void on_CloseButton_pressed();
   void followLink(const QUrl &url);
-  void currentTextChanged(const QString &currentText);
+  //void currentTextChanged(const QString &currentText);
+  void helpInitialized();
+  void itemClicked(const QModelIndex &index);
  private:
-  void readFile();
-  void addPage(QString name, QString page);
-  bool ReadContents();
   Ui::LogViewerForm ui;
-  QWebView *viewer;
-  QListWidget *contents;
   QHBoxLayout *layout;
   QSplitter *splitter;
-  QMap<QString, QString> pages;
+  QHelpEngine *helpEngine;
+  QHelpContentWidget *contents;
+  HelpViewWidget *viewer;
 };
+
+#endif
 

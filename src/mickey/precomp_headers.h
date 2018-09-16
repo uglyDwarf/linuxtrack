@@ -45,5 +45,8 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QX11Info>
+#include <QSplitter>
+#include <QHelpEngine>
+#include <QHelpContents>
 #endif
 
