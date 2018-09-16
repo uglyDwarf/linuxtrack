@@ -1765,15 +1765,15 @@ uninstall-man: uninstall-man1
 clean-local: clean-local-check
 .PHONY: clean-local-check
 clean-local-check:
-	-cd qt_gui;$(MAKE) clean
-	-cd mickey;$(MAKE) clean
+	-cd qt_gui;$(MAKE) clean; rm -f help.qch help.qhc
+	-cd mickey;$(MAKE) clean; rm -f help.qch help.qhc
 	-cd wii_server;$(MAKE) clean
 
 distclean-local: distclean-local-check
 .PHONY: distclean-local-check
 distclean-local-check:
-	-cd qt_gui;$(MAKE) distclean
-	-cd mickey;$(MAKE) distclean
+	-cd qt_gui;$(MAKE) distclean; rm -f help.qch help.qhc
+	-cd mickey;$(MAKE) distclean; rm -f help.qch help.qhc
 	-cd wii_server;$(MAKE) distclean
 
 .PHONY: LTR_QT_GUI_TARGET_INST LTR_QT_GUI_TARGET_UNINST \
