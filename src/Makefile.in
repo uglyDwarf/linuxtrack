@@ -99,10 +99,10 @@ bin_PROGRAMS = ltr_server1$(EXEEXT) $(am__EXEEXT_1) \
 @CWIID_TRUE@am__append_3 = wii_server.1
 @OSC_SUPPORT_TRUE@am__append_4 = osc_server
 @WEBCAM_SUPPORT_TRUE@am__append_5 = libwc.la
-@FACE_TRACKER_TRUE@am__append_6 = libft.la libp3eft.la
-@FACE_TRACKER_TRUE@am__append_7 = haarcascade_frontalface_alt2.xml
-@TRACKIR_SUPPORT_TRUE@am__append_8 = libtir.la libltusb1.la
-@TRACKIR_SUPPORT_TRUE@am__append_9 = 99-TIR.rules 99-Mickey.rules
+@TRACKIR_SUPPORT_TRUE@am__append_6 = libtir.la libltusb1.la
+@TRACKIR_SUPPORT_TRUE@am__append_7 = 99-TIR.rules 99-Mickey.rules
+@FACE_TRACKER_TRUE@am__append_8 = libft.la libp3eft.la
+@FACE_TRACKER_TRUE@am__append_9 = haarcascade_frontalface_alt2.xml
 @DARWIN_TRUE@am__append_10 = libmacwc.la
 @XPLANE_PLUGIN_TRUE@am__append_11 = xlinuxtrack9.la
 @LTR32ON64_TRUE@@XPLANE_PLUGIN_TRUE@am__append_12 = xlinuxtrack9_32.la
@@ -458,7 +458,7 @@ NROFF = nroff
 MANS = $(man_MANS)
 am__dist_pkgdata_DATA_DIST = linuxtrack1.conf linuxtrack.c \
 	linuxtrack_hello_world.c linuxtrack_hello_world_adv.c \
-	haarcascade_frontalface_alt2.xml 99-TIR.rules 99-Mickey.rules
+	99-TIR.rules 99-Mickey.rules haarcascade_frontalface_alt2.xml
 DATA = $(desktop_DATA) $(dist_pkgdata_DATA) $(icon_DATA)
 HEADERS = $(include_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)

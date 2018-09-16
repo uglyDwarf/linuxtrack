@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.59])
-AC_INIT([LinuxTrack], [0.99.19], [https://github.com/uglyDwarf/linuxtrack/issues])
+AC_INIT([LinuxTrack], [0.99.19hid], [https://github.com/uglyDwarf/linuxtrack/issues])
 AM_INIT_AUTOMAKE([subdir-objects no-dependencies -Wall -Werror])
 AC_CONFIG_SRCDIR([src/tir4_driver.h])
 AC_CONFIG_HEADERS([config.h])

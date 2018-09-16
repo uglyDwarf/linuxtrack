@@ -77,11 +77,6 @@ if WEBCAM_SUPPORT
   pkglib_LTLIBRARIES += libwc.la
 endif
 
-if FACE_TRACKER
-  pkglib_LTLIBRARIES += libft.la libp3eft.la
-  dist_pkgdata_DATA += haarcascade_frontalface_alt2.xml
-endif
-
 bin_PROGRAMS += ltr_recenter
 
 ltr_recenter_SOURCES = ltr_recenter.c ipc_utils.h ltr_srv_comm.c ltr_srv_comm.h
@@ -101,6 +96,11 @@ ltr_extractor_LDFLAGS = $(LINUXLDFLAGS) ${SLEOPARD_LDFLAG} -pthread
 if TRACKIR_SUPPORT
   pkglib_LTLIBRARIES += libtir.la libltusb1.la
   dist_pkgdata_DATA += 99-TIR.rules 99-Mickey.rules
+endif
+
+if FACE_TRACKER
+  pkglib_LTLIBRARIES += libft.la libp3eft.la
+  dist_pkgdata_DATA += haarcascade_frontalface_alt2.xml
 endif
 
 pkglib_LTLIBRARIES += libfakeusb.la libp3e.la
