@@ -80,11 +80,8 @@ HelpViewer::HelpViewer(QWidget *parent) : QWidget(parent)
   helpEngine->setupData();
   contents = helpEngine->contentWidget();
   splitter = new QSplitter();
-  ui.horizontalLayout->addWidget((QWidget*)splitter);
-
   viewer = new HelpViewWidget(helpEngine, this);
   layout = new QHBoxLayout();
-  splitter = new QSplitter();
   layout->addWidget(splitter);
   splitter->addWidget(contents);
   splitter->addWidget(viewer);
