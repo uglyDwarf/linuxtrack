@@ -49,9 +49,9 @@ Function <strong>linuxtrack_get_tracking_state</strong> returns current state of
 Function <strong>linuxtrack_get_pose</strong> returns you the current pose and state info. Normally you should use it once per (your applications) frame to obtain the current pose. The pose data are processed already (filtered, scaled, response curves applied according to the profile you specified upon initialization), so it doesn't make much sense to call it any faster.
 
 <h2>Interface description</h2>
-<strong><pre>
+<pre><strong>
 linuxtrack_state_type linuxtrack_init(const char *cust_section);
-</pre></strong>
+</strong></pre>
 Requests initialization of the tracker. Looks for Linuxtrack installation and if it finds one, it tries to start the tracking. It is required that Linuxtrack is not only installed, but also configured correctly by the user.
 <p>
 Parameter cust_section indicates a profile name to be used; if it is NULL, default profile ("Default") is used.
@@ -59,47 +59,46 @@ Parameter cust_section indicates a profile name to be used; if it is NULL, defau
 Return value of 0 means success. Note however, that it doesn't mean that the tracker started successfully - it means the initialization request was sent.
 <p>
 To check, if the tracker actually started, check the return value of linuxtrack_get_tracking_state function. Just remember, that it can take several seconds for the tracker to start. Note however, that you can start calling linuxtrack_get_pose immediately - if the Linuxtrack was not initialized yet, it will just return "zero" pose (all angles and distances set to zero).
-<p>
-<strong><pre>
+
+<pre><strong>
 linuxtrack_state_type linuxtrack_shutdown(void);
-</pre></strong>
+</strong></pre>
 Requests tracker shutdown. Due to the fact, that there might be several applications using Linuxtrack running in parallel, the tracker actually closes down only when the last client disconnects.
 <p>
 Return value of 0 means success.
-<strong><pre>
+<pre><strong>
 linuxtrack_state_type linuxtrack_suspend(void);
 linuxtrack_state_type linuxtrack_wakeup(void);
-</pre></strong>
+</strong></pre>
 Requests the tracking be paused or resumed. Pausing the tracking is especially useful for TrackIR/SmartNav class of devices, because it turns off their IR LEDs, lowering the device's power dissipation.
 <p>
 Return value of 0 means success.
-<strong><pre>
+<pre><strong>
 linuxtrack_state_type linuxtrack_recenter(void);
-</pre></strong>
+</strong></pre>
 Requests the current pose should be used as a new center pose.
 <p>
 Return value of 0 means success.
-<strong><pre>
+<pre><strong>
 typedef enum {LINUXTRACK_OK, INITIALIZING, RUNNING, PAUSED, STOPPED,
   err_NOT_INITIALIZED, err_SYMBOL_LOOKUP, err_NO_CONFIG, err_NOT_FOUND, err_PROCESSING_FRAME
 } linuxtrack_state_type;
 linuxtrack_state_type linuxtrack_get_tracking_state(void);
 const char *linuxtrack_explain(linuxtrack_state_type err);
-</pre></strong>
+</strong></pre>
 Requests information on the current tracker state.
 <p>
 Return value indicates the tracker state according to the linuxtrack_state_type enum.
 
-<strong><pre>
+<pre><strong>
 const char *linuxtrack_explain(linuxtrack_state_type err);
-</pre></strong>
+</strong></pre>
 Returns a string describing the err state.
-<p>
 
-<strong><pre>
+<pre><strong>
 int linuxtrack_get_pose(float *heading, float *pitch, float *roll,
                         float *tx, float *ty, float *tz, uint32_t *counter);
-</pre></strong>
+</strong></pre>
 Requests the current pose. Heading, pitch and roll values are in degrees, translation values tx, ty, tz are in millimeters. Counter value denotes tracker frame number, from which the current pose was computed; if the number doesn't change in between two calls, the pose didn't change either.
 <p>
 In case of a problem (Linuxtrack not installed, not configured, miss-configured, not initialized yet...), the reported pose consists of all zeros.
@@ -147,74 +146,73 @@ int linuxtrack_wait(int timeout);
 On top of the functions available in the basic interface, there is the <strong>linuxtrack_get_pose_full</strong> function, that provides all the low level informations on the current pose.
 
 <h1>Advanced interface description</h1>
-<strong><pre>
+<pre><strong>
 int linuxtrack_get_pose_full(linuxtrack_pose_t *pose, float blobs[], int num_blobs, int *blobs_read);
-</pre></strong>
+</strong></pre>
 Requests all the low level informations on the current pose. These include raw pose values (no sensitivity curves or filtration applied), sensor resolution and blob coordinates.
 <p>
 The blobs array should contain 3x the num_blobs elements (each blob has the x,y coordinates and a number of pixels value). Value of blobs_read indicates how many blobs were actually read.
 <p>
 At the moment Linuxtrack reports up to 10 blobs; this limit can be increased only by its recompilation (ltlib.h, value of MAX_BLOBS macro). Note however that Wiimote is capable of reporting only 4 blobs (hardware limitation)!
 
-<strong><pre>
+<pre><strong>
 int linuxtrack_get_abs_pose(float *heading, float *pitch, float *roll,
                         float *tx, float *ty, float *tz, uint32_t *counter);
-</pre></strong>
+</strong></pre>
 Same as <strong>linuxtrack_get_pose</strong>, with the exception that the absolute pose in camera coordinates is provided.
 
-<strong><pre>
+<pre><strong>
 linuxtrack_state_type linuxtrack_request_frames(void);
-</pre></strong>
+</strong></pre>
 By calling this function, you notify the tracker that you wish to receive "images" from the tracking device.
-<p>
 
-<strong><pre>
+<pre><strong>
 int linuxtrack_get_frame(int *req_width, int *req_height, size_t buf_size, uint8_t *buffer);
-</pre></strong>
+</strong></pre>
 Copies an image (if available)to the client supplied buffer. Buffer size is passed through buf_size
 parameter (to avoid overrun). Parameters req_widht and req_height return the width and height of the frame.
 <p>
 Returns zero in case of a problem - check the req_width/req_height values to see if the buffer passed-in is big enough and enlarge it, if necessary.
 <p>
 Nonzero value means success.
-<p>
-<strong><pre>
+
+<pre><strong>
 linuxtrack_state_type linuxtrack_notification_on(void);
-</pre></strong>
+</strong></pre>
 Requests notifications on incomming frames be sent via a pipe.
-<p>
-<strong><pre>
+
+<pre><strong>
 int linuxtrack_get_notify_pipe(void);
-</pre></strong>
+</strong></pre>
 This function is to be used if you need to implement the polling yourself (you poll on several files, ...). In any other case, <strong>linuxtrack_wait</strong> is easier way to receive notifications.
 <p>
 Returns file descriptor of the notifications pipe. The pipe is set for nonblocking access. Make sure you read all that is in the pipe in order to receive notification when new frame arrives.
-<p>
-<strong><pre>
+
+<pre><strong>
 int linuxtrack_wait(int timeout);
-</pre></strong>
+</strong></pre>
 When called, the function block until either a new frame arrives, or until the timeout (in miliseconds) is up.
 <p>
 Returns one in case of the new frame arrival; zero means timeout and negative value means problem (other side of the pipe hanged-up, ...).
-<p>
+
 <h1>X-Plane plugin interface</h1>
 In order to allow other X-Plane plugins to utilize Linuxtrack, Linuxtrack's X-Plane plugin (xlinuxtrack) exports the following datarefs:
 
-<strong><pre>
+<pre><strong>
 linuxtrack/pilots_head_x
 linuxtrack/pilots_head_y
 linuxtrack/pilots_head_z
 linuxtrack/pilots_head_psi
 linuxtrack/pilots_head_the
 linuxtrack/pilots_head_roll
-</pre></strong>
+</strong></pre>
 
 All are floats, distances are in meters, angles in degrees; these values are directly compatible with X-Planes sim/graphics/view/pilots_head* datarefs.
 
 There is one more dataref:
-<strong><pre>
+<pre><strong>
 linuxtrack/enable_head_control
-</pre></strong>
+</strong></pre>
 
 With this integer dataref, you can enable or disable head controll by xlinuxtrack. Zero means xlinuxtrack doesn't controll view, nonzero value means it does controll the view.
 
@@ -233,7 +231,6 @@ This might seem to be a problem, but in fact it is not. Thanks to the fact, that
 By default, tracking is automatically re-centered when the tracker is started. If user looks away in that instant, he is going to need to recenter the tracking. To do that, simply call <strong>linuxtrack_recenter</strong>.
 <p>
 The <strong>initialize_tracking</strong> function used in the examples contains a loop waiting for the tracker initialization. As discussed above, normally there is no need to do that - it would unnecessarily delay the start of your application. In the example it is used to make things simple, there aren't any clean means to close the application in case the tracker doesn't work (except for Ctrl-C, but that is not very nice way).
-<p>
 
 <h1>Building</h1>
 The only thing that Linuxtrack interface needs is that your application is linked against libel. The reason is, that the interface dynamically loads the Linuxtrack library (if available) and for that it needs libdl.

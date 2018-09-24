@@ -17,7 +17,6 @@ is provided; you need to copy it to the udev rules directory (on Ubuntu it is /l
 this respect). For security reasons, access to the /dev/uinput file is granted to the root and users belonging to the uinput group.
 For that reason you have to create uinput group and your user to it - please consult your distribution's documentation to find a correct 
 way of doing that. The following commands should work on most distros - just change "joe" to your user name:
-<p>
 <pre>
 sudo groupadd uinput
 sudo usermod -aG uinput joe

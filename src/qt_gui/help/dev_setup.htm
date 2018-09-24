@@ -19,7 +19,7 @@ press the "<strong>Refresh</strong>" button and check again.
 Next thing that you can set is the camera orientation - normally you should not need to change this...<br>
 However, if your tracking device is positioned in any other way than in front of you with top pointing up
 (you mounted TrackIR upside down for some reason, or you use laptop with a web-cam chip mounted upside down,...),
-change the </strong>Camera Orientation</strong> to match your device's orientation.
+change the <strong>Camera Orientation</strong> to match your device's orientation.
 <p>
 Supported device types are the following:
 <p>
@@ -31,7 +31,7 @@ Supported device types are the following:
 
 
 <h1><A name="Wiimote">Wiimote Setup</A></h1>
-<img src="Wiimote.png" width="100%" >
+<img src="Wiimote.png" alt="Wiimote setup.">
 <p>If Wiimote is the tracking device of your choice, first of all, make sure you have the Wiimote
 server running (comes along with Linuxtrack) and connected to the Wiimote.
 <p>
@@ -49,7 +49,7 @@ Running state (in this state you are going to spend most of the time after all).
 
 
 <h1><A name="Web-cam">Web-cam Setup</A></h1>
-<img src="Webcam.png" width="100%" >
+<img src="Webcam.png" alt="Webcam setup.">
 <p>To configure a web-cam, first of all you have to set the <strong>Pixel Format</strong>.
 The preferred format is YUYV (native UVC web-cam format), but you can experiment and see
 which one works the best for you (just avoid the JPEG/MJPG formats as they aren't supported).
@@ -70,7 +70,7 @@ On Linux you can use the guvcview for this purpose.
 
 
 <h1><A name="Web-cam_ft">Web-cam Setup for face tracking</A></h1>
-<img src="Facetracker.png" width="100%" >
+<img src="Facetracker.png" alt="Facetracker setup.">
 <p>To configure a web-cam, first of all you have to set the <strong>Pixel Format</strong>.
 The preferred format is YUYV (native UVC web-cam format), but you can experiment and see
 which one works the best for you (just avoid the JPEG/MJPG formats as they aren't supported).
@@ -94,13 +94,13 @@ find them in the following paths:
 You should choose a frontal face detection cascade. If you are short on CPU power, try the LBP cascade 
 <b>lbpcascade_frontalface.xml</b> - it consumes much less CPU, but the tracking is said to be a bit 
 less reliable. Just try it out and see how does it work for you.
-</p>
+
 <A href="#StartTracking">Now you can try to start the tracking to verify the device is set up correctly.</A>
 
 
 
 <h1><A name="TIR">TrackIR/SmartNav Setup</A></h1>
-<img src="Trackir.png" width="100%" ><br>
+<img src="Trackir.png" alt="TrackIR setup."><br>
 If you are a Mac user, you can skip to the next paragraph now...
 When you intend to use TrackIR on Linux, most probably you'll need to get access rights to the device.
 The easiest way to do that, is to install the 99-TIR.rules file (comes with Linuxtrack) to the udev rules 
@@ -115,7 +115,7 @@ driver package from NP and extracts firmware needed to run the device.
 <A href="#StartTracking">Now you can try to start the tracking to verify the device is set up correctly.</A>
 
 
-<h1><A name="JOY">HID device setup</h1>
+<h1><A name="JOY">HID device setup</A></h1>
 Linuxtrack allows you to use a HID device (joystick, ED tracker, ...) as a source of headtracking information
 (at the moment Linux only).<br>
 
@@ -140,8 +140,8 @@ question. In the <b>3D View</b> confirm that the axis work as expected and move 
 When done with axes setup, you can jump to the <A href="axes_setup.htm">Tracking Setup</A> chapter.
 
 
-<h1><A name="#StartTracking">Starting the tracking for the first time</A></h1>
-<img src="CamPreview.png" width="100%" ><br>
+<h1><A name="StartTracking">Starting the tracking for the first time</A></h1>
+<img src="CamPreview.png" alt="Camera preview window."><br>
 To start the tracking, switch to the <strong>Tracking window</strong>. 
 There you can start, pause and stop the tracking and there is a button to recenter the tracker
 (needed when your view is off while looking to the center of the screen).
@@ -162,14 +162,14 @@ has a white cross inside (means a valid blob). You should check, that the rectan
 there through the full range of motions you plan to use.
 
 
-<h1><A name="#Troubleshooting">Troubleshooting the tracking</A></h1>
+<h1><A name="Troubleshooting">Troubleshooting the tracking</A></h1>
 When there are any problems with tracking, always look at the <strong>Camera View</strong> first, to check
 if there aren't any interferences or other visible problems.
 
 <p>Some devices allow you to do some "post-processing" steps
 to discriminate some of the interferences, but the first rule of troubleshooting is this: the best way to get 
 rid of the interference is to remove it physically.
-<p>
+
 <ul>
 <li>A light bulb in the field of view of your camera - the best way is to move the camera in
 such a way, that the bulb gets out of the camera's field of view. 
@@ -213,7 +213,7 @@ stocking might help there.
 of the IR filter might be non-trivial and you risk irreparable damage to the camera, so try that only as a 
 last resort (for example you might use ordinary visible light LEDs instead; also higher current might help 
 to "burn through" the IR filter, but be careful not to burn the LEDs instead!).
-<p>
+
 <h2>Web-cam face tracker</h2>
 When face tracking is jumpy, first of all, make sure that the face is being recognized correctly and the 
 recognition is stable.
@@ -224,7 +224,7 @@ The best results are achieved with plain single color background, where your fac
 Also make sure that your face is well lit, but without sharp shadows.
 <p>
 If the rectangle stays around your face, but the tracking is still jumpy, you should adjust the 
-<stong>Smoothing</strong> slider - moving the slider right steadies the tracking.
+<strong>Smoothing</strong> slider - moving the slider right steadies the tracking.
 Try adjusting the <b>Filter Factor</b> on the <b>Tracking setup</b> tab too - these two filters
 have somewhat different characteristics and complement each other. 
 <p>
