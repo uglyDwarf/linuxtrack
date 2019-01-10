@@ -2,7 +2,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include "utils.h"
-#define USB_IMPL_ONLY
+#include "dyn_load.h"
 #include "usb_ifc.h"
 #include <math.h>
 #include <string.h>
@@ -13,6 +13,24 @@
 #else
 #include "facetrack.h"
 #endif
+
+init_usb_fun *ltr_int_init_usb = NULL;
+find_tir_fun *ltr_int_find_tir = NULL;
+prepare_device_fun *ltr_int_prepare_device = NULL;
+send_data_fun *ltr_int_send_data = NULL;
+receive_data_fun *ltr_int_receive_data = NULL;
+finish_usb_fun *ltr_int_finish_usb = NULL;
+
+static lib_fun_def_t functions[] = {
+  {(char *)"ltr_int_init_usb", (void*) &ltr_int_init_usb},
+  {(char *)"ltr_int_find_tir", (void*) &ltr_int_find_tir},
+  {(char *)"ltr_int_prepare_device", (void*) &ltr_int_prepare_device},
+  {(char *)"ltr_int_send_data", (void*) &ltr_int_send_data},
+  {(char *)"ltr_int_receive_data", (void*) &ltr_int_receive_data},
+  {(char *)"ltr_int_finish_usb", (void*) &ltr_int_finish_usb},
+  {NULL, NULL}
+};
+static void *libhandle = NULL;
 
 
 #define OV534_REG_ADDRESS       0xf1    /* sensor address */
@@ -35,26 +53,27 @@
 
 
 
-
+/*
 static const uint8_t qvga_rates[] = {187, 150, 137, 125, 100, 75, 60, 50, 37, 30};
 static const uint8_t vga_rates[] = {60, 50, 40, 30, 15};
+*/
 
 struct framerates{
   const uint8_t *rates;
   size_t         nrates;
 };
-
+/*
 static const struct framerates ov772x_framerates[] = {
-        { /* 320x240 */
+        { // 320x240
                 .rates = qvga_rates,
                 .nrates = ARRAY_SIZE(qvga_rates),
         },
-        { /* 640x480 */
+        { // 640x480
                 .rates = vga_rates,
                 .nrates = ARRAY_SIZE(vga_rates),
         },
 };
-
+*/
 static const uint8_t bridge_init_772x[][2] = {
         { 0xc2, 0x0c },
         { 0x88, 0xf8 },
@@ -1114,6 +1133,13 @@ int ltr_int_tracker_resume(void)
 int ltr_int_tracker_init(struct camera_control_block *ccb)
 {
   (void) ccb;
+  char *libname = "libltusb1";
+
+  if((libhandle = ltr_int_load_library(libname, functions)) == NULL){
+    ltr_int_log_message("Problem loading library %s!\n", libname);
+    return -1;
+  }
+
   usb_err = 0;
   if(!ltr_int_init_usb()){
     ltr_int_log_message("Failed to initialize usb!\n");
@@ -1149,6 +1175,8 @@ int ltr_int_tracker_init(struct camera_control_block *ccb)
 
  failed:
   ltr_int_finish_usb(-1);
+  ltr_int_unload_library(libhandle, functions);
+  libhandle = NULL;
   return -1;
 }
 
@@ -1160,6 +1188,8 @@ int ltr_int_tracker_close(void)
 #endif
   ltr_int_cleanup_after_processing();
   ltr_int_finish_usb(-1);
+  ltr_int_unload_library(libhandle, functions);
+  libhandle = NULL;
   return 0;
 }
 
