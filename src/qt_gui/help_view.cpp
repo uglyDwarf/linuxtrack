@@ -89,8 +89,8 @@ HelpViewer::HelpViewer(QWidget *parent) : QWidget(parent)
   QObject::connect(contents, SIGNAL(linkActivated(const QUrl &)), viewer, SLOT(setSource(const QUrl &)));
   QObject::connect(contents, SIGNAL(clicked(const QModelIndex &)), this, SLOT(itemClicked(const QModelIndex &)));
   QObject::connect(helpEngine->contentModel(), SIGNAL(contentsCreated()), this, SLOT(helpInitialized()));
-  QObject::connect(viewer, SIGNAL(linkClicked(const QUrl&)), this, SLOT(followLink(const QUrl&)));
-  //viewer->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+  QObject::connect(viewer, SIGNAL(anchorClicked(const QUrl&)), this, SLOT(followLink(const QUrl&)));
+  viewer->setOpenLinks(false);
   splitter->setStretchFactor(1, 4);
 }
 
