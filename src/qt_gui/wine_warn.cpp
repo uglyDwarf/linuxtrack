@@ -1,7 +1,7 @@
 #include "wine_warn.h"
 
 
-WineWarn::WineWarn(QWidget *parent = 0) : QDialog(parent)
+WineWarn::WineWarn(QWidget *parent) : QDialog(parent)
 {
   ui.setupUi(this);
 }

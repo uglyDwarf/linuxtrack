@@ -305,7 +305,7 @@ void TirFwExtractor::wineFinished(bool result)
         "Please see the log for more details.\n\n")
       );
     }
-    wine->run(installerFile, QString::fromUtf8("/s /a /s"));
+    wine->run(installerFile, QString::fromUtf8("/S /v/qn"));
   }else{
     if(!result){
       QMessageBox::warning(this, QString::fromUtf8("Error running Wine"),
@@ -412,8 +412,8 @@ void TirFwExtractor::commenceExtraction(QString file)
 {
 #ifndef DARWIN
   QMessageBox::information(this, QString::fromUtf8("Instructions"),
-  QString::fromUtf8("NP's TrackIR installer will pop up now.\n\n"
-  "Install it with all components to the default location, so the firmware and other necessary "
+  QString::fromUtf8("NP's TrackIR installer might pop up now.\n\n"
+  "If it does, install it with all components to the default location, so the firmware and other necessary "
   "elements can be extracted.\n\n"
   "The software will be installed to the wine sandbox, that will be deleted afterwards, so "
   "there are no leftovers.")

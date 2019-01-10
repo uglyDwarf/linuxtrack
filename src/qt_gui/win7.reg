@@ -16,8 +16,6 @@ REGEDIT4
 [HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment]
 "OS"="Windows_NT"
 
-[HKEY_LOCAL_MACHINE\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{f65db027-aff3-4070-886a-0d87064aabb1}]
-
-[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall\{533773B8-9AC1-4C0F-A2BF-57466A45C6F5}]
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall\{C3311E09-0E33-4649-B77B-DFAF41253FE6}]
 "DisplayVersion"="2.70.0000"
 

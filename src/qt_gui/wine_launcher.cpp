@@ -21,6 +21,7 @@ WineLauncher::WineLauncher():winePath(QString::fromUtf8("")), available(false)
   std::ostringstream s;
   env = QProcessEnvironment::systemEnvironment();
   if(!check()){
+    envSet(QString::fromUtf8("WINEARCH"), QString::fromUtf8("win32"));
 #ifdef DARWIN
     winePath = QApplication::applicationDirPath()+QString::fromUtf8("/../wine/bin/");
     QString libPath = QApplication::applicationDirPath()+QString::fromUtf8("/../wine/lib/");
@@ -68,6 +69,7 @@ void WineLauncher::setEnv(const QString &var, const QString &val)
 
 void WineLauncher::run(const QString &tgt)
 {
+  envSet(QString::fromUtf8("WINEARCH"), QString::fromUtf8("win32"));
   wine.setProcessEnvironment(env);
   QString cmd(QString::fromUtf8("\"%1wine\" \"%2\""));
   cmd = cmd.arg(winePath).arg(tgt);
@@ -80,6 +82,7 @@ void WineLauncher::run(const QString &tgt)
 
 void WineLauncher::run(const QString &tgt, const QString &params)
 {
+  envSet(QString::fromUtf8("WINEARCH"), QString::fromUtf8("win32"));
   wine.setProcessEnvironment(env);
   QString cmd(QString::fromUtf8("\"%1wine\" \"%2\""));
   cmd = cmd.arg(winePath).arg(tgt);

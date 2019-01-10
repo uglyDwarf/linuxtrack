@@ -8,7 +8,7 @@ class WineWarn : public QDialog
 {
  Q_OBJECT
  public:
-  WineWarn(QWidget *parent);
+  WineWarn(QWidget *parent = 0);
   ~WineWarn();
  private:
   Ui::Dialog ui;
