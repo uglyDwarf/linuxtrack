@@ -39,7 +39,7 @@ bool ltr_int_gui_lock(bool do_lock)
 {
   static const char *lockName = "ltr_server.lock";
 
-  if((pfSem == NULL) ){
+  if(pfSem == NULL){
     //just check...
     switch(ltr_int_server_running_already(lockName, false, &pfSem, do_lock)){
       case 0:

@@ -265,7 +265,7 @@ static void iter_pose(struct bloblist_type blobs, double points[3][3], bool cent
     //printf("b = %f\nc = %f\ni_d = %f\nd = %f\n", b, c, i_d, i_d / 2*((uv-o)*(p-q*vw)+(uw-n)*(q-p*vw)));
     a -= i_d / (2*((uv-o)*(p-q*vw)+(uw-n)*(q-p*vw)));
     //printf("a = %f\n", a);
-    if(abs(i_d) < 1e-2){
+    if(fabs(i_d) < 1e-2){
       break;
     }
   }

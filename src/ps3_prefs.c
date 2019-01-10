@@ -83,7 +83,7 @@ static t_control controls[e_NUMCTRLS] = {
 
 bool ltr_int_ps3_ctrl_changed(t_controls ctrl)
 {
-  if((ctrl < 0) || (ctrl >= e_NUMCTRLS)){
+  if(ctrl >= e_NUMCTRLS){
     ltr_int_log_message("Request to get changeflag of control No. %d (max is %d).\n", ctrl, e_NUMCTRLS - 1);
     return false;
   }
@@ -99,7 +99,7 @@ int ltr_int_ps3_controls_changed(void)
 
 int ltr_int_ps3_get_ctrl_val(t_controls ctrl)
 {
-  if((ctrl < 0) || (ctrl >= e_NUMCTRLS)){
+  if(ctrl >= e_NUMCTRLS){
     ltr_int_log_message("Request to get value of control No. %d (max is %d).\n", ctrl, e_NUMCTRLS - 1);
     return 0;
   }
@@ -109,7 +109,7 @@ int ltr_int_ps3_get_ctrl_val(t_controls ctrl)
 
 bool ltr_int_ps3_set_ctrl_val(t_controls ctrl, int val)
 {
-  if((ctrl < 0) || (ctrl >= e_NUMCTRLS)){
+  if(ctrl >= e_NUMCTRLS){
     ltr_int_log_message("Request to set control No. %d (max is %d).\n", ctrl, e_NUMCTRLS - 1);
     return false;
   }

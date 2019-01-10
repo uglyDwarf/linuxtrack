@@ -1,6 +1,10 @@
 #include <QMessageBox>
 #include <iostream>
 #include <QByteArray>
+#include <QFileInfo>
+#include <QFile>
+#include <QDir>
+#include <QFileDialog>
 #include "ui_m_ps3eye_ft_setup.h"
 #include "macps3eyeft_prefs.h"
 #include "ltr_gui_prefs.h"

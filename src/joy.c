@@ -151,7 +151,7 @@ static bool enumerateAxesEvdev(int fd, axes_t *axes)
       axes->axesList[current] = type;
       axes->axisNames[current] = getAxisName(type);
 
-      struct input_absinfo ai = {0};
+      struct input_absinfo ai = {0, 0, 0, 0, 0, 0};
 
       if(ioctl(fd, EVIOCGABS(type), &ai) < 0){
         ltr_int_my_perror("EVIOCGABS");

@@ -1,4 +1,5 @@
 #include <QtGui>
+#include <QTabWidget>
 
  #include "glwidget.h"
  #include "window.h"
