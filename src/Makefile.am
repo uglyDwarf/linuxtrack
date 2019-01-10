@@ -287,10 +287,9 @@ wii_server/wii_server :
 
 mickey/help.qhc mickey/help.qch : mickey/mickey.qhcp mickey/mickey.qhp \
   mickey/help/tracking.htm mickey/help/misc.htm mickey/help/news.htm mickey/help/welcome.htm
-	pushd mickey; qcollectiongenerator -o help.qhc; popd
+	pushd mickey; qcollectiongenerator -o help.qhc mickey.qhcp; popd
 mickey/mickey : mickey/help.qhc mickey/help.qch
-	pushd mickey; qcollectiongenerator -o help.qhc mickey.qhcp; \
-	${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE); popd
+	pushd mickey; ${QMAKE_PATH} ${QMAKE_FLAGS} "LIBDIR=$(pkglibdir)"; $(MAKE); popd
 
 
 install-exec-hook: $(hook_inst_targets)
