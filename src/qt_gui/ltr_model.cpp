@@ -178,7 +178,6 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
     }else{
       ui.ModelPreview->setPixmap(QPixmap(QString::fromUtf8(":/ltr/cap_1.png")));
     }
-    HelpViewer::ChangePage(QString::fromUtf8("3ptcap.htm"));
     modelTweaker = new CapTweaking(currentSection, this);
     
     modelType = MDL_3PT_CAP;
@@ -189,25 +188,21 @@ void ModelEdit::on_ModelSelector_activated(const QString &text)
     }else{
       ui.ModelPreview->setPixmap(QPixmap(QString::fromUtf8(":/ltr/clip_1.png")));
     }
-    HelpViewer::ChangePage(QString::fromUtf8("3ptclip.htm"));
     modelTweaker = new ClipTweaking(currentSection, this);
     modelType = MDL_3PT_CLIP;
   }else if(type.compare(QString::fromUtf8("Face"), Qt::CaseInsensitive) == 0){
     //ui.ModelTypeLabel->setText("Face");
     ui.ModelPreview->setPixmap(QPixmap(QString::fromUtf8(":/ltr/face.png")));
-    HelpViewer::ChangePage(QString::fromUtf8("1pt.htm"));
     modelType = MDL_FACE;
     modelTweaker = NULL;
   }else if(type.compare(QString::fromUtf8("Absolute"), Qt::CaseInsensitive) == 0){
     //ui.ModelTypeLabel->setText("Absolute");
     ui.ModelPreview->setPixmap(QPixmap(QString::fromUtf8(":/ltr/face.png")));
-    HelpViewer::ChangePage(QString::fromUtf8("1pt.htm"));
     modelType = MDL_ABSOLUTE;
     modelTweaker = NULL;
   }else if(type.compare(QString::fromUtf8("SinglePoint"), Qt::CaseInsensitive) == 0){
     //ui.ModelTypeLabel->setText("1 Point");
     ui.ModelPreview->setPixmap(QPixmap(QString::fromUtf8(":/ltr/single.png")));
-    HelpViewer::ChangePage(QString::fromUtf8("1pt.htm"));
     modelType = MDL_1PT;
     modelTweaker = NULL;
   }
