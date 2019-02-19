@@ -177,6 +177,7 @@ static int update_pose_1pt(struct frame_type *frame)
   }
 
   pthread_mutex_lock(&pose_mutex);
+  current_pose.prev_pose = current_pose.pose;
   current_pose.pose.raw_pitch = tmp_angles[0];
   current_pose.pose.raw_yaw = tmp_angles[1];
   current_pose.pose.raw_roll = tmp_angles[2];
@@ -189,6 +190,8 @@ static int update_pose_1pt(struct frame_type *frame)
   current_pose.abs_pose.abs_tx = 0;
   current_pose.abs_pose.abs_ty = 0;
   current_pose.abs_pose.abs_tz = 0;
+  current_pose.prev_timestamp = current_pose.timestamp;
+  current_pose.timestamp = frame->usec;
   pthread_mutex_unlock(&pose_mutex);
   //printf("Pose updated => rp: %g, ry: %g...\n", current_pose.raw_pitch, current_pose.raw_yaw);
   return 0;
@@ -231,6 +234,7 @@ static int update_absolute_pose(struct frame_type *frame)
   //double tmp_angles[3], tmp_translations[3];
 
   pthread_mutex_lock(&pose_mutex);
+  current_pose.prev_pose = current_pose.pose;
   current_pose.pose.raw_pitch = frame->bloblist.blobs[0].y - c_pitch;
   current_pose.pose.raw_yaw = frame->bloblist.blobs[0].x - c_yaw;
   current_pose.pose.raw_roll = frame->bloblist.blobs[1].x - c_roll;
@@ -243,6 +247,8 @@ static int update_absolute_pose(struct frame_type *frame)
   current_pose.abs_pose.abs_tx = frame->bloblist.blobs[1].y;
   current_pose.abs_pose.abs_ty = frame->bloblist.blobs[2].x;
   current_pose.abs_pose.abs_tz = frame->bloblist.blobs[2].y;
+  current_pose.prev_timestamp = current_pose.timestamp;
+  current_pose.timestamp = frame->usec;
   pthread_mutex_unlock(&pose_mutex);
   //printf("Pose updated => rp: %g, ry: %g...\n", current_pose.raw_pitch, current_pose.raw_yaw);
   return 0;
@@ -308,6 +314,7 @@ static int update_pose_3pt(struct frame_type *frame)
   }
 
   pthread_mutex_lock(&pose_mutex);
+  current_pose.prev_pose = current_pose.pose;
   current_pose.pose.raw_pitch = tmp_angles[0];
   current_pose.pose.raw_yaw = tmp_angles[1];
   current_pose.pose.raw_roll = tmp_angles[2];
@@ -320,6 +327,8 @@ static int update_pose_3pt(struct frame_type *frame)
   current_pose.abs_pose.abs_tx = abs_pose.abs_tx;
   current_pose.abs_pose.abs_ty = abs_pose.abs_ty;
   current_pose.abs_pose.abs_tz = abs_pose.abs_tz;
+  current_pose.prev_timestamp = current_pose.timestamp;
+  current_pose.timestamp = frame->usec;
   pthread_mutex_unlock(&pose_mutex);
   if(raw_dbg_flag == DBG_ON){
     printf("*DBG_r* yaw: %g pitch: %g roll: %g\n", tmp_angles[0], tmp_angles[1], tmp_angles[2]);
@@ -451,9 +460,13 @@ int ltr_int_tracking_get_pose(linuxtrack_full_pose_t *pose)
   pthread_mutex_lock(&pose_mutex);
   current_pose.pose.status = pose->pose.status;
   pose->pose = current_pose.pose;
+  pose->prev_pose = current_pose.prev_pose;
   pose->abs_pose = current_pose.abs_pose;
+  pose->prev_abs_pose = current_pose.prev_abs_pose;
   pose->pose.counter = counter_d;
   pose->blobs = current_pose.blobs;
+  pose->timestamp = current_pose.timestamp;
+  pose->prev_timestamp = current_pose.prev_timestamp;
   int i;
   for(i = 0; i < (int)current_pose.blobs * BLOB_ELEMENTS; ++i){
     pose->blob_list[i] = current_pose.blob_list[i];

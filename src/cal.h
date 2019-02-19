@@ -40,6 +40,7 @@ struct frame_type {
   unsigned int width;
   unsigned int height;
   unsigned int counter;
+  int usec; /* save a precise timestamp at frame capture time for later pose extrapolation */
   unsigned char *bitmap; /* 8bits per pixel, monochrome 0x00 or 0xff */
 };
 

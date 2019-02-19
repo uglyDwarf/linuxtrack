@@ -20,10 +20,14 @@ typedef struct{
 } linuxtrack_abs_pose_t;
 
 typedef struct{
+  linuxtrack_pose_t prev_pose;
   linuxtrack_pose_t pose;
+  linuxtrack_abs_pose_t prev_abs_pose;
   linuxtrack_abs_pose_t abs_pose;
   uint32_t blobs;
   float blob_list[BLOB_ELEMENTS * MAX_BLOBS];
+  int timestamp;
+  int prev_timestamp;
 }linuxtrack_full_pose_t;
 
 struct ltr_comm{

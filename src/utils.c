@@ -429,3 +429,31 @@ void ltr_int_check_root()
     exit(0);
   }
 }
+
+
+// Used to get timestamp with ~us precision;
+//  Overflows every 1024 seconds!
+static const int c_MAX_SEC = 1024;
+int ltr_int_get_ts()
+{
+  struct timespec t;
+  int usecs;
+  clock_gettime(CLOCK_MONOTONIC, &t);
+
+  usecs = (t.tv_sec & (c_MAX_SEC - 1)) * 1000000 + (t.tv_nsec / 1000);
+  return usecs;
+}
+
+// Returns difference between two timestamps in us.
+//  Takes care of possible timestamp overflow.
+//  Return value is invalid if the difference is larger than 1024 seconds. 
+int ltr_int_ts_diff(int ts1, int ts2)
+{
+  int d = ts2 - ts1;
+  if(d < 0){
+    d += c_MAX_SEC * 1000000;
+  }
+  return d;
+}
+
+

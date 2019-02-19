@@ -88,6 +88,66 @@ linuxtrack_state_type ltr_init(const char *cust_section)
   }
 }
 
+static const float c_EXT_LIMIT = 3.0f;
+static const float c_EXT_ASYMPTOTE = 5.0f;
+
+static float ltr_int_extrapolation_factor(int t1, int t2, int now)
+{
+  int dt12 = ltr_int_ts_diff(t1, t2);
+  int dt = ltr_int_ts_diff(t2, now);
+  if(dt == 0){
+    return 0.0f;
+  }
+  float ext = (float)dt12 / dt;
+  //Should the extrapolation go further than c_EXTRAPOLATION_LIMIT
+  //  times the frame interval, start to round out with asymptote
+  //  of c_EXTRAPOLATION_ASYMPTOTE.
+  //Start linear in the interval <0.0; c_EXTRAPOLATION_LIMIT>;
+  //  at c_EXTRAPOLATION_LIMIT switch to -1/x type of curve
+  if(ext > 3){
+    // -1 / x => basic type of curve; we need to get the [1;-1] point
+    //   to [c_EXTRAPOLATION_LIMIT; c_EXTRAPOLATION_LIMIT]
+    // 
+    ext = c_EXT_ASYMPTOTE - 
+         (c_EXT_LIMIT * (c_EXT_ASYMPTOTE - c_EXT_LIMIT)) / ext;
+  }
+  return ext;
+}
+
+static inline float ltr_int_extrapolate(float v1, float v2, float ext)
+{
+  return v2 + (v2 - v1) * ext;
+}
+
+static void ltr_int_extrapolate_pose(
+       linuxtrack_full_pose_t *pose,
+       linuxtrack_pose_t *result)
+{
+  float ext = ltr_int_extrapolation_factor(pose->prev_timestamp, pose->timestamp, ltr_int_get_ts());
+  result->yaw = ltr_int_extrapolate(pose->prev_pose.yaw, pose->pose.yaw, ext);
+  result->pitch = ltr_int_extrapolate(pose->prev_pose.pitch, pose->pose.pitch, ext);
+  result->roll = ltr_int_extrapolate(pose->prev_pose.roll, pose->pose.roll, ext);
+  result->tx = ltr_int_extrapolate(pose->prev_pose.tx, pose->pose.tx, ext);
+  result->ty = ltr_int_extrapolate(pose->prev_pose.ty, pose->pose.ty, ext);
+  result->tz = ltr_int_extrapolate(pose->prev_pose.tz, pose->pose.tz, ext);
+}
+
+
+static void ltr_int_extrapolate_abs_pose(
+       linuxtrack_full_pose_t *pose,
+       linuxtrack_abs_pose_t *result)
+{
+  float ext = ltr_int_extrapolation_factor(pose->prev_timestamp, pose->timestamp, ltr_int_get_ts());
+  result->abs_yaw = ltr_int_extrapolate(pose->prev_abs_pose.abs_yaw, pose->abs_pose.abs_yaw, ext);
+  result->abs_pitch = ltr_int_extrapolate(pose->prev_abs_pose.abs_pitch, pose->abs_pose.abs_pitch, ext);
+  result->abs_roll = ltr_int_extrapolate(pose->prev_abs_pose.abs_roll, pose->abs_pose.abs_roll, ext);
+  result->abs_tx = ltr_int_extrapolate(pose->prev_abs_pose.abs_tx, pose->abs_pose.abs_tx, ext);
+  result->abs_ty = ltr_int_extrapolate(pose->prev_abs_pose.abs_ty, pose->abs_pose.abs_ty, ext);
+  result->abs_tz = ltr_int_extrapolate(pose->prev_abs_pose.abs_tz, pose->abs_pose.abs_tz, ext);
+}
+
+
+
 int ltr_get_pose(float *heading,
                          float *pitch,
                          float *roll,
@@ -105,12 +165,14 @@ int ltr_get_pose(float *heading,
   ltr_int_unlockSemaphore(mmm.sem);
   if(tmp.state >= LINUXTRACK_OK){
     uint32_t passed_counter = *counter;
-    *heading = tmp.full_pose.pose.yaw;
-    *pitch = tmp.full_pose.pose.pitch;
-    *roll = tmp.full_pose.pose.roll;
-    *tx = tmp.full_pose.pose.tx;
-    *ty = tmp.full_pose.pose.ty;
-    *tz = tmp.full_pose.pose.tz;
+    linuxtrack_pose_t tmp_pose;
+    ltr_int_extrapolate_pose(&(tmp.full_pose), &tmp_pose);
+    *heading = tmp_pose.yaw;
+    *pitch = tmp_pose.pitch;
+    *roll = tmp_pose.roll;
+    *tx = tmp_pose.tx;
+    *ty = tmp_pose.ty;
+    *tz = tmp_pose.tz;
     *counter = tmp.full_pose.pose.counter;
     if(passed_counter != *counter){
       return 1;// flag new data
@@ -139,7 +201,7 @@ int ltr_get_pose_full(linuxtrack_pose_t *pose, float blobs[], int num_blobs, int
   ltr_int_unlockSemaphore(mmm.sem);
   if(tmp.state >= LINUXTRACK_OK){
     uint32_t prev_counter = pose->counter;
-    *pose = tmp.full_pose.pose;
+    ltr_int_extrapolate_pose(&(tmp.full_pose), pose);
     *blobs_read = (num_blobs < (int)tmp.full_pose.blobs) ? num_blobs : (int)tmp.full_pose.blobs;
     int i;
     for(i = 0; i < (*blobs_read) * BLOB_ELEMENTS; ++i){
@@ -174,12 +236,14 @@ int ltr_get_abs_pose(float *heading,
   ltr_int_unlockSemaphore(mmm.sem);
   if(tmp.state >= LINUXTRACK_OK){
     uint32_t passed_counter = *counter;
-    *heading = tmp.full_pose.abs_pose.abs_yaw;
-    *pitch = tmp.full_pose.abs_pose.abs_pitch;
-    *roll = tmp.full_pose.abs_pose.abs_roll;
-    *tx = tmp.full_pose.abs_pose.abs_tx;
-    *ty = tmp.full_pose.abs_pose.abs_ty;
-    *tz = tmp.full_pose.abs_pose.abs_tz;
+    linuxtrack_abs_pose_t tmp_pose;
+    ltr_int_extrapolate_abs_pose(&(tmp.full_pose), &tmp_pose);
+    *heading = tmp_pose.abs_yaw;
+    *pitch = tmp_pose.abs_pitch;
+    *roll = tmp_pose.abs_roll;
+    *tx = tmp_pose.abs_tx;
+    *ty = tmp_pose.abs_ty;
+    *tz = tmp_pose.abs_tz;
     *counter = tmp.full_pose.pose.counter;
     if(passed_counter != *counter){
       return 1;// flag new data

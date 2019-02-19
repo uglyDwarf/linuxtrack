@@ -63,6 +63,7 @@ int ltr_int_rl_run(struct camera_control_block *ccb, frame_callback_fun cbk)
             }else{
               if(frame_acquired){
                 frame.counter = ++counter;
+                frame.usec = ltr_int_get_ts();
                 if((retval = cbk(ccb, &frame)) < 0){
                   ltr_int_log_message("Error processing frame! (rv = %d)\n", retval);
                   ltr_int_cal_set_state(err_PROCESSING_FRAME);
