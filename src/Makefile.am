@@ -247,12 +247,12 @@ distclean-local-check:
 	-cd mickey;$(MAKE) distclean; rm -f help.qch help.qhc
 	-cd wii_server;$(MAKE) distclean
 
-noinst_SCRIPTS = qt_gui/ltr_gui
 
 .PHONY: LTR_QT_GUI_TARGET_INST LTR_QT_GUI_TARGET_UNINST \
   LTR_MICKEY_TARGET_INST LTR_MICKEY_TARGET_UNINST \
   LTR_WII_TARGET_INST LTR_WII_TARGET_UNINST
 
+noinst_SCRIPTS = qt_gui/ltr_gui
 hook_inst_targets = LTR_QT_GUI_TARGET_INST
 hook_uninst_targets = LTR_QT_GUI_TARGET_UNINST
 
@@ -326,7 +326,7 @@ qt_gui/ltr_gui_prefs.h qt_gui/scp_form.h qt_gui/ltr_gui.pro.in qt_gui/scurve.h \
 qt_gui/ltr_rc.qrc qt_gui/macwebcamft_prefs.h qt_gui/ltr_state.h qt_gui/model_creation.ui \
 qt_gui/macwebcamft_prefs.cpp qt_gui/log_view.cpp qt_gui/ltr_gui.h qt_gui/tracker.h \
 qt_gui/macwebcam_info.h qt_gui/webcam_ft_prefs.cpp qt_gui/sparow_glass.obj qt_gui/sparow_opaq.obj \
-qt_gui/sphere.obj qt_gui/ltr_dev_help.cpp \
+qt_gui/sphere.obj qt_gui/ltr_dev_help.cpp qt_gui/help_viewer.cpp qt_gui/help_viewer.h \
 qt_gui/scp_form.cpp qt_gui/linuxtrack.icns qt_gui/window.h qt_gui/ltr_model.cpp \
 qt_gui/help_view.h qt_gui/wiimote_prefs.cpp qt_gui/cap.png qt_gui/ltr_dev_help.h  \
 qt_gui/glwidget.cpp qt_gui/scurve.ui qt_gui/tir_prefs.h \
