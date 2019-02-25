@@ -116,5 +116,5 @@ void XPluginInstall::on_BrowseXPlane_pressed()
   accept();
 }
 
-
+#include "moc_xplugin.cpp"
 

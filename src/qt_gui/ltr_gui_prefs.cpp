@@ -5,7 +5,7 @@
 #include "pref.h"
 #include "pref_global.h"
 #include "ltr_gui_prefs.h"
-#include "map"
+#include <map>
 #include "utils.h"
 
 #include <QStringList>

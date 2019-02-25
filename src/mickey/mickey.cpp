@@ -847,4 +847,6 @@ void MickeyGUI::init()
   mickey->setRelative(ui.RelativeCB->isChecked());
   changed = false;
 }
-  
+
+#include "moc_mickey.cpp"
+

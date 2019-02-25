@@ -1,5 +1,5 @@
 #include "log_view.h"
-#include "iostream"
+#include <iostream>
 #include "utils.h"
 
 LogView::LogView(QWidget *parent) : QWidget(parent), watcher(parent)
@@ -56,3 +56,6 @@ LogView::~LogView()
   ui.verticalLayout->removeWidget(viewer);
   delete(viewer);
 }
+
+#include "moc_log_view.cpp"
+

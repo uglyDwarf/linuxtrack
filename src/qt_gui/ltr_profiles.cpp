@@ -91,4 +91,5 @@ bool AppProfile::changeProfile(const QString &newName)
   return true;
 }
 
+#include "moc_ltr_profiles.cpp"
 

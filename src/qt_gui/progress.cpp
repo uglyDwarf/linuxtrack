@@ -7,3 +7,5 @@ void Progress::message(qint64 read, qint64 all)
   ui.InfoLabel->setText(QString::fromUtf8("Downloaded %1 of %2.").arg(read).arg(all));
 }
 
+#include "moc_progress.cpp"
+

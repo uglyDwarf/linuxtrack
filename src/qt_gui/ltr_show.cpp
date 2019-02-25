@@ -279,3 +279,5 @@ void CameraView::redraw()
   }
 }
 
+#include "moc_ltr_show.cpp"
+

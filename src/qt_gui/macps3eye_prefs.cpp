@@ -296,4 +296,5 @@ void MacP3ePrefs::on_PLF50_stateChanged(int state)
   if(!initializing){ltr_int_ps3_set_ctrl_val(e_PLFREQ, state == Qt::Checked);}
 }
 
+#include "moc_macps3eye_prefs.cpp"
 

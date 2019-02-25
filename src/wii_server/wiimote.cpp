@@ -210,4 +210,5 @@ void Wiimote::changed_state(int state)
   emit changing_state(server_state);
 }
 
+#include "moc_wiimote.cpp"
 

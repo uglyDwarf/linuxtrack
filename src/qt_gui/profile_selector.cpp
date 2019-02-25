@@ -136,4 +136,5 @@ bool ProfileSelector::close()
   return QWidget::close();
 }
 
+#include "moc_profile_selector.cpp"
 

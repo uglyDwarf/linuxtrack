@@ -196,3 +196,6 @@ void PluginInstall::enableButtons(bool ena)
   gui.TIRFWButton->setEnabled(ena);
   //gui.TIRViewsButton->setEnabled(ena);
 }
+
+#include "moc_plugin_install.cpp"
+

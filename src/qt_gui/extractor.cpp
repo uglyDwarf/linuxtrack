@@ -648,3 +648,6 @@ void Extractor::show()
 /*
 WINEDLLOVERRIDES=winemenubuilder.exe=d WINEPREFIX=/home/qbuilder/devel/research/extractor/test/TrackIR_5.2.Final wine TrackIR_5.2.Final.exe /s /v"/qb"
 */
+
+#include "moc_extractor.cpp"
+

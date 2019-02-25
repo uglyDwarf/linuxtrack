@@ -1,3 +1,6 @@
+#ifndef LOG_VIEW__H
+#define LOG_VIEW__H
+
 #include <QWidget>
 #include <QFileSystemWatcher>
 #include <QFile>
@@ -25,3 +28,6 @@ class LogView : public QWidget{
   QPlainTextEdit *viewer;
   bool changed;
 };
+
+#endif
+

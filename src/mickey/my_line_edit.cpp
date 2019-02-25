@@ -46,3 +46,5 @@ void myLineEdit::keyPressEvent(QKeyEvent * event)
   //QLineEdit::keyPressEvent(event);
 }
 
+#include "moc_my_line_edit.cpp"
+

@@ -244,5 +244,5 @@ void SCurve::initAxes()
   initializing = false;
 }
 
-
+#include "moc_scurve.cpp"
 

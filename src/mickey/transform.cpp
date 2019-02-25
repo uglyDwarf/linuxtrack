@@ -308,10 +308,11 @@ void MickeyTransform::revertSettings()
   axis.revertSettings();
 }
 
-
-
 /*
 //Deadzone - 0 - 50%...
 //Sensitivity - normalize input, apply curve, return (-1, 1); outside - convert to speed...
 //Dependency on updte rate...
 */
+
+#include "moc_transform.cpp"
+

@@ -87,3 +87,6 @@ void Downloading::error(QNetworkReply::NetworkError e)
 {
   (void) e;
 }
+
+#include "moc_downloading.cpp"
+

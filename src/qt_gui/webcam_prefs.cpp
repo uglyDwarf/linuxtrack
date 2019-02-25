@@ -164,3 +164,5 @@ bool WebcamPrefs::AddAvailableDevices(QComboBox &combo)
   return res;
 }
 
+#include "moc_webcam_prefs.cpp"
+

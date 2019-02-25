@@ -40,3 +40,5 @@ void ScpForm::on_SCPCloseButton_pressed()
   close();
 }
 
+#include "moc_scp_form.cpp"
+

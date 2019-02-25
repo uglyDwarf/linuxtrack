@@ -117,4 +117,5 @@ void WiiServerWindow::handle_command()
   old_cmd = cmd;
 }
 
+#include "moc_wii_server.cpp"
 

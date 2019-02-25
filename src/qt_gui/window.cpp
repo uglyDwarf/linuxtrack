@@ -107,6 +107,6 @@ void Window::resumeUpdates()
   }
 }
 
-
+#include "moc_window.cpp"
 
 

@@ -24,5 +24,5 @@ void WineWarn::on_OKButton_pressed()
   }
 }
 
-
+#include "moc_wine_warn.cpp"
 

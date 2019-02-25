@@ -200,4 +200,5 @@ void WebcamFtPrefs::on_OptimLevel_valueChanged(int value)
 }
 
 
+#include "moc_webcam_ft_prefs.cpp"
 

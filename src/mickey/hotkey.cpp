@@ -60,5 +60,5 @@ void HotKey::on_AssignButton_pressed()
   }
 }
 
-
+#include "moc_hotkey.cpp"
 

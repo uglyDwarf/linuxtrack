@@ -134,3 +134,5 @@ void WiimotePrefs::Connect()
     this, SLOT(pauseIndicationChanged(int)));
 }
 
+#include "moc_wiimote_prefs.cpp"
+

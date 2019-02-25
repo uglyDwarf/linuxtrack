@@ -204,3 +204,5 @@ void Extractor::extractFirmware(QString file)
   wine->start(cmd);
 }
 */
+
+#include "moc_wine_launcher.cpp"

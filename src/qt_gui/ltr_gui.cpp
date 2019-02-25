@@ -360,5 +360,6 @@ void LinuxtrackGui::logsPackaged(int exitCode, QProcess::ExitStatus exitStatus)
   ui.PackageLogsButton->setEnabled(true);
 }
 
+#include "moc_ltr_gui.cpp"
 
 

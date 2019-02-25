@@ -293,3 +293,6 @@ void JoyPrefs::on_PPSFreq_valueChanged(int i)
     ltr_int_joy_set_pps(i);
   }
 }
+
+#include "moc_joy_prefs.cpp"
+

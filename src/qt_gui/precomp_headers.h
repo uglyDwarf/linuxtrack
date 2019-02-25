@@ -52,8 +52,10 @@
 #include <QStringList>
 #include <QtCore/qglobal.h>
 #include <QtCore/QVariant>
+#include <QTabWidget>
 #include <QtDebug>
 #include <QTemporaryFile>
+#include <QTextBrowser>
 #include <QTextStream>
 #include <QtGui>
 #include <QAction>

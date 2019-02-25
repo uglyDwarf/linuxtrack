@@ -184,6 +184,4 @@ void DeviceSetup::refresh()
   initialized = true;
 }
 
-
-
-
+#include "moc_device_setup.cpp"

@@ -68,7 +68,5 @@ void Guardian::deviceTypeChanged(int deviceType, const QString &desc)
   checkDeviceNModel();
 }
   
-
-
-
+#include "moc_guardian.cpp"
 

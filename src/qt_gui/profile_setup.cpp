@@ -241,3 +241,5 @@ void ProfileSetup::exportProfile(QTextStream &tf)
   }
 }
 
+#include "moc_profile_setup.cpp"
+

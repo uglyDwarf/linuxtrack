@@ -12,7 +12,7 @@
 #include "ltr_gui_prefs.h"
 #include "help_view.h"
 #include "help_viewer.h"
-#include "iostream"
+#include <iostream>
 
 HelpViewer *HelpViewer::hlp = NULL;
 
@@ -131,6 +131,4 @@ void HelpViewer::followLink(const QUrl &url)
     viewer->setSource(url);
   }
 }
-
-
 

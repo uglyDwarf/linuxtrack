@@ -341,3 +341,5 @@ void MacP3eFtPrefs::on_OptimLevelMac_valueChanged(int value)
   }
 }
 
+#include "moc_macps3eyeft_prefs.cpp"
+

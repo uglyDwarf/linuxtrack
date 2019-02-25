@@ -234,4 +234,5 @@ bool GLWidget::makeObjects()
      return true;
  }
 
+#include "moc_glwidget.cpp"
 
