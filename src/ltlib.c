@@ -95,10 +95,12 @@ static float ltr_int_extrapolation_factor(int t1, int t2, int now)
 {
   int dt12 = ltr_int_ts_diff(t1, t2);
   int dt = ltr_int_ts_diff(t2, now);
+  printf("TSdiff: (%d, %d -> %d) -> (%d, %d -> %d)\n", t1, t2, dt12, t2, now, dt);
   if(dt == 0){
+    printf("  ext = 0.0\n");
     return 0.0f;
   }
-  float ext = (float)dt12 / dt;
+  float ext = (float)dt / dt12;
   //Should the extrapolation go further than c_EXTRAPOLATION_LIMIT
   //  times the frame interval, start to round out with asymptote
   //  of c_EXTRAPOLATION_ASYMPTOTE.
@@ -111,6 +113,7 @@ static float ltr_int_extrapolation_factor(int t1, int t2, int now)
     ext = c_EXT_ASYMPTOTE - 
          (c_EXT_LIMIT * (c_EXT_ASYMPTOTE - c_EXT_LIMIT)) / ext;
   }
+  printf("  ext = %g\n", ext);
   return ext;
 }
 
