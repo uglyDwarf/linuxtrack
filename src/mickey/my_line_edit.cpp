@@ -9,7 +9,7 @@ myLineEdit::myLineEdit(QWidget *parent) : QLineEdit(parent), tgt(NULL)
 
 void myLineEdit::keyPressEvent(QKeyEvent * event)
 {
-  QString seq = QString::null;
+  QString seq = QString();
   Qt::KeyboardModifiers mods = event->modifiers();
   if(mods & Qt::ShiftModifier){
     seq += QString::fromUtf8("Shift+");
