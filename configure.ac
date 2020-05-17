@@ -43,7 +43,7 @@ AC_CHECK_HEADER([mxml.h], [], [AC_MSG_FAILURE([mxml.h is needed for ltr_gui comp
 AC_CHECK_LIB([crypto], [SHA1], [LIBCRYPTO=true], [AC_MSG_FAILURE([libcrypto not found!])])
 
 # Qt is needed for the GUI
-AC_PATH_PROGS(QMAKE_PATH, [qmake qmake-qt4])
+AC_PATH_PROGS(QMAKE_PATH, [qmake qmake-qt5])
 
 
 # used to decompress the TrackIR firmware, if necessary
