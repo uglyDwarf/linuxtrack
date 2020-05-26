@@ -176,8 +176,12 @@ PLUGIN_API int XPluginStart(char *outName,
   
   head_psi = XPLMFindDataRef("sim/graphics/view/pilots_head_psi");
   head_the = XPLMFindDataRef("sim/graphics/view/pilots_head_the");
-  
-  head_roll = XPLMFindDataRef("sim/graphics/view/field_of_view_roll_deg");
+ 
+  //New in XP11... 
+  head_roll = XPLMFindDataRef("sim/graphics/view/pilots_head_phi");
+  if(head_roll == NULL){
+    head_roll = XPLMFindDataRef("sim/graphics/view/field_of_view_roll_deg");
+  }
   view = XPLMFindDataRef("sim/graphics/view/view_type");
   
   head_x_out = XPLMRegisterDataAccessor(
