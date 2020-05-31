@@ -213,7 +213,7 @@ AS_IF([case $host_os in darwin*) true;; *) false;; esac],
   ]
 )
 
-m4_ifdef([PKG_CHECK_MODULES], [PKG_CHECK_MODULES([OPENCV], [opencv >= 2.0], [], [AC_MSG_RESULT([Opencl not present.])])])
+m4_ifdef([PKG_CHECK_MODULES], [PKG_CHECK_MODULES([OPENCV], [opencv4 >= 2.0], [], [AC_MSG_RESULT([Opencl not present.])])])
 
 
 AC_SUBST([OPENCV_CFLAGS])
