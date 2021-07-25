@@ -98,7 +98,7 @@ static float ltr_int_extrapolation_factor(int t1, int t2, int now)
   if(dt == 0){
     return 0.0f;
   }
-  float ext = (float)dt12 / dt;
+  float ext = (float)dt / dt12;
   //Should the extrapolation go further than c_EXTRAPOLATION_LIMIT
   //  times the frame interval, start to round out with asymptote
   //  of c_EXTRAPOLATION_ASYMPTOTE.
