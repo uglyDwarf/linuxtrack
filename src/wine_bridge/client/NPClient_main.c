@@ -52,8 +52,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     thisDll = hinstDLL;
     switch (fdwReason)
     {
-        case DLL_WINE_PREATTACH:
-            return TRUE;
         case DLL_PROCESS_ATTACH:
             DisableThreadLibraryCalls(hinstDLL);
             dbg_flag = getDebugFlag('w');

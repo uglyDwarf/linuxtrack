@@ -2,7 +2,7 @@
   #include "../../config.h"
 #endif
 
-#include <QtGui>
+#include <QtWidgets>
 #include <QtOpenGL>
 #ifndef DARWIN
 #include <GL/glu.h>
