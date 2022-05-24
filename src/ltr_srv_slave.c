@@ -122,6 +122,7 @@ static bool ltr_int_try_start_master(int *l_master_uplink)
   return false;
 }
 
+static linuxtrack_pose_t prev_filtered_pose;
 
 static bool ltr_int_process_message(int l_master_uplink)
 {
@@ -154,6 +155,8 @@ static bool ltr_int_process_message(int l_master_uplink)
       if(msg.pose.pose.status == RUNNING){
         //printf("PASSING TO SHM: %f %f %f\n", msg.pose.yaw, msg.pose.pitch, msg.pose.tz);
         com->full_pose = msg.pose;
+        com->full_pose.prev_pose = prev_filtered_pose;
+        prev_filtered_pose = msg.pose.pose;
       }
       com->state = msg.pose.pose.status;
       com->preparing_start = false;
