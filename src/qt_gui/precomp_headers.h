@@ -57,7 +57,7 @@
 #include <QTemporaryFile>
 #include <QTextBrowser>
 #include <QTextStream>
-#include <QtGui>
+#include <QtWidgets>
 #include <QAction>
 #include <QApplication>
 #include <QButtonGroup>
