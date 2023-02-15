@@ -139,7 +139,13 @@ bool get_game_data(const char *input_fname, const char *output_fname, bool from_
     if(appid == NULL){
       fprintf(outfile, "%s \"%s\"\n", id, name);
     }else{
-      fprintf(outfile, "%s \"%s\" (%s)\n", id, name, appid->child->value.text.string);
+      mxml_node_t *child = mxmlGetFirstChild(appid);
+      if(child != NULL){
+	const char *val = mxmlGetElement(child);
+        fprintf(outfile, "%s \"%s\" (%s)\n", id, name, val);
+      }else{
+        fprintf(outfile, "%s \"%s\"\n", id, name);
+      }
     }
   }
   fclose(outfile);
