@@ -10,8 +10,11 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <openssl/sha.h>
-#include <openssl/md5.h>
+// This dependency proved problematic (deprecating MD5 and spweing warnings)
+//   so I opted for my own implementation.
+//#include <openssl/sha.h>
+//#include <openssl/md5.h>
+#include "digest.h"
 #include <getopt.h>
 #include "game_data.h"
 #include "utils.h"
@@ -133,10 +136,7 @@ unsigned char* hash_sha1(file_buf_t *f)
   if(res == NULL){
     return NULL;
   }
-  if(SHA1((unsigned char *)f->data, f->length, res) == NULL){
-    free(res);
-    return NULL;
-  }
+  sha1sum((uint8_t *)f->data, f->length, (uint32_t *)res);
   return res;
 }
 
@@ -146,10 +146,7 @@ unsigned char* hash_md5(file_buf_t *f)
   if(res == NULL){
     return NULL;
   }
-  if(MD5((unsigned char *)f->data, f->length, res) == NULL){
-    free(res);
-    return NULL;
-  }
+  md5sum((uint8_t *)f->data, f->length, (uint32_t *)res);
   return res;
 }
 
@@ -249,7 +246,7 @@ bool read_spec(const char *spec_file)
         break;
       }
       specs += 1;
-      tmp->name = name;
+      tmp->name = strdup(name);
       tmp->length = length;
       tmp->csum = csum;
       tmp->next = NULL;
@@ -529,7 +526,7 @@ int main(int argc, char *argv[])
     if(c < 0){
       break;
     }
-    printf("Have %c (%d)\n", c, c);
+    //printf("Have %c (%d)\n", c, c);
     switch(c){
       case 'c': create = true;
         break;
