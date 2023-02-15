@@ -3,7 +3,7 @@
 #include "facetrack.h"
 #include "wc_driver_prefs.h"
 
-#include <opencv2/core/core.hpp>
+#include <opencv2/core/core_c.h>
 #include <opencv2/objdetect/objdetect.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -142,7 +142,7 @@ void ltr_int_detect(cv::Mat& img)
       last_face_h = face_h;
     }
   }
-//  std::cout<<"Done" <<std::endl;
+//  std::cout<<"Done\n";
 }
 
 static bool run = true;
@@ -168,7 +168,7 @@ void *ltr_int_detector_thread(void *)
     double t = (double)cvGetTickCount();
     ltr_int_detect(*cvimage);
     t = (double)cvGetTickCount() - t;
-    //std::cout<<"detection time = "<<t/((double)cvGetTickFrequency()*1000.)<<" ms"<<std::endl;
+    //std::cout<<"detection time = "<<t/((double)cvGetTickFrequency()*1000.)<<" ms\n";
 
     pthread_mutex_lock(&frame_mx);
     frame_status = DONE;
