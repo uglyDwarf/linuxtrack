@@ -26,7 +26,8 @@ bool ltr_int_init_usb(void)
   }
   ltr_int_log_message("Libusb initialized successfuly.\n");
 
-  libusb_set_debug(usb_context, 0);
+  //libusb_set_debug(usb_context, 0);
+  libusb_set_option(usb_context, LIBUSB_OPTION_LOG_LEVEL);
   ltr_int_log_message("Libusb debug level set.\n");
   return true;
 }
