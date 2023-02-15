@@ -23,8 +23,8 @@ static void encode(char *val, bool d1, bool d2, bool d3, bool d4)
 
 static char run_id_key[] = "Running-indication";
 static char pause_id_key[] = "Paused-indication";
-static char run_indication[5] = "0000";
-static char pause_indication[5] = "0000";
+static char run_indication[6] = "0000";
+static char pause_indication[6] = "0000";
 
 bool ltr_int_wii_init_prefs()
 {

@@ -351,6 +351,10 @@ int ltr_int_make_socket(const char *name)
     ltr_int_log_message("Name must be set! (NULL passed)\n");
     return -1;
   }
+  if(strlen(name) > UNIX_PATH_MAX - 2){
+    ltr_int_log_message("Socket name '%s' too long (max. %d)\n", name, UNIX_PATH_MAX - 2);
+    return -1;
+  }
   struct stat info;
   if(stat(name, &info) == 0){
     //file exists, check if it is socket...
@@ -399,7 +403,7 @@ int ltr_int_make_socket(const char *name)
   }
   memset(&address, 0, sizeof(struct sockaddr_un));
   address.sun_family = AF_UNIX;
-  strncpy(address.sun_path, name, UNIX_PATH_MAX);
+  strncpy(address.sun_path, name, UNIX_PATH_MAX - 1);
 
   //At this point, the file should not exist.
   if(bind(socket_fd, (struct sockaddr *) &address, sizeof(struct sockaddr_un)) != 0){
@@ -429,6 +433,10 @@ int ltr_int_create_server_socket(const char *name){
 
 
 int ltr_int_connect_to_socket(const char *name){
+  if(strlen(name) > UNIX_PATH_MAX - 2){
+    ltr_int_log_message("Socket name '%s' too long (max. %d)\n", name, UNIX_PATH_MAX - 2);
+    return -1;
+  }
   //ltr_int_log_message("Trying to open fifo '%s'...\n", name);
   printf("Will try to connect to socket '%s'\n", name);
   struct sockaddr_un address;
@@ -447,7 +455,7 @@ int ltr_int_connect_to_socket(const char *name){
   }
   memset(&address, 0, sizeof(struct sockaddr_un));
   address.sun_family = AF_UNIX;
-  strncpy(address.sun_path, name, UNIX_PATH_MAX);
+  strncpy(address.sun_path, name, UNIX_PATH_MAX - 1);
 
   if(connect(socket_fd, (struct sockaddr *) &address, sizeof(struct sockaddr_un)) != 0){
     ltr_int_my_perror("connect");

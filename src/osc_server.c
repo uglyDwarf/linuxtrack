@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
     return 0;
   }
   int port = atoi(argv[1]);
-  char portString[10];
+  char portString[16];
   if(port <= 1024){
     printf("Please select port number higher than 1024.\n");
     return 0;
