@@ -59,7 +59,7 @@ void Downloading::finished(QNetworkReply* reply)
   if(reply->error() == QNetworkReply::NoError){
     QString result = QString(QString::fromUtf8("%1/%2")).arg(destination).arg(origFname);
     //std::cout<<"Renaming "<<qPrintable(fname)<<" to "
-    //         <<qPrintable(result)<<std::endl;
+    //         <<qPrintable(result)<<"\n";
     if(QFile::exists(result)){
       QFile::remove(result);
     }

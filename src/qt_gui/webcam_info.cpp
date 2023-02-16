@@ -70,7 +70,7 @@ WebcamInfo::WebcamInfo(const QString &id)
   QString item, pixfmt, width, height, fps;
 
   if(fmts.entries == 0){
-    //std::cout<<"Zero entries!"<<std::endl;
+    //std::cout<<"Zero entries!\n";
     format_strings.push_back(QString::fromUtf8("YUYV"));
     fmt_descs.push_back(QList<webcam_format*>());
     res_list.push_back(QStringList());
@@ -105,7 +105,7 @@ const QStringList& WebcamInfo::getFormats()
 
 const QStringList& WebcamInfo::getResolutions(int index)
 {
-  //std::cout<<"Selecting format index "<<index<<std::endl;
+  //std::cout<<"Selecting format index "<<index<<"\n";
   if((index >=0) && (index <= fmt_index)){
     return res_list[index];
   }else{

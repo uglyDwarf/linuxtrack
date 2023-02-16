@@ -67,16 +67,16 @@ void WiiThread::run()
   isIdle = true;
   exit_flag = false;
   emit change_state(WII_CONNECTING);
-  std::cout <<"Put Wiimote in discoverable mode now (press 1+2)..." << std::endl;
+  std::cout <<"Put Wiimote in discoverable mode now (press 1+2)...\n";
   if(!(gWiimote = cwiid_open(&bdaddr, CWIID_FLAG_MESG_IFC))){
-    std::cout << "Wiimote not found" << std::endl;
+    std::cout << "Wiimote not found\n";
     emit change_state(WII_DISCONNECTED);
     return;
   }else{
     cwiid_set_rpt_mode(gWiimote, CWIID_RPT_STATUS);
     target_class = this;
     cwiid_set_mesg_callback(gWiimote, wii_callback);
-    std::cout << "Wiimote connected" << std::endl;
+    std::cout << "Wiimote connected\n";
     emit change_state(WII_CONNECTED);
   }
   while(!exit_flag){
@@ -177,7 +177,7 @@ Wiimote::Wiimote(struct mmap_s *m) : server_state(WII_DISCONNECTED), thread(NULL
 
 Wiimote::~Wiimote()
 {
-  std::cout << "closing wiimote" << std::endl;
+  std::cout << "closing wiimote\n";
   if(thread->isRunning()){
     thread->stop_it();
     thread->wait(1000);

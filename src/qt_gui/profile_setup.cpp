@@ -104,7 +104,7 @@ void ProfileSetup::axisChanged(int axis, int elem)
 
 void ProfileSetup::setCommonFF(float val)
 {
-  //std::cout<<"Setting common ff "<<val<<std::endl;
+  //std::cout<<"Setting common ff "<<val<<"\n";
   ui.Smoothing->setValue(val * ui.Smoothing->maximum());
 }
 
@@ -226,9 +226,9 @@ void ProfileSetup::importProfile(QTextStream &tf)
 
 void ProfileSetup::exportProfile(QTextStream &tf)
 {
-  tf<<profileName<<endl;
-  tf<<"1"<<endl; //Version of the profile format
-  tf<<TRACKER.getCommonFilterFactor()<<endl;
+  tf<<profileName<<"\n";
+  tf<<"1"<<"\n"; //Version of the profile format
+  tf<<TRACKER.getCommonFilterFactor()<<"\n";
   for(int i = PITCH; i <= TZ; ++i){
     tf<<(TRACKER.axisGetBool((axis_t)i, AXIS_ENABLED) ? QString::fromUtf8("1") : QString::fromUtf8("0"))<<
       QString::fromUtf8(" ");
@@ -237,7 +237,7 @@ void ProfileSetup::exportProfile(QTextStream &tf)
     for(int j = AXIS_DEADZONE; j < AXIS_FILTER; ++j){
       tf<<TRACKER.axisGet((axis_t)i, (axis_param_t)j)<<QString::fromUtf8(" ");
     }
-    tf<<TRACKER.axisGet((axis_t)i, AXIS_FILTER)<<endl;
+    tf<<TRACKER.axisGet((axis_t)i, AXIS_FILTER)<<"\n";
   }
 }
 

@@ -120,7 +120,7 @@ void Tracker::signalNewPose(linuxtrack_full_pose_t *full_pose)
   static linuxtrack_pose_t unfiltered;
   processed = full_pose->pose;
   ltr_int_postprocess_axes(axes, &processed, &unfiltered);
-  //std::cout<<"TRACKER: "<<pose->pitch<<" "<<unfiltered.pitch<<" "<<processed.pitch<<std::endl;
+  //std::cout<<"TRACKER: "<<pose->pitch<<" "<<unfiltered.pitch<<" "<<processed.pitch<<"\n";
   emit newPose(full_pose, &unfiltered, &processed);
 }
 
@@ -151,7 +151,7 @@ void Tracker::setProfile(QString p)
   //PREF.setCustomSection(p);
   currentProfile = p;
   PREF.getProfileSection(currentProfile, profileSection);
-  //std::cout<<"Set profile "<<currentProfile.toStdString()<<" - "<<p.toStdString()<<std::endl;
+  //std::cout<<"Set profile "<<currentProfile.toStdString()<<" - "<<p.toStdString()<<"\n";
   ltr_int_init_axes(&axes, currentProfile.toUtf8().constData());
 
   common_ff = 1.0;

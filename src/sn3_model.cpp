@@ -4,7 +4,7 @@ smartnav3::smartnav3(std::string fname) : device_model(fname),
   video_on_flag(false), camera_on_flag(false), 
   led_r(false), led_g(false), led_b(false), led_ir(false), threshold(0)
 {
-  std::cout<<"Initializing SmartNav3 model."<<std::endl;
+  std::cout<<"Initializing SmartNav3 model.\n";
 }
 
 void smartnav3::set_leds(unsigned char leds, unsigned char mask)
@@ -46,7 +46,7 @@ bool smartnav3::send_packet(int ep, unsigned char packet[], size_t length)
           video_off();
           break;
         default:
-          std::cout<<"Bad packet!"<<std::endl;
+          std::cout<<"Bad packet!\n";
           return false;
           break;
       }
@@ -55,15 +55,15 @@ bool smartnav3::send_packet(int ep, unsigned char packet[], size_t length)
       if((packet[2] == 1) && (packet[3] == 0)){
         set_threshold(packet[1]);
       }else{
-        std::cout<<"Bad packet!"<<std::endl;
+        std::cout<<"Bad packet!\n";
       }
       break;
     case 0x17: //get config request
       get_config();
-      std::cout<<"Got config request!"<<std::endl;
+      std::cout<<"Got config request!\n";
       break;
     default:
-      std::cout<<"Unknown packet!"<<std::endl;
+      std::cout<<"Unknown packet!\n";
       break;
   }
   print_packet(ep, packet, length);
@@ -74,9 +74,9 @@ void smartnav3::set_threshold(int thr)
 {
   if((thr >= 0x28) && (thr <= 0xFD)){
     threshold = thr;
-    std::cout<<"Threshold set to "<<thr<<"."<<std::endl;
+    std::cout<<"Threshold set to "<<thr<<".\n";
   }else{
-    std::cout<<"Threshold out of bounds! ("<<thr<<")"<<std::endl;
+    std::cout<<"Threshold out of bounds! ("<<thr<<")\n";
   }
 }
 
@@ -85,7 +85,7 @@ bool smartnav3::receive_packet(int ep, unsigned char packet[], size_t length, si
   (void) timeout;
   (void) ep; // TODO: check reading from right endpoint!
   *read = 0;
-  //std::cout<<"Fakeussb: Request to read from ep: "<<std::hex<<ep<<std::endl;
+  //std::cout<<"Fakeussb: Request to read from ep: "<<std::hex<<ep<<"\n";
   if(pkt_buf_size() <= 0){
     if((!video_on_flag) || (!camera_on_flag)){
       return false;

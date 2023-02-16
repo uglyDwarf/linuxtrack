@@ -75,7 +75,7 @@ static void process_line(const QString &line)
   }else if(texture_line.indexIn(line) != -1){
     if(!texture_line.cap(1).isEmpty()){
       object.texture = PrefProxy::getDataPath(texture_line.cap(1));
-      //std::cout<<"Texture: "<<qPrintable(object.texture)<<std::endl;
+      //std::cout<<"Texture: "<<qPrintable(object.texture)<<"\n";
     }
   }else if(glass_line.indexIn(line) != -1){
     glass = true;
@@ -112,10 +112,10 @@ void read_obj()
     }
     f.close();
     object_table.push_back(object);
-    //std::cout<<(char *)obj_list[i]<<std::endl;
-    //std::cout<< cnt <<" vertices processed!"<< std::endl;
-    //std::cout<< vcnt <<" indexes processed!"<< std::endl;
-    //std::cout<< tcnt <<" tris processed!"<< std::endl;
+    //std::cout<<(char *)obj_list[i]<<"\n";
+    //std::cout<< cnt <<" vertices processed!\n";
+    //std::cout<< vcnt <<" indexes processed!\n";
+    //std::cout<< tcnt <<" tris processed!\n";
   }
   
 }

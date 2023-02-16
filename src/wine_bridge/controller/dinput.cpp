@@ -40,7 +40,7 @@ bool read_prefs()
     sscanf((char *)buf, "0X%X 0X%X", &pause_code, &recenter_code);
   }
   RegCloseKey(hkey);
-  std::cout<<"P: "<<pause_code<<" R: "<<recenter_code<<std::endl;
+  std::cout<<"P: "<<pause_code<<" R: "<<recenter_code<<"\n";
   if((pause_code != 0) && (recenter_code != 0)){
     return true;
   }else{
@@ -205,7 +205,7 @@ const std::string &kbi_check(int num)
   if(i != keymap.end()){
     return i->second;
   }
-  //std::cout<<"Key "<<num<<" unknown!"<<std::endl;
+  //std::cout<<"Key "<<num<<" unknown!\n";
   return unkn;
 }
 
@@ -241,7 +241,7 @@ void kbi_msg_loop()
             }
           }else{
             //key released
-            //std::cout<<"KEY(s): "<< str_code(get_code()) << std::endl;
+            //std::cout<<"KEY(s): "<< str_code(get_code()) << "\n";
             if(state != RECEIVING){
               if(state == DEF_PAUSE){
                 pause_code = get_code();
@@ -254,7 +254,7 @@ void kbi_msg_loop()
             }
             reset_code();
           }
-          //std::cout<<"Have "<<kbi_check(kbd_data[j].dwOfs)<<((kbd_data[j].dwData & 0x80) ? "Pressed" : "Released")<<std::endl;
+          //std::cout<<"Have "<<kbi_check(kbd_data[j].dwOfs)<<((kbd_data[j].dwData & 0x80) ? "Pressed" : "Released")<<"\n";
         }
         break;
       case WAIT_OBJECT_0+1:

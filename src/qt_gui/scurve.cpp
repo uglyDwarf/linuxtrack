@@ -55,10 +55,10 @@ void SCurve::setup_gui()
 void SCurve::setEnabled(int state)
 {
   if(state == Qt::Checked){
-    //std::cout<<"Enabling..."<<std::endl;
+    //std::cout<<"Enabling...\n";
     if(!initializing) TRACKER.axisChange(axis, AXIS_ENABLED, true);
   }else{
-    //std::cout<<"Disabling..."<<std::endl;
+    //std::cout<<"Disabling...\n";
     if(!initializing) TRACKER.axisChange(axis, AXIS_ENABLED, false);
   }
 }
@@ -91,7 +91,7 @@ void SCurve::on_SCFactor_valueChanged(int value)
 
 void SCurve::on_SCLeftCurv_valueChanged(int value)
 {
-  //std::cout<<"LeftCurv = "<<value<<std::endl;
+  //std::cout<<"LeftCurv = "<<value<<"\n";
   if(!initializing) TRACKER.axisChange(axis, AXIS_LCURV, value / 100.0f);
   //ui.SCCurvL->setText(QString("Curvature: %1").arg(value / 100.0, 2, 'f', 2));
   if(symetrical){
@@ -103,7 +103,7 @@ void SCurve::on_SCLeftCurv_valueChanged(int value)
 
 void SCurve::on_SCRightCurv_valueChanged(int value)
 {
-  //std::cout<<"RightCurv = "<<value<<std::endl;
+  //std::cout<<"RightCurv = "<<value<<"\n";
   if(!initializing) TRACKER.axisChange(axis, AXIS_RCURV, value / 100.0f);
   //ui.SCCurvR->setText(QString("Curvature: %1").arg(value / 100.0, 2, 'f', 2));
   emit changed();
@@ -142,7 +142,7 @@ void SCurve::on_SCDeadZone_valueChanged(int value)
 
 void SCurve::on_SCLeftLimit_valueChanged(double d)
 {
-  //std::cout<<"LLimit = "<<d<<std::endl;
+  //std::cout<<"LLimit = "<<d<<"\n";
   if(!initializing) TRACKER.axisChange(axis, AXIS_LLIMIT, (float)d);
   if(symetrical){
     ui.SCRightLimit->setValue(d);
@@ -152,7 +152,7 @@ void SCurve::on_SCLeftLimit_valueChanged(double d)
 
 void SCurve::on_SCRightLimit_valueChanged(double d)
 {
-  //std::cout<<"RLimit = "<<d<<std::endl;
+  //std::cout<<"RLimit = "<<d<<"\n";
   if(!initializing) TRACKER.axisChange(axis, AXIS_RLIMIT, (float)d);
   if(symetrical){
     ui.SCLeftLimit->setValue(d);

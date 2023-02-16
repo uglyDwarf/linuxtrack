@@ -62,9 +62,9 @@ TirPrefs::TirPrefs(const QString &dev_id, QWidget *parent) : QWidget(parent), id
 
 TirPrefs::~TirPrefs()
 {
-  //std::cout<<"Destructing tirprefs!"<<std::endl;
+  //std::cout<<"Destructing tirprefs!\n";
   if(dlfw != NULL){
-    //std::cout<<"Closing dlfw!"<<std::endl;
+    //std::cout<<"Closing dlfw!\n";
     dlfw->close();
     delete dlfw;
   }

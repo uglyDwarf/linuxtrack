@@ -68,12 +68,12 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
 
   void section::print(std::ostream &stream)const
   {
-    stream<<"["<<*name<<"]"<<std::endl;
+    stream<<"["<<*name<<"]\n";
     std::vector<sectionItem*>::const_iterator i;
     for(i = items.begin(); i != items.end(); ++i){
       stream<<**i;
     }
-    stream<<std::endl;
+    stream<<"\n";
   }
 
   std::ostream &operator<<(std::ostream &stream, const prefs &q)
@@ -81,10 +81,10 @@ void ltr_int_parser_error(YYLTYPE *loc, prefs *prf, char const *s)
     q.read_lock();
     std::vector<prefItem*>::const_iterator i;
     for(i = q.items.begin(); i != q.items.end(); ++i){
-      stream<<**i<<std::endl;
+      stream<<**i<<"\n";
     }
     q.unlock();
-    stream<<std::endl;
+    stream<<"\n";
 
     return stream;
   }
@@ -627,7 +627,7 @@ void printResult(bool success){
     ++fails;
     std::cout<<"FAILED!!!";
   }
-  std::cout<<std::endl;
+  std::cout<<"\n";
 }
 
 
@@ -780,7 +780,7 @@ int main(int argc, char *argv[])
   std::cout<<"Trying to read linuxtrack prefs... (might fail)";
   printResult(ltr_int_read_prefs(NULL, true));
 
-  std::cout<<tests<<" tests ran, "<<fails<<" failed..."<<std::endl;
+  std::cout<<tests<<" tests ran, "<<fails<<" failed...\n";
   ltr_int_free_prefs();
   return 0;
 }

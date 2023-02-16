@@ -33,12 +33,12 @@ void RestrainWidgetToScreen(QWidget * w)
   std::cout<<"fg left: "<<w->frameGeometry().left();
   std::cout<<" fg right: "<<w->frameGeometry().right();
   std::cout<<" fg top: "<<w->frameGeometry().top();
-  std::cout<<" fg bottom: "<<w->frameGeometry().bottom()<<std::endl;
+  std::cout<<" fg bottom: "<<w->frameGeometry().bottom()<<"\n";
   
   std::cout<<"scr left: "<<screenRect.left();
   std::cout<<" scr right: "<<screenRect.right();
   std::cout<<" scr top: "<<screenRect.top();
-  std::cout<<" scr bottom: "<<screenRect.bottom()<<std::endl;
+  std::cout<<" scr bottom: "<<screenRect.bottom()<<"\n";
 */  
   //make sure the window fits the screen
   if(screenRect.width() < wRect.width()){
@@ -66,7 +66,7 @@ void RestrainWidgetToScreen(QWidget * w)
   std::cout<<"fg left: "<<w->frameGeometry().left();
   std::cout<<" fg right: "<<w->frameGeometry().right();
   std::cout<<" fg top: "<<w->frameGeometry().top();
-  std::cout<<" fg bottom: "<<w->frameGeometry().bottom()<<std::endl;
+  std::cout<<" fg bottom: "<<w->frameGeometry().bottom()<<"\n";
 */
 }
 
@@ -94,12 +94,12 @@ void MickeyApplyDialog::trySettings()
   show();
   raise();
   activateWindow();
-  //std::cout<<"trying settings!"<<std::endl;
+  //std::cout<<"trying settings!\n";
 }
 
 void MickeyApplyDialog::timeout()
 {
-  //std::cout<<"Apl timeout!"<<std::endl;
+  //std::cout<<"Apl timeout!\n";
   --cntr;
   if(cntr == 0){
     timer.stop();
@@ -113,7 +113,7 @@ void MickeyApplyDialog::timeout()
 void MickeyApplyDialog::on_RevertButton_pressed()
 {
   timer.stop();
-  //std::cout<<"Reverting..."<<std::endl;
+  //std::cout<<"Reverting...\n";
   emit revert();
   hide();
 }
@@ -121,7 +121,7 @@ void MickeyApplyDialog::on_RevertButton_pressed()
 void MickeyApplyDialog::on_KeepButton_pressed()
 {
   timer.stop();
-  //std::cout<<"Keeping..."<<std::endl;
+  //std::cout<<"Keeping...\n";
   emit keep();
   hide();
 }
@@ -144,7 +144,7 @@ void MickeyCalibration::closeEvent(QCloseEvent *event)
 /*
 void MickeyCalibration::hide()
 {
-  std::cout<<"Hide called!"<<std::endl;
+  std::cout<<"Hide called!\n";
   timer.stop();
   if(calState == CALIBRATE){
     emit cancelCalibration();
@@ -187,7 +187,7 @@ void MickeyCalibration::cancelPressed()
 
 void MickeyCalibration::timeout()
 {
-  //std::cout<<"timer!"<<std::endl;
+  //std::cout<<"timer!\n";
   --cntr;
   if(cntr == 0){
     switch(calState){
@@ -231,7 +231,7 @@ MickeyThread::MickeyThread(Mickey *p) : QThread(p), fifo(-1), finish(false), par
 
 void MickeyThread::processClick(sn4_btn_event_t ev)
 {
-  //std::cout<<"Processing click! ("<<(int)ev.btns<<")"<<std::endl;
+  //std::cout<<"Processing click! ("<<(int)ev.btns<<")\n";
   int btns = ev.btns;
   mouse.click((buttons_t)btns, ev.timestamp);
 }
@@ -239,7 +239,7 @@ void MickeyThread::processClick(sn4_btn_event_t ev)
 //emulate mouse button press using keyboard
 void MickeyThread::on_mouseHotKey_activated(int button, bool pressed)
 {
-  //std::cout<<(pressed ? "Button pressed!!!" : "Button released!!!")<<std::endl;
+  //std::cout<<(pressed ? "Button pressed!!!" : "Button released!!!")<<"\n";
   sn4_btn_event_t ev;
   ev.btns = pressed ? button : 0;
   gettimeofday(&(ev.timestamp), NULL);
@@ -264,7 +264,7 @@ void MickeyThread::run()
       }
     }
     while(fetch_data(fifo, (void*)&ev, sizeof(ev), &read)){
-      //std::cout<<"Thread alive!"<<std::endl;
+      //std::cout<<"Thread alive!\n";
       if(finish){
         return;
       }
@@ -348,7 +348,7 @@ void Mickey::keepSettings()
 
 void Mickey::pause()
 {
-  //std::cout<<"Pausing!"<<std::endl;
+  //std::cout<<"Pausing!\n";
   //btnThread.setFinish();
   //btnThread.wait();
   updateTimer.stop();
@@ -357,7 +357,7 @@ void Mickey::pause()
 
 void Mickey::wakeup()
 {
-  //std::cout<<"Waking up!"<<std::endl;
+  //std::cout<<"Waking up!\n";
   updateTimer.start();
   //btnThread.start();
   linuxtrack_wakeup();
@@ -442,7 +442,7 @@ void Mickey::hotKey_activated(int id, bool pressed)
       if(!pressed){
 	return;
       }
-      //std::cout<<"On/off switch activated!"<<std::endl;
+      //std::cout<<"On/off switch activated!\n";
       switch(state){
         case TRACKING:
           changeState(STANDBY);
@@ -623,7 +623,7 @@ static HotKey* addHotKey(const QString &label, const QString &prefId, int id,
   HotKey *hk = new HotKey(label, prefId, id, owner);
   QString hkString = pref->value(prefId, QString::fromUtf8("None")).toString();
   if(hk->setHotKey(hkString)){
-    //std::cout<<"hk: "<<hk<<std::endl;
+    //std::cout<<"hk: "<<hk<<"\n";
     dest->addWidget(hk, row, column);
     QObject::connect(hk, SIGNAL(activated(int, bool)), target, SLOT(hotKey_activated(int, bool)));
     QObject::connect(hk, SIGNAL(newHotKey(const QString &, const QString &)), 
@@ -647,7 +647,7 @@ MickeyGUI::MickeyGUI(QWidget *parent) : QWidget(parent), mickey(NULL),
 
 void MickeyGUI::updateHotKey(const QString &prefId, const QString &hk)
 {
-  //std::cout<<"Updating Id: "<<prefId.toUtf8().constData()<<"  "<<hk.toUtf8().constData()<<std::endl;
+  //std::cout<<"Updating Id: "<<prefId.toUtf8().constData()<<"  "<<hk.toUtf8().constData()<<"\n";
   settings.beginGroup(QString::fromUtf8("HotKeys"));
   settings.setValue(prefId, hk);
   settings.endGroup();

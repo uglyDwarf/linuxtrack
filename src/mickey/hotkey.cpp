@@ -15,7 +15,7 @@ HotKey::HotKey(const QString &iLabel, const QString &iPrefId, int iHotKeyId, QWi
 
 void HotKey::shortcutActivated(bool pressed)
 {
-  //std::cout<<"Activated shortcut "<<hotKeyId<<std::endl;
+  //std::cout<<"Activated shortcut "<<hotKeyId<<"\n";
   emit activated(hotKeyId, pressed);
 }
 

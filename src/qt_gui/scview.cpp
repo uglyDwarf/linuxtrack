@@ -42,7 +42,7 @@ void SCView::redraw()
 //QSize SCView::sizeHint() const
 //{
 //  if(parentWidget){
-//    std::cout<<"Size: "<<parentWidget->size().height() <<" "<< parentWidget->size().width() << std::endl;
+//    std::cout<<"Size: "<<parentWidget->size().height() <<" "<< parentWidget->size().width() << "\n";
 //    return parentWidget->size();
 //  }else{
 //    return minimumSizeHint();

@@ -121,7 +121,7 @@ void LtrTracking::on_Profiles_currentIndexChanged(const QString &text)
 {
   bool prev = initializing;
   initializing = true;
-  //std::cout<<"Index changed to "<<text.toStdString()<<std::endl;
+  //std::cout<<"Index changed to "<<text.toStdString()<<"\n";
   PROFILE.setCurrent(text);
   emit customSectionChanged();
   initializing = prev;

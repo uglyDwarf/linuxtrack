@@ -84,7 +84,7 @@ const QString &AppProfile::getProfileName() const
 
 bool AppProfile::changeProfile(const QString &newName)
 {
-  //std::cout<<"Approfile changing profile to "<<newName.toStdString()<<std::endl;
+  //std::cout<<"Approfile changing profile to "<<newName.toStdString()<<"\n";
 
   name = newName;
   TRACKER.setProfile(name);

@@ -43,7 +43,7 @@ class BlockId
   bool foundAlready()const{return found;};
   void clearFoundFlag(){found = false;};
   const QString &getFname()const{return name;};
-  void save(QTextStream &stream){stream<<name<<" "<<size<<" "<<fast<<" "<<md5<<" "<<sha1<<endl;};
+  void save(QTextStream &stream){stream<<name<<" "<<size<<" "<<fast<<" "<<md5<<" "<<sha1<<"\n";};
  private:
   QString name;
   qint64 size;

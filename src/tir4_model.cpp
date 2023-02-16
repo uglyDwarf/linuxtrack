@@ -42,7 +42,7 @@ void device_model::print_packet(int ep, unsigned char data[], size_t length)
   for(size_t i = 0; i < length; ++i){
     std::cout<<std::uppercase<<std::setw(2)<<std::setfill('0')<<(int)data[i];
   }
-  std::cout<<std::endl;
+  std::cout<<"\n";
 }
 
 
@@ -134,7 +134,7 @@ void tir4::do_whatever()
 //======================================================================================
 tir5v3::tir5v3(std::string fname) : device_model(fname), state(0), camera_on(false)
 {
-  std::cout<<"Initializing TrackIR5 ver. 3"<<std::endl;
+  std::cout<<"Initializing TrackIR5 ver. 3\n";
 }
 
 /*
@@ -195,8 +195,7 @@ bool tir5v3::get_config()
 bool tir5v3::change_state(unsigned char new_state)
 {
   if(state > 6){
-    std::cout << "Received request to go to nonexistent state " << new_state << "."
-            << std::endl;
+    std::cout << "Received request to go to nonexistent state " << new_state << ".\n";
     return false;
   }
   printf("Changing state: %d -> %d.\n", state, new_state);
@@ -297,10 +296,10 @@ bool tir5v3::send_packet(int ep, unsigned char packet[], size_t length)
       break;
     case 0x17: //get config request
       get_config();
-      std::cout<<"Got config request!"<<std::endl;
+      std::cout<<"Got config request!\n";
       break;
     default:
-      std::cout<<"Unknown packet!"<<std::endl;
+      std::cout<<"Unknown packet!\n";
       break;
   }
   return true;
@@ -313,7 +312,7 @@ bool tir5v3::receive_packet(int ep, unsigned char packet[], size_t length, size_
     return false;
   }
   *read = 0;
-  //std::cout<<"Fakeussb: Request to read from ep: "<<std::hex<<ep<<std::endl;
+  //std::cout<<"Fakeussb: Request to read from ep: "<<std::hex<<ep<<"\n";
   if(pkt_buf_size() <= 0){
     if(state != 4){
       return false;

@@ -49,10 +49,10 @@ bool ProfileSelector::setCurrentProfile(QString prof)
 {
   int index = ui.Profiles->findText(prof);
   if(index == -1){
-    //std::cout<<"Profile "<<prof.toStdString()<<" not found!!!"<<std::endl;
+    //std::cout<<"Profile "<<prof.toStdString()<<" not found!!!\n";
     return false;
   }
-  //std::cout<<"Profile "<<prof.toStdString()<<" found, setting it!!!"<<std::endl;
+  //std::cout<<"Profile "<<prof.toStdString()<<" found, setting it!!!\n";
   ui.Profiles->setCurrentIndex(index);
   return true;
 }
@@ -67,7 +67,7 @@ void ProfileSelector::on_Profiles_currentIndexChanged(const QString &text)
     delete ps;
     ps = NULL;
   }
-  //std::cout<<"Changed index to "<<text.toStdString()<<std::endl;
+  //std::cout<<"Changed index to "<<text.toStdString()<<"\n";
   ps = new ProfileSetup(text, this);
   ui.AxesSetup->insertWidget(1, ps);
 }
@@ -94,12 +94,12 @@ void ProfileSelector::on_ImportProfile_pressed()
   QTextStream tf(&f);
 
   QString newName(tf.readLine());
-  //std::cout<<"Importing profile '"<<newName.toStdString()<<"'"<<std::endl;
+  //std::cout<<"Importing profile '"<<newName.toStdString()<<"'\n";
 
 int ccc = PROFILE.isProfile(newName);
-  //std::cout<<"..."<<ccc<<std::endl;
+  //std::cout<<"..."<<ccc<<"\n";
   if(ccc < 0){
-    //std::cout<<"Creating new profile!"<<std::endl;
+    //std::cout<<"Creating new profile!\n";
     PROFILE.addProfile(newName);
     refresh();
   }
