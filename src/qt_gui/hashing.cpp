@@ -59,7 +59,9 @@ void BlockId::isBlock(QFile &f, const QString &destPath, QStringList &msgs)
     }
     out.close();
     if(fname.endsWith(QString::fromUtf8(".fw"), Qt::CaseInsensitive)){
-      QProcess::execute(QString::fromUtf8("gzip -9 \"%1\"").arg(outfile));
+      QStringList args;
+      args << QStringLiteral("-9") << QStringLiteral("%1").arg(outfile);
+      QProcess::execute(QStringLiteral("gzip"), args);
     }
   }
  no_match:

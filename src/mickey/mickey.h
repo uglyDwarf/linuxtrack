@@ -6,6 +6,7 @@
 #include <QMutex>
 #include <QTime>
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QSettings>
 #include <QDialog>
 #include <QCloseEvent>
@@ -127,8 +128,8 @@ class Mickey : public QObject
   void changeState(state_t state);
   MickeyCalibration calDlg;
   MickeyApplyDialog aplDlg;
-  QTime initTimer;
-  QTime updateElapsed;
+  QElapsedTimer initTimer;
+  QElapsedTimer updateElapsed;
   bool recenterFlag;
   QDesktopWidget *dw;
   QRect screenBBox;

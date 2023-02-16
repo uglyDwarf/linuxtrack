@@ -340,12 +340,14 @@ void LinuxtrackGui::on_PackageLogsButton_pressed()
 {
   QString fname;
   ui.PackageLogsButton->setEnabled(false);
-  fname = QFileDialog::getSaveFileName(this, QString::fromUtf8("Save the package as..."),
-                                       QDir::homePath(), QString::fromUtf8("Zip (*.zip)"));
+  fname = QFileDialog::getSaveFileName(this, QStringLiteral("Save the package as..."),
+                                       QDir::homePath(), QStringLiteral("Zip (*.zip)"));
   if(fname.isEmpty()){
     return;
   }
-  zipper.start(QString::fromUtf8("bash -c \"zip %1 /tmp/linuxtrack*\"").arg(fname));
+  QStringList args;
+  args << QStringLiteral("-c") << QStringLiteral("zip %1 /tmp/linuxtrack*").arg(fname);
+  zipper.start(QStringLiteral("bash"), args);
 }
 
 void LinuxtrackGui::logsPackaged(int exitCode, QProcess::ExitStatus exitStatus)

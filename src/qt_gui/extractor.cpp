@@ -305,7 +305,9 @@ void TirFwExtractor::wineFinished(bool result)
         "Please see the log for more details.\n\n")
       );
     }
-    wine->run(installerFile, QString::fromUtf8("/S /v/qn"));
+    QStringList args;
+    args << QStringLiteral("/S") << QStringLiteral("/v/qn");
+    wine->run(installerFile, args);
   }else{
     if(!result){
       QMessageBox::warning(this, QString::fromUtf8("Error running Wine"),
@@ -336,8 +338,9 @@ void Mfc42uExtractor::wineFinished(bool result)
         stage = 1;
         QString file = winePrefix + QString::fromUtf8("/drive_c/vcredist.exe");
         progress(QString::fromUtf8("Extracting %1").arg(file));
-        QString params = QString::fromUtf8("/C /Q /T:c:\\");
-        wine->run(file, params);
+        QStringList args;
+        args << QStringLiteral("/C") << QStringLiteral("/Q") << QStringLiteral("/T:c:\\");
+        wine->run(file, args);
       }
       break;
     case 1:{
@@ -380,8 +383,9 @@ void Mfc42uExtractor::cabextractFinished(int exitCode, QProcess::ExitStatus stat
         QString file = winePrefix + QString::fromUtf8("/vcredist.exe");
         progress(QString::fromUtf8("Extracting %1").arg(file));
         QString c = PREF.getDataPath(QString::fromUtf8("/../../helper/cabextract"));
-        QString command = QString::fromUtf8("\"%1\" \"%2\"").arg(c).arg(file);
-        cabextract->start(command);
+        QStringList args;
+        args << file;
+        cabextract->start(c, args);
       }
       break;
     case 1:{
@@ -427,7 +431,7 @@ void TirFwExtractor::commenceExtraction(QString file)
   QFile xdgFile(winePrefix + QString::fromUtf8("/user-dirs.dirs"));
   if(xdgFile.open(QFile::WriteOnly | QFile::Truncate)){
     QTextStream xdg(&xdgFile);
-    xdg<<"XDG_DESKTOP_DIR=\""<<winePrefix<<"\""<<endl;
+    xdg<<"XDG_DESKTOP_DIR=\""<<winePrefix<<"\"\n";
     xdgFile.close();
     wine->setEnv(QString::fromUtf8("XDG_CONFIG_HOME"), winePrefix);
   }
@@ -445,15 +449,17 @@ void Mfc42uExtractor::commenceExtraction(QString file)
   stage = 0;
 #ifndef DARWIN
   progress(QString::fromUtf8("Initializing wine and extracting %1").arg(file));
-  QString params = QString::fromUtf8("/C /Q /T:c:\\");
+  QStringList args;
+  args << QStringLiteral("/C") << QStringLiteral("/Q") << QStringLiteral("/T:c:\\");
   wine->setEnv(QString::fromUtf8("WINEPREFIX"), winePrefix);
-  wine->run(file, params);
+  wine->run(file, args);
 #else
   progress(QString::fromUtf8("Starting cabextract to extract '%1' in '%2'.").arg(file).arg(winePrefix));
   QString c = PREF.getDataPath(QString::fromUtf8("/../../helper/cabextract"));
-  QString command = QString::fromUtf8("\"%1\" \"%2\"").arg(c).arg(file);
   cabextract->setWorkingDirectory(winePrefix);
-  cabextract->start(command);
+  QStringList args;
+  args << file;
+  cabextract->start(c, args);
 #endif
 }
 

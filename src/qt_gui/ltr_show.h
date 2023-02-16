@@ -11,6 +11,7 @@
 #include <QGraphicsView>
 #include <QGraphicsPixmapItem>
 #include <QVBoxLayout>
+#include <QElapsedTimer>
 
 #include "window.h"
 #include "buffering.h"
@@ -62,7 +63,7 @@ class LtrGuiForm : public QWidget
    Window *glw;
    QTimer *timer;
    QTimer *fpsTimer;
-   QTime *stopwatch;
+   QElapsedTimer *stopwatch;
    CameraView *cv;
    bool allowClose;
    float fps;

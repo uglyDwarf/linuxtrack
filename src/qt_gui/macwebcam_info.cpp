@@ -73,11 +73,11 @@ QStringList& MacWebcamInfo::EnumerateWebcams()
 {
   QStringList *res = new QStringList();
   QProcess *enum_proc = new QProcess();
-  enum_proc->start(QCoreApplication::applicationDirPath() + QString::fromUtf8("/../helper/qt_cam"), 
-                   QStringList() << QString::fromUtf8("-e"));
+  enum_proc->start(QCoreApplication::applicationDirPath() + QStringLiteral("/../helper/qt_cam"), 
+                   QStringList() << QStringLiteral("-e"));
   enum_proc->waitForStarted(10000);
   enum_proc->waitForFinished(10000);
   QString str = QString::fromUtf8(enum_proc->readAllStandardOutput().constData());
-  *res = str.split(QString::fromUtf8("\n"), QString::SkipEmptyParts);
+  *res = str.split(QString::fromUtf8("\n"), Qt::SkipEmptyParts);
   return *res;
 }

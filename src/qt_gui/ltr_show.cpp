@@ -55,16 +55,16 @@ LtrGuiForm::LtrGuiForm(const Ui::LinuxtrackMainForm &tmp_gui, QSettings &setting
   ui.ogl_box->addWidget(glw);
   timer = new QTimer(this);
   fpsTimer = new QTimer(this);
-  stopwatch = new QTime();
+  stopwatch = new QElapsedTimer();
   frames = 0;
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
   connect(fpsTimer, SIGNAL(timeout()), this, SLOT(updateFps()));
   if(!connect(&TRACKER, SIGNAL(stateChanged(int)), this, SLOT(stateChanged(int)))){
-    //std::cout<<"Problem connecting signal1!"<<std::endl;
+    //std::cout<<"Problem connecting signal1!\n";
   }
   if(!connect(&TRACKER, SIGNAL(newFrame(struct frame_type *)), 
               this, SLOT(newFrameDelivered(struct frame_type *)))){
-    //std::cout<<"Problem connecting signal2!"<<std::endl;
+    //std::cout<<"Problem connecting signal2!\n";
   }
   connect(main_gui.DisableCamView, SIGNAL(stateChanged(int)), 
           this, SLOT(disableCamView_stateChanged(int)));

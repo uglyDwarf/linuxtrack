@@ -24,7 +24,7 @@ ReaderThread::ReaderThread(): QThread()
 void ReaderThread::run()
 {
      read_obj();
-     //std::cout<<"Object read!"<<std::endl;
+     //std::cout<<"Object read!\n";
      emit done();
 }
 
@@ -111,7 +111,7 @@ GLWidget::GLWidget(QWidget *parent)
 
  void GLWidget::initializeGL()
  {
-     qglClearColor(trolltechPurple.dark());
+     qglClearColor(trolltechPurple.darker());
      makeObjects();
      glShadeModel(GL_FLAT);
      glEnable(GL_DEPTH_TEST);
@@ -195,7 +195,7 @@ bool GLWidget::makeObjects()
        textureChanged = false;
        if(textured && (currentTexture != QString(obj.texture))){
          cntr += 1;
-         //std::cout<<"binding texture "<<obj.texture<<std::endl;
+         //std::cout<<"binding texture "<<obj.texture<<"\n";
          textures[cntr] = bindTexture(QImage(QString(obj.texture)), GL_TEXTURE_2D);
          textureChanged = true;
          currentTexture = QString(obj.texture);
@@ -230,7 +230,7 @@ bool GLWidget::makeObjects()
          ++list;
        }
      }
-     //std::cout<<triangles<<" triangles."<<std::endl;
+     //std::cout<<triangles<<" triangles.\n";
      return true;
  }
 
