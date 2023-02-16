@@ -22,6 +22,7 @@ PluginInstall::PluginInstall(const Ui::LinuxtrackMainForm &ui, QObject *parent):
 {
 #ifndef DARWIN
   if(!QFile::exists(PREF.getDataPath(QString::fromUtf8("linuxtrack-wine.exe")))){
+    enableButtons(false);
     return;
   }
 #endif
