@@ -17,15 +17,15 @@ noinst_PROGRAMS = ltlib_test #tests
 ltlib_test_SOURCES = ltlib_test.c utils.c utils.h linuxtrack.c linuxtrack.h
 #webcam_driver_test_SOURCES = webcam_driver_test.c ../webcam_driver.c \
 #                ../utils.h ../utils.c ../list.c ../list.h ../pref.c ../pref.h \
-#                ../pref_bison.c ../pref_bison.h ../pref_flex.c ../pref_int.h \
+#                ../pref_bison.c ../pref_bison.hpp ../pref_flex.c ../pref_int.h \
 #                ../pref_global.c ../pref_global.h ../image_process.c \
 #                ../image_process.h ../axis.c ../axis.h ../spline.c ../spline.h 
 #pref_test_SOURCES = pref_test.c ../utils.h ../utils.c ../list.c ../list.h ../pref.c ../pref.h \
-#                ../pref_bison.c ../pref_bison.h ../pref_flex.c ../pref_int.h \
+#                ../pref_bison.c ../pref_bison.hpp ../pref_flex.c ../pref_int.h \
 #                ../pref_global.c ../pref_global.h ../axis.c ../axis.h \
 #                ../spline.c ../spline.h 
 #tests_SOURCES = test.c ../utils.h ../utils.c ../list.c ../list.h ../pref.c ../pref.h \
-#                ../pref_bison.c ../pref_bison.h ../pref_flex.c ../pref_int.h 
+#                ../pref_bison.c ../pref_bison.hpp ../pref_flex.c ../pref_int.h 
                 
 
 #pose_test_LDADD = -lm -lpthread -ldl -llinuxtrack

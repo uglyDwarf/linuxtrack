@@ -12,10 +12,268 @@
 
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
-#define YY_FLEX_MINOR_VERSION 5
-#define YY_FLEX_SUBMINOR_VERSION 35
+#define YY_FLEX_MINOR_VERSION 6
+#define YY_FLEX_SUBMINOR_VERSION 4
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
+#endif
+
+#ifdef yy_create_buffer
+#define ltr_int_parser__create_buffer_ALREADY_DEFINED
+#else
+#define yy_create_buffer ltr_int_parser__create_buffer
+#endif
+
+#ifdef yy_delete_buffer
+#define ltr_int_parser__delete_buffer_ALREADY_DEFINED
+#else
+#define yy_delete_buffer ltr_int_parser__delete_buffer
+#endif
+
+#ifdef yy_scan_buffer
+#define ltr_int_parser__scan_buffer_ALREADY_DEFINED
+#else
+#define yy_scan_buffer ltr_int_parser__scan_buffer
+#endif
+
+#ifdef yy_scan_string
+#define ltr_int_parser__scan_string_ALREADY_DEFINED
+#else
+#define yy_scan_string ltr_int_parser__scan_string
+#endif
+
+#ifdef yy_scan_bytes
+#define ltr_int_parser__scan_bytes_ALREADY_DEFINED
+#else
+#define yy_scan_bytes ltr_int_parser__scan_bytes
+#endif
+
+#ifdef yy_init_buffer
+#define ltr_int_parser__init_buffer_ALREADY_DEFINED
+#else
+#define yy_init_buffer ltr_int_parser__init_buffer
+#endif
+
+#ifdef yy_flush_buffer
+#define ltr_int_parser__flush_buffer_ALREADY_DEFINED
+#else
+#define yy_flush_buffer ltr_int_parser__flush_buffer
+#endif
+
+#ifdef yy_load_buffer_state
+#define ltr_int_parser__load_buffer_state_ALREADY_DEFINED
+#else
+#define yy_load_buffer_state ltr_int_parser__load_buffer_state
+#endif
+
+#ifdef yy_switch_to_buffer
+#define ltr_int_parser__switch_to_buffer_ALREADY_DEFINED
+#else
+#define yy_switch_to_buffer ltr_int_parser__switch_to_buffer
+#endif
+
+#ifdef yypush_buffer_state
+#define ltr_int_parser_push_buffer_state_ALREADY_DEFINED
+#else
+#define yypush_buffer_state ltr_int_parser_push_buffer_state
+#endif
+
+#ifdef yypop_buffer_state
+#define ltr_int_parser_pop_buffer_state_ALREADY_DEFINED
+#else
+#define yypop_buffer_state ltr_int_parser_pop_buffer_state
+#endif
+
+#ifdef yyensure_buffer_stack
+#define ltr_int_parser_ensure_buffer_stack_ALREADY_DEFINED
+#else
+#define yyensure_buffer_stack ltr_int_parser_ensure_buffer_stack
+#endif
+
+#ifdef yylex
+#define ltr_int_parser_lex_ALREADY_DEFINED
+#else
+#define yylex ltr_int_parser_lex
+#endif
+
+#ifdef yyrestart
+#define ltr_int_parser_restart_ALREADY_DEFINED
+#else
+#define yyrestart ltr_int_parser_restart
+#endif
+
+#ifdef yylex_init
+#define ltr_int_parser_lex_init_ALREADY_DEFINED
+#else
+#define yylex_init ltr_int_parser_lex_init
+#endif
+
+#ifdef yylex_init_extra
+#define ltr_int_parser_lex_init_extra_ALREADY_DEFINED
+#else
+#define yylex_init_extra ltr_int_parser_lex_init_extra
+#endif
+
+#ifdef yylex_destroy
+#define ltr_int_parser_lex_destroy_ALREADY_DEFINED
+#else
+#define yylex_destroy ltr_int_parser_lex_destroy
+#endif
+
+#ifdef yyget_debug
+#define ltr_int_parser_get_debug_ALREADY_DEFINED
+#else
+#define yyget_debug ltr_int_parser_get_debug
+#endif
+
+#ifdef yyset_debug
+#define ltr_int_parser_set_debug_ALREADY_DEFINED
+#else
+#define yyset_debug ltr_int_parser_set_debug
+#endif
+
+#ifdef yyget_extra
+#define ltr_int_parser_get_extra_ALREADY_DEFINED
+#else
+#define yyget_extra ltr_int_parser_get_extra
+#endif
+
+#ifdef yyset_extra
+#define ltr_int_parser_set_extra_ALREADY_DEFINED
+#else
+#define yyset_extra ltr_int_parser_set_extra
+#endif
+
+#ifdef yyget_in
+#define ltr_int_parser_get_in_ALREADY_DEFINED
+#else
+#define yyget_in ltr_int_parser_get_in
+#endif
+
+#ifdef yyset_in
+#define ltr_int_parser_set_in_ALREADY_DEFINED
+#else
+#define yyset_in ltr_int_parser_set_in
+#endif
+
+#ifdef yyget_out
+#define ltr_int_parser_get_out_ALREADY_DEFINED
+#else
+#define yyget_out ltr_int_parser_get_out
+#endif
+
+#ifdef yyset_out
+#define ltr_int_parser_set_out_ALREADY_DEFINED
+#else
+#define yyset_out ltr_int_parser_set_out
+#endif
+
+#ifdef yyget_leng
+#define ltr_int_parser_get_leng_ALREADY_DEFINED
+#else
+#define yyget_leng ltr_int_parser_get_leng
+#endif
+
+#ifdef yyget_text
+#define ltr_int_parser_get_text_ALREADY_DEFINED
+#else
+#define yyget_text ltr_int_parser_get_text
+#endif
+
+#ifdef yyget_lineno
+#define ltr_int_parser_get_lineno_ALREADY_DEFINED
+#else
+#define yyget_lineno ltr_int_parser_get_lineno
+#endif
+
+#ifdef yyset_lineno
+#define ltr_int_parser_set_lineno_ALREADY_DEFINED
+#else
+#define yyset_lineno ltr_int_parser_set_lineno
+#endif
+
+#ifdef yywrap
+#define ltr_int_parser_wrap_ALREADY_DEFINED
+#else
+#define yywrap ltr_int_parser_wrap
+#endif
+
+#ifdef yyget_lval
+#define ltr_int_parser_get_lval_ALREADY_DEFINED
+#else
+#define yyget_lval ltr_int_parser_get_lval
+#endif
+
+#ifdef yyset_lval
+#define ltr_int_parser_set_lval_ALREADY_DEFINED
+#else
+#define yyset_lval ltr_int_parser_set_lval
+#endif
+
+#ifdef yyget_lloc
+#define ltr_int_parser_get_lloc_ALREADY_DEFINED
+#else
+#define yyget_lloc ltr_int_parser_get_lloc
+#endif
+
+#ifdef yyset_lloc
+#define ltr_int_parser_set_lloc_ALREADY_DEFINED
+#else
+#define yyset_lloc ltr_int_parser_set_lloc
+#endif
+
+#ifdef yyalloc
+#define ltr_int_parser_alloc_ALREADY_DEFINED
+#else
+#define yyalloc ltr_int_parser_alloc
+#endif
+
+#ifdef yyrealloc
+#define ltr_int_parser_realloc_ALREADY_DEFINED
+#else
+#define yyrealloc ltr_int_parser_realloc
+#endif
+
+#ifdef yyfree
+#define ltr_int_parser_free_ALREADY_DEFINED
+#else
+#define yyfree ltr_int_parser_free
+#endif
+
+#ifdef yytext
+#define ltr_int_parser_text_ALREADY_DEFINED
+#else
+#define yytext ltr_int_parser_text
+#endif
+
+#ifdef yyleng
+#define ltr_int_parser_leng_ALREADY_DEFINED
+#else
+#define yyleng ltr_int_parser_leng
+#endif
+
+#ifdef yyin
+#define ltr_int_parser_in_ALREADY_DEFINED
+#else
+#define yyin ltr_int_parser_in
+#endif
+
+#ifdef yyout
+#define ltr_int_parser_out_ALREADY_DEFINED
+#else
+#define yyout ltr_int_parser_out
+#endif
+
+#ifdef yy_flex_debug
+#define ltr_int_parser__flex_debug_ALREADY_DEFINED
+#else
+#define yy_flex_debug ltr_int_parser__flex_debug
+#endif
+
+#ifdef yylineno
+#define ltr_int_parser_lineno_ALREADY_DEFINED
+#else
+#define yylineno ltr_int_parser_lineno
 #endif
 
 /* First, we deal with  platform-specific or compiler-specific issues. */
@@ -88,29 +346,23 @@ typedef unsigned int flex_uint32_t;
 #define UINT32_MAX             (4294967295U)
 #endif
 
+#ifndef SIZE_MAX
+#define SIZE_MAX               (~(size_t)0)
+#endif
+
 #endif /* ! C99 */
 
 #endif /* ! FLEXINT_H */
 
-#ifdef __cplusplus
+/* begin standard C++ headers. */
 
-/* The "const" storage-class-modifier is valid. */
-#define YY_USE_CONST
-
-#else	/* ! __cplusplus */
-
-/* C99 requires __STDC__ to be defined as 1. */
-#if defined (__STDC__)
-
-#define YY_USE_CONST
-
-#endif	/* defined (__STDC__) */
-#endif	/* ! __cplusplus */
-
-#ifdef YY_USE_CONST
+/* TODO: this is always defined, so inline it */
 #define yyconst const
+
+#if defined(__GNUC__) && __GNUC__ >= 3
+#define yynoreturn __attribute__((__noreturn__))
 #else
-#define yyconst
+#define yynoreturn
 #endif
 
 /* Size of default input buffer. */
@@ -131,14 +383,14 @@ typedef unsigned int flex_uint32_t;
 typedef struct yy_buffer_state *YY_BUFFER_STATE;
 #endif
 
-extern int ltr_int_parser_leng;
-
-extern FILE *ltr_int_parser_in, *ltr_int_parser_out;
-
 #ifndef YY_TYPEDEF_YY_SIZE_T
 #define YY_TYPEDEF_YY_SIZE_T
 typedef size_t yy_size_t;
 #endif
+
+extern int yyleng;
+
+extern FILE *yyin, *yyout;
 
 #ifndef YY_STRUCT_YY_BUFFER_STATE
 #define YY_STRUCT_YY_BUFFER_STATE
@@ -152,7 +404,7 @@ struct yy_buffer_state
 	/* Size of input buffer in bytes, not including room for EOB
 	 * characters.
 	 */
-	yy_size_t yy_buf_size;
+	int yy_buf_size;
 
 	/* Number of characters read into yy_ch_buf, not including EOB
 	 * characters.
@@ -180,7 +432,7 @@ struct yy_buffer_state
 
     int yy_bs_lineno; /**< The line count. */
     int yy_bs_column; /**< The column count. */
-    
+
 	/* Whether to try to fill the input buffer when we reach the
 	 * end of it.
 	 */
@@ -191,31 +443,34 @@ struct yy_buffer_state
 	};
 #endif /* !YY_STRUCT_YY_BUFFER_STATE */
 
-void ltr_int_parser_restart (FILE *input_file  );
-void ltr_int_parser__switch_to_buffer (YY_BUFFER_STATE new_buffer  );
-YY_BUFFER_STATE ltr_int_parser__create_buffer (FILE *file,int size  );
-void ltr_int_parser__delete_buffer (YY_BUFFER_STATE b  );
-void ltr_int_parser__flush_buffer (YY_BUFFER_STATE b  );
-void ltr_int_parser_push_buffer_state (YY_BUFFER_STATE new_buffer  );
-void ltr_int_parser_pop_buffer_state (void );
+void yyrestart ( FILE *input_file  );
+void yy_switch_to_buffer ( YY_BUFFER_STATE new_buffer  );
+YY_BUFFER_STATE yy_create_buffer ( FILE *file, int size  );
+void yy_delete_buffer ( YY_BUFFER_STATE b  );
+void yy_flush_buffer ( YY_BUFFER_STATE b  );
+void yypush_buffer_state ( YY_BUFFER_STATE new_buffer  );
+void yypop_buffer_state ( void );
 
-YY_BUFFER_STATE ltr_int_parser__scan_buffer (char *base,yy_size_t size  );
-YY_BUFFER_STATE ltr_int_parser__scan_string (yyconst char *yy_str  );
-YY_BUFFER_STATE ltr_int_parser__scan_bytes (yyconst char *bytes,int len  );
+YY_BUFFER_STATE yy_scan_buffer ( char *base, yy_size_t size  );
+YY_BUFFER_STATE yy_scan_string ( const char *yy_str  );
+YY_BUFFER_STATE yy_scan_bytes ( const char *bytes, int len  );
 
-void *ltr_int_parser_alloc (yy_size_t  );
-void *ltr_int_parser_realloc (void *,yy_size_t  );
-void ltr_int_parser_free (void *  );
+void *yyalloc ( yy_size_t  );
+void *yyrealloc ( void *, yy_size_t  );
+void yyfree ( void *  );
 
 /* Begin user sect3 */
 
-#define ltr_int_parser_wrap(n) 1
+#define ltr_int_parser_wrap() (/*CONSTCOND*/1)
 #define YY_SKIP_YYWRAP
 
-extern int ltr_int_parser_lineno;
+extern int yylineno;
 
-extern char *ltr_int_parser_text;
-#define yytext_ptr ltr_int_parser_text
+extern char *yytext;
+#ifdef yytext_ptr
+#undef yytext_ptr
+#endif
+#define yytext_ptr yytext
 
 #ifdef YY_HEADER_EXPORT_START_CONDITIONS
 #define INITIAL 0
@@ -239,39 +494,39 @@ extern char *ltr_int_parser_text;
 /* Accessor methods to globals.
    These are made visible to non-reentrant scanners for convenience. */
 
-int ltr_int_parser_lex_destroy (void );
+int yylex_destroy ( void );
 
-int ltr_int_parser_get_debug (void );
+int yyget_debug ( void );
 
-void ltr_int_parser_set_debug (int debug_flag  );
+void yyset_debug ( int debug_flag  );
 
-YY_EXTRA_TYPE ltr_int_parser_get_extra (void );
+YY_EXTRA_TYPE yyget_extra ( void );
 
-void ltr_int_parser_set_extra (YY_EXTRA_TYPE user_defined  );
+void yyset_extra ( YY_EXTRA_TYPE user_defined  );
 
-FILE *ltr_int_parser_get_in (void );
+FILE *yyget_in ( void );
 
-void ltr_int_parser_set_in  (FILE * in_str  );
+void yyset_in  ( FILE * _in_str  );
 
-FILE *ltr_int_parser_get_out (void );
+FILE *yyget_out ( void );
 
-void ltr_int_parser_set_out  (FILE * out_str  );
+void yyset_out  ( FILE * _out_str  );
 
-int ltr_int_parser_get_leng (void );
+			int yyget_leng ( void );
 
-char *ltr_int_parser_get_text (void );
+char *yyget_text ( void );
 
-int ltr_int_parser_get_lineno (void );
+int yyget_lineno ( void );
 
-void ltr_int_parser_set_lineno (int line_number  );
+void yyset_lineno ( int _line_number  );
 
-YYSTYPE * ltr_int_parser_get_lval (void );
+YYSTYPE * yyget_lval ( void );
 
-void ltr_int_parser_set_lval (YYSTYPE * yylval_param  );
+void yyset_lval ( YYSTYPE * yylval_param  );
 
-       YYLTYPE *ltr_int_parser_get_lloc (void );
+       YYLTYPE *yyget_lloc ( void );
     
-        void ltr_int_parser_set_lloc (YYLTYPE * yylloc_param  );
+        void yyset_lloc ( YYLTYPE * yylloc_param  );
     
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -279,18 +534,18 @@ void ltr_int_parser_set_lval (YYSTYPE * yylval_param  );
 
 #ifndef YY_SKIP_YYWRAP
 #ifdef __cplusplus
-extern "C" int ltr_int_parser_wrap (void );
+extern "C" int yywrap ( void );
 #else
-extern int ltr_int_parser_wrap (void );
+extern int yywrap ( void );
 #endif
 #endif
 
 #ifndef yytext_ptr
-static void yy_flex_strncpy (char *,yyconst char *,int );
+static void yy_flex_strncpy ( char *, const char *, int );
 #endif
 
 #ifdef YY_NEED_STRLEN
-static int yy_flex_strlen (yyconst char * );
+static int yy_flex_strlen ( const char * );
 #endif
 
 #ifndef YY_NO_INPUT
@@ -318,10 +573,10 @@ static int yy_flex_strlen (yyconst char * );
 #ifndef YY_DECL
 #define YY_DECL_IS_OURS 1
 
-extern int ltr_int_parser_lex \
-               (YYSTYPE * yylval_param,YYLTYPE * yylloc_param );
+extern int yylex \
+               (YYSTYPE * yylval_param, YYLTYPE * yylloc_param );
 
-#define YY_DECL int ltr_int_parser_lex \
+#define YY_DECL int yylex \
                (YYSTYPE * yylval_param, YYLTYPE * yylloc_param )
 #endif /* !YY_DECL */
 
@@ -339,9 +594,154 @@ extern int ltr_int_parser_lex \
 #undef YY_DECL
 #endif
 
-#line 54 "/home/tbuilder/devel/linuxtrack/src/pref_flex.lpp"
+#ifndef ltr_int_parser__create_buffer_ALREADY_DEFINED
+#undef yy_create_buffer
+#endif
+#ifndef ltr_int_parser__delete_buffer_ALREADY_DEFINED
+#undef yy_delete_buffer
+#endif
+#ifndef ltr_int_parser__scan_buffer_ALREADY_DEFINED
+#undef yy_scan_buffer
+#endif
+#ifndef ltr_int_parser__scan_string_ALREADY_DEFINED
+#undef yy_scan_string
+#endif
+#ifndef ltr_int_parser__scan_bytes_ALREADY_DEFINED
+#undef yy_scan_bytes
+#endif
+#ifndef ltr_int_parser__init_buffer_ALREADY_DEFINED
+#undef yy_init_buffer
+#endif
+#ifndef ltr_int_parser__flush_buffer_ALREADY_DEFINED
+#undef yy_flush_buffer
+#endif
+#ifndef ltr_int_parser__load_buffer_state_ALREADY_DEFINED
+#undef yy_load_buffer_state
+#endif
+#ifndef ltr_int_parser__switch_to_buffer_ALREADY_DEFINED
+#undef yy_switch_to_buffer
+#endif
+#ifndef ltr_int_parser_push_buffer_state_ALREADY_DEFINED
+#undef yypush_buffer_state
+#endif
+#ifndef ltr_int_parser_pop_buffer_state_ALREADY_DEFINED
+#undef yypop_buffer_state
+#endif
+#ifndef ltr_int_parser_ensure_buffer_stack_ALREADY_DEFINED
+#undef yyensure_buffer_stack
+#endif
+#ifndef ltr_int_parser_lex_ALREADY_DEFINED
+#undef yylex
+#endif
+#ifndef ltr_int_parser_restart_ALREADY_DEFINED
+#undef yyrestart
+#endif
+#ifndef ltr_int_parser_lex_init_ALREADY_DEFINED
+#undef yylex_init
+#endif
+#ifndef ltr_int_parser_lex_init_extra_ALREADY_DEFINED
+#undef yylex_init_extra
+#endif
+#ifndef ltr_int_parser_lex_destroy_ALREADY_DEFINED
+#undef yylex_destroy
+#endif
+#ifndef ltr_int_parser_get_debug_ALREADY_DEFINED
+#undef yyget_debug
+#endif
+#ifndef ltr_int_parser_set_debug_ALREADY_DEFINED
+#undef yyset_debug
+#endif
+#ifndef ltr_int_parser_get_extra_ALREADY_DEFINED
+#undef yyget_extra
+#endif
+#ifndef ltr_int_parser_set_extra_ALREADY_DEFINED
+#undef yyset_extra
+#endif
+#ifndef ltr_int_parser_get_in_ALREADY_DEFINED
+#undef yyget_in
+#endif
+#ifndef ltr_int_parser_set_in_ALREADY_DEFINED
+#undef yyset_in
+#endif
+#ifndef ltr_int_parser_get_out_ALREADY_DEFINED
+#undef yyget_out
+#endif
+#ifndef ltr_int_parser_set_out_ALREADY_DEFINED
+#undef yyset_out
+#endif
+#ifndef ltr_int_parser_get_leng_ALREADY_DEFINED
+#undef yyget_leng
+#endif
+#ifndef ltr_int_parser_get_text_ALREADY_DEFINED
+#undef yyget_text
+#endif
+#ifndef ltr_int_parser_get_lineno_ALREADY_DEFINED
+#undef yyget_lineno
+#endif
+#ifndef ltr_int_parser_set_lineno_ALREADY_DEFINED
+#undef yyset_lineno
+#endif
+#ifndef ltr_int_parser_get_column_ALREADY_DEFINED
+#undef yyget_column
+#endif
+#ifndef ltr_int_parser_set_column_ALREADY_DEFINED
+#undef yyset_column
+#endif
+#ifndef ltr_int_parser_wrap_ALREADY_DEFINED
+#undef yywrap
+#endif
+#ifndef ltr_int_parser_get_lval_ALREADY_DEFINED
+#undef yyget_lval
+#endif
+#ifndef ltr_int_parser_set_lval_ALREADY_DEFINED
+#undef yyset_lval
+#endif
+#ifndef ltr_int_parser_get_lloc_ALREADY_DEFINED
+#undef yyget_lloc
+#endif
+#ifndef ltr_int_parser_set_lloc_ALREADY_DEFINED
+#undef yyset_lloc
+#endif
+#ifndef ltr_int_parser_alloc_ALREADY_DEFINED
+#undef yyalloc
+#endif
+#ifndef ltr_int_parser_realloc_ALREADY_DEFINED
+#undef yyrealloc
+#endif
+#ifndef ltr_int_parser_free_ALREADY_DEFINED
+#undef yyfree
+#endif
+#ifndef ltr_int_parser_text_ALREADY_DEFINED
+#undef yytext
+#endif
+#ifndef ltr_int_parser_leng_ALREADY_DEFINED
+#undef yyleng
+#endif
+#ifndef ltr_int_parser_in_ALREADY_DEFINED
+#undef yyin
+#endif
+#ifndef ltr_int_parser_out_ALREADY_DEFINED
+#undef yyout
+#endif
+#ifndef ltr_int_parser__flex_debug_ALREADY_DEFINED
+#undef yy_flex_debug
+#endif
+#ifndef ltr_int_parser_lineno_ALREADY_DEFINED
+#undef yylineno
+#endif
+#ifndef ltr_int_parser_tables_fload_ALREADY_DEFINED
+#undef yytables_fload
+#endif
+#ifndef ltr_int_parser_tables_destroy_ALREADY_DEFINED
+#undef yytables_destroy
+#endif
+#ifndef ltr_int_parser_TABLES_NAME_ALREADY_DEFINED
+#undef yyTABLES_NAME
+#endif
+
+#line 54 "/home/jbuilder/devel/linuxtrack/src/pref_flex.lpp"
 
 
-#line 346 "../pref_flex.h"
+#line 746 "../pref_flex.h"
 #undef ltr_int_parser_IN_HEADER
 #endif /* ltr_int_parser_HEADER_H */

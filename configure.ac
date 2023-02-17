@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.59])
-AC_INIT([LinuxTrack], [0.99.19hid], [https://github.com/uglyDwarf/linuxtrack/issues])
+AC_PREREQ([2.71])
+AC_INIT([LinuxTrack],[0.99.20],[https://github.com/uglyDwarf/linuxtrack/issues])
 AM_INIT_AUTOMAKE([subdir-objects no-dependencies -Wall -Werror])
 AC_CONFIG_SRCDIR([src/tir4_driver.h])
 AC_CONFIG_HEADERS([config.h])
@@ -23,10 +23,10 @@ AS_IF([test x$BISON = x],
 )
 AC_PROG_YACC
 AC_PROG_CC
-AC_PROG_LEX
+AC_PROG_LEX(noyywrap)
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 LT_INIT
-AC_PROG_LIBTOOL
+LT_INIT
 AC_CONFIG_MACRO_DIR([m4])
 AM_PROG_CC_C_O
 PKG_PROG_PKG_CONFIG
@@ -39,8 +39,6 @@ AC_CHECK_LIB([pthread], [pthread_create], [LIBPTHREAD=true], [AC_MSG_FAILURE([li
 # needed to extract the game data from the NP's software
 AC_CHECK_LIB([mxml], [mxmlNewXML], [LIBMXML=true], [AC_MSG_FAILURE([libmxml not found!])], [-pthread])
 AC_CHECK_HEADER([mxml.h], [], [AC_MSG_FAILURE([mxml.h is needed for ltr_gui compilation!])])
-# needed for the data extraction from the NP's software
-AC_CHECK_LIB([crypto], [SHA1], [LIBCRYPTO=true], [AC_MSG_FAILURE([libcrypto not found!])])
 
 # Qt is needed for the GUI
 AC_PATH_PROGS(QMAKE_PATH, [qmake qmake-qt4])
@@ -213,7 +211,7 @@ AS_IF([case $host_os in darwin*) true;; *) false;; esac],
   ]
 )
 
-m4_ifdef([PKG_CHECK_MODULES], [PKG_CHECK_MODULES([OPENCV], [opencv >= 2.0], [], [AC_MSG_RESULT([Opencl not present.])])])
+m4_ifdef([PKG_CHECK_MODULES], [PKG_CHECK_MODULES([OPENCV], [opencv4 >= 0.29.0], [], [AC_MSG_RESULT([Opencl not present.])])])
 
 
 AC_SUBST([OPENCV_CFLAGS])

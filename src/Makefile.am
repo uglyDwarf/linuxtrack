@@ -48,7 +48,7 @@ liblinuxtrack32_la_SOURCES = ltlib.c linuxtrack.h utils.c utils.h \
 liblinuxtrack32_la_CFLAGS = $(LINUXFLAGS) -m32
 liblinuxtrack32_la_LDFLAGS = -export-symbols "${srcdir}/liblt.sym" -m32 $(LINUXLDFLAGS)
 
-noinst_LTLIBRARIES = liblinuxtrack_int.la libfacetrack_int.la
+noinst_LTLIBRARIES = liblinuxtrack_int.la #libfacetrack_int.la
 liblinuxtrack_int_la_SOURCES = linuxtrack.c linuxtrack.h
 libfacetrack_int_la_SOURCES = facetrack.cpp facetrack.h
 libfacetrack_int_la_CFLAGS = $(OPENCV_CFLAGS)
@@ -84,13 +84,13 @@ ltr_recenter_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS)
 ltr_recenter_LDADD = -ldl liblinuxtrack.la libltr.la
 ltr_recenter_LDFLAGS = $(LINUXLDFLAGS) ${SLEOPARD_LDFLAG} -pthread
 
-# libmxml and libcrypto are mandatory for the GUI, so this can be added directly
+# libmxml are mandatory for the GUI, so this can be added directly
 bin_PROGRAMS += ltr_extractor
 man_MANS += ltr_extractor.1
 
-ltr_extractor_SOURCES = hashing.c game_data.c game_data.h utils.c utils.h
+ltr_extractor_SOURCES = hashing.c digest.c digest.h game_data.c game_data.h utils.c utils.h
 ltr_extractor_CFLAGS = ${AM_CFLAGS} $(LINUXFLAGS) -Iqt_gui
-ltr_extractor_LDADD = -lcrypto -lmxml
+ltr_extractor_LDADD = -lmxml
 ltr_extractor_LDFLAGS = $(LINUXLDFLAGS) ${SLEOPARD_LDFLAG} -pthread
 
 if TRACKIR_SUPPORT
@@ -101,6 +101,7 @@ endif
 if FACE_TRACKER
   pkglib_LTLIBRARIES += libft.la libp3eft.la
   dist_pkgdata_DATA += haarcascade_frontalface_alt2.xml
+  noinst_LTLIBRARIES += libfacetrack_int.la
 endif
 
 pkglib_LTLIBRARIES += libfakeusb.la libp3e.la

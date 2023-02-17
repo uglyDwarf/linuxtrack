@@ -8,9 +8,9 @@
 %}
 
 %debug
-%pure-parser
+%define api.pure
 %locations
-%error-verbose
+%define parse.error verbose 
 %parse-param {prefs *prf}
 
 %union {
