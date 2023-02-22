@@ -87,10 +87,10 @@ bool start(HWND hwnd)
   printf("Freetrack client library %s loaded.\n", client_path());
 
 
-  getData = (importGetData)GetProcAddress(ftclient, "FTGetData");
-  getDllVersion = (importGetDllVersion)GetProcAddress(ftclient, "FTGetDllVersion");
-  reportName = (importReportName)GetProcAddress(ftclient, "FTReportName");
-  provider = (importProvider)GetProcAddress(ftclient, "FTProvider");
+  getData = (importGetData)(void*)GetProcAddress(ftclient, "FTGetData");
+  getDllVersion = (importGetDllVersion)(void*)GetProcAddress(ftclient, "FTGetDllVersion");
+  reportName = (importReportName)(void*)GetProcAddress(ftclient, "FTReportName");
+  provider = (importProvider)(void*)GetProcAddress(ftclient, "FTProvider");
 
   if((getData == NULL) || (getDllVersion == NULL) || (reportName == NULL) || (provider == NULL)){
     printf("Couldn't load Freetrack client functions!\n");

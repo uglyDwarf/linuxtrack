@@ -110,20 +110,20 @@ bool npifc_init(HWND wnd, int id)
     return false;
   }
 
-  NP_RegisterWindowHandle = (NP_RegisterWindowHandle_t)GetProcAddress(npclient, "NP_RegisterWindowHandle");
-  NP_UnregisterWindowHandle = (NP_UnregisterWindowHandle_t)GetProcAddress(npclient, "NP_UnregisterWindowHandle");
-  NP_RegisterProgramProfileID = (NP_RegisterProgramProfileID_t)GetProcAddress(npclient, "NP_RegisterProgramProfileID");
-  NP_QueryVersion = (NP_QueryVersion_t)GetProcAddress(npclient, "NP_QueryVersion");
-  NP_RequestData = (NP_RequestData_t)GetProcAddress(npclient, "NP_RequestData");
-  NP_GetSignature = (NP_GetSignature_t)GetProcAddress(npclient, "NP_GetSignature");
-  NP_GetData = (NP_GetData_t)GetProcAddress(npclient, "NP_GetData");
-  NP_GetParameter = (NP_GetParameter_t)GetProcAddress(npclient, "NP_GetParameter");
-  NP_SetParameter = (NP_SetParameter_t)GetProcAddress(npclient, "NP_SetParameter");
-  NP_StartCursor = (NP_StartCursor_t)GetProcAddress(npclient, "NP_StartCursor");
-  NP_StopCursor = (NP_StopCursor_t)GetProcAddress(npclient, "NP_StopCursor");
-  NP_ReCenter = (NP_ReCenter_t)GetProcAddress(npclient, "NP_ReCenter");
-  NP_StartDataTransmission = (NP_StartDataTransmission_t)GetProcAddress(npclient, "NP_StartDataTransmission");
-  NP_StopDataTransmission = (NP_StopDataTransmission_t)GetProcAddress(npclient, "NP_StopDataTransmission");
+  NP_RegisterWindowHandle = (NP_RegisterWindowHandle_t)(void*)GetProcAddress(npclient, "NP_RegisterWindowHandle");
+  NP_UnregisterWindowHandle = (NP_UnregisterWindowHandle_t)(void*)GetProcAddress(npclient, "NP_UnregisterWindowHandle");
+  NP_RegisterProgramProfileID = (NP_RegisterProgramProfileID_t)(void*)GetProcAddress(npclient, "NP_RegisterProgramProfileID");
+  NP_QueryVersion = (NP_QueryVersion_t)(void*)GetProcAddress(npclient, "NP_QueryVersion");
+  NP_RequestData = (NP_RequestData_t)(void*)GetProcAddress(npclient, "NP_RequestData");
+  NP_GetSignature = (NP_GetSignature_t)(void*)GetProcAddress(npclient, "NP_GetSignature");
+  NP_GetData = (NP_GetData_t)(void*)GetProcAddress(npclient, "NP_GetData");
+  NP_GetParameter = (NP_GetParameter_t)(void*)GetProcAddress(npclient, "NP_GetParameter");
+  NP_SetParameter = (NP_SetParameter_t)(void*)GetProcAddress(npclient, "NP_SetParameter");
+  NP_StartCursor = (NP_StartCursor_t)(void*)GetProcAddress(npclient, "NP_StartCursor");
+  NP_StopCursor = (NP_StopCursor_t)(void*)GetProcAddress(npclient, "NP_StopCursor");
+  NP_ReCenter = (NP_ReCenter_t)(void*)GetProcAddress(npclient, "NP_ReCenter");
+  NP_StartDataTransmission = (NP_StartDataTransmission_t)(void*)GetProcAddress(npclient, "NP_StartDataTransmission");
+  NP_StopDataTransmission = (NP_StopDataTransmission_t)(void*)GetProcAddress(npclient, "NP_StopDataTransmission");
   if((NP_RegisterWindowHandle == NULL) || (NP_UnregisterWindowHandle == NULL)
      || (NP_RegisterProgramProfileID == NULL) || (NP_QueryVersion == NULL) || (NP_RequestData == NULL)
      || (NP_GetSignature == NULL) || (NP_GetData == NULL) || (NP_GetParameter == NULL)
