@@ -17,6 +17,7 @@
 #include <pref.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <pthread.h>
 
 #include <map>
 #include <string>
